@@ -28,3 +28,4 @@ export * from './hooks/useNavigation'
 export * from './components'
 
 export * from './registry/PluginRegistry'
+export * from './authorization/bootstrap'

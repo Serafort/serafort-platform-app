@@ -1,6 +1,6 @@
 import React from 'react'
 import type { ReactElement } from 'react'
-import type { SystemMode } from '@cap/shared-types'
+import { RouteLayoutEnum, LayoutModeEnum, type SystemMode } from '@cap/shared-types'
 import {
   useSettings,
   useAppStore,
@@ -36,11 +36,11 @@ const LayoutWrapper = ({
 
   useLayoutInit(systemMode)
 
-  const isNoLayout = layoutOverride === 'noLayout'
+  const isNoLayout = layoutOverride === RouteLayoutEnum.NO_LAYOUT
 
   const isAdminLayout = React.useMemo(() => {
-    if (layoutOverride === 'admin') return true
-    if (layoutOverride === 'public') return false
+    if (layoutOverride === RouteLayoutEnum.ADMIN) return true
+    if (layoutOverride === RouteLayoutEnum.PUBLIC) return false
     return false
   }, [layoutOverride])
 
@@ -66,7 +66,7 @@ const LayoutWrapper = ({
                   }}
                   data-skin={settings.skin}
                 >
-                  {settings.layout === 'horizontal' ? horizontalLayout : verticalLayout}
+                  {settings.layout === LayoutModeEnum.HORIZONTAL ? horizontalLayout : verticalLayout}
                 </Box>
               )
               : (publicLayout ?? null)}
@@ -103,7 +103,7 @@ const LayoutWrapper = ({
           }}
           data-skin={settings.skin}
         >
-          {settings.layout === 'horizontal' ? horizontalLayout : verticalLayout}
+          {settings.layout === LayoutModeEnum.HORIZONTAL ? horizontalLayout : verticalLayout}
         </Box>
       </>
     )

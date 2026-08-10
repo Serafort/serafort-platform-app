@@ -8,9 +8,7 @@ import { useAuth } from '@cap/platform-core'
 export const AuthProfile: React.FC = () => {
   const { user } = useAuth()
 
-  if (!user) {
-    return null
-  }
+  if (!user) return null
 
   const userData = (user as any).user || user // Handle both nested and flat user models
 

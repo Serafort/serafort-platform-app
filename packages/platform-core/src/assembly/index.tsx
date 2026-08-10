@@ -1,9 +1,10 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { CAPModule, RouteLayout } from '../types'
+import { CAPModule, RouteLayout, RouteLayoutEnum } from '@cap/shared-types'
 import { useAppStore } from '@cap/platform-store'
-import { NotFound } from '../components/NotFound'
 import { ModuleRegistry, type AuthRouteConfig } from './ModuleRegistry'
+import { NotFound } from '../components/NotFound'
+import { RouteGuard } from '@cap/authorization'
 
 export type { AuthRouteConfig }
 
@@ -104,21 +105,40 @@ export const assembleApp = ({ modules, layoutWrapper }: AssembleAppProps) => {
         }
       >
         <Routes>
-          {allRouteConfigs.map(({ path, element, layout, label }) => (
-            <Route
-              key={path}
-              path={path}
-              element={
-                <Wrapper layout={layout || 'none'} label={label}>
-                  {element}
-                </Wrapper>
+          {allRouteConfigs.map((routeConfig) => {
+            const { path, element, layout, label, policy, roles, permissions } = routeConfig
+            let guardedElement = element
+
+            if (policy || (roles && roles.length > 0) || (permissions && permissions.length > 0)) {
+              const action = policy?.action || 'access'
+              const resource = policy?.resource || {
+                type: 'route',
+                id: path,
+                attributes: { roles, permissions, path },
               }
-            />
-          ))}
+              guardedElement = (
+                <RouteGuard action={action} resource={resource}>
+                  {element}
+                </RouteGuard>
+              )
+            }
+
+            return (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <Wrapper layout={layout || RouteLayoutEnum.NONE} label={label}>
+                    {guardedElement}
+                  </Wrapper>
+                }
+              />
+            )
+          })}
           <Route
             path='*'
             element={
-              <Wrapper layout='none'>
+              <Wrapper layout={RouteLayoutEnum.NONE}>
                 <NotFound />
               </Wrapper>
             }

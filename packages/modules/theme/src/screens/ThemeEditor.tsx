@@ -9,7 +9,6 @@ import {
   Button,
   Alert,
   Snackbar,
-  Divider,
   Drawer,
   IconButton,
 } from '@mui/material';

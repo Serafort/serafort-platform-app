@@ -6,7 +6,7 @@ export { default as BlankLayout } from './layouts/BlankLayout'
 export { default as LayoutWrapper } from './layouts/LayoutWrapper'
 export { default as Footer } from './layouts/Footer'
 export { default as LayoutRouteWrapper } from './components/wrappers/LayoutRouteWrapper'
-export * from './components/wrappers'
+export { AppReactToastify, AppReactDropzone, AppRecharts, SkipToContent, GuestBanner } from '@cap/theme'
 
 // ── Components ─────────────────────────────────────────────────
 export { default as VerticalNavigation } from './components/vertical/Navigation'
@@ -105,6 +105,3 @@ export { default as adminMenu } from './menu/adminMenu'
 
 // ── Auth & Status Components ───────────────────────────────────
 export * from './components/auth'
-
-// ── UI Components ──────────────────────────────────────────────
-export * from './components/ui'

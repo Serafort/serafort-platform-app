@@ -28,6 +28,8 @@
       "@cap/theme/*": ["../../theme/src/*"],
       "@cap/layout": ["../../layout/src"],
       "@cap/layout/*": ["../../layout/src/*"],
+      "@cap/authorization": ["../../authorization/src"],
+      "@cap/authorization/*": ["../../authorization/src/*"],
       "@cap/module-auth": ["./src"],
       "@cap/module-auth/*": ["./src/*"],
       "@/": ["./src"],

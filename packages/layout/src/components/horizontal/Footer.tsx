@@ -41,7 +41,6 @@ const Footer = (props: Props) => {
 
   return (
     <StyledFooter
-      theme={theme}
       overrideStyles={mergedOverrideStyles}
       layoutPadding={layoutPadding}
       compactContentWidth={compactContentWidth}

@@ -4,18 +4,18 @@ import { immer } from 'zustand/middleware/immer'
 import { useEffect, useState } from 'react'
 import encryption from '../services/encryption'
 
-import { createAuthSlice, AuthSlice } from './slices/authSlice'
+import { createAuthSlice, type AuthSlice } from './slices/authSlice'
 import { onTerminalError } from '../services/api/api.client'
-import { createGuestSlice, GuestSlice } from './slices/guestSlice'
-import { createProfileSlice, ProfileSlice } from './slices/profileSlice'
-import { createNotificationSlice, NotificationSlice } from './slices/notificationSlice'
-import { createPreferencesSlice, PreferencesSlice } from './slices/preferences/preferences'
-import { createSettingsSlice, SettingsSlice, LayoutOverride } from './slices/settingsSlice'
-import { createNavigationSlice, NavigationSlice } from './slices/navigationSlice'
-import { createNetworkSlice, NetworkSlice } from './slices/networkSlice'
-import { createOfflineQueueSlice, OfflineQueueSlice } from './slices/offlineQueueSlice'
+import { createGuestSlice, type GuestSlice } from './slices/guestSlice'
+import { createProfileSlice, type ProfileSlice } from './slices/profileSlice'
+import { createNotificationSlice, type NotificationSlice } from './slices/notificationSlice'
+import { createPreferencesSlice, type PreferencesSlice } from './slices/preferences/preferences'
+import { createSettingsSlice, type SettingsSlice, LayoutOverride } from './slices/settingsSlice'
+import { createNavigationSlice, type NavigationSlice } from './slices/navigationSlice'
+import { createNetworkSlice, type NetworkSlice } from './slices/networkSlice'
+import { createOfflineQueueSlice, type OfflineQueueSlice } from './slices/offlineQueueSlice'
 import type { AppStore } from '../types'
-export type { LayoutOverride, AppStore }
+export type { LayoutOverride, AppStore, AuthSlice, GuestSlice, ProfileSlice, NotificationSlice, PreferencesSlice, SettingsSlice, NavigationSlice, NetworkSlice, OfflineQueueSlice }
 
 // Hydration tracking
 let hasHydrated = false

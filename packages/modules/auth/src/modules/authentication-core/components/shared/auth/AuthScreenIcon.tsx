@@ -1,5 +1,5 @@
 import React from 'react'
-import { Avatar, alpha, useTheme } from '@mui/material'
+import { Avatar, alpha } from '@mui/material'
 
 interface AuthScreenIconProps {
   icon: React.ReactNode
@@ -7,7 +7,6 @@ interface AuthScreenIconProps {
 }
 
 const AuthScreenIcon: React.FC<AuthScreenIconProps> = ({ icon, color = 'primary.main' }) => {
-  const theme = useTheme()
 
   return (
     <Avatar

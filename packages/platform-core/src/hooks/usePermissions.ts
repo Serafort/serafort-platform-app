@@ -1,9 +1,11 @@
 import { useAppStore } from '@cap/platform-store'
 import { hasAdminRole, normalizeRole, Roles } from '../types/app-types'
+import { useAbility } from '@cap/authorization'
 
 export const usePermissions = () => {
   const user = useAppStore((state) => state.user)
   const isAuthenticated = useAppStore((state) => state.isAuthenticated)
+  const { can } = useAbility()
 
   /**
    * Check if the currently authenticated user has ALL of the specified roles
@@ -20,11 +22,19 @@ export const usePermissions = () => {
 
     const rolesArray = (Array.isArray(roles) ? roles : [roles])
       .map((role) => normalizeRole(role))
-      .filter(Boolean) as Roles[]
+      .filter(Boolean) as string[]
 
     if (hasAdminRole(userRole)) {
       return true
     }
+
+    // Evaluate via authorization policy engine
+    const isPermitted = can('access', {
+      type: 'role',
+      attributes: { roles: rolesArray, logic, userRole },
+    })
+
+    if (isPermitted) return true
 
     if (logic === 'OR') {
       return rolesArray.includes(userRole)
@@ -43,19 +53,25 @@ export const usePermissions = () => {
 
     const userData = (user as any).user || user
 
-    // Fallback array if permissions are missing (e.g. for basic users)
     const userPermissions: string[] = Array.isArray(userData.permissions)
       ? userData.permissions
       : []
 
     if (userPermissions.length === 0) {
-      // Allow super-admins implicit access even if their permission array is somehow empty
       if (hasAdminRole(userData.role) || hasAdminRole(userData.roleObject) || hasAdminRole(userData.roleName))
         return true
       return false
     }
 
     const permsArray = Array.isArray(permissions) ? permissions : [permissions]
+
+    // Evaluate via policy engine first
+    const isPermitted = can('access', {
+      type: 'permission',
+      attributes: { permissions: permsArray, logic },
+    })
+
+    if (isPermitted) return true
 
     if (logic === 'OR') {
       return permsArray.some((perm) => userPermissions.includes(perm))
@@ -64,5 +80,5 @@ export const usePermissions = () => {
     return permsArray.every((perm) => userPermissions.includes(perm))
   }
 
-  return { hasRole, hasPermission }
+  return { hasRole, hasPermission, can }
 }

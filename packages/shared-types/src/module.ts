@@ -1,9 +1,27 @@
 import type { CAPPlugin } from './contracts/plugin.contracts'
 
+export enum RouteLayoutEnum {
+  PUBLIC = 'public',
+  VERTICAL = 'vertical',
+  HORIZONTAL = 'horizontal',
+  NO_LAYOUT = 'noLayout',
+  ADMIN = 'admin',
+  NONE = 'none',
+}
+
 export type NavVariant = 'vertical' | 'admin' | 'horizontal' | 'all' | 'public'
 
-export type ModuleRouteLayout = 'public' | 'vertical' | 'horizontal' | 'noLayout' | 'admin' | 'none'
+export type ModuleRouteLayout = RouteLayoutEnum | `${RouteLayoutEnum}`
 export type RouteLayout = ModuleRouteLayout
+
+export interface PolicyRef {
+  /** ID of a named Policy in the active PolicySet */
+  policyId?: string
+  /** Action to evaluate (defaults to 'access' if omitted) */
+  action?: string
+  /** Static resource descriptor for this route/nav item */
+  resource?: { type: string; id?: string | number; attributes?: Record<string, unknown> }
+}
 
 export interface ModuleRouteConfig {
   path: string
@@ -16,6 +34,7 @@ export interface ModuleRouteConfig {
   section?: string                  // if set, wraps the item in a <MenuSection>
   roles?: string[]                  // RoleGuard roles
   permissions?: string[]            // PermissionGuard permissions
+  policy?: PolicyRef                // ABAC/RBAC policy engine reference
   guestOnly?: boolean               // if true, hides the item when user is authenticated
   variant?: NavVariant[]            // which menus this item appears in (default: all)
   order?: number                    // sort order within its section/group
@@ -29,6 +48,7 @@ export interface NavItemConfig {
   section?: string                  // if set, wraps the item in a <MenuSection>
   roles?: string[]                  // RoleGuard roles
   permissions?: string[]            // PermissionGuard permissions
+  policy?: PolicyRef                // ABAC/RBAC policy engine reference
   guestOnly?: boolean               // if true, hides the item when user is authenticated
   children?: NavItemConfig[]        // nested SubMenu
   variant?: NavVariant[]            // which menus this item appears in (default: all)

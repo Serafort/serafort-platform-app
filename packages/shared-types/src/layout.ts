@@ -1,6 +1,12 @@
 import type { ReactNode } from 'react';
 
-export type Layout = 'vertical' | 'horizontal' | 'collapsed';
+export enum LayoutModeEnum {
+  VERTICAL = 'vertical',
+  HORIZONTAL = 'horizontal',
+  COLLAPSED = 'collapsed',
+}
+
+export type Layout = LayoutModeEnum | `${LayoutModeEnum}`
 
 export interface VerticalNavState {
   width?: number;
@@ -20,7 +26,14 @@ export interface HorizontalNavState {
   isBreakpointReached?: boolean;
 }
 export type Skin = 'default' | 'bordered';
-export type Mode = 'system' | 'light' | 'dark';
+
+export enum ThemeModeEnum {
+  SYSTEM = 'system',
+  LIGHT = 'light',
+  DARK = 'dark',
+}
+
+export type Mode = ThemeModeEnum | `${ThemeModeEnum}`;
 export type SystemMode = 'light' | 'dark';
 export type Direction = 'ltr' | 'rtl';
 export type LayoutComponentWidth = 'compact' | 'wide' | 'full';

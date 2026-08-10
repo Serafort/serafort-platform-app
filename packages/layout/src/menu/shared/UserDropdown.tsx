@@ -26,16 +26,16 @@ import { useSettings, useAppStore } from '@cap/platform-store'
 import { buildLayoutSurfaceEffect } from '../../utils/buildLayoutSurfaceEffect'
 import { useAuth } from '@cap/platform-core'
 import { AppPaths, resolveDynamicPath } from '@cap/shared-types'
-import { zIndexScale, dropdownTokens, getUserDropdownItemHoverBg, getTenantThemeEffects } from '@cap/theme'
+import { zIndexScale, dropdownTokens, getUserDropdownItemHoverBg, getUserBadgeShadow, getTenantThemeEffects } from '@cap/theme'
 import { useTranslation } from 'react-i18next'
 
 const BadgeContentSpan = styled('span')(({ theme }) => ({
   width: dropdownTokens.userDropdown.badgeDotSize,
   height: dropdownTokens.userDropdown.badgeDotSize,
-  borderRadius: '50%',
+  borderRadius: dropdownTokens.userDropdown.badgeDotBorderRadius,
   cursor: 'pointer',
   backgroundColor: theme.palette.success.main,
-  boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+  boxShadow: getUserBadgeShadow(theme),
 }))
 
 const UserDropdown = () => {
@@ -96,7 +96,7 @@ const UserDropdown = () => {
         badgeContent={<BadgeContentSpan onClick={handleDropdownOpen} />}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         sx={{
-          marginInlineStart: '0.5rem',
+          marginInlineStart: dropdownTokens.userDropdown.badgeMarginInlineStart,
         }}
       >
         <Avatar

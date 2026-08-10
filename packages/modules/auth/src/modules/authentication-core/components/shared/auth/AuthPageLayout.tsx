@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, useTheme } from '@mui/material';
+import { Box } from '@mui/material';
 import { motion } from 'framer-motion';
 
 interface AuthPageLayoutProps {
@@ -8,7 +8,6 @@ interface AuthPageLayoutProps {
 }
 
 const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({ children, maxWidth = 440 }) => {
-  const theme = useTheme()
 
   return (
     <Box

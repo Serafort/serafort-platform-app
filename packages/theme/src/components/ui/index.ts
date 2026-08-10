@@ -17,8 +17,7 @@ export { default as StyledMenu } from './StyledMenu'
 export { default as TablePaginationComponent } from './TablePaginationComponent'
 
 export * from './common'
-export { default as Stack } from './Stack'
+export { default as LayoutStack } from './Stack'
 export { default as Spacer } from './Spacer'
-export * from './Stack'
 export * from './Spacer'
 

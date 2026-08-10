@@ -15,7 +15,7 @@ import type { Theme } from '@mui/material/styles'
 import type { CSSObject } from '@emotion/styled'
 
 type StyledHeaderProps = {
-  theme: Theme
+  theme?: Theme
   overrideStyles?: CSSObject
   layoutPadding: string
   compactContentWidth: number

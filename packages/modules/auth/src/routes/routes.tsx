@@ -22,7 +22,7 @@ import { userDirectoryRouteConfig } from '../modules/user-directory/routes/route
 // ---------------------------------------------------------------------------
 // Merged route config (consumed by AppAssembly / CAPModule)
 // ---------------------------------------------------------------------------
-export const authRouteConfig: ModuleRouteConfig[] = [
+export const authRouteConfig: Array<ModuleRouteConfig> = [
   ...authCoreRouteConfig,
   ...authorizationEngineRouteConfig,
   ...identityBrokerRouteConfig,

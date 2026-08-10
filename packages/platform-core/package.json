@@ -22,6 +22,7 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@cap/authorization": "workspace:*",
     "@cap/platform-store": "workspace:*",
 
     "@cap/shared-types": "workspace:*",

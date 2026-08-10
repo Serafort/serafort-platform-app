@@ -35,19 +35,21 @@ export const CustomAvatar = (props: CustomAvatarProps) => {
 
 export const RoleIndicator = (props: { showLabel?: boolean, size?: string }) => null;
 
+import { AppPaths } from '@cap/shared-types';
+
 // 2. Constants & Data Structures
 export const Path = {
   auth: {
-    signin: '/auth/login',
-    signup: '/auth/register',
+    signin: AppPaths.auth.login,
+    signup: AppPaths.auth.register,
   },
   admin: {
-    users: '/admin/users',
-    roles: '/admin/roles',
+    users: AppPaths.admin.users,
+    roles: AppPaths.admin.roles,
   },
   account: {
-    overview: '/account/overview',
-    edit: '/account/edit',
+    overview: AppPaths.account.settings,
+    edit: AppPaths.account.settings,
   },
 };
 

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import React from 'react'
 import type { ReactNode, SyntheticEvent } from 'react'
-import Box from '@mui/material/Box'
 import Popper from '@mui/material/Popper'
 import MenuItem from '@mui/material/MenuItem'
 import MenuList from '@mui/material/MenuList'
@@ -13,7 +12,7 @@ import Divider from '@mui/material/Divider'
 import { Link } from 'react-router-dom'
 import classnames from 'classnames'
 import type { OptionsMenuType, OptionType } from './types'
-import { useThemeSettings } from '@cap/theme'
+import { useThemeSettings } from '../../../context/ThemeSettingsContext'
 
 const OptionMenu = ({
   icon,

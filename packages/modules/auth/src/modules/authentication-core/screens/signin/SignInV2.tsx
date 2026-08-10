@@ -18,8 +18,10 @@ import { Path } from '@cap/module-auth/routes/path';
 import { AuthPageLayout, AuthScreenIcon, AuthInputLabel, AuthActionButton } from '../../components/shared/auth';
 
 const DEFAULT_FORM_VALUES: LoginRequest = {
-  email: '',
-  password: '',
+  email: 'admin@example.com',
+  password: 'password',
+  // email: 'mascayiti@gmail.com',
+  // password: 'mascayiti',
   rememberMe: false,
 }
 

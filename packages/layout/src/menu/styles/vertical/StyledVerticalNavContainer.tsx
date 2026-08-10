@@ -18,9 +18,10 @@ const StyledVerticalNavContainer = styled('div')<StyledVerticalNavContainerProps
     transitionTimingFunction: 'ease-in-out',
     ...surfaceEffect,
 
-    [`&.${verticalNavClasses.hovered}, &.${verticalNavClasses.expanding}`]: {
+    [`.${verticalNavClasses.root}.${verticalNavClasses.hovered} &, &.${verticalNavClasses.hovered}, &.${verticalNavClasses.expanding}`]: {
       inlineSize: `${width}px`,
       minInlineSize: `${width}px`,
+      boxShadow: theme.shadows?.[10] || '0 4px 20px rgba(0,0,0,0.15)',
     },
   }
 })

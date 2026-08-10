@@ -6,6 +6,7 @@ import { useVerticalNav } from '../contexts/verticalNavContext'
 import type { VerticalNavContextProps } from '../contexts/verticalNavContext'
 import { useSettings } from '@cap/platform-store'
 import { themeConfig, dropdownTokens } from '@cap/theme'
+import { AppPaths, LayoutModeEnum } from '@cap/shared-types'
 import VuexyLogo from '../../assets/svg/Logo'
 import { Box } from '@mui/material'
 
@@ -42,10 +43,10 @@ const Logo = () => {
   const logoTextRef = React.useRef<HTMLSpanElement>(null)
 
   React.useEffect(() => {
-    if (layout !== 'collapsed') return
+    if (layout !== LayoutModeEnum.COLLAPSED) return
 
     if (logoTextRef && logoTextRef.current) {
-      if (layout === 'collapsed' && !isHovered) logoTextRef.current?.classList.add('hidden')
+      if (layout === LayoutModeEnum.COLLAPSED && !isHovered) logoTextRef.current?.classList.add('hidden')
       else logoTextRef.current.classList.remove('hidden')
     }
   }, [isHovered, layout])
@@ -54,7 +55,7 @@ const Logo = () => {
     <Box
       data-tut='reactour__logo'
       component={Link}
-      to='/'
+      to={AppPaths.landing.home}
       sx={{
         display: 'flex',
         alignItems: 'center',
@@ -70,7 +71,7 @@ const Logo = () => {
       <LogoText
         ref={logoTextRef}
         isHovered={isHovered}
-        isCollapsed={layout === 'collapsed'}
+        isCollapsed={layout === LayoutModeEnum.COLLAPSED}
         transitionDuration={transitionDuration}
       >
         {themeConfig.templateName}

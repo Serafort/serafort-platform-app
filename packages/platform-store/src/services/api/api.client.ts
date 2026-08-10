@@ -129,6 +129,19 @@ const notifyForbiddenError = () => {
   forbiddenErrorHandlers.forEach((handler) => handler())
 }
 
+export type BeforeRequestHandler = (endpoint: string, config: FetchRequestConfig) => void
+const beforeRequestHandlers: Set<BeforeRequestHandler> = new Set()
+
+/**
+ * Registers a synchronous pre-request hook. Handlers may throw to block the
+ * request (e.g. client-side policy denial via @cap/authorization) or mutate
+ * the config before it is sent. Returns an unsubscribe function.
+ */
+export const onBeforeRequest = (handler: BeforeRequestHandler): (() => void) => {
+  beforeRequestHandlers.add(handler)
+  return () => beforeRequestHandlers.delete(handler)
+}
+
 class TokenRefreshManager {
   private isRefreshing = false
   private isPaused = false
@@ -310,6 +323,9 @@ export class FetchClient {
   ): Promise<FetchResponse<T>> {
     if (import.meta.env.DEV) {
       console.log('FetchClient request', endpoint, config)
+    }
+    for (const handler of beforeRequestHandlers) {
+      handler(endpoint, config)
     }
     let url = endpoint.startsWith('http') ? endpoint : `${this.baseURL}${endpoint}`
 

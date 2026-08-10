@@ -30,7 +30,6 @@ const Navbar: React.FC<
 
   return (
     <StyledHeader
-      theme={theme}
       overrideStyles={overrideStyles}
       layoutPadding={themeConfig.layoutPadding as number}
       compactContentWidth={themeConfig.compactContentWidth as number}

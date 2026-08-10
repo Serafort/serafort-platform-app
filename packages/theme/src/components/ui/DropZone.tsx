@@ -66,7 +66,7 @@ export default function Dropzone({
         margin: 0,
         display: 'inline-flex',
         borderRadius: 2,
-        border: (theme) => `1px solid `,
+        border: (theme) => `1px solid ${theme.palette.divider}`,
         marginBottom: 8,
         marginRight: 8,
         width: 100,

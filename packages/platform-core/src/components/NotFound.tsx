@@ -2,9 +2,12 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Box, Button, Typography, alpha, useTheme } from '@mui/material'
 import { Home } from '@mui/icons-material'
+import { AppPaths } from '@cap/shared-types'
+import { useTranslation } from 'react-i18next'
 
 export const NotFound: React.FC = () => {
   const theme = useTheme()
+  const { t } = useTranslation()
 
   return (
     <Box
@@ -40,7 +43,7 @@ export const NotFound: React.FC = () => {
           color: 'text.primary',
         }}
       >
-        Page Not Found
+        {t('errors.pageNotFound', 'Page Not Found')}
       </Typography>
       <Typography
         variant="body1"
@@ -51,11 +54,11 @@ export const NotFound: React.FC = () => {
           lineHeight: 1.6,
         }}
       >
-        The page you are looking for does not exist or has been moved.
+        {t('errors.pageNotFoundDesc', 'The page you are looking for does not exist or has been moved.')}
       </Typography>
       <Button
         component={Link}
-        to="/"
+        to={AppPaths.landing.home}
         variant="contained"
         size="large"
         startIcon={<Home />}
@@ -68,7 +71,7 @@ export const NotFound: React.FC = () => {
           boxShadow: `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`,
         }}
       >
-        Back to Home
+        {t('common.backToHome', 'Back to Home')}
       </Button>
     </Box>
   )

@@ -12,7 +12,7 @@ import Path from './routes/path'
 export { authRouteConfig, authRoutes, Path, Path as AuthPath }
 export { createAdminRoute, createAuthRoute } from './routes/routeHelpers'
 import { authRegistry } from './registry/AuthRegistry'
-import { registerDictionary } from './domain-kernel/src/i18n/registry'
+import { registerDictionary, getMergedDictionary } from '@cap/platform-core'
 
 import enAuthCore from './modules/authentication-core/src/data/dictionaries/en.json'
 import arAuthCore from './modules/authentication-core/src/data/dictionaries/ar.json'
@@ -35,20 +35,14 @@ import frIdentityBroker from './modules/identity-broker/src/data/dictionaries/fr
 import enData from './data/dictionaries/en.json'
 import arData from './data/dictionaries/ar.json'
 import frData from './data/dictionaries/fr.json'
-import enCommon from './domain-kernel/src/data/dictionaries/en.json'
-import arCommon from './domain-kernel/src/data/dictionaries/ar.json'
-import frCommon from './domain-kernel/src/data/dictionaries/fr.json'
 
 registerDictionary({ en: enData, ar: arData, fr: frData })
-registerDictionary({ en: enCommon, ar: arCommon, fr: frCommon })
 registerDictionary({ en: enAuthCore, ar: arAuthCore, fr: frAuthCore })
 registerDictionary({ en: enMfa, ar: arMfa, fr: frMfa })
 registerDictionary({ en: enPasswordless, ar: arPasswordless, fr: frPasswordless })
 registerDictionary({ en: enAuthEngine, ar: arAuthEngine, fr: frAuthEngine })
 registerDictionary({ en: enUserDir, ar: arUserDir, fr: frUserDir })
 registerDictionary({ en: enIdentityBroker, ar: arIdentityBroker, fr: frIdentityBroker })
-
-import { getMergedDictionary } from './domain-kernel/src/i18n/registry'
 
 const en = getMergedDictionary('en')
 const ar = getMergedDictionary('ar')

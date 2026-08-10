@@ -17,7 +17,7 @@ import type { CSSObject } from '@emotion/styled'
 import { SurfaceEffectFactory } from '../../../utils/buildLayoutSurfaceEffect'
 
 type StyledHeaderProps = {
-  theme: Theme
+  theme?: Theme
   overrideStyles?: CSSObject
   layoutPadding: number
   compactContentWidth: number

@@ -79,6 +79,7 @@ export default defineConfig({
 
       // ── Workspace source package aliases ─────────────────────────────────────
       { find: '@cap/layout',          replacement: path.resolve(workspaceRoot, 'packages/layout/src') },
+      { find: '@cap/authorization',   replacement: path.resolve(workspaceRoot, 'packages/authorization/src') },
       { find: '@cap/theme',           replacement: path.resolve(workspaceRoot, 'packages/theme/src') },
       { find: '@cap/api-contracts',   replacement: path.resolve(workspaceRoot, 'packages/api-contracts/src') },
       { find: '@cap/auth-contracts',  replacement: path.resolve(workspaceRoot, 'packages/auth-contracts/src') },
@@ -121,6 +122,7 @@ export default defineConfig({
     // Exclude workspace source packages — they are TypeScript source-linked
     exclude: [
       '@cap/layout',
+      '@cap/authorization',
       '@cap/theme',
       '@cap/api-contracts',
       '@cap/auth-contracts',

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Box } from '@mui/material'
+import { zIndexScale } from '@cap/theme'
 import LayoutContent from '../components/horizontal/LayoutContent'
 import type { ChildrenType } from '@cap/shared-types'
 
@@ -26,7 +27,7 @@ const PublicLayout: React.FC<
         sx={{
           color: 'white',
           width: '100%',
-          zIndex: 1100,
+          zIndex: zIndexScale.layout.header,
         }}
       >
         {header || null}
@@ -44,7 +45,7 @@ const PublicLayout: React.FC<
           backgroundColor: 'background.paper',
           color: 'text.primary',
           width: '100%',
-          borderTop: '1px solid',
+          borderTop: 1,
           borderColor: 'divider',
         }}
       >

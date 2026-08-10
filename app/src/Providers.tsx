@@ -143,7 +143,7 @@ const ThemedTourProvider: React.FC<ChildrenType> = ({ children }) => {
 
 const GlobalThemeEditor = () => {
   const { saveTheme } = useTenant();
-  return <ThemeEditor asDrawer onSave={saveTheme} />;
+  return <ThemeEditor asDrawer onSave={(theme: any) => saveTheme(theme)} />;
 };
 
 const Providers: React.FC<ChildrenType> = ({ children }) => {

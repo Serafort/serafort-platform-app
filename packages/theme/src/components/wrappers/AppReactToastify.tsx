@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { ToastContainer } from 'react-toastify'
 import type { ToastContainerProps } from 'react-toastify'
 import type { Skin } from '@cap/shared-types'
-import { useThemeSettings } from '@cap/theme'
+import { useThemeSettings } from '../../context/ThemeSettingsContext'
 
 type Props = ToastContainerProps & {
   boxProps?: BoxProps
@@ -22,7 +22,7 @@ const ToastifyWrapper = styled(Box, {
       padding: theme.spacing(1.5, 2.5),
       backgroundColor: theme.palette.background.paper,
       boxShadow: ownerSkin === 'bordered' ? 'none' : ((theme as any).customShadows?.md || theme.shadows[6]),
-      border: ownerSkin === 'bordered' ? `1px solid ` : 'none',
+      border: ownerSkin === 'bordered' ? `1px solid ${theme.palette.divider}` : 'none',
       '&:not(.custom-toast)': {
         '& .Toastify__toast-body': {
           color: theme.palette.text.primary,

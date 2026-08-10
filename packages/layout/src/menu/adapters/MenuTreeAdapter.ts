@@ -39,17 +39,23 @@ export class MenuTreeAdapter {
   }
 
   /**
-   * Adapts raw NavItemConfig items into grouped sections with pre-translated labels.
+   * Adapts raw NavItemConfig items into grouped sections with pre-translated labels and policy-filtered items.
    */
   public static buildMenuTree(
     items: NavItemConfig[],
     dictionary?: Dictionary,
-    t?: (key: string, options?: { defaultValue?: string }) => string
+    t?: (key: string, options?: { defaultValue?: string }) => string,
+    filterFn?: (item: NavItemConfig) => boolean
   ): ProcessedMenuSection[] {
-    const processItem = (item: NavItemConfig): ProcessedNavItem => {
+    const processItem = (item: NavItemConfig): ProcessedNavItem | null => {
+      if (filterFn && !filterFn(item)) return null
+
       const label = MenuTreeAdapter.translateKey(item.label, dictionary, t)
       const sortedChildren = item.children && item.children.length > 0
-        ? [...item.children].sort((a, b) => (a.order || 0) - (b.order || 0)).map(processItem)
+        ? [...item.children]
+            .sort((a, b) => (a.order || 0) - (b.order || 0))
+            .map(processItem)
+            .filter((child): child is ProcessedNavItem => child !== null)
         : undefined
 
       return {
@@ -84,14 +90,17 @@ export class MenuTreeAdapter {
     }
 
     items.forEach((item) => {
+      const processed = processItem(item)
+      if (!processed) return
+
       if (item.section) {
         flush()
         currentSectionId = item.id
         if (item.path || (item.children && item.children.length > 0)) {
-          currentItems.push(processItem(item))
+          currentItems.push(processed)
         }
       } else {
-        currentItems.push(processItem(item))
+        currentItems.push(processed)
       }
     })
     flush()
