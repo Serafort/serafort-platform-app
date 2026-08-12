@@ -70,7 +70,7 @@ export const themeConfig: ThemeConfig = {
   skin: 'default',
   semiDark: false,
   layout: 'vertical',
-  layoutPadding: 24,
+  layoutPadding: 0,
   compactContentWidth: 1440,
   navbar: {
     type: 'fixed',

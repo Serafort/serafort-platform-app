@@ -15,9 +15,10 @@ type StyledMainProps = {
 
 const StyledMain = styled('main', {
   shouldForwardProp: (prop) => !['isContentCompact', 'layoutPadding', 'compactContentWidth'].includes(prop as string),
-})<StyledMainProps>(({ theme, isContentCompact, layoutPadding, compactContentWidth }: any) => ({
+})<StyledMainProps>(({ theme, isContentCompact, compactContentWidth }: any) => ({
   flexGrow: mainTokens.layout.flexGrow,
-  padding: layoutPadding,
+  // padding: layoutPadding
+  padding: `0px !important`,
   minHeight: mainTokens.layout.minHeight,
   backgroundColor: theme.palette.background.default,
   transition: theme.transitions.create(['padding', 'max-width'], {

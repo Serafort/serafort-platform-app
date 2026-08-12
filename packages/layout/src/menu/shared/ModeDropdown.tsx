@@ -13,11 +13,12 @@ import Brightness4 from '@mui/icons-material/Brightness4'
 import Brightness7 from '@mui/icons-material/Brightness7'
 import Laptop from '@mui/icons-material/Laptop'
 import Palette from '@mui/icons-material/Palette'
+import Storefront from '@mui/icons-material/Storefront'
 import Divider from '@mui/material/Divider'
 import type { Mode } from '@cap/shared-types'
 import { ThemeModeEnum } from '@cap/shared-types'
 import { useSettings } from '@cap/platform-store'
-import { zIndexScale, themeEditorStore, DEFAULT_THEME_CONFIG, dropdownTokens, getTenantThemeEffects } from '@cap/theme'
+import { zIndexScale, themeEditorStore, widgetMarketplaceStore, DEFAULT_THEME_CONFIG, dropdownTokens, getTenantThemeEffects } from '@cap/theme'
 import { useTenant } from '@cap/platform-core'
 import { useTranslation } from 'react-i18next'
 import { buildLayoutSurfaceEffect } from '../../utils/buildLayoutSurfaceEffect'
@@ -34,6 +35,11 @@ const ModeDropdown = () => {
   const handleOpenThemeBuilder = () => {
     handleClose()
     themeEditorStore.startEditing((tenantTheme as any) || DEFAULT_THEME_CONFIG)
+  }
+
+  const handleOpenWidgetMarketplace = () => {
+    handleClose()
+    widgetMarketplaceStore.openMarketplace()
   }
 
   const handleClose = () => {
@@ -158,6 +164,17 @@ const ModeDropdown = () => {
                   >
                     <Palette sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }} />
                     {t('theme.themeBuilder')}
+                  </MenuItem>
+                  <MenuItem
+                    onClick={handleOpenWidgetMarketplace}
+                    sx={{
+                      gap: dropdownTokens.dropdownPopper.itemGap,
+                      color: 'secondary.main',
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Storefront sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }} />
+                    Widget Marketplace
                   </MenuItem>
                 </MenuList>
               </ClickAwayListener>

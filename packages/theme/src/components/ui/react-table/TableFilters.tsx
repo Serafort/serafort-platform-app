@@ -1,27 +1,15 @@
 import React, { useCallback } from 'react'
-import type { IPerson } from './types'
 import { CardContent, Grid, MenuItem, TextField } from '@mui/material'
 
 interface TableFiltersProps {
-  setData: (data: Array<IPerson>) => void
-  tableData?: Array<IPerson>
+  status: string
+  onStatusChange: (status: string) => void
 }
 
-const TableFiltersComponent = ({ setData, tableData }: TableFiltersProps) => {
-  const [status, setStatus] = React.useState<string>('')
-
-  React.useEffect(() => {
-    const filteredData = tableData?.filter((user) => {
-      if (status && user.status !== status) return false
-      return true
-    })
-
-    setData(filteredData ?? [])
-  }, [status, tableData, setData])
-
+const TableFiltersComponent = ({ status, onStatusChange }: TableFiltersProps) => {
   const handleStatusChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setStatus(e.target.value)
-  }, [])
+    onStatusChange(e.target.value)
+  }, [onStatusChange])
 
   return (
     <CardContent>

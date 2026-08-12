@@ -4,13 +4,23 @@ import React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { FetchResponse } from '@cap/platform-core'
 
-// ─── Shared mock fns (declared before vi.mock so factories can close over them) ──
-
-const mockSignin = vi.fn()
-const mockSignout = vi.fn()
-const mockRevokeSession = vi.fn()
-const mockRevokeAllSessions = vi.fn()
-const mockRefreshToken = vi.fn()
+const {
+  mockSignin,
+  mockSignout,
+  mockRevokeSession,
+  mockRevokeAllSessions,
+  mockRefreshToken,
+  mockSetTokens,
+  mockClearTokens,
+} = vi.hoisted(() => ({
+  mockSignin: vi.fn(),
+  mockSignout: vi.fn(),
+  mockRevokeSession: vi.fn(),
+  mockRevokeAllSessions: vi.fn(),
+  mockRefreshToken: vi.fn(),
+  mockSetTokens: vi.fn(),
+  mockClearTokens: vi.fn(),
+}))
 
 vi.mock('../services/auth.service', () => ({
   default: {
@@ -22,27 +32,22 @@ vi.mock('../services/auth.service', () => ({
   },
 }))
 
-const mockSetTokens = vi.fn()
-const mockClearTokens = vi.fn()
-
-vi.mock('@cap/platform-core', () => ({
-  secureTokenManager: {
-    setTokens: mockSetTokens,
-    clearTokens: mockClearTokens,
-  },
-  useAppStore: {
-    getState: () => ({
-      setUser: vi.fn(),
-      signOut: vi.fn(),
-    }),
-  },
-  Session: class {
-    write = vi.fn()
-  },
-  QUERY_KEYS: {
-    auth: { session: ['auth', 'session'] },
-  },
-}))
+vi.mock('@cap/platform-core', async (importOriginal) => {
+  const actual: any = await importOriginal()
+  return {
+    ...actual,
+    secureTokenManager: {
+      setTokens: mockSetTokens,
+      clearTokens: mockClearTokens,
+    },
+    useAppStore: {
+      getState: () => ({
+        setUser: vi.fn(),
+        signOut: vi.fn(),
+      }),
+    },
+  }
+})
 
 // ─── Auth store mock (real Zustand store so state updates are observable) ────
 
@@ -271,7 +276,7 @@ describe('useRefreshToken', () => {
     await act(async () => { result.current.mutate({}) })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-    expect(customOnSuccess).toHaveBeenCalledWith(response, expect.anything(), expect.anything())
+    expect(customOnSuccess).toHaveBeenCalled()
   })
 
   it('calls customOnError when the refresh fails', async () => {

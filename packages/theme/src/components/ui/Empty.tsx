@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material'
-import empty from "@cap/theme/assets/images/empty.png";
+import empty from '../../assets/images/empty.png'
 
 interface EmptyProps {
   text?: string

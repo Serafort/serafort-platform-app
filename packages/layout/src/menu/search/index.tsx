@@ -93,14 +93,14 @@ const NavSearch = () => {
         sx={{ display: 'flex', cursor: 'pointer' }}
         {...((settings.layout === 'horizontal' || isBreakpointReached) && {
           icon: (
-            <IconButton sx={{ color: 'text.primary' }}>
+            <IconButton aria-label='Open search' sx={{ color: 'text.primary' }}>
               <Search />
             </IconButton>
           ),
         })}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: searchTokens.header.gap }}>
-          <IconButton sx={{ color: 'text.primary' }}>
+          <IconButton aria-label='Open search' sx={{ color: 'text.primary' }}>
             <Search />
           </IconButton>
           <Typography sx={{ whiteSpace: 'nowrap', color: 'text.disabled' }}>

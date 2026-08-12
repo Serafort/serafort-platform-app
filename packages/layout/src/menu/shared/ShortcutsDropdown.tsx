@@ -136,7 +136,7 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
 
   return (
     <>
-      <IconButton onClick={handleToggle} sx={{ color: 'text.primary' }}>
+      <IconButton onClick={handleToggle} aria-label='Open shortcuts' sx={{ color: 'text.primary' }}>
         <GridView />
       </IconButton>
       <Popper

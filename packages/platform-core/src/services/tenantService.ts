@@ -34,7 +34,7 @@ const mockTenants: Record<string, TenantConfig> = {
     },
     layout: {
       layout: 'vertical',
-      layoutPadding: 24,
+      layoutPadding: 0,
       compactContentWidth: 1440,
       navbar: {
         type: 'fixed',
@@ -72,7 +72,7 @@ const mockTenants: Record<string, TenantConfig> = {
     },
     layout: {
       layout: 'vertical',
-      layoutPadding: 24,
+      layoutPadding: 0,
       compactContentWidth: 1440,
       navbar: {
         type: 'fixed',
@@ -110,7 +110,7 @@ const mockTenants: Record<string, TenantConfig> = {
     },
     layout: {
       layout: 'vertical',
-      layoutPadding: 24,
+      layoutPadding: 0,
       compactContentWidth: 1440,
       navbar: {
         type: 'fixed',
@@ -148,7 +148,7 @@ const mockTenants: Record<string, TenantConfig> = {
     },
     layout: {
       layout: 'horizontal',
-      layoutPadding: 16,
+      layoutPadding: 0,
       compactContentWidth: 1200,
       navbar: {
         type: 'fixed',
@@ -186,7 +186,7 @@ const mockTenants: Record<string, TenantConfig> = {
     },
     layout: {
       layout: 'collapsed',
-      layoutPadding: 20,
+      layoutPadding: 0,
       compactContentWidth: 1366,
       navbar: {
         type: 'static',

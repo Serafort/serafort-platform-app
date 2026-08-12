@@ -16,6 +16,7 @@ app/dist-dev
 app/dist-ssr
 app/dev
 app/dev-dist
+app/dev-dist/*
 *.local
 
 # Environment files

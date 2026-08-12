@@ -13,7 +13,24 @@ declare global {
   }
 }
 
-const TenantContext = createContext<TenantContextValue | null>(null)
+export const DEFAULT_TENANT_CONTEXT_VALUE: TenantContextValue = {
+  tenant: null,
+  theme: DEFAULT_THEME_CONFIG as any,
+  isLoading: false,
+  error: null,
+  isLoadingTheme: false,
+  errorTheme: null,
+  userPreferences: {},
+  updateUserPreferences: async () => {},
+  refetchTenant: async () => {},
+  refetchTheme: async () => {},
+  updateTheme: async () => {},
+  saveTheme: async () => {},
+  saveModules: async () => {},
+  isModuleEnabled: () => true,
+}
+
+const TenantContext = createContext<TenantContextValue>(DEFAULT_TENANT_CONTEXT_VALUE)
 
 interface TenantProviderProps {
   children: React.ReactNode
@@ -215,10 +232,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
 
 export const useTenant = (): TenantContextValue => {
   const context = useContext(TenantContext)
-  if (!context) {
-    throw new Error('useTenant must be used within a TenantProvider')
-  }
-  return context
+  return context || DEFAULT_TENANT_CONTEXT_VALUE
 }
 
 export default TenantContext

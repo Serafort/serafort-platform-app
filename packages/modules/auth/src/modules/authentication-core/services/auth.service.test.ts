@@ -4,17 +4,21 @@ import { eventBus } from '../../../domain-kernel/src/events/event-bus'
 import { rbacSubscriber } from '../../authorization-engine/src/services/rbac.subscriber'
 import { apiClient } from '@cap/platform-core'
 
-vi.mock('@cap/platform-core', () => ({
-  apiClient: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-  },
-  TenantService: {
-    verifyTenantAuthFeature: vi.fn(() => true),
-  },
-}))
+vi.mock('@cap/platform-core', async (importOriginal) => {
+  const actual: any = await importOriginal()
+  return {
+    ...actual,
+    apiClient: {
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
+    },
+    TenantService: {
+      verifyTenantAuthFeature: vi.fn(() => true),
+    },
+  }
+})
 
 
 describe('authService EventBus Integration', () => {

@@ -20,6 +20,7 @@
     "@cap/theme": "workspace:*",
     "@tanstack/react-query": "^5.67.1",
     "crypto-js": "^4.2.0",
+    "comlink": "^4.4.2",
     "date-fns": "^4.1.0",
     "idb": "^8.0.2",
     "zustand": "^5.0.9"

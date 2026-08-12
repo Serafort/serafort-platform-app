@@ -7,7 +7,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18next from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { BrowserRouter } from 'react-router-dom';
-import { TenantProvider, themeConfig, i18n, onForbiddenError, useNetworkSync, getModules, useTenant } from '@cap/platform-core';
+import { TenantProvider, themeConfig, i18n, onForbiddenError, useNetworkSync, getModules, useTenant, LayoutEngineProvider } from '@cap/platform-core';
 import type { ChildrenType } from '@cap/platform-core';
 import { TourProvider } from '@reactour/tour';
 import { toast } from 'react-toastify';
@@ -15,7 +15,8 @@ import common_us from './data/dictionaries/en.json';
 import common_fr from './data/dictionaries/fr.json';
 import common_ar from './data/dictionaries/ar.json';
 import { ThemeBridge, AppReactToastify } from '@cap/layout';
-import { GlobalZIndexStyles } from '@cap/theme';
+import { GlobalZIndexStyles, WidgetMarketplaceDrawer, WidgetInspectorDrawer } from '@cap/theme';
+
 import { ThemeEditor } from '@cap/module-theme';
 
 const queryClient = new QueryClient({
@@ -121,18 +122,21 @@ const NetworkSync = () => {
 const ThemedTourProvider: React.FC<ChildrenType> = ({ children }) => {
   const theme = useTheme()
 
-  const tourStyles = {
-    close: (base: React.CSSProperties) => ({
-      ...base,
-      color: theme.palette.text.primary,
+  const tourStyles = React.useMemo(
+    () => ({
+      close: (base: React.CSSProperties) => ({
+        ...base,
+        color: theme.palette.text.primary,
+      }),
+      popover: (base: React.CSSProperties) => ({
+        ...base,
+        boxShadow: '0 0 3em rgba(0, 0, 0, 0.5)',
+        backgroundColor: theme.palette.background.paper,
+        color: theme.palette.text.primary,
+      }),
     }),
-    popover: (base: React.CSSProperties) => ({
-      ...base,
-      boxShadow: '0 0 3em rgba(0, 0, 0, 0.5)',
-      backgroundColor: theme.palette.background.paper,
-      color: theme.palette.text.primary,
-    }),
-  }
+    [theme.palette.text.primary, theme.palette.background.paper]
+  )
 
   return (
     <TourProvider steps={tourConfig} defaultOpen={false} rtl={theme.direction === 'rtl'} styles={tourStyles}>
@@ -143,7 +147,8 @@ const ThemedTourProvider: React.FC<ChildrenType> = ({ children }) => {
 
 const GlobalThemeEditor = () => {
   const { saveTheme } = useTenant();
-  return <ThemeEditor asDrawer onSave={(theme: any) => saveTheme(theme)} />;
+  const handleSave = React.useCallback((theme: any) => saveTheme(theme), [saveTheme]);
+  return <ThemeEditor asDrawer onSave={handleSave} />;
 };
 
 const Providers: React.FC<ChildrenType> = ({ children }) => {
@@ -156,8 +161,14 @@ const Providers: React.FC<ChildrenType> = ({ children }) => {
             <BrowserRouter>
               <ForbiddenListener />
               <NetworkSync />
-              <ThemedTourProvider>{children}</ThemedTourProvider>
+              <ThemedTourProvider>
+                <LayoutEngineProvider>
+                  {children}
+                </LayoutEngineProvider>
+              </ThemedTourProvider>
               <GlobalThemeEditor />
+              <WidgetMarketplaceDrawer />
+              <WidgetInspectorDrawer />
             </BrowserRouter>
             <AppReactToastify position={themeConfig.toastPosition} hideProgressBar />
             <ReactQueryDevtools initialIsOpen={false} />

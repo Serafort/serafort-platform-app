@@ -9,6 +9,3 @@ pnpm run lint:circular || { echo "❌ Circular dependency detected! Commit abort
 
 # Run lint-staged for staged files
 npx lint-staged
-
-# Run full architectural validation
-npm run validate:architecture

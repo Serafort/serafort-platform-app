@@ -51,7 +51,7 @@ export const composeMuiTheme = ({
 
   const tokens = resolvedTenantTheme.tokens || DEFAULT_THEME_CONFIG.tokens;
   const baseStaticTheme = currentMode === 'dark' ? darkTheme : lightTheme;
-  const primaryMain = tokens.colors.primary?.value || settings.primaryColor || baseStaticTheme.palette.primary.main;
+  const primaryMain = tenantTheme?.tokens?.colors?.primary?.value || settings.primaryColor || tokens.colors.primary?.value || baseStaticTheme.palette.primary.main;
   const secondaryMain = tokens.colors.secondary?.value || baseStaticTheme.palette.secondary.main;
   const backgroundDefault =
     tokens.colors.background?.value || baseStaticTheme.palette.background.default;
@@ -200,7 +200,14 @@ const themeCache = new LRUCache<string, Theme>(20);
 
 export const composeMuiThemeMemoized = (options: ComposeMuiThemeOptions): Theme => {
   const { currentMode, direction = 'ltr', settings, tenantTheme } = options;
-  const key = `${tenantTheme?.id || 'default'}_${currentMode}_${direction}_${settings.skin}_${settings.effect || 'none'}_${settings.primaryColor || ''}`;
+  const colors = tenantTheme?.tokens?.colors;
+  const primaryVal = colors?.primary?.value || settings.primaryColor || '';
+  const secondaryVal = colors?.secondary?.value || '';
+  const bgVal = colors?.background?.value || '';
+  const surfaceVal = colors?.surface?.value || '';
+  const fontVal = tenantTheme?.tokens?.typography?.fontFamily?.sans || '';
+
+  const key = `${tenantTheme?.id || 'default'}_${currentMode}_${direction}_${settings.skin}_${settings.effect || 'none'}_${primaryVal}_${secondaryVal}_${bgVal}_${surfaceVal}_${fontVal}`;
   
   const cached = themeCache.get(key);
   if (cached) {

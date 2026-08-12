@@ -27,6 +27,22 @@ vi.mock('../../session-manager/middlewares/useSessionGuard', () => ({
   useSessionGuard: () => mockUseSessionGuard(),
 }))
 
+vi.mock('@cap/authorization', () => ({
+  useCan: (action: string, subject: any) => {
+    const session = mockUseSessionGuard()
+    const userRole = session?.user?.role
+    if (subject?.type === 'admin_route') {
+      return userRole === 100 || userRole === 200 || userRole === 300
+    }
+    if (subject?.type === 'auth_route') {
+      const allowedRoles = subject?.attributes?.allowedRoles
+      if (!allowedRoles || allowedRoles.length === 0) return true
+      return allowedRoles.includes(userRole)
+    }
+    return true
+  },
+}))
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const makeUser = (overrides: Record<string, any> = {}) => ({

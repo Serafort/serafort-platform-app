@@ -29,11 +29,11 @@ export const userDirectoryRouteConfig: Array<AuthRouteConfig> = [
   // --- User profile (verified auth) ---
   createAuthRoute(Path.user.view, <ProfileView />, { requiresVerification: true, layout: 'admin' }),
   createAuthRoute(Path.user.edit, <EditProfile />, { requiresVerification: true, layout: 'admin' }),
-  createAuthRoute(Path.user.changeEmail, <ChangeEmail />, { requiresVerification: true }),
-  createAuthRoute(Path.user.linkedAccounts, <LinkedAccountsDashboard />, { requiresVerification: true }),
-  createAuthRoute(Path.user.delete, <DeleteAccount />, { requiresVerification: true }),
-  createAuthRoute(Path.user.deactivate, <DeactivateAccount />, { requiresVerification: true }),
-  createAuthRoute(Path.user.emailChangeStatus, <ChangeEmail />, { requiresVerification: true }),
+  createAuthRoute(Path.user.changeEmail, <ChangeEmail />, { requiresVerification: true, layout: 'admin' }),
+  createAuthRoute(Path.user.linkedAccounts, <LinkedAccountsDashboard />, { requiresVerification: true, layout: 'admin' }),
+  createAuthRoute(Path.user.delete, <DeleteAccount />, { requiresVerification: true, layout: 'admin' }),
+  createAuthRoute(Path.user.deactivate, <DeactivateAccount />, { requiresVerification: true, layout: 'admin' }),
+  createAuthRoute(Path.user.emailChangeStatus, <ChangeEmail />, { requiresVerification: true, layout: 'admin' }),
   createAuthRoute(Path.user.initiateEmailChange, <ChangeEmail />, { requiresVerification: true, layout: 'noLayout' }),
 ]
 

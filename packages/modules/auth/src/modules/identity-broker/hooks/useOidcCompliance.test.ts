@@ -12,13 +12,15 @@ import {
 } from '@cap/module-auth/modules/identity-broker/hooks/useOidcCompliance'
 
 
-const mockUserinfo = vi.fn()
-const mockIntrospect = vi.fn()
-const mockRevoke = vi.fn()
-const mockEndSession = vi.fn()
-const mockSso = vi.fn()
+const { mockUserinfo, mockIntrospect, mockRevoke, mockEndSession, mockSso } = vi.hoisted(() => ({
+  mockUserinfo: vi.fn(),
+  mockIntrospect: vi.fn(),
+  mockRevoke: vi.fn(),
+  mockEndSession: vi.fn(),
+  mockSso: vi.fn(),
+}))
 
-vi.mock('@cap/module-auth/modules/authentication-core/services/auth.service', () => ({
+vi.mock('../../authentication-core/services/auth.service', () => ({
   default: {
     oidc: {
       userinfo: mockUserinfo,

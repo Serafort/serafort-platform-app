@@ -176,7 +176,7 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
 
   return (
     <>
-      <IconButton onClick={handleToggle} sx={{ color: 'text.primary' }}>
+      <IconButton onClick={handleToggle} aria-label='Open notifications' sx={{ color: 'text.primary' }}>
         <Badge
           color='error'
           variant='dot'

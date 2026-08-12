@@ -268,24 +268,29 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
     if (isCollapsed && level === 0) setOpenWhenCollapsed(false)
   }, [isCollapsed, level, active])
 
+  const hasMatchingChild = React.useMemo(
+    () => confirmUrlInChildren(children, pathname),
+    [children, pathname]
+  )
+
   React.useEffect(() => {
-    if (confirmUrlInChildren(children, pathname))
+    if (hasMatchingChild)
       openSubmenusRef?.current.push({ level, label, active: true, id })
     else {
       if (defaultOpen) openSubmenusRef?.current.push({ level, label, active: false, id })
     }
-  }, [children, pathname, openSubmenusRef, level, label, id, defaultOpen])
+  }, [hasMatchingChild, openSubmenusRef, level, label, id, defaultOpen])
 
   // Change active state when the url changes
   React.useEffect(() => {
     // Check if the current url matches any of the children urls
-    if (confirmUrlInChildren(children, pathname)) {
+    if (hasMatchingChild) {
       setActive(true)
 
       if (openSubmenusRef?.current.findIndex((submenu: OpenSubmenu) => submenu.id === id) === -1)
         openSubmenusRef?.current.push({ level, label, active: true, id })
     } else setActive(false)
-  }, [pathname, children, openSubmenusRef, id, level, label])
+  }, [hasMatchingChild, openSubmenusRef, id, level, label])
 
   /* useEffect(() => {
     console.log(openSubmenu)

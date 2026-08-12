@@ -1,8 +1,8 @@
-/**
- * Common Module Exports
- *
- * Central export point for all common module components
- */
+import type { CAPModule, NavItemConfig } from '@cap/shared-types'
+import { landingRouteConfig, LandingPath } from './routes'
+import { landingDictionaries, registerDictionary } from './i18n/registry'
+import { registerModuleWidgets } from '@cap/platform-core'
+import { LANDING_WIDGET_IDS } from './widgets'
 
 // Routes
 export {
@@ -38,6 +38,24 @@ export {
   type WorkflowState,
 } from './context'
 
+// Widgets export
+export * from './widgets'
+
+// Dynamically register all widgets in ./widgets/*.tsx with titleKey `landing.widgets.<widgetKey>.title`
+registerModuleWidgets(
+  'landing',
+  import.meta.glob('./widgets/*.tsx') as Record<string, () => Promise<any>>,
+  {
+    idMapping: {
+      heroBanner: LANDING_WIDGET_IDS.heroBanner,
+      features: LANDING_WIDGET_IDS.features,
+      about: LANDING_WIDGET_IDS.about,
+      stats: LANDING_WIDGET_IDS.stats,
+      cta: LANDING_WIDGET_IDS.cta,
+    },
+  },
+)
+
 // I18n Registry & Dictionaries
 export {
   landingDictionaries,
@@ -48,9 +66,6 @@ export {
   type Locale,
 } from './i18n/registry'
 
-import type { CAPModule, NavItemConfig } from '@cap/shared-types'
-import { landingRouteConfig, LandingPath } from './routes'
-import { landingDictionaries, registerDictionary } from './i18n/registry'
 // Register i18n dictionaries for landing module
 registerDictionary(landingDictionaries as any)
 
@@ -69,3 +84,5 @@ export const LandingModule: CAPModule = {
   i18n: landingDictionaries,
   navItems: landingNavItems,
 }
+
+export default LandingModule

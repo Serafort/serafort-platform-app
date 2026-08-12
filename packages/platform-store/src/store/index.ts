@@ -14,8 +14,11 @@ import { createSettingsSlice, type SettingsSlice, LayoutOverride } from './slice
 import { createNavigationSlice, type NavigationSlice } from './slices/navigationSlice'
 import { createNetworkSlice, type NetworkSlice } from './slices/networkSlice'
 import { createOfflineQueueSlice, type OfflineQueueSlice } from './slices/offlineQueueSlice'
+import { createLayoutEngineSlice, type LayoutEngineSlice, DEFAULT_SLOT_SIZE } from './slices/layoutEngineSlice'
 import type { AppStore } from '../types'
-export type { LayoutOverride, AppStore, AuthSlice, GuestSlice, ProfileSlice, NotificationSlice, PreferencesSlice, SettingsSlice, NavigationSlice, NetworkSlice, OfflineQueueSlice }
+export type { LayoutOverride, AppStore, AuthSlice, GuestSlice, ProfileSlice, NotificationSlice, PreferencesSlice, SettingsSlice, NavigationSlice, NetworkSlice, OfflineQueueSlice, LayoutEngineSlice }
+export { DEFAULT_SLOT_SIZE }
+
 
 // Hydration tracking
 let hasHydrated = false
@@ -85,10 +88,7 @@ const secureStorage = {
   setItem: async (name: string, value: string): Promise<void> => {
     const storageKey = (import.meta as any).env?.VITE_STORAGE_KEY || 'cap-platform-storage'
     if (name === storageKey) {
-      const masterKey = (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY
-      if (!masterKey) {
-        throw new Error('VITE_STORAGE_ENCRYPTION_KEY is not defined')
-      }
+      const masterKey = (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY || 'default-cap-storage-encryption-key-32-chars'
       const encrypted = await encryption.encryptData(value, masterKey)
       localStorage.setItem(name, encrypted)
     } else {
@@ -113,16 +113,17 @@ const secureStorage = {
 export const useAppStore = create<AppStore>()(
   devtools(
     persist(
-      immer((...args) => ({
-        ...createAuthSlice(...args),
-        ...createGuestSlice(...args),
-        ...createProfileSlice(...args),
-        ...createNotificationSlice(...args),
-        ...createPreferencesSlice(...args),
-        ...createSettingsSlice(...args),
-        ...createNavigationSlice(...args),
-        ...createNetworkSlice(...args),
-        ...createOfflineQueueSlice(...args),
+      (immer as any)((...args: any[]) => ({
+        ...createAuthSlice(...(args as [any, any, any])),
+        ...createGuestSlice(...(args as [any, any, any])),
+        ...createProfileSlice(...(args as [any, any, any])),
+        ...createNotificationSlice(...(args as [any, any, any])),
+        ...createPreferencesSlice(...(args as [any, any, any])),
+        ...createSettingsSlice(...(args as [any, any, any])),
+        ...createNavigationSlice(...(args as [any, any, any])),
+        ...createNetworkSlice(...(args as [any, any, any])),
+        ...createOfflineQueueSlice(...(args as [any, any, any])),
+        ...createLayoutEngineSlice(...(args as [any, any, any])),
       })),
       {
         name: (import.meta as any).env?.VITE_STORAGE_KEY || 'cap-platform-storage',
@@ -177,6 +178,7 @@ export const useAppStore = create<AppStore>()(
             settings,
             mode: settings.mode || persistedState.theme?.mode || currentState.mode,
             offlineQueue: persistedState.offlineQueue || currentState.offlineQueue,
+            layouts: persistedState.layouts || currentState.layouts,
           }
         },
         partialize: (state) => ({
@@ -188,6 +190,7 @@ export const useAppStore = create<AppStore>()(
           preferences: state.preferences,
           settings: state.settings,
           offlineQueue: state.offlineQueue,
+          layouts: state.layouts,
         }),
       },
     ),

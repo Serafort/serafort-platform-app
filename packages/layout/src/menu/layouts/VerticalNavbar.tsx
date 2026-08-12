@@ -1,5 +1,4 @@
 import React from 'react'
-import { useTheme } from '@mui/material/styles'
 import type { CSSObject } from '@emotion/styled'
 import type { ChildrenType } from '@cap/shared-types'
 import { themeConfig, verticalLayoutClasses, layoutMenuTokens } from '@cap/theme'
@@ -14,7 +13,6 @@ const Navbar: React.FC<
     overrideStyles?: CSSObject
   }
 > = (props) => {
-  const theme = useTheme()
   const { children, overrideStyles } = props
   const { settings } = useSettings()
   const { navbarContentWidth } = settings

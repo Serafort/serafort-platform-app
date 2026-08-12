@@ -1,4 +1,3 @@
-import React from 'react'
 import type { ReactElement } from 'react'
 import { RouteLayoutEnum, LayoutModeEnum, type SystemMode } from '@cap/shared-types'
 import {
@@ -38,11 +37,7 @@ const LayoutWrapper = ({
 
   const isNoLayout = layoutOverride === RouteLayoutEnum.NO_LAYOUT
 
-  const isAdminLayout = React.useMemo(() => {
-    if (layoutOverride === RouteLayoutEnum.ADMIN) return true
-    if (layoutOverride === RouteLayoutEnum.PUBLIC) return false
-    return false
-  }, [layoutOverride])
+  const isAdminLayout = layoutOverride === RouteLayoutEnum.ADMIN
 
   // While hydrating: render the actual layout tree invisibly behind a
   // transparent overlay. This prevents layout-shift / blink because the DOM

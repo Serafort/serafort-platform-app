@@ -1,6 +1,9 @@
 import tseslint from 'typescript-eslint'
 import importPlugin from 'eslint-plugin-import'
 
+// Workspace architectural layers.
+// Note: several @cap/module-* and @cap/civil-registry packages listed below are provisioned
+// ahead of package creation to reserve their architectural layer boundaries.
 const Layers = {
   FOUNDATION: ['@cap/shared-types', '@cap/api-contracts'],
   LAYER_1: ['@cap/auth-contracts', '@cap/theme'],

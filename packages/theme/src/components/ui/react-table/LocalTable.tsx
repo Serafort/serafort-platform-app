@@ -27,13 +27,27 @@ import {
   getFacetedMinMaxValues,
   Row,
 } from '@tanstack/react-table'
-import fuzzyFilter from './fuzzyFilter'
+import * as comlink from 'comlink'
+import type { SearchService } from './search.worker'
 import type { DensityState, IPerson } from './types'
 import TableFilters from './TableFilters'
 import DebouncedInput from './DebouncedInput'
 import DensityFeature from './DensityFeature'
 import useSkipper from './useSkipper'
 import defaultColumn from './defaultColumn'
+import fuzzyFilter from './fuzzyFilter'
+
+// Worker singleton
+let searchWorkerProxy: comlink.Remote<SearchService> | null = null
+function getSearchWorkerProxy() {
+  if (!searchWorkerProxy) {
+    const worker = new Worker(new URL('./search.worker.ts', import.meta.url), {
+      type: 'module',
+    })
+    searchWorkerProxy = comlink.wrap<SearchService>(worker)
+  }
+  return searchWorkerProxy
+}
 
 // Stable references for TanStack Table factories
 const coreRowModel = getCoreRowModel<any>()
@@ -43,7 +57,6 @@ const paginationRowModel = getPaginationRowModel<any>()
 const facetedRowModel = getFacetedRowModel<any>()
 const facetedUniqueValues = getFacetedUniqueValues<any>()
 const facetedMinMaxValues = getFacetedMinMaxValues<any>()
-const filterFns = { fuzzy: fuzzyFilter }
 const features = [DensityFeature]
 
 interface LocalTableRowProps {
@@ -82,13 +95,41 @@ interface LocalTableProps {
 function LocalTableInner({ data, columns, loading = false }: LocalTableProps) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [globalFilter, setGlobalFilter] = React.useState('')
+  const [statusFilter, setStatusFilter] = React.useState('')
   const [tableData, setTableData] = React.useState<Array<IPerson>>([...data])
   const [density, setDensity] = React.useState<DensityState>('md')
+  const [isFiltering, setIsFiltering] = React.useState(false)
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper()
 
   useEffect(() => {
-    setTableData([...data])
-  }, [data])
+    let isActive = true
+    setIsFiltering(true)
+
+    const preFiltered = data.filter((user) => 
+      statusFilter ? user.status === statusFilter : true
+    )
+
+    if (!globalFilter) {
+      setTableData(preFiltered)
+      setIsFiltering(false)
+      return
+    }
+
+    const proxy = getSearchWorkerProxy()
+    proxy.fuzzyFilterData(preFiltered, globalFilter)
+      .then((result) => {
+        if (isActive) {
+          setTableData(result)
+          setIsFiltering(false)
+        }
+      })
+      .catch((err) => {
+        console.error('Search worker error:', err)
+        if (isActive) setIsFiltering(false)
+      })
+
+    return () => { isActive = false }
+  }, [data, statusFilter, globalFilter])
 
   const updateData = useCallback(
     (rowIndex: number, columnId: string, value: unknown) => {
@@ -127,23 +168,20 @@ function LocalTableInner({ data, columns, loading = false }: LocalTableProps) {
   const stateObj = useMemo(
     () => ({
       rowSelection,
-      globalFilter,
       density,
     }),
-    [rowSelection, globalFilter, density],
+    [rowSelection, density],
   )
 
   const table = useReactTable({
     data: tableData,
     columns,
     defaultColumn,
-    filterFns,
+    filterFns: { fuzzy: fuzzyFilter },
     state: stateObj,
     initialState: initialStateObj,
     autoResetPageIndex,
-    globalFilterFn: fuzzyFilter,
     onRowSelectionChange: setRowSelection,
-    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: coreRowModel,
     getFilteredRowModel: filteredRowModel,
     getSortedRowModel: sortedRowModel,
@@ -182,7 +220,7 @@ function LocalTableInner({ data, columns, loading = false }: LocalTableProps) {
           <Button variant='contained' onClick={handleToggleDensity}>
             Toggle Density
           </Button>
-          <TableFilters setData={setTableData} tableData={data} />
+          <TableFilters status={statusFilter} onStatusChange={setStatusFilter} />
           <Box display='flex' justifyContent='space-between'>
             <Box className='flex flex-col sm:flex-row is-full sm:is-auto items-start sm:items-center gap-4'>
               <DebouncedInput
