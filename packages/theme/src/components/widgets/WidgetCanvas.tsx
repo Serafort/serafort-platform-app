@@ -203,6 +203,8 @@ export const WidgetCanvas: React.FC<WidgetCanvasProps> = ({
             const sizeConfig = nodeSize || (layout.slotSizes && layout.slotSizes[slotId])
             const descriptor = widgetId ? globalWidgetRegistry.get(widgetId) : undefined
 
+            const config = isWidgetNode(slotValue) ? slotValue.config : undefined
+
             if (!widgetId || !descriptor) {
               return (
                 <EmptySlotDroppable 
@@ -237,6 +239,7 @@ export const WidgetCanvas: React.FC<WidgetCanvasProps> = ({
                   widgetId={widgetId}
                   mode={effectiveMode}
                   defaultLayout={nodeSubLayout || defaultLayout}
+                  config={config}
                 />
               </Box>
             )

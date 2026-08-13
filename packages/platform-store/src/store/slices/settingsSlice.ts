@@ -15,7 +15,7 @@ export interface Settings {
   primaryColor: string
 }
 
-export type LayoutOverride = 'public' | 'admin' | 'noLayout' | 'none'
+export type LayoutOverride = 'public' | 'admin' | 'vertical' | 'horizontal' | 'noLayout' | 'none'
 
 export interface SettingsSlice {
   mode: Mode

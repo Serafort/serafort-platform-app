@@ -13,10 +13,11 @@ import { sanitizePrompt } from './sanitizer'
 import { runRequirementAgent } from './RequirementAgent'
 import { runDesignAgent } from './DesignAgent'
 import { runComponentAgent } from './ComponentAgent'
+import { runCriticAgent } from './CriticAgent'
 import { runValidationAgent } from './ValidationAgent'
 import { runPreviewAgent } from './PreviewAgent'
 import { runPublishAgent } from './PublishAgent'
-import { geminiProvider } from './GeminiProvider'
+import { getAIProvider } from './ProviderFactory'
 import { useAppStore } from '@cap/platform-store'
 
 export interface OrchestratorOptions {
@@ -69,15 +70,16 @@ function appendStream(draftId: string, agentId: AgentId, text: string) {
 export async function runAgentPipeline(
   options: OrchestratorOptions,
 ): Promise<OrchestratorResult> {
+  const store = useAppStore.getState()
+  const activeProvider = options.provider || getAIProvider(store.selectedProvider, store.selectedModel)
+
   const {
     draftId,
     prompt,
     userId = 'anonymous',
-    provider = geminiProvider,
+    provider = activeProvider,
     autoPublish = false,
   } = options
-
-  const store = useAppStore.getState()
 
   // Mark pipeline as running
   store.setWidgetStudioRunning(true)
@@ -181,6 +183,21 @@ export async function runAgentPipeline(
       updateAgent(draftId, 'component', 'error', { error: msg })
       store.setWidgetStudioRunning(false)
       return { success: false, error: msg }
+    }
+
+    // ========================================================
+    // CRITIC AGENT — Aesthetic & Quality Evaluation
+    // ========================================================
+    try {
+      await runCriticAgent(
+        requirements,
+        design,
+        dsl,
+        provider,
+        (text) => appendStream(draftId, 'component', text),
+      )
+    } catch {
+      // Non-blocking quality check
     }
 
     // ========================================================

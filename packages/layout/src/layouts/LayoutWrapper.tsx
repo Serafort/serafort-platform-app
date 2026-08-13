@@ -36,8 +36,26 @@ const LayoutWrapper = ({
   useLayoutInit(systemMode)
 
   const isNoLayout = layoutOverride === RouteLayoutEnum.NO_LAYOUT
-
   const isAdminLayout = layoutOverride === RouteLayoutEnum.ADMIN
+  const isVerticalLayout = layoutOverride === RouteLayoutEnum.VERTICAL
+  const isHorizontalLayout = layoutOverride === RouteLayoutEnum.HORIZONTAL
+
+  const renderDashboardShell = (forcedLayout?: LayoutModeEnum) => {
+    const activeLayout = forcedLayout || (settings.layout === LayoutModeEnum.HORIZONTAL ? LayoutModeEnum.HORIZONTAL : LayoutModeEnum.VERTICAL)
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: '1 1 auto',
+          backgroundColor: 'transparent',
+        }}
+        data-skin={settings.skin}
+      >
+        {activeLayout === LayoutModeEnum.HORIZONTAL ? horizontalLayout : verticalLayout}
+      </Box>
+    )
+  }
 
   // While hydrating: render the actual layout tree invisibly behind a
   // transparent overlay. This prevents layout-shift / blink because the DOM
@@ -50,21 +68,13 @@ const LayoutWrapper = ({
         <Box sx={{ visibility: 'hidden', pointerEvents: 'none' }}>
           {isNoLayout
             ? (noLayout ?? null)
-            : isAdminLayout
-              ? (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flex: '1 1 auto',
-                    backgroundColor: 'transparent',
-                  }}
-                  data-skin={settings.skin}
-                >
-                  {settings.layout === LayoutModeEnum.HORIZONTAL ? horizontalLayout : verticalLayout}
-                </Box>
-              )
-              : (publicLayout ?? null)}
+            : isVerticalLayout
+              ? renderDashboardShell(LayoutModeEnum.VERTICAL)
+              : isHorizontalLayout
+                ? renderDashboardShell(LayoutModeEnum.HORIZONTAL)
+                : isAdminLayout
+                  ? renderDashboardShell()
+                  : (publicLayout ?? null)}
         </Box>
 
         {/* Centered spinner overlay */}
@@ -85,23 +95,9 @@ const LayoutWrapper = ({
   }
 
   if (isNoLayout) return noLayout ?? null
-
-  if (isAdminLayout)
-    return (
-      <>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            flex: '1 1 auto',
-            backgroundColor: 'transparent',
-          }}
-          data-skin={settings.skin}
-        >
-          {settings.layout === LayoutModeEnum.HORIZONTAL ? horizontalLayout : verticalLayout}
-        </Box>
-      </>
-    )
+  if (isVerticalLayout) return renderDashboardShell(LayoutModeEnum.VERTICAL)
+  if (isHorizontalLayout) return renderDashboardShell(LayoutModeEnum.HORIZONTAL)
+  if (isAdminLayout) return renderDashboardShell()
 
   return publicLayout ?? null
 }

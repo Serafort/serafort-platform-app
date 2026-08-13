@@ -12,6 +12,15 @@
 import type { CAPModule } from '@cap/shared-types'
 import { widgetStudioRouteConfig } from './routes/routes'
 import { widgetStudioDictionaries } from './i18n/registry'
+import { globalWidgetRegistry } from '@cap/platform-core'
+import { DynamicLayoutWidget } from '@cap/theme'
+
+// Register the core dynamic layout widget used by AI
+globalWidgetRegistry.register({
+  id: 'core-dynamic-layout',
+  titleKey: 'theme.widgets.dynamicLayout.title',
+  Component: DynamicLayoutWidget,
+})
 
 // Public component exports
 export { default as WidgetStudioPanel } from './screens/WidgetStudioPanel'
@@ -24,7 +33,8 @@ export { default as PromptInput } from './components/PromptInput'
 export { runAgentPipeline, publishDraft } from './agents/AgentOrchestrator'
 export { validateWidgetDsl } from './agents/ValidationAgent'
 export { sanitizePrompt, extractJson } from './agents/sanitizer'
-export { geminiProvider } from './agents/GeminiProvider'
+export { openRouterProvider } from './agents/OpenRouterProvider'
+export { getAIProvider } from './agents/ProviderFactory'
 export type { AIProvider, AIGenerateOptions, AIGenerateResult } from './agents/AIProvider.interface'
 export { APPROVED_WIDGETS } from './agents/ComponentAgent'
 

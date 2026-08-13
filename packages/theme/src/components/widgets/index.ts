@@ -18,3 +18,8 @@ export * from './DashboardViewSelector'
 
 export { default as DynamicAiWidget } from './DynamicAiWidget'
 export * from './DynamicAiWidget'
+
+export { default as DynamicLayoutWidget } from './DynamicLayoutWidget'
+export * from './DynamicLayoutWidget'
+
+

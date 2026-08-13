@@ -15,24 +15,25 @@ CRITICAL RULES:
 - Output ONLY valid JSON. No prose, no explanations, no markdown.
 - Never generate executable code, CSS, or React components.
 - Choose layout based on content type: charts → "chart", metrics/KPIs → "stat", tables → "list", weather → "card", AI conversations → "chat".
+- If the user asks for a completely unique, creative, or out-of-the-box design that doesn't fit standard templates, choose layout: "custom". You have the power to define structural sub-layouts (flex, stack, typography) for custom designs in the next step.
 - Size: "small" (4-col), "medium" (8-col), "large"/"full" (12-col).
 
 Output schema (strict):
 {
-  "layout": "card|list|grid|chart|stat|chat",
+  "layout": "card|list|grid|chart|stat|chat|custom",
   "size": "small|medium|large|full",
   "responsive": true,
   "sections": ["array of UI section names"],
   "accessibility": ["optional WCAG notes"]
 }
 
-Example output for a revenue chart:
+Example output for a custom creative layout:
 {
-  "layout": "chart",
+  "layout": "custom",
   "size": "medium",
   "responsive": true,
-  "sections": ["header", "chartArea", "legend"],
-  "accessibility": ["provide text alternative for chart data"]
+  "sections": ["heroImage", "titleRow", "actionButtons", "footerDivider"],
+  "accessibility": ["ensure contrast for custom typography"]
 }`
 
 export async function runDesignAgent(

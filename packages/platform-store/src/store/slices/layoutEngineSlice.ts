@@ -67,7 +67,7 @@ export interface LayoutEngineSlice {
   addSlot: (
     pageId: string,
     slotId: string,
-    widgetId: string,
+    widgetId: SlotWidgetValue,
     size?: { span?: WidgetSpan; height?: WidgetHeight }
   ) => void
   /** Saves current layouts state as a named view template. */

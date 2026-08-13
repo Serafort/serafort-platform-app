@@ -31,6 +31,18 @@ export const LayoutRouteWrapper: React.FC<LayoutRouteWrapperProps> = ({
       updateLayoutOverride(RouteLayoutEnum.NO_LAYOUT)
       return () => updateLayoutOverride(RouteLayoutEnum.NONE)
     }
+    if (layout === RouteLayoutEnum.VERTICAL) {
+      updateLayoutOverride(RouteLayoutEnum.VERTICAL)
+      return () => updateLayoutOverride(RouteLayoutEnum.NONE)
+    }
+    if (layout === RouteLayoutEnum.HORIZONTAL) {
+      updateLayoutOverride(RouteLayoutEnum.HORIZONTAL)
+      return () => updateLayoutOverride(RouteLayoutEnum.NONE)
+    }
+    if (layout === RouteLayoutEnum.PUBLIC) {
+      updateLayoutOverride(RouteLayoutEnum.PUBLIC)
+      return () => updateLayoutOverride(RouteLayoutEnum.NONE)
+    }
     // 'admin' override is set by AdminRoute itself — no action needed here
   }, [layout, updateLayoutOverride])
 

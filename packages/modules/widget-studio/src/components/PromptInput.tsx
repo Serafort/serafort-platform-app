@@ -9,6 +9,7 @@ import {
 } from '@mui/material'
 import SendRounded from '@mui/icons-material/SendRounded'
 import AutoFixHighRounded from '@mui/icons-material/AutoFixHighRounded'
+import { ModelSelector } from './ModelSelector'
 
 interface PromptInputProps {
   onSubmit: (prompt: string) => void
@@ -43,6 +44,9 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, disabled, isRunning
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      {/* Dynamic LLM Provider & Model Selector */}
+      <ModelSelector />
+
       {/* Example prompt chips */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
         {EXAMPLE_PROMPTS.map((example) => (

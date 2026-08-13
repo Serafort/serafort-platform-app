@@ -1,4 +1,3 @@
-export * from '@cap/platform-store'
 export * from './tenantService'
 export * from './theme/theme.service'
 export * from './module-pipeline.service'

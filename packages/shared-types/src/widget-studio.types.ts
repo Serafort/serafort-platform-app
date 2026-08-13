@@ -12,6 +12,49 @@
 // Widget DSL — The canonical AI-produced definition
 // ============================================
 
+export type ProviderType = 'openrouter' | 'gemini'
+
+export interface LLMModelOption {
+  id: string
+  name: string
+  provider: ProviderType
+  description?: string
+}
+
+export const AVAILABLE_LLM_MODELS: LLMModelOption[] = [
+  // OpenRouter models
+  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openrouter', description: 'Fast, balanced & lightweight' },
+  { id: 'openai/gpt-4o', name: 'GPT-4o', provider: 'openrouter', description: 'High reasoning & intelligence' },
+  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', provider: 'openrouter', description: 'Exceptional coding & design' },
+  { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Llama 3.3 70B', provider: 'openrouter', description: 'Open-source state of the art' },
+  { id: 'google/gemini-2.0-flash-001', name: 'Gemini 2.0 Flash (OR)', provider: 'openrouter', description: 'Ultra-fast multimodal model' },
+  
+  // Gemini Native models
+  { id: 'gemini-3.6-flash', name: 'Gemini 3.6 Flash', provider: 'gemini', description: 'Native Google DeepMind Flash' },
+  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'gemini', description: 'Fast low-latency generation' },
+  { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', provider: 'gemini', description: 'Stable Google multimodal' },
+]
+
+export interface WidgetAction {
+  type: 'NAVIGATE' | 'TOGGLE_STATE' | 'NOTIFY' | 'OPEN_LINK'
+  payload?: Record<string, unknown> | string
+}
+
+/**
+ * A recursive node representing a generic layout element.
+ * Used by the AI to compose completely custom widget designs.
+ */
+export interface WidgetRenderNode {
+  /** The generic MUI element or HTML equivalent to render */
+  type: 'box' | 'typography' | 'icon' | 'stack' | 'paper' | 'divider' | 'button' | 'image' | 'avatar' | 'chip' | 'card' | 'grid'
+  /** Props applied to the component (e.g. sx, variant, color) */
+  props?: Record<string, unknown>
+  /** Optional interactive action triggered when clicked */
+  action?: WidgetAction
+  /** Nested child nodes or text */
+  children?: WidgetRenderNode[] | string
+}
+
 /**
  * The canonical definition of a widget produced by the AI agent pipeline.
  * Widgets are executed by the platform's DynamicWidgetRenderer — never by the LLM.

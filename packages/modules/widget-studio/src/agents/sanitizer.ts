@@ -102,15 +102,17 @@ export function sanitizePrompt(
 
 /**
  * Extracts pure JSON from an LLM response that may include markdown fences or prose.
- * Attempts multiple extraction strategies in order.
+ * Includes auto-repair for truncated outputs caused by stream limits.
  */
 export function extractJson(text: string): unknown | null {
+  if (!text || typeof text !== 'string') return null
+
   // Strategy 1: Direct JSON parse
   try {
     return JSON.parse(text.trim())
   } catch { /* continue */ }
 
-  // Strategy 2: Extract from markdown code fence ```json ... ```
+  // Strategy 2: Extract from complete markdown code fence ```json ... ```
   const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/)
   if (fenceMatch?.[1]) {
     try {
@@ -127,6 +129,66 @@ export function extractJson(text: string): unknown | null {
     const sub = text.slice(start)
     try {
       return JSON.parse(sub)
+    } catch { /* continue */ }
+  }
+
+  // Strategy 4: Unclosed code fence or truncated stream JSON auto-repair
+  let candidate = text
+  const openFenceMatch = text.match(/```(?:json)?\s*([\s\S]*)/)
+  if (openFenceMatch?.[1]) {
+    candidate = openFenceMatch[1]
+  }
+
+  const oStart = candidate.indexOf('{')
+  const aStart = candidate.indexOf('[')
+  const cStart = oStart === -1 ? aStart : aStart === -1 ? oStart : Math.min(oStart, aStart)
+
+  if (cStart !== -1) {
+    let cleaned = candidate.slice(cStart).trim()
+
+    // Remove unclosed trailing key/value fragments
+    cleaned = cleaned.replace(/,\s*("[^"]*")?\s*:\s*("[^"]*)?$/, '')
+    cleaned = cleaned.replace(/,\s*$/, '')
+
+    let openBraces = 0
+    let openBrackets = 0
+    let inString = false
+    let isEscaped = false
+
+    for (let i = 0; i < cleaned.length; i++) {
+      const char = cleaned[i]
+      if (isEscaped) {
+        isEscaped = false
+        continue
+      }
+      if (char === '\\') {
+        isEscaped = true
+        continue
+      }
+      if (char === '"') {
+        inString = !inString
+        continue
+      }
+      if (!inString) {
+        if (char === '{') openBraces++
+        else if (char === '}') openBraces = Math.max(0, openBraces - 1)
+        else if (char === '[') openBrackets++
+        else if (char === ']') openBrackets = Math.max(0, openBrackets - 1)
+      }
+    }
+
+    if (inString) cleaned += '"'
+    while (openBrackets > 0) {
+      cleaned += ']'
+      openBrackets--
+    }
+    while (openBraces > 0) {
+      cleaned += '}'
+      openBraces--
+    }
+
+    try {
+      return JSON.parse(cleaned)
     } catch { /* continue */ }
   }
 

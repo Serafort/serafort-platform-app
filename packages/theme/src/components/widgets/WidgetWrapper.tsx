@@ -46,6 +46,7 @@ export interface WidgetWrapperProps {
   mode: DashboardMode
   defaultLayout?: GridLayout
   onReset?: () => void
+  config?: Record<string, any>
 }
 
 const EMPTY_SLOTS: string[] = []
@@ -57,6 +58,7 @@ const WidgetWrapperInner: React.FC<WidgetWrapperProps> = ({
   mode,
   defaultLayout,
   onReset,
+  config,
 }) => {
   const { t } = useTranslation()
   const slots = useAppStore((state) => state.layouts[pageId]?.slots || EMPTY_SLOTS)
@@ -394,7 +396,7 @@ const WidgetWrapperInner: React.FC<WidgetWrapperProps> = ({
       <ContainerSizeProvider size={{ width: containerWidth, height: 0, containerSize: (() => { const w = containerWidth; if (w >= 1280) return 'xl'; if (w >= 1024) return 'lg'; if (w >= 768) return 'md'; if (w >= 480) return 'sm'; return 'xs'; })(), entry: null }}>
         <React.Suspense fallback={<Skeleton variant="rounded" sx={{ flex: 1 }} aria-label={t('dashboard.widgetLoading')} />}>
           <Box sx={{ flex: 1, minHeight: 0 }}>
-            <WidgetComponent subLayout={defaultLayout} mode={mode} slotId={slotId} pageId={pageId} />
+            <WidgetComponent subLayout={defaultLayout} mode={mode} slotId={slotId} pageId={pageId} {...config} />
           </Box>
         </React.Suspense>
       </ContainerSizeProvider>

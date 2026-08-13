@@ -43,6 +43,12 @@ const APPROVED_WIDGETS = [
     description: 'Conversational AI chat interface embedded in the dashboard',
     bestFor: ['chat', 'ai', 'assistant', 'conversation', 'help'],
   },
+  {
+    id: 'core-dynamic-layout',
+    name: 'Dynamic Layout Widget',
+    description: 'A highly flexible generic renderer that composes custom UI from a recursive tree of nodes.',
+    bestFor: ['custom', 'creative', 'unique', 'composite', 'freeform'],
+  },
 ]
 
 const SYSTEM_PROMPT = `You are the Component Agent in a widget generation pipeline.
@@ -52,6 +58,11 @@ CRITICAL RULES:
 - Output ONLY valid JSON. No prose, no code, no markdown.
 - You MUST choose a widgetId from the approved registry only — never invent new component IDs.
 - Also produce the full WidgetDefinition DSL for the selected component.
+- If using 'core-dynamic-layout' for custom designs, you MUST provide 'nodes' inside 'props' (or 'suggestedProps') which is an array of WidgetRenderNode objects.
+- A WidgetRenderNode has a 'type' (box, typography, icon, stack, paper, divider, button, image, avatar, chip, card, grid), optional 'props' (e.g. { "sx": { "p": 2 }, "variant": "h6", "name": "Dashboard" for icons }), and optional 'children' (array of WidgetRenderNodes or text).
+- CRITICALLY IMPORTANT: When the design specification calls for advanced UI like cards, bento boxes, avatars, or asymmetrical columns, you MUST aggressively use 'card', 'avatar', 'chip', and 'grid' nodes. Do NOT just fall back to basic 'box' and 'stack' elements.
+- CRITICALLY IMPORTANT (AESTHETICS): To achieve beautiful, WOW-factor designs, you MUST extensively use the 'sx' prop on nodes to apply rich styling. Use gradients, glassmorphism (e.g., "backdropFilter": "blur(10px)", "backgroundColor": "rgba(...)"), neon borders, box-shadows, varied typography variants, and custom colors to make the UI look premium and tailored to the requested theme.
+- STRUCTURAL EFFICIENCY: Keep your JSON tree clean, elegant, and concise. Avoid unnecessary redundant wrapper boxes (keep nesting depth <= 5 levels) so that the generated JSON fits comfortably within response limits.
 
 APPROVED WIDGET REGISTRY:
 ${JSON.stringify(APPROVED_WIDGETS, null, 2)}
@@ -60,7 +71,10 @@ Output schema (strict):
 {
   "widgetId": "one of the approved widget IDs above",
   "rationale": "brief explanation of why this component was chosen",
-  "suggestedProps": { "optional static props to pass to the component" },
+  "suggestedProps": { 
+    "optional static props to pass to the component",
+    "nodes": [ { "type": "grid", "props": { "container": true, "spacing": 2 }, "children": [ { "type": "grid", "props": { "item": true, "xs": 12, "md": 6 }, "children": [ { "type": "card", "props": { "sx": { "bgcolor": "background.paper" } }, "children": [ { "type": "avatar", "props": { "src": "/path.png" } } ] } ] } ] } ]
+  },
   "dsl": {
     "id": "new-widget-<uuid-placeholder>",
     "name": "Human-readable widget name",

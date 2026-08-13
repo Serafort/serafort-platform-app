@@ -8,6 +8,7 @@ import type {
   WidgetDefinition,
   WidgetAuditEntry,
   WidgetLifecycle,
+  ProviderType,
 } from '@cap/shared-types'
 
 // ============================================
@@ -31,6 +32,12 @@ const createInitialAgents = (): AgentState[] =>
 // ============================================
 
 export interface WidgetStudioSlice {
+  // ---- LLM Provider & Model Selection ----
+  selectedProvider: ProviderType
+  selectedModel: string
+  setSelectedProvider: (provider: ProviderType) => void
+  setSelectedModel: (model: string) => void
+
   // ---- Panel State ----
   /** Whether the AI Widget Studio drawer is open */
   widgetStudioPanelOpen: boolean
@@ -89,6 +96,26 @@ export const createWidgetStudioSlice: StateCreator<
   [],
   WidgetStudioSlice
 > = (set, get) => ({
+  // ---- LLM Provider & Model Selection ----
+  selectedProvider: 'openrouter',
+  selectedModel: 'openai/gpt-4o-mini',
+
+  setSelectedProvider: (provider: ProviderType) =>
+    set((state) => {
+      state.selectedProvider = provider
+      // Automatically switch to default model for chosen provider
+      if (provider === 'gemini') {
+        state.selectedModel = 'gemini-3.6-flash'
+      } else {
+        state.selectedModel = 'openai/gpt-4o-mini'
+      }
+    }),
+
+  setSelectedModel: (model: string) =>
+    set((state) => {
+      state.selectedModel = model
+    }),
+
   // ---- Panel State ----
   widgetStudioPanelOpen: false,
 

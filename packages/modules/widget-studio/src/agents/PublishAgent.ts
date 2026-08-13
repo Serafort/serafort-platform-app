@@ -47,7 +47,12 @@ export function runPublishAgent(
       // Generate a new slot ID for the widget
       const newSlotId = `${pageId}-ai-slot-${Date.now()}`
 
-      store.addSlot(pageId, newSlotId, finalDsl.component, {
+      const widgetNode = {
+        widgetId: finalDsl.component,
+        config: finalDsl.props,
+      }
+
+      store.addSlot(pageId, newSlotId, widgetNode as any, {
         span: finalDsl.layout.width as 4 | 8 | 12,
         height: finalDsl.layout.height as 200 | 280 | 340 | 400,
       })

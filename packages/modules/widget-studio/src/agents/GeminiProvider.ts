@@ -40,6 +40,12 @@ function getModel(): string {
 }
 
 export class GeminiProvider implements AIProvider {
+  private customModel?: string
+
+  constructor(model?: string) {
+    this.customModel = model
+  }
+
   async generate(options: AIGenerateOptions): Promise<AIGenerateResult> {
     const apiKey = getApiKey()
     if (!apiKey) {
@@ -49,7 +55,7 @@ export class GeminiProvider implements AIProvider {
       return { fullText: errorMsg, error: errorMsg }
     }
 
-    let model = getModel()
+    let model = this.customModel || getModel()
     let endpoint = `${GEMINI_API_BASE}/models/${model}:streamGenerateContent?key=${apiKey}&alt=sse`
 
     // Build request body — system prompt enforces JSON-only output
@@ -71,7 +77,7 @@ export class GeminiProvider implements AIProvider {
       generationConfig: {
         temperature: 0.2,       // Low temperature for deterministic JSON outputs
         topP: 0.8,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 8192,
       },
     }
 

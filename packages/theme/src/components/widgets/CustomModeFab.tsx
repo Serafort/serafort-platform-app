@@ -6,6 +6,7 @@ import Storefront from '@mui/icons-material/Storefront';
 import Palette from '@mui/icons-material/Palette';
 import Add from '@mui/icons-material/Add';
 import Tune from '@mui/icons-material/Tune';
+import AutoFixHighRounded from '@mui/icons-material/AutoFixHighRounded';
 import { widgetMarketplaceStore } from '../../store/widgetMarketplaceStore'
 import { themeEditorStore } from '../../store/themeEditorStore'
 import { useAppStore } from '@cap/platform-store'
@@ -28,6 +29,13 @@ export const CustomModeFab: React.FC<CustomModeFabProps> = ({ customMode, onTogg
   const [open, setOpen] = useState(false)
   const addPanel = useAppStore((state) => state.addPanel)
 
+  const openWidgetStudioPanel = useAppStore((state) => state.openWidgetStudioPanel)
+
+  const handleOpenWidgetStudio = () => {
+    setOpen(false)
+    openWidgetStudioPanel()
+  }
+
   const handleOpenMarketplace = () => {
     setOpen(false)
     widgetMarketplaceStore.openMarketplace(pageId, 0)
@@ -49,6 +57,11 @@ export const CustomModeFab: React.FC<CustomModeFabProps> = ({ customMode, onTogg
   }
 
   const actions = [
+    {
+      icon: <AutoFixHighRounded color="secondary" />,
+      name: 'AI Widget Studio (Gemini)',
+      onClick: handleOpenWidgetStudio,
+    },
     {
       icon: <Storefront color="primary" />,
       name: 'Widget & Canvas Marketplace',
