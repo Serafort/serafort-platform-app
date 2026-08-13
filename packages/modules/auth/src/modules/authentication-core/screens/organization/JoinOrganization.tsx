@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, CircularProgress, Avatar, Stack, Divider, alpha, useTheme } from '@mui/material';
-import { CheckCircle, Groups, BadgeOutlined, TimerOutlined, ErrorOutline, Close, ArrowForward } from '@mui/icons-material';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import Groups from '@mui/icons-material/Groups';
+import BadgeOutlined from '@mui/icons-material/BadgeOutlined';
+import TimerOutlined from '@mui/icons-material/TimerOutlined';
+import ErrorOutline from '@mui/icons-material/ErrorOutline';
+import Close from '@mui/icons-material/Close';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { adminService } from '@auth/authorization-engine/services/adminService';

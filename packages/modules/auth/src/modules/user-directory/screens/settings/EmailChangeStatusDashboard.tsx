@@ -1,6 +1,7 @@
 
 import { Box, Typography, Card, CardContent, Button, Stepper, Step, StepLabel, StepContent, Container, Paper, Divider, Stack } from '@mui/material';
-import { CheckCircle, Info } from '@mui/icons-material';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import Info from '@mui/icons-material/Info';
 import { useTranslation } from 'react-i18next';
 
 const EmailChangeStatusDashboard = () => {

@@ -10,7 +10,8 @@ import {
   Chip,
   Box,
 } from '@mui/material'
-import { Delete as DeleteIcon, Devices as DevicesIcon } from '@mui/icons-material'
+import DeleteIcon from '@mui/icons-material/Delete';
+import DevicesIcon from '@mui/icons-material/Devices';
 import { useTranslation } from 'react-i18next'
 import { useSessions, useRevokeSession, useRevokeAllSessions } from "@idaas/authentication-core/hooks/useAuthQuery"
 

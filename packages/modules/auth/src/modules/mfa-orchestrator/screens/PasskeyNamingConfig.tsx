@@ -14,7 +14,11 @@ import {
   Chip,
   alpha,
 } from '@mui/material'
-import { ArrowBack, Edit, Devices, Schedule, CheckCircle } from '@mui/icons-material'
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Edit from '@mui/icons-material/Edit';
+import Devices from '@mui/icons-material/Devices';
+import Schedule from '@mui/icons-material/Schedule';
+import CheckCircle from '@mui/icons-material/CheckCircle';
 import { useTranslation } from 'react-i18next'
 
 export default function PasskeyNamingConfig() {

@@ -14,7 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import { useCreateUser } from "@idaas/authentication-core/hooks/useAdminQuery"
 
 interface CreateUserRequest {
@@ -32,7 +32,6 @@ interface CreateUserDialogProps {
 
 export default function CreateUserDialog({ open, onClose }: CreateUserDialogProps) {
   const { t } = useTranslation('common')
-  const { enqueueSnackbar } = useSnackbar()
   const [formData, setFormData] = useState<CreateUserRequest>({
     email: '',
     password: '',
@@ -51,10 +50,10 @@ export default function CreateUserDialog({ open, onClose }: CreateUserDialogProp
         lastname: '',
         role_id: 1,
       })
-      enqueueSnackbar(t('auth.admin.successCreate'), { variant: 'success' })
+      toast.success(t('auth.admin.successCreate'))
     },
     onError: (error: any) => {
-      enqueueSnackbar(error.message || t('auth.admin.errorCreate'), { variant: 'error' })
+      toast.error(error.message || t('auth.admin.errorCreate'))
     },
   })
 

@@ -1,8 +1,21 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Grid, Avatar, Card, IconButton, Chip, Tooltip, CircularProgress, Stack, useTheme, alpha, Tabs, Tab, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Pagination, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { ArrowBack, Refresh, CheckCircle, Error as ErrorIcon,  Delete, Settings, Storage, Info, History, Hub, CompareArrows, Security, ChevronRight, Save } from '@mui/icons-material';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Refresh from '@mui/icons-material/Refresh';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+import Delete from '@mui/icons-material/Delete';
+import Settings from '@mui/icons-material/Settings';
+import Storage from '@mui/icons-material/Storage';
+import Info from '@mui/icons-material/Info';
+import History from '@mui/icons-material/History';
+import Hub from '@mui/icons-material/Hub';
+import CompareArrows from '@mui/icons-material/CompareArrows';
+import Security from '@mui/icons-material/Security';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import Save from '@mui/icons-material/Save';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { useProvisioningConnector, useSyncProvisioningConnector, useUpdateProvisioningConnector, useDeleteProvisioningConnector, useProvisioningConnectorLogs } from '@idaas/authentication-core/hooks/useAdminQuery';
 import Path from '../path';
@@ -98,7 +111,6 @@ const ConnectorDetailView: React.FC = () => {
   const theme = useTheme()
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const { enqueueSnackbar } = useSnackbar()
   const { t } = useTranslation('auth')
 
   const [tabValue, setTabValue] = useState(0)
@@ -125,44 +137,34 @@ const ConnectorDetailView: React.FC = () => {
 
   const syncMutation = useSyncProvisioningConnector({
     onSuccess: () => {
-      enqueueSnackbar(t('admin.provisioning.connector.messages.sync_queued'), {
-        variant: 'success',
-      })
+      toast.success(t('admin.provisioning.connector.messages.sync_queued'))
       refetchConnector()
     },
     onError: (err: any) => {
       logger.error('Sync failed', { error: err })
-      enqueueSnackbar(t('admin.provisioning.connector.messages.error_generic'), {
-        variant: 'error',
-      })
+      toast.error(t('admin.provisioning.connector.messages.error_generic'))
     },
   })
 
   const updateMutation = useUpdateProvisioningConnector({
     onSuccess: () => {
-      enqueueSnackbar(t('admin.provisioning.connector.messages.config_saved'), {
-        variant: 'success',
-      })
+      toast.success(t('admin.provisioning.connector.messages.config_saved'))
       refetchConnector()
     },
     onError: (err: any) => {
       logger.error('Update failed', { error: err })
-      enqueueSnackbar(t('admin.provisioning.connector.messages.error_generic'), {
-        variant: 'error',
-      })
+      toast.error(t('admin.provisioning.connector.messages.error_generic'))
     },
   })
 
   const deleteMutation = useDeleteProvisioningConnector({
     onSuccess: () => {
-      enqueueSnackbar(t('admin.provisioning.connector.messages.deleted'), { variant: 'success' })
+      toast.success(t('admin.provisioning.connector.messages.deleted'))
       navigate(Path.provisioning)
     },
     onError: (err: any) => {
       logger.error('Delete failed', { error: err })
-      enqueueSnackbar(t('admin.provisioning.connector.messages.error_generic'), {
-        variant: 'error',
-      })
+      toast.error(t('admin.provisioning.connector.messages.error_generic'))
     },
   })
 

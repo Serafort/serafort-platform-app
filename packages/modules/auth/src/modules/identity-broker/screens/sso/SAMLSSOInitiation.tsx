@@ -33,7 +33,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Path, useSsoDiscovery } from "@auth"
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 
 
 // â”€â”€ Debounce utility â”€â”€
@@ -60,7 +60,6 @@ const SAMLSSOInitiation = () => {
   const { t } = useTranslation()
   const theme = useTheme()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
   const [isRedirecting, setIsRedirecting] = useState(false)
   const submitAttemptedRef = useRef(false)
 
@@ -104,9 +103,8 @@ const SAMLSSOInitiation = () => {
     submitAttemptedRef.current = true
 
     if (!discoveryData || !providerType) {
-      enqueueSnackbar(
-        t('auth.sso.no_provider_found', 'No SSO configuration found for this identifier.'),
-        { variant: 'warning' },
+      toast.warning(
+        t('auth.sso.no_provider_found', 'No SSO configuration found for this identifier.')
       )
       return
     }
@@ -144,9 +142,8 @@ const SAMLSSOInitiation = () => {
         case 'github':
         case 'microsoft': {
           // Social providers â†’ redirect to provider selection or directly to social auth
-          enqueueSnackbar(
-            t('auth.sso.social_redirect', `Redirecting to ${providerType} login...`),
-            { variant: 'info' },
+          toast.info(
+            t('auth.sso.social_redirect', `Redirecting to ${providerType} login...`)
           )
           navigate(`${Path.auth.providerSelection}?provider=${providerType}`)
           break
@@ -155,12 +152,11 @@ const SAMLSSOInitiation = () => {
         case 'password':
         default: {
           // No enterprise SSO found â€” fall back to standard login
-          enqueueSnackbar(
+          toast.info(
             t(
               'auth.sso.no_enterprise_sso',
               'No enterprise SSO found for this domain. Redirecting to standard login.',
-            ),
-            { variant: 'info' },
+            )
           )
           navigate(Path.auth.signin)
           break
@@ -169,12 +165,11 @@ const SAMLSSOInitiation = () => {
     } catch (err: unknown) {
       // Error already surfaced via snackbar below
       setIsRedirecting(false)
-      enqueueSnackbar(
-        t('auth.sso.initiation_error', 'Failed to initiate SSO. Please try again.'),
-        { variant: 'error' },
+      toast.error(
+        t('auth.sso.initiation_error', 'Failed to initiate SSO. Please try again.')
       )
     }
-  }, [discoveryData, providerType, debouncedIdentifier, navigate, enqueueSnackbar, t])
+  }, [discoveryData, providerType, debouncedIdentifier, navigate,  t])
 
   // Show discovery errors
   useEffect(() => {

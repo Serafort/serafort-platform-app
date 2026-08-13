@@ -1,6 +1,8 @@
 import React from 'react'
 import { Box, Button, TextField, Typography, Link as MuiLink, alpha } from '@mui/material'
-import { LockPerson, ArrowForward, Timer } from '@mui/icons-material'
+import LockPerson from '@mui/icons-material/LockPerson';
+import ArrowForward from '@mui/icons-material/ArrowForward';
+import Timer from '@mui/icons-material/Timer';
 import { AuthScreenIcon, AuthActionButton } from '../../../components/shared/auth'
 import { PendingMfaUser } from '../hooks/useSignInFlow'
 

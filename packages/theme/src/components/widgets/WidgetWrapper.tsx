@@ -10,20 +10,18 @@ import {
   MenuItem,
   Skeleton,
 } from '@mui/material'
-import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  Crop,
-  Delete,
-  DeleteOutline,
-  DragIndicator,
-  DriveFileMove,
-  MoreVert,
-  RestartAlt,
-  Settings,
-  ViewColumn,
-} from '@mui/icons-material'
+import ArrowLeft from '@mui/icons-material/ArrowLeft';
+import ArrowRight from '@mui/icons-material/ArrowRight';
+import Check from '@mui/icons-material/Check';
+import Crop from '@mui/icons-material/Crop';
+import Delete from '@mui/icons-material/Delete';
+import DeleteOutline from '@mui/icons-material/DeleteOutline';
+import DragIndicator from '@mui/icons-material/DragIndicator';
+import DriveFileMove from '@mui/icons-material/DriveFileMove';
+import MoreVert from '@mui/icons-material/MoreVert';
+import RestartAlt from '@mui/icons-material/RestartAlt';
+import Settings from '@mui/icons-material/Settings';
+import ViewColumn from '@mui/icons-material/ViewColumn';
 import { widgetInspectorStore } from '../../store/widgetInspectorStore'
 import { useTranslation } from 'react-i18next'
 import { globalWidgetRegistry, useResizeObserver, ContainerSizeProvider } from '@cap/platform-core'

@@ -44,7 +44,7 @@ import ChevronRight from '@mui/icons-material/ChevronRight'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Link as RouterLink } from 'react-router-dom'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import CircularProgress from '@mui/material/CircularProgress'
 import { useOIDCClients, useDeleteOIDCClient, Path } from "@auth"
 import { buildLayoutSurfaceEffect } from '@cap/layout'
@@ -53,7 +53,6 @@ import { getTenantThemeEffects } from '@cap/theme'
 export default function OIDCConfigBrowser() {
   const { t } = useTranslation()
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
   const [search, setSearch] = useState('')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [clientToDelete, setClientToDelete] = useState<string | number | null>(null)
@@ -77,12 +76,12 @@ export default function OIDCConfigBrowser() {
     if (clientToDelete) {
       deleteMutation.mutate(String(clientToDelete), {
         onSuccess: () => {
-          enqueueSnackbar(t('common.deleted_successfully', 'Deleted successfully'), { variant: 'success' })
+          toast.success(t('common.deleted_successfully', 'Deleted successfully'))
           setDeleteDialogOpen(false)
           setClientToDelete(null)
         },
         onError: (err: any) => {
-          enqueueSnackbar(err.message || t('common.error_deleting', 'Error deleting client'), { variant: 'error' })
+          toast.error(err.message || t('common.error_deleting', 'Error deleting client'))
           setDeleteDialogOpen(false)
           setClientToDelete(null)
         },
@@ -370,7 +369,7 @@ export default function OIDCConfigBrowser() {
                             sx={{ p: 0.5, border: '1px solid', borderColor: 'divider' }}
                             onClick={() => {
                               navigator.clipboard.writeText(client.client_id || client.clientId)
-                              enqueueSnackbar(t('common.copied', 'Copied to clipboard'), { variant: 'success' })
+                              toast.success(t('common.copied', 'Copied to clipboard'))
                             }}
                             aria-label={t('common.copy', 'Copy Client ID')}
                           >

@@ -47,7 +47,7 @@ import { ConfirmationDialog } from '@idaas/authentication-core/components/shared
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useDebounce } from 'use-debounce'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import {
   useUsers,
   useBanUser,
@@ -62,7 +62,6 @@ import { getTenantThemeEffects } from '@cap/theme'
 
 export default function UserList() {
   const { t } = useTranslation('common')
-  const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useState({
@@ -160,11 +159,11 @@ export default function UserList() {
         onSuccess: () => {
           setConfirmBanOpen(false)
           setSelectedUser(null)
-          enqueueSnackbar(t('auth.admin.successBan'), { variant: 'success' })
+          toast.success(t('auth.admin.successBan'))
         },
         onError: (error: unknown) => {
           const message = error instanceof Error ? error.message : String(error)
-          enqueueSnackbar(message || t('auth.admin.errorBan'), { variant: 'error' })
+          toast.error(message || t('auth.admin.errorBan'))
         },
       },
     )
@@ -176,11 +175,11 @@ export default function UserList() {
       onSuccess: () => {
         setConfirmDeleteOpen(false)
         setSelectedUser(null)
-        enqueueSnackbar(t('auth.admin.successDelete'), { variant: 'success' })
+        toast.success(t('auth.admin.successDelete'))
       },
       onError: (error: unknown) => {
         const message = error instanceof Error ? error.message : String(error)
-        enqueueSnackbar(message || t('auth.admin.errorDelete'), { variant: 'error' })
+        toast.error(message || t('auth.admin.errorDelete'))
       },
     })
   }
@@ -191,14 +190,14 @@ export default function UserList() {
         onSuccess: (response: any) => {
           const token = (response.data as any)?.token || (response as any)?.token
           if (token) {
-            enqueueSnackbar(t('auth.admin.successImpersonate'), { variant: 'success' })
+            toast.success(t('auth.admin.successImpersonate'))
             window.open(`/impersonate?token=${encodeURIComponent(token)}`, '_blank')
           }
           handleMenuClose()
         },
         onError: (error: unknown) => {
           const message = error instanceof Error ? error.message : String(error)
-          enqueueSnackbar(message || t('auth.admin.errorImpersonate'), { variant: 'error' })
+          toast.error(message || t('auth.admin.errorImpersonate'))
         },
       })
     }

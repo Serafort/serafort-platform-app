@@ -3,7 +3,17 @@
 // FIXES: [CRITICAL] Modernized InputProps to slotProps.input, applied info.main to CTAs [HIGH] Added animate-scale-in [MEDIUM] Added divider opacity and avatar 24px radius [LOW] Added aria-labels and i18n fallbacks
 import React, { useState, useMemo } from 'react';
 import { Box, Typography, Card, CardContent, Button, IconButton, Chip, alpha, useTheme, Stack, Divider, Paper, Tooltip, Avatar, TextField, InputAdornment, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Menu, MenuItem, CircularProgress } from '@mui/material';
-import { Search, FilterList, Download, Security, History, Person, CheckCircle, MoreVert, Block, AssignmentTurnedIn, Refresh } from '@mui/icons-material';
+import Search from '@mui/icons-material/Search';
+import FilterList from '@mui/icons-material/FilterList';
+import Download from '@mui/icons-material/Download';
+import Security from '@mui/icons-material/Security';
+import History from '@mui/icons-material/History';
+import Person from '@mui/icons-material/Person';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import MoreVert from '@mui/icons-material/MoreVert';
+import Block from '@mui/icons-material/Block';
+import AssignmentTurnedIn from '@mui/icons-material/AssignmentTurnedIn';
+import Refresh from '@mui/icons-material/Refresh';
 import { useTranslation } from 'react-i18next';
 ;
 import { ImpersonationSession } from '@cap/shared-types';

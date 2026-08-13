@@ -1,13 +1,11 @@
 import React, { useState } from 'react'
 import { SpeedDial, SpeedDialAction, SpeedDialIcon, Zoom } from '@mui/material'
-import {
-  Check,
-  Edit,
-  Storefront,
-  Palette,
-  Add,
-  Tune,
-} from '@mui/icons-material'
+import Check from '@mui/icons-material/Check';
+import Edit from '@mui/icons-material/Edit';
+import Storefront from '@mui/icons-material/Storefront';
+import Palette from '@mui/icons-material/Palette';
+import Add from '@mui/icons-material/Add';
+import Tune from '@mui/icons-material/Tune';
 import { widgetMarketplaceStore } from '../../store/widgetMarketplaceStore'
 import { themeEditorStore } from '../../store/themeEditorStore'
 import { useAppStore } from '@cap/platform-store'

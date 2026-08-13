@@ -26,22 +26,20 @@ import {
   alpha,
   Pagination,
 } from '@mui/material'
-import {
-  History,
-  ArrowBack,
-  Refresh,
-  CheckCircle,
-  Error as ErrorIcon,
-  Download,
-  FilterList,
-  ChevronRight,
-  Hub,
-  Settings,
-  Storage,
-  Info,
-} from '@mui/icons-material'
+import History from '@mui/icons-material/History';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Refresh from '@mui/icons-material/Refresh';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+import Download from '@mui/icons-material/Download';
+import FilterList from '@mui/icons-material/FilterList';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import Hub from '@mui/icons-material/Hub';
+import Settings from '@mui/icons-material/Settings';
+import Storage from '@mui/icons-material/Storage';
+import Info from '@mui/icons-material/Info';
 import { useNavigate } from 'react-router-dom'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next'
 import {
   useProvisioningConnectors,
@@ -52,7 +50,6 @@ import {
 const SyncLogsView: React.FC = () => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
   const { t } = useTranslation('auth')
 
   const [page, setPage] = useState(1)
@@ -81,11 +78,11 @@ const SyncLogsView: React.FC = () => {
 
   const handleRefresh = () => {
     refetch()
-    enqueueSnackbar(t('admin.provisioning.logs.messages.refreshed'), { variant: 'info' })
+    toast.info(t('admin.provisioning.logs.messages.refreshed'))
   }
 
   const handleExport = () => {
-    enqueueSnackbar(t('admin.provisioning.logs.messages.exporting'), { variant: 'info' })
+    toast.info(t('admin.provisioning.logs.messages.exporting'))
   }
 
   const getEventChip = (event: string) => {

@@ -12,7 +12,9 @@ import {
   Drawer,
   IconButton,
 } from '@mui/material';
-import { Save as SaveIcon, Refresh as RefreshIcon, Close as CloseIcon } from '@mui/icons-material';
+import SaveIcon from '@mui/icons-material/Save';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import CloseIcon from '@mui/icons-material/Close';
 import { ColorPaletteEditor } from '../components/ColorPaletteEditor';
 import { GlassmorphismPanel } from '../components/EffectControls/GlassmorphismPanel';
 import { NeumorphismPanel } from '../components/EffectControls/NeumorphismPanel';

@@ -1,6 +1,11 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { Box, Button, TextField, Typography, Switch, Select, MenuItem, FormControl, InputLabel, Container, Card, CardContent, Tabs, Tab, Divider, CircularProgress, Avatar } from '@mui/material';
-import { Person, Settings, ExpandMore, Shield, Edit, CloudUpload } from '@mui/icons-material';
+import Person from '@mui/icons-material/Person';
+import Settings from '@mui/icons-material/Settings';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import Shield from '@mui/icons-material/Shield';
+import Edit from '@mui/icons-material/Edit';
+import CloudUpload from '@mui/icons-material/CloudUpload';
 import { useNavigate } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +13,9 @@ import { useUserProfile, useUpdateMe, useExportMutation, useErasureMutation } fr
 import { useAuth, useNotifications } from '@cap/platform-core';
 import { Path } from '@cap/module-auth/routes/path';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Alert, InputAdornment } from '@mui/material';
-import { CloudDownload, Delete, Lock } from '@mui/icons-material';
+import CloudDownload from '@mui/icons-material/CloudDownload';
+import Delete from '@mui/icons-material/Delete';
+import Lock from '@mui/icons-material/Lock';
 
 interface EditProfileProps {
   onSave?: () => void

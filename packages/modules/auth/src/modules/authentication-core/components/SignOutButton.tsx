@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, IconButton, Tooltip, CircularProgress } from '@mui/material'
-import { LogoutOutlined } from '@mui/icons-material'
+import LogoutOutlined from '@mui/icons-material/LogoutOutlined';
 import { useSignout } from '@idaas/authentication-core/hooks/useAuthQuery'
 import { useTranslation } from 'react-i18next'
 import { useAuth, StorageManager } from '@cap/platform-core'

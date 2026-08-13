@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Box, Typography, Card, CardContent, Button, Stack, TextField, InputAdornment, Alert, Divider, Stepper, Step, StepLabel, CircularProgress, IconButton } from '@mui/material';
-import { Domain, ContentCopy, Info, Dns, Verified } from '@mui/icons-material';
+import Domain from '@mui/icons-material/Domain';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import Info from '@mui/icons-material/Info';
+import Dns from '@mui/icons-material/Dns';
+import Verified from '@mui/icons-material/Verified';
 
 
 const DomainVerification = () => {

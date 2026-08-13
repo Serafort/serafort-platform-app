@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Box, Typography, Card, CardContent, Grid, Button, FormControl, InputLabel, Select, MenuItem, TextField, Stack, Chip, LinearProgress, Alert, AlertTitle, Divider } from '@mui/material';
-import { History, FileDownload, CloudDownload, Analytics } from '@mui/icons-material';
+import History from '@mui/icons-material/History';
+import FileDownload from '@mui/icons-material/FileDownload';
+import CloudDownload from '@mui/icons-material/CloudDownload';
+import Analytics from '@mui/icons-material/Analytics';
 import { useTranslation } from 'react-i18next';
 import { useExportAuditLogs } from '@idaas/authentication-core/hooks/useAdminQuery';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import logger from '@idaas/authentication-core/utils/logger';
 
 export default function ExportAuditTrail() {
   const { t } = useTranslation('common')
-  const { enqueueSnackbar } = useSnackbar()
   const [progress, setProgress] = useState(0)
 
   const [reportType, setReportType] = useState('security')
@@ -36,9 +38,7 @@ export default function ExportAuditTrail() {
         link.parentNode?.removeChild(link)
         window.URL.revokeObjectURL(url)
         setProgress(100)
-        enqueueSnackbar(t('auth.admin.exportSuccess', 'Export completed successfully'), {
-          variant: 'success',
-        })
+        toast.success(t('auth.admin.exportSuccess', 'Export completed successfully'), {  })
       } catch (err: unknown) {
         logger.error('Failed to process export response', { error: err })
       }
@@ -47,9 +47,7 @@ export default function ExportAuditTrail() {
     },
     onError: (error) => {
       logger.error('Audit log export failed', { error })
-      enqueueSnackbar(error.message || t('auth.admin.exportFailed', 'Export failed'), {
-        variant: 'error',
-      })
+      toast.error(error.message || t('auth.admin.exportFailed', 'Export failed'), {  })
       setProgress(0)
     },
   })

@@ -127,7 +127,7 @@
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
-      "npm run validate:isolation",
+      "npm run lint",
       "npm run validate:types"
     ]
   }

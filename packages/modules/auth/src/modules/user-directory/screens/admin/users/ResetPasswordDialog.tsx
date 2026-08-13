@@ -10,8 +10,9 @@ import {
   IconButton,
   InputAdornment,
 } from '@mui/material'
-import { Visibility, VisibilityOff } from '@mui/icons-material'
-import { useSnackbar } from 'notistack'
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next'
 import { useResetUserPassword } from "@idaas/authentication-core/hooks/useAdminQuery"
 
@@ -23,7 +24,6 @@ interface ResetPasswordDialogProps {
 
 export default function ResetPasswordDialog({ open, onClose, userId }: ResetPasswordDialogProps) {
   const { t } = useTranslation('common')
-  const { enqueueSnackbar } = useSnackbar()
   const [newPassword, setNewPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
@@ -31,10 +31,10 @@ export default function ResetPasswordDialog({ open, onClose, userId }: ResetPass
     onSuccess: () => {
       onClose()
       setNewPassword('')
-      enqueueSnackbar(t('auth.admin.successPasswordReset'), { variant: 'success' })
+      toast.success(t('auth.admin.successPasswordReset'))
     },
     onError: (error: any) => {
-      enqueueSnackbar(error.message || t('auth.admin.errorPasswordReset'), { variant: 'error' })
+      toast.error(error.message || t('auth.admin.errorPasswordReset'))
     },
   })
 

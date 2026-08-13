@@ -22,17 +22,15 @@ import {
   CircularProgress,
   TablePagination,
 } from '@mui/material'
-import {
-  Search,
-  FilterList,
-  Circle,
-  Login,
-  VpnKey,
-  Block,
-  Security,
-  GppGood,
-  Info,
-} from '@mui/icons-material'
+import Search from '@mui/icons-material/Search';
+import FilterList from '@mui/icons-material/FilterList';
+import Circle from '@mui/icons-material/Circle';
+import Login from '@mui/icons-material/Login';
+import VpnKey from '@mui/icons-material/VpnKey';
+import Block from '@mui/icons-material/Block';
+import Security from '@mui/icons-material/Security';
+import GppGood from '@mui/icons-material/GppGood';
+import Info from '@mui/icons-material/Info';
 import { useTranslation } from 'react-i18next'
 import { useAuditLogs } from "@cap/module-auth/modules/authentication-core/hooks/useAdminQuery"
 

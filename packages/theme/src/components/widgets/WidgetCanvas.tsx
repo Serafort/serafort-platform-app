@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useMemo } from 'react'
 import { Box, Grid, IconButton, Tooltip, Typography } from '@mui/material'
-import { Delete, Add } from '@mui/icons-material'
+import Delete from '@mui/icons-material/Delete';
+import Add from '@mui/icons-material/Add';
 import { useAppStore } from '@cap/platform-store'
 import { globalWidgetRegistry, useResizeObserver } from '@cap/platform-core'
 import WidgetWrapper, { type DashboardMode } from './WidgetWrapper'

@@ -1,6 +1,7 @@
 import { Box, Typography, Grid, Link, Avatar, alpha, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { WarningAmber, CheckCircleOutline } from '@mui/icons-material';
+import WarningAmber from '@mui/icons-material/WarningAmber';
+import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
 import { motion } from 'framer-motion';
 
 const browsers = [

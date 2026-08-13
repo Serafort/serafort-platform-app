@@ -48,7 +48,7 @@ import {
 } from "@auth/authorization-engine/hooks/useAdminQuery"
 import { Permission } from "@auth/authorization-engine/services/adminService"
 import ConfirmationDialog from '@auth/modules/authentication-core/components/shared/Modals/ConfirmationDialog'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 
 const CATEGORY_ICON: Record<string, React.ReactNode> = {
   user: <GroupIcon />,
@@ -64,7 +64,6 @@ export default function PermissionRegistry() {
   const { t } = useTranslation('common')
   const theme = useTheme()
 
-  const { enqueueSnackbar } = useSnackbar()
   const { data: permissionsResponse, isLoading } = usePermissions()
   const permissions: Permission[] = useMemo(() => {
     const rawData = permissionsResponse?.data
@@ -78,29 +77,29 @@ export default function PermissionRegistry() {
 
   const createPermission = useCreatePermission({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.admin.permissionCreated'), { variant: 'success' })
+      toast.success(t('auth.admin.permissionCreated'))
       setDialogOpen(false)
     },
     onError: (err: any) =>
-      enqueueSnackbar(err.message || t('auth.admin.errorCreatePermission'), { variant: 'error' }),
+      toast.error(err.message || t('auth.admin.errorCreatePermission')),
   })
 
   const updatePermission = useUpdatePermission({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.admin.permissionUpdated'), { variant: 'success' })
+      toast.success(t('auth.admin.permissionUpdated'))
       setDialogOpen(false)
     },
     onError: (err: any) =>
-      enqueueSnackbar(err.message || t('auth.admin.errorUpdatePermission'), { variant: 'error' }),
+      toast.error(err.message || t('auth.admin.errorUpdatePermission')),
   })
 
   const deletePermission = useDeletePermission({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.admin.permissionDeleted'), { variant: 'success' })
+      toast.success(t('auth.admin.permissionDeleted'))
       setConfirmDeleteOpen(false)
     },
     onError: (err: any) =>
-      enqueueSnackbar(err.message || t('auth.admin.errorDeletePermission'), { variant: 'error' }),
+      toast.error(err.message || t('auth.admin.errorDeletePermission')),
   })
 
   const [search, setSearch] = useState('')

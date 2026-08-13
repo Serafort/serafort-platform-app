@@ -22,24 +22,22 @@ import {
   Divider,
   Stack,
 } from '@mui/material'
-import {
-  Close as CloseIcon,
-  Search as SearchIcon,
-  Add as AddIcon,
-  Palette as PaletteIcon,
-  ViewQuilt as ViewQuiltIcon,
-  Widgets as WidgetsIcon,
-  Tune as TuneIcon,
-  Analytics,
-  ShoppingCart,
-  WbSunny,
-  ViewArray,
-  Tab as TabIcon,
-  CheckCircle,
-  DashboardCustomize,
-  DragIndicator as DragIndicatorIcon,
-  AutoAwesome as AutoAwesomeIcon,
-} from '@mui/icons-material'
+import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
+import PaletteIcon from '@mui/icons-material/Palette';
+import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
+import WidgetsIcon from '@mui/icons-material/Widgets';
+import TuneIcon from '@mui/icons-material/Tune';
+import Analytics from '@mui/icons-material/Analytics';
+import ShoppingCart from '@mui/icons-material/ShoppingCart';
+import WbSunny from '@mui/icons-material/WbSunny';
+import ViewArray from '@mui/icons-material/ViewArray';
+import TabIcon from '@mui/icons-material/Tab';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import DashboardCustomize from '@mui/icons-material/DashboardCustomize';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { globalWidgetRegistry } from '@cap/platform-core'

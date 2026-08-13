@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Card, CardHeader, CardContent, Box, IconButton, Tooltip, Stack } from '@mui/material'
-import { ViewColumn, ViewStream, ViewArray } from '@mui/icons-material'
+import ViewColumn from '@mui/icons-material/ViewColumn';
+import ViewStream from '@mui/icons-material/ViewStream';
+import ViewArray from '@mui/icons-material/ViewArray';
 import { WidgetCanvas } from '@cap/theme'
 import { useLayoutEngineContext } from '@cap/platform-core'
 import type { GridLayout } from '@cap/shared-types'

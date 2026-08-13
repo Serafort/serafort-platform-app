@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, ButtonProps, CircularProgress, alpha } from '@mui/material'
-import { ArrowForward } from '@mui/icons-material'
+import ArrowForward from '@mui/icons-material/ArrowForward';
 
 interface AuthActionButtonProps extends ButtonProps {
   isLoading?: boolean

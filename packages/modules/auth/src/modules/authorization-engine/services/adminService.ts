@@ -1312,7 +1312,7 @@ export class AdminService {
   }
 
   async testSSFStream(): Promise<FetchResponse<{ success: boolean; message: string; timestamp: string }>> {
-    return apiClient.post<{ success: boolean; message: string; timestamp: string }>(ENDPOINTS.admin.ssf.test, {})
+    return apiClient.post<{ success: boolean; message: string; timestamp: string }>(ENDPOINTS.admin.ssf.test)
   }
 
   async broadcastSSFEvent(data: BroadcastSSFEventRequest): Promise<FetchResponse<BroadcastSSFEventResponse>> {

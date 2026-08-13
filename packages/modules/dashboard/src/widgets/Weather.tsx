@@ -1,6 +1,9 @@
 import React from 'react'
 import { Box, Paper, Stack, Typography } from '@mui/material'
-import { WbSunny, Cloud, Umbrella, Air } from '@mui/icons-material'
+import WbSunny from '@mui/icons-material/WbSunny';
+import Cloud from '@mui/icons-material/Cloud';
+import Umbrella from '@mui/icons-material/Umbrella';
+import Air from '@mui/icons-material/Air';
 import { useTranslation } from 'react-i18next'
 
 const currentConditions = [

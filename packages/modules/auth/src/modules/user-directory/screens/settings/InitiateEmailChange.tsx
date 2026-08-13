@@ -1,5 +1,11 @@
 import { Box, Typography, Card, CardContent, Avatar, Button, Grid, TextField, Alert, AlertTitle, Container, IconButton, Stack } from '@mui/material';
-import { Mail, Security, Warning, ArrowForward, Lock, CalendarToday, ArrowBack } from '@mui/icons-material';
+import Mail from '@mui/icons-material/Mail';
+import Security from '@mui/icons-material/Security';
+import Warning from '@mui/icons-material/Warning';
+import ArrowForward from '@mui/icons-material/ArrowForward';
+import Lock from '@mui/icons-material/Lock';
+import CalendarToday from '@mui/icons-material/CalendarToday';
+import ArrowBack from '@mui/icons-material/ArrowBack';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Path } from '@auth/routes/path';

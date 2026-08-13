@@ -19,17 +19,15 @@ import {
   Grid,
   alpha,
 } from '@mui/material'
-import {
-  ArrowBack,
-  Visibility,
-  VisibilityOff,
-  Warning,
-  DeleteForever,
-  FolderOff,
-  CreditCardOff,
-  LockClock,
-  DownloadForOffline,
-} from '@mui/icons-material'
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Warning from '@mui/icons-material/Warning';
+import DeleteForever from '@mui/icons-material/DeleteForever';
+import FolderOff from '@mui/icons-material/FolderOff';
+import CreditCardOff from '@mui/icons-material/CreditCardOff';
+import LockClock from '@mui/icons-material/LockClock';
+import DownloadForOffline from '@mui/icons-material/DownloadForOffline';
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'

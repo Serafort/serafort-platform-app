@@ -118,6 +118,7 @@ export default defineConfig({
     include: [
       '@tanstack/react-query',
       'react-toastify',
+      'recharts',
     ],
     // Exclude workspace source packages — they are TypeScript source-linked
     exclude: [

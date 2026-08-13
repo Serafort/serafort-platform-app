@@ -1,9 +1,15 @@
 import React, { useMemo } from 'react';
 import { Box, Typography, Button, Card, CardContent, Grid, Chip, Skeleton, Alert, Avatar, Stack } from '@mui/material';
-import { Delete as DeleteIcon, ArrowBack as ArrowBackIcon, Language as GlobeIcon, VpnKey as VpnKeyIcon, Shield as ShieldIcon, Info as InfoIcon, Terminal as TerminalIcon } from '@mui/icons-material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import GlobeIcon from '@mui/icons-material/Language';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import ShieldIcon from '@mui/icons-material/Shield';
+import InfoIcon from '@mui/icons-material/Info';
+import TerminalIcon from '@mui/icons-material/Terminal';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { alpha, useTheme } from '@mui/material/styles';
 import { useUserTokens, useRevokeToken } from '@auth/user-directory/hooks/useUserQuery';
 import { Path } from '@auth/routes/path';
@@ -67,7 +73,6 @@ const APITokenDetails: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { tokenId } = useParams<{ tokenId: string }>()
-  const { enqueueSnackbar } = useSnackbar()
   const theme = useTheme()
 
   const { data: tokensResponse, isLoading, isError } = useUserTokens()
@@ -80,15 +85,13 @@ const APITokenDetails: React.FC = () => {
 
   const revokeTokenMutation = useRevokeToken({
     onSuccess: () => {
-      enqueueSnackbar(t('api_tokens:revoke_success', 'Token revoked successfully'), {
-        variant: 'success',
-      })
+      toast.success(t('api_tokens:revoke_success', 'Token revoked successfully'), {  })
       navigate(Path.apiTokens.dashboard)
     },
     onError: (error: unknown) => {
       const message =
         error instanceof Error ? error.message : t('api_tokens:revoke_error', 'Failed to revoke')
-      enqueueSnackbar(message, { variant: 'error' })
+      toast.error(message)
     },
   })
 

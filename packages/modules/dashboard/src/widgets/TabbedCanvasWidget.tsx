@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { Card, CardHeader, CardContent, Box, Tabs, Tab } from '@mui/material'
-import { Tab as TabIcon, Analytics, ShoppingCart, Cloud } from '@mui/icons-material'
+import TabIcon from '@mui/icons-material/Tab';
+import Analytics from '@mui/icons-material/Analytics';
+import ShoppingCart from '@mui/icons-material/ShoppingCart';
+import Cloud from '@mui/icons-material/Cloud';
 import { WidgetCanvas } from '@cap/theme'
 import { useLayoutEngineContext } from '@cap/platform-core'
 import type { GridLayout } from '@cap/shared-types'

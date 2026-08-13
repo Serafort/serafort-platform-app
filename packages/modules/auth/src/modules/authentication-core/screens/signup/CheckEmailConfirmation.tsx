@@ -12,7 +12,10 @@ import {
   alpha,
   useTheme,
 } from '@mui/material'
-import { Mail, ArrowBack, Refresh, ArrowForward } from '@mui/icons-material'
+import Mail from '@mui/icons-material/Mail';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Refresh from '@mui/icons-material/Refresh';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Path } from "@cap/module-auth/routes/path"

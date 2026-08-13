@@ -17,26 +17,20 @@ import Explore from '@mui/icons-material/Explore';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { useSAMLConfig, useUpdateSAMLConfig, Path } from '@auth';
 
 export default function SAMLConfigDashboard() {
   const { t } = useTranslation()
   const theme = useTheme()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
-
   const { data: configResponse, isLoading, isError, error } = useSAMLConfig()
   const updateConfig = useUpdateSAMLConfig({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.sso.config_saved', 'Configuration saved successfully'), {
-        variant: 'success',
-      })
+      toast.info(t('auth.sso.config_saved', 'Configuration saved successfully'))
     },
     onError: (err: any) => {
-      enqueueSnackbar(err?.message || t('auth.sso.save_failed', 'Failed to save configuration'), {
-        variant: 'error',
-      })
+      toast.error(err?.message || t('auth.sso.save_failed', 'Failed to save configuration'), {  })
     },
   })
 
@@ -99,7 +93,7 @@ export default function SAMLConfigDashboard() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    enqueueSnackbar(t('common.copied', 'Copied to clipboard'), { variant: 'info' })
+    toast(t('common.copied', 'Copied to clipboard'))
   }
 
   if (isLoading) {

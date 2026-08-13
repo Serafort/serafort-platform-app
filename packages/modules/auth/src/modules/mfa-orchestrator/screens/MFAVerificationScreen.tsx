@@ -4,7 +4,10 @@ import {
   Box, Button, Typography, Alert, TextField, Avatar,
   alpha, useTheme, Stack,
 } from '@mui/material'
-import { Shield, Timer, LockReset, ArrowForward } from '@mui/icons-material'
+import Shield from '@mui/icons-material/Shield';
+import Timer from '@mui/icons-material/Timer';
+import LockReset from '@mui/icons-material/LockReset';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Path } from "@auth/routes/path"

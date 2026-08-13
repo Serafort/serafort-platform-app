@@ -1,7 +1,13 @@
 
 import { Box, Typography, Container, Paper, Button, Alert, CircularProgress } from '@mui/material';
 import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineOppositeContent, TimelineDot } from '@mui/lab';
-import { Login, VpnKey, Security, Password, NotificationImportant, History, Refresh } from '@mui/icons-material';
+import Login from '@mui/icons-material/Login';
+import VpnKey from '@mui/icons-material/VpnKey';
+import Security from '@mui/icons-material/Security';
+import Password from '@mui/icons-material/Password';
+import NotificationImportant from '@mui/icons-material/NotificationImportant';
+import History from '@mui/icons-material/History';
+import Refresh from '@mui/icons-material/Refresh';
 import { useTranslation } from 'react-i18next';
 import { useActivityTimeline } from '@auth';
 import { AuditLog } from '@idaas/authentication-core/types/api.types';

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Box, Typography, TextField, Button, InputAdornment, IconButton, Stack, Alert, alpha, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { AdminPanelSettings, Visibility, VisibilityOff, Security } from '@mui/icons-material';
+import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Security from '@mui/icons-material/Security';
 import { useNavigate } from 'react-router-dom';
 import { Path } from '@cap/module-auth/routes/path';
 import { normalizeRole } from '@cap/platform-core';

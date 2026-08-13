@@ -3,9 +3,13 @@ import {
   Box, Button, Typography, Avatar, List, ListItem, ListItemIcon, ListItemText,
   Alert, Stack, Link, alpha, useTheme,
 } from '@mui/material'
-import {
-  Fingerprint, Bolt, VerifiedUser, Devices, CheckCircle, OpenInNew, ArrowForward,
-} from '@mui/icons-material'
+import Fingerprint from '@mui/icons-material/Fingerprint';
+import Bolt from '@mui/icons-material/Bolt';
+import VerifiedUser from '@mui/icons-material/VerifiedUser';
+import Devices from '@mui/icons-material/Devices';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import OpenInNew from '@mui/icons-material/OpenInNew';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'

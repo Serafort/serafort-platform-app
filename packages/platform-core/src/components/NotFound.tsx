@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Box, Button, Typography, alpha, useTheme } from '@mui/material'
-import { Home } from '@mui/icons-material'
+import Home from '@mui/icons-material/Home';
 import { AppPaths } from '@cap/shared-types'
 import { useTranslation } from 'react-i18next'
 

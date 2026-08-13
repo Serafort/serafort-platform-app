@@ -138,7 +138,7 @@ const userService = {
       return apiClient.get(ENDPOINTS.user.compliance.export)
     },
     exportRequest: (): Promise<FetchResponse> => {
-      return apiClient.post(ENDPOINTS.gdpr.dataExport, {})
+      return apiClient.post(ENDPOINTS.gdpr.dataExport)
     },
     erasure: (data: { password: string; hardDelete?: boolean }): Promise<FetchResponse> => {
       return apiClient.post(ENDPOINTS.gdpr.erasure, data)

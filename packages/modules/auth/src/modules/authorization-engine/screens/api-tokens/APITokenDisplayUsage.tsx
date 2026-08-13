@@ -1,9 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import { Box, Typography, Button, Card, CardContent, Alert, AlertTitle, Paper, IconButton, Tooltip, Stepper, Step, StepLabel, Divider, Grid, Chip, Skeleton } from '@mui/material';
-import { ContentCopy as CopyIcon, Check as CheckIcon, CheckCircle as CheckCircleIcon, ArrowForward as ArrowForwardIcon, ArrowBack as ArrowBackIcon, Security as SecurityIcon, Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon, Terminal as TerminalIcon, VpnKey as VpnKeyIcon, Shield as ShieldIcon, Info as InfoIcon } from '@mui/icons-material';
+import CopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SecurityIcon from '@mui/icons-material/Security';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import TerminalIcon from '@mui/icons-material/Terminal';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import ShieldIcon from '@mui/icons-material/Shield';
+import InfoIcon from '@mui/icons-material/Info';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { alpha, useTheme } from '@mui/material/styles';
 import { useUserTokens } from '@auth/user-directory/hooks/useUserQuery';
 import { Path } from '@auth/routes/path';
@@ -19,7 +30,6 @@ const APITokenDisplayUsage: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { tokenId } = useParams<{ tokenId: string }>()
-  const { enqueueSnackbar } = useSnackbar()
   const theme = useTheme()
 
   const state = location.state as DisplayState
@@ -61,14 +71,12 @@ const APITokenDisplayUsage: React.FC = () => {
     try {
       await navigator.clipboard.writeText(generatedToken)
       setCopied(true)
-      enqueueSnackbar(t('api_tokens:token_copied', 'Token copied to clipboard!'), {
-        variant: 'success',
-      })
+      toast.success(t('api_tokens:token_copied', 'Token copied to clipboard!'), {  })
       setTimeout(() => setCopied(false), 5173)
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : t('api_tokens:copy_failed', 'Failed to copy token')
-      enqueueSnackbar(message, { variant: 'error' })
+      toast.error(message)
     }
   }
 

@@ -3,7 +3,11 @@ import {
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, Chip, IconButton, Tooltip, Button, Card, Avatar, alpha, useTheme,
 } from '@mui/material'
-import { InfoOutlined, Refresh, ArrowBack, ArrowForward, Email } from '@mui/icons-material'
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import Refresh from '@mui/icons-material/Refresh';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import ArrowForward from '@mui/icons-material/ArrowForward';
+import Email from '@mui/icons-material/Email';
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Path } from "@cap/module-auth/routes/path"

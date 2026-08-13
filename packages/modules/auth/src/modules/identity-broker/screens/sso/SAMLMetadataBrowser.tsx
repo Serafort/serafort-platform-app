@@ -15,14 +15,13 @@ import Business from '@mui/icons-material/Business';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { useFetchRemoteMetadata, useRecentSAMLEntities, Path } from '@auth';
 
 export default function SAMLMetadataBrowser() {
   const { t } = useTranslation()
   const theme = useTheme()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
   const [searchUrl, setSearchUrl] = useState('')
   const [filterQuery, setFilterQuery] = useState('')
 
@@ -54,7 +53,7 @@ export default function SAMLMetadataBrowser() {
     if (!searchUrl) return
     // Simple validation
     if (!searchUrl.startsWith('http')) {
-      enqueueSnackbar(t('auth.sso.invalid_url', 'Please enter a valid URL'), { variant: 'error' })
+      toast.error(t('auth.sso.invalid_url', 'Please enter a valid URL'))
       return
     }
     fetchRemote.mutate(searchUrl)

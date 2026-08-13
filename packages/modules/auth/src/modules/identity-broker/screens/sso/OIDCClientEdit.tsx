@@ -42,7 +42,7 @@ import { Link as RouterLink, useParams, useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import { Path, useOIDCClient, useUpdateOIDCClient, useRotateClientSecret } from '@auth'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
@@ -62,8 +62,6 @@ export default function OIDCClientEdit() {
   const { t } = useTranslation()
   const theme = useTheme()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
-  
   const { data: clientResponse, isLoading, isError } = useOIDCClient(id)
   const updateMutation = useUpdateOIDCClient()
   const rotateMutation = useRotateClientSecret()
@@ -113,11 +111,11 @@ export default function OIDCClientEdit() {
 
     updateMutation.mutate({ id, data: payload }, {
       onSuccess: () => {
-        enqueueSnackbar(t('auth.sso.client_updated', 'OIDC Client updated successfully'), { variant: 'success' })
+        toast.success(t('auth.sso.client_updated', 'OIDC Client updated successfully'))
         navigate(Path.identity.oidcConfigBrowser)
       },
       onError: (err: any) => {
-        enqueueSnackbar(err.message || t('common.error', 'An error occurred'), { variant: 'error' })
+        toast.error(err.message || t('common.error', 'An error occurred'))
       },
     })
   }
@@ -128,18 +126,18 @@ export default function OIDCClientEdit() {
       onSuccess: (res) => {
         setRotateDialogOpen(false)
         setNewSecret(res.data.client_secret)
-        enqueueSnackbar(t('auth.sso.secret_rotated', 'Client secret rotated successfully'), { variant: 'success' })
+        toast.success(t('auth.sso.secret_rotated', 'Client secret rotated successfully'))
       },
       onError: (err: any) => {
         setRotateDialogOpen(false)
-        enqueueSnackbar(err.message || t('common.error', 'Failed to rotate secret'), { variant: 'error' })
+        toast.error(err.message || t('common.error', 'Failed to rotate secret'))
       }
     })
   }
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
-    enqueueSnackbar(t('common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }), { variant: 'success' })
+    toast.success(t('common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }))
   }
 
   if (isLoading) {

@@ -71,12 +71,12 @@ describe('installAuthorization bootstrap', () => {
   })
 
   it('defaultResourceMapper scopes to the RBAC admin surface', () => {
-    expect(defaultResourceMapper('/api/admin/rbac/roles', {})?.type).toBe('role')
-    expect(defaultResourceMapper('/api/admin/rbac/permissions', {})?.type).toBe('permission')
-    expect(defaultResourceMapper('/api/admin/users', {})?.type).toBe('user')
-    expect(defaultResourceMapper('/api/admin/clients', {})?.type).toBe('oidc-client')
-    expect(defaultResourceMapper('/api/admin/organizations/1/styles', {})).toBeUndefined()
-    expect(defaultResourceMapper('/api/auth/signin', {})).toBeUndefined()
+    expect(defaultResourceMapper('/api/admin/rbac/roles')?.type).toBe('role')
+    expect(defaultResourceMapper('/api/admin/rbac/permissions')?.type).toBe('permission')
+    expect(defaultResourceMapper('/api/admin/users')?.type).toBe('user')
+    expect(defaultResourceMapper('/api/admin/clients')?.type).toBe('oidc-client')
+    expect(defaultResourceMapper('/api/admin/organizations/1/styles')).toBeUndefined()
+    expect(defaultResourceMapper('/api/auth/signin')).toBeUndefined()
   })
 
   it('is idempotent across repeated calls', () => {

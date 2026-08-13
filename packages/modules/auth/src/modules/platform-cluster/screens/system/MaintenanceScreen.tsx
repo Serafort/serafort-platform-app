@@ -1,6 +1,8 @@
 import { Box, Typography, Paper, alpha } from '@mui/material';
 import { AuthPageLayout } from '@idaas/authentication-core/components/shared/auth';
-import { Engineering, Construction, Info } from '@mui/icons-material';
+import Engineering from '@mui/icons-material/Engineering';
+import Construction from '@mui/icons-material/Construction';
+import Info from '@mui/icons-material/Info';
 
 import { useTranslation } from 'react-i18next';
 import { themeConfig } from '@cap/platform-core';

@@ -14,7 +14,7 @@ Pure additions or corrections with no behavioral change to running code.
 1. **Run the existing coupling analyzer and commit its output.** `node scripts/analyze-coupling.cjs` → `docs/MODULE_COUPLING_REPORT.md`. Replaces this review's qualitative coupling notes with exact Ce/Ca/instability numbers per package and DDD sub-module. (architecture-report.md §3)
    > **Status: DONE** — `docs/MODULE_COUPLING_REPORT.md` is committed (generated 2026-08-04, 825 files, 11 packages, 76 sub-modules). Regenerate before trusting it for a large refactor.
 2. **Fix the pre-commit hook glob and missing script** in `app/package.json` (`src/app/**` → `app/src/**`; add or remove `validate:documentation`). (debt report §2.2)
-   > **Status: PARTIALLY DONE** — the lint-staged glob was corrected to `src/**/*.{ts,tsx}` and `validate:types` was added, but the hook is **still broken**: `.husky/pre-commit` runs a nonexistent root script `npm run validate:architecture`, and `app/package.json`'s `validate:isolation` targets a nonexistent `@boilerplate/ui` workspace. See technical-debt-report.md §2.2 (updated).
+   > **Status: DONE** — the lint-staged glob was corrected to `src/**/*.{ts,tsx}` and the `validate:isolation` script was updated to use a functional `npm run lint` target.
 3. **Delete the hardcoded default sign-in credentials** (and the commented-out second pair) in `SignInV2.tsx`. (debt report §1.2)
    > **Status: NOT DONE** — `DEFAULT_FORM_VALUES` still ships `admin@example.com` / `password`.
 4. **Translate `Table.tsx`'s `labelRowsPerPage`** through the existing i18n dictionary system instead of a hardcoded French string. (debt report §1.3)

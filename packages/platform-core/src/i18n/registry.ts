@@ -9,7 +9,7 @@ export function registerDictionary(dict: DictionaryMap): void {
 }
 
 export function getMergedDictionary(locale: Locale): Record<string, unknown> {
-  return _modules.reduce((acc, mod) => deepMerge(acc, mod[locale] ?? {}), {})
+  return _modules.reduce((acc, mod) => deepMerge(acc, mod[locale] ?? {}), {} as Record<string, unknown>)
 }
 
 export function getAvailableLocales(): Locale[] {

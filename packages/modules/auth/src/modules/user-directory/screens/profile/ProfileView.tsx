@@ -1,6 +1,13 @@
 import { useCallback, useRef, useMemo } from 'react';
 import { Box, Button, Typography, Chip, CardContent, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Grid, Container, Avatar, IconButton } from '@mui/material';
-import { Edit, LockReset, Mail, Download, Delete, ChevronRight, Verified, PhotoCamera } from '@mui/icons-material';
+import Edit from '@mui/icons-material/Edit';
+import LockReset from '@mui/icons-material/LockReset';
+import Mail from '@mui/icons-material/Mail';
+import Download from '@mui/icons-material/Download';
+import Delete from '@mui/icons-material/Delete';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import Verified from '@mui/icons-material/Verified';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Path } from '@cap/module-auth/routes/path';

@@ -1,8 +1,21 @@
 import { useState } from 'react';
 import { Box, Typography, Card, CardContent, Button, TextField, InputAdornment, alpha, useTheme, Stack, Chip, IconButton, Switch, FormControlLabel, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Tooltip, Alert, Grid } from '@mui/material';
-import { ContentCopy, VpnKey, Save, Refresh, Security, Code, SwapHoriz, ArrowBack, CloudSync, People, Info, OpenInNew, Visibility, VisibilityOff } from '@mui/icons-material';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import VpnKey from '@mui/icons-material/VpnKey';
+import Save from '@mui/icons-material/Save';
+import Refresh from '@mui/icons-material/Refresh';
+import Security from '@mui/icons-material/Security';
+import Code from '@mui/icons-material/Code';
+import SwapHoriz from '@mui/icons-material/SwapHoriz';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import CloudSync from '@mui/icons-material/CloudSync';
+import People from '@mui/icons-material/People';
+import Info from '@mui/icons-material/Info';
+import OpenInNew from '@mui/icons-material/OpenInNew';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { useSCIMTokens, useCreateSCIMToken, useRevokeSCIMToken, useOrganizationScimConfig, useUpdateOrganizationScimConfig, useTestSCIMConnection } from '@auth/authorization-engine/hooks/useAdminQuery';
 
@@ -76,7 +89,6 @@ function StatCard({
 export default function SCIMConfiguration() {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
   const { t } = useTranslation('auth')
 
   const [scimEnabled, setScimEnabled] = useState(true)
@@ -97,23 +109,21 @@ export default function SCIMConfiguration() {
         setNewlyCreatedToken(created.token)
         setTokenVisible(true)
       }
-      enqueueSnackbar(t('admin.provisioning.scim.messages.token_generated'), {
-        variant: 'success',
-      })
+      toast.success(t('admin.provisioning.scim.messages.token_generated'))
     },
     onError: (error: unknown) => {
       logger.error('Failed to create SCIM token', { error })
-      enqueueSnackbar(t('admin.provisioning.scim.messages.error_generic'), { variant: 'error' })
+      toast.error(t('admin.provisioning.scim.messages.error_generic'))
     },
   })
 
   const revokeTokenMutation = useRevokeSCIMToken({
     onSuccess: () => {
-      enqueueSnackbar(t('admin.provisioning.scim.messages.token_revoked'), { variant: 'info' })
+      toast.info(t('admin.provisioning.scim.messages.token_revoked'))
     },
     onError: (error: unknown) => {
       logger.error('Failed to revoke SCIM token', { error })
-      enqueueSnackbar(t('admin.provisioning.scim.messages.error_generic'), { variant: 'error' })
+      toast.error(t('admin.provisioning.scim.messages.error_generic'))
     },
   })
 
@@ -150,12 +160,12 @@ export default function SCIMConfiguration() {
 
   const updateConfigMutation = useUpdateOrganizationScimConfig({
     onSuccess: () => {
-      enqueueSnackbar(t('admin.provisioning.scim.messages.config_saved'), { variant: 'success' })
+      toast.success(t('admin.provisioning.scim.messages.config_saved'))
       setIsSaving(false)
     },
     onError: (error: unknown) => {
       logger.error('Failed to save SCIM config', { error })
-      enqueueSnackbar(t('admin.provisioning.scim.messages.error_generic'), { variant: 'error' })
+      toast.error(t('admin.provisioning.scim.messages.error_generic'))
       setIsSaving(false)
     },
   })
@@ -163,14 +173,15 @@ export default function SCIMConfiguration() {
   const testConnectionMutation = useTestSCIMConnection({
     onSuccess: (resp) => {
       const data = resp.data
-      enqueueSnackbar(data.message, {
-        variant: data.status === 'success' ? 'success' : 'warning',
-        autoHideDuration: 5000,
-      })
+      if (data.status === 'success') {
+        toast.success(data.message, { autoClose: 5000 })
+      } else {
+        toast.warning(data.message, { autoClose: 5000 })
+      }
     },
     onError: (error: unknown) => {
       logger.error('SCIM test connection failed', { error })
-      enqueueSnackbar(t('admin.provisioning.scim.messages.test_failed'), { variant: 'error' })
+      toast.error(t('admin.provisioning.scim.messages.test_failed'))
     },
   })
 
@@ -192,12 +203,10 @@ export default function SCIMConfiguration() {
   const handleCopy = (text: string, label: string) => {
     try {
       navigator.clipboard.writeText(text)
-      enqueueSnackbar(`${label} ${t('admin.provisioning.scim.messages.copied')}`, {
-        variant: 'success',
-      })
+      toast.success(`${label} ${t('admin.provisioning.scim.messages.copied')}`)
     } catch (err: unknown) {
       logger.error('Clipboard write failed', { error: err })
-      enqueueSnackbar(t('admin.provisioning.scim.messages.error_generic'), { variant: 'error' })
+      toast.error(t('admin.provisioning.scim.messages.error_generic'))
     }
   }
 

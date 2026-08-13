@@ -11,7 +11,10 @@ import {
   Link as MuiLink,
   alpha,
 } from '@mui/material'
-import { Visibility, VisibilityOff, Fingerprint, VerifiedUser } from '@mui/icons-material'
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Fingerprint from '@mui/icons-material/Fingerprint';
+import VerifiedUser from '@mui/icons-material/VerifiedUser';
 import { Controller, Control } from 'react-hook-form'
 import { AuthScreenIcon, AuthInputLabel, AuthActionButton } from '../../../components/shared/auth'
 import { LoginRequest } from '../../../types/api.types'

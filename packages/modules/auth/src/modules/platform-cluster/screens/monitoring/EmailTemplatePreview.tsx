@@ -15,7 +15,12 @@ import {
   alpha,
   Tooltip,
 } from '@mui/material'
-import { Smartphone, Laptop, Visibility, History, Edit, Code } from '@mui/icons-material'
+import Smartphone from '@mui/icons-material/Smartphone';
+import Laptop from '@mui/icons-material/Laptop';
+import Visibility from '@mui/icons-material/Visibility';
+import History from '@mui/icons-material/History';
+import Edit from '@mui/icons-material/Edit';
+import Code from '@mui/icons-material/Code';
 import { useTranslation } from 'react-i18next'
 
 export default function EmailTemplatePreview() {

@@ -3,7 +3,9 @@ import {
   Box, Typography, TextField, Button, Divider, alpha, useTheme,
   InputAdornment, CircularProgress, Stack, Alert, Avatar,
 } from '@mui/material'
-import { Email, ArrowForward, Fingerprint } from '@mui/icons-material'
+import Email from '@mui/icons-material/Email';
+import ArrowForward from '@mui/icons-material/ArrowForward';
+import Fingerprint from '@mui/icons-material/Fingerprint';
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'

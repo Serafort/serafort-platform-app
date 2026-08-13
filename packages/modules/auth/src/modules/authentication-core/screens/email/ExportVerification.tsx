@@ -4,7 +4,10 @@ import {
   Box, Button, Typography, TextField, Avatar, LinearProgress,
   alpha, useTheme, Stack,
 } from '@mui/material'
-import { CloudDownload, VerifiedUser, LockOutlined, ArrowForward } from '@mui/icons-material'
+import CloudDownload from '@mui/icons-material/CloudDownload';
+import VerifiedUser from '@mui/icons-material/VerifiedUser';
+import LockOutlined from '@mui/icons-material/LockOutlined';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
