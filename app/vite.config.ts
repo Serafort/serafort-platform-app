@@ -33,6 +33,7 @@ if (!authExists) {
 
 // https://vite.dev/config/
 export default defineConfig({
+  envDir: workspaceRoot,
   plugins: [
     react(),
     ...(vitePWA
@@ -133,6 +134,7 @@ export default defineConfig({
       '@cap/module-auth',
       '@cap/module-admin',
       '@cap/module-landing',
+      '@cap/module-widget-studio',
       '@cap/module-user',
       '@cap/module-kyc',
       '@cap/module-digital-id',

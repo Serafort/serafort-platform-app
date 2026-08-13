@@ -63,6 +63,13 @@ export interface LayoutEngineSlice {
   removePanel: (pageId: string, slotId: SlotId) => void
   /** Adds a new empty panel slot to the layout. */
   addPanel: (pageId: string) => void
+  /** Adds a new slot with a widget to the layout. */
+  addSlot: (
+    pageId: string,
+    slotId: string,
+    widgetId: string,
+    size?: { span?: WidgetSpan; height?: WidgetHeight }
+  ) => void
   /** Saves current layouts state as a named view template. */
   saveView: (viewName: string) => void
   /** Loads a saved named view template into layouts. */
@@ -317,6 +324,24 @@ export const createLayoutEngineSlice: StateCreator<
         },
       }
       if (import.meta.env.DEV) console.log('[Store:layoutEngine] addPanel completed:', state.layouts[pageId])
+    }),
+
+  addSlot: (pageId, slotId, widgetId, size) =>
+    set((state) => {
+      const layout = state.layouts[pageId]
+      if (!layout) return
+      if (!layout.slots.includes(slotId)) {
+        layout.slots.push(slotId)
+      }
+      layout.slotWidgets[slotId] = widgetId
+      if (!layout.slotSizes) {
+        layout.slotSizes = {}
+      }
+      layout.slotSizes[slotId] = {
+        span: size?.span ?? DEFAULT_SLOT_SIZE.span,
+        height: size?.height ?? DEFAULT_SLOT_SIZE.height,
+      }
+      if (import.meta.env.DEV) console.log('[Store:layoutEngine] addSlot completed:', { pageId, slotId, widgetId })
     }),
 
   saveView: (viewName) =>

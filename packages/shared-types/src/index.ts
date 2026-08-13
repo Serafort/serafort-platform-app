@@ -18,3 +18,6 @@ export * from './admin.types';
 export * from './admin-api.types';
 
 export * from './routes';
+
+// AI Widget Studio — Widget DSL and agent pipeline types
+export * from './widget-studio.types';

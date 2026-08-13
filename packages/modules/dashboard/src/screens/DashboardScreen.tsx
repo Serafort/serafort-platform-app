@@ -7,6 +7,7 @@ import { useAppStore } from '@cap/platform-store'
 import { useShallow } from 'zustand/shallow'
 import { DEFAULT_DASHBOARD_GRID_LAYOUT } from '../widgets'
 import { DndContext, DragEndEvent, pointerWithin, DragOverlay, DragStartEvent } from '@dnd-kit/core'
+import { WidgetStudioFab, WidgetStudioPanel } from '@cap/module-widget-studio'
 
 const DashboardScreen: React.FC = () => {
   const { t } = useTranslation()
@@ -109,6 +110,12 @@ const DashboardScreen: React.FC = () => {
         <WidgetCanvas pageId={PAGE_ID} mode={isCustomMode ? 'custom' : 'classic'} defaultLayout={DEFAULT_DASHBOARD_GRID_LAYOUT} />
 
         <CustomModeFab customMode={isCustomMode} onToggle={toggleCustomMode} />
+
+        {/* AI Widget Studio FAB — stacks above CustomModeFab */}
+        <WidgetStudioFab bottomOffset={80} />
+
+        {/* AI Widget Studio Panel — right-side drawer */}
+        <WidgetStudioPanel />
       </Container>
       <DragOverlay>
         {activeWidgetInfo ? (

@@ -19,6 +19,8 @@ registerModuleWidgets(
       weather: DASHBOARD_WIDGET_IDS.weather,
       SplitPaneWidget: DASHBOARD_WIDGET_IDS.splitPane,
       TabbedCanvasWidget: DASHBOARD_WIDGET_IDS.tabbedCanvas,
+      StatCard: DASHBOARD_WIDGET_IDS.statCard,
+      AiChat: DASHBOARD_WIDGET_IDS.aiChat,
     },
   },
 )

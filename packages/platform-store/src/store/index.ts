@@ -15,8 +15,9 @@ import { createNavigationSlice, type NavigationSlice } from './slices/navigation
 import { createNetworkSlice, type NetworkSlice } from './slices/networkSlice'
 import { createOfflineQueueSlice, type OfflineQueueSlice } from './slices/offlineQueueSlice'
 import { createLayoutEngineSlice, type LayoutEngineSlice, DEFAULT_SLOT_SIZE } from './slices/layoutEngineSlice'
+import { createWidgetStudioSlice, type WidgetStudioSlice } from './slices/widgetStudioSlice'
 import type { AppStore } from '../types'
-export type { LayoutOverride, AppStore, AuthSlice, GuestSlice, ProfileSlice, NotificationSlice, PreferencesSlice, SettingsSlice, NavigationSlice, NetworkSlice, OfflineQueueSlice, LayoutEngineSlice }
+export type { LayoutOverride, AppStore, AuthSlice, GuestSlice, ProfileSlice, NotificationSlice, PreferencesSlice, SettingsSlice, NavigationSlice, NetworkSlice, OfflineQueueSlice, LayoutEngineSlice, WidgetStudioSlice }
 export { DEFAULT_SLOT_SIZE }
 
 
@@ -124,6 +125,7 @@ export const useAppStore = create<AppStore>()(
         ...createNetworkSlice(...(args as [any, any, any])),
         ...createOfflineQueueSlice(...(args as [any, any, any])),
         ...createLayoutEngineSlice(...(args as [any, any, any])),
+        ...createWidgetStudioSlice(...(args as [any, any, any])),
       })),
       {
         name: (import.meta as any).env?.VITE_STORAGE_KEY || 'cap-platform-storage',
@@ -191,6 +193,7 @@ export const useAppStore = create<AppStore>()(
           settings: state.settings,
           offlineQueue: state.offlineQueue,
           layouts: state.layouts,
+          widgetDrafts: state.widgetDrafts,
         }),
       },
     ),
@@ -358,3 +361,29 @@ export const useOfflineQueue = () =>
     }))
   )
 
+export const useWidgetStudio = () =>
+  useAppStore(
+    useShallow((state: AppStore) => ({
+      // Panel
+      widgetStudioPanelOpen: state.widgetStudioPanelOpen,
+      openWidgetStudioPanel: state.openWidgetStudioPanel,
+      closeWidgetStudioPanel: state.closeWidgetStudioPanel,
+      toggleWidgetStudioPanel: state.toggleWidgetStudioPanel,
+      // Drafts
+      widgetDrafts: state.widgetDrafts,
+      activeDraftId: state.activeDraftId,
+      widgetStudioRunning: state.widgetStudioRunning,
+      createWidgetDraft: state.createWidgetDraft,
+      setActiveDraft: state.setActiveDraft,
+      getActiveDraft: state.getActiveDraft,
+      deleteWidgetDraft: state.deleteWidgetDraft,
+      // Agent pipeline
+      updateWidgetAgent: state.updateWidgetAgent,
+      appendAgentStream: state.appendAgentStream,
+      setWidgetStudioRunning: state.setWidgetStudioRunning,
+      // DSL & Lifecycle
+      setWidgetDsl: state.setWidgetDsl,
+      setWidgetLifecycle: state.setWidgetLifecycle,
+      appendAuditEntry: state.appendAuditEntry,
+    }))
+  )

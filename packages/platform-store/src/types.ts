@@ -8,6 +8,7 @@ import type { NavigationSlice } from './store/slices/navigationSlice'
 import type { NetworkSlice } from './store/slices/networkSlice'
 import type { OfflineQueueSlice } from './store/slices/offlineQueueSlice'
 import type { LayoutEngineSlice } from './store/slices/layoutEngineSlice'
+import type { WidgetStudioSlice } from './store/slices/widgetStudioSlice'
 
 export type AppStore = AuthSlice &
   GuestSlice &
@@ -18,6 +19,8 @@ export type AppStore = AuthSlice &
   NavigationSlice &
   NetworkSlice &
   LayoutEngineSlice &
-  OfflineQueueSlice
+  OfflineQueueSlice &
+  WidgetStudioSlice
 
 export * from './store/types'
+

@@ -35,6 +35,8 @@
             "@cap/platform-store/*": ["../../platform-store/src/*"],
             "@cap/module-auth": ["../auth/src", "../../platform-core/src/stubs/auth-shim.tsx"],
             "@cap/module-auth/*": ["../auth/src/*", "../../platform-core/src/stubs/auth-shim.tsx"],
+            "@cap/module-widget-studio": ["../widget-studio/src"],
+            "@cap/module-widget-studio/*": ["../widget-studio/src/*"],
             "@auth": ["../auth/src"],
             "@auth/*": ["../auth/src/*"],
             "@auth/authentication-core": ["../auth/src/modules/authentication-core"],

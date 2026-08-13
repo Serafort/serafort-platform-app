@@ -12,6 +12,7 @@
     "dependencies": {
         "@cap/layout": "workspace:*",
         "@cap/module-auth": "workspace:*",
+        "@cap/module-widget-studio": "workspace:*",
         "@cap/platform-core": "workspace:*",
         "@cap/shared-types": "workspace:*",
         "@dnd-kit/core": "^6.3.1",
