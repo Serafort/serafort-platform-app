@@ -41,7 +41,7 @@ const BrowserNotSupported = () => {
       <Grid container spacing={2} justifyContent="center" sx={{ mb: 4 }}>
         {browsers.map((browser) => (
           <Grid key={browser.name} size={{ xs: 6, sm: 3 }}>
-            <Link href={browser.url} target="_blank" rel="noopener"
+            <Link href={browser.url} target="_blank" rel="noopener noreferrer"
               sx={{ display: 'block', p: 2, borderRadius: 3, bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', textDecoration: 'none', color: 'text.primary', transition: 'all 0.2s', '&:hover': { bgcolor: 'action.selected', borderColor: 'primary.main', transform: 'translateY(-4px)' } }}>
               <CheckCircleOutline sx={{ fontSize: 20, mb: 1, color: 'primary.main', display: 'block', mx: 'auto' }} />
               <Typography variant="body2" sx={{ fontWeight: 500 }}>{browser.name}</Typography>
