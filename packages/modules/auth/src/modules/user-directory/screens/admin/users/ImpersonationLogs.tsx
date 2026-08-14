@@ -16,7 +16,7 @@ import AssignmentTurnedIn from '@mui/icons-material/AssignmentTurnedIn';
 import Refresh from '@mui/icons-material/Refresh';
 import { useTranslation } from 'react-i18next';
 ;
-import { ImpersonationSession } from '@cap/shared-types';
+import { ImpersonationRecord } from '@cap/shared-types';
 import { useImpersonationLogs } from '../../../../authentication-core';
 import { format, formatDistanceToNow } from 'date-fns';
 import { buildLayoutSurfaceEffect } from '@cap/layout';
@@ -32,10 +32,10 @@ export default function ImpersonationLogs() {
   const logs = useMemo(() => {
     // Backend returns a paginator object { meta, data: [] }
     if (logsResponse?.data && 'data' in (logsResponse.data as any) && Array.isArray((logsResponse.data as any).data)) {
-      return (logsResponse.data as any).data as ImpersonationSession[]
+      return (logsResponse.data as any).data as ImpersonationRecord[]
     }
     // Fallback if it's already an array or empty
-    return (Array.isArray(logsResponse?.data) ? logsResponse.data : []) as ImpersonationSession[]
+    return (Array.isArray(logsResponse?.data) ? logsResponse.data : []) as ImpersonationRecord[]
   }, [logsResponse])
 
   const [searchTerm, setSearchTerm] = useState('')
@@ -43,11 +43,11 @@ export default function ImpersonationLogs() {
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null)
   const [actionAnchorEl, setActionAnchorEl] = useState<null | HTMLElement>(null)
-  const [selectedLog, setSelectedLog] = useState<ImpersonationSession | null>(null)
+  const [selectedLog, setSelectedLog] = useState<ImpersonationRecord | null>(null)
 
   const filteredLogs = useMemo(() => {
     return logs.filter(
-      (log: ImpersonationSession) =>
+      (log: ImpersonationRecord) =>
         log.actorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         log.actorEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         log.targetName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -178,7 +178,7 @@ export default function ImpersonationLogs() {
                 {t('auth.admin.activeSessions', 'Active Sessions')}
               </Typography>
               <Typography variant='h5' sx={{ fontWeight: 900, color: 'success.main', display: 'flex', alignItems: 'center', gap: 1 }}>
-                {logs.filter((l: ImpersonationSession) => l.status === 'active').length}
+                {logs.filter((l: ImpersonationRecord) => l.status === 'active').length}
                 <span className="pulse-dot bg-success-main" style={{ width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} />
               </Typography>
             </Box>
@@ -301,7 +301,7 @@ export default function ImpersonationLogs() {
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedLogs.map((log: ImpersonationSession) => (
+                paginatedLogs.map((log: ImpersonationRecord) => (
                   <TableRow
                     key={log.id}
                     hover

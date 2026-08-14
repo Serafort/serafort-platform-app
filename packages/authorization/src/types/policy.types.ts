@@ -1,21 +1,27 @@
+import type { RolePlane, TenantMembership, ImpersonationSession } from '@cap/shared-types'
+
 /**
  * Subject = the acting principal (current user)
  */
 export interface PolicySubject {
   id: string | number
-  roles: string[]           // normalized role slugs
-  permissions: string[]     // flat string permissions
+  roles: string[]                      // normalized role slugs
+  permissions: string[]                // flat string permissions
   attributes: Record<string, unknown>  // arbitrary ABAC attrs (org, tier, etc.)
+  plane?: RolePlane                    // platform vs tenant plane
+  activeTenantId?: string | number | null
+  memberships?: TenantMembership[]
+  impersonationSession?: ImpersonationSession | null
 }
 
 /** Resource being accessed */
 export interface PolicyResource {
-  type: string              // e.g. 'user', 'document', 'invoice'
+  type: string                         // e.g. 'user', 'document', 'invoice', 'tenant'
   id?: string | number
   attributes?: Record<string, unknown>
 }
 
-/** Standard policy actions */
+/** Standard policy actions across platform and tenant operations */
 export enum PolicyActionEnum {
   READ = 'read',
   WRITE = 'write',
@@ -25,6 +31,11 @@ export enum PolicyActionEnum {
   UPDATE = 'update',
   EXECUTE = 'execute',
   MANAGE = 'manage',
+  IMPERSONATE = 'impersonate',
+  TRANSFER = 'transfer',
+  CONFIGURE_SSO = 'configure_sso',
+  MANAGE_API_KEYS = 'manage_api_keys',
+  AUDIT = 'audit',
 }
 
 /** The action being attempted */
@@ -39,7 +50,7 @@ export type PolicyEffect = `${PolicyEffectEnum}`
 
 /** A single ABAC condition evaluator ID + args */
 export interface PolicyCondition {
-  id: string                // registered condition name, e.g. 'owns', 'sameOrg'
+  id: string                           // registered condition name, e.g. 'owns', 'sameOrg', 'isPlatformUser'
   args?: Record<string, unknown>
 }
 
@@ -53,12 +64,12 @@ export type ConditionEvaluator = (
 /** A single policy rule */
 export interface PolicyRule {
   effect: PolicyEffect
-  roles?: string[]          // RBAC: match if subject has any of these roles
-  permissions?: string[]    // RBAC: match if subject has any of these permissions
-  actions?: PolicyAction[]  // match if action is in this list (undefined = any)
-  resources?: string[]      // match if resource.type is in this list (undefined = any)
-  condition?: PolicyCondition  // ABAC: additional condition that must pass
-  priority?: number         // higher = evaluated first (default 0); deny takes precedence at equal priority
+  roles?: string[]                     // RBAC: match if subject has any of these roles
+  permissions?: string[]               // RBAC: match if subject has any of these permissions
+  actions?: PolicyAction[]             // match if action is in this list (undefined = any)
+  resources?: string[]                 // match if resource.type is in this list (undefined = any)
+  condition?: PolicyCondition          // ABAC: additional condition that must pass
+  priority?: number                    // higher = evaluated first (default 0); deny takes precedence at equal priority
 }
 
 /** Named, reusable policy */
@@ -72,7 +83,7 @@ export interface Policy {
 export interface PolicySet {
   version: string
   policies: Policy[]
-  defaultEffect: PolicyEffect  // what to return when no rule matches
+  defaultEffect: PolicyEffect         // what to return when no rule matches
 }
 
 /** Evaluation input */
@@ -80,7 +91,7 @@ export interface PolicyEvaluationContext {
   subject: PolicySubject
   resource: PolicyResource
   action: PolicyAction
-  environment?: Record<string, unknown>  // time, IP, etc.
+  environment?: Record<string, unknown> // time, IP, etc.
 }
 
 /** Evaluation result */

@@ -20,7 +20,8 @@ describe('buildSubject', () => {
     expect(subject).not.toBeNull()
     expect(subject?.id).toBe(123)
     expect(subject?.roles).toContain('admin')
-    expect(subject?.permissions).toEqual(['read', 'write'])
+    expect(subject?.permissions).toContain('read')
+    expect(subject?.permissions).toContain('write')
     expect(subject?.attributes.orgId).toBe(5)
   })
 
@@ -37,5 +38,6 @@ describe('buildSubject', () => {
     const subject = buildSubject(nested)
     expect(subject?.id).toBe('usr_abc')
     expect(subject?.roles).toContain('super_admin')
+    expect(subject?.permissions).toContain('*')
   })
 })

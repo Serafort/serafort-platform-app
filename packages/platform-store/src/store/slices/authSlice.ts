@@ -1,7 +1,19 @@
 import { StateCreator } from 'zustand'
 import type { AppStore } from '../../types'
-import { fetchClient, ENDPOINTS } from '../../services/api/api.client'
-import { IAuth, ILogin, hasAdminRole, normalizeRole } from '@cap/shared-types'
+import {
+  fetchClient,
+  ENDPOINTS,
+  setTenantId,
+  setImpersonationContext,
+} from '../../services/api/api.client'
+import {
+  IAuth,
+  ILogin,
+  hasAdminRole,
+  normalizeRole,
+  TenantMembership,
+  ImpersonationSession,
+} from '@cap/shared-types'
 import { secureTokenManager, TokenData as AuthTokens } from '../../services/secureTokenManager'
 
 export type { AuthTokens }
@@ -14,6 +26,11 @@ export interface AuthSlice {
   error: string | null
   tokens: AuthTokens | null
 
+  // Multi-Tenant & Impersonation Plane State
+  activeTenantId: string | number | null
+  memberships: TenantMembership[]
+  impersonationSession: ImpersonationSession | null
+
   signIn: (credentials: ILogin) => Promise<any>
   signOut: (callback?: (status: number) => void) => Promise<void>
   refreshAuth: () => Promise<void>
@@ -23,6 +40,12 @@ export interface AuthSlice {
   setTokens: (tokens: AuthTokens | null) => void
   clearError: () => void
   setLoading: (loading: boolean) => void
+
+  // Multi-Tenant Actions
+  switchTenant: (orgId: string | number) => void
+  setMemberships: (memberships: TenantMembership[]) => void
+  startImpersonation: (session: ImpersonationSession) => void
+  stopImpersonation: () => void
 }
 
 // Singleton promise to prevent duplicate refreshAuth calls
@@ -60,6 +83,10 @@ const normalizeUserData = (userData: any) => {
     normalized.permissions = []
   }
 
+  if (!Array.isArray(normalized.memberships)) {
+    normalized.memberships = []
+  }
+
   return normalized
 }
 
@@ -68,7 +95,7 @@ export const createAuthSlice: StateCreator<
   [['zustand/immer', never], ['zustand/persist', unknown]],
   [],
   AuthSlice
-> = (set, _get) => ({
+> = (set, get) => ({
   // Initial State
   user: null,
   isAuthenticated: false,
@@ -76,6 +103,9 @@ export const createAuthSlice: StateCreator<
   isLoading: false,
   error: null,
   tokens: null,
+  activeTenantId: null,
+  memberships: [],
+  impersonationSession: null,
 
   // Sign In
   signIn: async (credentials: ILogin) => {
@@ -88,33 +118,42 @@ export const createAuthSlice: StateCreator<
       const response = await fetchClient.post<any>(ENDPOINTS.auth.login, credentials)
 
       if (response.status === 200 && response.data) {
-        // Set user data - backend might return user data directly or in a 'user' field
         let userData = normalizeUserData(response.data.user || response.data)
         const token = response.data.accessToken || response.data.token
-        
-        // Update user object with token if present but missing in user data
+
         if (token && userData && !userData.token) {
           userData.token = token
         }
 
-        // Add rememberMe preference for secureTokenManager persistence
         if (userData) {
           userData.rememberMe = credentials.rememberMe
         }
 
-        console.log('[signIn] Login successful, updating user state atomically')
+        const initialTenantId =
+          userData?.activeTenantId ||
+          userData?.organizationId ||
+          userData?.orgId ||
+          userData?.memberships?.[0]?.orgId ||
+          null
 
-        // CRITICAL: Update state atomically to prevent refreshAuth race condition
         set((state: AuthSlice) => {
           state.user = userData
           state.isAuthenticated = true
-          state.isAdmin = hasAdminRole(userData?.role) || hasAdminRole(userData?.roleObject) || hasAdminRole(userData?.roleName)
+          state.isAdmin =
+            hasAdminRole(userData?.role) ||
+            hasAdminRole(userData?.roleObject) ||
+            hasAdminRole(userData?.roleName)
           state.tokens = token ? { accessToken: token, expiresAt: Date.now() + 3600 * 1000 } : null
+          state.activeTenantId = initialTenantId
+          state.memberships = userData?.memberships || []
+          state.impersonationSession = userData?.impersonationSession || null
           state.isLoading = false
           state.error = null
         })
 
-        // Persist tokens in secureTokenManager
+        setTenantId(initialTenantId ? String(initialTenantId) : null)
+        setImpersonationContext(userData?.impersonationSession || null)
+
         if (token) {
           secureTokenManager.setTokens({
             accessToken: token,
@@ -146,8 +185,13 @@ export const createAuthSlice: StateCreator<
         state.isAdmin = false
         state.tokens = null
         state.error = null
+        state.activeTenantId = null
+        state.memberships = []
+        state.impersonationSession = null
       })
 
+      setTenantId(null)
+      setImpersonationContext(null)
       secureTokenManager.clearTokens()
 
       if (callback) callback(response.status)
@@ -157,8 +201,13 @@ export const createAuthSlice: StateCreator<
         state.user = null
         state.isAuthenticated = false
         state.tokens = null
+        state.activeTenantId = null
+        state.memberships = []
+        state.impersonationSession = null
       })
 
+      setTenantId(null)
+      setImpersonationContext(null)
       secureTokenManager.clearTokens()
     } finally {
       set((state: AuthSlice) => {
@@ -167,26 +216,14 @@ export const createAuthSlice: StateCreator<
     }
   },
 
-  // Refresh Auth (check session and get user data)
+  // Refresh Auth
   refreshAuth: async () => {
-    // Return existing promise if refresh is already in progress
     if (refreshAuthPromise) {
       return refreshAuthPromise
     }
 
     refreshAuthPromise = (async () => {
-      // Ensure token manager is initialized
-      console.log('[refreshAuth] Waiting for SecureTokenManager initialization...')
       await secureTokenManager.ensureInitialized()
-      console.log('[refreshAuth] SecureTokenManager initialized')
-
-      // Check if we have tokens first
-      const tokens = secureTokenManager.getTokens()
-      console.log('[refreshAuth] Tokens found:', !!tokens)
-
-      // Removed premature token check. `secureTokenManager` is in-memory only, so tokens will always be null on a hard reload.
-      // We must let `fetchClient` execute the `/api/auth/session` call so it triggers a 401, which then triggers the interceptor's `/api/auth/refresh` call using the HttpOnly cookie.
-
 
       set((state: AuthSlice) => {
         state.isLoading = true
@@ -194,12 +231,9 @@ export const createAuthSlice: StateCreator<
       })
 
       try {
-        // Call session endpoint to get current user data
-        // The refresh token is sent automatically via HttpOnly cookie
         const response = await fetchClient.get<any>(ENDPOINTS.auth.session)
 
         if (response.status === 200 && response.data) {
-          // Update tokens if provided in response
           if (response.data.access_token || response.data.token) {
             const newTokens: AuthTokens = {
               accessToken: response.data.access_token || response.data.token,
@@ -208,16 +242,25 @@ export const createAuthSlice: StateCreator<
             secureTokenManager.setTokens(newTokens)
           }
 
-          // Set user data - backend might return user data directly or in a 'user' field
           let userData = normalizeUserData(response.data.user || response.data)
+          const currentActive = get().activeTenantId || userData?.organizationId || userData?.orgId || null
 
           set((state: AuthSlice) => {
             state.user = userData
             state.isAuthenticated = true
-            state.isAdmin = hasAdminRole(userData?.role) || hasAdminRole(userData?.roleObject) || hasAdminRole(userData?.roleName)
+            state.isAdmin =
+              hasAdminRole(userData?.role) ||
+              hasAdminRole(userData?.roleObject) ||
+              hasAdminRole(userData?.roleName)
+            state.activeTenantId = currentActive
+            state.memberships = userData?.memberships || []
+            state.impersonationSession = userData?.impersonationSession || null
             state.isLoading = false
             state.error = null
           })
+
+          setTenantId(currentActive ? String(currentActive) : null)
+          setImpersonationContext(userData?.impersonationSession || null)
         }
       } catch (error: any) {
         console.error('[refreshAuth] Error:', error.response?.status, error.message)
@@ -227,9 +270,13 @@ export const createAuthSlice: StateCreator<
           state.isAuthenticated = false
           state.isLoading = false
           state.error = error.response?.data?.message || 'Session expired'
+          state.activeTenantId = null
+          state.memberships = []
+          state.impersonationSession = null
         })
 
-        // Clear tokens on failure
+        setTenantId(null)
+        setImpersonationContext(null)
         secureTokenManager.clearTokens()
       } finally {
         refreshAuthPromise = null
@@ -239,7 +286,7 @@ export const createAuthSlice: StateCreator<
     return refreshAuthPromise
   },
 
-  // Refresh Token (get new access token via HttpOnly cookie)
+  // Refresh Token
   refreshToken: async () => {
     try {
       interface RefreshResponse {
@@ -248,7 +295,6 @@ export const createAuthSlice: StateCreator<
         expires_in: number
       }
 
-      // Refresh token is sent automatically via HttpOnly cookie (credentials: 'include')
       const response = await fetchClient.post<RefreshResponse>('/api/auth/refresh')
 
       const accessToken = response.data.access_token || response.data.token
@@ -296,9 +342,14 @@ export const createAuthSlice: StateCreator<
     })
   },
 
-  // Set User (directly set user data, e.g., after login)
+  // Set User
   setUser: (user: IAuth | null) => {
     const normalizedUser = normalizeUserData(user)
+    const currentActive =
+      normalizedUser?.activeTenantId ||
+      normalizedUser?.organizationId ||
+      normalizedUser?.orgId ||
+      null
 
     set((state: AuthSlice) => {
       state.user = normalizedUser
@@ -308,22 +359,26 @@ export const createAuthSlice: StateCreator<
         (hasAdminRole(normalizedUser.role) ||
           hasAdminRole(normalizedUser.roleObject) ||
           hasAdminRole(normalizedUser.roleName))
+      state.activeTenantId = currentActive
+      state.memberships = normalizedUser?.memberships || []
+      state.impersonationSession = normalizedUser?.impersonationSession || null
       state.error = null
 
-      // Check if user object contains access token and persist in memory
       if (normalizedUser && (normalizedUser as any).token) {
         const tokens: AuthTokens = {
           accessToken: (normalizedUser as any).token || '',
-          expiresAt: Date.now() + 3600 * 1000, // Default 1h
+          expiresAt: Date.now() + 3600 * 1000,
         }
         state.tokens = tokens
-
         secureTokenManager.setTokens(tokens)
       } else if (!normalizedUser) {
         state.tokens = null
         secureTokenManager.clearTokens()
       }
     })
+
+    setTenantId(currentActive ? String(currentActive) : null)
+    setImpersonationContext(normalizedUser?.impersonationSession || null)
   },
 
   // Clear Error
@@ -351,5 +406,56 @@ export const createAuthSlice: StateCreator<
     set((state: AuthSlice) => {
       state.isLoading = loading
     })
+  },
+
+  // Switch Active Tenant
+  switchTenant: (orgId: string | number) => {
+    set((state: AuthSlice) => {
+      state.activeTenantId = orgId
+      if (state.user) {
+        state.user.activeTenantId = orgId
+      }
+    })
+    setTenantId(String(orgId))
+  },
+
+  // Set Memberships
+  setMemberships: (memberships: TenantMembership[]) => {
+    set((state: AuthSlice) => {
+      state.memberships = memberships
+      if (state.user) {
+        state.user.memberships = memberships
+      }
+    })
+  },
+
+  // Start Platform Support Impersonation
+  startImpersonation: (session: ImpersonationSession) => {
+    set((state: AuthSlice) => {
+      state.impersonationSession = session
+      state.activeTenantId = session.targetOrgId
+      if (state.user) {
+        state.user.impersonationSession = session
+        state.user.activeTenantId = session.targetOrgId
+      }
+    })
+    setTenantId(String(session.targetOrgId))
+    setImpersonationContext(session)
+  },
+
+  // Stop Impersonation
+  stopImpersonation: () => {
+    set((state: AuthSlice) => {
+      state.impersonationSession = null
+      const originalOrgId = state.user?.organizationId || state.user?.orgId || null
+      state.activeTenantId = originalOrgId
+      if (state.user) {
+        state.user.impersonationSession = null
+        state.user.activeTenantId = originalOrgId
+      }
+    })
+    const originalOrgId = get().activeTenantId
+    setTenantId(originalOrgId ? String(originalOrgId) : null)
+    setImpersonationContext(null)
   },
 })

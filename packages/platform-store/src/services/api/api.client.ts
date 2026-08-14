@@ -45,8 +45,12 @@ export const API_CONFIG = {
 // per-request via FetchRequestConfig.headers.
 // ---------------------------------------------------------------------------
 export const TENANT_ID_HEADER = 'X-Tenant-Id'
+export const IMPERSONATION_SESSION_HEADER = 'X-Impersonation-Session-Id'
+export const IMPERSONATION_REASON_HEADER = 'X-Impersonation-Audit-Reason'
+export const IMPERSONATION_ACTOR_HEADER = 'X-Impersonation-Actor-Id'
 
 let currentTenantId: string | null = null
+let currentImpersonationSession: ImpersonationSession | null = null
 
 export function setTenantId(tenantId: string | null | undefined): void {
   currentTenantId = tenantId ?? null
@@ -56,11 +60,20 @@ export function getTenantId(): string | null {
   return currentTenantId
 }
 
+export function setImpersonationContext(session: ImpersonationSession | null): void {
+  currentImpersonationSession = session
+}
+
+export function getImpersonationContext(): ImpersonationSession | null {
+  return currentImpersonationSession
+}
+
 import {
   RefreshResponseDto,
   ApiResponse,
   PaginatedResponse,
   ApiErrorResponse,
+  ImpersonationSession,
 } from '@cap/shared-types'
 import { ENDPOINTS } from '@cap/api-contracts'
 
@@ -351,6 +364,18 @@ export class FetchClient {
 
     if (currentTenantId && !headers.has(TENANT_ID_HEADER)) {
       headers.set(TENANT_ID_HEADER, currentTenantId)
+    }
+
+    if (currentImpersonationSession) {
+      if (!headers.has(IMPERSONATION_SESSION_HEADER)) {
+        headers.set(IMPERSONATION_SESSION_HEADER, currentImpersonationSession.sessionId)
+      }
+      if (currentImpersonationSession.reason && !headers.has(IMPERSONATION_REASON_HEADER)) {
+        headers.set(IMPERSONATION_REASON_HEADER, currentImpersonationSession.reason)
+      }
+      if (currentImpersonationSession.actorUserId && !headers.has(IMPERSONATION_ACTOR_HEADER)) {
+        headers.set(IMPERSONATION_ACTOR_HEADER, String(currentImpersonationSession.actorUserId))
+      }
     }
 
     if (!endpoint.includes(ENDPOINTS.auth.refresh)) {

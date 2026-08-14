@@ -10,6 +10,7 @@ import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useTheme } from '@mui/material/styles'
 import useLayoutInit from '../hooks/useLayoutInit'
+import { ImpersonationBanner } from '../components/impersonation/ImpersonationBanner'
 
 type LayoutWrapperProps = {
   systemMode: SystemMode
@@ -52,6 +53,7 @@ const LayoutWrapper = ({
         }}
         data-skin={settings.skin}
       >
+        <ImpersonationBanner />
         {activeLayout === LayoutModeEnum.HORIZONTAL ? horizontalLayout : verticalLayout}
       </Box>
     )

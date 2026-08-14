@@ -17,6 +17,12 @@ export class PolicyEngine {
     defaultEffect: 'deny',
   }
 
+  constructor(initialPolicySet?: PolicySet) {
+    if (initialPolicySet) {
+      this.policySet = initialPolicySet
+    }
+  }
+
   /**
    * Set or overwrite the active policy set.
    */

@@ -275,7 +275,7 @@ export interface AccessPolicyRule {
   conditions?: Record<string, unknown>
 }
 
-export interface ImpersonationSession {
+export interface ImpersonationRecord {
   id: string | number
   startedAt: string
   actorAvatar?: string

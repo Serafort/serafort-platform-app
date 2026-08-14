@@ -141,4 +141,10 @@ const encryptionService = {
 
 export type EncryptionService = typeof encryptionService
 
-comlink.expose(encryptionService)
+if (typeof self !== 'undefined' && typeof (self as any).addEventListener === 'function') {
+  try {
+    comlink.expose(encryptionService)
+  } catch {
+    // Environment does not support message ports (e.g. Node/test)
+  }
+}

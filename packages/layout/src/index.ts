@@ -22,6 +22,7 @@ export { default as PublicNavbar } from './menu/layouts/Navbars/Navbar'
 export { default as GuestNavbar } from './menu/layouts/Navbars/GuestNavbar'
 export { default as HorizontalNavbarContent } from './menu/layouts/HorizontalNavbarContent'
 export { default as RoleIndicator } from './components/RoleIndicator'
+export { ImpersonationBanner } from './components/impersonation/ImpersonationBanner'
 
 // ── Context Types ──────────────────────────────────────────────
 export type {

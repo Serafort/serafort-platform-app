@@ -1,5 +1,6 @@
 import type { Node, Edge } from '@xyflow/react'
-import type { PolicyAction, PolicyEffect, PolicySet, PolicySubject, PolicyResource } from './policy.types'
+import type { PolicyAction, PolicyEffect, PolicySubject, PolicyResource } from './policy.types'
+import type { RolePlane } from '@cap/shared-types'
 
 /**
  * 5 Visual Node Types supported on the Policy Canvas
@@ -12,6 +13,7 @@ export type PolicyNodeType = 'subject' | 'action' | 'resource' | 'condition' | '
 export interface SubjectNodeData extends Record<string, unknown> {
   label: string
   roles: string[]
+  plane?: RolePlane
   permissions?: string[]
   requiredAttributes?: Record<string, string | number | boolean>
   minRiskScore?: number
