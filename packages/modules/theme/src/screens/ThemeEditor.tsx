@@ -15,6 +15,8 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CloseIcon from '@mui/icons-material/Close';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { AiThemeStudioPanel } from '../components/AiThemeStudioPanel';
 import { ColorPaletteEditor } from '../components/ColorPaletteEditor';
 import { GlassmorphismPanel } from '../components/EffectControls/GlassmorphismPanel';
 import { NeumorphismPanel } from '../components/EffectControls/NeumorphismPanel';
@@ -247,6 +249,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
         <Grid size={{ xs: 12, lg: asDrawer ? 12 : 8 }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs value={activeTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
+              <Tab icon={<AutoAwesomeIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="AI Studio" />
               <Tab label="Presets" />
               <Tab label="Colors" />
               <Tab label="Effects" />
@@ -256,20 +259,27 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
           </Box>
 
           <TabPanel value={activeTab} index={0}>
+            <AiThemeStudioPanel
+              currentTheme={theme}
+              onThemeGenerated={(newTheme) => updateThemeState(() => newTheme)}
+            />
+          </TabPanel>
+
+          <TabPanel value={activeTab} index={1}>
             <PresetSelector
               currentPreset={theme.preset}
               onSelect={handlePresetSelect}
             />
           </TabPanel>
 
-          <TabPanel value={activeTab} index={1}>
+          <TabPanel value={activeTab} index={2}>
             <ColorPaletteEditor
               colors={theme.tokens.colors}
               onChange={handleColorsChange}
             />
           </TabPanel>
 
-          <TabPanel value={activeTab} index={2}>
+          <TabPanel value={activeTab} index={3}>
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: asDrawer ? 12 : 6 }}>
                 <GlassmorphismPanel
@@ -286,7 +296,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
             </Grid>
           </TabPanel>
 
-          <TabPanel value={activeTab} index={3}>
+          <TabPanel value={activeTab} index={4}>
             <ComponentStyleSelector
               components={theme.components}
               globalEffectType={theme.effects.globalType}
@@ -295,7 +305,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
             />
           </TabPanel>
 
-          <TabPanel value={activeTab} index={4}>
+          <TabPanel value={activeTab} index={5}>
             <SpacingEditor
               spacing={theme.tokens.spacing}
               borderRadius={theme.tokens.borderRadius}

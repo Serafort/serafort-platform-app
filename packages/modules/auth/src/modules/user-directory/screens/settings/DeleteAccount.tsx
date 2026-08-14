@@ -34,7 +34,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { useDeleteAccount, useErasureMutation } from "../../hooks/useUserQuery"
+import { useErasureMutation } from "../../hooks/useUserQuery"
 import logger from "@idaas/authentication-core/utils/logger"
 import { Path } from "@cap/module-auth/routes/path"
 import { buildLayoutSurfaceEffect } from "@cap/layout"
@@ -61,7 +61,6 @@ export default function DeleteAccount() {
   const [showPassword, setShowPassword] = useState(false)
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false)
 
-  useDeleteAccount()
   const erasureMutation = useErasureMutation()
 
   const {

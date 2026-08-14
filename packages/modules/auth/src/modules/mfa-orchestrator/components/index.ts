@@ -1,2 +1,2 @@
-// Placeholder for mfa-orchestrator components
-export {}
+export { StepUpAuthDialog } from './StepUpAuthDialog'
+export type { StepUpAuthDialogProps } from './StepUpAuthDialog'

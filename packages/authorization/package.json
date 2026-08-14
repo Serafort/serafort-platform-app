@@ -17,14 +17,19 @@
   },
   "dependencies": {
     "@cap/platform-core": "workspace:*",
+    "@cap/platform-store": "workspace:*",
     "@cap/shared-types": "workspace:*",
-    "@cap/platform-store": "workspace:*"
+    "@mui/icons-material": "^7.3.6",
+    "@mui/material": "^7.3.6",
+    "@xyflow/react": "^12.11.3"
   },
   "peerDependencies": {
+    "@mui/material": "^7.0.0",
     "react": ">=19",
     "react-dom": ">=19",
     "react-router-dom": "^7.0.0"
   },
+
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

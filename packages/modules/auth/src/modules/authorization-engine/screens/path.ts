@@ -16,7 +16,8 @@ const Path = {
   apiExplorer: '/admin/api-explorer',
   webhooks: '/admin/webhooks',
   machineIdentities: '/admin/machine-identities',
-  domainVerification: '/admin/domain-verification',
+  policyCanvas: '/admin/policies/canvas',
 }
 
 export default Path
+

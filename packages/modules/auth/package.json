@@ -25,6 +25,7 @@
     "@mui/material": "^7.3.6",
     "@mui/system": "^7.3.6",
     "@simplewebauthn/browser": "^13.2.2",
+    "@xyflow/react": "^12.11.3",
     "classnames": "^2.5.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.34.0",

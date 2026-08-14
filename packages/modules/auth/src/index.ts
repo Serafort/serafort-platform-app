@@ -7,7 +7,9 @@ import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined'
 import DevicesOutlinedIcon from '@mui/icons-material/DevicesOutlined'
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined'
+import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined'
 import { authRouteConfig, authRoutes } from './routes/routes'
+
 import Path from './routes/path'
 export { authRouteConfig, authRoutes, Path, Path as AuthPath }
 export { createAdminRoute, createAuthRoute } from './routes/routeHelpers'
@@ -179,6 +181,7 @@ export const AuthModule: CAPModule = {
         { id: 'auth-mfa', label: 'navigation.twoSteps', path: Path.mfa.dashboard, order: 10 },
         { id: 'auth-passkeys', label: 'navigation.passkeys', path: Path.passkey.management, order: 20 },
         { id: 'auth-passwordless', label: 'navigation.passwordless', path: Path.passwordless.setup, order: 30 },
+        { id: 'auth-policy-canvas', label: 'Visual Policy Canvas', path: '/admin/policies/canvas', order: 35 },
         { id: 'auth-api-tokens', label: 'navigation.apiTokens', path: Path.apiTokens.dashboard, order: 40 },
         { id: 'auth-sessions', label: 'navigation.activeSessions', path: Path.account.activeSessions, order: 50 },
         { id: 'auth-linked', label: 'navigation.linkedAccounts', path: Path.user.linkedAccounts, order: 60 },
@@ -210,12 +213,20 @@ export const AuthModule: CAPModule = {
       section: 'navigation.accountOverview',
     },
     {
+      id: 'auth-policy-canvas-search',
+      name: 'Visual Policy & ABAC Canvas',
+      url: '/admin/policies/canvas',
+      icon: React.createElement(AccountTreeOutlinedIcon),
+      section: 'navigation.security',
+    },
+    {
       id: 'auth-security',
       name: 'navigation.securitySettings',
       url: Path.account.security,
       icon: React.createElement(SecurityOutlinedIcon),
       section: 'navigation.accountOverview',
     },
+
     {
       id: 'auth-api-tokens',
       name: 'navigation.apiTokens',

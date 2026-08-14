@@ -9,7 +9,6 @@ import { themeConfig } from '@cap/platform-core';
 
 export default function MaintenanceScreen() {
   const { t } = useTranslation('auth')
-  // const  = ()
 
   return (
     <AuthPageLayout maxWidth={600}>
