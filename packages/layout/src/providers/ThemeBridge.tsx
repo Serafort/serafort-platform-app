@@ -4,7 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider as MuiThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import { useSettings } from '@cap/platform-store';
 import { useTenant } from '@cap/platform-core';
-import { composeMuiTheme, TenantThemeProvider, ThemeSettingsProvider, applyThemeVariablesSync, useThemeEditorStore, headerTokens, footerTokens } from '@cap/theme';
+import { composeMuiThemeMemoized, TenantThemeProvider, ThemeSettingsProvider, applyThemeVariablesSync, useThemeEditorStore, headerTokens, footerTokens } from '@cap/theme';
 import type { TenantThemeConfig } from '@cap/theme';
 import type { Settings, Mode, SystemMode } from '@cap/shared-types';
 
@@ -39,7 +39,7 @@ export const generateTheme = (
   settings: Settings,
   isDark: boolean
 ) => {
-  return composeMuiTheme({
+  return composeMuiThemeMemoized({
     currentMode: isDark ? 'dark' : 'light',
     settings,
     tenantTheme: tenantConfig,
@@ -111,6 +111,28 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
     return compiled;
   }, [activeConfig, settings, isDark, applyThemeVarsBatched]);
 
+  const handleUpdateTheme = useCallback(
+    async (updates: any) => {
+      if (tenantConfig) {
+        await updateTheme({ ...(tenantConfig as any), ...updates });
+      } else {
+        await updateTheme(updates as any);
+      }
+    },
+    [tenantConfig, updateTheme]
+  );
+
+  const handleSaveTheme = useCallback(
+    async (updatedConfig: any) => {
+      if (tenantConfig) {
+        await saveTheme({ ...(tenantConfig as any), ...updatedConfig });
+      } else {
+        await saveTheme(updatedConfig as any);
+      }
+    },
+    [tenantConfig, saveTheme]
+  );
+
   return (
     <StyledEngineProvider injectFirst>
       <ThemeSettingsProvider settings={settings}>
@@ -119,20 +141,8 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
           isLoading={isLoadingTheme} 
           error={errorTheme} 
           refetch={refetchTheme} 
-          updateTheme={async (updates) => {
-            if (tenantConfig) {
-              await updateTheme({ ...(tenantConfig as any), ...updates });
-            } else {
-              await updateTheme(updates as any);
-            }
-          }}
-          saveTheme={async (updatedConfig) => {
-            if (tenantConfig) {
-              await saveTheme({ ...(tenantConfig as any), ...updatedConfig });
-            } else {
-              await saveTheme(updatedConfig as any);
-            }
-          }}
+          updateTheme={handleUpdateTheme}
+          saveTheme={handleSaveTheme}
         >
           <MuiThemeProvider theme={theme}>
             <CssBaseline />

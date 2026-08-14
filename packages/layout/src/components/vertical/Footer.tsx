@@ -49,7 +49,6 @@ const Footer: React.FC<
 
   return (
     <StyledFooter
-      theme={theme}
       overrideStyles={mergedOverrideStyles}
       layoutPadding={layoutPadding}
       compactContentWidth={compactContentWidth}

@@ -7,7 +7,7 @@ export * from './types/saml'
 export * from './types/jwks'
 export * from './types/ssf'
 
-export * from './i18n/registry'
+export { registerDictionary, getMergedDictionary } from '@cap/platform-core'
 
 export * from './events/event-bus'
 export * from './events/event-factory'

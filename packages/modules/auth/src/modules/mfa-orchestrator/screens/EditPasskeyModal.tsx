@@ -15,7 +15,10 @@ import {
   Chip,
   alpha,
 } from '@mui/material'
-import { Edit, Delete, Devices, Schedule } from '@mui/icons-material'
+import Edit from '@mui/icons-material/Edit';
+import Delete from '@mui/icons-material/Delete';
+import Devices from '@mui/icons-material/Devices';
+import Schedule from '@mui/icons-material/Schedule';
 import { useTranslation } from 'react-i18next'
 
 interface EditPasskeyModalProps {

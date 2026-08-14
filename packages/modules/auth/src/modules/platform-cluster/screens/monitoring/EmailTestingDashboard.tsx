@@ -15,14 +15,12 @@ import {
   ListItemIcon,
   Divider,
 } from '@mui/material'
-import {
-  Send,
-  History,
-  CheckCircle,
-  Error,
-  SettingsApplications,
-  Visibility,
-} from '@mui/icons-material'
+import Send from '@mui/icons-material/Send';
+import History from '@mui/icons-material/History';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import Error from '@mui/icons-material/Error';
+import SettingsApplications from '@mui/icons-material/SettingsApplications';
+import Visibility from '@mui/icons-material/Visibility';
 import { useTranslation } from 'react-i18next'
 
 export default function EmailTestingDashboard() {

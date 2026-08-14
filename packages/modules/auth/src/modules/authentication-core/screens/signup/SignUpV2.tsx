@@ -1,7 +1,10 @@
 import { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Box, Button, TextField, Typography, Alert, Divider, IconButton, InputAdornment, Stack, Link as MuiLink, alpha, useTheme } from '@mui/material';
-import { LockPerson, Visibility, VisibilityOff, Google } from '@mui/icons-material';
+import LockPerson from '@mui/icons-material/LockPerson';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Google from '@mui/icons-material/Google';
 import { useTranslation } from 'react-i18next';
 import type { RegisterRequest } from '../../types/api.types';
 import { useRegister } from '@idaas/authentication-core/hooks/useAuthQuery';

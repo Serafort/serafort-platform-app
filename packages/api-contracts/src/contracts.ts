@@ -42,7 +42,6 @@ import {
   SecurityHealthResponse,
   MFAStats,
   UserStats,
-  DeveloperApiKey,
   MessageResponse,
   UserSessionDto,
 } from '@cap/shared-types'

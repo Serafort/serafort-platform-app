@@ -4,3 +4,4 @@ export { useThemeCustomizer } from './useThemeCustomizer';
 export * from './useDerivedMuiTheme';
 export * from './useComponentEffectConfig';
 export * from './useComponentStyle';
+export * from './useWidgetEvent';

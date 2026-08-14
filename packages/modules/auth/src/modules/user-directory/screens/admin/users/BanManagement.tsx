@@ -26,17 +26,15 @@ import {
   DialogActions,
   Tooltip,
 } from '@mui/material'
-import {
-  Gavel,
-  History,
-  MoreVert,
-  Block,
-  Undo,
-  Search,
-  Flag,
-  Security,
-  Edit,
-} from '@mui/icons-material'
+import Gavel from '@mui/icons-material/Gavel';
+import History from '@mui/icons-material/History';
+import MoreVert from '@mui/icons-material/MoreVert';
+import Block from '@mui/icons-material/Block';
+import Undo from '@mui/icons-material/Undo';
+import Search from '@mui/icons-material/Search';
+import Flag from '@mui/icons-material/Flag';
+import Security from '@mui/icons-material/Security';
+import Edit from '@mui/icons-material/Edit';
 import { AdminUser } from "@idaas/authentication-core/hooks/useAdminQuery"
 import { useTranslation } from 'react-i18next'
 import {
@@ -47,7 +45,7 @@ import {
   useAppeals,
   useResolveAppeal,
 } from "@idaas/authentication-core/hooks/useAdminQuery"
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import IssueBanDialog from './IssueBanDialog'
@@ -55,7 +53,6 @@ import IssueBanDialog from './IssueBanDialog'
 export default function BanManagement() {
   const { t } = useTranslation('common')
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
   const [tabValue, setTabValue] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [isBanModalOpen, setIsBanModalOpen] = useState(false)
@@ -75,15 +72,11 @@ export default function BanManagement() {
 
   const unbanMutation = useUnbanUser({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.admin.userUnbannedSuccess'), {
-        variant: 'success',
-      })
+      toast.success(t('auth.admin.userUnbannedSuccess'))
       refetch()
     },
     onError: (error: any) => {
-      enqueueSnackbar(error.message || t('auth.common.errorOccurred'), {
-        variant: 'error',
-      })
+      toast.error(error.message || t('auth.common.errorOccurred'))
     },
   })
 
@@ -423,25 +416,20 @@ export default function BanManagement() {
 function AppealsQueue() {
   const { t } = useTranslation('common')
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
   const [page, setPage] = useState(1)
   const { data, isLoading, refetch } = useAppeals()
   const [resolvingAppealId, setResolvingAppealId] = useState<number | null>(null)
 
   const resolveMutation = useResolveAppeal({
     onSuccess: (_: any, variables: any) => {
-      enqueueSnackbar(
-        variables.action === 'approved'
+      toast.success(variables.action === 'approved'
           ? t('auth.admin.appealApproved')
-          : t('auth.admin.appealDenied'),
-        { variant: 'success' },
+          : t('auth.admin.appealDenied'), { },
       )
       refetch()
     },
     onError: (err: any) => {
-      enqueueSnackbar(err.message || t('auth.common.errorOccurred'), {
-        variant: 'error',
-      })
+      toast.error(err.message || t('auth.common.errorOccurred'), {  })
     },
   })
 

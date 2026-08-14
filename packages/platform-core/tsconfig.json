@@ -33,6 +33,8 @@
       ],
       "@cap/layout": ["../layout/src"],
       "@cap/layout/*": ["../layout/src/*"],
+      "@cap/authorization": ["../authorization/src"],
+      "@cap/authorization/*": ["../authorization/src/*"],
       "@cap/shared-types": ["../shared-types/src"],
       "@cap/shared-types/*": ["../shared-types/src/*"],
       "@cap/platform-store": ["../platform-store/src"],

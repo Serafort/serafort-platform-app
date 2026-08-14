@@ -1,6 +1,6 @@
 import type { Theme } from '@mui/material/styles'
 import { alpha } from '@mui/material/styles'
-import { getPrimaryMainOpacity, getCustomShadow } from './mixins'
+import { getPrimaryMainOpacity } from './mixins'
 
 /**
  * Horizontal & Vertical Layout Navigation Menu Design Tokens & Helper Mixins

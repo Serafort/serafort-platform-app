@@ -7,12 +7,14 @@ import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined'
 import DevicesOutlinedIcon from '@mui/icons-material/DevicesOutlined'
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined'
+import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined'
 import { authRouteConfig, authRoutes } from './routes/routes'
+
 import Path from './routes/path'
 export { authRouteConfig, authRoutes, Path, Path as AuthPath }
 export { createAdminRoute, createAuthRoute } from './routes/routeHelpers'
 import { authRegistry } from './registry/AuthRegistry'
-import { registerDictionary } from './domain-kernel/src/i18n/registry'
+import { registerDictionary, getMergedDictionary } from '@cap/platform-core'
 
 import enAuthCore from './modules/authentication-core/src/data/dictionaries/en.json'
 import arAuthCore from './modules/authentication-core/src/data/dictionaries/ar.json'
@@ -35,20 +37,14 @@ import frIdentityBroker from './modules/identity-broker/src/data/dictionaries/fr
 import enData from './data/dictionaries/en.json'
 import arData from './data/dictionaries/ar.json'
 import frData from './data/dictionaries/fr.json'
-import enCommon from './domain-kernel/src/data/dictionaries/en.json'
-import arCommon from './domain-kernel/src/data/dictionaries/ar.json'
-import frCommon from './domain-kernel/src/data/dictionaries/fr.json'
 
 registerDictionary({ en: enData, ar: arData, fr: frData })
-registerDictionary({ en: enCommon, ar: arCommon, fr: frCommon })
 registerDictionary({ en: enAuthCore, ar: arAuthCore, fr: frAuthCore })
 registerDictionary({ en: enMfa, ar: arMfa, fr: frMfa })
 registerDictionary({ en: enPasswordless, ar: arPasswordless, fr: frPasswordless })
 registerDictionary({ en: enAuthEngine, ar: arAuthEngine, fr: frAuthEngine })
 registerDictionary({ en: enUserDir, ar: arUserDir, fr: frUserDir })
 registerDictionary({ en: enIdentityBroker, ar: arIdentityBroker, fr: frIdentityBroker })
-
-import { getMergedDictionary } from './domain-kernel/src/i18n/registry'
 
 const en = getMergedDictionary('en')
 const ar = getMergedDictionary('ar')
@@ -185,6 +181,7 @@ export const AuthModule: CAPModule = {
         { id: 'auth-mfa', label: 'navigation.twoSteps', path: Path.mfa.dashboard, order: 10 },
         { id: 'auth-passkeys', label: 'navigation.passkeys', path: Path.passkey.management, order: 20 },
         { id: 'auth-passwordless', label: 'navigation.passwordless', path: Path.passwordless.setup, order: 30 },
+        { id: 'auth-policy-canvas', label: 'Visual Policy Canvas', path: '/admin/policies/canvas', order: 35 },
         { id: 'auth-api-tokens', label: 'navigation.apiTokens', path: Path.apiTokens.dashboard, order: 40 },
         { id: 'auth-sessions', label: 'navigation.activeSessions', path: Path.account.activeSessions, order: 50 },
         { id: 'auth-linked', label: 'navigation.linkedAccounts', path: Path.user.linkedAccounts, order: 60 },
@@ -216,12 +213,20 @@ export const AuthModule: CAPModule = {
       section: 'navigation.accountOverview',
     },
     {
+      id: 'auth-policy-canvas-search',
+      name: 'Visual Policy & ABAC Canvas',
+      url: '/admin/policies/canvas',
+      icon: React.createElement(AccountTreeOutlinedIcon),
+      section: 'navigation.security',
+    },
+    {
       id: 'auth-security',
       name: 'navigation.securitySettings',
       url: Path.account.security,
       icon: React.createElement(SecurityOutlinedIcon),
       section: 'navigation.accountOverview',
     },
+
     {
       id: 'auth-api-tokens',
       name: 'navigation.apiTokens',

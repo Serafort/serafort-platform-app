@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { Box, Button, Typography, TextField, Link as MuiLink, Alert, CircularProgress, Avatar, InputAdornment, Stack, alpha, useTheme } from '@mui/material';
-import { EmailOutlined, MailOutline, ArrowForward } from '@mui/icons-material';
+import EmailOutlined from '@mui/icons-material/EmailOutlined';
+import MailOutline from '@mui/icons-material/MailOutline';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';

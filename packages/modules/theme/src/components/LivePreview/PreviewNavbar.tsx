@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Typography, Avatar } from '@mui/material';
 import styled from '@emotion/styled';
-import type { EffectType } from '@cap/theme';
 
 interface PreviewNavbarProps {
   effectStyle?: 'standard' | 'glass' | 'neu';

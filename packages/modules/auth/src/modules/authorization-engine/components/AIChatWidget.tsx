@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Box, Fab, Drawer, Typography, IconButton, TextField, Paper, Avatar, Stack, Fade, InputAdornment, CircularProgress, Zoom } from '@mui/material';
-import { Close, Send, AutoAwesome, SmartToy } from '@mui/icons-material';
+import Close from '@mui/icons-material/Close';
+import Send from '@mui/icons-material/Send';
+import AutoAwesome from '@mui/icons-material/AutoAwesome';
+import SmartToy from '@mui/icons-material/SmartToy';
 
 const AIChatWidget = () => {
   const [open, setOpen] = useState(false)

@@ -1,4 +1,5 @@
-import { Box, Container, Typography, IconButton, Link as HLInk } from '@cap/theme'
+import { Box, Container, Typography, IconButton, Link as HLInk, themeConfig } from '@cap/theme'
+import { AppPaths } from '@cap/shared-types'
 import TwitterIcon from '@mui/icons-material/Twitter'
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import FacebookIcon from '@mui/icons-material/Facebook'
@@ -41,7 +42,7 @@ export default function Footer() {
         >
           <HLInk
             component={Link}
-            to='/privacy-policy'
+            to={AppPaths.landing.privacyPolicy}
             underline='none'
             sx={{
               fontSize: '0.875rem',
@@ -56,7 +57,7 @@ export default function Footer() {
           </HLInk>
           <HLInk
             component={Link}
-            to='/terms-of-service'
+            to={AppPaths.landing.termsOfService}
             underline='none'
             sx={{
               fontSize: '0.875rem',
@@ -71,7 +72,7 @@ export default function Footer() {
           </HLInk>
           <HLInk
             component={Link}
-            to='/contact'
+            to={AppPaths.landing.contact}
             underline='none'
             sx={{
               fontSize: '0.875rem',
@@ -139,7 +140,7 @@ export default function Footer() {
         <Typography variant='body2' sx={{ color: 'text.secondary', maxWidth: 480 }}>
           {t(
             'footer.description',
-            'Enterprise Platform - Build and scale your applications with speed and confidence.',
+            `${themeConfig.templateName} - Build and scale your applications with speed and confidence.`,
           )}
         </Typography>
 
@@ -151,7 +152,7 @@ export default function Footer() {
             color: 'text.secondary',
           }}
         >
-          {t('footer.copyright', `© ${new Date().getFullYear()} Enterprise Platform. All rights reserved.`)}
+          {t('footer.copyright', `© ${new Date().getFullYear()} ${themeConfig.templateName}. All rights reserved.`)}
         </Typography>
       </Container>
     </Box>

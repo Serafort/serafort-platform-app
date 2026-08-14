@@ -2,9 +2,11 @@ packages:
   - "app"
   - "packages/auth-contracts"
   - "packages/api-contracts"
+  - "packages/authorization"
   - "packages/layout"
   - "packages/platform-core"
   - "packages/platform-store"
   - "packages/shared-types"
   - "packages/theme"
   - "packages/modules/**"
+

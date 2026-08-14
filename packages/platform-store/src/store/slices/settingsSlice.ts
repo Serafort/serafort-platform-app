@@ -15,7 +15,7 @@ export interface Settings {
   primaryColor: string
 }
 
-export type LayoutOverride = 'public' | 'admin' | 'noLayout' | 'none'
+export type LayoutOverride = 'public' | 'admin' | 'vertical' | 'horizontal' | 'noLayout' | 'none'
 
 export interface SettingsSlice {
   mode: Mode
@@ -63,7 +63,8 @@ export const createSettingsSlice: StateCreator<
       state.settings = { ...state.settings, ...newSettings }
 
       // Update change detection
-      state.isSettingsChanged = JSON.stringify(defaultSettings) !== JSON.stringify(state.settings)
+      const keys = Object.keys(defaultSettings) as (keyof Settings)[]
+      state.isSettingsChanged = keys.some((k) => defaultSettings[k] !== state.settings[k])
     })
   },
 

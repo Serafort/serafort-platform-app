@@ -1,6 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Box, Button, Container, IconButton, InputAdornment, TextField, Typography, Card, CardContent, CssBaseline, useTheme, alpha, CircularProgress } from '@mui/material';
-import { Lock, Visibility, VisibilityOff, LockReset, ArrowBack } from '@mui/icons-material';
+import Lock from '@mui/icons-material/Lock';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import LockReset from '@mui/icons-material/LockReset';
+import ArrowBack from '@mui/icons-material/ArrowBack';
 import { useTranslation } from 'react-i18next';
 import { themeConfig, useNotifications } from '@cap/platform-core';
 import { buildLayoutSurfaceEffect } from '@cap/layout';

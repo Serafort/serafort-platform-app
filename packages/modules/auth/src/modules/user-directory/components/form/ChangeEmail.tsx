@@ -13,7 +13,8 @@ import {
   Stack,
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { Visibility, VisibilityOff } from '@mui/icons-material'
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useAuth, HttpError } from '@cap/platform-core'
 import { UserDto, ApiErrorResponse } from '@cap/shared-types'
 import FormLayout from "@auth/authentication-core/components/form/FormLayout"

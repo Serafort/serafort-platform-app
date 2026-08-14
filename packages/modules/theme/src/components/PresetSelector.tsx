@@ -8,7 +8,7 @@ import {
   Chip,
 } from '@mui/material';
 import type { ThemePresetId } from '@cap/theme';
-import { THEME_PRESETS, PRESET_LIST } from '@cap/theme';
+import { PRESET_LIST } from '@cap/theme';
 
 interface PresetSelectorProps {
   currentPreset?: ThemePresetId;

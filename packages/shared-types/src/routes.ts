@@ -31,12 +31,22 @@ export const AppPaths = {
   account: {
     overview: '/auth/account',
     edit: '/auth/account/edit',
+    settings: '/auth/account/settings',
+  },
+  auth: {
+    login: '/auth/login',
+    register: '/auth/register',
+  },
+  admin: {
+    users: '/admin/users',
+    roles: '/admin/roles',
   },
   landing: {
     home: '/',
     pricing: '/pricing',
     about: '/about',
     contact: '/contact',
-    termsOfService: '/terms',
+    termsOfService: '/terms-of-service',
+    privacyPolicy: '/privacy-policy',
   },
 } as const

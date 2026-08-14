@@ -11,7 +11,11 @@ import {
 } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { themeConfig } from '@cap/platform-core'
-import { EmailOutlined, PeopleOutline, HelpOutline, LinkedIn, Twitter } from '@mui/icons-material'
+import EmailOutlined from '@mui/icons-material/EmailOutlined';
+import PeopleOutline from '@mui/icons-material/PeopleOutline';
+import HelpOutline from '@mui/icons-material/HelpOutline';
+import LinkedIn from '@mui/icons-material/LinkedIn';
+import Twitter from '@mui/icons-material/Twitter';
 
 const ContactUs = () => {
   return (

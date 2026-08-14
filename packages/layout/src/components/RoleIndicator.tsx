@@ -6,11 +6,12 @@
  */
 
 import React from 'react'
-import { Chip, Tooltip, Box } from '@mui/material'
+import { Chip, Tooltip, Box, Skeleton } from '@mui/material'
 import PersonOffIcon from '@mui/icons-material/PersonOff'
 import PersonIcon from '@mui/icons-material/Person'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import { useAuth, useGuest } from '@cap/platform-core'
+import { useStateHydration } from '@cap/platform-store'
 import { useTranslation } from 'react-i18next'
 
 export interface RoleIndicatorProps {
@@ -22,9 +23,21 @@ export const RoleIndicator: React.FC<RoleIndicatorProps> = ({
   showLabel = true,
   size = 'small',
 }) => {
+  const { isHydrating } = useStateHydration()
   const { isAuthenticated, isAdmin } = useAuth()
   const { isGuest } = useGuest()
   const { t } = useTranslation()
+
+  if (isHydrating) {
+    return (
+      <Skeleton
+        variant='rounded'
+        width={showLabel ? 72 : 32}
+        height={size === 'small' ? 24 : 32}
+        sx={{ borderRadius: 4 }}
+      />
+    )
+  }
 
   const getRole = () => {
     if (isAuthenticated) {

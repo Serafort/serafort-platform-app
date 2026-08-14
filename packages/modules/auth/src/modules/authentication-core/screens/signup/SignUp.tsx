@@ -2,7 +2,12 @@ import { useState, useCallback } from 'react';
 
 import { Box, Button, TextField, Typography, Alert, Divider, InputAdornment, IconButton, CircularProgress, Stack, Avatar, Checkbox, FormControlLabel, alpha, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { GitHub, Google, Visibility, VisibilityOff, ArrowForward, PersonAdd } from '@mui/icons-material';
+import GitHub from '@mui/icons-material/GitHub';
+import Google from '@mui/icons-material/Google';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import ArrowForward from '@mui/icons-material/ArrowForward';
+import PersonAdd from '@mui/icons-material/PersonAdd';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import type { RegisterRequest } from '../../types/api.types';

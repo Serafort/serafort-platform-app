@@ -1,11 +1,21 @@
 import { useState } from 'react';
 import { Box, Typography, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Button, TextField, InputAdornment, Avatar, alpha, useTheme, Stack, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Tooltip, Menu, ListItemIcon, ListItemText } from '@mui/material';
-import { Search, MoreVert, Email, PersonAdd, Timer, CheckCircle, Cancel, ArrowBack, ContentCopy, Replay, BlockOutlined } from '@mui/icons-material';
+import Search from '@mui/icons-material/Search';
+import MoreVert from '@mui/icons-material/MoreVert';
+import Email from '@mui/icons-material/Email';
+import PersonAdd from '@mui/icons-material/PersonAdd';
+import Timer from '@mui/icons-material/Timer';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import Cancel from '@mui/icons-material/Cancel';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import Replay from '@mui/icons-material/Replay';
+import BlockOutlined from '@mui/icons-material/BlockOutlined';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Path } from '@cap/module-auth/routes/path';
 import { useOrganizationInvitations, useInviteOrganizationMember, useRevokeOrganizationInvitation } from '@idaas/authentication-core/hooks/useAdminQuery';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { buildLayoutSurfaceEffect } from '@cap/layout';
 import { getTenantThemeEffects } from '@cap/theme';
 
@@ -25,7 +35,6 @@ export default function OrganizationInvitationDashboard() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
   const [searchTerm, setSearchTerm] = useState('')
   const [inviteModalOpen, setInviteModalOpen] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
@@ -62,24 +71,20 @@ export default function OrganizationInvitationDashboard() {
 
   const handleInvite = () => {
     if (!inviteEmail.trim()) {
-      enqueueSnackbar(t('auth.admin.errorEmailRequired'), { variant: 'error' })
+      toast.error(t('auth.admin.errorEmailRequired'))
       return
     }
     inviteMutation.mutate(
       { orgId: Number(id), email: inviteEmail, role: inviteRole },
       {
         onSuccess: () => {
-          enqueueSnackbar(t('auth.admin.successInvitationSent'), {
-            variant: 'success',
-          })
+          toast.success(t('auth.admin.successInvitationSent'))
           setInviteModalOpen(false)
           setInviteEmail('')
           setInviteRole('Member')
         },
         onError: (err: any) => {
-          enqueueSnackbar(err.message || t('auth.admin.errorSendInvitation'), {
-            variant: 'error',
-          })
+          toast.error(err.message || t('auth.admin.errorSendInvitation'))
         },
       },
     )
@@ -370,11 +375,9 @@ export default function OrganizationInvitationDashboard() {
                 { orgId: Number(id), email: menuInvite.email, role: menuInvite.role },
                 {
                   onSuccess: () =>
-                    enqueueSnackbar(t('auth.admin.successInvitationSent'), {
-                      variant: 'success',
-                    }),
+                    toast.success(t('auth.admin.successInvitationSent')),
                   onError: () =>
-                    enqueueSnackbar(t('auth.admin.errorSendInvitation'), { variant: 'error' }),
+                    toast.error(t('auth.admin.errorSendInvitation')),
                 },
               )
             }
@@ -394,7 +397,7 @@ export default function OrganizationInvitationDashboard() {
               const baseUrl = window.location.origin
               const link = `${baseUrl}/auth/join-organization?token=${(menuInvite as any).token || ''}&email=${menuInvite.email}`
               navigator.clipboard.writeText(link)
-              enqueueSnackbar(t('auth.admin.linkCopied'), { variant: 'info' })
+              toast.info(t('auth.admin.linkCopied'))
             }
             setMenuAnchor(null)
           }}
@@ -415,9 +418,9 @@ export default function OrganizationInvitationDashboard() {
                   { orgId: Number(id), invitationId: menuInvite.id },
                   {
                     onSuccess: () =>
-                      enqueueSnackbar(t('auth.admin.revokeInvitation'), { variant: 'warning' }),
+                      toast.warning(t('auth.admin.revokeInvitation')),
                     onError: () =>
-                      enqueueSnackbar(t('auth.admin.errorSendInvitation'), { variant: 'error' }),
+                      toast.error(t('auth.admin.errorSendInvitation')),
                   },
                 )
               }

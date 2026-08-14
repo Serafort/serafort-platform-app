@@ -25,6 +25,7 @@ export default defineConfig({
       { find: /^@auth\/(authentication-core|authorization-engine|developer-console|identity-broker|mfa-orchestrator|passwordless-service|platform-cluster|session-manager|user-directory)(\/.*)?$/, replacement: resolve(__dirname, '../modules/auth/src/modules/$1$2') },
       { find: /^@auth(\/.*)?$/, replacement: resolve(__dirname, '../modules/auth/src$1') },
       { find: /^@idaas(\/.*)?$/, replacement: resolve(__dirname, '../modules/auth/src/modules$1') },
+      { find: '@cap/authorization', replacement: resolve(__dirname, '../authorization/src') },
       { find: '@cap/layout', replacement: resolve(__dirname, '../layout/src') },
       { find: '@cap/theme', replacement: resolve(__dirname, '../theme/src') },
       { find: '@cap/platform-store', replacement: resolve(__dirname, '../platform-store/src') },

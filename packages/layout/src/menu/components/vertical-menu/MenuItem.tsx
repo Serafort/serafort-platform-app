@@ -92,27 +92,24 @@ const MenuItem: React.ForwardRefRenderFunction<HTMLLIElement, MenuItemProps> = (
     }
   }
 
+  const restAny = rest as any
+  const targetHref =
+    rest.href ||
+    restAny.to ||
+    (component && typeof component !== 'string' && (component as any).props?.href) ||
+    (component && typeof component !== 'string' && (component as any).props?.to)
+
   // Change active state when the url changes
   React.useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const restAny = rest as any
-    const href =
-      rest.href ||
-      restAny.to ||
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (component && typeof component !== 'string' && (component as any).props?.href) ||
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (component && typeof component !== 'string' && (component as any).props?.to)
-
-    if (href) {
+    if (targetHref) {
       // Check if the current url matches any of the children urls
-      if (pathname === href) {
+      if (pathname === targetHref) {
         setActive(true)
       } else {
         setActive(false)
       }
     }
-  }, [pathname, rest.href, rest, component])
+  }, [pathname, targetHref])
 
   // Call the onActiveChange callback when the active state changes.
   useUpdateEffect(() => {

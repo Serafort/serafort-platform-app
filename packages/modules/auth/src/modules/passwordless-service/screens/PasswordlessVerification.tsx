@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Box, Button, Typography, Avatar, Stack, CircularProgress, alpha, useTheme } from '@mui/material';
-import { Lock, LinkOff, ArrowForward, CheckCircleOutline, MailOutline } from '@mui/icons-material';
+import Lock from '@mui/icons-material/Lock';
+import LinkOff from '@mui/icons-material/LinkOff';
+import ArrowForward from '@mui/icons-material/ArrowForward';
+import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
+import MailOutline from '@mui/icons-material/MailOutline';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { usePasswordlessVerify, usePasswordlessSend } from '../hooks';

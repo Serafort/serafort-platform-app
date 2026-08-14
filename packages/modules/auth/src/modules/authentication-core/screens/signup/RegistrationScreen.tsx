@@ -1,7 +1,14 @@
 // FILE: packages/modules/auth/src/screens/auth/signup/RegistrationScreen.tsx
 import React, { useState } from 'react';
 import { Box, Typography, TextField, Button, Divider, alpha, useTheme, InputAdornment, IconButton, Stack, Alert, Checkbox, FormControlLabel } from '@mui/material';
-import { Visibility, VisibilityOff, Email, Lock, PersonAdd, Person, Google, Microsoft } from '@mui/icons-material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Email from '@mui/icons-material/Email';
+import Lock from '@mui/icons-material/Lock';
+import PersonAdd from '@mui/icons-material/PersonAdd';
+import Person from '@mui/icons-material/Person';
+import Google from '@mui/icons-material/Google';
+import Microsoft from '@mui/icons-material/Microsoft';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 ;

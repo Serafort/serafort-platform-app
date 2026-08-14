@@ -18,7 +18,7 @@ import {
   Stack,
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { AccountCircle } from '@mui/icons-material'
+import AccountCircle from '@mui/icons-material/AccountCircle';
 // import { FormLayout } from 'src/components/form'
 import FormLayout from "@auth/authentication-core/components/form/FormLayout"
 

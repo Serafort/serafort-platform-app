@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { Language, Refresh, Delete, Add, ContentCopy, Verified, Pending } from '@mui/icons-material';
+import Language from '@mui/icons-material/Language';
+import Refresh from '@mui/icons-material/Refresh';
+import Delete from '@mui/icons-material/Delete';
+import Add from '@mui/icons-material/Add';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import Verified from '@mui/icons-material/Verified';
+import Pending from '@mui/icons-material/Pending';
 import { Box, Typography, Card, CardContent, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Alert, CircularProgress, Tooltip } from '@mui/material';
 import { adminService, DomainVerification as DomainType } from '../../services/adminService';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 
 const DomainVerification = () => {
-  const { enqueueSnackbar } = useSnackbar()
   const [loading, setLoading] = useState(false)
   const [domains, setDomains] = useState<DomainType[]>([])
   const [newDomain, setNewDomain] = useState('')
@@ -22,7 +27,7 @@ const DomainVerification = () => {
         { id: 1, organization_id: 1, domain: 'example.com', status: 'verified' as const, verification_token: '', verified_at: '2024-01-01', created_at: '2024-01-01', updated_at: '2024-01-01' }
       ])
     } catch (error) {
-      enqueueSnackbar('Failed to fetch domains', { variant: 'error' })
+      toast.error('Failed to fetch domains')
     } finally {
       setLoading(false)
     }
@@ -39,10 +44,10 @@ const DomainVerification = () => {
       if (response.data) {
         setDomains([...domains, response.data])
         setNewDomain('')
-        enqueueSnackbar('Domain added and verification started', { variant: 'success' })
+        toast.success('Domain added and verification started')
       }
     } catch (error) {
-      enqueueSnackbar('Failed to add domain', { variant: 'error' })
+      toast.error('Failed to add domain')
     } finally {
       setIsVerifying(false)
     }
@@ -54,19 +59,19 @@ const DomainVerification = () => {
       if (response.data) {
         setDomains(domains.map(d => d.id === domainId ? response.data : d))
         if (response.data.status === 'verified') {
-          enqueueSnackbar('Domain verified successfully!', { variant: 'success' })
+          toast.success('Domain verified successfully!')
         } else {
-          enqueueSnackbar('Domain not yet verified. Please check your DNS records.', { variant: 'warning' })
+          toast.warning('Domain not yet verified. Please check your DNS records.')
         }
       }
     } catch (error) {
-      enqueueSnackbar('Failed to check domain status', { variant: 'error' })
+      toast.error('Failed to check domain status')
     }
   }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    enqueueSnackbar('Copied to clipboard', { variant: 'info' })
+    toast.info('Copied to clipboard')
   }
 
   return (

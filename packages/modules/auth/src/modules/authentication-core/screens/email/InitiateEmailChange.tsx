@@ -4,10 +4,14 @@ import {
   Box, Button, Typography, TextField, Alert, Avatar, InputAdornment, IconButton,
   CircularProgress, Stack, alpha, useTheme,
 } from '@mui/material'
-import {
-  Security, ArrowBack, ForwardToInbox, Email, Lock,
-  Visibility, VisibilityOff, ArrowForward,
-} from '@mui/icons-material'
+import Security from '@mui/icons-material/Security';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import ForwardToInbox from '@mui/icons-material/ForwardToInbox';
+import Email from '@mui/icons-material/Email';
+import Lock from '@mui/icons-material/Lock';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useChangeEmail } from "@auth"

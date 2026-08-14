@@ -15,28 +15,26 @@ import {
   IconButton,
   Badge,
 } from '@mui/material'
-import {
-  Search,
-  Download,
-  Pause,
-  PlayArrow,
-  History,
-  NotificationsOutlined,
-  Settings,
-  AdminPanelSettings,
-  CheckCircle,
-  Key,
-  GppBad,
-  LockPerson,
-  Logout,
-  Sync,
-  ContentCopy,
-  OpenInNew,
-  LocationOn,
-  Group,
-  Speed,
-  Timer,
-} from '@mui/icons-material'
+import Search from '@mui/icons-material/Search';
+import Download from '@mui/icons-material/Download';
+import Pause from '@mui/icons-material/Pause';
+import PlayArrow from '@mui/icons-material/PlayArrow';
+import History from '@mui/icons-material/History';
+import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
+import Settings from '@mui/icons-material/Settings';
+import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import Key from '@mui/icons-material/Key';
+import GppBad from '@mui/icons-material/GppBad';
+import LockPerson from '@mui/icons-material/LockPerson';
+import Logout from '@mui/icons-material/Logout';
+import Sync from '@mui/icons-material/Sync';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import OpenInNew from '@mui/icons-material/OpenInNew';
+import LocationOn from '@mui/icons-material/LocationOn';
+import Group from '@mui/icons-material/Group';
+import Speed from '@mui/icons-material/Speed';
+import Timer from '@mui/icons-material/Timer';
 import { themeConfig } from '@cap/platform-core'
 import { alpha, useTheme } from '@mui/material/styles'
 

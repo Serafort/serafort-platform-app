@@ -48,6 +48,8 @@ export interface DropdownTokens {
   }
   userDropdown: {
     badgeDotSize: number
+    badgeDotBorderRadius: string
+    badgeMarginInlineStart: string
     avatarSize: string
     headerPaddingBlock: string
     headerPaddingInline: string
@@ -105,6 +107,8 @@ export const dropdownTokens: DropdownTokens = {
   },
   userDropdown: {
     badgeDotSize: 8,
+    badgeDotBorderRadius: '50%',
+    badgeMarginInlineStart: '0.5rem',
     avatarSize: '38px',
     headerPaddingBlock: '0.5rem',
     headerPaddingInline: '1.5rem',
@@ -126,6 +130,13 @@ export const dropdownTokens: DropdownTokens = {
  */
 export const getUserDropdownItemHoverBg = (theme: Theme): string => {
   return `${alpha(theme.palette.text.primary, dropdownTokens.userDropdown.itemHoverAlpha)} !important`
+}
+
+/**
+ * Returns user avatar badge dot box-shadow string
+ */
+export const getUserBadgeShadow = (theme: Theme): string => {
+  return `0 0 0 2px ${theme.palette.background.paper}`
 }
 
 /**

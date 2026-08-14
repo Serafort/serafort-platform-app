@@ -1,7 +1,7 @@
 import React from 'react'
 import i18next from 'i18next'
 import { useAppStore, type AppStore } from '@cap/platform-store'
-import type { RouteLayout } from '@cap/shared-types'
+import { RouteLayoutEnum, type RouteLayout } from '@cap/shared-types'
 
 export interface LayoutRouteWrapperProps {
   element?: React.ReactNode
@@ -27,9 +27,21 @@ export const LayoutRouteWrapper: React.FC<LayoutRouteWrapperProps> = ({
   const updateLayoutOverride = useAppStore((state: AppStore) => state.updateLayoutOverride)
 
   React.useEffect(() => {
-    if (layout === 'noLayout') {
-      updateLayoutOverride('noLayout')
-      return () => updateLayoutOverride('none')
+    if (layout === RouteLayoutEnum.NO_LAYOUT) {
+      updateLayoutOverride(RouteLayoutEnum.NO_LAYOUT)
+      return () => updateLayoutOverride(RouteLayoutEnum.NONE)
+    }
+    if (layout === RouteLayoutEnum.VERTICAL) {
+      updateLayoutOverride(RouteLayoutEnum.VERTICAL)
+      return () => updateLayoutOverride(RouteLayoutEnum.NONE)
+    }
+    if (layout === RouteLayoutEnum.HORIZONTAL) {
+      updateLayoutOverride(RouteLayoutEnum.HORIZONTAL)
+      return () => updateLayoutOverride(RouteLayoutEnum.NONE)
+    }
+    if (layout === RouteLayoutEnum.PUBLIC) {
+      updateLayoutOverride(RouteLayoutEnum.PUBLIC)
+      return () => updateLayoutOverride(RouteLayoutEnum.NONE)
     }
     // 'admin' override is set by AdminRoute itself — no action needed here
   }, [layout, updateLayoutOverride])

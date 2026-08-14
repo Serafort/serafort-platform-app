@@ -176,7 +176,7 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
 
   return (
     <>
-      <IconButton onClick={handleToggle} sx={{ color: 'text.primary' }}>
+      <IconButton onClick={handleToggle} aria-label='Open notifications' sx={{ color: 'text.primary' }}>
         <Badge
           color='error'
           variant='dot'
@@ -248,13 +248,13 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
                     }}
                   >
                     <Typography variant='h6' sx={{ flex: '1 1 auto' }}>
-                      {t('navigation.notifications', 'Notifications')}
+                      {t('navigation.notifications')}
                     </Typography>
                     {notificationCount > 0 && (
-                      <Chip size='small' color='primary' label={`${notificationCount} ${t('navigation.new', 'New')}`} />
+                      <Chip size='small' color='primary' label={`${notificationCount} ${t('navigation.new')}`} />
                     )}
                     <Tooltip
-                      title={readAll ? t('navigation.markAllUnread', 'Mark all as unread') : t('navigation.markAllRead', 'Mark all as read')}
+                      title={readAll ? t('navigation.markAllUnread') : t('navigation.markAllRead')}
                       placement={placement === 'bottom-end' ? 'left' : 'right'}
                       slotProps={{
                         popper: {
@@ -286,117 +286,117 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
                   {notificationsState.length === 0 ? (
                     <Box sx={{ p: 6, textAlign: 'center' }}>
                       <Typography color='text.secondary' variant='body2'>
-                        {t('navigation.noNotifications', 'No new notifications')}
+                        {t('navigation.noNotifications')}
                       </Typography>
                     </Box>
                   ) : (
                     <ScrollWrapper hidden={hidden}>
-                    {notificationsState.map((notification, index) => {
-                      const {
-                        title,
-                        subtitle,
-                        time,
-                        read,
-                        avatarImage,
-                        avatarIcon,
-                        avatarText,
-                        avatarColor,
-                        avatarSkin,
-                      } = notification
+                      {notificationsState.map((notification, index) => {
+                        const {
+                          title,
+                          subtitle,
+                          time,
+                          read,
+                          avatarImage,
+                          avatarIcon,
+                          avatarText,
+                          avatarColor,
+                          avatarSkin,
+                        } = notification
 
-                      return (
-                        <Box
-                          key={index}
-                          sx={{
-                            display: 'flex',
-                            paddingBlock: dropdownTokens.notifications.itemPaddingBlock,
-                            paddingInline: dropdownTokens.notifications.itemPaddingInline,
-                            gap: dropdownTokens.notifications.itemGap,
-                            cursor: 'pointer',
-                            '&:hover': {
-                              backgroundColor: 'action.hover',
-                            },
-                            '&:hover .group-visible': {
-                              visibility: 'visible',
-                            },
-                            ...(index !== notificationsState.length - 1 && {
-                              borderBlockEnd: 1,
-                              borderBlockEndColor: 'divider',
-                            }),
-                          }}
-                          onClick={(e) => handleReadNotification(e, true, index)}
-                        >
-                          {getAvatar({
-                            avatarImage,
-                            avatarIcon,
-                            title,
-                            avatarText,
-                            avatarColor,
-                            avatarSkin,
-                          })}
-                          <Box sx={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto' }}>
-                            <Typography
-                              variant='body2'
-                              sx={{ fontWeight: 500, marginBlockEnd: 1 }}
-                              color='text.primary'
-                            >
-                              {title}
-                            </Typography>
-                            <Typography
-                              variant='caption'
-                              color='text.secondary'
-                              sx={{ marginBlockEnd: 2 }}
-                            >
-                              {subtitle}
-                            </Typography>
-                            <Typography variant='caption' color='text.disabled'>
-                              {time}
-                            </Typography>
-                          </Box>
+                        return (
                           <Box
+                            key={index}
                             sx={{
                               display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'flex-end',
-                              gap: 2,
+                              paddingBlock: dropdownTokens.notifications.itemPaddingBlock,
+                              paddingInline: dropdownTokens.notifications.itemPaddingInline,
+                              gap: dropdownTokens.notifications.itemGap,
+                              cursor: 'pointer',
+                              '&:hover': {
+                                backgroundColor: 'action.hover',
+                              },
+                              '&:hover .group-visible': {
+                                visibility: 'visible',
+                              },
+                              ...(index !== notificationsState.length - 1 && {
+                                borderBlockEnd: 1,
+                                borderBlockEndColor: 'divider',
+                              }),
                             }}
+                            onClick={(e) => handleReadNotification(e, true, index)}
                           >
-                            <Badge
-                              variant='dot'
-                              color={read ? 'secondary' : 'primary'}
-                              onClick={(e) => handleReadNotification(e, !read, index)}
+                            {getAvatar({
+                              avatarImage,
+                              avatarIcon,
+                              title,
+                              avatarText,
+                              avatarColor,
+                              avatarSkin,
+                            })}
+                            <Box sx={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto' }}>
+                              <Typography
+                                variant='body2'
+                                sx={{ fontWeight: 500, marginBlockEnd: 1 }}
+                                color='text.primary'
+                              >
+                                {title}
+                              </Typography>
+                              <Typography
+                                variant='caption'
+                                color='text.secondary'
+                                sx={{ marginBlockEnd: 2 }}
+                              >
+                                {subtitle}
+                              </Typography>
+                              <Typography variant='caption' color='text.disabled'>
+                                {time}
+                              </Typography>
+                            </Box>
+                            <Box
                               sx={{
-                                marginBlockStart: 1,
-                                marginInlineEnd: 1,
-                                ...(read && {
-                                  visibility: 'hidden',
-                                  '.MuiBox-root:hover &': {
-                                    visibility: 'visible',
-                                  },
-                                }),
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'flex-end',
+                                gap: 2,
                               }}
-                              className={read ? 'group-visible' : ''}
-                            />
-                            <IconButton
-                              size='small'
-                              className='group-visible'
-                              sx={{
-                                visibility: read ? 'hidden' : 'visible',
-                              }}
-                              onClick={(e) => handleRemoveNotification(e, index)}
                             >
-                              <Close fontSize='small' />
-                            </IconButton>
+                              <Badge
+                                variant='dot'
+                                color={read ? 'secondary' : 'primary'}
+                                onClick={(e) => handleReadNotification(e, !read, index)}
+                                sx={{
+                                  marginBlockStart: 1,
+                                  marginInlineEnd: 1,
+                                  ...(read && {
+                                    visibility: 'hidden',
+                                    '.MuiBox-root:hover &': {
+                                      visibility: 'visible',
+                                    },
+                                  }),
+                                }}
+                                className={read ? 'group-visible' : ''}
+                              />
+                              <IconButton
+                                size='small'
+                                className='group-visible'
+                                sx={{
+                                  visibility: read ? 'hidden' : 'visible',
+                                }}
+                                onClick={(e) => handleRemoveNotification(e, index)}
+                              >
+                                <Close fontSize='small' />
+                              </IconButton>
+                            </Box>
                           </Box>
-                        </Box>
-                      )
-                    })}
-                  </ScrollWrapper>
+                        )
+                      })}
+                    </ScrollWrapper>
                   )}
                   <Divider />
                   <Box sx={{ p: dropdownTokens.notifications.footerPadding }}>
                     <Button fullWidth variant='contained' size='small'>
-                      {t('navigation.viewAllNotifications', 'View All Notifications')}
+                      {t('navigation.viewAllNotifications')}
                     </Button>
                   </Box>
                 </Box>

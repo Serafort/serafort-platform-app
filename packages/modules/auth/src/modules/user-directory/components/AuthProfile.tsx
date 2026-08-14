@@ -15,7 +15,8 @@ import {
   MenuItem,
   CircularProgress,
 } from '@mui/material'
-import { Settings, Logout } from '@mui/icons-material'
+import Settings from '@mui/icons-material/Settings';
+import Logout from '@mui/icons-material/Logout';
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@cap/platform-core'
 import { UserDto } from '@cap/shared-types'

@@ -6,7 +6,7 @@ import { horizontalNavClasses, menuClasses, verticalNavClasses } from '../../uti
 type StyledVerticalNavProps = VerticalNavProps &
   Pick<VerticalNavState, 'isBreakpointReached' | 'collapsing' | 'expanding' | 'transitionDuration'>
 
-const StyledVerticalNav = styled('aside')<StyledVerticalNavProps>`
+const StyledVerticalNav = styled('aside') <StyledVerticalNavProps>`
   ${({ scrollWithContent }: StyledVerticalNavProps) =>
     !scrollWithContent &&
     `
@@ -39,7 +39,7 @@ const StyledVerticalNav = styled('aside')<StyledVerticalNavProps>`
     block-size: 100%;
     inset-block-start: 0;
     inset-inline-start: ${({ width }: StyledVerticalNavProps) => `-${width}px`};
-    z-index: ${({ theme }) => theme.zIndex.drawer};
+    z-index: ${({ theme }) => (theme?.zIndex?.drawer ? theme.zIndex.drawer + 5 : 1205)};
     margin: 0;
     &.${verticalNavClasses.collapsed} {
       inset-inline-start: -${({ collapsedWidth }: StyledVerticalNavProps) => `${collapsedWidth}px`};
@@ -67,11 +67,3 @@ const StyledVerticalNav = styled('aside')<StyledVerticalNavProps>`
 `
 
 export default StyledVerticalNav
-
-// const H1 = styled('aside', {
-//   // shouldForwardProp: (prop) => isPropValid(prop) && prop !== 'color',
-// })<StyledVerticalNavProps>((props) => ({
-//   color: props.color,
-// }))
-
-// export default H1

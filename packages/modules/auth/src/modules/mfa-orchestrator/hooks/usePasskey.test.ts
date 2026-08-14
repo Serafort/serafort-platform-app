@@ -3,15 +3,18 @@ import { renderHook, act } from '@testing-library/react'
 import { usePasskey } from "./usePasskey"
 
 
-const mockStartAuthentication = vi.fn()
+const { mockStartAuthentication, mockGetLoginOptions, mockVerifyLogin } = vi.hoisted(() => ({
+  mockStartAuthentication: vi.fn(),
+  mockGetLoginOptions: vi.fn(),
+  mockVerifyLogin: vi.fn(),
+}))
+
 vi.mock('@simplewebauthn/browser', () => ({
   startAuthentication: mockStartAuthentication,
 }))
 
-const mockGetLoginOptions = vi.fn()
-const mockVerifyLogin = vi.fn()
-vi.mock('@cap/module-auth/modules/authentication-core/services/auth.service', () => ({
-  default: {
+vi.mock('../services/mfa.service', () => ({
+  mfaService: {
     passkeys: {
       getLoginOptions: mockGetLoginOptions,
       verifyLogin: mockVerifyLogin,
@@ -92,12 +95,16 @@ describe('usePasskey', () => {
     mockGetLoginOptions.mockRejectedValue(err)
 
     const { result } = renderHook(() => usePasskey())
-    await expect(
-      act(async () => {
+    let thrownError: any
+    await act(async () => {
+      try {
         await result.current.loginWithPasskey()
-      }),
-    ).rejects.toThrow('Network error')
+      } catch (e) {
+        thrownError = e
+      }
+    })
 
+    expect(thrownError?.message).toBe('Network error')
     expect(result.current.error).toBe('Network error')
     expect(result.current.isLoading).toBe(false)
   })
@@ -106,12 +113,16 @@ describe('usePasskey', () => {
     mockGetLoginOptions.mockResolvedValue({ data: null })
 
     const { result } = renderHook(() => usePasskey())
-    await expect(
-      act(async () => {
+    let thrownError: any
+    await act(async () => {
+      try {
         await result.current.loginWithPasskey()
-      }),
-    ).rejects.toThrow('Failed to get passkey login options')
+      } catch (e) {
+        thrownError = e
+      }
+    })
 
+    expect(thrownError?.message).toBe('Failed to get passkey login options')
     expect(result.current.error).toBe('Failed to get passkey login options')
   })
 
@@ -120,12 +131,16 @@ describe('usePasskey', () => {
     mockStartAuthentication.mockRejectedValue(new Error('User cancelled'))
 
     const { result } = renderHook(() => usePasskey())
-    await expect(
-      act(async () => {
+    let thrownError: any
+    await act(async () => {
+      try {
         await result.current.loginWithPasskey()
-      }),
-    ).rejects.toThrow('User cancelled')
+      } catch (e) {
+        thrownError = e
+      }
+    })
 
+    expect(thrownError?.message).toBe('User cancelled')
     expect(result.current.error).toBe('User cancelled')
   })
 

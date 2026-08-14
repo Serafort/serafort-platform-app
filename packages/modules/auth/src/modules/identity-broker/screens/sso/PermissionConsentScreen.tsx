@@ -15,7 +15,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useTranslation } from 'react-i18next';
 
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { useTenant } from '@cap/platform-core';
 import { Path } from '@auth/routes/path';
 import { useOidcInteraction, useConfirmOidcInteraction, useAbortOidcInteraction } from '@idaas/identity-broker/hooks/useOidcCompliance';
@@ -26,7 +26,6 @@ export default function PermissionConsentScreen() {
   const theme = useTheme()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
   const { tenant } = useTenant()
   const uid = searchParams.get('uid')
 
@@ -49,9 +48,7 @@ export default function PermissionConsentScreen() {
       if (targetUrl) {
         window.location.assign(targetUrl)
       } else {
-        enqueueSnackbar(t('auth.sso.success_granted', 'Access granted successfully'), {
-          variant: 'success',
-        })
+        toast.success(t('auth.sso.success_granted', 'Access granted successfully'), {  })
       }
     },
     onError: (err: any) => {
@@ -59,7 +56,7 @@ export default function PermissionConsentScreen() {
         err.response?.data?.message ||
         err.message ||
         t('auth.sso.error_confirm', 'Failed to confirm access')
-      enqueueSnackbar(message, { variant: 'error' })
+      toast.error(message)
     },
   })
 

@@ -29,7 +29,7 @@ boilerplate/
 - **Frontend framework:** React 19 + TypeScript, built with Vite 7
 - **Routing:** React Router 7 (`react-router-dom`)
 - **State/data:** TanStack React Query 5 (server state), Zustand 5 (client state), Immer
-- **UI:** MUI 7 (`@mui/material`, `@mui/lab`, `@mui/icons-material`), Emotion (styling engine), custom `@cap/theme` design system, RTL support (`stylis-plugin-rtl`)
+- **UI:** MUI 7 (`@mui/material`, `@mui/lab`, `@mui/icons-material` via path imports), Emotion (styling engine), custom `@cap/theme` design system, RTL support (`stylis-plugin-rtl`), `react-toastify` for notifications
 - **Forms/validation:** react-hook-form + `@hookform/resolvers` + Zod 4
 - **i18n:** i18next / react-i18next, with per-module dictionaries merged at runtime (en/fr/ar — RTL implies Arabic is a first-class locale)
 - **Testing:** Vitest 4 (unit), Playwright (e2e), Testing Library, Lighthouse CI (perf budgets)
@@ -38,7 +38,7 @@ boilerplate/
 
 ## Entry Point Flow
 `app/src/main.tsx` → wraps the app in `Providers` → `Layout` → `AppAssembly` (`App`).
-- `Providers.tsx` sets up React Query, i18next (merging module dictionaries), tenant context, theming, routing (`BrowserRouter`), a product tour (`@reactour/tour`), and global toast/z-index styling.
+- `Providers.tsx` sets up React Query, i18next (merging module dictionaries), tenant context, theming, routing (`BrowserRouter`), a product tour (`@reactour/tour`), and global toast (`react-toastify`) / z-index styling.
 - `AppAssembly.tsx` auto-discovers modules via Vite `import.meta.glob` (`../../packages/modules/*/src/index.ts`, eager) plus the runtime `registerDynamicModule()` API, then calls `assembleApp({ modules })` from `@cap/platform-core` and initializes auth plugins (e.g. `MFATOTPPlugin`). Today the glob resolves `LandingModule`, `AuthModule`, and `ThemeModule`.
 
 ## Multi-Tenancy & Theming

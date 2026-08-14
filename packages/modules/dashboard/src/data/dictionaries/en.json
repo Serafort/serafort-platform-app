@@ -1,0 +1,40 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Your personalized overview. Toggle customize mode to rearrange widgets.",
+    "customModeToggle": "Customize dashboard",
+    "exitCustomMode": "Exit customization",
+    "customModeHint": "Custom mode is on. Drag widgets by their handle, or use each widget's menu to move it with the keyboard.",
+    "resetLayout": "Reset layout",
+    "widgetMenu": "Widget actions",
+    "moveLeft": "Move widget left",
+    "moveRight": "Move widget right",
+    "dragHandle": "Drag to move widget",
+    "widgetLoading": "Loading widget...",
+    "resizeWidth": "Width / Column Span",
+    "resizeHeight": "Height / Crop",
+    "span4": "1/3 Width (4 cols)",
+    "span8": "2/3 Width (8 cols)",
+    "span12": "Full Width (12 cols)",
+    "heightCompact": "Compact (200px)",
+    "heightStandard": "Standard (280px)",
+    "heightTall": "Tall (400px)"
+  },
+  "widgets": {
+    "revenueChart": {
+      "title": "Revenue Overview",
+      "subtitle": "Last 6 months"
+    },
+    "recentOrders": {
+      "title": "Recent Orders",
+      "subtitle": "Latest transactions"
+    },
+    "weather": {
+      "title": "Weather",
+      "subtitle": "Current conditions"
+    }
+  }
+}

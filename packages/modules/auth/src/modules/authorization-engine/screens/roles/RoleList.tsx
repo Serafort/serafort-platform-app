@@ -45,7 +45,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useDebounce } from 'use-debounce'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import { Path } from "@auth/routes/path"
 
 import { useRoles, useDeleteRole, useDuplicateRole, useRoleStats } from "@auth/authorization-engine/hooks/useAdminQuery"
@@ -53,7 +53,6 @@ import { Role } from "@auth/authorization-engine/services/adminService"
 
 export default function RoleList() {
   const { t } = useTranslation('common')
-  const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const theme = useTheme()
   const [searchTerm, setSearchTerm] = useState('')
@@ -93,12 +92,12 @@ export default function RoleList() {
     if (!selectedRole) return
     try {
       await deleteRole.mutateAsync(selectedRole.id)
-      enqueueSnackbar(t('auth.admin.successDelete'), { variant: 'success' })
+      toast.success(t('auth.admin.successDelete'))
       setDeleteDialogOpen(false)
       setSelectedRole(null)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
-      enqueueSnackbar(message || t('auth.admin.errorDelete'), { variant: 'error' })
+      toast.error(message || t('auth.admin.errorDelete'))
     }
   }
 
@@ -111,11 +110,11 @@ export default function RoleList() {
         role: selectedRole,
         newName: `${selectedRole.name} (${t('auth.common.copy')}) ${timestamp}`,
       })
-      enqueueSnackbar(t('auth.admin.successDuplicate'), { variant: 'success' })
+      toast.success(t('auth.admin.successDuplicate'))
       setSelectedRole(null)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
-      enqueueSnackbar(message || t('auth.admin.errorDuplicate'), { variant: 'error' })
+      toast.error(message || t('auth.admin.errorDuplicate'))
     }
   }
 

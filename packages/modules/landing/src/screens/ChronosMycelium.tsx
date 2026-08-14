@@ -1,6 +1,16 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Box, Typography, IconButton, Button, Slider, Select, MenuItem, FormControl, InputLabel, Tooltip, Chip, Paper, Divider, Grid, Stack, Switch, FormControlLabel } from '@mui/material';
-import { PlayArrow as PlayArrowIcon, Pause as PauseIcon, Replay as ReplayIcon, SkipNext as SkipNextIcon, Download as DownloadIcon, VolumeUp as VolumeUpIcon, VolumeOff as VolumeOffIcon, Shuffle as ShuffleIcon, AutoAwesome as AutoAwesomeIcon, Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from '@mui/icons-material';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
+import ReplayIcon from '@mui/icons-material/Replay';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
+import DownloadIcon from '@mui/icons-material/Download';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 // ----------------------------------------------------------------------
 // Seeded PRNG (Mulberry32)

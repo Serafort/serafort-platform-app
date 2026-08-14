@@ -1,5 +1,7 @@
 import { Box, Typography, LinearProgress, Button, Avatar, Stack, alpha, useTheme } from '@mui/material'
-import { Speed, Refresh, SupportAgent } from '@mui/icons-material'
+import Speed from '@mui/icons-material/Speed';
+import Refresh from '@mui/icons-material/Refresh';
+import SupportAgent from '@mui/icons-material/SupportAgent';
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'

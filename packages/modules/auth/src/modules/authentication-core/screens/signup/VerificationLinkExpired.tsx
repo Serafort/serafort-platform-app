@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Box, Button, Typography, Alert, Avatar, Stack, Link as MuiLink, CircularProgress, alpha, useTheme } from '@mui/material';
-import { History, Send } from '@mui/icons-material';
+import History from '@mui/icons-material/History';
+import Send from '@mui/icons-material/Send';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Path } from '@cap/module-auth/routes/path';

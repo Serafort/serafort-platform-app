@@ -14,7 +14,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useUsers, useBanUser } from "@idaas/authentication-core/hooks/useAdminQuery"
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import { useDebounce } from 'use-debounce'
 
 interface IssueBanDialogProps {
@@ -24,7 +24,6 @@ interface IssueBanDialogProps {
 
 export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
   const { t } = useTranslation('common')
-  const { enqueueSnackbar } = useSnackbar()
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearch] = useDebounce(searchTerm, 300)
   const [selectedUser, setSelectedUser] = useState<any>(null)
@@ -37,17 +36,13 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
 
   const banMutation = useBanUser({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.admin.banSuccess', 'User banned successfully'), {
-        variant: 'success',
-      })
+      toast.success(t('auth.admin.banSuccess', 'User banned successfully'), {  })
       onClose()
       setSelectedUser(null)
       setReason('')
     },
     onError: (error: any) => {
-      enqueueSnackbar(error.message || t('auth.common.errorOccurred', 'An error occurred'), {
-        variant: 'error',
-      })
+      toast.error(error.message || t('auth.common.errorOccurred', 'An error occurred'), {  })
     },
   })
 

@@ -1,5 +1,4 @@
 import React, { ReactNode, useCallback, useState, useMemo } from 'react'
-import { useTheme } from '@mui/material/styles'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -137,7 +136,7 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
 
   return (
     <>
-      <IconButton onClick={handleToggle} sx={{ color: 'text.primary' }}>
+      <IconButton onClick={handleToggle} aria-label='Open shortcuts' sx={{ color: 'text.primary' }}>
         <GridView />
       </IconButton>
       <Popper
@@ -308,11 +307,11 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
         <DialogTitle>{t('navigation.addShortcut')}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: '16px !important' }}>
           <FormControl fullWidth size='small'>
-            <InputLabel id='select-shortcut-page-label'>{t('navigation.selectPage', 'Select Page')}</InputLabel>
+            <InputLabel id='select-shortcut-page-label'>{t('navigation.selectPage')}</InputLabel>
             <Select
               labelId='select-shortcut-page-label'
               value={selectedSearchItem}
-              label={t('navigation.selectPage', 'Select Page')}
+              label={t('navigation.selectPage')}
               onChange={(e) => {
                 const val = e.target.value
                 setSelectedSearchItem(val)
@@ -343,14 +342,14 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
             </Select>
           </FormControl>
           <TextField
-            label={t('navigation.shortcutTitle', 'Shortcut Title')}
+            label={t('navigation.shortcutTitle')}
             size='small'
             fullWidth
             value={customTitle}
             onChange={(e) => setCustomTitle(e.target.value)}
           />
           <TextField
-            label={t('navigation.shortcutUrl', 'Shortcut URL')}
+            label={t('navigation.shortcutUrl')}
             size='small'
             fullWidth
             value={customUrl}
@@ -359,14 +358,14 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAddDialogOpen(false)} color='secondary'>
-            {t('common.cancel', 'Cancel')}
+            {t('common.cancel')}
           </Button>
           <Button
             variant='contained'
             disabled={!customTitle || !customUrl}
             onClick={handleAddShortcut}
           >
-            {t('common.add', 'Add')}
+            {t('common.add')}
           </Button>
         </DialogActions>
       </Dialog>

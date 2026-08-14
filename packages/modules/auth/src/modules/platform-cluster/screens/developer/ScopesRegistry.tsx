@@ -1,15 +1,19 @@
 import { useState, useMemo } from 'react';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Button, TextField, InputAdornment, alpha, useTheme, Stack, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress, Skeleton } from '@mui/material';
-import { Search, Add, Delete, Layers, Edit, VpnKey } from '@mui/icons-material';
+import Search from '@mui/icons-material/Search';
+import Add from '@mui/icons-material/Add';
+import Delete from '@mui/icons-material/Delete';
+import Layers from '@mui/icons-material/Layers';
+import Edit from '@mui/icons-material/Edit';
+import VpnKey from '@mui/icons-material/VpnKey';
 import { useTranslation } from 'react-i18next';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { AuthScope } from '@auth/modules/authorization-engine/services/adminService';
 import { useScopes, useCreateScope, useUpdateScope, useDeleteScope } from '@idaas/authentication-core/hooks/useAdminQuery';
 
 export default function ScopesRegistry() {
   const theme = useTheme()
   const { t } = useTranslation('common')
-  const { enqueueSnackbar } = useSnackbar()
   const [searchTerm, setSearchTerm] = useState('')
 
   // Modal states
@@ -52,9 +56,7 @@ export default function ScopesRegistry() {
 
   const handleFormSubmit = () => {
     if (!formData.name) {
-      enqueueSnackbar(t('auth.developer.nameRequired', 'Scope name is required.'), {
-        variant: 'error',
-      })
+      toast.error(t('auth.developer.nameRequired', 'Scope name is required.'), {  })
       return
     }
 
@@ -63,30 +65,22 @@ export default function ScopesRegistry() {
         { id: Number(editingScope.id), data: formData },
         {
           onSuccess: () => {
-            enqueueSnackbar(t('auth.developer.scopeUpdated', 'Scope updated successfully.'), {
-              variant: 'success',
-            })
+            toast.success(t('auth.developer.scopeUpdated', 'Scope updated successfully.'), {  })
             closeForm()
           },
           onError: () => {
-            enqueueSnackbar(t('auth.developer.scopeUpdateFailed', 'Failed to update scope.'), {
-              variant: 'error',
-            })
+            toast.error(t('auth.developer.scopeUpdateFailed', 'Failed to update scope.'), {  })
           },
         },
       )
     } else {
       createScope.mutate(formData, {
         onSuccess: () => {
-          enqueueSnackbar(t('auth.developer.scopeCreated', 'Scope created successfully.'), {
-            variant: 'success',
-          })
+          toast.success(t('auth.developer.scopeCreated', 'Scope created successfully.'), {  })
           closeForm()
         },
         onError: () => {
-          enqueueSnackbar(t('auth.developer.scopeCreateFailed', 'Failed to create scope.'), {
-            variant: 'error',
-          })
+          toast.error(t('auth.developer.scopeCreateFailed', 'Failed to create scope.'), {  })
         },
       })
     }
@@ -96,15 +90,11 @@ export default function ScopesRegistry() {
     if (deleteConfirmationId !== null) {
       deleteScope.mutate(deleteConfirmationId, {
         onSuccess: () => {
-          enqueueSnackbar(t('auth.developer.scopeDeleted', 'Scope deleted successfully.'), {
-            variant: 'success',
-          })
+          toast.success(t('auth.developer.scopeDeleted', 'Scope deleted successfully.'), {  })
           setDeleteConfirmationId(null)
         },
         onError: () => {
-          enqueueSnackbar(t('auth.developer.scopeDeleteFailed', 'Failed to delete scope.'), {
-            variant: 'error',
-          })
+          toast.error(t('auth.developer.scopeDeleteFailed', 'Failed to delete scope.'), {  })
         },
       })
     }

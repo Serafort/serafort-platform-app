@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Box, Button, TextField, Typography, Alert, CircularProgress, Link as MuiLink } from '@mui/material';
-import { Warning } from '@mui/icons-material';
+import Warning from '@mui/icons-material/Warning';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDeactivateAccount, useUserProfile } from '../../hooks/useUserQuery';

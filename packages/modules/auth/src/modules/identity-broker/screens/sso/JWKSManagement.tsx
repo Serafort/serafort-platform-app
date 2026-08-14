@@ -17,7 +17,7 @@ import ArrowBack from '@mui/icons-material/ArrowBack';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { useJWKSKeys, useRotateJWKSKeys, useDeleteJWKSKey, useCreateJWKSKey, useGetJWKSKeyDetail, CreateJWKSKeyRequest } from '@auth';
 
 
@@ -28,8 +28,6 @@ export default function JWKSManagement() {
   const { t } = useTranslation()
   const theme = useTheme()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
-
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
   const [detailKid, setDetailKid] = React.useState<string | null>(null)
   const [formData, setFormData] = React.useState<CreateJWKSKeyRequest>({
@@ -51,25 +49,25 @@ export default function JWKSManagement() {
 
   const rotateMutation = useRotateJWKSKeys({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.sso.keys_rotated', 'Keys rotated successfully'), { variant: 'success' })
+      toast.success(t('auth.sso.keys_rotated', 'Keys rotated successfully'))
     },
     onError: (error) => {
-      enqueueSnackbar(error.message || 'Failed to rotate keys', { variant: 'error' })
+      toast.error(error.message || 'Failed to rotate keys')
     }
   })
 
   const deleteMutation = useDeleteJWKSKey({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.sso.key_deleted', 'Key deleted successfully'), { variant: 'success' })
+      toast.success(t('auth.sso.key_deleted', 'Key deleted successfully'))
     },
     onError: (error) => {
-      enqueueSnackbar(error.message || 'Failed to delete key', { variant: 'error' })
+      toast.error(error.message || 'Failed to delete key')
     }
   })
 
   const createMutation = useCreateJWKSKey({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.sso.key_created', 'Key created successfully'), { variant: 'success' })
+      toast.success(t('auth.sso.key_created', 'Key created successfully'))
       setIsAddModalOpen(false)
       setFormData({
         kid: '',
@@ -82,7 +80,7 @@ export default function JWKSManagement() {
       })
     },
     onError: (error) => {
-      enqueueSnackbar(error.message || 'Failed to create key', { variant: 'error' })
+      toast.error(error.message || 'Failed to create key')
     }
   })
 
@@ -98,7 +96,7 @@ export default function JWKSManagement() {
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
-    enqueueSnackbar(t('common.copied', 'Copied to clipboard'), { variant: 'success' })
+    toast.success(t('common.copied', 'Copied to clipboard'))
   }
 
   return (

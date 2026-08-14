@@ -1,10 +1,7 @@
-import { useTheme } from '@cap/theme'
+import { useTheme, themeConfig } from '@cap/theme'
 import type { CSSObject } from '@emotion/styled'
 import type { ChildrenType } from '@cap/shared-types'
 import { useSettings } from '@cap/platform-store'
-// themeConfig.navbar defaults inlined to avoid circular import: type='fixed', blur=true
-const NAVBAR_TYPE: string = 'fixed'
-const NAVBAR_BLUR: boolean = true
 import { horizontalLayoutClasses } from '../../utils/layoutClasses'
 import StyledHeader from '../../styles/horizontal/StyledHeader'
 import classnames from 'classnames'
@@ -16,11 +13,13 @@ import { buildLayoutSurfaceEffect } from '../../utils/buildLayoutSurfaceEffect'
 
 type Props = ChildrenType & {
   overrideStyles?: CSSObject
+  navbarType?: 'fixed' | 'static'
+  blur?: boolean
 }
 
 const LayoutHeader = (props: Props) => {
   // Props
-  const { children, overrideStyles } = props
+  const { children, overrideStyles, navbarType: propNavbarType, blur: propBlur } = props
 
   // Hooks
   const { settings } = useSettings()
@@ -29,10 +28,12 @@ const LayoutHeader = (props: Props) => {
 
   // Vars
   const { navbarContentWidth } = settings
+  const activeNavbarType = propNavbarType || (settings as any).navbarType || themeConfig.navbar?.type || 'fixed'
+  const activeNavbarBlur = propBlur ?? (settings as any).navbarBlur ?? themeConfig.navbar?.blur ?? true
 
-  const headerFixed = NAVBAR_TYPE === 'fixed'
-  const headerStatic = NAVBAR_TYPE === 'static'
-  const headerBlur = NAVBAR_BLUR === true
+  const headerFixed = activeNavbarType === 'fixed'
+  const headerStatic = activeNavbarType === 'static'
+  const headerBlur = activeNavbarBlur === true
   const headerContentCompact = navbarContentWidth === 'compact'
   const headerContentWide = navbarContentWidth === 'wide' || navbarContentWidth === 'full'
 

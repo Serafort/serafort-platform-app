@@ -36,3 +36,18 @@ export interface ApiErrorResponse {
   code?: string;
   errors?: Record<string, string[]>;
 }
+
+export enum HttpMethodEnum {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  DELETE = 'DELETE',
+  PATCH = 'PATCH',
+}
+
+export enum OptimisticUpdateTypeEnum {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  CUSTOM = 'custom',
+}

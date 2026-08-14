@@ -1,6 +1,6 @@
 import type { Theme } from '@mui/material/styles'
 import type { Skin } from '@cap/shared-types'
-import { ExpandMore } from '@mui/icons-material'
+import ExpandMore from '@mui/icons-material/ExpandMore';
 
 const autocomplete = (skin: Skin): Theme['components'] => ({
   MuiAutocomplete: {

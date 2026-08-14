@@ -6,7 +6,7 @@ import {
   TextField,
   Grid,
 } from '@mui/material';
-import type { PrimitiveTokens } from '@cap/theme';
+
 
 interface SpacingEditorProps {
   spacing: Record<string, string>;

@@ -15,19 +15,17 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import {
-  Shield,
-  Error as ErrorIcon,
-  Warning,
-  CheckCircle,
-  ArrowForward,
-  Security,
-  VpnKey,
-  PersonOff,
-  Settings,
-  Schedule,
-  Password,
-} from '@mui/icons-material'
+import Shield from '@mui/icons-material/Shield';
+import ErrorIcon from '@mui/icons-material/Error';
+import Warning from '@mui/icons-material/Warning';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import ArrowForward from '@mui/icons-material/ArrowForward';
+import Security from '@mui/icons-material/Security';
+import VpnKey from '@mui/icons-material/VpnKey';
+import PersonOff from '@mui/icons-material/PersonOff';
+import Settings from '@mui/icons-material/Settings';
+import Schedule from '@mui/icons-material/Schedule';
+import Password from '@mui/icons-material/Password';
 import { useTranslation } from 'react-i18next'
 import { useSecurityHealth } from "@cap/module-auth/modules/authentication-core/hooks/useAdminQuery"
 

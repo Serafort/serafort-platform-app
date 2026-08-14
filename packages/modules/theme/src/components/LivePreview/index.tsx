@@ -4,7 +4,7 @@ import { PreviewCard } from './PreviewCard';
 import { PreviewButton } from './PreviewButton';
 import { PreviewInput } from './PreviewInput';
 import { PreviewNavbar } from './PreviewNavbar';
-import type { TenantThemeConfig, EffectType } from '@cap/theme';
+import type { TenantThemeConfig } from '@cap/theme';
 
 interface LivePreviewProps {
   theme: TenantThemeConfig;

@@ -60,7 +60,7 @@ export const DEFAULT_TENANT_THEME: ExtendedTenantTheme = {
 
 export const DEFAULT_TENANT_LAYOUT: TenantLayout = {
   layout: 'vertical',
-  layoutPadding: 24,
+  layoutPadding: 0,
   compactContentWidth: 1440,
   navbar: {
     type: 'fixed',

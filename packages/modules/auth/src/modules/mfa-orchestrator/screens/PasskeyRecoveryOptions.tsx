@@ -16,18 +16,16 @@ import {
   alpha,
   Collapse,
 } from '@mui/material'
-import {
-  ArrowBack,
-  Shield,
-  Smartphone,
-  Email,
-  Sms,
-  Key,
-  QrCode2,
-  ArrowForward,
-  WarningAmber,
-  Lock,
-} from '@mui/icons-material'
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Shield from '@mui/icons-material/Shield';
+import Smartphone from '@mui/icons-material/Smartphone';
+import Email from '@mui/icons-material/Email';
+import Sms from '@mui/icons-material/Sms';
+import Key from '@mui/icons-material/Key';
+import QrCode2 from '@mui/icons-material/QrCode2';
+import ArrowForward from '@mui/icons-material/ArrowForward';
+import WarningAmber from '@mui/icons-material/WarningAmber';
+import Lock from '@mui/icons-material/Lock';
 import { useTranslation } from 'react-i18next'
 
 const RECOVERY_OPTIONS = [

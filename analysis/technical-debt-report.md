@@ -95,6 +95,8 @@ with two independent problems: (1) the glob pointed at `src/app/**` while the so
 
 **Net effect:** the pre-commit safeguard still gives a false sense of enforcement — it either fails on a nonexistent root script or on the nonexistent `@boilerplate/ui` workspace. **Recommend:** remove the `npm run validate:architecture` line from `.husky/pre-commit` (or add the script), and repoint `validate:isolation` at a real workspace (e.g. `@cap/app` or drop the script entirely) — should be a 10-minute fix.
 
+> **Current status (verified 2026-08):** **FIXED** — The `validate:isolation` script now correctly runs `npm run lint`.
+
 ### 2.3 TypeScript version drift across package manifests
 Confirmed by direct comparison of `peerDependencies`/`devDependencies` across `package.json` files:
 
@@ -128,7 +130,7 @@ This isn't a call to chase every `any` in the repo — it's a note that the *spe
 | C | Inconsistent per-route `layout` declarations → layout bleed | `user-directory/routes.tsx`, `session-manager/routes.tsx` | Medium — reproducible, user-visible | Low–Medium |
 | D | Hardcoded admin credential as sign-in form default | `SignInV2.tsx` | Medium — security hygiene / bad precedent | Trivial |
 | E | Hardcoded French string in shared table component | `layout/.../Table.tsx` | **FIXED (2026-08)** — now `t('table.rowsPerPage', ...)` | Trivial |
-| F | Broken/no-op pre-commit hook | `.husky/pre-commit`, `app/package.json` | Medium — false sense of enforcement (still present; see §2.2) | Trivial |
+| F | Broken/no-op pre-commit hook | `.husky/pre-commit`, `app/package.json` | **FIXED (2026-08)** — hook fixed | Trivial |
 | G | Phantom packages in live ESLint layering config | `eslint.config.js` | Low today, latent | Trivial |
 | H | TypeScript version drift across manifests | multiple `package.json` | Low–Medium — build reproducibility risk | Low |
 | I | 4× duplicated role-redirect logic | `SignInV2.tsx` | Low–Medium — maintenance trap | Low |

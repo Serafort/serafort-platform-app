@@ -12,7 +12,7 @@ import CloudDoneIcon from '@mui/icons-material/CloudDone'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import { themeConfig, useAppStore, API_CONFIG } from '@cap/platform-core'
 import { useOidcInteraction, useConfirmOidcInteraction } from '@auth/identity-broker/hooks/useOidcCompliance'
 import { Path } from "@auth/routes/path"
@@ -33,7 +33,6 @@ export default function OIDCLoginPrompt({ user: initialUser, isPending: initialP
   const theme = useTheme()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
   const uid = searchParams.get('uid') || searchParams.get('interaction')
   const authUser = useAppStore((state) => state.user)
   const { data: interactionData, isLoading: isFetching } = useOidcInteraction(uid)
@@ -44,7 +43,7 @@ export default function OIDCLoginPrompt({ user: initialUser, isPending: initialP
       if (res.data?.url) window.location.assign(res.data.url)
       else navigate(Path.auth.login)
     },
-    onError: () => enqueueSnackbar(t('sso.errorConfirm', 'Failed to confirm account'), { variant: 'error' }),
+    onError: () => toast.error(t('sso.errorConfirm', 'Failed to confirm account')),
   })
 
   const user = useMemo(() => {

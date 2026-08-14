@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   Box, Typography, CircularProgress, Button, Avatar, alpha, useTheme,
 } from '@mui/material'
-import { CheckCircleOutline, ErrorOutline, ArrowForward } from '@mui/icons-material'
+import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
+import ErrorOutline from '@mui/icons-material/ErrorOutline';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import authService from "@idaas/authentication-core/services/auth.service"

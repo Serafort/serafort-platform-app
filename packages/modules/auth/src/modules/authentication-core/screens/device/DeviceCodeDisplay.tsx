@@ -1,7 +1,9 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { Box, Typography, TextField, Button, Alert, Stack, CircularProgress, IconButton, Avatar, alpha, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { Devices, ArrowBack, CheckCircleOutline } from '@mui/icons-material';
+import Devices from '@mui/icons-material/Devices';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
 import { useNavigate } from 'react-router-dom';
 import { useDeviceAuth } from '@idaas/authentication-core/hooks';
 import { motion } from 'framer-motion';

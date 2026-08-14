@@ -33,6 +33,7 @@ if (!authExists) {
 
 // https://vite.dev/config/
 export default defineConfig({
+  envDir: workspaceRoot,
   plugins: [
     react(),
     ...(vitePWA
@@ -44,7 +45,7 @@ export default defineConfig({
               enabled: true,
             },
             workbox: {
-              maximumFileSizeToCacheInBytes: 5000000,
+              maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // 6 MiB — covers largest vendor chunk
               runtimeCaching: [
                 {
                   urlPattern: /\.(?:js|css|json)$/i,
@@ -79,6 +80,7 @@ export default defineConfig({
 
       // ── Workspace source package aliases ─────────────────────────────────────
       { find: '@cap/layout',          replacement: path.resolve(workspaceRoot, 'packages/layout/src') },
+      { find: '@cap/authorization',   replacement: path.resolve(workspaceRoot, 'packages/authorization/src') },
       { find: '@cap/theme',           replacement: path.resolve(workspaceRoot, 'packages/theme/src') },
       { find: '@cap/api-contracts',   replacement: path.resolve(workspaceRoot, 'packages/api-contracts/src') },
       { find: '@cap/auth-contracts',  replacement: path.resolve(workspaceRoot, 'packages/auth-contracts/src') },
@@ -117,10 +119,12 @@ export default defineConfig({
     include: [
       '@tanstack/react-query',
       'react-toastify',
+      'recharts',
     ],
     // Exclude workspace source packages — they are TypeScript source-linked
     exclude: [
       '@cap/layout',
+      '@cap/authorization',
       '@cap/theme',
       '@cap/api-contracts',
       '@cap/auth-contracts',
@@ -130,6 +134,7 @@ export default defineConfig({
       '@cap/module-auth',
       '@cap/module-admin',
       '@cap/module-landing',
+      '@cap/module-widget-studio',
       '@cap/module-user',
       '@cap/module-kyc',
       '@cap/module-digital-id',
@@ -159,5 +164,25 @@ export default defineConfig({
         },
       },
     },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // ── Vendor splits — keeps the main entry chunk under 2 MB ──────────────
+          if (id.includes('@mui/icons-material')) return 'vendor-mui-icons'
+          if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts'
+          if (id.includes('framer-motion')) return 'vendor-motion'
+          if (id.includes('@mui/material') || id.includes('@mui/system') || id.includes('@mui/base')) return 'vendor-mui'
+          if (id.includes('@floating-ui')) return 'vendor-floating-ui'
+          if (id.includes('react-router') || id.includes('react-router-dom')) return 'vendor-router'
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) return 'vendor-react'
+          if (id.includes('@tanstack/')) return 'vendor-tanstack'
+          if (id.includes('zustand')) return 'vendor-zustand'
+          if (id.includes('comlink')) return 'vendor-comlink'
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1500,
   },
 })

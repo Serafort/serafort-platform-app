@@ -153,7 +153,9 @@ export const Path = {
     roleDetail: '/admin/roles/:id',
     permissions: '/admin/permissions',
     policies: '/admin/organizations/:id/policies',
+    policyCanvas: '/admin/policies/canvas',
     applications: '/admin/applications',
+
     appDetail: '/admin/applications/:id',
     scopes: '/admin/scopes',
     apiExplorer: '/admin/api-explorer',

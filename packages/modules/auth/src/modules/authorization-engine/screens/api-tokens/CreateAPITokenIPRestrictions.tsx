@@ -34,7 +34,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import ShieldIcon from '@mui/icons-material/Shield'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import { useCreateToken } from "@auth/user-directory/hooks/useUserQuery"
 import { Path } from "@auth/routes/path"
 
@@ -48,7 +48,6 @@ const CreateAPITokenIPRestrictions: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
-  const { enqueueSnackbar } = useSnackbar()
   const theme = useTheme()
 
   // Use state from navigation or default to empty values
@@ -75,16 +74,12 @@ const CreateAPITokenIPRestrictions: React.FC = () => {
 
     if (!validateIP(trimmed)) {
       setIpError(true)
-      enqueueSnackbar(t('api_tokens:invalid_ip_format', 'Invalid IP or CIDR format'), {
-        variant: 'error',
-      })
+      toast.error(t('api_tokens:invalid_ip_format', 'Invalid IP or CIDR format'), {  })
       return
     }
 
     if (ipList.includes(trimmed)) {
-      enqueueSnackbar(t('api_tokens:ip_already_added', 'IP already in whitelist'), {
-        variant: 'warning',
-      })
+      toast.warning(t('api_tokens:ip_already_added', 'IP already in whitelist'), {  })
       return
     }
 
@@ -115,7 +110,7 @@ const CreateAPITokenIPRestrictions: React.FC = () => {
         error instanceof Error
           ? error.message
           : t('api_tokens:create_error', 'Failed to create token')
-      enqueueSnackbar(message, { variant: 'error' })
+      toast.error(message)
     },
   })
 

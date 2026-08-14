@@ -1,0 +1,97 @@
+graph TD
+    subgraph T0["Tier 0 — Foundation"]
+        ST["@cap/shared-types<br/>(leaf, Ca=12)"]
+    end
+
+    subgraph T1["Tier 1 — Core Services  ⚠ circular cluster"]
+        AC["@cap/api-contracts"]
+        PS["@cap/platform-store"]
+        TH["@cap/theme"]
+        AUTHZ["@cap/authorization"]
+        PC["@cap/platform-core<br/>(barrel/aggregator)"]
+    end
+
+    subgraph T2["Tier 2 — Composition"]
+        LAY["@cap/layout"]
+    end
+
+    subgraph T3["Tier 3 — Feature Modules"]
+        MAUTH["@cap/module-auth<br/>(332 files, 9 DDD submodules)"]
+        MDASH["@cap/module-dashboard"]
+        MLAND["@cap/module-landing"]
+        MTHEME["@cap/module-theme"]
+    end
+
+    subgraph T4["Tier 4 — App Shell"]
+        APP["@cap/app"]
+    end
+
+    subgraph ORPHAN["Unused / Orphaned"]
+        AUTHC["@cap/auth-contracts<br/>(Ca=0, nothing imports it)"]
+    end
+
+    AC --> ST
+    PS --> AC
+    PS --> ST
+    PS --> TH
+    TH --> PC
+    TH --> PS
+    TH --> ST
+    AUTHZ --> PC
+    AUTHZ --> PS
+    AUTHZ --> ST
+    PC --> AUTHZ
+    PC --> PS
+    PC --> TH
+    PC --> ST
+
+    LAY --> PC
+    LAY --> PS
+    LAY --> TH
+    LAY --> ST
+
+    MAUTH --> AUTHZ
+    MAUTH --> LAY
+    MAUTH --> PC
+    MAUTH --> PS
+    MAUTH --> TH
+    MAUTH --> ST
+
+    MDASH --> LAY
+    MDASH --> MAUTH
+    MDASH --> PC
+    MDASH --> ST
+
+    MLAND --> PC
+    MLAND --> TH
+    MLAND --> LAY
+    MLAND --> ST
+
+    MTHEME --> AC
+    MTHEME --> MAUTH
+    MTHEME --> PC
+    MTHEME --> TH
+    MTHEME --> LAY
+    MTHEME --> ST
+
+    APP --> LAY
+    APP --> MAUTH
+    APP --> MDASH
+    APP --> MLAND
+    APP --> MTHEME
+    APP --> PC
+    APP --> ST
+
+    AUTHC --> AC
+    AUTHC --> PS
+    AUTHC --> ST
+
+    classDef cycle fill:#ffd6d6,stroke:#cc0000,stroke-width:2px,color:#661111
+    classDef orphan fill:#eeeeee,stroke:#999999,stroke-width:1px,stroke-dasharray: 4 3,color:#555555
+    classDef foundation fill:#d6e8ff,stroke:#3366cc,stroke-width:1px
+    classDef app fill:#d6ffd6,stroke:#2e8b2e,stroke-width:1px
+
+    class PC,TH,PS,AUTHZ cycle
+    class AUTHC orphan
+    class ST foundation
+    class APP app

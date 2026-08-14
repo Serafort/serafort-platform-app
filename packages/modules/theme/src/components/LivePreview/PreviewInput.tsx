@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import styled from '@emotion/styled';
-import type { EffectType } from '@cap/theme';
 
 interface PreviewInputProps {
   effectStyle?: 'standard' | 'glass' | 'neu';

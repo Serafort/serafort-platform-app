@@ -42,6 +42,8 @@
       "@cap/module-landing/*": ["../packages/modules/landing/src/*"],
       "@cap/module-theme": ["../packages/modules/theme/src"],
       "@cap/module-theme/*": ["../packages/modules/theme/src/*"],
+      "@cap/module-widget-studio": ["../packages/modules/widget-studio/src"],
+      "@cap/module-widget-studio/*": ["../packages/modules/widget-studio/src/*"],
       "@cap/module-mfa": ["../packages/modules/mfa/src"],
       "@cap/module-mfa/*": ["../packages/modules/mfa/src/*"],
       "@cap/platform-core": ["../packages/platform-core/src"],

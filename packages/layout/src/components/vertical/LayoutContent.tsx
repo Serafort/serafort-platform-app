@@ -1,6 +1,6 @@
 import type { ChildrenType } from '@cap/shared-types'
 import { useSettings } from '@cap/platform-store'
-import ErrorBoundary from '../ui/ErrorBoundary'
+import { ErrorBoundary } from '@cap/theme'
 import { verticalLayoutClasses } from '../../utils/layoutClasses'
 import StyledMain from '../../styles/shared/StyledMain'
 import classnames from 'classnames'

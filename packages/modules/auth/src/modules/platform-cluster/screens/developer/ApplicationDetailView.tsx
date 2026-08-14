@@ -25,24 +25,22 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import {
-  Save,
-  ArrowBack,
-  Security,
-  ContentCopy,
-  Refresh,
-  Info,
-  Code,
-  Web,
-  Smartphone,
-  Router,
-  Settings,
-  VpnKey,
-  Tune,
-} from '@mui/icons-material'
+import Save from '@mui/icons-material/Save';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Security from '@mui/icons-material/Security';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import Refresh from '@mui/icons-material/Refresh';
+import Info from '@mui/icons-material/Info';
+import Code from '@mui/icons-material/Code';
+import Web from '@mui/icons-material/Web';
+import Smartphone from '@mui/icons-material/Smartphone';
+import Router from '@mui/icons-material/Router';
+import Settings from '@mui/icons-material/Settings';
+import VpnKey from '@mui/icons-material/VpnKey';
+import Tune from '@mui/icons-material/Tune';
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import {
   useOIDCClient,
   useUpdateOIDCClient,
@@ -84,7 +82,6 @@ export default function ApplicationDetailView() {
   const { t } = useTranslation('common')
   const navigate = useNavigate()
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
   const { id } = useParams()
   const { data: clientResponse, isLoading } = useOIDCClient(id)
   const updateMutation = useUpdateOIDCClient()
@@ -139,10 +136,10 @@ export default function ApplicationDetailView() {
       },
       {
         onSuccess: () => {
-          enqueueSnackbar(t('auth.admin.successUpdateApp'), { variant: 'success' })
+          toast.success(t('auth.admin.successUpdateApp'))
         },
         onError: (error: any) => {
-          enqueueSnackbar(error.message || t('auth.admin.errorUpdateApp'), { variant: 'error' })
+          toast.error(error.message || t('auth.admin.errorUpdateApp'))
         },
       },
     )
@@ -150,10 +147,7 @@ export default function ApplicationDetailView() {
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      enqueueSnackbar(`${label} ${t('auth.admin.copied') || 'copied to clipboard'}`, {
-        variant: 'success',
-        autoHideDuration: 2000,
-      })
+      toast.success(`${label} ${t('auth.admin.copied') || 'copied to clipboard'}`, { autoClose: 2000, })
     })
   }
 
@@ -166,24 +160,15 @@ export default function ApplicationDetailView() {
     if (!id) return
     rotateSecretMutation.mutate(id as any, {
       onSuccess: () => {
-        enqueueSnackbar(
-          t('auth.admin.successRotateSecret') || 'Client secret rotated successfully',
-          {
-            variant: 'success',
-          },
+        toast.success(t('auth.admin.successRotateSecret') || 'Client secret rotated successfully', { },
         )
         setShowRotateConfirm(false)
       },
       onError: (error: any) => {
-        enqueueSnackbar(
-          error.message || t('auth.admin.errorRotateSecret') || 'Failed to rotate client secret',
-          {
-            variant: 'error',
-          },
+        toast.error(error.message || t('auth.admin.errorRotateSecret') || 'Failed to rotate client secret', { },
         )
         setShowRotateConfirm(false)
-      },
-    })
+      }, })
   }
 
   return (
@@ -516,14 +501,10 @@ export default function ApplicationDetailView() {
                             },
                             {
                               onSuccess: () => {
-                                enqueueSnackbar(t('auth.admin.successUpdateApp'), {
-                                  variant: 'success',
-                                })
+                                toast.success(t('auth.admin.successUpdateApp'))
                               },
                               onError: (error: any) => {
-                                enqueueSnackbar(error.message || t('auth.admin.errorUpdateApp'), {
-                                  variant: 'error',
-                                })
+                                toast.error(error.message || t('auth.admin.errorUpdateApp'))
                               },
                             },
                           )

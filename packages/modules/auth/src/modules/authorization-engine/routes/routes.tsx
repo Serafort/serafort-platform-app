@@ -13,8 +13,12 @@ const APITokenDetails              = React.lazy(() => import('../screens/api-tok
 const APITokenDisplayUsage         = React.lazy(() => import('../screens/api-tokens/APITokenDisplayUsage'))
 const APITokenActions              = React.lazy(() => import('../screens/api-tokens/APITokenActions'))
 const APITokenSecurityWarning      = React.lazy(() => import('../screens/api-tokens/APITokenSecurityWarning'))
+const VisualPolicyCanvas           = React.lazy(() => import('../screens/policies/VisualPolicyCanvas'))
+
 
 export const authorizationEngineRouteConfig: AuthRouteConfig[] = [
+  // --- Visual Policy & ABAC Canvas ---
+  createAuthRoute(Path.policyCanvas,       <VisualPolicyCanvas />,           { requiresVerification: true, layout: 'admin' }),
   // --- API Tokens (verified auth) ---
   createAuthRoute(Path.dashboard,          <APITokensDashboard />,           { requiresVerification: true, layout: 'admin' }),
   createAuthRoute(Path.createBasic,        <CreateAPITokenBasicInfo />,      { requiresVerification: true, layout: 'admin' }),
@@ -24,4 +28,5 @@ export const authorizationEngineRouteConfig: AuthRouteConfig[] = [
   createAuthRoute(Path.actions,            <APITokenActions />,              { requiresVerification: true, layout: 'admin' }),
   createAuthRoute(Path.securityWarning,    <APITokenSecurityWarning />,      { requiresVerification: true, layout: 'admin' }),
 ]
+
 

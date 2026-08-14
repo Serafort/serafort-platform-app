@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box, Button, Typography, Avatar, CircularProgress, Link as MuiLink, alpha, useTheme } from '@mui/material';
-import { CheckCircle, ErrorOutline, ArrowForward } from '@mui/icons-material';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import ErrorOutline from '@mui/icons-material/ErrorOutline';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FetchResponse, HttpError } from '@cap/platform-core';

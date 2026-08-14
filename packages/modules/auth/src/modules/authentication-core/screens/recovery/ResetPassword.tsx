@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box, Button, TextField, Typography, Alert, InputAdornment, IconButton, CircularProgress, alpha, useTheme, Stack, Link as MuiLink } from '@mui/material';
-import { LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
+import LockOutlined from '@mui/icons-material/LockOutlined';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FetchResponse, IUserResponseEmailResetPassword } from '@cap/platform-core';

@@ -5,6 +5,11 @@ import { themeDictionaries, registerDictionary } from './i18n/registry'
 
 export { themeRouteConfig }
 export { default as ThemeEditor } from './screens/ThemeEditor'
+export { AiThemeStudioPanel } from './components/AiThemeStudioPanel'
+export type { AiThemeStudioPanelProps } from './components/AiThemeStudioPanel'
+export { aiThemePromptService, CURATED_PROMPT_SUGGESTIONS } from './services/aiThemePromptService'
+export type { PromptSuggestion, PromptAnalysisResult } from './services/aiThemePromptService'
+
 // I18n Registry & Dictionaries
 export {
   themeDictionaries,
@@ -51,5 +56,3 @@ export const ThemeModule: CAPModule = {
 }
 
 export default ThemeModule
-
-

@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import { Box, Button, Typography, Avatar, Stack, alpha, useTheme } from '@mui/material'
-import { CheckCircleOutline, Logout, ArrowForward } from '@mui/icons-material'
+import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline';
+import Logout from '@mui/icons-material/Logout';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Path } from "@cap/module-auth/routes/path"

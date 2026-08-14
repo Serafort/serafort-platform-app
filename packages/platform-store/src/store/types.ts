@@ -7,6 +7,8 @@ import type { SettingsSlice, LayoutOverride } from './slices/settingsSlice'
 import type { NavigationSlice } from './slices/navigationSlice'
 import type { NetworkSlice } from './slices/networkSlice'
 import type { OfflineQueueSlice } from './slices/offlineQueueSlice'
+import type { LayoutEngineSlice } from './slices/layoutEngineSlice'
+import type { WidgetStudioSlice } from './slices/widgetStudioSlice'
 
 export type { LayoutOverride }
 
@@ -18,4 +20,6 @@ export type AppStore = AuthSlice &
   SettingsSlice &
   NavigationSlice &
   NetworkSlice &
-  OfflineQueueSlice
+  OfflineQueueSlice &
+  LayoutEngineSlice &
+  WidgetStudioSlice

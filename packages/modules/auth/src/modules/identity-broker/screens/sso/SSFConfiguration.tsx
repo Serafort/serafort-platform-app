@@ -39,7 +39,7 @@ import ArrowBack from '@mui/icons-material/ArrowBack';
 import Close from '@mui/icons-material/Close';
 import AddCircle from '@mui/icons-material/AddCircle';
 import { useTranslation } from 'react-i18next';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link as RouterLink } from 'react-router-dom';
 
@@ -86,8 +86,6 @@ const DEFAULT_EVENTS: SsfEventDefinition[] = [
 export default function SSFConfiguration() {
   const { t } = useTranslation()
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
-
   const [ssfEnabled, setSsfEnabled] = useState(true)
   const [issuerUrl, setIssuerUrl] = useState('')
   const [deliveryMethod, setDeliveryMethod] = useState('Push')
@@ -139,12 +137,12 @@ export default function SSFConfiguration() {
         events_supported: events.map((e) => e.id),
         events_meta: events.map((e) => ({ id: e.id, name: e.name, desc: e.desc })),
       })
-      enqueueSnackbar(t('auth.sso.ssf_save_success', 'SSF configuration saved successfully'), { variant: 'success' })
+      toast.success(t('auth.sso.ssf_save_success', 'SSF configuration saved successfully'))
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : t('auth.sso.error_save_ssf', 'Failed to save SSF configuration')
-      enqueueSnackbar(errorMessage, { variant: 'error' })
+      toast.error(errorMessage)
     }
-  }, [ssfEnabled, issuerUrl, deliveryMethod, events, updateConfig, enqueueSnackbar, t])
+  }, [ssfEnabled, issuerUrl, deliveryMethod, events, updateConfig,  t])
 
   const handleToggleEvent = useCallback((eventId: string) => {
     setEvents((prev) => prev.map((event) => (event.id === eventId ? { ...event, enabled: !event.enabled } : event)))
@@ -177,26 +175,26 @@ export default function SSFConfiguration() {
 
   const handleConfirmAddEvent = useCallback(() => {
     if (!newEvent.id || !newEvent.name) {
-      enqueueSnackbar(t('auth.sso.error_missing_event_info', 'Event ID and Name are required'), { variant: 'warning' })
+      toast.warning(t('auth.sso.error_missing_event_info', 'Event ID and Name are required'))
       return
     }
 
     if (events.some(e => e.id === newEvent.id)) {
-      enqueueSnackbar(t('auth.sso.error_event_exists', 'An event with this ID already exists'), { variant: 'error' })
+      toast.error(t('auth.sso.error_event_exists', 'An event with this ID already exists'))
       return
     }
 
     setEvents(prev => [...prev, { ...newEvent, enabled: true }])
     setAddEventDialogOpen(false)
-    enqueueSnackbar(t('auth.sso.event_added_success', 'New event type added locally. Save to persist.'), { variant: 'success' })
-  }, [newEvent, events, enqueueSnackbar, t])
+    toast.success(t('auth.sso.event_added_success', 'New event type added locally. Save to persist.'))
+  }, [newEvent, events,  t])
 
 
 
   const handleCopyJwksUrlClick = useCallback(() => {
     navigator.clipboard.writeText(`${window.location.origin}/.well-known/jwks.json`)
-    enqueueSnackbar(t('common.copied_item', { item: 'JWKS URL', defaultValue: 'JWKS URL copied to clipboard' }), { variant: 'success' })
-  }, [enqueueSnackbar, t])
+    toast.success(t('common.copied_item', { item: 'JWKS URL', defaultValue: 'JWKS URL copied to clipboard' }))
+  }, [ t])
 
   if (isLoading || isHistoryLoading) {
     return (

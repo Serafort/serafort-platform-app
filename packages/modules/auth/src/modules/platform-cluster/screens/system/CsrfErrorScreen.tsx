@@ -5,7 +5,10 @@ import {
   AuthScreenIcon,
   AuthActionButton,
 } from "@idaas/authentication-core/components/shared/auth"
-import { SecurityUpdateWarning, HelpOutline, Refresh, Home } from '@mui/icons-material'
+import SecurityUpdateWarning from '@mui/icons-material/SecurityUpdateWarning';
+import HelpOutline from '@mui/icons-material/HelpOutline';
+import Refresh from '@mui/icons-material/Refresh';
+import Home from '@mui/icons-material/Home';
 
 import { useTranslation } from 'react-i18next'
 import { apiClient } from '@cap/platform-core'

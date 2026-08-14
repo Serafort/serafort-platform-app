@@ -14,7 +14,7 @@ import Info from '@mui/icons-material/Info';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import Security from '@mui/icons-material/Security';
 import { useTranslation } from 'react-i18next';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSAMLConfig, useSAMLMetadata, useRemoteMetadata } from '@auth';
@@ -131,7 +131,6 @@ export default function SAMLMetadataDisplay() {
   const theme = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
-  const { enqueueSnackbar } = useSnackbar()
   const [tabValue, setTabValue] = useState(0)
 
   const queryParams = new URLSearchParams(location.search)
@@ -217,20 +216,16 @@ export default function SAMLMetadataDisplay() {
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      enqueueSnackbar(t('common.copied_to_clipboard', 'Copied to clipboard!'), {
-        variant: 'success',
-      })
+      toast.error(t('common.copied_to_clipboard', 'Copied to clipboard!'))
     } catch {
-      enqueueSnackbar(t('common.copy_failed', 'Copy failed'), { variant: 'error' })
+      toast.warning(t('common.copy_failed', 'Copy failed'))
     }
   }
 
   const handleDownloadXml = () => {
     try {
       if (!metadata.xml) {
-        enqueueSnackbar(t('auth.sso.no_xml_data', 'No XML data available to download'), {
-          variant: 'warning',
-        })
+        toast(t('auth.sso.no_xml_data', 'No XML data available to download'), {  })
         return
       }
 
@@ -245,13 +240,9 @@ export default function SAMLMetadataDisplay() {
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
 
-      enqueueSnackbar(t('auth.sso.download_started', 'Metadata download started'), {
-        variant: 'success',
-      })
+      toast.success(t('auth.sso.download_started', 'Metadata download started'), {  })
     } catch (error) {
-      enqueueSnackbar(t('auth.sso.download_failed', 'Failed to download metadata'), {
-        variant: 'error',
-      })
+      toast.error(t('auth.sso.download_failed', 'Failed to download metadata'), {  })
     }
   }
 

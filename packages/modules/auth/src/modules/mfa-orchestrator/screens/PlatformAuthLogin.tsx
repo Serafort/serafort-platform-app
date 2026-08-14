@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Box, Button, Container, Typography, CircularProgress, alpha } from '@mui/material'
-import { Fingerprint, Lock, ArrowForward } from '@mui/icons-material'
+import Fingerprint from '@mui/icons-material/Fingerprint';
+import Lock from '@mui/icons-material/Lock';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { useTranslation } from 'react-i18next'
 
 export default function PlatformAuthLogin() {

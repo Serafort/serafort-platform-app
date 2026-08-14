@@ -5,7 +5,7 @@ import { isObjectEmpty, Roles, useAppStore, type LayoutOverride } from '@cap/pla
 import { useSessionGuard } from '@cap/module-auth/modules/session-manager/middlewares/useSessionGuard'
 import Page403Forbidden from '@cap/module-auth/modules/platform-cluster/screens/system/Page403Forbidden'
 import { Path } from '@cap/module-auth/routes/path'
-import { normalizeAuthUser } from '@idaas/authentication-core/utils/normalizeAuthUser'
+import { useCan } from '@cap/authorization'
 
 interface AdminRouteProps {
   element: ReactNode
@@ -13,28 +13,26 @@ interface AdminRouteProps {
   layout?: LayoutOverride
 }
 
-// Moved constants inside component to avoid temporal dead zone / circular dependency issues with Roles enum
 const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: AdminRouteProps) => {
   const { isLoading, sessionError, isAuthenticated, user } = useSessionGuard()
   const location = useLocation()
   const navigate = useNavigate()
   const updateLayoutOverride = useAppStore((state) => state.updateLayoutOverride)
 
+  const canAccessAdminPage = useCan('access', { type: 'admin_route' })
+  const hasMinimumRolePermission = useCan('access', { type: 'admin_route', attributes: { minimumRole } })
+
   React.useEffect(() => {
     if (layout !== 'none') {
       updateLayoutOverride(layout)
       // Only reset to none if we are NOT an admin, to allow layout persistence for admins
       return () => {
-        const ADMIN_ROLES: Roles[] = [Roles.ADMIN, Roles.SUPERADMINEMPLOYEE, Roles.SUPERADMIN]
-        const isAdminSession = ADMIN_ROLES.includes(
-          (normalizeAuthUser(user)?.role as Roles) || Roles.USER,
-        )
-        if (!isAdminSession) {
+        if (!canAccessAdminPage) {
           updateLayoutOverride('none')
         }
       }
     }
-  }, [layout, updateLayoutOverride, user])
+  }, [layout, updateLayoutOverride, canAccessAdminPage])
 
   if (isLoading) {
     return (
@@ -74,33 +72,11 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
     return <Navigate to={Path.auth.signin} replace state={{ from: location }} />
   }
 
-  // Securely resolve user data and role
-  const userData: any = normalizeAuthUser(user)
-
-  const userRole = (userData?.role as Roles) || Roles.USER
-
-  // Strict role check using Roles enum values
-  const ADMIN_ROLES: Roles[] = [Roles.ADMIN, Roles.SUPERADMINEMPLOYEE, Roles.SUPERADMIN]
-  const isAdmin = ADMIN_ROLES.includes(userRole)
-
-  if (!isAdmin) {
+  if (!canAccessAdminPage) {
     return <Page403Forbidden />
   }
 
-  const getRank = (role: any) => {
-    const ROLE_RANK: Record<string, number> = {
-      [Roles.USER]: 10,
-      [Roles.ADMIN]: 50,
-      [Roles.SUPERADMINEMPLOYEE]: 80,
-      [Roles.SUPERADMIN]: 100,
-    }
-    return ROLE_RANK[String(role)] ?? 0
-  }
-
-  const userRank = getRank(userRole)
-  const minRank = getRank(minimumRole)
-
-  if (userRank < minRank) {
+  if (!hasMinimumRolePermission) {
     return (
       <Box
         sx={{

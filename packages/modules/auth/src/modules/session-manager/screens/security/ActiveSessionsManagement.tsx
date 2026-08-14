@@ -1,9 +1,18 @@
 import React from 'react';
 import { Box, Typography, Card, CardContent, Avatar, Button, Grid, List, ListItem, ListItemIcon, ListItemText, Chip, Divider, Container, Paper, IconButton, Alert, AlertTitle, Tooltip, Stack, Skeleton } from '@mui/material';
-import { Computer, Smartphone, Laptop, Tablet, LocationOn, Security, ArrowForward, DeleteOutline, InfoOutlined, Refresh } from '@mui/icons-material';
+import Computer from '@mui/icons-material/Computer';
+import Smartphone from '@mui/icons-material/Smartphone';
+import Laptop from '@mui/icons-material/Laptop';
+import Tablet from '@mui/icons-material/Tablet';
+import LocationOn from '@mui/icons-material/LocationOn';
+import Security from '@mui/icons-material/Security';
+import ArrowForward from '@mui/icons-material/ArrowForward';
+import DeleteOutline from '@mui/icons-material/DeleteOutline';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import Refresh from '@mui/icons-material/Refresh';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { useSessions, useRevokeSession, useRevokeAllSessions, Path, UserSession } from '@auth';
 
 interface ActiveSessionsProps {
@@ -15,8 +24,6 @@ interface ActiveSessionsProps {
 const ActiveSessionsManagement = ({ adminView, userName, userId }: ActiveSessionsProps) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
-
   // Queries
   const { data: response, isLoading, refetch } = useSessions()
   const sessions = response?.data?.sessions || []
@@ -24,27 +31,20 @@ const ActiveSessionsManagement = ({ adminView, userName, userId }: ActiveSession
   // Mutations
   const { mutate: revoke, isPending: isRevoking } = useRevokeSession({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.account.session_revoked', 'Session revoked successfully'), {
-        variant: 'success',
-      })
+      toast.success(t('auth.account.session_revoked', 'Session revoked successfully'), {  })
     },
     onError: (error: any) => {
-      enqueueSnackbar(error.message || t('auth.account.revoke_failed', 'Failed to revoke session'), {
-        variant: 'error',
-      })
+      toast.error(error.message || t('auth.account.revoke_failed', 'Failed to revoke session'), {  })
     },
   })
 
   const { mutate: revokeAll, isPending: isRevokingAll } = useRevokeAllSessions({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.account.all_others_revoked', 'All other sessions revoked'), {
-        variant: 'success',
-      })
+      toast.success(t('auth.account.all_others_revoked', 'All other sessions revoked'), {  })
     },
     onError: (error: any) => {
-      enqueueSnackbar(
-        error.message || t('auth.account.revoke_all_failed', 'Failed to revoke all sessions'),
-        { variant: 'error' },
+      toast.error(
+        error.message || t('auth.account.revoke_all_failed', 'Failed to revoke all sessions')
       )
     },
   })

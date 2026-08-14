@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Card, CardContent, Divider, TextField, FormControlLabel, Switch, Breadcrumbs, Link, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-import { NavigateNext as NavigateNextIcon, Save as SaveIcon, Delete as DeleteIcon, Settings as SettingsIcon, Security as SecurityIcon } from '@mui/icons-material';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SettingsIcon from '@mui/icons-material/Settings';
+import SecurityIcon from '@mui/icons-material/Security';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Path } from '@cap/module-auth/routes/path';

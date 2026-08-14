@@ -25,7 +25,13 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import { Add, LaptopMac, Smartphone, Usb, MoreVert, Edit, Delete } from '@mui/icons-material'
+import Add from '@mui/icons-material/Add';
+import LaptopMac from '@mui/icons-material/LaptopMac';
+import Smartphone from '@mui/icons-material/Smartphone';
+import Usb from '@mui/icons-material/Usb';
+import MoreVert from '@mui/icons-material/MoreVert';
+import Edit from '@mui/icons-material/Edit';
+import Delete from '@mui/icons-material/Delete';
 import { useTranslation } from 'react-i18next'
 import { useUserPasskeys, useDeletePasskey, useUpdatePasskey } from '@auth/modules/user-directory/hooks'
 import PasskeySetup from './PasskeySetup'

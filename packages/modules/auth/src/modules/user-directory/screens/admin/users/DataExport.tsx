@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Alert, CircularProgress } from '@mui/material';
-import { Download, History, CheckCircle, Pending, CloudDownload, Delete } from '@mui/icons-material';
+import Download from '@mui/icons-material/Download';
+import History from '@mui/icons-material/History';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import Pending from '@mui/icons-material/Pending';
+import CloudDownload from '@mui/icons-material/CloudDownload';
+import Delete from '@mui/icons-material/Delete';
 import { adminService } from '../../../../authorization-engine/services/adminService';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
 
 const DataExport = () => {
   const { id: userId } = useParams()
-  const { enqueueSnackbar } = useSnackbar()
   const [loading, setLoading] = useState(false)
   const [requesting, setRequesting] = useState(false)
   const [exports, setExports] = useState<any[]>([])
@@ -36,10 +40,10 @@ const DataExport = () => {
     setRequesting(true)
     try {
       await adminService.requestDataExport(Number(userId))
-      enqueueSnackbar('Data export request submitted. You will be notified when it is ready.', { variant: 'success' })
+      toast.success('Data export request submitted. You will be notified when it is ready.')
       fetchExports()
     } catch (error) {
-      enqueueSnackbar('Failed to request data export', { variant: 'error' })
+      toast.error('Failed to request data export')
     } finally {
       setRequesting(false)
     }

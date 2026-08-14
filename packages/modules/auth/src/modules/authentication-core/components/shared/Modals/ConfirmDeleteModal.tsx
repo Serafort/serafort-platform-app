@@ -1,6 +1,6 @@
 
 import { Dialog, Button, Box, Typography } from '@mui/material';
-import { ErrorOutline } from '@mui/icons-material';
+import ErrorOutline from '@mui/icons-material/ErrorOutline';
 import { useTranslation } from 'react-i18next';
 
 interface ConfirmDeleteModalProps {

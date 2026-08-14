@@ -1,9 +1,22 @@
 import React, { useState, useRef } from 'react';
 import { Box, Typography, Card, CardContent, Grid, Chip, Button, Avatar, Divider, Stack, Tab, Tabs, List, ListItem, ListItemText, ListItemIcon, Switch, FormControlLabel, alpha, CircularProgress, Alert, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 
-import { AdminPanelSettings, Security, History, Block, VpnKey, Login, Info, Edit, Gavel, Verified, Add, Shield, Delete, PriorityHigh } from '@mui/icons-material';
+import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings';
+import Security from '@mui/icons-material/Security';
+import History from '@mui/icons-material/History';
+import Block from '@mui/icons-material/Block';
+import VpnKey from '@mui/icons-material/VpnKey';
+import Login from '@mui/icons-material/Login';
+import Info from '@mui/icons-material/Info';
+import Edit from '@mui/icons-material/Edit';
+import Gavel from '@mui/icons-material/Gavel';
+import Verified from '@mui/icons-material/Verified';
+import Add from '@mui/icons-material/Add';
+import Shield from '@mui/icons-material/Shield';
+import Delete from '@mui/icons-material/Delete';
+import PriorityHigh from '@mui/icons-material/PriorityHigh';
 import { useTranslation } from 'react-i18next';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Path } from '@cap/module-auth/routes/path';
 
@@ -30,7 +43,6 @@ function TabPanel(props: TabPanelProps) {
 
 export default function AdminUserProfile() {
   const { t } = useTranslation('common')
-  const { enqueueSnackbar } = useSnackbar()
   const { id } = useParams()
   const navigate = useNavigate()
   const [tab, setTab] = useState(0)
@@ -71,10 +83,10 @@ export default function AdminUserProfile() {
     unbanUserMutation.mutate(userData.id, {
       onSuccess: () => {
         setConfirmUnbanOpen(false)
-        enqueueSnackbar('User has been unbanned successfully', { variant: 'success' })
+        toast.success('User has been unbanned successfully')
       },
       onError: (error: any) => {
-        enqueueSnackbar(error.message || 'Failed to unban user', { variant: 'error' })
+        toast.error(error.message || 'Failed to unban user')
       },
     })
   }
@@ -87,10 +99,10 @@ export default function AdminUserProfile() {
       {
         onSuccess: () => {
           setConfirmBanOpen(false)
-          enqueueSnackbar(t('auth.admin.successBan'), { variant: 'success' })
+          toast.success(t('auth.admin.successBan'))
         },
         onError: (error: any) => {
-          enqueueSnackbar(error.message || t('auth.admin.errorBan'), { variant: 'error' })
+          toast.error(error.message || t('auth.admin.errorBan'))
         },
         onSettled: () => {
           banLockRef.current = false
@@ -105,13 +117,13 @@ export default function AdminUserProfile() {
         onSuccess: (res) => {
           const token = (res.data as any).token || (res as any).token
           if (token) {
-            enqueueSnackbar(t('auth.admin.successImpersonate'), { variant: 'success' })
+            toast.success(t('auth.admin.successImpersonate'))
             const impersonateUrl = `/impersonate?token=${encodeURIComponent(token)}`
             window.open(impersonateUrl, '_blank')
           }
         },
         onError: (error: any) => {
-          enqueueSnackbar(error.message || t('auth.admin.errorImpersonate'), { variant: 'error' })
+          toast.error(error.message || t('auth.admin.errorImpersonate'))
         },
       })
     }
@@ -146,10 +158,10 @@ export default function AdminUserProfile() {
       resetMfaMutation.mutate(userData.id, {
         onSuccess: () => {
           setConfirmResetMfaOpen(false)
-          enqueueSnackbar(t('auth.admin.successMfaReset'), { variant: 'success' })
+          toast.success(t('auth.admin.successMfaReset'))
         },
         onError: (error: any) => {
-          enqueueSnackbar(error.message || t('auth.admin.errorMfaReset'), { variant: 'error' })
+          toast.error(error.message || t('auth.admin.errorMfaReset'))
         },
       })
     }
@@ -164,10 +176,10 @@ export default function AdminUserProfile() {
         },
         {
           onSuccess: () => {
-            enqueueSnackbar(t('auth.admin.successBan'), { variant: 'success' })
+            toast.success(t('auth.admin.successBan'))
           },
           onError: (error: any) => {
-            enqueueSnackbar(error.message || t('auth.admin.errorBan'), { variant: 'error' })
+            toast.error(error.message || t('auth.admin.errorBan'))
           },
         },
       )
@@ -183,10 +195,10 @@ export default function AdminUserProfile() {
         },
         {
           onSuccess: () => {
-            enqueueSnackbar(t('auth.admin.successBan'), { variant: 'success' })
+            toast.success(t('auth.admin.successBan'))
           },
           onError: (error: any) => {
-            enqueueSnackbar(error.message || t('auth.admin.errorBan'), { variant: 'error' })
+            toast.error(error.message || t('auth.admin.errorBan'))
           },
         },
       )
@@ -710,7 +722,6 @@ interface PermissionOverrideUI {
 }
 
 function PermissionOverrideTab({ userId }: { userId: number }) {
-  const { enqueueSnackbar } = useSnackbar()
   const [overrides, setOverrides] = useState<PermissionOverrideUI[]>([])
   const [loading, setLoading] = useState(true)
   const [addDialogOpen, setAddDialogOpen] = useState(false)
@@ -728,7 +739,7 @@ function PermissionOverrideTab({ userId }: { userId: number }) {
         { id: 1, resource: 'vault:secrets', action: 'read', effect: 'allow', memberId: userId, permissionId: 0, grant: true, organizationId: orgId }
       ])
     } catch (error) {
-      enqueueSnackbar('Failed to load permission overrides', { variant: 'error' })
+      toast.error('Failed to load permission overrides')
     } finally {
       setLoading(false)
     }
@@ -746,11 +757,11 @@ function PermissionOverrideTab({ userId }: { userId: number }) {
         permissionId: 0, // Would be a real permissionId from a permission picker
         grant: newOverride.effect === 'allow',
       })
-      enqueueSnackbar('Override added successfully', { variant: 'success' })
+      toast.success('Override added successfully')
       setAddDialogOpen(false)
       fetchOverrides()
     } catch (error) {
-      enqueueSnackbar('Failed to add override', { variant: 'error' })
+      toast.error('Failed to add override')
     } finally {
       setSubmitting(false)
     }
@@ -759,10 +770,10 @@ function PermissionOverrideTab({ userId }: { userId: number }) {
   const handleDeleteOverride = async (overrideId: number) => {
     try {
       await adminService.removeMemberOverride(userId, 1, overrideId)
-      enqueueSnackbar('Override removed', { variant: 'info' })
+      toast.info('Override removed')
       fetchOverrides()
     } catch (error) {
-      enqueueSnackbar('Failed to remove override', { variant: 'error' })
+      toast.error('Failed to remove override')
     }
   }
 

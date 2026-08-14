@@ -1,7 +1,10 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import { Box, Button, Card, CardContent, Typography, Divider, List, ListItem, ListItemText, ListItemIcon, CircularProgress, Alert, Paper, Avatar } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
-import { Download as DownloadIcon, FilePresent as FileIcon, History as HistoryIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
+import DownloadIcon from '@mui/icons-material/Download';
+import FileIcon from '@mui/icons-material/FilePresent';
+import HistoryIcon from '@mui/icons-material/History';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 import { buildLayoutSurfaceEffect } from '@cap/layout';
 import { getTenantThemeEffects } from '@cap/theme';
 // 

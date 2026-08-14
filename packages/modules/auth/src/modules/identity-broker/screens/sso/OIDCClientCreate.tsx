@@ -16,7 +16,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { Path, useCreateOIDCClient } from '@auth';
 import { buildLayoutSurfaceEffect } from '@cap/layout';
 import { getTenantThemeEffects } from '@cap/theme';
@@ -34,7 +34,6 @@ export default function OIDCClientCreate() {
   const { t } = useTranslation()
   const theme = useTheme()
 
-  const { enqueueSnackbar } = useSnackbar()
   const createMutation = useCreateOIDCClient()
 
   // State to hold the newly created client credentials (shown only once)
@@ -69,7 +68,7 @@ export default function OIDCClientCreate() {
     createMutation.mutate(payload as any, {
       onSuccess: (res) => {
         if (res.data) {
-          enqueueSnackbar(t('auth.sso.client_created', 'OIDC Client registered successfully'), { variant: 'success' })
+          toast.success(t('auth.sso.client_created', 'OIDC Client registered successfully'))
           setNewCredentials({
             clientId: res.data.client_id,
             clientSecret: res.data.client_secret || '',
@@ -77,14 +76,14 @@ export default function OIDCClientCreate() {
         }
       },
       onError: (err: any) => {
-        enqueueSnackbar(err.message || t('auth.sso.client_create_error', 'Failed to create client'), { variant: 'error' })
+        toast.error(err.message || t('auth.sso.client_create_error', 'Failed to create client'))
       },
     })
   }
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
-    enqueueSnackbar(t('common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }), { variant: 'success' })
+    toast.success(t('common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }))
   }
 
   return (

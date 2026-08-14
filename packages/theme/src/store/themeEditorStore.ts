@@ -44,7 +44,7 @@ export const themeEditorStore = {
   startEditing(initialConfig: TenantThemeConfig) {
     state = {
       isEditing: true,
-      draftConfig: JSON.parse(JSON.stringify(initialConfig)),
+      draftConfig: structuredClone(initialConfig),
     };
     syncDOMVariables(state.draftConfig);
     notify();

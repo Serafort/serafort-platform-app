@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { Box, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, IconButton, TextField, InputAdornment } from '@mui/material';
-import { Add, Search, VpnKey, CheckCircle } from '@mui/icons-material';
+import Add from '@mui/icons-material/Add';
+import Search from '@mui/icons-material/Search';
+import VpnKey from '@mui/icons-material/VpnKey';
+import CheckCircle from '@mui/icons-material/CheckCircle';
 ;
 import { adminService, DeveloperApiKey } from '../../services/adminService';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from '@mui/material';
-import { ContentCopy, Delete } from '@mui/icons-material';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import Delete from '@mui/icons-material/Delete';
 
 const MachineIdentityManagement = () => {
 
-  const { enqueueSnackbar } = useSnackbar()
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
   const [identities, setIdentities] = useState<DeveloperApiKey[]>([])
@@ -27,7 +30,7 @@ const MachineIdentityManagement = () => {
       const response = await adminService.getDeveloperApiKeys(orgId)
       setIdentities(response.data || [])
     } catch (error) {
-      enqueueSnackbar('Failed to fetch API keys', { variant: 'error' })
+      toast.error('Failed to fetch API keys')
     } finally {
       setLoading(false)
     }
@@ -43,10 +46,10 @@ const MachineIdentityManagement = () => {
       if (response.data) {
         setCreatedKey(response.data.key)
         fetchKeys()
-        enqueueSnackbar('API Key created successfully', { variant: 'success' })
+        toast.success('API Key created successfully')
       }
     } catch (error) {
-      enqueueSnackbar('Failed to create API key', { variant: 'error' })
+      toast.error('Failed to create API key')
     }
   }
 
@@ -56,15 +59,15 @@ const MachineIdentityManagement = () => {
     try {
       await adminService.revokeDeveloperApiKey(orgId, keyId)
       fetchKeys()
-      enqueueSnackbar('API Key revoked', { variant: 'success' })
+      toast.success('API Key revoked')
     } catch (error) {
-      enqueueSnackbar('Failed to revoke API key', { variant: 'error' })
+      toast.error('Failed to revoke API key')
     }
   }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    enqueueSnackbar('Copied to clipboard', { variant: 'info' })
+    toast.info('Copied to clipboard')
   }
 
   const filteredIdentities = identities.filter(id => 

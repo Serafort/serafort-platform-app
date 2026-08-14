@@ -27,49 +27,69 @@ const Layout: React.FC<ChildrenType> = ({ children }) => {
   // Reactive admin state directly from the store
   const { isAdmin } = useAuth()
 
+  const publicLayoutElement = React.useMemo(
+    () => (
+      <PublicLayout header={<NavbarWrapper />} footer={<PublicFooter />}>
+        {children}
+      </PublicLayout>
+    ),
+    [children]
+  )
+
+  const verticalLayoutElement = React.useMemo(
+    () => (
+      <VerticalLayout
+        navigation={
+          <VerticalNavigation key={isAdmin ? 'admin' : 'vertical'} mode={mode} systemMode={systemMode}>
+            {(scrollMenu: any) =>
+              isAdmin
+                ? <AdminMenu dictionary={dictionary} scrollMenu={scrollMenu} />
+                : <VerticalMenu dictionary={dictionary} scrollMenu={scrollMenu} />
+            }
+          </VerticalNavigation>
+        }
+        navbar={<Navbar />}
+        footer={<VerticalFooter />}
+      >
+        {children}
+      </VerticalLayout>
+    ),
+    [children, isAdmin, mode, systemMode, dictionary]
+  )
+
+  const horizontalLayoutElement = React.useMemo(
+    () => (
+      <HorizontalLayout
+        header={
+          <Header
+            navbarContent={<HorizontalNavbarContent />}
+            navigation={
+              <HorizontalNavigation menu={<HorizontalMenu dictionary={dictionary} />} />
+            }
+          />
+        }
+        footer={<HorizontalFooter />}
+      >
+        {children}
+      </HorizontalLayout>
+    ),
+    [children, dictionary]
+  )
+
+  const noLayoutElement = React.useMemo(
+    () => <React.Fragment>{children}</React.Fragment>,
+    [children]
+  )
+
   return (
     <React.Fragment>
       <SkipToContent />
       <LayoutWrapper
         systemMode={systemMode}
-        publicLayout={
-          <PublicLayout header={<NavbarWrapper />} footer={<PublicFooter />}>
-            {children}
-          </PublicLayout>
-        }
-        verticalLayout={
-          <VerticalLayout
-            navigation={
-              <VerticalNavigation key={isAdmin ? 'admin' : 'vertical'} mode={mode} systemMode={systemMode}>
-                {(scrollMenu: any) =>
-                  isAdmin
-                    ? <AdminMenu dictionary={dictionary} scrollMenu={scrollMenu} />
-                    : <VerticalMenu dictionary={dictionary} scrollMenu={scrollMenu} />
-                }
-              </VerticalNavigation>
-            }
-            navbar={<Navbar />}
-            footer={<VerticalFooter />}
-          >
-            {children}
-          </VerticalLayout>
-        }
-        horizontalLayout={
-          <HorizontalLayout
-            header={
-              <Header
-                navbarContent={<HorizontalNavbarContent />}
-                navigation={
-                  <HorizontalNavigation menu={<HorizontalMenu dictionary={dictionary} />} />
-                }
-              />
-            }
-            footer={<HorizontalFooter />}
-          >
-            {children}
-          </HorizontalLayout>
-        }
-        noLayout={<React.Fragment>{children}</React.Fragment>}
+        publicLayout={publicLayoutElement}
+        verticalLayout={verticalLayoutElement}
+        horizontalLayout={horizontalLayoutElement}
+        noLayout={noLayoutElement}
       />
       <ScrollToTop className='mui-fixed'>
         <Button

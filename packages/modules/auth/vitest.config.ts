@@ -20,9 +20,14 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, './src'),
       '@auth': resolve(__dirname, './src'),
+      '@cap/module-auth': resolve(__dirname, './src'),
+      '@idaas': resolve(__dirname, './src/modules'),
       '@cap/platform-core': resolve(__dirname, '../../platform-core/src'),
       '@cap/platform-store': resolve(__dirname, '../../platform-store/src'),
       '@cap/shared-types': resolve(__dirname, '../../shared-types/src'),
+      '@cap/layout': resolve(__dirname, '../../layout/src'),
+      '@cap/theme': resolve(__dirname, '../../theme/src'),
+      '@cap/authorization': resolve(__dirname, '../../authorization/src'),
     },
   },
 })

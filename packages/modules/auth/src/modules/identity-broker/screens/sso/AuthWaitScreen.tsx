@@ -14,7 +14,8 @@ import {
   Button,
   Alert,
 } from '@mui/material'
-import { Security, Lock } from '@mui/icons-material'
+import Security from '@mui/icons-material/Security';
+import Lock from '@mui/icons-material/Lock';
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'

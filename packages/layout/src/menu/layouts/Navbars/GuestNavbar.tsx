@@ -188,6 +188,9 @@ const GuestNavbar = () => {
               {/* Mobile Menu Button */}
               <IconButton
                 onClick={toggleMobileMenu}
+                aria-label={mobileMenuOpen ? t('navigation.closeMenu') : t('navigation.openMenu')}
+                aria-expanded={mobileMenuOpen}
+                aria-controls='guest-mobile-nav'
                 sx={{
                   display: { xs: 'flex', md: 'none' },
                   width: guestNavbarTokens.layout.mobileMenuButtonSize,

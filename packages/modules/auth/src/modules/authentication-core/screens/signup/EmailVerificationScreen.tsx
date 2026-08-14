@@ -4,7 +4,9 @@ import {
   Box, Button, Typography, Alert, Avatar, CircularProgress,
   Link as MuiLink, alpha, useTheme, Stack,
 } from '@mui/material'
-import { Verified, ErrorOutline, ArrowForward } from '@mui/icons-material'
+import Verified from '@mui/icons-material/Verified';
+import ErrorOutline from '@mui/icons-material/ErrorOutline';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { FetchResponse } from '@cap/platform-core'

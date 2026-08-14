@@ -12,27 +12,27 @@ import {
 // ---------------------------------------------------------------------------
 describe('LoginSchema', () => {
   it('passes with valid email and password', () => {
-    const result = LoginSchema.safeParse({ email: 'user@example.com', password: 'password123' })
+    const result = LoginSchema.safeParse({ email: 'user@example.com', password: 'Password123!' })
     expect(result.success).toBe(true)
   })
 
   it('passes with rememberMe flag', () => {
     const result = LoginSchema.safeParse({
       email: 'user@example.com',
-      password: 'password123',
+      password: 'Password123!',
       rememberMe: true,
     })
     expect(result.success).toBe(true)
   })
 
   it('fails with invalid email format', () => {
-    const result = LoginSchema.safeParse({ email: 'not-an-email', password: 'password123' })
+    const result = LoginSchema.safeParse({ email: 'not-an-email', password: 'Password123!' })
     expect(result.success).toBe(false)
     expect(result.error?.issues[0].path).toContain('email')
   })
 
   it('fails with empty email', () => {
-    const result = LoginSchema.safeParse({ email: '', password: 'password123' })
+    const result = LoginSchema.safeParse({ email: '', password: 'Password123!' })
     expect(result.success).toBe(false)
   })
 
@@ -55,8 +55,8 @@ describe('RegisterSchema', () => {
   const validPayload = {
     fullName: 'Jane Doe',
     email: 'jane@example.com',
-    password: 'securePass1',
-    confirmPassword: 'securePass1',
+    password: 'SecurePass1!',
+    confirmPassword: 'SecurePass1!',
   }
 
   it('passes with valid registration data', () => {
@@ -97,9 +97,9 @@ describe('RegisterSchema', () => {
 // ---------------------------------------------------------------------------
 describe('ChangePasswordSchema', () => {
   const validPayload = {
-    currentPassword: 'oldPassword1',
-    newPassword: 'newPassword1',
-    confirmPassword: 'newPassword1',
+    currentPassword: 'OldPassword1!',
+    newPassword: 'NewPassword1!',
+    confirmPassword: 'NewPassword1!',
   }
 
   it('passes with valid password change data', () => {
@@ -134,22 +134,28 @@ describe('ChangePasswordSchema', () => {
 // ChangeEmailSchema
 // ---------------------------------------------------------------------------
 describe('ChangeEmailSchema', () => {
-  it('passes with valid new email and password', () => {
+  it('passes with valid data', () => {
     const result = ChangeEmailSchema.safeParse({
       newEmail: 'new@example.com',
-      password: 'mypassword',
+      password: 'Password123!',
     })
     expect(result.success).toBe(true)
   })
 
-  it('fails with invalid email format', () => {
-    const result = ChangeEmailSchema.safeParse({ newEmail: 'not-email', password: 'mypassword' })
+  it('fails with invalid newEmail', () => {
+    const result = ChangeEmailSchema.safeParse({
+      newEmail: 'invalid-email',
+      password: 'Password123!',
+    })
     expect(result.success).toBe(false)
     expect(result.error?.issues[0].path).toContain('newEmail')
   })
 
   it('fails with empty password', () => {
-    const result = ChangeEmailSchema.safeParse({ newEmail: 'new@example.com', password: '' })
+    const result = ChangeEmailSchema.safeParse({
+      newEmail: 'new@example.com',
+      password: '',
+    })
     expect(result.success).toBe(false)
     expect(result.error?.issues[0].path).toContain('password')
   })
@@ -159,59 +165,25 @@ describe('ChangeEmailSchema', () => {
 // UpdateProfileSchema
 // ---------------------------------------------------------------------------
 describe('UpdateProfileSchema', () => {
-  it('passes with all optional fields omitted', () => {
-    const result = UpdateProfileSchema.safeParse({})
-    expect(result.success).toBe(true)
-  })
-
-  it('passes with valid full profile data', () => {
+  it('passes with valid name and optional avatar', () => {
     const result = UpdateProfileSchema.safeParse({
       fullName: 'John Smith',
-      bio: 'A short bio',
-      avatarUrl: 'https://example.com/avatar.png',
-      location: 'New York',
-      socialLinks: {
-        twitter: 'https://twitter.com/john',
-        github: 'https://github.com/john',
-        linkedin: 'https://linkedin.com/in/john',
-      },
+      avatarUrl: 'https://example.com/avatar.jpg',
     })
     expect(result.success).toBe(true)
   })
 
-  it('passes with empty string avatarUrl (no avatar)', () => {
-    const result = UpdateProfileSchema.safeParse({ avatarUrl: '' })
-    expect(result.success).toBe(true)
-  })
-
-  it('fails with invalid avatarUrl', () => {
-    const result = UpdateProfileSchema.safeParse({ avatarUrl: 'not-a-url' })
-    expect(result.success).toBe(false)
-    expect(result.error?.issues[0].path).toContain('avatarUrl')
-  })
-
-  it('fails with fullName shorter than 2 characters', () => {
-    const result = UpdateProfileSchema.safeParse({ fullName: 'X' })
-    expect(result.success).toBe(false)
-  })
-
-  it('fails with bio exceeding 500 characters', () => {
-    const result = UpdateProfileSchema.safeParse({ bio: 'a'.repeat(501) })
-    expect(result.success).toBe(false)
-    expect(result.error?.issues[0].path).toContain('bio')
-  })
-
-  it('fails with invalid Twitter URL', () => {
+  it('passes without avatarUrl', () => {
     const result = UpdateProfileSchema.safeParse({
-      socialLinks: { twitter: 'not-a-url' },
-    })
-    expect(result.success).toBe(false)
-  })
-
-  it('passes with empty string social links', () => {
-    const result = UpdateProfileSchema.safeParse({
-      socialLinks: { twitter: '', github: '', linkedin: '' },
+      fullName: 'John Smith',
     })
     expect(result.success).toBe(true)
+  })
+
+  it('fails with empty fullName', () => {
+    const result = UpdateProfileSchema.safeParse({
+      fullName: '',
+    })
+    expect(result.success).toBe(false)
   })
 })

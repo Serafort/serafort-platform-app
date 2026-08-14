@@ -14,15 +14,13 @@ import {
   ListItemText,
   alpha,
 } from '@mui/material'
-import {
-  Fingerprint,
-  Lock,
-  CheckCircle,
-  PhoneIphone,
-  Shield,
-  Speed,
-  ArrowForward,
-} from '@mui/icons-material'
+import Fingerprint from '@mui/icons-material/Fingerprint';
+import Lock from '@mui/icons-material/Lock';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import PhoneIphone from '@mui/icons-material/PhoneIphone';
+import Shield from '@mui/icons-material/Shield';
+import Speed from '@mui/icons-material/Speed';
+import ArrowForward from '@mui/icons-material/ArrowForward';
 import { useTranslation } from 'react-i18next'
 
 const BENEFITS = [

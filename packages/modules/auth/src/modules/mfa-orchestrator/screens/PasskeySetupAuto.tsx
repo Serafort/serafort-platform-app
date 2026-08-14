@@ -3,7 +3,8 @@ import {
   Box, Button, Typography, Dialog, DialogContent,
   CircularProgress, Link, Avatar, alpha, useTheme,
 } from '@mui/material'
-import { Fingerprint, Security } from '@mui/icons-material'
+import Fingerprint from '@mui/icons-material/Fingerprint';
+import Security from '@mui/icons-material/Security';
 import { useTranslation } from 'react-i18next'
 import { startRegistration } from '@simplewebauthn/browser'
 import { mfaService } from '../services/mfa.service'

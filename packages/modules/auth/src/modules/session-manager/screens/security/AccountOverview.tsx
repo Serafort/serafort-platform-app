@@ -1,6 +1,16 @@
 import { useMemo } from 'react';
 import { Box, Button, Typography, Alert, Card, CardContent, LinearProgress, Chip, useTheme, Link as MuiLink, CircularProgress } from '@mui/material';
-import { Shield, Edit, Warning, Devices, Link as LinkIcon, Api, LockOpen, Login, Key, LockReset, VerifiedUser } from '@mui/icons-material';
+import Shield from '@mui/icons-material/Shield';
+import Edit from '@mui/icons-material/Edit';
+import Warning from '@mui/icons-material/Warning';
+import Devices from '@mui/icons-material/Devices';
+import LinkIcon from '@mui/icons-material/Link';
+import Api from '@mui/icons-material/Api';
+import LockOpen from '@mui/icons-material/LockOpen';
+import Login from '@mui/icons-material/Login';
+import Key from '@mui/icons-material/Key';
+import LockReset from '@mui/icons-material/LockReset';
+import VerifiedUser from '@mui/icons-material/VerifiedUser';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Path } from '@auth/routes/path';

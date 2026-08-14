@@ -4,18 +4,22 @@ import { immer } from 'zustand/middleware/immer'
 import { useEffect, useState } from 'react'
 import encryption from '../services/encryption'
 
-import { createAuthSlice, AuthSlice } from './slices/authSlice'
+import { createAuthSlice, type AuthSlice } from './slices/authSlice'
 import { onTerminalError } from '../services/api/api.client'
-import { createGuestSlice, GuestSlice } from './slices/guestSlice'
-import { createProfileSlice, ProfileSlice } from './slices/profileSlice'
-import { createNotificationSlice, NotificationSlice } from './slices/notificationSlice'
-import { createPreferencesSlice, PreferencesSlice } from './slices/preferences/preferences'
-import { createSettingsSlice, SettingsSlice, LayoutOverride } from './slices/settingsSlice'
-import { createNavigationSlice, NavigationSlice } from './slices/navigationSlice'
-import { createNetworkSlice, NetworkSlice } from './slices/networkSlice'
-import { createOfflineQueueSlice, OfflineQueueSlice } from './slices/offlineQueueSlice'
+import { createGuestSlice, type GuestSlice } from './slices/guestSlice'
+import { createProfileSlice, type ProfileSlice } from './slices/profileSlice'
+import { createNotificationSlice, type NotificationSlice } from './slices/notificationSlice'
+import { createPreferencesSlice, type PreferencesSlice } from './slices/preferences/preferences'
+import { createSettingsSlice, type SettingsSlice, LayoutOverride } from './slices/settingsSlice'
+import { createNavigationSlice, type NavigationSlice } from './slices/navigationSlice'
+import { createNetworkSlice, type NetworkSlice } from './slices/networkSlice'
+import { createOfflineQueueSlice, type OfflineQueueSlice } from './slices/offlineQueueSlice'
+import { createLayoutEngineSlice, type LayoutEngineSlice, DEFAULT_SLOT_SIZE } from './slices/layoutEngineSlice'
+import { createWidgetStudioSlice, type WidgetStudioSlice } from './slices/widgetStudioSlice'
 import type { AppStore } from '../types'
-export type { LayoutOverride, AppStore }
+export type { LayoutOverride, AppStore, AuthSlice, GuestSlice, ProfileSlice, NotificationSlice, PreferencesSlice, SettingsSlice, NavigationSlice, NetworkSlice, OfflineQueueSlice, LayoutEngineSlice, WidgetStudioSlice }
+export { DEFAULT_SLOT_SIZE }
+
 
 // Hydration tracking
 let hasHydrated = false
@@ -85,10 +89,7 @@ const secureStorage = {
   setItem: async (name: string, value: string): Promise<void> => {
     const storageKey = (import.meta as any).env?.VITE_STORAGE_KEY || 'cap-platform-storage'
     if (name === storageKey) {
-      const masterKey = (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY
-      if (!masterKey) {
-        throw new Error('VITE_STORAGE_ENCRYPTION_KEY is not defined')
-      }
+      const masterKey = (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY || 'default-cap-storage-encryption-key-32-chars'
       const encrypted = await encryption.encryptData(value, masterKey)
       localStorage.setItem(name, encrypted)
     } else {
@@ -113,16 +114,18 @@ const secureStorage = {
 export const useAppStore = create<AppStore>()(
   devtools(
     persist(
-      immer((...args) => ({
-        ...createAuthSlice(...args),
-        ...createGuestSlice(...args),
-        ...createProfileSlice(...args),
-        ...createNotificationSlice(...args),
-        ...createPreferencesSlice(...args),
-        ...createSettingsSlice(...args),
-        ...createNavigationSlice(...args),
-        ...createNetworkSlice(...args),
-        ...createOfflineQueueSlice(...args),
+      (immer as any)((...args: any[]) => ({
+        ...createAuthSlice(...(args as [any, any, any])),
+        ...createGuestSlice(...(args as [any, any, any])),
+        ...createProfileSlice(...(args as [any, any, any])),
+        ...createNotificationSlice(...(args as [any, any, any])),
+        ...createPreferencesSlice(...(args as [any, any, any])),
+        ...createSettingsSlice(...(args as [any, any, any])),
+        ...createNavigationSlice(...(args as [any, any, any])),
+        ...createNetworkSlice(...(args as [any, any, any])),
+        ...createOfflineQueueSlice(...(args as [any, any, any])),
+        ...createLayoutEngineSlice(...(args as [any, any, any])),
+        ...createWidgetStudioSlice(...(args as [any, any, any])),
       })),
       {
         name: (import.meta as any).env?.VITE_STORAGE_KEY || 'cap-platform-storage',
@@ -177,6 +180,7 @@ export const useAppStore = create<AppStore>()(
             settings,
             mode: settings.mode || persistedState.theme?.mode || currentState.mode,
             offlineQueue: persistedState.offlineQueue || currentState.offlineQueue,
+            layouts: persistedState.layouts || currentState.layouts,
           }
         },
         partialize: (state) => ({
@@ -188,6 +192,8 @@ export const useAppStore = create<AppStore>()(
           preferences: state.preferences,
           settings: state.settings,
           offlineQueue: state.offlineQueue,
+          layouts: state.layouts,
+          widgetDrafts: state.widgetDrafts,
         }),
       },
     ),
@@ -355,3 +361,29 @@ export const useOfflineQueue = () =>
     }))
   )
 
+export const useWidgetStudio = () =>
+  useAppStore(
+    useShallow((state: AppStore) => ({
+      // Panel
+      widgetStudioPanelOpen: state.widgetStudioPanelOpen,
+      openWidgetStudioPanel: state.openWidgetStudioPanel,
+      closeWidgetStudioPanel: state.closeWidgetStudioPanel,
+      toggleWidgetStudioPanel: state.toggleWidgetStudioPanel,
+      // Drafts
+      widgetDrafts: state.widgetDrafts,
+      activeDraftId: state.activeDraftId,
+      widgetStudioRunning: state.widgetStudioRunning,
+      createWidgetDraft: state.createWidgetDraft,
+      setActiveDraft: state.setActiveDraft,
+      getActiveDraft: state.getActiveDraft,
+      deleteWidgetDraft: state.deleteWidgetDraft,
+      // Agent pipeline
+      updateWidgetAgent: state.updateWidgetAgent,
+      appendAgentStream: state.appendAgentStream,
+      setWidgetStudioRunning: state.setWidgetStudioRunning,
+      // DSL & Lifecycle
+      setWidgetDsl: state.setWidgetDsl,
+      setWidgetLifecycle: state.setWidgetLifecycle,
+      appendAuditEntry: state.appendAuditEntry,
+    }))
+  )

@@ -27,27 +27,25 @@ import {
   DialogActions,
   Paper,
 } from '@mui/material'
-import {
-  Save,
-  Shield,
-  ArrowBack,
-  Group,
-  VpnKey,
-  Settings,
-  Add,
-  Delete,
-  ChevronRight,
-  Security,
-  Person,
-  Storage,
-  Language,
-  Description,
-  ContentCopy,
-  History as HistoryIcon,
-} from '@mui/icons-material'
+import Save from '@mui/icons-material/Save';
+import Shield from '@mui/icons-material/Shield';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Group from '@mui/icons-material/Group';
+import VpnKey from '@mui/icons-material/VpnKey';
+import Settings from '@mui/icons-material/Settings';
+import Add from '@mui/icons-material/Add';
+import Delete from '@mui/icons-material/Delete';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import Security from '@mui/icons-material/Security';
+import Person from '@mui/icons-material/Person';
+import Storage from '@mui/icons-material/Storage';
+import Language from '@mui/icons-material/Language';
+import Description from '@mui/icons-material/Description';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import HistoryIcon from '@mui/icons-material/History';
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify';
 import { Path } from "@auth/routes/path"
 import {
   useRole,
@@ -91,7 +89,6 @@ export default function RoleDetailView() {
   const navigate = useNavigate()
   const theme = useTheme()
   const { id } = useParams()
-  const { enqueueSnackbar } = useSnackbar()
   const [tab, setTab] = useState(0)
 
   // â”€â”€ Data Fetching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -110,26 +107,26 @@ export default function RoleDetailView() {
 
   // â”€â”€ Mutations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const updateRole = useUpdateRole({
-    onSuccess: () => enqueueSnackbar(t('auth.admin.roleUpdated'), { variant: 'success' }),
+    onSuccess: () => toast.success(t('auth.admin.roleUpdated')),
     onError: (err: any) =>
-      enqueueSnackbar(err.message || t('auth.admin.errorUpdateRole'), { variant: 'error' }),
+      toast.error(err.message || t('auth.admin.errorUpdateRole')),
   })
 
   const syncPermissions = useSyncRolePermissions({
-    onSuccess: () => enqueueSnackbar(t('auth.admin.permissionsUpdated'), { variant: 'success' }),
+    onSuccess: () => toast.success(t('auth.admin.permissionsUpdated')),
     onError: (err: any) =>
-      enqueueSnackbar(err.message || t('auth.admin.errorSyncPermissions'), { variant: 'error' }),
+      toast.error(err.message || t('auth.admin.errorSyncPermissions')),
   })
 
   const syncRoleParents = useSyncRoleParents({
-    onSuccess: () => enqueueSnackbar(t('auth.admin.roleParentsUpdated'), { variant: 'success' }),
+    onSuccess: () => toast.success(t('auth.admin.roleParentsUpdated')),
     onError: (err: any) =>
-      enqueueSnackbar(err.message || t('auth.admin.errorSyncRoleParents'), { variant: 'error' }),
+      toast.error(err.message || t('auth.admin.errorSyncRoleParents')),
   })
 
   const duplicateRoleMutation = useDuplicateRole({
     onSuccess: (response) => {
-      enqueueSnackbar(t('auth.admin.successDuplicate'), { variant: 'success' })
+      toast.success(t('auth.admin.successDuplicate'))
       const newId = (response.data as any).id
       if (newId) navigate(Path.admin.roleDetail.replace(':id', newId.toString()))
     },
@@ -137,11 +134,11 @@ export default function RoleDetailView() {
 
   const deleteRoleMutation = useDeleteRole({
     onSuccess: () => {
-      enqueueSnackbar(t('auth.admin.roleDeleted'), { variant: 'success' })
+      toast.success(t('auth.admin.roleDeleted'))
       navigate(Path.admin.roles)
     },
     onError: (err: any) =>
-      enqueueSnackbar(err.message || t('auth.admin.errorDeleteRole'), { variant: 'error' }),
+      toast.error(err.message || t('auth.admin.errorDeleteRole')),
   })
 
   // â”€â”€ Local State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

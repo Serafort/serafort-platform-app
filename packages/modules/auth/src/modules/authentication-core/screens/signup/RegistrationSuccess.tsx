@@ -1,7 +1,9 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Box, Button, Typography, Avatar, Stack, Divider, alpha, useTheme } from '@mui/material'
-import { CheckCircle, ArrowForward, Settings } from '@mui/icons-material'
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import ArrowForward from '@mui/icons-material/ArrowForward';
+import Settings from '@mui/icons-material/Settings';
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 

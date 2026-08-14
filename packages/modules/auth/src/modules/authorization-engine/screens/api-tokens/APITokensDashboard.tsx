@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Chip, TextField, InputAdornment, Breadcrumbs, Link, Tooltip, useTheme, Grid, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
-import { Add as AddIcon, Search as SearchIcon, MoreVert as MoreVertIcon, Visibility as ViewIcon, NavigateNext as NavigateNextIcon, VpnKey as KeyIcon, Security as SecurityIcon, Timer as TimerIcon, Terminal as TerminalIcon } from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ViewIcon from '@mui/icons-material/Visibility';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import KeyIcon from '@mui/icons-material/VpnKey';
+import SecurityIcon from '@mui/icons-material/Security';
+import TimerIcon from '@mui/icons-material/Timer';
+import TerminalIcon from '@mui/icons-material/Terminal';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { useUserTokens, useRevokeToken } from '@auth/user-directory/hooks/useUserQuery';
 import { Path } from '@auth/routes/path';
 
@@ -21,7 +29,6 @@ const APITokensDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
   const [searchQuery, setSearchQuery] = useState('')
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedToken, setSelectedToken] = useState<APIToken | null>(null)
@@ -29,16 +36,12 @@ const APITokensDashboard: React.FC = () => {
   const { data: tokensResponse, isLoading, refetch } = useUserTokens()
   const revokeTokenMutation = useRevokeToken({
     onSuccess: () => {
-      enqueueSnackbar(t('api_tokens:revoked_success', 'Token revoked successfully'), {
-        variant: 'success',
-      })
+      toast.success(t('api_tokens:revoked_success', 'Token revoked successfully'), {  })
       refetch()
       handleMenuClose()
     },
     onError: (error: any) => {
-      enqueueSnackbar(error.message || t('api_tokens:revoked_error', 'Failed to revoke token'), {
-        variant: 'error',
-      })
+      toast.error(error.message || t('api_tokens:revoked_error', 'Failed to revoke token'), {  })
     },
   })
 

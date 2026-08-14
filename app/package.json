@@ -24,13 +24,14 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:perf": "npm run build && npm run lighthouse",
-    "validate:isolation": "npm run lint --workspace=@boilerplate/ui",
+    "validate:isolation": "npm run lint --workspace=@cap/theme",
     "validate:types": "npm run type-check",
     "prepare": "node -e \"try { require('husky').default() } catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e }\" || true"
   },
   "dependencies": {
     "@cap/layout": "workspace:*",
     "@cap/module-auth": "workspace:*",
+    "@cap/module-dashboard": "workspace:*",
     "@cap/module-landing": "workspace:*",
     "@cap/module-theme": "workspace:*",
     "@cap/platform-core": "workspace:*",
@@ -69,7 +70,6 @@
     "react-i18next": "^16.5.0",
     "react-imask": "^7.6.1",
     "react-joyride": "^2.9.3",
-    "react-otp-input": "^3.1.1",
     "react-perfect-scrollbar": "^1.5.8",
     "react-phone-input-2": "^2.15.1",
     "react-router": "^7.13.1",
@@ -127,7 +127,7 @@
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
-      "npm run validate:isolation",
+      "npm run lint",
       "npm run validate:types"
     ]
   }

@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDebounce } from 'react-use';
 import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 
 import { useSsoDiscovery } from '@auth/authentication-core/hooks/useAuthQuery';
 import { Path } from '@auth/routes/path';
@@ -31,7 +31,6 @@ export default function SSOProviderSelection() {
   const { t } = useTranslation('auth')
   const theme = useTheme()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
   const [email, setEmail] = useState('')
   const [debouncedEmail, setDebouncedEmail] = useState('')
   const isValidEmail = useMemo(() => EMAIL_REGEX.test(email), [email])
@@ -50,11 +49,11 @@ export default function SSOProviderSelection() {
     if (detectedProvider?.url) { window.location.assign(detectedProvider.url) }
     else if (detectedProvider?.type === 'SAML') { navigate(`${Path.identity.samlSSOInitiation}?domain=${emailDomain}${detectedProvider.organizationId ? `&organizationId=${detectedProvider.organizationId}` : ''}`) }
     else if (detectedProvider?.type === 'OIDC') { navigate(`${Path.identity.oidcLoginPrompt}?domain=${emailDomain}${detectedProvider.clientId ? `&clientId=${detectedProvider.clientId}` : ''}`) }
-    else { enqueueSnackbar(t('sso.noProviderDetected', 'No SSO provider could be identified'), { variant: 'info' }) }
-  }, [detectedProvider, emailDomain, navigate, enqueueSnackbar, t])
+    else { toast.info(t('sso.noProviderDetected', 'No SSO provider could be identified')) }
+  }, [detectedProvider, emailDomain, navigate,  t])
 
   const handleManualProviderClick = (provider: (typeof MANUAL_PROVIDERS)[number]) => {
-    if (!isValidEmail) { enqueueSnackbar(t('sso.enterEmailFirst', 'Please enter your work email first'), { variant: 'warning' }); return }
+    if (!isValidEmail) { toast.warning(t('sso.enterEmailFirst', 'Please enter your work email first')); return }
     navigate(`${Path.identity.samlSSOInitiation}?provider=${provider.id}&domain=${emailDomain}`)
   }
 

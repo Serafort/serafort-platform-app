@@ -1,9 +1,19 @@
 import React, { useState, useRef } from 'react';
 import { Box, Typography, Grid, Card, CardContent, TextField, Button, Avatar, alpha, useTheme, Stack, Switch, Divider, Tabs, Tab, Chip, CircularProgress, Alert, FormControlLabel, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { Save, Business, Palette, Security, Language, ArrowBack, Info, Mail, Groups, CloudUpload, CheckCircle } from '@mui/icons-material';
+import Save from '@mui/icons-material/Save';
+import Business from '@mui/icons-material/Business';
+import Palette from '@mui/icons-material/Palette';
+import Security from '@mui/icons-material/Security';
+import Language from '@mui/icons-material/Language';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Info from '@mui/icons-material/Info';
+import Mail from '@mui/icons-material/Mail';
+import Groups from '@mui/icons-material/Groups';
+import CloudUpload from '@mui/icons-material/CloudUpload';
+import CheckCircle from '@mui/icons-material/CheckCircle';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { toast } from 'react-toastify';
 import { Path } from '@cap/module-auth/routes/path';
 
 import { useOrganization, useUpdateOrganization, useVerifyDomain, useUploadOrganizationLogo, adminKeys } from '@idaas/authentication-core/hooks/useAdminQuery';
@@ -31,7 +41,6 @@ export default function OrganizationProfile() {
   const { t } = useTranslation('common')
   const navigate = useNavigate()
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
   const { id } = useParams()
   const [tab, setTab] = useState(0)
 
@@ -91,10 +100,10 @@ export default function OrganizationProfile() {
       },
       {
         onSuccess: () => {
-          enqueueSnackbar(t('auth.admin.successUpdateOrg'), { variant: 'success' })
+          toast.success(t('auth.admin.successUpdateOrg'))
         },
         onError: (error: any) => {
-          enqueueSnackbar(error.message || t('auth.admin.errorUpdateOrg'), { variant: 'error' })
+          toast.error(error.message || t('auth.admin.errorUpdateOrg'))
         },
       },
     )
@@ -105,9 +114,7 @@ export default function OrganizationProfile() {
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 50 * 1024) {
-      enqueueSnackbar(t('auth.admin.logoTooLarge') || 'PNG, SVG or WebP â€“ max 50 KB', {
-        variant: 'error',
-      })
+      toast.error(t('auth.admin.logoTooLarge') || 'PNG, SVG or WebP â€“ max 50 KB')
       return
     }
 
@@ -116,10 +123,10 @@ export default function OrganizationProfile() {
       {
         onSuccess: (response) => {
           setFormData((prev: any) => ({ ...prev, logo_url: response.data.logo_url }))
-          enqueueSnackbar(t('auth.admin.logoUploaded'), { variant: 'success' })
+          toast.success(t('auth.admin.logoUploaded'))
         },
         onError: (err: any) => {
-          enqueueSnackbar(err.message || t('auth.admin.logoUploadFailed'), { variant: 'error' })
+          toast.error(err.message || t('auth.admin.logoUploadFailed'))
         },
       },
     )
@@ -135,15 +142,13 @@ export default function OrganizationProfile() {
       { domain: pendingDomain.trim() },
       {
         onSuccess: () => {
-          enqueueSnackbar(`${t('auth.admin.startedVerification')} ${pendingDomain}`, {
-            variant: 'success',
-          })
+          toast.success(`${t('auth.admin.startedVerification')} ${pendingDomain}`)
           queryClient.invalidateQueries({ queryKey: adminKeys.organizations })
           setDomainDialogOpen(false)
           setPendingDomain('')
         },
         onError: (err: any) => {
-          enqueueSnackbar(err.message || t('auth.admin.failedVerifyDomain'), { variant: 'error' })
+          toast.error(err.message || t('auth.admin.failedVerifyDomain'))
         },
       },
     )
@@ -920,7 +925,7 @@ export default function OrganizationProfile() {
                     onClick={() => {
                       const numericId = Number(id)
                       if (!id || id === 'NaN' || isNaN(numericId) || numericId <= 0) {
-                        enqueueSnackbar(t('auth.admin.invalidOrgId', 'Invalid organization ID for navigation'), { variant: 'error' })
+                        toast(t('auth.admin.invalidOrgId', 'Invalid organization ID for navigation'))
                         return
                       }
                       navigate(Path.admin.policies.replace(':id', id))
