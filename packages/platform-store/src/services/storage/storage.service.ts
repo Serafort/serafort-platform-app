@@ -175,14 +175,56 @@ class StorageManager {
   }
 
   /**
+   * Get active tenant ID for storage partitioning
+   */
+  static getActiveTenant(): string {
+    try {
+      return localStorage.getItem('cap_active_tenant_id') || 'default'
+    } catch {
+      return 'default'
+    }
+  }
+
+  /**
+   * Set active tenant ID
+   */
+  static setActiveTenant(tenantId: string): void {
+    try {
+      localStorage.setItem('cap_active_tenant_id', tenantId)
+    } catch (err) {
+      console.error('Failed to set active tenant:', err)
+    }
+  }
+
+  /**
+   * Scope a key by tenant to prevent cross-tenant client storage contamination
+   */
+  static scopeKey(key: string, tenantId?: string | null): string {
+    if (
+      key.startsWith('cap_global_') ||
+      key === 'cap_active_tenant_id' ||
+      key === 'theme_preferences' ||
+      key === 'language'
+    ) {
+      return key
+    }
+    const tenant = tenantId || this.getActiveTenant()
+    if (key.startsWith(`tenant_${tenant}_`)) {
+      return key
+    }
+    return `tenant_${tenant}_${key}`
+  }
+
+  /**
    * Save to LocalStorage
    * Use for user preferences (with optional encryption for sensitive data)
    */
-  static async saveToLocalStorage(key: string, data: any, encrypt = false): Promise<void> {
+  static async saveToLocalStorage(key: string, data: any, encrypt = false, tenantId?: string): Promise<void> {
     try {
+      const scopedKey = this.scopeKey(key, tenantId)
       const json = JSON.stringify(data)
       const value = encrypt ? await this.encryptData(json) : json
-      localStorage.setItem(key, value)
+      localStorage.setItem(scopedKey, value)
     } catch (error) {
       console.error('LocalStorage save error:', error)
       throw error
@@ -193,8 +235,9 @@ class StorageManager {
    * Get from LocalStorage
    * Note: If decrypt=true and decryption fails, this throws an error to allow fallback handling
    */
-  static async getFromLocalStorage<T = unknown>(key: string, decrypt = false): Promise<T | null> {
-    const value = localStorage.getItem(key)
+  static async getFromLocalStorage<T = unknown>(key: string, decrypt = false, tenantId?: string): Promise<T | null> {
+    const scopedKey = this.scopeKey(key, tenantId)
+    const value = localStorage.getItem(scopedKey)
     if (!value) return null
 
     try {
@@ -215,9 +258,10 @@ class StorageManager {
   /**
    * Delete from LocalStorage
    */
-  static deleteFromLocalStorage(key: string): void {
+  static deleteFromLocalStorage(key: string, tenantId?: string): void {
     try {
-      localStorage.removeItem(key)
+      const scopedKey = this.scopeKey(key, tenantId)
+      localStorage.removeItem(scopedKey)
     } catch (error) {
       console.error('LocalStorage delete error:', error)
       throw error
@@ -228,9 +272,10 @@ class StorageManager {
    * Save to SessionStorage
    * Use for temporary guest data
    */
-  static saveToSessionStorage(key: string, data: any): void {
+  static saveToSessionStorage(key: string, data: any, tenantId?: string): void {
     try {
-      sessionStorage.setItem(key, JSON.stringify(data))
+      const scopedKey = this.scopeKey(key, tenantId)
+      sessionStorage.setItem(scopedKey, JSON.stringify(data))
     } catch (error) {
       console.error('SessionStorage save error:', error)
       throw error
@@ -240,9 +285,10 @@ class StorageManager {
   /**
    * Get from SessionStorage
    */
-  static getFromSessionStorage<T = any>(key: string): T | null {
+  static getFromSessionStorage<T = any>(key: string, tenantId?: string): T | null {
     try {
-      const value = sessionStorage.getItem(key)
+      const scopedKey = this.scopeKey(key, tenantId)
+      const value = sessionStorage.getItem(scopedKey)
       if (!value) return null
       return JSON.parse(value)
     } catch (error) {
@@ -254,9 +300,10 @@ class StorageManager {
   /**
    * Delete from SessionStorage
    */
-  static deleteFromSessionStorage(key: string): void {
+  static deleteFromSessionStorage(key: string, tenantId?: string): void {
     try {
-      sessionStorage.removeItem(key)
+      const scopedKey = this.scopeKey(key, tenantId)
+      sessionStorage.removeItem(scopedKey)
     } catch (error) {
       console.error('SessionStorage delete error:', error)
       throw error

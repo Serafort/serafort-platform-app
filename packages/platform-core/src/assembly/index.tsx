@@ -67,16 +67,22 @@ export const assembleApp = ({ modules, layoutWrapper }: AssembleAppProps) => {
   const { allRouteConfigs, routeNavItems, navItemsToRegister } = registry.extractRoutesAndNav()
   const Wrapper = layoutWrapper ?? PassthroughRouteElementWrapper
 
+  // Synchronously populate navigation in the store to avoid first-frame empty menu rendering
+  const populateNavigation = () => {
+    useAppStore.getState().clearNavigation()
+    navItemsToRegister.forEach((items) => {
+      if (items) useAppStore.getState().registerModuleNavigation(items)
+    })
+    if (routeNavItems.length > 0) {
+      useAppStore.getState().registerModuleNavigation(routeNavItems)
+    }
+  }
+  populateNavigation()
+
   // Return the App component with a SINGLE Routes component matching.
   const App = () => {
     React.useEffect(() => {
-      useAppStore.getState().clearNavigation()
-      navItemsToRegister.forEach((items) => {
-        if (items) useAppStore.getState().registerModuleNavigation(items)
-      })
-      if (routeNavItems.length > 0) {
-        useAppStore.getState().registerModuleNavigation(routeNavItems)
-      }
+      populateNavigation()
     }, [])
     return (
       <React.Suspense

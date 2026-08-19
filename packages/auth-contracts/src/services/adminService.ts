@@ -172,11 +172,11 @@ export class AdminService {
   async fetchRemoteMetadata(
     url: string,
   ): Promise<FetchResponse<{ xml: string; entityId: string; name: string }>> {
-    return apiClient.post('/api/admin/saml/metadata/fetch-remote', { url })
+    return apiClient.post(ENDPOINTS.admin.saml.fetchRemoteMetadata, { url })
   }
 
   async listRecentSAMLEntities(): Promise<FetchResponse<unknown[]>> {
-    return apiClient.get('/api/admin/saml/metadata/recent')
+    return apiClient.get(ENDPOINTS.admin.saml.recentEntities)
   }
 
   async getDashboard(): Promise<
@@ -765,6 +765,81 @@ export class AdminService {
 
   async getSystemMetrics(): Promise<FetchResponse<import('../types').BasicMetrics>> {
     return apiClient.get<import('../types').BasicMetrics>(ENDPOINTS.metrics.basic)
+  }
+
+  // ─── Alert Rules Engine ───
+  async listAlertRules(): Promise<FetchResponse<unknown[]>> {
+    return apiClient.get<unknown[]>(ENDPOINTS.admin.alertRules.index)
+  }
+
+  async createAlertRule(data: {
+    name: string
+    description?: string
+    severity: 'info' | 'low' | 'medium' | 'high' | 'critical'
+    condition: Record<string, unknown>
+    action: string
+  }): Promise<FetchResponse<unknown>> {
+    return apiClient.post(ENDPOINTS.admin.alertRules.store, data)
+  }
+
+  async updateAlertRule(id: string | number, data: Record<string, unknown>): Promise<FetchResponse<unknown>> {
+    return apiClient.patch(ENDPOINTS.admin.alertRules.update(id), data)
+  }
+
+  async deleteAlertRule(id: string | number): Promise<FetchResponse<import('../types').MessageResponse>> {
+    return apiClient.delete<import('../types').MessageResponse>(ENDPOINTS.admin.alertRules.destroy(id))
+  }
+
+  // ─── Threat Intelligence ───
+  async getThreatMetrics(): Promise<FetchResponse<unknown>> {
+    return apiClient.get(ENDPOINTS.admin.threatIntel.metrics)
+  }
+
+  async getThreatScore(): Promise<FetchResponse<{ score: number; level: string }>> {
+    return apiClient.get<{ score: number; level: string }>(ENDPOINTS.admin.threatIntel.score)
+  }
+
+  async getThreatHeatmap(): Promise<FetchResponse<unknown[]>> {
+    return apiClient.get<unknown[]>(ENDPOINTS.admin.threatIntel.heatmap)
+  }
+
+  async getThreatIndicators(): Promise<FetchResponse<unknown[]>> {
+    return apiClient.get<unknown[]>(ENDPOINTS.admin.threatIntel.indicators)
+  }
+
+  async lookupIpThreat(ip: string): Promise<FetchResponse<unknown>> {
+    return apiClient.get(ENDPOINTS.admin.threatIntel.lookupIp(ip))
+  }
+
+  async lookupDomainThreat(domain: string): Promise<FetchResponse<unknown>> {
+    return apiClient.get(ENDPOINTS.admin.threatIntel.lookupDomain(domain))
+  }
+
+  // ─── Policy Simulation & AST Compilation ───
+  async simulatePolicy(payload: {
+    subject: Record<string, unknown>
+    resource: string
+    action: string
+    context?: Record<string, unknown>
+  }): Promise<FetchResponse<{ decision: 'allow' | 'deny'; matchedPolicies: string[]; reason?: string }>> {
+    return apiClient.post<{ decision: 'allow' | 'deny'; matchedPolicies: string[]; reason?: string }>(
+      '/api/v1/admin/rbac/policies/simulate',
+      payload
+    )
+  }
+
+  async compilePolicyGraph(graph: unknown): Promise<FetchResponse<{ policySet: unknown; validationErrors?: string[] }>> {
+    return apiClient.post<{ policySet: unknown; validationErrors?: string[] }>(
+      '/api/v1/admin/rbac/policies/compile',
+      { graph }
+    )
+  }
+
+  async decompilePolicy(policySet: unknown): Promise<FetchResponse<{ graph: unknown }>> {
+    return apiClient.post<{ graph: unknown }>(
+      '/api/v1/admin/rbac/policies/decompile',
+      { policySet }
+    )
   }
 }
 

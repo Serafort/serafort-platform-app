@@ -115,6 +115,7 @@ export class PermissionService implements IPermissionReader, IPermissionWriter {
 
 export interface UserPermissionsContext {
   userId?: string | number
+  organizationId?: string | number
   role?: string
   roleObject?: { name?: string; permissions?: (string | { name?: string })[] }
   permissions?: (string | { name?: string })[]
@@ -151,6 +152,7 @@ export class PermissionCheckerService implements IPermissionChecker {
           const u = (storeState.user as any).user || storeState.user
           userContext = {
             userId: u.id || u.userId || u.sub,
+            organizationId: u.organizationId || u.orgId || u.activeTenantId,
             role: u.role || u.roleName,
             roleObject: u.roleObject,
             permissions: Array.isArray(u.permissions) ? u.permissions : [],
@@ -176,16 +178,27 @@ export class PermissionCheckerService implements IPermissionChecker {
       return { allowed: false, reason: 'Request userId does not match authenticated user context' }
     }
 
-    // 4. Role-based evaluation
+    // 4. Role-based evaluation with tenant scoping
     const userRoleStr = (userContext.role || userContext.roleObject?.name || '').toString().toLowerCase()
 
-    // Super-admin / admin role bypass (fail-open for full admins)
+    // Platform Super-admin role has global authority
     if (
-      userRoleStr === 'admin' ||
       userRoleStr === 'super-admin' ||
       userRoleStr === 'super_admin' ||
-      userRoleStr === 'superadmin'
+      userRoleStr === 'superadmin' ||
+      userRoleStr === 'platform_owner'
     ) {
+      return { allowed: true }
+    }
+
+    // Tenant admin has authority within their own tenant scope
+    if (userRoleStr === 'admin' || userRoleStr === 'tenant_admin' || userRoleStr === 'tenant_owner') {
+      if (request.organizationId != null && userContext.organizationId != null) {
+        if (String(request.organizationId) === String(userContext.organizationId)) {
+          return { allowed: true }
+        }
+        return { allowed: false, reason: 'Organization ID mismatch for tenant admin role' }
+      }
       return { allowed: true }
     }
 

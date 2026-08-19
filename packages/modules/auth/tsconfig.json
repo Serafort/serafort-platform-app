@@ -18,6 +18,8 @@
     "jsx": "react-jsx",
     "types": ["node", "vite/client", "react", "react-dom"],
     "paths": {
+      "@cap/auth-contracts": ["../../auth-contracts/src"],
+      "@cap/auth-contracts/*": ["../../auth-contracts/src/*"],
       "@cap/platform-core": ["../../platform-core/src"],
       "@cap/platform-core/*": ["../../platform-core/src/*"],
       "@cap/platform-store": ["../../platform-store/src"],

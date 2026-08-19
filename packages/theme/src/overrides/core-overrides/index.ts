@@ -11,6 +11,7 @@ import buttonGroup from './button-group'
 import card from './card'
 import Checkbox from './checkbox'
 import chip from './chip'
+import cssBaseline from './css-baseline'
 import dialog from './dialog'
 import drawer from './drawer'
 import fab from './fab'
@@ -51,6 +52,7 @@ const overrides = (skin: Skin) => {
     card(skin),
     Checkbox,
     chip,
+    cssBaseline,
     dialog(skin),
     drawer(skin),
     fab,

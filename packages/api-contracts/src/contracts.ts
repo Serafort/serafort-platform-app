@@ -1387,6 +1387,142 @@ export const API_CONTRACTS = {
       response: contractType<MessageResponse>(),
     }),
   },
+
+  themes: {
+    generate: defineEndpoint({
+      id: 'themes.generate',
+      method: 'POST',
+      resolve: () => ENDPOINTS.themes.generate,
+      request: contractType<Record<string, unknown>>(),
+      response: contractType<Record<string, unknown>>(),
+    }),
+    tenant: defineEndpoint({
+      id: 'themes.tenant',
+      method: 'GET',
+      resolve: () => ENDPOINTS.themes.tenant,
+      response: contractType<Record<string, unknown>>(),
+    }),
+    saveTenant: defineEndpoint({
+      id: 'themes.saveTenant',
+      method: 'PUT',
+      resolve: () => ENDPOINTS.themes.saveTenant,
+      request: contractType<Record<string, unknown>>(),
+      response: contractType<Record<string, unknown>>(),
+    }),
+    presets: defineEndpoint({
+      id: 'themes.presets',
+      method: 'GET',
+      resolve: () => ENDPOINTS.themes.presets,
+      response: contractType<{ presets: Record<string, unknown> }>(),
+    }),
+  },
+
+  dashboards: {
+    layouts: defineEndpoint({
+      id: 'dashboards.layouts',
+      method: 'GET',
+      resolve: (pageId: string) => ENDPOINTS.dashboards.layouts(pageId),
+      response: contractType<Record<string, unknown>>(),
+    }),
+    updateLayout: defineEndpoint({
+      id: 'dashboards.updateLayout',
+      method: 'PUT',
+      resolve: (pageId: string) => ENDPOINTS.dashboards.updateLayout(pageId),
+      request: contractType<Record<string, unknown>>(),
+      response: contractType<Record<string, unknown>>(),
+    }),
+    resetLayout: defineEndpoint({
+      id: 'dashboards.resetLayout',
+      method: 'POST',
+      resolve: (pageId: string) => ENDPOINTS.dashboards.resetLayout(pageId),
+      response: contractType<Record<string, unknown>>(),
+    }),
+  },
+
+  developer: {
+    apiKeys: defineEndpoint({
+      id: 'developer.apiKeys',
+      method: 'GET',
+      resolve: () => ENDPOINTS.developer.apiKeys,
+      response: contractType<Record<string, unknown>[]>(),
+    }),
+    createApiKey: defineEndpoint({
+      id: 'developer.createApiKey',
+      method: 'POST',
+      resolve: () => ENDPOINTS.developer.apiKeys,
+      request: contractType<Record<string, unknown>>(),
+      response: contractType<Record<string, unknown>>(),
+    }),
+    deleteApiKey: defineEndpoint({
+      id: 'developer.deleteApiKey',
+      method: 'DELETE',
+      resolve: (id: string | number) => ENDPOINTS.developer.apiKeyById(id),
+      response: contractType<MessageResponse>(),
+    }),
+    webhooks: defineEndpoint({
+      id: 'developer.webhooks',
+      method: 'GET',
+      resolve: () => ENDPOINTS.developer.webhooks,
+      response: contractType<Webhook[]>(),
+    }),
+    createWebhook: defineEndpoint({
+      id: 'developer.createWebhook',
+      method: 'POST',
+      resolve: () => ENDPOINTS.developer.webhooks,
+      request: contractType<Record<string, unknown>>(),
+      response: contractType<Webhook>(),
+    }),
+    webhookById: defineEndpoint({
+      id: 'developer.webhookById',
+      method: 'GET',
+      resolve: (id: string | number) => ENDPOINTS.developer.webhookById(id),
+      response: contractType<Webhook>(),
+    }),
+    updateWebhook: defineEndpoint({
+      id: 'developer.updateWebhook',
+      method: 'PUT',
+      resolve: (id: string | number) => ENDPOINTS.developer.webhookById(id),
+      request: contractType<Record<string, unknown>>(),
+      response: contractType<Webhook>(),
+    }),
+    deleteWebhook: defineEndpoint({
+      id: 'developer.deleteWebhook',
+      method: 'DELETE',
+      resolve: (id: string | number) => ENDPOINTS.developer.webhookById(id),
+      response: contractType<MessageResponse>(),
+    }),
+    testWebhook: defineEndpoint({
+      id: 'developer.testWebhook',
+      method: 'POST',
+      resolve: (id: string | number) => ENDPOINTS.developer.testWebhook(id),
+      request: contractType<Record<string, unknown>>(),
+      response: contractType<Record<string, unknown>>(),
+    }),
+  },
+
+  contact: {
+    submit: defineEndpoint({
+      id: 'contact.submit',
+      method: 'POST',
+      resolve: () => ENDPOINTS.contact.submit,
+      request: contractType<Record<string, unknown>>(),
+      response: contractType<Record<string, unknown>>(),
+    }),
+    messages: defineEndpoint({
+      id: 'contact.messages',
+      method: 'GET',
+      resolve: () => ENDPOINTS.contact.messages,
+      response: contractType<Record<string, unknown>[]>(),
+    }),
+    updateMessageStatus: defineEndpoint({
+      id: 'contact.updateMessageStatus',
+      method: 'PATCH',
+      resolve: (id: string | number) => ENDPOINTS.contact.updateMessageStatus(id),
+      request: contractType<{ status: string }>(),
+      response: contractType<Record<string, unknown>>(),
+    }),
+  },
 } as const
 
 export type API_CONTRACTS = typeof API_CONTRACTS
+

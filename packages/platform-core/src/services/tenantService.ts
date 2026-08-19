@@ -53,7 +53,7 @@ const mockTenants: Record<string, TenantConfig> = {
       companyName: 'Acme Corporation',
       welcomeText: 'Welcome to Acme Corp',
     },
-    features: { darkMode: true, rtl: false, notifications: true, chat: true, enabledAuthPlugins: ['mfa-totp'] },
+    features: { darkMode: true, rtl: false, notifications: true, chat: true, enabledAuthPlugins: [] },
     version: 1,
   },
   '127.0.0.1': {

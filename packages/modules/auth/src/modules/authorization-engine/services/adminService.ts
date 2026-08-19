@@ -600,7 +600,7 @@ export class AdminService {
    * List recently explored SAML entities
    */
   async listRecentSAMLEntities(): Promise<FetchResponse<any[]>> {
-    return apiClient.get('/api/admin/saml/metadata/recent')
+    return apiClient.get('/api/admin/saml/entities/recent')
   }
 
   // Consolidated into Domain Verification section below

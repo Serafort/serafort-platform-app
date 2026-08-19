@@ -116,13 +116,14 @@ export interface UserDto {
   email: string
   
   // Name fields
-  name: string
+  name?: string
   fullName?: string
   firstName?: string
   lastName?: string
   
   // Auth & Security
   role?: AnyRole
+  roles?: string[]
   status?: UserStatus
   permissions: string[]
   emailVerified?: boolean
@@ -148,7 +149,8 @@ export interface UserDto {
   /** @deprecated Use avatarUrl */
   avatar?: string
   avatarUrl?: string
-  /** @deprecated Use lastName */
+  gender?: string | null
+  /** @deprecated Use gender */
   sexe?: string
   
   // Auth Tokens
@@ -173,15 +175,21 @@ export interface UserDto {
   
   // Admin-specific fields
   orgName?: string
+  isActive?: boolean
+  /** @deprecated Use isActive */
   isActif?: boolean
   apiAccessEnabled?: boolean
   maintenanceModeBypass?: boolean
 }
 
 export interface LoginResponseDto {
-  user: UserDto
-  accessToken: string
+  user?: UserDto
+  accessToken?: string
+  refreshToken?: string
   expires_in?: number
+  mfaRequired?: boolean
+  mfaTicket?: string
+  challenge?: unknown
 }
 
 export interface RefreshResponseDto {

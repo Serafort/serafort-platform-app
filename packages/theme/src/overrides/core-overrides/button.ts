@@ -32,6 +32,10 @@ const button: Theme['components'] = {
         '&.Mui-disabled': {
           opacity: 0.45,
         },
+        '&:focus-visible, &.Mui-focusVisible': {
+          outline: `2px solid ${theme.palette.primary.main}`,
+          outlineOffset: 2,
+        },
         transform: 'scale(1.001)',
         transition: theme.transitions.create('all', {
           duration: theme.transitions.duration.short,

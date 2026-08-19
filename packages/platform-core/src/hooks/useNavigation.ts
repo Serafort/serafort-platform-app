@@ -15,10 +15,15 @@ export const useNavigationMenu = (variant: NavVariant) => {
   const { hasRole, hasPermission } = usePermissions()
 
   const filteredMenu = useMemo(() => {
-    // 1. Filter by variant directly
-    const byVariant = navItems.filter((item: NavItemConfig) => 
-      !item.variant || item.variant.includes(variant) || item.variant.includes('all')
-    )
+    // 1. Filter by variant directly (admin menu view inherits vertical items; RBAC handles permission gating)
+    const matchesVariant = (itemVariant?: (NavVariant | 'all')[]) => {
+      if (!itemVariant || itemVariant.length === 0 || itemVariant.includes('all')) return true
+      if (itemVariant.includes(variant)) return true
+      if (variant === 'admin' && itemVariant.includes('vertical')) return true
+      return false
+    }
+
+    const byVariant = navItems.filter((item: NavItemConfig) => matchesVariant(item.variant))
 
     // 2. Filter by roles and permissions reactively
     const checkAccess = (item: NavItemConfig): boolean => {

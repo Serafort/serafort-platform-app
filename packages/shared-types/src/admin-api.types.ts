@@ -120,7 +120,7 @@ export interface OrganizationInvitation {
   id: number
   email: string
   role: string
-  status: string
+  status: 'pending' | 'accepted' | 'expired' | 'revoked' | string
   expiresAt: string
 }
 

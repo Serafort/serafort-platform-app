@@ -13,6 +13,7 @@
     "generate:types": "openapi-typescript http://localhost:3333/api/admin/docs -o src/types/generated.ts"
   },
   "dependencies": {
+    "@cap/auth-contracts": "workspace:*",
     "@cap/authorization": "workspace:*",
     "@cap/layout": "workspace:*",
     "@cap/platform-core": "workspace:*",

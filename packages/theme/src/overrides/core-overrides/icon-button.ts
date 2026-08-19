@@ -4,11 +4,15 @@ const themeConfig = { disableRipple: false }
 const iconButton: Theme['components'] = {
   MuiIconButton: {
     styleOverrides: {
-      root: {
+      root: ({ theme }) => ({
         '& .MuiSvgIcon-root, & i, & svg': {
           fontSize: 'inherit',
         },
-      },
+        '&:focus-visible, &.Mui-focusVisible': {
+          outline: `2px solid ${theme.palette.primary.main}`,
+          outlineOffset: 2,
+        },
+      }),
       sizeSmall: ({ theme }) => ({
         padding: theme.spacing(1.75),
         fontSize: '1.25rem',

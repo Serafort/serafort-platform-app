@@ -26,7 +26,7 @@ const AdminLoginScreen = () => {
     onSuccess: (response) => {
       const userData = response?.data?.user || response?.data
       const userRole = normalizeRole(userData?.role)
-      navigate(resolveRedirectPathForUser(userRole))
+      navigate(resolveRedirectPathForUser(userRole as any))
     },
     onError: (error: any) => {
       setError(

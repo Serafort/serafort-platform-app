@@ -8,6 +8,7 @@ import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined'
 import DevicesOutlinedIcon from '@mui/icons-material/DevicesOutlined'
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined'
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined'
+import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined'
 import { authRouteConfig, authRoutes } from './routes/routes'
 
 import Path from './routes/path'
@@ -107,6 +108,7 @@ export { AuthRoute, GuestRoute } from './modules/authentication-core'
 export * from './modules/mfa-orchestrator'
 export * from './modules/identity-broker'
 export * from './modules/passwordless-service'
+export * from './modules/developer-console'
 export { PlatformClusterPath, apiExplorerService } from './modules/platform-cluster'
 export type { SandboxExecutionResult, OpenAPISpec, OpenAPIPathItem } from './modules/platform-cluster'
 export type { AccessPolicy, AccessPolicyRule } from '@cap/shared-types'
@@ -151,57 +153,150 @@ export const AuthModule: CAPModule = {
   i18n: { en, ar, fr },
   plugins: [],
   navItems: [
-    // --- IDaaS CORE SECTION ---
+    // --- IDENTITY & DIRECTORY SECTION ---
     {
-      id: 'auth-core-section',
-      label: 'navigation.idaas',
-      section: 'IDaaS Core',
-      variant: ['vertical', 'horizontal'],
-      order: 10,
-    },
-    {
-      id: 'auth-identity-control',
-      label: 'navigation.authPages',
-      icon: React.createElement(ShieldOutlinedIcon),
+      id: 'auth-identity-section',
+      label: 'navigation.accountSettings',
+      section: 'Identity & Directory',
       variant: ['vertical', 'horizontal'],
       order: 20,
-      children: [
-        { id: 'auth-signin', label: 'navigation.login', path: Path.auth.signin, order: 10 },
-        { id: 'auth-signup', label: 'navigation.register', path: Path.auth.signup, order: 20 },
-        { id: 'auth-forgot', label: 'navigation.forgotPassword', path: Path.auth.forgotPassword, order: 30 },
-      ],
     },
     {
-      id: 'auth-security-methods',
-      label: 'navigation.security',
-      icon: React.createElement(VpnKeyOutlinedIcon),
+      id: 'auth-user-profile',
+      label: 'navigation.userProfile',
+      icon: React.createElement(PersonOutlinedIcon),
+      path: Path.account.overview,
       variant: ['vertical', 'horizontal'],
-      order: 50,
-      children: [
-        { id: 'auth-mfa', label: 'navigation.twoSteps', path: Path.mfa.dashboard, order: 10 },
-        { id: 'auth-passkeys', label: 'navigation.passkeys', path: Path.passkey.management, order: 20 },
-        { id: 'auth-passwordless', label: 'navigation.passwordless', path: Path.passwordless.setup, order: 30 },
-        { id: 'auth-policy-canvas', label: 'Visual Policy Canvas', path: '/admin/policies/canvas', order: 35 },
-        { id: 'auth-api-tokens', label: 'navigation.apiTokens', path: Path.apiTokens.dashboard, order: 40 },
-        { id: 'auth-sessions', label: 'navigation.activeSessions', path: Path.account.activeSessions, order: 50 },
-        { id: 'auth-linked', label: 'navigation.linkedAccounts', path: Path.user.linkedAccounts, order: 60 },
-      ],
+      order: 21,
     },
-    // --- DASHBOARD / APPS SECTION ---
     {
-      id: 'auth-apps-section',
+      id: 'auth-linked-accounts',
+      label: 'navigation.linkedAccounts',
+      icon: React.createElement(LinkOutlinedIcon),
+      path: Path.user.linkedAccounts,
+      variant: ['vertical', 'horizontal'],
+      order: 22,
+    },
+    {
+      id: 'auth-admin-users',
+      label: 'navigation.users',
+      icon: React.createElement(PeopleOutlinedIcon),
+      path: Path.admin.users,
+      roles: ['admin'],
+      variant: ['vertical', 'horizontal'],
+      order: 25,
+    },
+
+    // --- ACCESS & GOVERNANCE SECTION ---
+    {
+      id: 'auth-governance-section',
+      label: 'navigation.security',
+      section: 'Access & Governance',
+      variant: ['vertical', 'horizontal'],
+      order: 40,
+    },
+    {
+      id: 'auth-policy-canvas',
+      label: 'Visual Policy Canvas',
+      icon: React.createElement(AccountTreeOutlinedIcon),
+      path: Path.admin.policyCanvas,
+      roles: ['admin'],
+      variant: ['vertical', 'horizontal'],
+      order: 41,
+    },
+    {
+      id: 'auth-admin-roles',
+      label: 'navigation.rolesPermissions',
+      icon: React.createElement(ShieldOutlinedIcon),
+      path: Path.admin.roles,
+      roles: ['admin'],
+      variant: ['vertical', 'horizontal'],
+      order: 42,
+    },
+    {
+      id: 'auth-api-tokens',
+      label: 'navigation.apiTokens',
+      icon: React.createElement(VpnKeyOutlinedIcon),
+      path: Path.apiTokens.dashboard,
+      variant: ['vertical', 'horizontal'],
+      order: 45,
+    },
+
+    // --- SECURITY & SESSIONS SECTION ---
+    {
+      id: 'auth-security-section',
+      label: 'navigation.security',
+      section: 'Security & Devices',
+      variant: ['vertical', 'horizontal'],
+      order: 60,
+    },
+    {
+      id: 'auth-mfa',
+      label: 'navigation.twoSteps',
+      icon: React.createElement(SecurityOutlinedIcon),
+      path: Path.mfa.dashboard,
+      variant: ['vertical', 'horizontal'],
+      order: 61,
+    },
+    {
+      id: 'auth-passkeys',
+      label: 'navigation.passkeys',
+      icon: React.createElement(VpnKeyOutlinedIcon),
+      path: Path.passkey.management,
+      variant: ['vertical', 'horizontal'],
+      order: 62,
+    },
+    {
+      id: 'auth-sessions',
+      label: 'navigation.activeSessions',
+      icon: React.createElement(DevicesOutlinedIcon),
+      path: Path.account.activeSessions,
+      variant: ['vertical', 'horizontal'],
+      order: 63,
+    },
+
+    // --- SYSTEM & DEVELOPER SECTION ---
+    {
+      id: 'auth-system-section',
       label: 'navigation.appsPages',
-      section: 'Applications',
-      variant: ['vertical'],
-      order: 100,
+      section: 'System & Platform',
+      variant: ['vertical', 'horizontal'],
+      order: 90,
     },
     {
       id: 'auth-modules',
       label: 'navigation.moduleManagement',
       icon: React.createElement(ExtensionOutlinedIcon),
       path: '/developer/modules',
-      variant: ['vertical'],
-      order: 105,
+      roles: ['admin'],
+      variant: ['vertical', 'horizontal'],
+      order: 95,
+    },
+
+    // --- AUTHENTICATION PAGES (GUEST-ONLY) ---
+    {
+      id: 'auth-signin',
+      label: 'navigation.login',
+      path: Path.auth.signin,
+      guestOnly: true,
+      variant: ['vertical', 'horizontal'],
+      order: 110,
+    },
+    {
+      id: 'auth-signup',
+      label: 'navigation.register',
+      path: Path.auth.signup,
+      guestOnly: true,
+      variant: ['vertical', 'horizontal'],
+      order: 120,
+    },
+    {
+      id: 'auth-forgot',
+      label: 'navigation.forgotPassword',
+      path: Path.auth.forgotPassword,
+      guestOnly: true,
+      variant: ['vertical', 'horizontal'],
+      order: 130,
     },
   ],
   searchItems: [

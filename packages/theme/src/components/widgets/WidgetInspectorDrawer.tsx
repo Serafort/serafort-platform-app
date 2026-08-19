@@ -139,7 +139,7 @@ export const WidgetInspectorDrawer: React.FC = () => {
             {t('dashboard.inspectorTitle', 'Widget Inspector')}
           </Typography>
         </Box>
-        <IconButton size="small" onClick={() => widgetInspectorStore.closeInspector()}>
+        <IconButton size="small" onClick={() => widgetInspectorStore.closeInspector()} aria-label="Close inspector">
           <CloseIcon fontSize="small" />
         </IconButton>
       </Box>

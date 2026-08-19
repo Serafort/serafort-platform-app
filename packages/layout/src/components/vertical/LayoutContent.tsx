@@ -16,6 +16,9 @@ const LayoutContent = ({ children }: ChildrenType) => {
 
   return (
     <StyledMain
+      id="main-content"
+      tabIndex={-1}
+      role="main"
       isContentCompact={contentCompact}
       layoutPadding={layoutPadding}
       compactContentWidth={compactContentWidth}
@@ -30,6 +33,7 @@ const LayoutContent = ({ children }: ChildrenType) => {
       style={{
         flex: '1 1 auto',
         inlineSize: '100%',
+        outline: 'none',
       }}
     >
       <ErrorBoundary>

@@ -348,9 +348,13 @@ export interface AdminUser {
   lastName: string
   role: number
   phone: string | null
-  sexe: string | null
+  gender?: string | null
+  /** @deprecated Use gender */
+  sexe?: string | null
   avatarUrl: string | null
-  isActif: boolean
+  isActive: boolean
+  /** @deprecated Use isActive */
+  isActif?: boolean
   emailVerified: boolean | string | null
   emailVerifiedAt: string | null
   isTermsSign: boolean

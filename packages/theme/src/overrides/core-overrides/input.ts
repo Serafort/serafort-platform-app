@@ -14,8 +14,12 @@ const input: Theme['components'] = {
   },
   MuiInputBase: {
     styleOverrides: {
-      root: {
+      root: ({ theme }) => ({
         lineHeight: 1.6,
+        '&:focus-visible, &.Mui-focused:has(input:focus-visible)': {
+          outline: `2px solid ${theme.palette.primary.main}`,
+          outlineOffset: 1,
+        },
         '&.MuiInput-underline': {
           '&:before': {
             borderColor: 'var(--mui-palette-customColors-inputBorder)',
@@ -27,7 +31,7 @@ const input: Theme['components'] = {
         '&.Mui-disabled .MuiInputAdornment-root, &.Mui-disabled .MuiInputAdornment-root > *': {
           color: 'var(--mui-palette-action-disabled)',
         },
-      },
+      }),
     },
   },
   MuiFilledInput: {

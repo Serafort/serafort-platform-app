@@ -9,6 +9,7 @@
         "type-check": "tsc --noEmit"
     },
     "dependencies": {
+        "@cap/auth-contracts": "workspace:*",
         "@cap/platform-core": "workspace:*",
         "@cap/theme": "workspace:*",
         "@cap/layout": "workspace:*",

@@ -165,18 +165,35 @@ export const API_ENDPOINTS = {
     tenantConfig: '/api/auth/tenant',
   },
 
-  statistics: {
-    overview: '/api/statistics/overview',
-    scrapingActivity: '/api/statistics/scraping-activity',
-    sessionStatistics: '/api/statistics/session-statistics',
-    trends: '/api/statistics/trends',
+  dashboard: {
+    stats: '/api/dashboard/stats',
   },
 
-  dashboard: {
-    overview: '/api/dashboard/overview',
-    stats: '/api/dashboard/stats',
-    recentApplications: '/api/dashboard/recent-applications',
-    recommendations: '/api/dashboard/recommendations',
+  themes: {
+    generate: '/api/themes/generate',
+    tenant: '/api/themes/tenant',
+    saveTenant: '/api/themes/tenant',
+    presets: '/api/themes/presets',
+  },
+
+  dashboards: {
+    layouts: (pageId: string) => `/api/dashboards/layouts/${pageId}`,
+    updateLayout: (pageId: string) => `/api/dashboards/layouts/${pageId}`,
+    resetLayout: (pageId: string) => `/api/dashboards/layouts/${pageId}/reset`,
+  },
+
+  developer: {
+    apiKeys: '/api/admin/developer-api-keys',
+    apiKeyById: (id: string | number) => `/api/admin/developer-api-keys/${id}`,
+    webhooks: '/api/admin/webhooks',
+    webhookById: (id: string | number) => `/api/admin/webhooks/${id}`,
+    testWebhook: (id: string | number) => `/api/admin/webhooks/${id}/test`,
+  },
+
+  contact: {
+    submit: '/api/contact',
+    messages: '/api/admin/contact-messages',
+    updateMessageStatus: (id: string | number) => `/api/admin/contact-messages/${id}`,
   },
 
   automation: {
@@ -200,7 +217,6 @@ export const API_ENDPOINTS = {
     updatePreferences: '/api/notifications/preferences',
     unreadCount: '/api/notifications/unread-count',
     sse: '/api/sse/notifications',
-    ws: '/ws/notifications',
   },
 
   sse: {
@@ -381,7 +397,26 @@ export const API_ENDPOINTS = {
     },
     impersonationLogs: '/api/admin/impersonation-logs',
     security: {
-      health: '/api/admin/security/health',
+      health: '/api/v1/admin/security/health',
+      stats: '/api/v1/admin/security/stats',
+      anomalies: '/api/v1/admin/security/anomalies',
+      resolveAnomaly: (id: string | number) => `/api/v1/admin/security/anomalies/${id}/resolve`,
+      alerts: '/api/v1/admin/security/alerts',
+      dismissAlert: (id: string | number) => `/api/v1/admin/security/alerts/${id}/dismiss`,
+    },
+    alertRules: {
+      index: '/api/v1/admin/alert-rules',
+      store: '/api/v1/admin/alert-rules',
+      update: (id: string | number) => `/api/v1/admin/alert-rules/${id}`,
+      destroy: (id: string | number) => `/api/v1/admin/alert-rules/${id}`,
+    },
+    threatIntel: {
+      metrics: '/api/v1/admin/threat-intel/metrics',
+      score: '/api/v1/admin/threat-intel/score',
+      heatmap: '/api/v1/admin/threat-intel/heatmap',
+      indicators: '/api/v1/admin/threat-intel/indicators',
+      lookupIp: (ip: string) => `/api/v1/admin/threat-intel/ip/${ip}`,
+      lookupDomain: (domain: string) => `/api/v1/admin/threat-intel/domain/${domain}`,
     },
     docs: '/api/admin/docs',
     sandboxExecute: '/api/admin/sandbox/execute',
@@ -419,15 +454,43 @@ export const API_ENDPOINTS = {
   },
 
   adminMembers: {
-    overrides: (id: number) => `/api/admin/members/${id}/overrides`,
-    addOverride: (id: number) => `/api/admin/members/${id}/overrides`,
-    removeOverride: (id: number, pid: number) => `/api/admin/members/${id}/overrides/${pid}`,
+    overrides: (id: number) => `/api/admin/rbac/members/${id}/overrides`,
+    addOverride: (id: number) => `/api/admin/rbac/members/${id}/overrides`,
+    removeOverride: (id: number, pid: number) => `/api/admin/rbac/members/${id}/overrides/${pid}`,
   },
 
   developerApiKeys: {
-    index: '/api/admin/developer-api-keys',
-    store: '/api/admin/developer-api-keys',
-    destroy: (id: number) => `/api/admin/developer-api-keys/${id}`,
+    index: '/api/v1/admin/developer/api-keys',
+    store: '/api/v1/admin/developer/api-keys',
+    destroy: (id: number | string) => `/api/v1/admin/developer/api-keys/${id}`,
+  },
+
+  accessControl: {
+    nfc: {
+      cards: (orgId: string | number) => `/api/admin/organizations/${orgId}/nfc/cards`,
+      cardStatus: (orgId: string | number, cardId: string | number) =>
+        `/api/admin/organizations/${orgId}/nfc/cards/${cardId}/status`,
+      cardById: (orgId: string | number, cardId: string | number) =>
+        `/api/admin/organizations/${orgId}/nfc/cards/${cardId}`,
+      accessPoints: (orgId: string | number) =>
+        `/api/admin/organizations/${orgId}/nfc/access-points`,
+      logs: (orgId: string | number) => `/api/admin/organizations/${orgId}/nfc/logs`,
+      scan: '/api/v1/access-control/scan',
+    },
+  },
+
+  civilRegistry: {
+    certificates: (orgId: string | number) =>
+      `/api/v1/organizations/${orgId}/civil-registry/certificates`,
+    search: '/api/admin/civil-registry/search',
+  },
+
+  blockchain: {
+    generateDid: '/api/v1/blockchain/did/generate',
+    resolveDid: (did: string) => `/api/v1/blockchain/did/${did}`,
+    issueCredential: '/api/v1/blockchain/vc/issue',
+    credentials: '/api/v1/blockchain/vc',
+    auditLogs: '/api/v1/blockchain/audit-logs',
   },
 } as const
 
@@ -467,10 +530,25 @@ export const API_QUERY_KEYS = {
   },
   dashboard: {
     all: ['dashboard'] as const,
-    overview: ['dashboard', 'overview'] as const,
     stats: ['dashboard', 'stats'] as const,
-    recentApplications: ['dashboard', 'recent-applications'] as const,
-    recommendations: ['dashboard', 'recommendations'] as const,
+  },
+  themes: {
+    all: ['themes'] as const,
+    tenant: ['themes', 'tenant'] as const,
+    presets: ['themes', 'presets'] as const,
+  },
+  dashboards: {
+    all: ['dashboards'] as const,
+    layouts: (pageId: string) => ['dashboards', 'layouts', pageId] as const,
+  },
+  developer: {
+    all: ['developer'] as const,
+    apiKeys: ['developer', 'api-keys'] as const,
+    webhooks: ['developer', 'webhooks'] as const,
+  },
+  contact: {
+    all: ['contact'] as const,
+    messages: ['contact', 'messages'] as const,
   },
   automation: {
     all: ['automation'] as const,

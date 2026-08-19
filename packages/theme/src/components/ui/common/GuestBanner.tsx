@@ -79,7 +79,7 @@ export const GuestBanner: React.FC<GuestBannerProps> = ({
                 Sign Up
               </Button>
               {showCloseButton && (
-                <IconButton size='small' onClick={handleClose}>
+                <IconButton size='small' onClick={handleClose} aria-label='Dismiss banner'>
                   <CloseIcon fontSize='small' />
                 </IconButton>
               )}
@@ -108,7 +108,7 @@ export const GuestBanner: React.FC<GuestBannerProps> = ({
         icon={<PersonOffIcon />}
         action={
           showCloseButton ? (
-            <IconButton size='small' onClick={handleClose}>
+            <IconButton size='small' onClick={handleClose} aria-label='Dismiss banner'>
               <CloseIcon fontSize='small' />
             </IconButton>
           ) : undefined

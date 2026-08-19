@@ -16,6 +16,9 @@ const LayoutContent: React.FC<ChildrenType> = ({ children }) => {
 
   return (
     <StyledMain
+      id="main-content"
+      tabIndex={-1}
+      role="main"
       isContentCompact={contentCompact}
       layoutPadding={layoutPadding}
       compactContentWidth={compactContentWidth}
@@ -23,6 +26,9 @@ const LayoutContent: React.FC<ChildrenType> = ({ children }) => {
         [`${horizontalLayoutClasses.contentCompact} is-full`]: contentCompact,
         [horizontalLayoutClasses.contentWide]: contentWide,
       })}
+      style={{
+        outline: 'none',
+      }}
     >
       <ErrorBoundary>
         {children}

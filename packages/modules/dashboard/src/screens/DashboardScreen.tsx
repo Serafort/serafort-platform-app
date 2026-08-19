@@ -8,6 +8,7 @@ import { useShallow } from 'zustand/shallow'
 import { DEFAULT_DASHBOARD_GRID_LAYOUT } from '../widgets'
 import { DndContext, DragEndEvent, pointerWithin, DragOverlay, DragStartEvent } from '@dnd-kit/core'
 import { WidgetStudioPanel } from '@cap/module-widget-studio'
+import { dashboardService } from '@cap/auth-contracts'
 
 const DashboardScreen: React.FC = () => {
   const { t } = useTranslation()
@@ -24,7 +25,28 @@ const DashboardScreen: React.FC = () => {
   const [activeWidgetInfo, setActiveWidgetInfo] = useState<{ id: string; widgetId?: string } | null>(null)
 
   useEffect(() => {
-    initializeLayout(PAGE_ID, DEFAULT_DASHBOARD_GRID_LAYOUT)
+    let isMounted = true
+    async function loadSavedLayout() {
+      try {
+        const response = await dashboardService.getLayout(PAGE_ID)
+        if (isMounted && response?.data?.layoutConfig) {
+          initializeLayout(PAGE_ID, response.data.layoutConfig)
+          return
+        }
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.warn('[DashboardScreen] Could not load backend layout, using default:', err)
+        }
+      }
+      if (isMounted) {
+        initializeLayout(PAGE_ID, DEFAULT_DASHBOARD_GRID_LAYOUT)
+      }
+    }
+
+    loadSavedLayout()
+    return () => {
+      isMounted = false
+    }
   }, [initializeLayout])
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
@@ -82,6 +104,15 @@ const DashboardScreen: React.FC = () => {
         if (import.meta.env.DEV) console.log('[DND] Executing transferWidget across layouts:', fromLayout, fromSlot, '->', toLayout, toSlot)
         transferWidget(fromLayout, fromSlot, toLayout, toSlot)
       }
+
+      // Sync updated layout to backend
+      setTimeout(() => {
+        const store = useAppStore.getState()
+        const currentLayout = store.layouts?.[PAGE_ID]
+        if (currentLayout) {
+          dashboardService.saveLayout(PAGE_ID, { layoutConfig: currentLayout }).catch(() => {})
+        }
+      }, 300)
     } else {
       console.warn('[DND] Missing activeData or overData:', { activeData, overData })
     }

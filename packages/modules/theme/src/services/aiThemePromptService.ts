@@ -298,6 +298,99 @@ class AiThemePromptService {
 
     return newTheme
   }
+
+  /**
+   * Generates a full theme from prompt by calling the backend AI engine,
+   * falling back seamlessly to local rule-based synthesis if offline.
+   */
+  async generateThemeFromPromptAsync(
+    prompt: string,
+    baseConfig?: TenantThemeConfig,
+    options?: { isDark?: boolean; useLlm?: boolean }
+  ): Promise<TenantThemeConfig> {
+    try {
+      const baseUrl =
+        (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env
+          .VITE_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:3333'
+
+      const response = await fetch(`${baseUrl}/api/v1/themes/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt,
+          isDark: options?.isDark,
+          useLlm: options?.useLlm ?? true,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data?.success && data.themeConfig) {
+          const serverConfig = data.themeConfig
+          const base =
+            baseConfig ||
+            applyPreset((data.analysis?.presetMatch as any) || 'corporate-clean') ||
+            DEFAULT_TENANT_THEME
+
+          return {
+            ...base,
+            name: serverConfig.name || `AI Theme: ${prompt.slice(0, 30)}`,
+            tokens: {
+              ...base.tokens,
+              colors: {
+                ...base.tokens.colors,
+                primary: {
+                  value: serverConfig.colors.primary,
+                  description: 'AI Generated Primary',
+                } as ColorToken,
+                secondary: {
+                  value: serverConfig.colors.secondary,
+                  description: 'AI Generated Secondary',
+                } as ColorToken,
+                background: {
+                  value: serverConfig.colors.background,
+                  description: 'AI Generated Background',
+                } as ColorToken,
+                surface: {
+                  value: serverConfig.colors.surface,
+                  description: 'AI Generated Surface',
+                } as ColorToken,
+                text: {
+                  value: serverConfig.colors.text,
+                  description: 'AI Generated Text',
+                } as ColorToken,
+                textMuted: {
+                  value: serverConfig.colors.textMuted,
+                  description: 'AI Generated Muted Text',
+                } as ColorToken,
+                border: {
+                  value: serverConfig.colors.border,
+                  description: 'AI Generated Border',
+                } as ColorToken,
+              },
+            },
+            effects: {
+              ...base.effects,
+              globalType: serverConfig.effects?.type || 'standard',
+            },
+            metadata: {
+              ...base.metadata,
+              mode: serverConfig.mode || 'light',
+              updatedAt: new Date().toISOString(),
+            },
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(
+        '[aiThemePromptService] Backend generation unavailable, using local synthesis:',
+        err
+      )
+    }
+
+    // Fallback to local synchronous synthesis
+    return this.generateThemeFromPrompt(prompt, baseConfig)
+  }
 }
 
 export const aiThemePromptService = new AiThemePromptService()

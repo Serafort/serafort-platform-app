@@ -5,7 +5,7 @@ import LocalTable from './LocalTable'
 import columnDefault from './columns'
 
 export default function App() {
-  const rerender = React.useReducer(() => ({}))[1]
+  const rerender = React.useReducer(() => ({}), {})[1]
 
   const columns = React.useMemo<Array<ColumnDef<IPerson>>>(() => columnDefault, [])
 

@@ -21,6 +21,8 @@
         "jsx": "react-jsx",
         "baseUrl": ".",
         "paths": {
+            "@cap/auth-contracts": ["../../auth-contracts/src"],
+            "@cap/auth-contracts/*": ["../../auth-contracts/src/*"],
             "@cap/api-contracts": ["../../api-contracts/src"],
             "@cap/api-contracts/*": ["../../api-contracts/src/*"],
             "@cap/platform-core": ["../../platform-core/src"],
