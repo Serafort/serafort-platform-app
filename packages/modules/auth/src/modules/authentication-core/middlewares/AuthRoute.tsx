@@ -29,19 +29,13 @@ const AuthRoute = ({
   const hasAllowedRoleAccess = useCan('access', { type: 'auth_route', attributes: { allowedRoles } })
 
   React.useEffect(() => {
-    // Force admin layout for admins if currently set to 'none'
-    const finalLayout = isAdminSession && layout === 'none' ? 'admin' : layout
-
-    if (finalLayout !== 'none') {
-      updateLayoutOverride(finalLayout)
+    if (layout !== 'none') {
+      updateLayoutOverride(layout)
       return () => {
-        // Only reset if we are NOT an admin
-        if (!isAdminSession) {
-          updateLayoutOverride('none')
-        }
+        updateLayoutOverride('none')
       }
     }
-  }, [layout, updateLayoutOverride, isAdminSession])
+  }, [layout, updateLayoutOverride])
 
   if (isLoading) {
     return (

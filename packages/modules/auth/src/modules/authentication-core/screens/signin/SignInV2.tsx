@@ -11,6 +11,9 @@ export default function SignInV2() {
     t,
     control,
     handleSubmit,
+    isSubmitting,
+    isValidating,
+    isLocked,
     status,
     showPassword,
     mode,
@@ -123,6 +126,9 @@ export default function SignInV2() {
               isDiscovering={isDiscovering}
               isLoginPending={loginMutation.isPending}
               isPasskeyPending={passkeyLoginMutation.isPending}
+              isSubmitting={isSubmitting}
+              isValidating={isValidating}
+              isLocked={isLocked}
               onShowPassword={handleShowPassword}
               onPasskeyLogin={handlePasskeyLogin}
               onSocialLogin={handleSocialLogin}

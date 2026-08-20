@@ -8,6 +8,8 @@ import Edit from '@mui/icons-material/Edit';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import { useNavigate } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useUserProfile, useUpdateMe, useExportMutation, useErasureMutation } from '../../hooks/useUserQuery';
 import { useAuth, useNotifications } from '@cap/platform-core';
@@ -22,30 +24,27 @@ interface EditProfileProps {
   onCancel?: () => void
 }
 
-// Form data combining User and Profile fields for the edit form
-interface ProfileFormData {
-  // User fields
-  firstName: string
-  lastName: string
-  phone: string
-  email: string
-  // Profile fields
-  biography: string
-  location: string
-  website: string
-  company: string
-  // Preferences
-  language: string
-  timezone: string
-  dateFormat: string
-  // Notification preferences (from Profile)
-  emailOnComment: boolean
-  emailOnCommentReply: boolean
-  emailOnAchievement: boolean
-  emailOnNewDeviceLogin: boolean
-  emailOnWatchlist: boolean
-  emailOnMention: boolean
-}
+const profileFormSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  phone: z.string(),
+  email: z.string().email('Invalid email address').min(1, 'Email is required'),
+  biography: z.string().max(500, 'Bio cannot exceed 500 characters'),
+  location: z.string(),
+  website: z.string(),
+  company: z.string(),
+  language: z.string(),
+  timezone: z.string(),
+  dateFormat: z.string(),
+  emailOnComment: z.boolean(),
+  emailOnCommentReply: z.boolean(),
+  emailOnAchievement: z.boolean(),
+  emailOnNewDeviceLogin: z.boolean(),
+  emailOnWatchlist: z.boolean(),
+  emailOnMention: z.boolean(),
+})
+
+type ProfileFormData = z.infer<typeof profileFormSchema>
 
 const LANGUAGES = [
   { label: 'auth.account.languages.en-us', value: 'en-us' },
@@ -78,6 +77,7 @@ export default function EditProfile({ onSave, onCancel }: EditProfileProps) {
   const { data: profileData, isLoading } = useUserProfile()
 
   const controlForm = useForm<ProfileFormData>({
+    resolver: zodResolver(profileFormSchema),
     defaultValues: {
       firstName: '',
       lastName: '',

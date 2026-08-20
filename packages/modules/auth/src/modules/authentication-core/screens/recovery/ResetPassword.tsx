@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Button, TextField, Typography, Alert, InputAdornment, IconButton, CircularProgress, alpha, useTheme, Stack, Link as MuiLink } from '@mui/material';
 import LockOutlined from '@mui/icons-material/LockOutlined';
 import Visibility from '@mui/icons-material/Visibility';
@@ -11,6 +13,8 @@ import type { ResetPasswordRequest } from '../../types/api.types';
 import { useResetPassword } from '@cap/module-auth/modules/authentication-core/hooks/useAuthQuery';
 import authService from '@cap/module-auth/modules/authentication-core/services/auth.service';
 import { AuthPageLayout, AuthScreenIcon, AuthInputLabel, AuthActionButton } from '@cap/module-auth/modules/authentication-core/components/shared/auth';
+import { ResetPasswordSchema, ResetPasswordSchemaType } from '../../utils/schema';
+import { useActionLock } from '../../hooks/useActionLock';
 
 const SUPPORT_EMAIL = 'support@example.com'
 
@@ -21,14 +25,23 @@ export default function ResetPassword() {
   const { email } = useParams()
   const [searchParams] = useSearchParams()
   const signature = searchParams.get('signature')
+  const { isLocked, executeWithLock } = useActionLock(100)
 
   const [loading, setLoading] = useState(true)
   const [signatureError, setSignatureError] = useState<string | null>(null)
   const [token, setToken] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValidating },
+  } = useForm<ResetPasswordSchemaType>({
+    defaultValues: { password: '', confirmPassword: '' },
+    resolver: zodResolver(ResetPasswordSchema),
+    mode: 'onTouched',
+  })
 
   useEffect(() => {
     async function fetchData() {
@@ -65,31 +78,20 @@ export default function ResetPassword() {
     },
   })
 
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault()
-      setError(null)
-      if (!newPassword || !confirmPassword) {
-        setError(t('signIn.errorIncomplete', 'Please fill in all fields.'))
-        return
-      }
-      if (newPassword.length < 8) {
-        setError(t('register.passwordMinLength', 'Password must be at least 8 characters.'))
-        return
-      }
-      if (newPassword !== confirmPassword) {
-        setError(t('register.passwordsMustMatch', 'Passwords do not match.'))
-        return
-      }
-      const data: ResetPasswordRequest = {
-        token,
-        email: email || '',
-        password: newPassword,
-        confirmPassword,
-      }
-      resetPasswordMutation.mutate({ data })
+  const onSubmit = useCallback(
+    (data: ResetPasswordSchemaType) => {
+      executeWithLock(async () => {
+        setError(null)
+        const payload: ResetPasswordRequest = {
+          token,
+          email: email || '',
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+        }
+        resetPasswordMutation.mutate({ data: payload })
+      })
     },
-    [token, email, newPassword, confirmPassword, resetPasswordMutation, t],
+    [token, email, executeWithLock, resetPasswordMutation],
   )
 
   if (loading) {
@@ -171,60 +173,77 @@ export default function ResetPassword() {
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Stack spacing={3}>
           <Box>
             <AuthInputLabel>{t('resetPassword.newPasswordLabel', 'NEW PASSWORD')}</AuthInputLabel>
-            <TextField
-              fullWidth
-              type={showPassword ? 'text' : 'password'}
-              placeholder="••••••••••••"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              disabled={resetPasswordMutation.isPending}
-              autoComplete="new-password"
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small" aria-label="Toggle password visibility">
-                        {showPassword ? <VisibilityOff sx={{ fontSize: 20 }} /> : <Visibility sx={{ fontSize: 20 }} />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
-                },
-              }}
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••••••"
+                  disabled={resetPasswordMutation.isPending || isSubmitting}
+                  autoComplete="new-password"
+                  error={Boolean(errors.password)}
+                  helperText={errors.password?.message}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small" aria-label="Toggle password visibility">
+                            {showPassword ? <VisibilityOff sx={{ fontSize: 20 }} /> : <Visibility sx={{ fontSize: 20 }} />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
+                    },
+                  }}
+                />
+              )}
             />
           </Box>
 
           <Box>
             <AuthInputLabel>{t('resetPassword.confirmPasswordLabel', 'CONFIRM PASSWORD')}</AuthInputLabel>
-            <TextField
-              fullWidth
-              type={showPassword ? 'text' : 'password'}
-              placeholder="••••••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              disabled={resetPasswordMutation.isPending}
-              autoComplete="new-password"
-              slotProps={{
-                input: {
-                  sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
-                },
-              }}
+            <Controller
+              name="confirmPassword"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••••••"
+                  disabled={resetPasswordMutation.isPending || isSubmitting}
+                  autoComplete="new-password"
+                  error={Boolean(errors.confirmPassword)}
+                  helperText={errors.confirmPassword?.message}
+                  slotProps={{
+                    input: {
+                      sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
+                    },
+                  }}
+                />
+              )}
             />
           </Box>
 
           <AuthActionButton
             type="submit"
             isLoading={resetPasswordMutation.isPending}
+            isSubmitting={isSubmitting}
+            isValidating={isValidating}
+            isLocked={isLocked}
             label={
               resetPasswordMutation.isPending
                 ? t('resetPassword.submitting', 'Resetting...')
                 : t('resetPassword.submit', 'Reset Password')
             }
-            disabled={resetPasswordMutation.isPending || !newPassword || !confirmPassword}
+            disabled={resetPasswordMutation.isPending || isSubmitting || isLocked}
             sx={{ mt: 2 }}
           />
         </Stack>

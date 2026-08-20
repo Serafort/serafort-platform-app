@@ -1,15 +1,38 @@
 import { z } from 'zod'
 
 export const LoginSchema = z.object({
-  email: z.string().email('Invalid email address').min(1, 'Email is required'),
+  email: z.string().min(1, 'Email is required').email('Invalid email address'),
   password: z.string()
     .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
     .regex(/[a-z]/, 'Must contain at least one lowercase letter')
     .regex(/[0-9]/, 'Must contain at least one number')
     .regex(/[^A-Za-z0-9]/, 'Must contain at least one special character'),
-  rememberMe: z.boolean().optional(),
+  rememberMe: z.boolean().default(false).optional(),
 })
+
+export const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: 'auth.validation.emailRequired' })
+    .email({ message: 'auth.validation.emailInvalid' }),
+  password: z
+    .string()
+    .min(8, { message: 'auth.validation.passwordMinLength' })
+    .max(100, { message: 'auth.validation.passwordMaxLength' }),
+  rememberMe: z.boolean().default(false).optional(),
+})
+
+export type LoginFormData = z.infer<typeof loginSchema>
+
+export const mfaCodeSchema = z.object({
+  code: z
+    .string()
+    .length(6, { message: 'auth.validation.mfaInvalidLength' })
+    .regex(/^\d+$/, { message: 'auth.validation.mfaNumericOnly' }),
+})
+
+export type MfaFormData = z.infer<typeof mfaCodeSchema>
 
 export const RegisterSchema = z
   .object({
@@ -22,6 +45,7 @@ export const RegisterSchema = z
       .regex(/[0-9]/, 'Must contain at least one number')
       .regex(/[^A-Za-z0-9]/, 'Must contain at least one special character'),
     confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine((val) => val === true, 'You must accept the terms of service').optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -63,8 +87,69 @@ export const UpdateProfileSchema = z.object({
     .optional(),
 })
 
+export const ForgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address').min(1, 'Email is required'),
+})
+
+export const ResetPasswordSchema = z
+  .object({
+    password: z.string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
+      .regex(/[a-z]/, 'Must contain at least one lowercase letter')
+      .regex(/[0-9]/, 'Must contain at least one number')
+      .regex(/[^A-Za-z0-9]/, 'Must contain at least one special character'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  })
+
+export const ChangePhoneSchema = z.object({
+  phone: z.string().min(6, 'Please enter a valid phone number'),
+  password: z.string().min(1, 'Password is required'),
+})
+
+export const DeactivateAccountSchema = z.object({
+  desactivate: z.literal(true, {
+    errorMap: () => ({ message: 'You must confirm account deactivation' }),
+  }),
+})
+
+export const SsoIdentifierSchema = z.object({
+  sso_identifier: z.string().min(1, 'SSO identifier or corporate email is required'),
+})
+
+export const DetailedProfileSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  phone: z.string().optional(),
+  email: z.string().email('Invalid email address'),
+  biography: z.string().max(500, 'Bio cannot exceed 500 characters').optional(),
+  location: z.string().optional(),
+  website: z.string().url('Invalid website URL').optional().or(z.literal('')),
+  company: z.string().optional(),
+  language: z.string().default('en-us'),
+  timezone: z.string().default('pst'),
+  dateFormat: z.string().default('mm-dd-yyyy'),
+  emailOnComment: z.boolean().default(true),
+  emailOnCommentReply: z.boolean().default(true),
+  emailOnAchievement: z.boolean().default(true),
+  emailOnNewDeviceLogin: z.boolean().default(true),
+  emailOnWatchlist: z.boolean().default(true),
+  emailOnMention: z.boolean().default(true),
+})
+
 export type LoginSchemaType = z.infer<typeof LoginSchema>
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>
 export type ChangePasswordSchemaType = z.infer<typeof ChangePasswordSchema>
 export type ChangeEmailSchemaType = z.infer<typeof ChangeEmailSchema>
 export type UpdateProfileSchemaType = z.infer<typeof UpdateProfileSchema>
+export type DetailedProfileSchemaType = z.infer<typeof DetailedProfileSchema>
+export type ForgotPasswordSchemaType = z.infer<typeof ForgotPasswordSchema>
+export type ResetPasswordSchemaType = z.infer<typeof ResetPasswordSchema>
+export type ChangePhoneSchemaType = z.infer<typeof ChangePhoneSchema>
+export type DeactivateAccountSchemaType = z.infer<typeof DeactivateAccountSchema>
+export type SsoIdentifierSchemaType = z.infer<typeof SsoIdentifierSchema>
+

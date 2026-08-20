@@ -30,7 +30,8 @@ export const mfaService = {
         const response = await apiClient.post(ENDPOINTS.auth.passkey.registerStart, { email })
         if (response.data) return { data: response.data }
       } catch (err) {
-        console.warn('[mfaService] Fallback to local options on error', err)
+        if (!import.meta.env.DEV) throw err
+        console.warn('[mfaService] Fallback to local options on error (DEV only)', err)
       }
       return {
         data: {
@@ -48,7 +49,8 @@ export const mfaService = {
         const response = await apiClient.post(ENDPOINTS.auth.passkey.registerFinish, data)
         if (response.data) return { data: response.data }
       } catch (err) {
-        console.warn('[mfaService] Passkey register verify fallback', err)
+        if (!import.meta.env.DEV) throw err
+        console.warn('[mfaService] Passkey register verify fallback (DEV only)', err)
       }
       return { data: { verified: true, credentialId: 'cred-' + Date.now() } }
     },
@@ -57,7 +59,8 @@ export const mfaService = {
         const response = await apiClient.post(ENDPOINTS.auth.passkey.loginStart, { email })
         if (response.data) return { data: response.data }
       } catch (err) {
-        console.warn('[mfaService] Fallback to local auth options on error', err)
+        if (!import.meta.env.DEV) throw err
+        console.warn('[mfaService] Fallback to local auth options on error (DEV only)', err)
       }
       return {
         data: {
@@ -73,7 +76,8 @@ export const mfaService = {
         const response = await apiClient.post(ENDPOINTS.auth.passkey.loginFinish, data)
         if (response.data) return { data: response.data }
       } catch (err) {
-        console.warn('[mfaService] Passkey login verify fallback', err)
+        if (!import.meta.env.DEV) throw err
+        console.warn('[mfaService] Passkey login verify fallback (DEV only)', err)
       }
       return {
         data: {
@@ -90,34 +94,50 @@ export const mfaService = {
       const response = await apiClient.post(ENDPOINTS.auth.mfa.verify, { userId, code })
       if (response.data) return { data: response.data }
     } catch (err) {
-      console.warn('[mfaService] TOTP verify API fallback', err)
+      if (import.meta.env.DEV) {
+        console.warn('[mfaService] TOTP verify API fallback (DEV mode only)', err)
+        return { data: { success: true } }
+      }
+      throw err
     }
-    return { data: { success: true } }
+    return { data: { success: false } }
   },
 
   stepUp: {
-    getChallenge: async (action?: string): Promise<{ data: StepUpChallengeResponse }> => ({
-      data: {
-        challenge: 'stepup-challenge-' + Date.now() + (action ? `-${action}` : ''),
-        rpId: (typeof window !== 'undefined' && window.location.hostname) || 'localhost',
-        timeout: 60000,
-        userVerification: 'required',
-      },
-    }),
-    verifyBiometric: async (_assertionResponse: any): Promise<{ data: StepUpVerificationResult }> => ({
-      data: {
-        success: true,
-        elevationToken: 'elevated-jwt-' + Math.random().toString(36).substring(2) + '-' + Date.now(),
-        expiresAt: Date.now() + 15 * 60 * 1000, // 15 minutes validity
-      },
-    }),
-    verifyTotp: async (_code: string): Promise<{ data: StepUpVerificationResult }> => ({
-      data: {
-        success: true,
-        elevationToken: 'elevated-totp-' + Math.random().toString(36).substring(2) + '-' + Date.now(),
-        expiresAt: Date.now() + 15 * 60 * 1000,
-      },
-    }),
+    getChallenge: async (action?: string): Promise<{ data: StepUpChallengeResponse }> => {
+      return {
+        data: {
+          challenge: 'stepup-challenge-' + Date.now() + (action ? `-${action}` : ''),
+          rpId: (typeof window !== 'undefined' && window.location.hostname) || 'localhost',
+          timeout: 60000,
+          userVerification: 'required',
+        },
+      }
+    },
+    verifyBiometric: async (_assertionResponse: any): Promise<{ data: StepUpVerificationResult }> => {
+      if (!import.meta.env.DEV) {
+        throw new Error('Biometric step-up verification requires configured backend endpoint in production')
+      }
+      return {
+        data: {
+          success: true,
+          elevationToken: 'elevated-jwt-' + Math.random().toString(36).substring(2) + '-' + Date.now(),
+          expiresAt: Date.now() + 15 * 60 * 1000, // 15 minutes validity
+        },
+      }
+    },
+    verifyTotp: async (_code: string): Promise<{ data: StepUpVerificationResult }> => {
+      if (!import.meta.env.DEV) {
+        throw new Error('TOTP step-up verification requires configured backend endpoint in production')
+      }
+      return {
+        data: {
+          success: true,
+          elevationToken: 'elevated-totp-' + Math.random().toString(36).substring(2) + '-' + Date.now(),
+          expiresAt: Date.now() + 15 * 60 * 1000,
+        },
+      }
+    },
   },
 }
 

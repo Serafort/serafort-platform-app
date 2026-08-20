@@ -150,7 +150,7 @@ export default defineConfig({
     strictPort: false,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:3333',
+        target: 'http://localhost:3333',
         changeOrigin: true,
         configure: (proxy) => {
           // SECURITY NOTE (Finding 4.4): This dev proxy forwards client Host as x-tenant-host for local dev.

@@ -13,6 +13,7 @@ import {
   ListItemIcon,
   ListItemText,
   alpha,
+  Alert,
 } from '@mui/material'
 import Fingerprint from '@mui/icons-material/Fingerprint';
 import Lock from '@mui/icons-material/Lock';
@@ -22,6 +23,10 @@ import Shield from '@mui/icons-material/Shield';
 import Speed from '@mui/icons-material/Speed';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { startRegistration } from '@simplewebauthn/browser'
+import { mfaService } from '../services/mfa.service'
+import { Path as AuthPath } from '@cap/module-auth/routes/path'
 
 const BENEFITS = [
   { icon: <Shield />, text: 'Phishing-resistant authentication' },
@@ -34,16 +39,35 @@ const STEPS = ['Review Benefits', 'Register Authenticator']
 
 export default function PlatformAuthRegister() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [activeStep, setActiveStep] = useState(0)
   const [isRegistering, setIsRegistering] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     setIsRegistering(true)
-    setTimeout(() => {
-      setIsRegistering(false)
+    setError(null)
+    try {
+      // 1. Get registration options from server
+      const optionsRes = await mfaService.passkeys.getRegistrationOptions()
+      if (!optionsRes.data) {
+        throw new Error('Failed to retrieve passkey registration options')
+      }
+
+      // 2. Start native WebAuthn registration
+      const regResponse = await startRegistration(optionsRes.data)
+
+      // 3. Verify on server
+      await mfaService.passkeys.verifyRegistration(regResponse)
+
       setIsComplete(true)
-    }, 2500)
+    } catch (err: any) {
+      console.error('[PlatformAuthRegister] Registration error:', err)
+      setError(err?.message || 'Failed to register biometric authenticator.')
+    } finally {
+      setIsRegistering(false)
+    }
   }
 
   return (
@@ -155,6 +179,11 @@ export default function PlatformAuthRegister() {
       {/* Step 2: Register */}
       {activeStep === 1 && !isComplete && (
         <Box sx={{ textAlign: 'center' }}>
+          {error && (
+            <Alert severity='error' sx={{ mb: 3, textAlign: 'left', borderRadius: 2 }}>
+              {error}
+            </Alert>
+          )}
           {isRegistering ? (
             <Box sx={{ py: 4 }}>
               <CircularProgress size={56} thickness={3} sx={{ mb: 3 }} />
@@ -203,6 +232,7 @@ export default function PlatformAuthRegister() {
           <Button
             variant='contained'
             size='large'
+            onClick={() => navigate(AuthPath.account.overview || '/')}
             sx={{
               textTransform: 'none',
               fontWeight: 700,

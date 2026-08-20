@@ -1,19 +1,28 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import { Box, Button, Card, CardContent, Typography, Divider, List, ListItem, ListItemText, ListItemIcon, CircularProgress, Alert, Paper, Avatar } from '@mui/material';
+import { Box, Button, Card, CardContent, Typography, Divider, List, ListItem, ListItemText, ListItemIcon, CircularProgress, Alert, Paper, Avatar, LinearProgress, Chip, Grid } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
 import DownloadIcon from '@mui/icons-material/Download';
 import FileIcon from '@mui/icons-material/FilePresent';
 import HistoryIcon from '@mui/icons-material/History';
 import ScheduleIcon from '@mui/icons-material/Schedule';
+import StorageIcon from '@mui/icons-material/Storage';
+import SpeedIcon from '@mui/icons-material/Speed';
+import TimerIcon from '@mui/icons-material/Timer';
 import { buildLayoutSurfaceEffect } from '@cap/layout';
 import { getTenantThemeEffects } from '@cap/theme';
-// 
 import { useComplianceExport, useExportMutation } from '../../hooks/useUserQuery';
+import { useChunkProgressTracker } from '../../../authentication-core/hooks/useChunkProgressTracker';
 
 export const DataExport: React.FC = () => {
   const theme = useTheme()
   // const { t } = useTranslation()
   const [requestSuccess, setRequestSuccess] = useState(false)
+  const tracker = useChunkProgressTracker({
+    totalChunks: 24,
+    chunkSize: 150,
+    bytesPerChunk: 128 * 1024,
+    updateIntervalMs: 140,
+  })
   
   // Custom hook to fetch existing exports or request status
   const { data: exportData, isLoading, refetch } = useComplianceExport()
@@ -27,13 +36,16 @@ export const DataExport: React.FC = () => {
 
   const handleRequestExport = useCallback(async () => {
     try {
+      tracker.start()
       await requestExport()
+      tracker.finish()
       setRequestSuccess(true)
       refetch()
     } catch (error) {
       console.error('Failed to request export', error)
+      tracker.reset()
     }
-  }, [requestExport, refetch])
+  }, [requestExport, refetch, tracker])
 
   // Map backend response or use mock for demo if empty
   const items = useMemo(() => {
@@ -86,23 +98,82 @@ export const DataExport: React.FC = () => {
                   Request submitted! We are preparing your data.
                 </Alert>
               ) : (
-                <Button
-                  variant='contained'
-                  onClick={handleRequestExport}
-                  disabled={isRequesting}
-                  startIcon={isRequesting ? <CircularProgress size={20} color="inherit" /> : <ScheduleIcon />}
-                  sx={{
-                    borderRadius: 2.5,
-                    textTransform: 'none',
-                    px: 4,
-                    py: 1.2,
-                    bgcolor: 'info.main',
-                    boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-                    fontWeight: 700,
-                  }}
-                >
-                  {isRequesting ? 'Processing...' : 'Generate New Export'}
-                </Button>
+                <Box>
+                  <Button
+                    variant='contained'
+                    onClick={handleRequestExport}
+                    disabled={isRequesting}
+                    startIcon={isRequesting ? <CircularProgress size={20} color="inherit" /> : <ScheduleIcon />}
+                    sx={{
+                      borderRadius: 2.5,
+                      textTransform: 'none',
+                      px: 4,
+                      py: 1.2,
+                      bgcolor: 'info.main',
+                      boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {isRequesting ? `Processing Archive (${tracker.progress}%)` : 'Generate New Export'}
+                  </Button>
+
+                  {isRequesting && (
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        mt: 2.5,
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: alpha(theme.palette.background.paper, 0.6),
+                        border: '1px solid',
+                        borderColor: 'divider',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 800 }}>
+                          Collecting GDPR Chunk {tracker.processedChunks} of {tracker.totalChunks}
+                        </Typography>
+                        <Chip
+                          label={`${tracker.progress}%`}
+                          color="info"
+                          size="small"
+                          sx={{ fontWeight: 800, height: 20, fontSize: '0.7rem' }}
+                        />
+                      </Box>
+                      <LinearProgress
+                        variant="determinate"
+                        value={tracker.progress}
+                        sx={{ height: 6, borderRadius: 3, mb: 1.5 }}
+                      />
+                      <Grid container spacing={1}>
+                        <Grid size={{ xs: 4 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <StorageIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                              {tracker.processedBytesFormatted} / {tracker.totalBytesFormatted}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        <Grid size={{ xs: 4 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <SpeedIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                              {tracker.itemsPerSecond} rec/s
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        <Grid size={{ xs: 4 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <TimerIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                              ETA: {tracker.etaFormatted}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                      </Grid>
+                    </Paper>
+                  )}
+                </Box>
               )}
             </Box>
           </Box>

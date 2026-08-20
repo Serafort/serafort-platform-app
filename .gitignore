@@ -42,3 +42,5 @@ storybook-static
 *.tsbuildinfo
 *.txt
 *.log
+.agents/skills/*
+skills-lock.json

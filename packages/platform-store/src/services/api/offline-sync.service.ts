@@ -46,39 +46,53 @@ export async function replayOfflineQueue() {
         }
 
         if (response.ok) {
-          console.log(`[OfflineSync] Successfully replayed ${entry.id}`)
+          if (import.meta.env.DEV) console.log(`[OfflineSync] Successfully replayed ${entry.id}`)
           removeFromOfflineQueue(entry.id)
         } else {
-           // Handle specific errors like 409 Conflict
-           if (response.status === 409) {
-             console.warn(`[OfflineSync] Conflict (409) for ${entry.id}. Manual resolution required.`)
-             // In a real app, we might notify the user. For now, we'll keep it in queue or remove it.
-             // ADR says: "surfaceConflictToUser(entry)". We'll just log and keep for now.
-             incrementOfflineRetry(entry.id)
-           } else {
-             incrementOfflineRetry(entry.id)
-           }
+          // Handle specific errors like 409 Conflict
+          if (response.status === 409) {
+            console.warn(`[OfflineSync] Conflict (409) for ${entry.id}. Manual resolution required.`)
+            useAppStore.getState().addNotification({
+              title: 'Offline Sync Conflict',
+              message: `A conflict occurred while syncing offline data for ${entry.url}.`,
+              type: 'warning',
+            })
+            incrementOfflineRetry(entry.id)
+          } else {
+            incrementOfflineRetry(entry.id)
+          }
         }
       } catch (err: any) {
         console.error(`[OfflineSync] Failed to replay ${entry.id}:`, err.message)
-        
+
         // If it's a terminal auth error, it will be handled by the store reset
         // If it's a network error again, we stop replaying
         if (err.code === 'NETWORK_ERROR' || (err instanceof TypeError && err.message === 'Failed to fetch')) {
-            console.warn('[OfflineSync] Network lost during replay, stopping.')
-            break
+          console.warn('[OfflineSync] Network lost during replay, stopping.')
+          break
         }
-        
+
         incrementOfflineRetry(entry.id)
-        
-        // If we have too many retries, maybe remove it?
-        if ((offlineQueue.find(e => e.id === entry.id)?.retryCount || 0) > 5) {
-            console.error(`[OfflineSync] Entry ${entry.id} failed too many times. Removing.`)
-            removeFromOfflineQueue(entry.id)
+
+        // If we have too many retries, remove it and notify user
+        const currentRetry = (offlineQueue.find((e) => e.id === entry.id)?.retryCount || 0) + 1
+        if (currentRetry > 5) {
+          console.error(`[OfflineSync] Entry ${entry.id} failed too many times. Removing.`)
+          removeFromOfflineQueue(entry.id)
+          useAppStore.getState().addNotification({
+            title: 'Offline Sync Failed',
+            message: `Pending change for ${entry.url} could not be synchronized and was dismissed.`,
+            type: 'error',
+          })
         }
       }
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('[OfflineSync] Critical failure during replay:', error)
+    useAppStore.getState().addNotification({
+      title: 'Sync Queue Error',
+      message: 'An unexpected issue occurred while syncing pending offline actions.',
+      type: 'error',
+    })
   }
 }

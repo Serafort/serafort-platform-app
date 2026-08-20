@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
-
-import { Box, Button, TextField, Typography, Alert, Divider, InputAdornment, IconButton, CircularProgress, Stack, Avatar, Checkbox, FormControlLabel, alpha, useTheme } from '@mui/material';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Box, Button, TextField, Typography, Alert, Divider, InputAdornment, IconButton, CircularProgress, Stack, Avatar, Checkbox, FormControlLabel, FormHelperText, alpha, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import GitHub from '@mui/icons-material/GitHub';
 import Google from '@mui/icons-material/Google';
@@ -14,67 +15,59 @@ import type { RegisterRequest } from '../../types/api.types';
 import { useRegister } from '@idaas/authentication-core/hooks/useAuthQuery';
 import { API_CONFIG } from '@cap/platform-core';
 import { ENDPOINTS } from '@cap/platform-core';
-
-const EMAIL_PATTERN = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+import { RegisterSchema, type RegisterSchemaType } from '../../utils/schema';
 
 export default function SignUp() {
   const { t } = useTranslation('auth')
   const theme = useTheme()
   const navigate = useNavigate()
 
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [acceptTerms, setAcceptTerms] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterSchemaType>({
+    resolver: zodResolver(RegisterSchema),
+    defaultValues: {
+      fullName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      acceptTerms: false,
+    },
+  })
+
   const registerMutation = useRegister({
-    onSuccess: () => {
-      navigate('/auth/verify-email', { state: { email } })
+    onSuccess: (_, variables) => {
+      navigate('/auth/verify-email', { state: { email: variables.data.email } })
     },
     onError: (err: any) => {
       setError(err.response?.data?.detail || err.message || t('login.loginFailed', 'Registration failed.'))
     },
   })
 
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault()
+  const onSubmit = useCallback(
+    (formData: RegisterSchemaType) => {
       setError(null)
-      if (!fullName || !email || !password || !confirmPassword) {
-        setError(t('register.errorIncomplete', 'Please fill in all fields.'))
-        return
-      }
-      if (!EMAIL_PATTERN.test(email)) {
-        setError(t('login.invalidEmail', 'Please enter a valid email address.'))
-        return
-      }
-      if (password.length < 8) {
-        setError(t('register.passwordMinLength', 'Password must be at least 8 characters.'))
-        return
-      }
-      if (password !== confirmPassword) {
-        setError(t('register.passwordsMustMatch', 'Passwords do not match.'))
-        return
-      }
-      if (!acceptTerms) {
+      if (!formData.acceptTerms) {
         setError(t('signup.errorTerms', 'You must accept the terms of service.'))
         return
       }
-      const parts = fullName.trim().split(' ')
+      const parts = formData.fullName.trim().split(' ')
       const data: RegisterRequest = {
-        email,
-        password,
-        confirmPassword,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
         firstname: parts[0],
         lastname: parts.slice(1).join(' '),
-        isTermsSign: acceptTerms,
+        isTermsSign: !!formData.acceptTerms,
       }
       registerMutation.mutate({ data })
     },
-    [fullName, email, password, confirmPassword, acceptTerms, registerMutation, t],
+    [registerMutation, t],
   )
 
   const handleSocialRegister = (provider: string) => {
@@ -177,25 +170,32 @@ export default function SignUp() {
         </Typography>
       </Divider>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3}>
           <Box>
             <Typography variant="caption" sx={{ fontWeight: 800, textTransform: 'uppercase', ml: 1, mb: 1, display: 'block', color: 'text.secondary' }}>
               {t('register.fullNameLabel', 'Full Name')}
             </Typography>
-            <TextField
-              fullWidth
-              placeholder="Jane Doe"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              disabled={registerMutation.isPending}
-              autoComplete="name"
-              autoFocus
-              slotProps={{
-                input: {
-                  sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
-                },
-              }}
+            <Controller
+              name="fullName"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  placeholder="Jane Doe"
+                  disabled={registerMutation.isPending}
+                  autoComplete="name"
+                  autoFocus
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                  slotProps={{
+                    input: {
+                      sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
+                    },
+                  }}
+                />
+              )}
             />
           </Box>
 
@@ -203,19 +203,26 @@ export default function SignUp() {
             <Typography variant="caption" sx={{ fontWeight: 800, textTransform: 'uppercase', ml: 1, mb: 1, display: 'block', color: 'text.secondary' }}>
               {t('register.emailLabel', 'Email Address')}
             </Typography>
-            <TextField
-              fullWidth
-              type="email"
-              placeholder="name@company.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={registerMutation.isPending}
-              autoComplete="email"
-              slotProps={{
-                input: {
-                  sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
-                },
-              }}
+            <Controller
+              name="email"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  type="email"
+                  placeholder="name@company.com"
+                  disabled={registerMutation.isPending}
+                  autoComplete="email"
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                  slotProps={{
+                    input: {
+                      sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
+                    },
+                  }}
+                />
+              )}
             />
           </Box>
 
@@ -223,26 +230,33 @@ export default function SignUp() {
             <Typography variant="caption" sx={{ fontWeight: 800, textTransform: 'uppercase', ml: 1, mb: 1, display: 'block', color: 'text.secondary' }}>
               {t('register.passwordLabel', 'Password')}
             </Typography>
-            <TextField
-              fullWidth
-              type={showPassword ? 'text' : 'password'}
-              placeholder="••••••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={registerMutation.isPending}
-              autoComplete="new-password"
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small" aria-label="Toggle password visibility">
-                        {showPassword ? <VisibilityOff sx={{ fontSize: 20 }} /> : <Visibility sx={{ fontSize: 20 }} />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
-                },
-              }}
+            <Controller
+              name="password"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••••••"
+                  disabled={registerMutation.isPending}
+                  autoComplete="new-password"
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small" aria-label="Toggle password visibility">
+                            {showPassword ? <VisibilityOff sx={{ fontSize: 20 }} /> : <Visibility sx={{ fontSize: 20 }} />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                      sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
+                    },
+                  }}
+                />
+              )}
             />
           </Box>
 
@@ -250,44 +264,64 @@ export default function SignUp() {
             <Typography variant="caption" sx={{ fontWeight: 800, textTransform: 'uppercase', ml: 1, mb: 1, display: 'block', color: 'text.secondary' }}>
               {t('register.confirmPasswordLabel', 'Confirm Password')}
             </Typography>
-            <TextField
-              fullWidth
-              type={showPassword ? 'text' : 'password'}
-              placeholder="••••••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              disabled={registerMutation.isPending}
-              autoComplete="new-password"
-              slotProps={{
-                input: {
-                  sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
-                },
-              }}
+            <Controller
+              name="confirmPassword"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••••••"
+                  disabled={registerMutation.isPending}
+                  autoComplete="new-password"
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                  slotProps={{
+                    input: {
+                      sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
+                    },
+                  }}
+                />
+              )}
             />
           </Box>
 
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={acceptTerms}
-                onChange={(e) => setAcceptTerms(e.target.checked)}
-                disabled={registerMutation.isPending}
-                color="info"
-              />
-            }
-            label={
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                {t('signup.iAgreeTo', 'I agree to the')}{' '}
-                <Typography component="span" variant="body2" sx={{ fontWeight: 700, color: 'text.primary', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
-                  {t('signup.termsOfService', 'Terms of Service')}
-                </Typography>{' '}
-                {t('signup.and', 'and')}{' '}
-                <Typography component="span" variant="body2" sx={{ fontWeight: 700, color: 'text.primary', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
-                  {t('signup.privacyPolicy', 'Privacy Policy')}
-                </Typography>
-              </Typography>
-            }
-            sx={{ mx: 0 }}
+          <Controller
+            name="acceptTerms"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Box>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={!!field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      disabled={registerMutation.isPending}
+                      color="info"
+                    />
+                  }
+                  label={
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      {t('signup.iAgreeTo', 'I agree to the')}{' '}
+                      <Typography component="span" variant="body2" sx={{ fontWeight: 700, color: 'text.primary', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
+                        {t('signup.termsOfService', 'Terms of Service')}
+                      </Typography>{' '}
+                      {t('signup.and', 'and')}{' '}
+                      <Typography component="span" variant="body2" sx={{ fontWeight: 700, color: 'text.primary', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
+                        {t('signup.privacyPolicy', 'Privacy Policy')}
+                      </Typography>
+                    </Typography>
+                  }
+                  sx={{ mx: 0 }}
+                />
+                {fieldState.error && (
+                  <FormHelperText error sx={{ ml: 1.5 }}>
+                    {fieldState.error.message}
+                  </FormHelperText>
+                )}
+              </Box>
+            )}
           />
 
           <Button

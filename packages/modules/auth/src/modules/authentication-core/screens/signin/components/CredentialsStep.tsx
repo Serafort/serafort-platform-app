@@ -32,6 +32,9 @@ interface CredentialsStepProps {
   isDiscovering: boolean
   isLoginPending: boolean
   isPasskeyPending: boolean
+  isSubmitting?: boolean
+  isValidating?: boolean
+  isLocked?: boolean
   onShowPassword: () => void
   onPasskeyLogin: () => void
   onSocialLogin: (provider: string) => void
@@ -49,6 +52,9 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
   isDiscovering,
   isLoginPending,
   isPasskeyPending,
+  isSubmitting,
+  isValidating,
+  isLocked,
   onShowPassword,
   onPasskeyLogin,
   onSocialLogin,
@@ -237,6 +243,9 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
             <AuthActionButton
               type='submit'
               isLoading={isLoginPending || isDiscovering}
+              isSubmitting={isSubmitting}
+              isValidating={isValidating}
+              isLocked={isLocked}
               label={
                 isLoginPending || isDiscovering
                   ? isDiscovering

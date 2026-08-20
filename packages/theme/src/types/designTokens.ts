@@ -149,3 +149,6 @@ export const DEFAULT_PRIMITIVE_TOKENS: PrimitiveTokens = {
     tooltip: 1500,
   },
 };
+
+export * from '../tokens';
+

@@ -6,6 +6,7 @@ import Send from '@mui/icons-material/Send';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Path } from '@cap/module-auth/routes/path';
+import authService from '../../services/auth.service';
 
 export default function VerificationLinkExpired() {
   const { t } = useTranslation('auth')
@@ -19,15 +20,24 @@ export default function VerificationLinkExpired() {
   const [error, setError] = useState<string | null>(null)
 
   const handleRequestNewLink = useCallback(async () => {
+    if (!email) {
+      navigate(Path.auth.signin)
+      return
+    }
+
     setSending(true)
     setError(null)
     setSuccessMsg(null)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await authService.resendVerification(email)
       setSuccessMsg(t('email.newLinkSent', 'A new verification link has been sent to your email.'))
       setTimeout(() => navigate(`${Path.checkEmail}?email=${encodeURIComponent(email)}`), 2000)
-    } catch {
-      setError(t('email.newLinkError', 'Failed to send new link. Please try again later.'))
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+        err?.message ||
+        t('email.newLinkError', 'Failed to send new link. Please try again later.')
+      )
     } finally {
       setSending(false)
     }

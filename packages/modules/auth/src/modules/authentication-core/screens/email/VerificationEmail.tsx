@@ -24,6 +24,8 @@ export default function VerificationEmail() {
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null
+
     async function fetchData() {
       if (!email || !signature) return
       try {
@@ -31,7 +33,7 @@ export default function VerificationEmail() {
         const response: FetchResponse = await authService.verifyEmail(email, signature)
         if (response.status === 200) {
           setSuccess(true)
-          setTimeout(() => navigate('/auth/login'), 5000)
+          timer = setTimeout(() => navigate('/auth/login'), 5000)
         }
       } catch (err) {
         setError(err as HttpError)
@@ -40,6 +42,10 @@ export default function VerificationEmail() {
       }
     }
     fetchData()
+
+    return () => {
+      if (timer) clearTimeout(timer)
+    }
   }, [email, navigate, signature])
 
   if (loading) {

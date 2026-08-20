@@ -10,13 +10,26 @@ import { themeConfig, useNotifications } from '@cap/platform-core';
 import { buildLayoutSurfaceEffect } from '@cap/layout';
 import { getTenantThemeEffects } from '@cap/theme';
 import { Controller, useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useChangePassword } from '@auth';
 
-interface ChangePasswordFormData {
-  currentPassword: string
-  password: string
-  confirmPassword: string
-}
+const changePasswordFormSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    password: z
+      .string()
+      .min(8, 'New password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
+      .regex(/[0-9!@#$%^&*(),.?":{}|<>]/, 'Must contain at least one number or special character'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  })
+
+type ChangePasswordFormData = z.infer<typeof changePasswordFormSchema>
 
 function ChangePassword() {
   const { t } = useTranslation()
@@ -31,6 +44,7 @@ function ChangePassword() {
   const { mutate: changePassword, isPending } = useChangePassword()
 
   const controlForm = useForm<ChangePasswordFormData>({
+    resolver: zodResolver(changePasswordFormSchema),
     defaultValues: {
       currentPassword: '',
       password: '',
@@ -271,14 +285,15 @@ function ChangePassword() {
                   <Controller
                     name='password'
                     control={controlForm.control}
-                    rules={{ required: true }}
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <TextField
                         {...field}
                         id='password'
                         fullWidth
                         placeholder={t('auth.set_new_password.password_placeholder')}
                         type={showPassword ? 'text' : 'password'}
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
                         slotProps={{
                           input: {
                             endAdornment: (

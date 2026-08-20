@@ -30,13 +30,15 @@ import KeyIcon from '@mui/icons-material/Key'
 import LoginIcon from '@mui/icons-material/Login'
 import { useTranslation } from 'react-i18next'
 import { useForm, useWatch } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Path, useSsoDiscovery } from "@auth"
 import { toast } from 'react-toastify';
+import { SsoIdentifierSchema, type SsoIdentifierSchemaType } from '@auth/modules/authentication-core/utils/schema';
 
 
-// â”€â”€ Debounce utility â”€â”€
+// ── Debounce utility ──
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value)
   useEffect(() => {
@@ -46,7 +48,7 @@ function useDebounce<T>(value: T, delay: number): T {
   return debounced
 }
 
-// â”€â”€ Provider display config â”€â”€
+// ── Provider display config ──
 const PROVIDER_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   saml: { label: 'SAML SSO', color: '#4CAF50', icon: <SecurityIcon sx={{ fontSize: 16 }} /> },
   oidc: { label: 'OpenID Connect', color: '#2196F3', icon: <KeyIcon sx={{ fontSize: 16 }} /> },
@@ -68,7 +70,8 @@ const SAMLSSOInitiation = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<SsoIdentifierSchemaType>({
+    resolver: zodResolver(SsoIdentifierSchema),
     defaultValues: {
       sso_identifier: '',
     },

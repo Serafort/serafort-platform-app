@@ -394,24 +394,40 @@ const SyncLogsView: React.FC = () => {
               </Typography>
             </Box>
           ) : logs.length === 0 ? (
-            <Box sx={{ py: 8, textAlign: 'center' }}>
+            <Box sx={{ py: 6, textAlign: 'center' }}>
               <Avatar
                 sx={{
                   width: 64,
                   height: 64,
                   mx: 'auto',
                   mb: 2,
-                  bgcolor: alpha(theme.palette.primary.main, 0.05),
+                  bgcolor: alpha(theme.palette.primary.main, 0.08),
                 }}
               >
-                <History sx={{ color: 'primary.main' }} />
+                <History sx={{ color: 'primary.main', fontSize: 32 }} />
               </Avatar>
-              <Typography variant='h6' sx={{ fontWeight: 900, mb: 0.5 }}>
+              <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
                 {t('admin.provisioning.logs.no_logs_title')}
               </Typography>
-              <Typography color='text.secondary' sx={{ fontWeight: 500 }}>
+              <Typography color='text.secondary' sx={{ fontWeight: 500, mb: 3, maxWidth: 400, mx: 'auto' }}>
                 {t('admin.provisioning.logs.no_logs_desc')}
               </Typography>
+              <Button
+                variant='contained'
+                color='primary'
+                startIcon={<Refresh />}
+                onClick={handleRefresh}
+                sx={{
+                  borderRadius: 2,
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  px: 3,
+                  py: 1,
+                  boxShadow: 1,
+                }}
+              >
+                {t('admin.provisioning.logs.refresh_action', 'Refresh Logs')}
+              </Button>
             </Box>
           ) : (
             <>

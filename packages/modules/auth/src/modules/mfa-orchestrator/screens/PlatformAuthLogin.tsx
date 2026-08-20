@@ -1,18 +1,33 @@
 import { useState } from 'react'
-import { Box, Button, Container, Typography, CircularProgress, alpha } from '@mui/material'
+import { Box, Button, Container, Typography, CircularProgress, alpha, Alert } from '@mui/material'
 import Fingerprint from '@mui/icons-material/Fingerprint';
 import Lock from '@mui/icons-material/Lock';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { usePasskey } from '../hooks/usePasskey'
+import { Path as AuthPath } from '@cap/module-auth/routes/path'
 
 export default function PlatformAuthLogin() {
   const { t } = useTranslation()
-  const [isScanning, setIsScanning] = useState(false)
+  const navigate = useNavigate()
+  const { loginWithPasskey, isLoading, error: passkeyError } = usePasskey()
+  const [localError, setLocalError] = useState<string | null>(null)
 
-  const handleStart = () => {
-    setIsScanning(true)
-    setTimeout(() => setIsScanning(false), 5173)
+  const handleStart = async () => {
+    setLocalError(null)
+    try {
+      const result = await loginWithPasskey()
+      if (result) {
+        navigate(AuthPath.account.overview || '/')
+      }
+    } catch (err: any) {
+      setLocalError(err?.message || 'Biometric authentication was cancelled or failed.')
+    }
   }
+
+  const isScanning = isLoading
+  const displayError = localError || passkeyError
 
   return (
     <Container maxWidth='xs' sx={{ py: 8 }}>
@@ -78,6 +93,12 @@ export default function PlatformAuthLogin() {
               )}
         </Typography>
 
+        {displayError && (
+          <Alert severity='error' sx={{ mb: 3, textAlign: 'left', borderRadius: 2 }}>
+            {displayError}
+          </Alert>
+        )}
+
         {!isScanning && (
           <Button
             variant='contained'
@@ -102,6 +123,7 @@ export default function PlatformAuthLogin() {
           <Box sx={{ mt: 2 }}>
             <Button
               variant='text'
+              onClick={() => navigate(AuthPath.auth.signin)}
               endIcon={<ArrowForward sx={{ fontSize: 16 }} />}
               sx={{ textTransform: 'none', fontWeight: 600, color: 'text.secondary' }}
             >

@@ -5,7 +5,9 @@ const dialog = (skin: Skin): Theme['components'] => ({
   MuiDialog: {
     styleOverrides: {
       paper: ({ theme }) => ({
-        borderRadius: 'var(--mui-shape-customBorderRadius-lg)',
+        borderRadius: 'var(--form-modal-radius, var(--radius-xl, var(--mui-shape-customBorderRadius-lg, 16px)))',
+        backgroundColor: 'var(--surface-paper, var(--mui-palette-background-paper))',
+        maxWidth: 'var(--form-modal-max-width, 480px)',
         ...(skin !== 'bordered'
           ? {
               boxShadow: 'var(--mui-customShadows-lg)',
@@ -19,6 +21,7 @@ const dialog = (skin: Skin): Theme['components'] => ({
       }),
       paperFullScreen: {
         borderRadius: 0,
+        maxWidth: '100%',
       },
     },
   },

@@ -5,6 +5,7 @@ import { alpha } from '@mui/material/styles'
 import {
   computeNeumorphismBoxShadow,
   getGlassmorphismStyles,
+  getLiquidGlassStyles,
   getBrutalismStyles,
   getBentoStyles,
   getOrganicStyles,
@@ -26,6 +27,20 @@ const buildGlassEffect: SurfaceEffectBuilder = (config, theme) => {
     borderColor: glass.borderColor || theme?.palette?.divider || 'rgba(0, 0, 0, 0.12)',
     borderStyle: 'solid',
     borderWidth: glass.borderWidth || borderWidthToken,
+  }
+}
+
+const buildLiquidGlassEffect: SurfaceEffectBuilder = (config, theme) => {
+  const liquid = config.liquidGlass
+  if (!liquid) return {}
+  const liquidStyles = getLiquidGlassStyles(liquid, theme)
+  const borderWidthToken = (theme as any)?.tenantTheme?.tokens?.borderWidth?.thin || '1px'
+  return {
+    backdropFilter: liquidStyles.backdropFilter,
+    WebkitBackdropFilter: liquidStyles.WebkitBackdropFilter,
+    background: liquidStyles.background,
+    border: liquidStyles.border || `${liquid.borderWidth || borderWidthToken} solid ${liquid.borderColor || 'rgba(255, 255, 255, 0.2)'}`,
+    boxShadow: liquidStyles.boxShadow,
   }
 }
 
@@ -102,6 +117,7 @@ import { LRUCache } from './LRUCache'
 export class SurfaceEffectFactory {
   private static registry = new Map<string, SurfaceEffectBuilder>([
     ['glass', buildGlassEffect],
+    ['liquid-glass', buildLiquidGlassEffect],
     ['neu', buildNeumorphismEffect],
     ['brutalism', buildBrutalismEffect],
     ['bento', buildBentoEffect],

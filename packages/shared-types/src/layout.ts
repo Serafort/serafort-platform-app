@@ -39,7 +39,7 @@ export type Direction = 'ltr' | 'rtl';
 export type LayoutComponentWidth = 'compact' | 'wide' | 'full';
 export type LayoutComponentPosition = 'fixed' | 'static';
 
-export type UIEffect = 'standard' | 'glass' | 'neu' | 'brutalism' | 'bento' | 'organic' | 'immersive';
+export type UIEffect = 'standard' | 'glass' | 'neu' | 'brutalism' | 'bento' | 'organic' | 'immersive' | 'liquid-glass';
 
 export interface ChildrenType {
   children: ReactNode;

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import encryption from '../services/encryption'
 
 import { createAuthSlice, type AuthSlice } from './slices/authSlice'
-import { onTerminalError } from '../services/api/api.client'
+import { onTerminalError, setGlobalNotificationHandler } from '../services/api/api.client'
 import { createGuestSlice, type GuestSlice } from './slices/guestSlice'
 import { createProfileSlice, type ProfileSlice } from './slices/profileSlice'
 import { createNotificationSlice, type NotificationSlice } from './slices/notificationSlice'
@@ -227,6 +227,11 @@ onTerminalError(() => {
       tokens: null,
     }))
   }
+})
+
+// Wire global notification handler from API client to store
+setGlobalNotificationHandler((notification) => {
+  useAppStore.getState().addNotification(notification)
 })
 
 import { useShallow } from 'zustand/shallow'

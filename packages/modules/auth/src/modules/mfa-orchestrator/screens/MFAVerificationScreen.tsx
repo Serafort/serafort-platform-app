@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Box, Button, Typography, Alert, TextField, Avatar,
@@ -21,9 +21,14 @@ export default function MFAVerificationScreen() {
   const [error, _setError] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(() => {
     const timer = setInterval(() => setTimeLeft((p) => (p > 0 ? p - 1 : 0)), 1000)
-    return () => clearInterval(timer)
+    return () => {
+      clearInterval(timer)
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
   }, [])
 
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`
@@ -31,7 +36,7 @@ export default function MFAVerificationScreen() {
   const handleSubmit = useCallback(() => {
     if (code.length !== 6) return
     setSuccessMsg(t('mfa.setupVerified', 'MFA method successfully verified!'))
-    setTimeout(() => navigate(Path.user.security), 2000)
+    timeoutRef.current = setTimeout(() => navigate(Path.user.security), 2000)
   }, [code, navigate, t])
 
   return (

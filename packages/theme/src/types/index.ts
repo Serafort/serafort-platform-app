@@ -79,6 +79,7 @@ export interface AppliedThemeVariables {
   spacing: CSSVariableMap;
   borderRadius: CSSVariableMap;
   typography: CSSVariableMap;
+  shadows: CSSVariableMap;
   effects: CSSVariableMap;
   components: CSSVariableMap;
 }

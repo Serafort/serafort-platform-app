@@ -79,10 +79,10 @@ describe('API_ENDPOINTS registry', () => {
 
   describe('admin registry additions', () => {
     it('exposes the adminMembers overrides group', () => {
-      expect(ENDPOINTS.adminMembers.overrides(5)).toBe('/api/admin/members/5/overrides')
-      expect(ENDPOINTS.adminMembers.addOverride(5)).toBe('/api/admin/members/5/overrides')
+      expect(ENDPOINTS.adminMembers.overrides(5)).toBe('/api/admin/rbac/members/5/overrides')
+      expect(ENDPOINTS.adminMembers.addOverride(5)).toBe('/api/admin/rbac/members/5/overrides')
       expect(ENDPOINTS.adminMembers.removeOverride(5, 9)).toBe(
-        '/api/admin/members/5/overrides/9',
+        '/api/admin/rbac/members/5/overrides/9',
       )
     })
 

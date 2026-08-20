@@ -130,12 +130,12 @@ const ThemedTourProvider: React.FC<ChildrenType> = ({ children }) => {
       }),
       popover: (base: React.CSSProperties) => ({
         ...base,
-        boxShadow: '0 0 3em rgba(0, 0, 0, 0.5)',
+        boxShadow: theme.customShadows?.xl || theme.shadows[16],
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
       }),
     }),
-    [theme.palette.text.primary, theme.palette.background.paper]
+    [theme.palette.text.primary, theme.palette.background.paper, theme.customShadows?.xl, theme.shadows]
   )
 
   return (

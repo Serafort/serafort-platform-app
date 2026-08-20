@@ -1,6 +1,8 @@
 import React from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import {
   Box,
   Grid,
@@ -19,17 +21,22 @@ import { useAuth, HttpError } from '@cap/platform-core'
 import { UserDto, ApiErrorResponse } from '@cap/shared-types'
 import FormLayout from "@auth/authentication-core/components/form/FormLayout"
 
+const changeEmailFormSchema = z.object({
+  email: z.string().email('Invalid email address').min(1, 'Email is required'),
+  password: z.string().min(1, 'Password is required'),
+})
+
+type ChangeEmail = z.infer<typeof changeEmailFormSchema>
+
 export default function ChangeEmail({ user }: { user: UserDto }) {
   const { t } = useTranslation()
   const { refreshAuth } = useAuth()
   const [loading, setLoading] = React.useState<boolean>(false)
   const [showPassword, setShowPassword] = React.useState<boolean>(false)
   const handleShowPassword = () => setShowPassword(!showPassword)
-  type ChangeEmail = {
-    email: string
-    password: string
-  }
+
   const controlForm = useForm<ChangeEmail>({
+    resolver: zodResolver(changeEmailFormSchema),
     defaultValues: {
       email: user.email,
       password: '',

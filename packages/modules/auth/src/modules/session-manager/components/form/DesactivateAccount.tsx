@@ -1,22 +1,24 @@
 import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { Box, Button, FormControlLabel, FormHelperText, FormControl, Grid, Paper, Stack, Typography, Checkbox } from '@mui/material';
-// 
+import { DeactivateAccountSchema, type DeactivateAccountSchemaType } from '@auth/modules/authentication-core/utils/schema';
 
 export default function DesactivateAccount() {
   const { t } = useTranslation()
-  const controlForm = useForm({
+  const controlForm = useForm<DeactivateAccountSchemaType>({
+    resolver: zodResolver(DeactivateAccountSchema),
     defaultValues: {
-      user_id: NaN,
-      desactivate: false,
+      desactivate: false as any,
     },
   })
-  const onSubmit = async () => {}
+  const onSubmit = async (data: DeactivateAccountSchemaType) => {
+    console.log('Deactivate confirmed:', data)
+  }
   return (
     <Paper
       sx={{
         padding: '20px',
-
         mb: 4,
       }}
     >
@@ -25,22 +27,20 @@ export default function DesactivateAccount() {
           <Controller
             name='desactivate'
             control={controlForm.control}
-            render={({ field, formState }) => (
+            render={({ field, fieldState }) => (
               <FormControl
                 component='fieldset'
-                error={formState?.errors?.desactivate !== undefined}
+                error={!!fieldState.error}
               >
                 <Typography variant='h6'>{t('auth.account.delete_account')} </Typography>
                 <FormControlLabel
-                  // required
-                  control={<Checkbox {...field} />}
+                  control={<Checkbox {...field} checked={!!field.value} onChange={(e) => field.onChange(e.target.checked)} />}
                   label={t('auth.account.deactivate_confirm')}
                   labelPlacement='end'
-                  // disabled={disabled}
-                  onClick={() => field.onChange(!field.value)}
-                  checked={field.value}
                 />
-                <FormHelperText>{formState?.errors?.desactivate?.message}</FormHelperText>
+                {fieldState.error && (
+                  <FormHelperText error>{fieldState.error.message}</FormHelperText>
+                )}
               </FormControl>
             )}
           />
@@ -48,16 +48,9 @@ export default function DesactivateAccount() {
         <Grid sx={{ mt: '30px' }} size={{ xs: 12 }}>
           <Stack direction='row' spacing={2} justifyContent='start'>
             <Button
-              // type='reset'
-              // type='submit'
-              // position='left'
+              type='submit'
               variant='contained'
               color='error'
-              // disabled={disabled}
-              // onClick={() => {
-              //   controlForm.reset()
-              //   navigate('/home')
-              // }}
             >
               {t('auth.account.deactivate_submit_button')}
             </Button>

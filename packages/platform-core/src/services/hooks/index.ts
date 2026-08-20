@@ -12,5 +12,6 @@ export {
 export { default as useTabSync } from './useTabSync'
 export { default as useDeduplicatedRequest } from './useDeduplicatedRequest'
 export { default as useOptimisticUpdate } from './useOptimisticUpdate'
+export { default as useActionLock, type UseActionLockOptions } from './useActionLock'
 
 

@@ -28,7 +28,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SecurityIcon from '@mui/icons-material/Security'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useScopes } from "@auth/authorization-engine/hooks/useAdminQuery"
 import type { AuthScope } from "@auth/authorization-engine/services/adminService"
 import { Path } from "@auth/routes/path"
@@ -36,10 +36,13 @@ import { Path } from "@auth/routes/path"
 const CreateAPITokenBasicInfo: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
   const theme = useTheme()
-  const [tokenName, setTokenName] = useState('')
-  const [expiration, setExpiration] = useState('30 days')
-  const [selectedScopes, setSelectedScopes] = useState<string[]>([])
+
+  const prevState = location.state as { name?: string; expiresIn?: string; abilities?: string[] } | null
+  const [tokenName, setTokenName] = useState(prevState?.name || '')
+  const [expiration, setExpiration] = useState(prevState?.expiresIn || '30 days')
+  const [selectedScopes, setSelectedScopes] = useState<string[]>(prevState?.abilities || [])
 
   // Fetch scopes from backend
   const {

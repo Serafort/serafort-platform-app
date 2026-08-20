@@ -56,7 +56,7 @@ const input: Theme['components'] = {
     styleOverrides: {
       shrink: ({ ownerState }) => ({
         ...(ownerState.variant === 'outlined' && {
-          transform: 'translate(14px, -8px) scale(0.867)',
+          transform: 'var(--form-input-label-translate, translate(14px, -9px)) scale(var(--form-input-label-scale, 0.75))',
         }),
         ...(ownerState.variant === 'filled' && {
           transform: `translate(12px, ${ownerState.size === 'small' ? 4 : 7}px) scale(0.867)`,
@@ -70,7 +70,9 @@ const input: Theme['components'] = {
   MuiOutlinedInput: {
     styleOverrides: {
       root: {
-        borderRadius: 'var(--comp-input-border-radius, 6px)',
+        borderRadius: 'var(--form-input-radius, var(--comp-input-border-radius, var(--radius-md, 8px)))',
+        backgroundColor: 'var(--form-input-bg, var(--surface-subtle, transparent))',
+        minHeight: 'var(--form-input-height, 48px)',
         '&:not(.Mui-focused):not(.Mui-error):not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline':
           {
             borderColor: 'var(--mui-palette-action-active)',
@@ -78,11 +80,18 @@ const input: Theme['components'] = {
         '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
           borderColor: 'var(--mui-palette-divider)',
         },
-        '&:not(.Mui-error).MuiInputBase-colorPrimary.Mui-focused': {
-          boxShadow: 'var(--comp-input-box-shadow, var(--mui-customShadows-primary-sm))',
+        '&:not(.Mui-error).Mui-focused': {
+          boxShadow: 'var(--form-input-focus-ring, 0 0 0 3px rgba(99, 102, 241, 0.15))',
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'var(--form-input-focus-border, var(--color-brand-500))',
+          },
+        },
+        '&.Mui-error.Mui-focused': {
+          boxShadow: 'var(--state-error-focus-ring, 0 0 0 3px rgba(239, 68, 68, 0.2))',
         },
       },
-      input: ({  ownerState }) => ({
+      input: ({ ownerState }) => ({
+        paddingInline: 'var(--form-input-padding-inline, 16px)',
         ...(ownerState?.size === 'medium' && {
           '&:not(.MuiInputBase-inputMultiline, .MuiInputBase-inputAdornedStart)': {
             padding: 'var(--comp-input-padding, var(--mui-spacing-4, 16px))',
@@ -90,7 +99,7 @@ const input: Theme['components'] = {
           height: 'var(--comp-input-height, 1.5em)',
         }),
         '& ~ .MuiOutlinedInput-notchedOutline': {
-          borderColor: 'var(--mui-palette-customColors-inputBorder)',
+          borderColor: 'var(--form-input-border, var(--surface-border, var(--mui-palette-customColors-inputBorder)))',
         },
       }),
       notchedOutline: {

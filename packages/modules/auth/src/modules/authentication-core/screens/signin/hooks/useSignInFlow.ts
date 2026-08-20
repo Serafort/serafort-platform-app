@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, useWatch } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
 import { startAuthentication } from '@simplewebauthn/browser'
 import { IStatus, Roles, useAppStore, API_CONFIG, ENDPOINTS } from '@cap/platform-core'
@@ -8,6 +9,8 @@ import { useSignin, useSsoDiscovery } from '../../../hooks/useAuthQuery'
 import { usePasskeyLogin, usePasskeyGetLoginOptions, useMfaLoginVerify, usePasskeyAutofill } from '../../../../mfa-orchestrator/hooks'
 import { useInterval } from '../../../hooks/useInterval'
 import { LoginRequest } from '../../../types/api.types'
+import { LoginSchema } from '../../../utils/schema'
+import { useActionLock } from '../../../hooks/useActionLock'
 import authService from '../../../services/auth.service'
 import { resolveRedirectPathForUser } from '../../../utils/resolveRedirect'
 
@@ -25,10 +28,36 @@ export interface PendingMfaUser {
 export function useSignInFlow() {
   const { t } = useTranslation('common')
   const navigate = useNavigate()
+  const { isLocked, executeWithLock } = useActionLock(100)
 
-  const { control, handleSubmit, getValues } = useForm<LoginRequest>({
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    formState: { errors, isSubmitting, isValidating },
+  } = useForm<LoginRequest>({
     defaultValues: DEFAULT_FORM_VALUES,
+    resolver: zodResolver(LoginSchema),
+    mode: 'onTouched',
   })
+
+  const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
+
+  const safeTimeout = useCallback((fn: () => void, delay: number) => {
+    const id = setTimeout(() => {
+      timeoutsRef.current.delete(id)
+      fn()
+    }, delay)
+    timeoutsRef.current.add(id)
+    return id
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach((id) => clearTimeout(id))
+      timeoutsRef.current.clear()
+    }
+  }, [])
 
   const [status, setStatus] = useState<IStatus>({
     open: false,
@@ -101,7 +130,7 @@ export function useSignInFlow() {
       const userRole = userData?.role as unknown as Roles | undefined
       const redirectPath = resolveRedirectPathForUser(userRole)
 
-      setTimeout(() => navigate(redirectPath), 1500)
+      safeTimeout(() => navigate(redirectPath), 1500)
     },
     onError: async (error: any) => {
       if (error.response?.status === 423) {
@@ -153,7 +182,7 @@ export function useSignInFlow() {
       setMode('login')
       setMfaCode('')
       setPendingMfaUser(null)
-      setTimeout(() => {
+      safeTimeout(() => {
         const userData = useAppStore.getState().user as any
         const userRole = userData?.role || userData?.user?.role
 
@@ -182,7 +211,7 @@ export function useSignInFlow() {
         state: 'success',
         msg: t('auth.login.passkey_login_successful'),
       })
-      setTimeout(() => {
+      safeTimeout(() => {
         const userData = useAppStore.getState().user as any
         const userRole = (userData?.role || userData?.user?.role) as Roles
 
@@ -209,14 +238,14 @@ export function useSignInFlow() {
       state: 'success',
       msg: t('auth.login.passkey_login_successful'),
     })
-    setTimeout(() => {
+    safeTimeout(() => {
       const userData = useAppStore.getState().user as any
       const userRole = (userData?.role || userData?.user?.role) as Roles
 
       const redirectPath = resolveRedirectPathForUser(userRole)
       navigate(redirectPath)
     }, 1000)
-  }, [navigate, t])
+  }, [navigate, safeTimeout, t])
 
   const { isAvailable: isPasskeyAutofillAvailable } = usePasskeyAutofill(
     handlePasskeyAutofillSuccess,
@@ -278,28 +307,30 @@ export function useSignInFlow() {
 
   const onSubmit = useCallback(
     (data: LoginRequest) => {
-      if (ssoData && (ssoData.provider === 'saml' || ssoData.provider === 'oidc')) {
-        if (ssoData.provider === 'saml' && ssoData.organizationId) {
-          const organizationId = ssoData.organizationId
-          setTimeout(() => {
-            window.location.assign(
-              `${API_CONFIG.baseURL}${ENDPOINTS.auth.sso.samlRedirect(organizationId)}`,
-            )
-          }, 0)
-        } else if (ssoData.provider === 'oidc' && ssoData.clientId) {
-          const clientId = ssoData.clientId
-          setTimeout(() => {
-            window.location.assign(
-              `${API_CONFIG.baseURL}${ENDPOINTS.auth.sso.oidcRedirect(clientId)}`,
-            )
-          }, 0)
+      executeWithLock(async () => {
+        if (ssoData && (ssoData.provider === 'saml' || ssoData.provider === 'oidc')) {
+          if (ssoData.provider === 'saml' && ssoData.organizationId) {
+            const organizationId = ssoData.organizationId
+            safeTimeout(() => {
+              window.location.assign(
+                `${API_CONFIG.baseURL}${ENDPOINTS.auth.sso.samlRedirect(organizationId)}`,
+              )
+            }, 0)
+          } else if (ssoData.provider === 'oidc' && ssoData.clientId) {
+            const clientId = ssoData.clientId
+            safeTimeout(() => {
+              window.location.assign(
+                `${API_CONFIG.baseURL}${ENDPOINTS.auth.sso.oidcRedirect(clientId)}`,
+              )
+            }, 0)
+          }
+          return
         }
-        return
-      }
 
-      loginMutation.mutate({ data })
+        loginMutation.mutate({ data })
+      })
     },
-    [loginMutation, ssoData],
+    [executeWithLock, loginMutation, ssoData, safeTimeout],
   )
 
   const mfaInputRefs = useRef<(HTMLInputElement | null)[]>(Array(6).fill(null))
@@ -330,6 +361,10 @@ export function useSignInFlow() {
     t,
     control,
     handleSubmit,
+    errors,
+    isSubmitting,
+    isValidating,
+    isLocked,
     status,
     showPassword,
     mode,

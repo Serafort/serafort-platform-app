@@ -16,7 +16,22 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import 'react-phone-input-2/lib/style.css'
 import { useTranslation } from 'react-i18next'
 import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import authService from "@auth/modules/authentication-core/services/auth.service"
+
+const resetPasswordFormSchema = z.object({
+  username: z.string().optional(),
+  newPassword: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Must contain at least one special character'),
+})
+
+type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>
 
 export default function ResetPasswordForm({
   handleClose,
@@ -28,7 +43,8 @@ export default function ResetPasswordForm({
   handleClickStatus: (val: any) => void
 }) {
   const { t } = useTranslation()
-  const controlForm = useForm({
+  const controlForm = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordFormSchema),
     defaultValues: {
       username: '',
       newPassword: 'Admin#unirx2',
@@ -73,21 +89,7 @@ export default function ResetPasswordForm({
             <Controller
               name='newPassword'
               control={controlForm.control}
-              rules={{
-                required: {
-                  value: true,
-                  message: t('auth.common.passwordRequired'),
-                },
-                minLength: {
-                  value: 8,
-                  message: t('auth.login.password_length'),
-                },
-                pattern: {
-                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/,
-                  message: t('auth.login.password_complexity'),
-                },
-              }}
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <TextField
                   {...field}
                   required
@@ -108,8 +110,8 @@ export default function ResetPasswordForm({
                       </InputAdornment>
                     ),
                   }}
-                  error={controlForm.formState?.errors?.newPassword !== undefined}
-                  helperText={controlForm.formState?.errors?.newPassword?.message}
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
                 />
               )}
             />

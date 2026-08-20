@@ -1,22 +1,35 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, TextField, Typography, Alert, InputAdornment, alpha, useTheme, Stack, Link as MuiLink } from '@mui/material';
 import LockReset from '@mui/icons-material/LockReset';
 import Mail from '@mui/icons-material/Mail';
 import ArrowBack from '@mui/icons-material/ArrowBack';
-;
 import { useTranslation } from 'react-i18next';
 import { useForgotPassword } from '@idaas/authentication-core/hooks/useAuthQuery';
 import { Path } from '@cap/module-auth/routes/path';
 import { AuthPageLayout, AuthScreenIcon, AuthInputLabel, AuthActionButton } from '@idaas/authentication-core/components/shared/auth';
+import { ForgotPasswordSchema, ForgotPasswordSchemaType } from '../../utils/schema';
+import { useActionLock } from '../../hooks/useActionLock';
 
 export default function ForgotPassword() {
   const { t } = useTranslation('auth')
   const theme = useTheme()
   const navigate = useNavigate()
+  const { isLocked, executeWithLock } = useActionLock(100)
 
-  const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValidating },
+  } = useForm<ForgotPasswordSchemaType>({
+    defaultValues: { email: '' },
+    resolver: zodResolver(ForgotPasswordSchema),
+    mode: 'onTouched',
+  })
 
   const forgotPasswordMutation = useForgotPassword({
     onSuccess: () => {
@@ -30,18 +43,17 @@ export default function ForgotPassword() {
     },
   })
 
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault()
-      setError(null)
-      if (!email) {
-        setError(t('signIn.errorIncomplete', 'Please fill in all fields.'))
-        return
-      }
-      forgotPasswordMutation.mutate({ data: { email } })
+  const onSubmit = useCallback(
+    (data: ForgotPasswordSchemaType) => {
+      executeWithLock(async () => {
+        setError(null)
+        forgotPasswordMutation.mutate({ data: { email: data.email } })
+      })
     },
-    [email, forgotPasswordMutation, t],
+    [executeWithLock, forgotPasswordMutation],
   )
+
+  const isPending = forgotPasswordMutation.isPending
 
   return (
     <AuthPageLayout>
@@ -66,41 +78,51 @@ export default function ForgotPassword() {
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Stack spacing={3}>
           <Box>
             <AuthInputLabel>{t('forgotPassword.emailLabel', 'EMAIL ADDRESS')}</AuthInputLabel>
-            <TextField
-              fullWidth
-              type="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={forgotPasswordMutation.isPending}
-              autoComplete="email"
-              autoFocus
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Mail sx={{ color: 'text.secondary', fontSize: 20 }} />
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
-                },
-              }}
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  type="email"
+                  placeholder="name@example.com"
+                  disabled={isPending || isSubmitting}
+                  autoComplete="email"
+                  autoFocus
+                  error={Boolean(errors.email)}
+                  helperText={errors.email?.message}
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Mail sx={{ color: 'text.secondary', fontSize: 20 }} />
+                        </InputAdornment>
+                      ),
+                      sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
+                    },
+                  }}
+                />
+              )}
             />
           </Box>
 
           <AuthActionButton
             type="submit"
-            isLoading={forgotPasswordMutation.isPending}
+            isLoading={isPending}
+            isSubmitting={isSubmitting}
+            isValidating={isValidating}
+            isLocked={isLocked}
             label={
-              forgotPasswordMutation.isPending
+              isPending
                 ? t('forgotPassword.submitting', 'Sending...')
                 : t('forgotPassword.submit', 'Send Reset Link')
             }
-            disabled={forgotPasswordMutation.isPending || !email}
+            disabled={isPending || isSubmitting || isLocked}
             sx={{ mt: 2 }}
           />
         </Stack>

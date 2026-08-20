@@ -1,25 +1,56 @@
 import React from 'react'
 import { Button, ButtonProps, CircularProgress, alpha } from '@mui/material'
-import ArrowForward from '@mui/icons-material/ArrowForward';
+import ArrowForward from '@mui/icons-material/ArrowForward'
+import { useActionLock } from '@cap/platform-core'
 
-interface AuthActionButtonProps extends ButtonProps {
+export interface AuthActionButtonProps extends Omit<ButtonProps, 'onClick'> {
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void> | void
+  onExecute?: () => Promise<void> | void
+  loading?: boolean
   isLoading?: boolean
-  label: string
+  isSubmitting?: boolean
+  isValidating?: boolean
+  isLocked?: boolean
+  label?: string
+  lockDurationMs?: number
 }
 
-const AuthActionButton: React.FC<AuthActionButtonProps> = ({
-  isLoading,
+export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
+  onClick,
+  onExecute,
+  loading = false,
+  isLoading = false,
+  isSubmitting = false,
+  isValidating = false,
+  isLocked: externalLocked = false,
+  disabled = false,
   label,
+  children,
   endIcon = <ArrowForward />,
+  lockDurationMs = 120,
   ...props
 }) => {
+  const isBusyLoading = loading || isLoading || isSubmitting || isValidating
+
+  const handleAction = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (onExecute) {
+      await onExecute()
+    } else if (onClick) {
+      await onClick(e)
+    }
+  }
+
+  const [lockedClick, isInternalLocked] = useActionLock(handleAction, { lockDurationMs })
+  const isDisabled = disabled || isBusyLoading || externalLocked || isInternalLocked
+
   return (
     <Button
       fullWidth
       variant="contained"
       size="large"
-      disabled={isLoading || props.disabled}
-      endIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : endIcon}
+      disabled={isDisabled}
+      onClick={lockedClick}
+      endIcon={isBusyLoading ? <CircularProgress size={20} color="inherit" /> : endIcon}
       {...props}
       sx={{
         py: 1.5,
@@ -27,7 +58,7 @@ const AuthActionButton: React.FC<AuthActionButtonProps> = ({
         fontWeight: 800,
         fontSize: '1rem',
         textTransform: 'none',
-        bgcolor: props.color === 'error' ? 'error.main' : 'info.main', // Standard Info Blue
+        bgcolor: props.color === 'error' ? 'error.main' : 'info.main',
         boxShadow: (theme) =>
           `0 10px 20px ${alpha(props.color === 'error' ? theme.palette.error.main : theme.palette.info.main, 0.2)}`,
         '&:hover': {
@@ -39,7 +70,7 @@ const AuthActionButton: React.FC<AuthActionButtonProps> = ({
         ...props.sx,
       }}
     >
-      {label}
+      {label || children}
     </Button>
   )
 }

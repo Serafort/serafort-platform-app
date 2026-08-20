@@ -59,6 +59,18 @@ export interface ImmersiveConfig {
   rotationY?: string;
 }
 
+export interface LiquidGlassConfig {
+  enabled: boolean;
+  blur?: string;
+  opacity?: number;
+  background?: string;
+  borderColor?: string;
+  borderWidth?: string;
+  innerShadow?: string;
+  specularHighlight?: string;
+  refraction?: number; // 0-100
+}
+
 import type { UIEffect } from '@cap/shared-types';
 
 export type EffectType = UIEffect;
@@ -71,6 +83,7 @@ export interface EffectConfig {
   bento?: BentoConfig;
   organic?: OrganicConfig;
   immersive?: ImmersiveConfig;
+  liquidGlass?: LiquidGlassConfig;
 }
 
 export const DEFAULT_GLASSMORPHISM: GlassmorphismConfig = {
@@ -117,6 +130,14 @@ export const DEFAULT_IMMERSIVE: ImmersiveConfig = {
   rotationY: '0deg',
 };
 
+export const DEFAULT_LIQUID_GLASS: LiquidGlassConfig = {
+  enabled: false,
+  blur: '24px',
+  opacity: 0.85,
+  borderWidth: '1px',
+  refraction: 40,
+};
+
 export const DEFAULT_EFFECT_CONFIG: EffectConfig = {
   globalType: 'standard',
   glassmorphism: DEFAULT_GLASSMORPHISM,
@@ -125,4 +146,5 @@ export const DEFAULT_EFFECT_CONFIG: EffectConfig = {
   bento: DEFAULT_BENTO,
   organic: DEFAULT_ORGANIC,
   immersive: DEFAULT_IMMERSIVE,
+  liquidGlass: DEFAULT_LIQUID_GLASS,
 };

@@ -73,6 +73,37 @@ export const composeMuiTheme = ({
     createBaseMuiTheme(updatedSettings, currentMode, direction),
     {
       direction,
+      spacing: (factor: number | string) => {
+        if (typeof factor === 'string') return `var(--spacing-${factor})`;
+        return `var(--spacing-${factor}, calc(0.25rem * ${factor}))`;
+      },
+      shadows: [
+        'none',
+        `var(--shadow-xs, ${baseStaticTheme.shadows[1]})`,
+        baseStaticTheme.shadows[2],
+        baseStaticTheme.shadows[3],
+        `var(--shadow-sm, ${baseStaticTheme.shadows[4]})`,
+        baseStaticTheme.shadows[5],
+        baseStaticTheme.shadows[6],
+        baseStaticTheme.shadows[7],
+        `var(--shadow-md, ${baseStaticTheme.shadows[8]})`,
+        baseStaticTheme.shadows[9],
+        baseStaticTheme.shadows[10],
+        baseStaticTheme.shadows[11],
+        baseStaticTheme.shadows[12],
+        baseStaticTheme.shadows[13],
+        baseStaticTheme.shadows[14],
+        baseStaticTheme.shadows[15],
+        `var(--shadow-lg, ${baseStaticTheme.shadows[16]})`,
+        baseStaticTheme.shadows[17],
+        baseStaticTheme.shadows[18],
+        baseStaticTheme.shadows[19],
+        baseStaticTheme.shadows[20],
+        baseStaticTheme.shadows[21],
+        baseStaticTheme.shadows[22],
+        baseStaticTheme.shadows[23],
+        `var(--shadow-xl, ${baseStaticTheme.shadows[24]})`,
+      ] as Theme['shadows'],
       palette: {
         mode: currentMode,
         primary: derivePaletteColorGroup(primaryMain, '#FFF'),

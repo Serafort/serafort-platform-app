@@ -1,5 +1,5 @@
 export * from './components'
-
+export * from './tokens'
 export * from './types'
 export * from './assets/themes/definitions/menuClasses'
 export { default as typography } from './assets/themes/definitions/typography'

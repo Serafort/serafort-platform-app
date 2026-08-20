@@ -11,6 +11,7 @@ The theme system allows multi-tenant applications to adopt completely distinct v
 ### Supported Design Languages & Styles
 - **Material Design**: Standard elevation, clear hierarchy, subtle shadows.
 - **Glassmorphism**: Translucent frosted glass panels, backdrop blurs, luminous borders.
+- **Liquid Glass**: Multi-layer specular highlights, inner refraction shadows, saturated backdrop blurs.
 - **Neumorphism (Soft UI)**: Dual inner/outer soft shadows, relief optics.
 - **Bento UI**: High border radius, grid-aligned card containers.
 - **Pure Brutalism & Neo-Brutalism**: Thick solid black borders, hard offset shadows, high contrast.

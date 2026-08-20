@@ -4,7 +4,7 @@ import type { ChildrenType } from '@cap/platform-core';
 import { LayoutWrapper, PublicLayout, VerticalLayout, HorizontalLayout, VerticalNavigation, HorizontalNavigation, Header, VerticalFooter, HorizontalFooter, Footer as PublicFooter } from '@cap/layout';
 // 
 // 
-import Button from '@mui/material/Button';
+import Fab from '@mui/material/Fab';
 import ArrowUpward from '@mui/icons-material/ArrowUpward';
 import { VerticalNavbar as Navbar, HorizontalNavbarContent, ScrollToTop, PublicNavbar, GuestNavbar, VerticalMenu, AdminMenu, HorizontalMenu, SkipToContent } from '@cap/layout';
 import { useAppStore, Locale, getMode, getSystemMode, type AppStore, useAuth } from '@cap/platform-core';
@@ -92,20 +92,9 @@ const Layout: React.FC<ChildrenType> = ({ children }) => {
         noLayout={noLayoutElement}
       />
       <ScrollToTop className='mui-fixed'>
-        <Button
-          variant='contained'
-          sx={{
-            minInlineSize: '2.5rem',
-            blockSize: '2.5rem',
-            borderRadius: '9999px',
-            padding: '0px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <ArrowUpward />
-        </Button>
+        <Fab color='primary' size='small' aria-label='scroll back to top'>
+          <ArrowUpward fontSize='small' />
+        </Fab>
       </ScrollToTop>
       {/* <Customizer dir={direction} /> */}
     </React.Fragment>

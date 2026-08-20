@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react'
 import {
   Box,
+  Button,
   Divider,
   IconButton,
   ListItemIcon,
@@ -9,6 +10,7 @@ import {
   Menu,
   MenuItem,
   Skeleton,
+  Typography,
 } from '@mui/material'
 import ArrowLeft from '@mui/icons-material/ArrowLeft';
 import ArrowRight from '@mui/icons-material/ArrowRight';
@@ -19,9 +21,11 @@ import DeleteOutline from '@mui/icons-material/DeleteOutline';
 import DragIndicator from '@mui/icons-material/DragIndicator';
 import DriveFileMove from '@mui/icons-material/DriveFileMove';
 import MoreVert from '@mui/icons-material/MoreVert';
+import Refresh from '@mui/icons-material/Refresh';
 import RestartAlt from '@mui/icons-material/RestartAlt';
 import Settings from '@mui/icons-material/Settings';
 import ViewColumn from '@mui/icons-material/ViewColumn';
+import ErrorBoundary from '../ui/ErrorBoundary'
 import { widgetInspectorStore } from '../../store/widgetInspectorStore'
 import { useTranslation } from 'react-i18next'
 import { globalWidgetRegistry, useResizeObserver, ContainerSizeProvider } from '@cap/platform-core'
@@ -396,7 +400,49 @@ const WidgetWrapperInner: React.FC<WidgetWrapperProps> = ({
       <ContainerSizeProvider size={{ width: containerWidth, height: 0, containerSize: (() => { const w = containerWidth; if (w >= 1280) return 'xl'; if (w >= 1024) return 'lg'; if (w >= 768) return 'md'; if (w >= 480) return 'sm'; return 'xs'; })(), entry: null }}>
         <React.Suspense fallback={<Skeleton variant="rounded" sx={{ flex: 1 }} aria-label={t('dashboard.widgetLoading')} />}>
           <Box sx={{ flex: 1, minHeight: 0 }}>
-            <WidgetComponent subLayout={defaultLayout} mode={mode} slotId={slotId} pageId={pageId} {...config} />
+            <ErrorBoundary
+              fallback={
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%',
+                    minHeight: 160,
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: 'action.hover',
+                    textAlign: 'center',
+                    gap: 1,
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                    {t(descriptor?.titleKey || '', { defaultValue: widgetId })}
+                  </Typography>
+                  <Typography variant="body2" color="error.main" sx={{ fontSize: '0.8rem' }}>
+                    {t('dashboard.widgetLoadError', { defaultValue: 'Widget failed to render' })}
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<Refresh fontSize="small" />}
+                    onClick={() => {
+                      if (onReset) {
+                        onReset()
+                      } else if (defaultLayout) {
+                        actions.resetLayout(pageId, defaultLayout)
+                      }
+                    }}
+                    sx={{ textTransform: 'none', fontSize: '0.75rem', mt: 0.5 }}
+                  >
+                    {t('common.retry', { defaultValue: 'Retry' })}
+                  </Button>
+                </Box>
+              }
+            >
+              <WidgetComponent subLayout={defaultLayout} mode={mode} slotId={slotId} pageId={pageId} {...config} />
+            </ErrorBoundary>
           </Box>
         </React.Suspense>
       </ContainerSizeProvider>
