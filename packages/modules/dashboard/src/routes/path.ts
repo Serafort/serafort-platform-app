@@ -1,11 +1,10 @@
 // ---------------------------------------------------------------------------
 // Canonical path registry for the Dashboard module.
-// Single source of truth for dashboard route URLs.
+// Derives directly from Tier 0 SSOT (AppPaths in @cap/shared-types).
 // ---------------------------------------------------------------------------
+import { AppPaths } from '@cap/shared-types'
 
-export const DashboardPath = {
-  dashboard: '/dashboard',
-} as const
+export const DashboardPath = AppPaths.dashboard
 
 export const Path = DashboardPath
 export default DashboardPath

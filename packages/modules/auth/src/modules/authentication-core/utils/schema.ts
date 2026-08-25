@@ -171,6 +171,54 @@ export const DetailedProfileSchema = z.object({
   emailOnMention: z.boolean().default(true),
 })
 
+export const normalizePhone = (phone: string): string => {
+  if (!phone) return ''
+  const trimmed = phone.trim()
+  const hasPlus = trimmed.startsWith('+')
+  const digits = trimmed.replace(/\D/g, '')
+  return hasPlus ? `+${digits}` : digits
+}
+
+export const normalizeDomain = (domain: string): string => {
+  if (!domain) return ''
+  return domain
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, '')
+    .replace(/\/.*$/, '')
+}
+
+export const normalizeCidr = (cidr: string): string => {
+  if (!cidr) return ''
+  return cidr.trim().replace(/[^\d.a-fA-F:/]/g, '')
+}
+
+export const DomainVerificationSchema = z.object({
+  domain: z
+    .string()
+    .min(1, 'Domain name is required')
+    .transform(normalizeDomain)
+    .refine(
+      (val) => /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(val),
+      'Please enter a valid domain name (e.g. company.com)'
+    ),
+})
+
+export const CidrBlockSchema = z.object({
+  cidr: z
+    .string()
+    .min(1, 'IP or CIDR is required')
+    .transform(normalizeCidr)
+    .refine(
+      (val) =>
+        /^(\d{1,3}\.){3}\d{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/.test(val) ||
+        /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}(\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$/.test(val),
+      'Please enter a valid IPv4/IPv6 address or CIDR range (e.g. 192.168.1.1 or 10.0.0.0/24)'
+    ),
+})
+
+export type DomainVerificationSchemaType = z.infer<typeof DomainVerificationSchema>
+export type CidrBlockSchemaType = z.infer<typeof CidrBlockSchema>
 export type LoginSchemaType = z.infer<typeof LoginSchema>
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>
 export type SignUpFormSchemaType = z.infer<typeof SignUpFormSchema>
@@ -183,4 +231,5 @@ export type ResetPasswordSchemaType = z.infer<typeof ResetPasswordSchema>
 export type ChangePhoneSchemaType = z.infer<typeof ChangePhoneSchema>
 export type DeactivateAccountSchemaType = z.infer<typeof DeactivateAccountSchema>
 export type SsoIdentifierSchemaType = z.infer<typeof SsoIdentifierSchema>
+
 

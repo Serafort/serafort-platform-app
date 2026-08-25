@@ -44,18 +44,18 @@ export default function PasswordResetSuccess() {
     >
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
         <Avatar
-          variant="square"
+          variant="circular"
           sx={{
-            width: 56,
-            height: 56,
-            bgcolor: 'transparent',
+            width: 64,
+            height: 64,
+            bgcolor: alpha(theme.palette.success.main, 0.12),
             color: 'success.main',
-            borderRadius: '24px',
             border: '2px solid',
-            borderColor: alpha(theme.palette.success.main, 0.2),
+            borderColor: alpha(theme.palette.success.main, 0.3),
+            boxShadow: `0 0 24px ${alpha(theme.palette.success.main, 0.25)}`,
           }}
         >
-          <CheckCircle sx={{ fontSize: 32 }} />
+          <CheckCircle sx={{ fontSize: 36 }} />
         </Avatar>
       </Box>
 

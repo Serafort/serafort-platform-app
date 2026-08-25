@@ -13,8 +13,8 @@ import {
 } from '@mui/material'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { useUsers, useBanUser } from "@idaas/authentication-core/hooks/useAdminQuery"
-import { toast } from 'react-toastify';
+import { useNotifications } from '@cap/platform-core'
+import { useUsers, useBanUser } from '../../authorization-engine/hooks/useAdminQuery'
 import { useDebounce } from 'use-debounce'
 
 interface IssueBanDialogProps {
@@ -24,6 +24,7 @@ interface IssueBanDialogProps {
 
 export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
   const { t } = useTranslation('common')
+  const { addNotification } = useNotifications()
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearch] = useDebounce(searchTerm, 300)
   const [selectedUser, setSelectedUser] = useState<any>(null)
@@ -36,13 +37,21 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
 
   const banMutation = useBanUser({
     onSuccess: () => {
-      toast.success(t('auth.admin.banSuccess', 'User banned successfully'), {  })
+      addNotification({
+        type: 'success',
+        title: t('auth.admin.banSuccessTitle', 'User Banned'),
+        message: t('auth.admin.banSuccess', 'User banned successfully'),
+      })
       onClose()
       setSelectedUser(null)
       setReason('')
     },
     onError: (error: any) => {
-      toast.error(error.message || t('auth.common.errorOccurred', 'An error occurred'), {  })
+      addNotification({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        message: error.message || t('auth.common.errorOccurred', 'An error occurred'),
+      })
     },
   })
 
@@ -72,11 +81,15 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
             </motion.div>
           )}
         >
-          <DialogTitle sx={{ fontWeight: 800, color: 'info.main' }}>
-            {t('auth.admin.issueNewBan', 'Issue New Ban')}
+          <DialogTitle sx={{ fontWeight: 800, color: 'error.main', display: 'flex', alignItems: 'center', gap: 1 }}>
+            {t('auth.admin.issueNewBan', 'Issue Account Suspension / Ban')}
           </DialogTitle>
           <DialogContent dividers>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}>
+              <Alert severity="warning" sx={{ borderRadius: 2 }}>
+                {t('auth.admin.banWarning', 'Suspending an account revokes all active sessions, API keys, and access tokens.')}
+              </Alert>
+
               <Autocomplete
                 options={userData?.data?.data || []}
                 getOptionLabel={(option: { firstName?: string; lastName?: string; email: string }) => `${option.firstName ?? ''} ${option.lastName ?? ''} (${option.email})`}
@@ -94,7 +107,7 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
                         ...params.InputProps,
                         endAdornment: (
                           <React.Fragment>
-                            {isUsersLoading ? <CircularProgress color="info" size={20} /> : null}
+                            {isUsersLoading ? <CircularProgress color="error" size={20} /> : null}
                             {params.InputProps.endAdornment}
                           </React.Fragment>
                         ),
@@ -106,7 +119,7 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
 
               {selectedUser && selectedUser.status === 'SUSPENDED' && (
                 <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-                  <Alert severity="warning">{t('auth.admin.userAlreadyBanned', 'This user is already banned.')}</Alert>
+                  <Alert severity="error">{t('auth.admin.userAlreadyBanned', 'This user is already banned.')}</Alert>
                 </motion.div>
               )}
 
@@ -114,14 +127,15 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
                 fullWidth
                 multiline
                 rows={3}
-                label={t('auth.admin.banReason', 'Ban Reason')}
-                placeholder={t('auth.admin.banReason_placeholder', 'Enter the reason for the ban')}
+                label={t('auth.admin.banReason', 'Ban / Suspension Reason')}
+                placeholder={t('auth.admin.banReason_placeholder', 'Enter the security or compliance reason for the ban')}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
+                required
               />
             </Box>
           </DialogContent>
-          <DialogActions sx={{ p: 3 }}>
+          <DialogActions sx={{ p: 3, gap: 1 }}>
             <Button
               onClick={onClose}
               color="inherit"
@@ -132,22 +146,22 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
             <Button
               onClick={handleIssueBan}
               variant="contained"
-              color="info"
-              disabled={!selectedUser || banMutation.isPending || selectedUser.status === 'SUSPENDED'}
+              color="error"
+              disabled={!selectedUser || !reason.trim() || banMutation.isPending || selectedUser.status === 'SUSPENDED'}
               sx={{
                 textTransform: 'none',
-                fontWeight: 700,
+                fontWeight: 800,
                 px: 3,
-                boxShadow: (theme) => `0 4px 14px 0 ${theme.palette.info.light}`,
+                boxShadow: (theme) => `0 4px 14px 0 ${theme.palette.error.main}40`,
                 '&:hover': {
-                  boxShadow: (theme) => `0 6px 20px 0 ${theme.palette.info.light}`,
+                  boxShadow: (theme) => `0 6px 20px 0 ${theme.palette.error.main}60`,
                 },
               }}
             >
               {banMutation.isPending ? (
                 <CircularProgress size={24} color="inherit" />
               ) : (
-                t('auth.admin.issueBan', 'Issue Ban')
+                t('auth.admin.issueBan', 'Confirm Ban & Revoke Access')
               )}
             </Button>
           </DialogActions>

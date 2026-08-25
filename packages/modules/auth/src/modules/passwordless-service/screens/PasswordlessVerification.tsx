@@ -27,7 +27,7 @@ import { usePasswordlessVerify, usePasswordlessSend } from '../hooks'
 import Path from './path'
 import { Path as AuthPath } from '@cap/module-auth/routes/path'
 import { useAuthStore } from '@cap/module-auth/modules/authentication-core/store'
-import { secureTokenManager } from '@cap/platform-core'
+import { secureTokenManager, useAppStore } from '@cap/platform-core'
 
 type VerificationState = 'awaiting' | 'verifying' | 'success' | 'error'
 
@@ -77,16 +77,23 @@ const PasswordlessVerification = () => {
     const payload: any = verifyQuery.data.data
     if (payload.token) {
       try {
-        secureTokenManager.setAccessToken(payload.token)
+        const expiresIn = payload.expires_in || 3600
+        secureTokenManager.setTokens({
+          accessToken: payload.token,
+          expiresAt: Date.now() + expiresIn * 1000,
+        })
       } catch {}
     }
     if (payload.user) {
       setUser(payload.user)
       setAuthenticated(true)
       setAuthStep('complete')
+      try {
+        useAppStore.getState().setUser(payload.user)
+      } catch {}
     }
 
-    const timer = setTimeout(() => navigate(AuthPath.account.overview), 1800)
+    const timer = setTimeout(() => navigate(AuthPath.account.overview), 1500)
     return () => clearTimeout(timer)
   }, [verifyQuery.isSuccess, verifyQuery.data, navigate, setUser, setAuthenticated, setAuthStep])
 

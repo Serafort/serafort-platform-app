@@ -118,7 +118,9 @@ Persisted slices are encrypted with **AES-GCM 256** via `secureStorage`, impleme
 
 ## 6. Document Directory
 
+- **Laws of UX Reference Guide**: [`packages/theme/laws_of_ux.md`](file:///c:/Node.Js/proj/boilerplate/packages/theme/laws_of_ux.md)
 - **Module Developer Guide**: [`MODULE_DEVELOPMENT_GUIDE.md`](file:///c:/Node.Js/proj/boilerplate/MODULE_DEVELOPMENT_GUIDE.md)
 - **Theme & Effect Pipeline**: [`packages/theme/THEME_SYSTEM.md`](file:///c:/Node.Js/proj/boilerplate/packages/theme/THEME_SYSTEM.md)
 - **Design System Standards**: [`packages/theme/DESIGN_SYSTEM.md`](file:///c:/Node.Js/proj/boilerplate/packages/theme/DESIGN_SYSTEM.md)
 - **Contribution Guidelines**: [`CONTRIBUTING.md`](file:///c:/Node.Js/proj/boilerplate/CONTRIBUTING.md)
+

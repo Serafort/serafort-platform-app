@@ -33,16 +33,38 @@ import { useScopes } from "@auth/authorization-engine/hooks/useAdminQuery"
 import type { AuthScope } from "@auth/authorization-engine/services/adminService"
 import { Path } from "@auth/routes/path"
 
-const CreateAPITokenBasicInfo: React.FC = () => {
+export interface CreateAPITokenBasicInfoProps {
+  isWizard?: boolean
+  formData?: {
+    name: string
+    expiresIn: string
+    abilities: string[]
+  }
+  onUpdate?: (updates: { name?: string; expiresIn?: string; abilities?: string[] }) => void
+  onNext?: () => void
+  onCancel?: () => void
+}
+
+const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
+  isWizard = false,
+  formData,
+  onUpdate,
+  onNext,
+  onCancel,
+}) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const theme = useTheme()
 
   const prevState = location.state as { name?: string; expiresIn?: string; abilities?: string[] } | null
-  const [tokenName, setTokenName] = useState(prevState?.name || '')
-  const [expiration, setExpiration] = useState(prevState?.expiresIn || '30 days')
-  const [selectedScopes, setSelectedScopes] = useState<string[]>(prevState?.abilities || [])
+  const [localTokenName, setLocalTokenName] = useState(prevState?.name || '')
+  const [localExpiration, setLocalExpiration] = useState(prevState?.expiresIn || '30 days')
+  const [localSelectedScopes, setLocalSelectedScopes] = useState<string[]>(prevState?.abilities || [])
+
+  const tokenName = isWizard && formData ? formData.name : localTokenName
+  const expiration = isWizard && formData ? formData.expiresIn : localExpiration
+  const selectedScopes = isWizard && formData ? formData.abilities : localSelectedScopes
 
   // Fetch scopes from backend
   const {
@@ -62,75 +84,114 @@ const CreateAPITokenBasicInfo: React.FC = () => {
     }))
   }, [scopesResponse])
 
+  const setTokenName = (val: string) => {
+    if (isWizard && onUpdate) {
+      onUpdate({ name: val })
+    } else {
+      setLocalTokenName(val)
+    }
+  }
+
+  const setExpiration = (val: string) => {
+    if (isWizard && onUpdate) {
+      onUpdate({ expiresIn: val })
+    } else {
+      setLocalExpiration(val)
+    }
+  }
+
   const handleToggleScope = (id: string) => {
-    setSelectedScopes((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]))
+    const nextScopes = selectedScopes.includes(id)
+      ? selectedScopes.filter((s) => s !== id)
+      : [...selectedScopes, id]
+    if (isWizard && onUpdate) {
+      onUpdate({ abilities: nextScopes })
+    } else {
+      setLocalSelectedScopes(nextScopes)
+    }
   }
 
   const handleNext = () => {
-    navigate(Path.apiTokens.createRestrictions, {
-      state: { name: tokenName, expiresIn: expiration, abilities: selectedScopes },
-    })
+    if (isWizard && onNext) {
+      onNext()
+    } else {
+      navigate(Path.apiTokens.createRestrictions, {
+        state: { name: tokenName, expiresIn: expiration, abilities: selectedScopes },
+      })
+    }
+  }
+
+  const handleCancelClick = () => {
+    if (isWizard && onCancel) {
+      onCancel()
+    } else {
+      navigate(Path.apiTokens.dashboard)
+    }
   }
 
   return (
-    <Box sx={{ p: { xs: 2, md: 6 }, maxWidth: 900, mx: 'auto' }}>
-      {/* Breadcrumbs */}
-      <Breadcrumbs
-        separator={<NavigateNextIcon fontSize='small' sx={{ color: 'text.disabled' }} />}
-        sx={{ mb: 4 }}
-      >
-        <Link
-          underline='hover'
-          color='text.secondary'
-          onClick={() => navigate(Path.apiTokens.dashboard)}
-          sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 600 }}
-        >
-          {t('api_tokens:title', 'API Tokens')}
-        </Link>
-        <Typography color='text.primary' sx={{ fontWeight: 800 }}>
-          {t('api_tokens:create_title', 'Create New Token')}
-        </Typography>
-      </Breadcrumbs>
+    <Box sx={isWizard ? { width: '100%' } : { p: { xs: 2, md: 6 }, maxWidth: 900, mx: 'auto' }}>
+      {/* Breadcrumbs (only in standalone mode) */}
+      {!isWizard && (
+        <>
+          <Breadcrumbs
+            separator={<NavigateNextIcon fontSize='small' sx={{ color: 'text.disabled' }} />}
+            sx={{ mb: 4 }}
+          >
+            <Link
+              underline='hover'
+              color='text.secondary'
+              onClick={() => navigate(Path.apiTokens.dashboard)}
+              sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 600 }}
+            >
+              {t('api_tokens:title', 'API Tokens')}
+            </Link>
+            <Typography color='text.primary' sx={{ fontWeight: 800 }}>
+              {t('api_tokens:create_title', 'Create New Token')}
+            </Typography>
+          </Breadcrumbs>
 
-      {/* Header */}
-      <Box sx={{ mb: 5 }}>
-        <Typography variant='h3' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
-          {t('api_tokens:create_header', 'Create API Token')}
-        </Typography>
-        <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1.05rem' }}>
-          {t(
-            'api_tokens:create_subheader',
-            'Configure authentication and permissions for your integrations.',
-          )}
-        </Typography>
-      </Box>
+          {/* Header */}
+          <Box sx={{ mb: 5 }}>
+            <Typography variant='h3' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+              {t('api_tokens:create_header', 'Create API Token')}
+            </Typography>
+            <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1.05rem' }}>
+              {t(
+                'api_tokens:create_subheader',
+                'Configure authentication and permissions for your integrations.'
+              )}
+            </Typography>
+          </Box>
 
-      {/* Stepper */}
-      <Box sx={{ mb: 4 }}>
-        <Stepper activeStep={0} alternativeLabel>
-          <Step>
-            <StepLabel>
-              <Typography sx={{ fontWeight: 700 }}>
-                {t('api_tokens:step_basic', 'Configuration')}
-              </Typography>
-            </StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>
-              <Typography sx={{ fontWeight: 600, color: 'text.disabled' }}>
-                {t('api_tokens:step_restrictions', 'Restrictions')}
-              </Typography>
-            </StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>
-              <Typography sx={{ fontWeight: 600, color: 'text.disabled' }}>
-                {t('api_tokens:step_review', 'Deployment')}
-              </Typography>
-            </StepLabel>
-          </Step>
-        </Stepper>
-      </Box>
+          {/* Stepper */}
+          <Box sx={{ mb: 4 }}>
+            <Stepper activeStep={0} alternativeLabel>
+              <Step>
+                <StepLabel>
+                  <Typography sx={{ fontWeight: 700 }}>
+                    {t('api_tokens:step_basic', 'Configuration')}
+                  </Typography>
+                </StepLabel>
+              </Step>
+              <Step>
+                <StepLabel>
+                  <Typography sx={{ fontWeight: 600, color: 'text.disabled' }}>
+                    {t('api_tokens:step_restrictions', 'Restrictions')}
+                  </Typography>
+                </StepLabel>
+              </Step>
+              <Step>
+                <StepLabel>
+                  <Typography sx={{ fontWeight: 600, color: 'text.disabled' }}>
+                    {t('api_tokens:step_review', 'Deployment')}
+                  </Typography>
+                </StepLabel>
+              </Step>
+            </Stepper>
+          </Box>
+        </>
+      )}
 
       {/* Main Card */}
       <Card

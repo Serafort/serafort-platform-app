@@ -23,7 +23,7 @@ import { ENDPOINTS } from '@cap/platform-core'
 
 type WaitPhase = 'initializing' | 'redirecting' | 'interaction' | 'error'
 
-const OIDC_AUTH_URL = `${API_CONFIG.baseURL}${ENDPOINTS.auth.oidc.auth}`
+const OIDC_AUTH_URL = `${API_CONFIG?.baseURL || ''}${ENDPOINTS?.auth?.oidc?.auth || '/api/v1/auth/oidc/authorize'}`
 const REDIRECT_TIMEOUT_MS = 15_000
 
 export default function OidcWaitScreen() {
@@ -32,7 +32,6 @@ export default function OidcWaitScreen() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
-  // â”€â”€ Extract query parameters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const clientId = searchParams.get('client_id')
   const redirectUri = searchParams.get('redirect_uri')
   const responseType = searchParams.get('response_type') || 'code'
@@ -41,19 +40,16 @@ export default function OidcWaitScreen() {
   const nonce = searchParams.get('nonce')
   const interactionUid = searchParams.get('interaction')
 
-  // â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [phase, setPhase] = React.useState<WaitPhase>('initializing')
   const [errorMessage, setErrorMessage] = React.useState<string>('')
   const hasRedirected = React.useRef(false)
 
-  // â”€â”€ Interaction fetch (for "interaction" param) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const {
     data: interactionResponse,
     isLoading: isInteractionLoading,
     isError: isInteractionError,
   } = useOidcInteraction(interactionUid)
 
-  // â”€â”€ Build the OIDC authorization URL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const buildAuthUrl = React.useCallback(() => {
     const params = new URLSearchParams()
     if (clientId) params.set('client_id', clientId)
@@ -65,7 +61,6 @@ export default function OidcWaitScreen() {
     return `${OIDC_AUTH_URL}?${params.toString()}`
   }, [clientId, redirectUri, responseType, scope, state, nonce])
 
-  // â”€â”€ Perform the redirect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const doRedirect = React.useCallback((url: string) => {
     if (hasRedirected.current) return
     hasRedirected.current = true
@@ -79,7 +74,6 @@ export default function OidcWaitScreen() {
     return () => clearTimeout(timer)
   }, [])
 
-  // â”€â”€ Effect: Determine phase and redirect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   React.useEffect(() => {
     if (hasRedirected.current) return
 
@@ -140,7 +134,6 @@ export default function OidcWaitScreen() {
     clientId, redirectUri, buildAuthUrl, doRedirect, navigate, t,
   ])
 
-  // â”€â”€ Redirect timeout safety â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   React.useEffect(() => {
     if (phase !== 'redirecting' && phase !== 'initializing') return
 
@@ -156,7 +149,6 @@ export default function OidcWaitScreen() {
     return () => clearTimeout(timeout)
   }, [phase, t])
 
-  // â”€â”€ Retry handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleRetry = () => {
     hasRedirected.current = false
     setPhase('initializing')
@@ -164,7 +156,6 @@ export default function OidcWaitScreen() {
     window.location.reload()
   }
 
-  // â”€â”€ Status text based on phase â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const statusText = React.useMemo(() => {
     switch (phase) {
       case 'initializing':
@@ -180,7 +171,6 @@ export default function OidcWaitScreen() {
     }
   }, [phase, t])
 
-  // â”€â”€ Render: Error state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (phase === 'error') {
     return (
       <Box
@@ -263,7 +253,6 @@ export default function OidcWaitScreen() {
     )
   }
 
-  // â”€â”€ Render: Loading / Redirecting state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <Box
       component={motion.div}

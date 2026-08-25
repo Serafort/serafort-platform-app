@@ -8,7 +8,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { FetchResponse, IUserResponseEmailResetPassword } from '@cap/platform-core';
+import { FetchResponse, IUserResponseEmailResetPassword, secureTokenManager, useAppStore } from '@cap/platform-core';
 import type { ResetPasswordRequest } from '../../types/api.types';
 import { useResetPassword } from '../../hooks/useAuthQuery';
 import authService from '../../services/auth.service';
@@ -107,6 +107,10 @@ export default function ResetPassword() {
 
   const resetPasswordMutation = useResetPassword({
     onSuccess: () => {
+      try {
+        secureTokenManager.clearTokens()
+        useAppStore.getState().signOut()
+      } catch {}
       navigate(Path.passwordResetSuccess)
     },
     onError: (err: any) => {

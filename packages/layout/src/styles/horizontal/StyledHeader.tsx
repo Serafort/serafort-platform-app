@@ -1,4 +1,5 @@
-import { styled, getTenantThemeEffects } from '@cap/theme'
+import { styled } from '@mui/material/styles'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   headerTokens,
   getHeaderElevationShadow,

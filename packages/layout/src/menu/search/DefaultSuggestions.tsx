@@ -40,7 +40,7 @@ const DefaultSuggestions = () => {
 
       return {
         sectionLabel: translatedSection,
-        items: items.map((item) => {
+        items: items.slice(0, 6).map((item) => {
           const rawName = item.name || ''
           const cleanNameKey = rawName.replace(/^navigation\./, '')
           const translatedName = t(rawName, {

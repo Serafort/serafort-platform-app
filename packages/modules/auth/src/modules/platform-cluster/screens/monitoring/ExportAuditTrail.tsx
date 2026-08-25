@@ -8,13 +8,14 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import TimerIcon from '@mui/icons-material/Timer';
 import StorageIcon from '@mui/icons-material/Storage';
 import { useTranslation } from 'react-i18next';
-import { useExportAuditLogs } from '@idaas/authentication-core/hooks/useAdminQuery';
-import { useChunkProgressTracker } from '@idaas/authentication-core/hooks/useChunkProgressTracker';
-import { toast } from 'react-toastify';
-import logger from '@idaas/authentication-core/utils/logger';
+import { useNotifications } from '@cap/platform-core';
+import { useExportAuditLogs } from '../../../authorization-engine/hooks/useAdminQuery';
+import { useChunkProgressTracker } from '../../../authentication-core/hooks/useChunkProgressTracker';
+import logger from '../../../authentication-core/utils/logger';
 
 export default function ExportAuditTrail() {
   const { t } = useTranslation('common')
+  const { addNotification } = useNotifications()
   const tracker = useChunkProgressTracker({
     totalChunks: 36,
     chunkSize: 250,
@@ -46,16 +47,24 @@ export default function ExportAuditTrail() {
         link.click()
         link.parentNode?.removeChild(link)
         window.URL.revokeObjectURL(url)
-        toast.success(t('auth.admin.exportSuccess', 'Export completed successfully'), {  })
+        addNotification({
+          type: 'success',
+          title: t('auth.admin.exportSuccessTitle', 'Export Completed'),
+          message: t('auth.admin.exportSuccess', 'Audit log export downloaded successfully.'),
+        })
       } catch (err: unknown) {
         logger.error('Failed to process export response', { error: err })
       }
 
       setTimeout(() => tracker.reset(), 1500)
     },
-    onError: (error) => {
+    onError: (error: any) => {
       logger.error('Audit log export failed', { error })
-      toast.error(error.message || t('auth.admin.exportFailed', 'Export failed'), {  })
+      addNotification({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        message: error.message || t('auth.admin.exportFailed', 'Failed to export audit logs.'),
+      })
       tracker.reset()
     },
   })

@@ -5,18 +5,34 @@ This document serves as the single source of truth for UX design principles, hum
 ---
 
 ## Table of Contents
-1. [Loading Psychology & Performance Engineering](#1-loading-psychology--performance-engineering)
-2. [Anti-Dark Patterns & UX Ethics](#2-anti-dark-patterns--ux-ethics)
-3. [Cognitive UX Laws & Layout Expectations](#3-cognitive-ux-laws--layout-expectations)
-4. [The 4 UI States Architecture](#4-the-4-ui-states-architecture)
-5. [Modern Form Design & Validation (Revolut Standards)](#5-modern-form-design--validation-revolut-standards)
-6. [Secure & Actionable Error Handling](#6-secure--actionable-error-handling)
-7. [Visual Tokens, Fluid Typography & Liquid Glass](#7-visual-tokens-fluid-typography--liquid-glass)
-8. [MUI Styling Best Practices & Logical Properties](#8-mui-styling-best-practices--logical-properties)
+1. [4 Key Principles Guiding UI](#1-4-key-principles-guiding-ui)
+2. [Loading Psychology & Performance Engineering](#2-loading-psychology--performance-engineering)
+3. [Anti-Dark Patterns & UX Ethics](#3-anti-dark-patterns--ux-ethics)
+4. [Cognitive UX Laws & Engineering Architecture](#4-cognitive-ux-laws--engineering-architecture)
+5. [The 4 UI States Architecture](#5-the-4-ui-states-architecture)
+6. [Modern Form Design & Validation (Revolut Standards)](#6-modern-form-design--validation-revolut-standards)
+7. [Secure & Actionable Error Handling](#7-secure--actionable-error-handling)
+8. [Visual Tokens, Fluid Typography & Liquid Glass](#8-visual-tokens-fluid-typography--liquid-glass)
+9. [MUI Styling Best Practices & Logical Properties](#9-mui-styling-best-practices--logical-properties)
 
 ---
 
-## 1. Loading Psychology & Performance Engineering
+## 1. 4 Key Principles Guiding UI
+
+Every screen, component, and interaction pattern across the framework is anchored in four core visual principles:
+
+1. **Visual Hierarchy**: Guiding the eye to the most important information first.
+   - *Architecture*: Establish an unmistakable focal point on every screen. Use weight, opacity, and scale levers (`--font-display` to `--font-body`) rather than raw size alone.
+2. **Contrast**: Making elements legible and distinct from one another.
+   - *Architecture*: Enforce strict 4.5:1 text contrast and 3:1 graphical boundary contrast. High-contrast primary CTA buttons isolate core actions from secondary options.
+3. **Alignment**: Creating visual order to reduce the user's mental effort.
+   - *Architecture*: Strict alignment to the 8px/4px spatial grid, cohesive baseline typography alignment, and symmetric RTL/LTR mirroring.
+4. **Proximity**: Grouping related elements to indicate that they share a function.
+   - *Architecture*: Form labels sit 4-8px from their inputs; distinct cards are spaced by 24-32px. Use Bento card boundaries to declare logical cohesion.
+
+---
+
+## 2. Loading Psychology & Performance Engineering
 
 Users do not perceive time objectively; their perception of speed depends on visual feedback, spatial predictability, and interaction responsiveness.
 
@@ -78,22 +94,33 @@ Never manipulate users into taking an action through guilt-inducing, passive-agg
 
 ---
 
-## 3. Cognitive UX Laws & Layout Expectations
+## 3. Cognitive UX Laws & Engineering Architecture
 
-### Hick's Law (Reducing Choice Paralysis)
-The time it takes to make a decision increases logarithmically with the number and complexity of choices.
-- **Form Chunking**: Break large forms (> 6 fields) into progressive steps, multi-step wizards, or collapsible accordions.
-- **Sensible Defaults**: Pre-select the most common safe configuration for tenants to reduce cognitive load.
+The CAP Framework adheres strictly to cognitive psychology heuristics and user experience laws. For the comprehensive directory, see [`laws_of_ux.md`](./laws_of_ux.md).
 
-### Jacob's Law & Spatial Familiarity
-Users spend most of their time on other apps; they expect your app to behave like the rest of the web.
-- **Element Placement**:
-  - Global navigation / Breadcrumbs at the top / left.
-  - Search / User Profile / Notifications in the top-right header (top-left in RTL).
-  - Primary Actions anchored at the bottom-right of cards or dialogs.
-- **RTL (Right-to-Left) Discipline**:
-  - Arabic (`ar`) and other RTL locales expect mirrored layouts: back arrows point right, progress bars flow right-to-left, start icons mirror position.
-  - `@cap/theme` utilizes `stylis-plugin-rtl` alongside CSS Logical Properties (`marginInlineStart`, `paddingInlineEnd`, `inlineSize`).
+### Core Cognitive Laws in UI Architecture
+
+| UX Law / Heuristic | Psychological Premise | Monorepo Engineering Implementation |
+| :--- | :--- | :--- |
+| **Aesthetic-Usability Effect** | Users perceive aesthetically pleasing design as more usable. | Refined `@cap/theme` presets, liquid glass cards, and fluid typography (`clamp()`). |
+| **Hick’s Law** | Decision time increases with option count and complexity. | Progressive disclosure in tenant configuration; multi-step forms (> 6 fields); sensible defaults. |
+| **Jakob’s Law** | Users expect your app to work like other apps they know. | Standard top/left navigation, standard keyboard shortcuts (`Cmd/Ctrl+K`), top-right user controls. |
+| **Fitts’s Law** | Acquisition time depends on target distance and size. | Minimum 44px-48px touch targets (`minHeight: 48px` on inputs, `var(--touch-target-min)`). |
+| **Doherty Threshold** | Productivity soars when interaction responds in <400ms. | Micro-animations capped at 150-300ms; button action locks (`100ms`); instant skeleton feedback. |
+| **Miller’s Law & Chunking** | Working memory holds 7 ± 2 items. | Navigation menus and toolbars capped at 5-7 items per group; Bento grid modular cards. |
+| **Tesler’s Law (Complexity)** | Every system has irreducible complexity. | Complex multi-tenant token compilation and routing wrapped in framework abstractions (`@cap/platform-core`). |
+| **Postel’s Law** | Be liberal in what you accept, conservative in what you send. | Resilient form inputs with format masks; normalized frontend data payloads sent to typed APIs. |
+| **Von Restorff Effect** | Distinct items among similar ones are best remembered. | High-contrast contained primary CTA buttons, featured pricing badges, critical error banners. |
+| **Zeigarnik & Goal-Gradient** | Incomplete tasks are remembered; motivation rises near goal. | Multi-step onboarding progress bars, profile completeness meters, draft auto-save badges. |
+| **Peak-End Rule** | Experiences are judged by their peak and their conclusion. | Rewarding success states (`.state-success-glow`), delightful confirmation screens, clean logout flow. |
+| **Law of Proximity & Region** | Proximate items and bounded regions form perceived groups. | Bento grid boundaries, explicit card elevation (`background.paper`), 4-8px input-label spacing vs 24px section gaps. |
+| **Law of Similarity & Connectedness** | Visually similar or connected elements are seen as related. | Uniform component overrides (`getComponentOverrides`), pipeline step connectors, linked tab indicators. |
+| **Paradox of the Active User** | Users start using software immediately without reading docs. | 4 UI States with self-explanatory empty states (`.state-empty-container`) featuring instant CTAs. |
+| **Occam’s Razor & Flow** | Simplest solution is best; immersion requires zero friction. | Single-click workflows, elimination of redundant confirmation steps, zero CLS (`scrollbar-gutter: stable;`). |
+
+### RTL & Spatial Layout Discipline
+- **Mirrored Layouts**: Arabic (`ar`) and RTL locales mirror navigation, icon positions, and progress flows.
+- **Logical Properties**: Always prefer CSS logical properties (`marginInlineStart`, `paddingInlineEnd`, `inlineSize`, `blockSize`) or `@cap/theme`'s RTL styling pipeline.
 
 ---
 

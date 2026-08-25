@@ -25,7 +25,6 @@ export * from './hooks/useAuth'
 export * from './hooks/useNavigation'
 export * from './hooks/useResizeObserver'
 export * from './hooks/useContainerQuery'
-export * from './hooks/useActionLock'
 export * from './contexts/ContainerSizeContext'
 export * from './components'
 

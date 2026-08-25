@@ -11,8 +11,8 @@ import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Path } from '@cap/module-auth/routes/path';
-import { useUserProfile } from '../../hooks/useUserQuery';
-import { useAuth } from '@cap/platform-core';
+import { useUserProfile, useUpdatePhoto } from '../../hooks/useUserQuery';
+import { useAuth, useNotifications } from '@cap/platform-core';
 
 const zIndexScale = {
   local: {
@@ -28,8 +28,26 @@ export default function ProfileView() {
   const navigate = useNavigate()
   const { t } = useTranslation('common')
   const { user } = useAuth()
-  useUserProfile()
+  const { data: profileResponse } = useUserProfile()
+  const { addNotification } = useNotifications()
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const updatePhotoMutation = useUpdatePhoto({
+    onSuccess: () => {
+      addNotification({
+        type: 'success',
+        title: t('auth.account.success', 'Success'),
+        message: t('auth.account.avatar_updated', 'Avatar updated successfully.'),
+      })
+    },
+    onError: (err: any) => {
+      addNotification({
+        type: 'error',
+        title: t('auth.account.error', 'Error'),
+        message: err.message || t('auth.account.avatar_update_error', 'Failed to update avatar.'),
+      })
+    },
+  })
 
   const handleAvatarClick = useCallback(() => {
     fileInputRef.current?.click()
@@ -38,9 +56,9 @@ export default function ProfileView() {
   const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      console.log('Selected file:', file)
+      updatePhotoMutation.mutate({ photo: file })
     }
-  }, [])
+  }, [updatePhotoMutation])
 
   const quickActions = useMemo(
     () => [
@@ -65,6 +83,13 @@ export default function ProfileView() {
         description: t('auth.account.change_email_desc'),
         icon: <Mail />,
         onClick: () => navigate(Path.account.changeEmail),
+      },
+      {
+        id: 'linked-accounts',
+        label: t('auth.account.linked_accounts', 'Linked Accounts'),
+        description: t('auth.account.linked_accounts_desc', 'Manage Google, GitHub, and SAML connections'),
+        icon: <Verified />,
+        onClick: () => navigate(Path.account.linkedAccounts),
       },
       {
         id: 'export-data',

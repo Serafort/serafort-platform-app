@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { Box, Button, TextField, Typography, Switch, Select, MenuItem, FormControl, InputLabel, Container, Card, CardContent, Tabs, Tab, Divider, CircularProgress, Avatar } from '@mui/material';
+import { Box, Button, TextField, Typography, Switch, Select, MenuItem, FormControl, InputLabel, Container, Card, CardContent, Tabs, Tab, Divider, CircularProgress, Avatar, Chip } from '@mui/material';
 import Person from '@mui/icons-material/Person';
 import Settings from '@mui/icons-material/Settings';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -11,7 +11,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import { useUserProfile, useUpdateMe, useExportMutation, useErasureMutation } from '../../hooks/useUserQuery';
+import { useUserProfile, useUpdateMe, useUpdatePhoto, useExportMutation, useErasureMutation } from '../../hooks/useUserQuery';
 import { useAuth, useNotifications } from '@cap/platform-core';
 import { Path } from '@cap/module-auth/routes/path';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Alert, InputAdornment } from '@mui/material';
@@ -199,6 +199,25 @@ export default function EditProfile({ onSave, onCancel }: EditProfileProps) {
     }
   }, [profileData, controlForm])
 
+  const { addNotification } = useNotifications()
+
+  const updatePhotoMutation = useUpdatePhoto({
+    onSuccess: () => {
+      addNotification({
+        type: 'success',
+        title: t('auth.account.success'),
+        message: t('auth.account.avatar_updated', 'Avatar updated successfully.'),
+      })
+    },
+    onError: (error) => {
+      addNotification({
+        type: 'error',
+        title: t('auth.account.error'),
+        message: error.message || t('auth.account.avatar_update_error', 'Failed to update avatar.'),
+      })
+    },
+  })
+
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
@@ -207,10 +226,9 @@ export default function EditProfile({ onSave, onCancel }: EditProfileProps) {
         setAvatarUrl(reader.result as string)
       }
       reader.readAsDataURL(file)
+      updatePhotoMutation.mutate({ photo: file })
     }
-  }, [])
-
-  const { addNotification } = useNotifications()
+  }, [updatePhotoMutation])
 
   const { mutate: updateMe, isPending } = useUpdateMe({
     onSuccess: () => {
@@ -254,6 +272,16 @@ export default function EditProfile({ onSave, onCancel }: EditProfileProps) {
       emailOnMention: values.emailOnMention,
     })
   }
+
+  const currentFormValues = controlForm.watch()
+  const profileCompletion = useMemo(() => {
+    let score = 0
+    if (avatarUrl && !avatarUrl.includes('AB6AXuBwtlQvZfVHAbw57jyi9JMrm62k')) score += 25
+    if (currentFormValues.firstName && currentFormValues.lastName) score += 25
+    if (currentFormValues.phone) score += 25
+    if (currentFormValues.biography || currentFormValues.company || currentFormValues.location) score += 25
+    return score
+  }, [avatarUrl, currentFormValues.firstName, currentFormValues.lastName, currentFormValues.phone, currentFormValues.biography, currentFormValues.company, currentFormValues.location])
 
   const handleCancel = useCallback(() => {
     if (onCancel) {
@@ -300,17 +328,25 @@ export default function EditProfile({ onSave, onCancel }: EditProfileProps) {
             }}
           >
             <Box>
-              <Typography
-                variant='h3'
-                sx={{
-                  fontWeight: 900,
-                  fontSize: { xs: '1.875rem', md: '2.25rem' },
-                  letterSpacing: '-0.033em',
-                  mb: 0.5,
-                }}
-              >
-                {t('auth.account.update_profile_title')}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
+                <Typography
+                  variant='h3'
+                  sx={{
+                    fontWeight: 900,
+                    fontSize: { xs: '1.875rem', md: '2.25rem' },
+                    letterSpacing: '-0.033em',
+                  }}
+                >
+                  {t('auth.account.update_profile_title')}
+                </Typography>
+                <Chip
+                  label={`${profileCompletion}% Complete`}
+                  color={profileCompletion === 100 ? 'success' : 'primary'}
+                  variant='outlined'
+                  size='small'
+                  sx={{ fontWeight: 800, borderRadius: '50px' }}
+                />
+              </Box>
               <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1rem' }}>
                 {t('auth.account.update_profile_subtitle')}
               </Typography>

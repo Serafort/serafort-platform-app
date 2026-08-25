@@ -1,7 +1,9 @@
-import PhoneInput from 'react-phone-input-2'
-import { styled } from '@mui/material/styles'
-import { alpha } from '@mui/material/styles'
 import React from 'react'
+import PhoneInput from 'react-phone-input-2'
+import { styled, alpha } from '@mui/material/styles'
+import { Tooltip, Typography, Box } from '@mui/material'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+
 
 const PhoneInput2 = styled('div')(({ theme }) => ({
   '& .form-control': {
@@ -215,14 +217,65 @@ const PhoneInput2 = styled('div')(({ theme }) => ({
   },
 }))
 
-// Wrapper component to pass through PhoneInput props
-const PhoneInputWrapper: React.FC<any> = (props) => {
+export interface PhoneInputWrapperProps {
+  value?: string
+  onChange?: (value: string, countryData?: any, e?: any, formattedValue?: string) => void
+  tooltip?: string
+  helperText?: string
+  error?: boolean
+  [key: string]: any
+}
+
+// Wrapper component to pass through PhoneInput props with Postel's Law resilience
+const PhoneInputWrapper: React.FC<PhoneInputWrapperProps> = ({
+  value,
+  onChange,
+  tooltip,
+  helperText,
+  error,
+  ...restProps
+}) => {
   const PhoneInputComponent = PhoneInput as any
+
+  const handleChange = (val: string, country: any, e: any, formattedVal: string) => {
+    // Postel's Law: normalize phone input to ensure consistent digits / formatting
+    const rawDigits = val ? val.replace(/\D/g, '') : ''
+    if (onChange) {
+      onChange(rawDigits ? (val.startsWith('+') ? `+${rawDigits}` : rawDigits) : '', country, e, formattedVal)
+    }
+  }
+
   return (
-    <PhoneInput2>
-      <PhoneInputComponent {...props} />
-    </PhoneInput2>
+    <Box sx={{ position: 'relative', width: '100%' }}>
+      <PhoneInput2>
+        <PhoneInputComponent
+          value={value}
+          onChange={handleChange}
+          inputProps={{
+            className: error ? 'form-control invalid-number' : 'form-control',
+            ...restProps.inputProps,
+          }}
+          {...restProps}
+        />
+      </PhoneInput2>
+
+      {(tooltip || helperText) && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5, px: 1 }}>
+          {tooltip && (
+            <Tooltip title={tooltip} arrow placement='top'>
+              <InfoOutlinedIcon sx={{ fontSize: '0.875rem', color: 'text.secondary', cursor: 'help' }} />
+            </Tooltip>
+          )}
+          {helperText && (
+            <Typography variant='caption' sx={{ color: error ? 'error.main' : 'text.secondary' }}>
+              {helperText}
+            </Typography>
+          )}
+        </Box>
+      )}
+    </Box>
   )
 }
 
 export default PhoneInputWrapper
+

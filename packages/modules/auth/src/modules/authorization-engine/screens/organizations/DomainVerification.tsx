@@ -8,9 +8,12 @@ import Verified from '@mui/icons-material/Verified';
 import Pending from '@mui/icons-material/Pending';
 import { Box, Typography, Card, CardContent, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Alert, CircularProgress, Tooltip } from '@mui/material';
 import { adminService, DomainVerification as DomainType } from '../../services/adminService';
-import { toast } from 'react-toastify';
+import { useNotifications } from '@cap/platform-core';
+
+import { normalizeDomain } from '../../../authentication-core/utils/schema';
 
 const DomainVerification = () => {
+  const { addNotification } = useNotifications()
   const [loading, setLoading] = useState(false)
   const [domains, setDomains] = useState<DomainType[]>([])
   const [newDomain, setNewDomain] = useState('')
@@ -24,10 +27,10 @@ const DomainVerification = () => {
     try {
       // Mocking domain list; a dedicated getDomains endpoint would replace this
       setDomains([
-        { id: 1, organization_id: 1, domain: 'example.com', status: 'verified' as const, verification_token: '', verified_at: '2024-01-01', created_at: '2024-01-01', updated_at: '2024-01-01' }
+        { id: 1, organization_id: 1, domain: 'example.com', status: 'verified' as const, verification_token: 'cap-verify-91a2b3c4', verified_at: '2024-01-01', created_at: '2024-01-01', updated_at: '2024-01-01' }
       ])
     } catch (error) {
-      toast.error('Failed to fetch domains')
+      addNotification({ type: 'error', title: 'Error', message: 'Failed to fetch domains' })
     } finally {
       setLoading(false)
     }
@@ -38,16 +41,22 @@ const DomainVerification = () => {
   }, [])
 
   const handleAddDomain = async () => {
+    const normalized = normalizeDomain(newDomain)
+    if (!normalized) {
+      addNotification({ type: 'error', title: 'Invalid Domain', message: 'Please enter a valid domain name' })
+      return
+    }
+
     setIsVerifying(true)
     try {
-      const response = await adminService.verifyDomain(orgId, newDomain)
+      const response = await adminService.verifyDomain(orgId, normalized)
       if (response.data) {
         setDomains([...domains, response.data])
         setNewDomain('')
-        toast.success('Domain added and verification started')
+        addNotification({ type: 'success', title: 'Domain Added', message: 'Domain added and verification token generated.' })
       }
     } catch (error) {
-      toast.error('Failed to add domain')
+      addNotification({ type: 'error', title: 'Error', message: 'Failed to add domain' })
     } finally {
       setIsVerifying(false)
     }
@@ -59,34 +68,50 @@ const DomainVerification = () => {
       if (response.data) {
         setDomains(domains.map(d => d.id === domainId ? response.data : d))
         if (response.data.status === 'verified') {
-          toast.success('Domain verified successfully!')
+          addNotification({ type: 'success', title: 'Domain Verified', message: 'Domain verified successfully!' })
         } else {
-          toast.warning('Domain not yet verified. Please check your DNS records.')
+          addNotification({ type: 'warning', title: 'Verification Pending', message: 'Domain not yet verified. Please check your DNS records.' })
         }
       }
     } catch (error) {
-      toast.error('Failed to check domain status')
+      addNotification({ type: 'error', title: 'Error', message: 'Failed to check domain status' })
     }
   }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    toast.info('Copied to clipboard')
+    addNotification({ type: 'info', title: 'Copied', message: 'Verification token copied to clipboard' })
   }
+
+  const verifiedCount = domains.filter((d) => d.status === 'verified').length
+  const totalCount = domains.length
 
   return (
     <Box sx={{ p: 4, maxWidth: 1000, mx: 'auto' }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' sx={{ fontWeight: 900, mb: 1 }}>
-          DOMAIN VERIFICATION
-        </Typography>
-        <Typography variant='body1' color='text.secondary'>
-          Verify ownership of your domains to enable SSO, email branding, and automated provisioning.
-        </Typography>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant='h4' sx={{ fontWeight: 900, mb: 1 }}>
+            DOMAIN VERIFICATION
+          </Typography>
+          <Typography variant='body1' color='text.secondary'>
+            Verify ownership of your domains to enable SSO, email branding, and automated provisioning.
+          </Typography>
+        </Box>
+
+        {/* Zeigarnik Effect: Verification Progress Badge */}
+        {totalCount > 0 && (
+          <Chip
+            icon={verifiedCount === totalCount ? <Verified sx={{ fontSize: '1rem' }} /> : <Pending sx={{ fontSize: '1rem' }} />}
+            label={`${verifiedCount} of ${totalCount} Domains Verified`}
+            color={verifiedCount === totalCount ? 'success' : 'warning'}
+            variant='outlined'
+            sx={{ fontWeight: 800, borderRadius: '50px', px: 1 }}
+          />
+        )}
       </Box>
 
       <Alert severity="info" sx={{ mb: 4, borderRadius: 3 }}>
-        To verify a domain, you will need to add a TXT record to your DNS configuration.
+        To verify a domain, add a <strong>TXT</strong> record with your verification token to your DNS configuration.
       </Alert>
 
       <Card sx={{ borderRadius: 4, mb: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
@@ -95,9 +120,10 @@ const DomainVerification = () => {
           <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
               fullWidth
-              placeholder="e.g. acme.com"
+              placeholder="e.g. acme.com or https://corp.acme.com"
               value={newDomain}
               onChange={(e) => setNewDomain(e.target.value)}
+              helperText="Accepts full URL or domain name; automatically normalized."
               disabled={isVerifying}
               size="small"
             />

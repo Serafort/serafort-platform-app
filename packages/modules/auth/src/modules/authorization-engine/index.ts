@@ -8,3 +8,6 @@ export * from './src/services/rbac.subscriber'
 
 
 
+import { authorizationEngineDictionaries, registerDictionary } from './i18n/registry'
+
+registerDictionary(authorizationEngineDictionaries as any)

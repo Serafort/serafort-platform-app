@@ -9,8 +9,8 @@ import NotificationImportant from '@mui/icons-material/NotificationImportant';
 import History from '@mui/icons-material/History';
 import Refresh from '@mui/icons-material/Refresh';
 import { useTranslation } from 'react-i18next';
-import { useActivityTimeline } from '@auth';
-import { AuditLog } from '@idaas/authentication-core/types/api.types';
+import { useActivityTimeline } from '../../../user-directory/hooks/useUserQuery';
+import { AuditLog } from '../../../authentication-core/types/api.types';
 import { useMemo } from 'react';
 
 type TimelineDotColor = 'success' | 'primary' | 'info' | 'warning' | 'error' | 'grey' | 'inherit';

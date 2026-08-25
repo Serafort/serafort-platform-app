@@ -213,7 +213,7 @@ export class PermissionCheckerService implements IPermissionChecker {
         userContext.organizationId != null &&
         String(request.organizationId) !== String(userContext.organizationId)
       ) {
-        return { allowed: false, reason: 'Organization ID mismatch for tenant context' };
+        return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' };
       }
     }
 
@@ -221,15 +221,14 @@ export class PermissionCheckerService implements IPermissionChecker {
       return { allowed: true }
     }
 
-    // Tenant admin has authority within their own validated tenant scope
-    if (userRoleStr === 'admin' || userRoleStr === 'tenant_admin' || userRoleStr === 'tenant_owner') {
-      return { allowed: true }
-    }
+    // 4. Explicit permissions evaluation with wildcard matching
+    const isTenantAdmin =
+      userRoleStr === 'admin' || userRoleStr === 'tenant_admin' || userRoleStr === 'tenant_owner'
 
-    // 5. Explicit permissions evaluation
     const rawPermissions = [
       ...(Array.isArray(userContext.permissions) ? userContext.permissions : []),
       ...(Array.isArray(userContext.roleObject?.permissions) ? userContext.roleObject!.permissions! : []),
+      ...(isTenantAdmin ? ['tenant:manage', 'org:admin', `${request.resource}:*`] : []),
     ]
 
     const userPermissions = rawPermissions
@@ -247,11 +246,9 @@ export class PermissionCheckerService implements IPermissionChecker {
       return false
     })
 
-    if (isAllowed) {
-      return { allowed: true }
-    }
+    if (isAllowed) return { allowed: true }
 
-    return { allowed: false, reason: `Permission '${permissionTarget}' denied` }
+    return { allowed: false, reason: `Permission '${permissionTarget}' denied for current role and scope` }
   }
 }
 

@@ -100,6 +100,21 @@ These are real, code-confirmed gaps (not stylistic nitpicks) found during the Au
 * **i18n discipline**: All user-facing strings go through `t()`/the module's `i18n` dictionary bundle, even in shared UI packages like `@cap/layout`. A hardcoded locale-specific string in a shared component (found once already — see technical-debt-report.md §1.3) defeats the multi-tenant i18n contract for every other locale.
 * **No demo credentials as form defaults**: Don't pre-fill auth forms (`useForm({ defaultValues: ... })`) with real-shaped credentials, even for local dev convenience. Gate any demo-fill behavior behind `import.meta.env.DEV` explicitly, or leave fields empty.
 
+### Cognitive UX & 4 Key Principles Guiding UI
+All UI components, workflows, and layouts MUST adhere to the **4 Key UI Principles** and psychological UX heuristics (see [`packages/theme/laws_of_ux.md`](file:///c:/Node.Js/proj/boilerplate/packages/theme/laws_of_ux.md)):
+
+* **4 Key Principles Guiding UI**:
+  * **Visual Hierarchy**: Guiding the eye to the most important information first.
+  * **Contrast**: Making elements legible and distinct from one another.
+  * **Alignment**: Creating visual order to reduce the user's mental effort.
+  * **Proximity**: Grouping related elements to indicate that they share a function.
+* **Doherty Threshold (<400ms)**: UI transitions and debounce feedback must resolve in <400ms. Operations >400ms require immediate skeleton or optimistic feedback.
+* **Fitts’s Law**: Primary touch/click targets must be >= 44x44px (`minHeight: 48px` on inputs).
+* **Miller’s Law & Chunking**: Group related fields into cards; navigation menus capped at 5-7 items per section.
+* **Postel’s Law**: Be liberal in what you accept (masks/resilient inputs) and conservative in what you send (strict API contracts).
+* **Von Restorff Effect**: Isolate primary actions with high visual weight; keep secondary actions neutral.
+* **4 UI States Discipline**: Every interactive view must render Idle/Empty, Loading, Success, and Error states.
+
 ### Security & Privacy
 * **Zero PII Logging**: NEVER log sensitive credentials, authorization tokens, or raw user storage payload objects (`state.user`) to the console.
 * **Environment Guards**: Wrap diagnostic logging in `if (import.meta.env.DEV)`.
@@ -124,7 +139,9 @@ These are real, code-confirmed gaps (not stylistic nitpicks) found during the Au
 | **Architecture Review (Aug 2026)** | [`analysis/architecture-report.md`](file:///c:/Node.Js/proj/boilerplate/analysis/architecture-report.md) | Principal-level review: dependency graph, theme scalability, layout/routing findings. |
 | **Technical Debt Report (Aug 2026)** | [`analysis/technical-debt-report.md`](file:///c:/Node.Js/proj/boilerplate/analysis/technical-debt-report.md) | UI/UX audit + code-quality audit with severity-ranked findings. |
 | **Improvement Roadmap (Aug 2026)** | [`analysis/improvement-roadmap.md`](file:///c:/Node.Js/proj/boilerplate/analysis/improvement-roadmap.md) | Sequenced, phased fix plan. Awaiting approval before implementation. |
+| **Laws of UX Reference Guide** | [`packages/theme/laws_of_ux.md`](file:///c:/Node.Js/proj/boilerplate/packages/theme/laws_of_ux.md) | Comprehensive 31-principle cognitive UX guide and engineering implementation mapping. |
 | **Module Development Guide** | [`MODULE_DEVELOPMENT_GUIDE.md`](file:///c:/Node.Js/proj/boilerplate/MODULE_DEVELOPMENT_GUIDE.md) | Step-by-step guide for creating modules, route declarations, navigation items, and plugins. |
 | **Theme System Guide** | [`packages/theme/THEME_SYSTEM.md`](file:///c:/Node.Js/proj/boilerplate/packages/theme/THEME_SYSTEM.md) | Design token pipeline, theme presets, and visual effect generators. |
 | **Design System Standards** | [`packages/theme/DESIGN_SYSTEM.md`](file:///c:/Node.Js/proj/boilerplate/packages/theme/DESIGN_SYSTEM.md) | MUI component styling rules, typography standards, and accessibility requirements. |
 | **Contributing Guide** | [`CONTRIBUTING.md`](file:///c:/Node.Js/proj/boilerplate/CONTRIBUTING.md) | Environment setup, CLI commands, and PR guidelines. |
+

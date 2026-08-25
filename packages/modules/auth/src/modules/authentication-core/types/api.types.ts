@@ -134,7 +134,7 @@ export interface UpdateEmailRequest {
 }
 
 export interface UpdatePhotoRequest {
-  id: number
+  id?: number
   photo: File
 }
 

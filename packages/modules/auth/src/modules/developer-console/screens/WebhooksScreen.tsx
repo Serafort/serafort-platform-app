@@ -86,7 +86,10 @@ export const WebhooksScreen: React.FC = () => {
     try {
       const response = await developerService.listWebhooks()
       if (response?.data) {
-        setWebhooks(response.data)
+        const rawWebhooks = Array.isArray(response.data)
+          ? response.data
+          : (response.data as any)?.webhooks || (response.data as any)?.items || (response.data as any)?.data || []
+        setWebhooks(Array.isArray(rawWebhooks) ? rawWebhooks : [])
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to load webhooks.')
@@ -267,14 +270,19 @@ export const WebhooksScreen: React.FC = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ maxWidth: 350 }}>
-                      {wh.eventTypes.slice(0, 3).map((event: string) => (
-                        <Chip key={event} label={event} size="small" variant="outlined" />
-                      ))}
-                      {wh.eventTypes.length > 3 && (
-                        <Chip label={`+${wh.eventTypes.length - 3} more`} size="small" variant="outlined" />
-                      )}
-                    </Stack>
+                    {(() => {
+                      const events = Array.isArray(wh.eventTypes) ? wh.eventTypes : ((wh as any).event_types || [])
+                      return (
+                        <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ maxWidth: 350 }}>
+                          {events.slice(0, 3).map((event: string) => (
+                            <Chip key={event} label={event} size="small" variant="outlined" />
+                          ))}
+                          {events.length > 3 && (
+                            <Chip label={`+${events.length - 3} more`} size="small" variant="outlined" />
+                          )}
+                        </Stack>
+                      )
+                    })()}
                   </TableCell>
                   <TableCell>
                     <Typography variant="caption" sx={{ fontFamily: 'monospace', bgcolor: 'action.selected', px: 1, py: 0.5, borderRadius: 1 }}>

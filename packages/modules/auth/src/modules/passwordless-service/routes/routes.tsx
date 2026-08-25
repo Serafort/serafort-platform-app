@@ -1,7 +1,7 @@
 import React from 'react'
 import { AuthRouteConfig } from '@cap/platform-core'
 import Path from '../screens/path'
-import GuestRoute from '@idaas/authentication-core/middlewares/GuestRoute'
+import GuestRoute from '../../authentication-core/middlewares/GuestRoute'
 
 // ---------------------------------------------------------------------------
 // Passwordless screens
@@ -14,5 +14,5 @@ const PasswordlessVerification = React.lazy(() => import('../screens/Passwordles
 // ---------------------------------------------------------------------------
 export const passwordlessServiceRouteConfig: AuthRouteConfig[] = [
   { path: Path.setup, element: <GuestRoute element={<PasswordlessInitiation />} />, layout: 'noLayout' },
-  { path: Path.verification, element: <PasswordlessVerification />, layout: 'noLayout' },
+  { path: Path.verification, element: <GuestRoute element={<PasswordlessVerification />} />, layout: 'noLayout' },
 ]

@@ -7,6 +7,7 @@ import { createAuthRoute } from '../../../routes/routeHelpers'
 // API Tokens
 // ---------------------------------------------------------------------------
 const APITokensDashboard = React.lazy(() => import('../screens/api-tokens/APITokensDashboard'))
+const CreateAPITokenWizard = React.lazy(() => import('../screens/api-tokens/CreateAPITokenWizard'))
 const CreateAPITokenBasicInfo = React.lazy(() => import('../screens/api-tokens/CreateAPITokenBasicInfo'))
 const CreateAPITokenIPRestrictions = React.lazy(() => import('../screens/api-tokens/CreateAPITokenIPRestrictions'))
 const APITokenDetails = React.lazy(() => import('../screens/api-tokens/APITokenDetails'))
@@ -33,7 +34,7 @@ const RoleList = React.lazy(() => import('../screens/roles/RoleList'))
 export const authorizationEngineRouteConfig: AuthRouteConfig[] = [
   // --- API Tokens (verified auth) ---
   createAuthRoute(Path.dashboard, <APITokensDashboard />, { requiresVerification: true, layout: 'admin' }),
-  createAuthRoute(Path.createBasic, <CreateAPITokenBasicInfo />, { requiresVerification: true, layout: 'admin' }),
+  createAuthRoute(Path.createBasic, <CreateAPITokenWizard />, { requiresVerification: true, layout: 'admin' }),
   createAuthRoute(Path.createRestrictions, <CreateAPITokenIPRestrictions />, { requiresVerification: true, layout: 'admin' }),
   createAuthRoute(Path.details, <APITokenDetails />, { requiresVerification: true, layout: 'admin' }),
   createAuthRoute(Path.display, <APITokenDisplayUsage />, { requiresVerification: true, layout: 'admin' }),
@@ -45,9 +46,8 @@ export const authorizationEngineRouteConfig: AuthRouteConfig[] = [
   // --- Visual Policy & ABAC Canvas ---
   createAuthRoute(Path.policyCanvas, <VisualPolicyCanvas />, { requiresVerification: true, layout: 'admin' }),
   // --- Roles ---
-  createAuthRoute(Path.roles, <PermissionRegistry />, { requiresVerification: true, layout: 'admin' }),
+  createAuthRoute(Path.roles, <RoleList />, { requiresVerification: true, layout: 'admin' }),
   createAuthRoute(Path.roleDetail, <RoleDetailView />, { requiresVerification: true, layout: 'admin' }),
-  createAuthRoute(Path.roleDetail, <RoleList />, { requiresVerification: true, layout: 'admin' }),
 ]
 
 

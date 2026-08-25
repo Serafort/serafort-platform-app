@@ -51,7 +51,10 @@ export const DeveloperApiKeysScreen: React.FC = () => {
     try {
       const response = await developerService.listApiKeys()
       if (response?.data) {
-        setKeys(response.data)
+        const rawKeys = Array.isArray(response.data)
+          ? response.data
+          : (response.data as any)?.keys || (response.data as any)?.items || (response.data as any)?.data || []
+        setKeys(Array.isArray(rawKeys) ? rawKeys : [])
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to load developer API keys.')
@@ -171,23 +174,27 @@ export const DeveloperApiKeysScreen: React.FC = () => {
               </TableRow>
             ) : (
               keys.map((key) => {
-                const isExpired = key.expiresAt && new Date(key.expiresAt) < new Date()
+                const expiresAt = key.expiresAt || (key as any).expires_at
+                const createdAt = key.createdAt || (key as any).created_at
+                const isExpired = expiresAt && new Date(expiresAt) < new Date()
+                const keyHash = key.keyHash || (key as any).key_hash || (key as any).key || (key as any).token || (key as any).prefix || ''
+                const keyName = key.name || (key as any).title || `API Key #${key.id}`
                 return (
                   <TableRow key={key.id} hover>
                     <TableCell>
                       <Typography variant="subtitle2" fontWeight={600}>
-                        {key.name}
+                        {keyName}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography variant="caption" sx={{ fontFamily: 'monospace', bgcolor: 'action.selected', px: 1, py: 0.5, borderRadius: 1 }}>
-                        {key.keyHash.slice(0, 16)}...
+                        {keyHash ? `${keyHash.slice(0, 16)}...` : '••••••••••••••••'}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      {key.expiresAt ? (
+                      {expiresAt ? (
                         <Chip
-                          label={isExpired ? 'Expired' : new Date(key.expiresAt).toLocaleDateString()}
+                          label={isExpired ? 'Expired' : new Date(expiresAt).toLocaleDateString()}
                           size="small"
                           color={isExpired ? 'error' : 'default'}
                           variant="outlined"
@@ -198,7 +205,7 @@ export const DeveloperApiKeysScreen: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" color="text.secondary">
-                        {new Date(key.createdAt).toLocaleDateString()}
+                        {createdAt ? new Date(createdAt).toLocaleDateString() : '—'}
                       </Typography>
                     </TableCell>
                     <TableCell align="right">

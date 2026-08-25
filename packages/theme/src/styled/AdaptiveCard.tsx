@@ -14,6 +14,8 @@ export interface AdaptiveCardProps {
   children: React.ReactNode;
   effectStyle?: ComponentEffectStyle;
   globalEffectType?: EffectType;
+  density?: 'compact' | 'standard' | 'comfortable';
+  padding?: string;
   glassConfig?: React.ComponentProps<typeof GlassCard>;
   neuConfig?: React.ComponentProps<typeof NeuCard>;
   brutalismConfig?: React.ComponentProps<typeof BrutalismCard>;
@@ -24,7 +26,14 @@ export interface AdaptiveCardProps {
   style?: React.CSSProperties;
 }
 
-const StandardCard = styled('div')<{ className?: string; style?: React.CSSProperties }>(({ theme }) => ({
+const resolveDensityPadding = (theme: any, density?: 'compact' | 'standard' | 'comfortable', explicitPadding?: string) => {
+  if (explicitPadding) return explicitPadding;
+  if (density === 'compact') return theme.spacing(2);
+  if (density === 'comfortable') return theme.spacing(4);
+  return theme.spacing(3);
+};
+
+const StandardCard = styled('div')<{ className?: string; style?: React.CSSProperties; padding?: string; density?: 'compact' | 'standard' | 'comfortable' }>(({ theme, density, padding }) => ({
   position: 'relative',
   display: 'flex',
   flexDirection: 'column',
@@ -33,7 +42,7 @@ const StandardCard = styled('div')<{ className?: string; style?: React.CSSProper
   backgroundClip: 'border-box',
   boxSizing: 'border-box',
   borderRadius: theme.shape.customBorderRadius?.lg || theme.shape.borderRadius,
-  padding: theme.spacing(3),
+  padding: resolveDensityPadding(theme, density, padding),
   margin: 0,
   background: theme.palette.background.paper,
   boxShadow: theme.customShadows?.md || theme.shadows[1],
@@ -52,6 +61,8 @@ export const AdaptiveCard: React.FC<AdaptiveCardProps> = ({
   children,
   effectStyle = 'global',
   globalEffectType,
+  density,
+  padding,
   glassConfig,
   neuConfig,
   brutalismConfig,
@@ -75,20 +86,20 @@ export const AdaptiveCard: React.FC<AdaptiveCardProps> = ({
 
   switch (activeStyle) {
     case 'glass':
-      return <GlassCard {...glassConfig} className={className} style={style}>{children}</GlassCard>;
+      return <GlassCard padding={padding || glassConfig?.padding} {...glassConfig} className={className} style={style}>{children}</GlassCard>;
     case 'neu':
-      return <NeuCard {...neuConfig} className={className} style={style}>{children}</NeuCard>;
+      return <NeuCard padding={padding || neuConfig?.padding} {...neuConfig} className={className} style={style}>{children}</NeuCard>;
     case 'brutalism':
-      return <BrutalismCard {...brutalismConfig} className={className} style={style}>{children}</BrutalismCard>;
+      return <BrutalismCard padding={padding || brutalismConfig?.padding} {...brutalismConfig} className={className} style={style}>{children}</BrutalismCard>;
     case 'bento':
-      return <BentoCard {...bentoConfig} className={className} style={style}>{children}</BentoCard>;
+      return <BentoCard padding={padding || bentoConfig?.padding} {...bentoConfig} className={className} style={style}>{children}</BentoCard>;
     case 'organic':
-      return <OrganicCard {...organicConfig} className={className} style={style}>{children}</OrganicCard>;
+      return <OrganicCard padding={padding || organicConfig?.padding} {...organicConfig} className={className} style={style}>{children}</OrganicCard>;
     case 'immersive':
-      return <ImmersiveCard {...immersiveConfig} className={className} style={style}>{children}</ImmersiveCard>;
+      return <ImmersiveCard padding={padding || immersiveConfig?.padding} {...immersiveConfig} className={className} style={style}>{children}</ImmersiveCard>;
     default:
       return (
-        <StandardCard className={className} style={style}>
+        <StandardCard density={density} padding={padding} className={className} style={style}>
           {children}
         </StandardCard>
       );

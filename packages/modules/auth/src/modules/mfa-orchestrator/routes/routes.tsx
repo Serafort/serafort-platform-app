@@ -34,21 +34,21 @@ export const mfaOrchestratorRouteConfig: AuthRouteConfig[] = [
   // --- MFA flows ---
   createAuthRoute(Path.mfa.setup, <MFASetupScreen />, { layout: 'noLayout' }),
   { path: Path.mfa.verification, element: <MFAVerificationScreen />, layout: 'noLayout' },
-  createAuthRoute(Path.mfa.management, <MFAManagement />),
-  createAuthRoute(Path.mfa.dashboard, <MFAManagement />),
+  createAuthRoute(Path.mfa.management, <MFAManagement />, { requiresVerification: true, layout: 'admin' }),
+  createAuthRoute(Path.mfa.dashboard, <MFAManagement />, { requiresVerification: true, layout: 'admin' }),
 
   // --- Passkey flows ---
-  createAuthRoute(Path.passkey.creation_options, <PasskeyCreationOptions />),
+  createAuthRoute(Path.passkey.creation_options, <PasskeyCreationOptions />, { layout: 'noLayout' }),
   { path: Path.passkey.login, element: <PasskeyLoginOption />, layout: 'noLayout' },
   createAuthRoute(Path.passkey.management, <PasskeyManagement />, { requiresVerification: true, layout: 'admin' }),
-  createAuthRoute(Path.passkey.naming_config, <PasskeyNamingConfig />),
-  createAuthRoute(Path.passkey.recovery, <PasskeyRecoveryOptions />),
-  createAuthRoute(Path.passkey.prompt, <PasskeyRegistrationPrompt />),
+  createAuthRoute(Path.passkey.naming_config, <PasskeyNamingConfig />, { layout: 'noLayout' }),
+  createAuthRoute(Path.passkey.recovery, <PasskeyRecoveryOptions />, { layout: 'noLayout' }),
+  createAuthRoute(Path.passkey.prompt, <PasskeyRegistrationPrompt />, { layout: 'noLayout' }),
   createAdminRoute(Path.passkey.setup, <PasskeySetup />),
   createAdminRoute(Path.passkey.setup_auto, <PasskeySetupAuto />),
   createAdminRoute(Path.passkey.usage_stats, <PasskeyUsageStats />),
   createAdminRoute(Path.passkey.example, <PasskeySetupAutoExample />),
 
   { path: Path.platform.login, element: <PlatformAuthLogin />, layout: 'noLayout' },
-  createAuthRoute(Path.platform.register, <PlatformAuthRegister />),
+  createAuthRoute(Path.platform.register, <PlatformAuthRegister />, { layout: 'noLayout' }),
 ]

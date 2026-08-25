@@ -1,4 +1,4 @@
-import { styled } from '@cap/theme'
+import { styled } from '@mui/material/styles'
 import { mainTokens } from '@cap/theme'
 
 /**

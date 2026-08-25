@@ -24,8 +24,6 @@ const EmailChangeVerification = React.lazy(() => import('../screens/email/EmailC
 const EmailChangeSuccess = React.lazy(() => import('../screens/email/EmailChangeSuccess'))
 const EmailChangeFailed = React.lazy(() => import('../screens/email/EmailChangeFailed'))
 const ExportVerification = React.lazy(() => import('../screens/email/ExportVerification'))
-const ResendEmailVerification = React.lazy(() => import('../screens/email/ResendEmailVerification'))
-const VerificationEmail = React.lazy(() => import('../screens/email/VerificationEmail'))
 
 // ---------------------------------------------------------------------------
 // Recovery
@@ -77,14 +75,8 @@ export const authCoreRouteConfig: AuthRouteConfig[] = [
   { path: Path.emailChangeFailed, element: <EmailChangeFailed /> },
   { path: Path.emailChangeVerification, element: <EmailChangeVerification /> },
   createAuthRoute(Path.exportVerification, <ExportVerification />, { layout: 'noLayout' }),
-  createAuthRoute(Path.resendEmailVerification, <ResendEmailVerification />, {
-    requiresVerification: true,
-    layout: 'noLayout',
-  }),
-  createAuthRoute(Path.VerificationEmail, <VerificationEmail />, {
-    requiresVerification: true,
-    layout: 'noLayout',
-  }),
+  { path: Path.resendEmailVerification, element: <CheckEmailConfirmation />, layout: 'noLayout' },
+  { path: Path.VerificationEmail, element: <EmailVerificationScreen />, layout: 'noLayout' },
 
   // --- Organisation ---
   { path: Path.joinOrganization, element: <JoinOrganization />, layout: 'noLayout' },

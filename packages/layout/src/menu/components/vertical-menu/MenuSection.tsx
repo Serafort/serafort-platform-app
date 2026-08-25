@@ -28,8 +28,24 @@ export type MenuSectionProps = Partial<ChildrenType> &
 
 type MenuSectionElement = keyof MenuSectionStyles
 
-const menuSectionWrapperStyles: React.CSSProperties = menuTokens.vertical.section.wrapperStyles
-const menuSectionContentStyles: React.CSSProperties = menuTokens.vertical.section.contentStyles
+const menuSectionWrapperStyles: React.CSSProperties = {
+  display: 'inline-block',
+  inlineSize: '100%',
+  position: 'relative',
+  listStyle: 'none',
+  padding: 0,
+  overflow: 'hidden',
+}
+
+const menuSectionContentStyles: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  inlineSize: '100%',
+  position: 'relative',
+  paddingBlock: '0.75rem',
+  paddingInline: '1.25rem',
+  overflow: 'hidden',
+}
 
 const MenuSection: React.ForwardRefRenderFunction<HTMLLIElement, MenuSectionProps> = (
   props,

@@ -12,9 +12,9 @@ import {
 } from '@mui/material'
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next'
-import { useResetUserPassword } from "@idaas/authentication-core/hooks/useAdminQuery"
+import { useNotifications } from '@cap/platform-core'
+import { useResetUserPassword } from '../../authorization-engine/hooks/useAdminQuery'
 
 interface ResetPasswordDialogProps {
   open: boolean
@@ -24,6 +24,7 @@ interface ResetPasswordDialogProps {
 
 export default function ResetPasswordDialog({ open, onClose, userId }: ResetPasswordDialogProps) {
   const { t } = useTranslation('common')
+  const { addNotification } = useNotifications()
   const [newPassword, setNewPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
@@ -31,17 +32,25 @@ export default function ResetPasswordDialog({ open, onClose, userId }: ResetPass
     onSuccess: () => {
       onClose()
       setNewPassword('')
-      toast.success(t('auth.admin.successPasswordReset'))
+      addNotification({
+        type: 'success',
+        title: t('auth.admin.resetPasswordSuccessTitle', 'Password Reset'),
+        message: t('auth.admin.successPasswordReset', 'User password has been reset successfully.'),
+      })
     },
     onError: (error: any) => {
-      toast.error(error.message || t('auth.admin.errorPasswordReset'))
+      addNotification({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        message: error.message || t('auth.admin.errorPasswordReset', 'Failed to reset user password.'),
+      })
     },
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (newPassword.trim()) {
-      resetPasswordMutation.mutate(Number(userId))
+      resetPasswordMutation.mutate({ id: userId, newPassword: newPassword.trim() })
     }
   }
 

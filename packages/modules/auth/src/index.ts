@@ -55,24 +55,24 @@ export { createAdminRoute, createAuthRoute } from './routes/routeHelpers'
 import { authRegistry } from './registry/AuthRegistry'
 import { registerDictionary, getMergedDictionary } from '@cap/platform-core'
 
-import enAuthCore from './modules/authentication-core/src/data/dictionaries/en.json'
-import arAuthCore from './modules/authentication-core/src/data/dictionaries/ar.json'
-import frAuthCore from './modules/authentication-core/src/data/dictionaries/fr.json'
-import enMfa from './modules/mfa-orchestrator/src/data/dictionaries/en.json'
-import arMfa from './modules/mfa-orchestrator/src/data/dictionaries/ar.json'
-import frMfa from './modules/mfa-orchestrator/src/data/dictionaries/fr.json'
-import enPasswordless from './modules/passwordless-service/src/data/dictionaries/en.json'
-import arPasswordless from './modules/passwordless-service/src/data/dictionaries/ar.json'
-import frPasswordless from './modules/passwordless-service/src/data/dictionaries/fr.json'
-import enAuthEngine from './modules/authorization-engine/src/data/dictionaries/en.json'
-import arAuthEngine from './modules/authorization-engine/src/data/dictionaries/ar.json'
-import frAuthEngine from './modules/authorization-engine/src/data/dictionaries/fr.json'
-import enUserDir from './modules/user-directory/src/data/dictionaries/en.json'
-import arUserDir from './modules/user-directory/src/data/dictionaries/ar.json'
-import frUserDir from './modules/user-directory/src/data/dictionaries/fr.json'
-import enIdentityBroker from './modules/identity-broker/src/data/dictionaries/en.json'
-import arIdentityBroker from './modules/identity-broker/src/data/dictionaries/ar.json'
-import frIdentityBroker from './modules/identity-broker/src/data/dictionaries/fr.json'
+import enAuthCore from './modules/authentication-core/data/dictionaries/en.json'
+import arAuthCore from './modules/authentication-core/data/dictionaries/ar.json'
+import frAuthCore from './modules/authentication-core/data/dictionaries/fr.json'
+import enMfa from './modules/mfa-orchestrator/data/dictionaries/en.json'
+import arMfa from './modules/mfa-orchestrator/data/dictionaries/ar.json'
+import frMfa from './modules/mfa-orchestrator/data/dictionaries/fr.json'
+import enPasswordless from './modules/passwordless-service/data/dictionaries/en.json'
+import arPasswordless from './modules/passwordless-service/data/dictionaries/ar.json'
+import frPasswordless from './modules/passwordless-service/data/dictionaries/fr.json'
+import enAuthEngine from './modules/authorization-engine/data/dictionaries/en.json'
+import arAuthEngine from './modules/authorization-engine/data/dictionaries/ar.json'
+import frAuthEngine from './modules/authorization-engine/data/dictionaries/fr.json'
+import enUserDir from './modules/user-directory/data/dictionaries/en.json'
+import arUserDir from './modules/user-directory/data/dictionaries/ar.json'
+import frUserDir from './modules/user-directory/data/dictionaries/fr.json'
+import enIdentityBroker from './modules/identity-broker/data/dictionaries/en.json'
+import arIdentityBroker from './modules/identity-broker/data/dictionaries/ar.json'
+import frIdentityBroker from './modules/identity-broker/data/dictionaries/fr.json'
 import enData from './data/dictionaries/en.json'
 import arData from './data/dictionaries/ar.json'
 import frData from './data/dictionaries/fr.json'
@@ -331,13 +331,40 @@ export const AuthModule: CAPModule = {
       order: 38,
     },
     {
+      id: 'auth-jwks-management',
+      label: 'navigation.jwksManagement',
+      icon: React.createElement(KeyOutlinedIcon),
+      path: Path.identity.jwksManagement,
+      roles: ['admin'],
+      variant: ['vertical', 'horizontal'],
+      order: 39,
+    },
+    {
       id: 'auth-scim-provisioning',
       label: 'navigation.scimProvisioning',
       icon: React.createElement(ExtensionOutlinedIcon),
       path: Path.identity.provisioning,
       roles: ['admin'],
       variant: ['vertical', 'horizontal'],
-      order: 39,
+      order: 40,
+    },
+    {
+      id: 'auth-ssf-configuration',
+      label: 'navigation.ssfConfiguration',
+      icon: React.createElement(SecurityOutlinedIcon),
+      path: Path.identity.ssfConfiguration,
+      roles: ['admin'],
+      variant: ['vertical', 'horizontal'],
+      order: 41,
+    },
+    {
+      id: 'auth-machine-identities',
+      label: 'navigation.machineIdentities',
+      icon: React.createElement(TerminalOutlinedIcon),
+      path: Path.authorization.machineIdentities,
+      roles: ['admin'],
+      variant: ['vertical', 'horizontal'],
+      order: 42,
     },
 
     // --- MONITORING & DEVELOPER SECTION (ADMIN) ---
@@ -523,6 +550,27 @@ export const AuthModule: CAPModule = {
       name: 'navigation.scimProvisioning',
       url: Path.identity.provisioning,
       icon: React.createElement(ExtensionOutlinedIcon),
+      section: 'navigation.governance',
+    },
+    {
+      id: 'auth-jwks-management',
+      name: 'navigation.jwksManagement',
+      url: Path.identity.jwksManagement,
+      icon: React.createElement(KeyOutlinedIcon),
+      section: 'navigation.governance',
+    },
+    {
+      id: 'auth-ssf-configuration',
+      name: 'navigation.ssfConfiguration',
+      url: Path.identity.ssfConfiguration,
+      icon: React.createElement(SecurityOutlinedIcon),
+      section: 'navigation.governance',
+    },
+    {
+      id: 'auth-machine-identities',
+      name: 'navigation.machineIdentities',
+      url: Path.authorization.machineIdentities,
+      icon: React.createElement(TerminalOutlinedIcon),
       section: 'navigation.governance',
     },
 

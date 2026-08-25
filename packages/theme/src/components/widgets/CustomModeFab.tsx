@@ -94,6 +94,8 @@ export const CustomModeFab: React.FC<CustomModeFabProps> = ({ customMode, onTogg
           insetInlineEnd: 24,
           zIndex: (theme) => theme.zIndex.speedDial,
           '& .MuiFab-primary': {
+            minWidth: 56,
+            minHeight: 56,
             bgcolor: customMode ? 'primary.main' : 'background.paper',
             color: customMode ? 'primary.contrastText' : 'text.primary',
             boxShadow: 4,
@@ -116,6 +118,8 @@ export const CustomModeFab: React.FC<CustomModeFabProps> = ({ customMode, onTogg
             onClick={action.onClick}
             FabProps={{
               sx: {
+                minWidth: 48,
+                minHeight: 48,
                 bgcolor: 'background.paper',
                 color: 'text.primary',
                 boxShadow: 2,

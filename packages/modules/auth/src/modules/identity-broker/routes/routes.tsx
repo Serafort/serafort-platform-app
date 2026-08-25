@@ -31,6 +31,7 @@ const SSFConfiguration = React.lazy(() => import('../screens/sso/SSFConfiguratio
 const SSOProviderSelection = React.lazy(() => import('../screens/sso/SSOProviderSelection'))
 
 export const identityBrokerRouteConfig: AuthRouteConfig[] = [
+  // --- Admin Provisioning & Directory Sync ---
   createAuthRoute(Path.connectorDetail, <ConnectorDetailView />, {
     requiresVerification: true,
     layout: 'admin',
@@ -47,11 +48,8 @@ export const identityBrokerRouteConfig: AuthRouteConfig[] = [
     requiresVerification: true,
     layout: 'admin',
   }),
-  // --- SSO public flows ---
-  createAuthRoute(Path.authWait, <AuthWaitScreen />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
+
+  // --- Admin OIDC & SAML Configuration ---
   createAuthRoute(Path.jwksManagement, <JWKSManagement />, {
     requiresVerification: true,
     layout: 'admin',
@@ -68,24 +66,10 @@ export const identityBrokerRouteConfig: AuthRouteConfig[] = [
     requiresVerification: true,
     layout: 'admin',
   }),
-  createAuthRoute(Path.oidcLoginPrompt, <OIDCLoginPrompt />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.oidcWait, <OidcWaitScreen />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.permissionConsent, <PermissionConsentScreen />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-
   createAuthRoute(Path.samlConfigDashboard, <SAMLConfigDashboard />, {
     requiresVerification: true,
     layout: 'admin',
   }),
-
   createAuthRoute(Path.samlMetadataBrowser, <SAMLMetadataBrowser />, {
     requiresVerification: true,
     layout: 'admin',
@@ -94,34 +78,32 @@ export const identityBrokerRouteConfig: AuthRouteConfig[] = [
     requiresVerification: true,
     layout: 'admin',
   }),
-  createAuthRoute(Path.samlWait, <SamlWaitScreen />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.samlSSOInitiation, <SAMLSSOInitiation />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
   createAuthRoute(Path.ssfConfiguration, <SSFConfiguration />, {
     requiresVerification: true,
     layout: 'admin',
   }),
-  createAuthRoute(Path.samlSSOInitiation, <SAMLSSOInitiation />, {
-    requiresVerification: true,
-    layout: 'admin',
+
+  // --- SSO Interactive & Waiting Flows ---
+  createAuthRoute(Path.authWait, <AuthWaitScreen />, {
+    layout: 'noLayout',
   }),
-  createAuthRoute(Path.samlMetadataDisplay, <SAMLMetadataDisplay />, {
-    requiresVerification: true,
-    layout: 'admin',
+  createAuthRoute(Path.oidcLoginPrompt, <OIDCLoginPrompt />, {
+    layout: 'noLayout',
+  }),
+  createAuthRoute(Path.oidcWait, <OidcWaitScreen />, {
+    layout: 'noLayout',
+  }),
+  createAuthRoute(Path.permissionConsent, <PermissionConsentScreen />, {
+    layout: 'noLayout',
+  }),
+  createAuthRoute(Path.samlWait, <SamlWaitScreen />, {
+    layout: 'noLayout',
   }),
   createAuthRoute(Path.samlSSOInitiation, <SAMLSSOInitiation />, {
-    requiresVerification: true,
-    layout: 'admin',
+    layout: 'noLayout',
   }),
   createAuthRoute(Path.providerSelection, <SSOProviderSelection />, {
-    requiresVerification: true,
-    layout: 'admin',
+    layout: 'noLayout',
   }),
-
 ]
 

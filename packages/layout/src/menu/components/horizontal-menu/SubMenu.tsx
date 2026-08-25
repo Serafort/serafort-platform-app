@@ -70,12 +70,12 @@ type StyledSubMenuProps = Pick<SubMenuProps, 'rootStyles' | 'disabled'> & {
 const StyledSubMenu = styled.li<StyledSubMenuProps>`
   ${({ level }) =>
     level === 0 && {
-      borderRadius: `${menuTokens.horizontal.item.borderRadius}px`,
+      borderRadius: `${menuTokens?.horizontal?.item?.borderRadius ?? 6}px`,
       overflow: 'hidden',
     }}
 
   &.${menuClasses.open} > .${menuClasses.button} {
-    background-color: ${menuTokens.horizontal.button.openBg};
+    background-color: ${({ theme }: any) => theme?.palette?.action?.hover || menuTokens?.horizontal?.button?.openBg || '#f3f3f3'};
   }
 
   ${({ menuItemStyles }) => menuItemStyles};
@@ -188,16 +188,16 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
     duration: transitionDuration,
 
     initial: {
-      opacity: menuTokens.horizontal.popoutTransition.initialOpacity,
-      transform: `translateY(${menuTokens.horizontal.popoutTransition.offsetY})`,
+      opacity: menuTokens?.horizontal?.popoutTransition?.initialOpacity ?? 0,
+      transform: `translateY(${menuTokens?.horizontal?.popoutTransition?.offsetY || '10px'})`,
     },
     open: {
-      opacity: menuTokens.horizontal.popoutTransition.openOpacity,
+      opacity: menuTokens?.horizontal?.popoutTransition?.openOpacity ?? 1,
       transform: 'translateY(0px)',
     },
     close: {
-      opacity: menuTokens.horizontal.popoutTransition.initialOpacity,
-      transform: `translateY(${menuTokens.horizontal.popoutTransition.offsetY})`,
+      opacity: menuTokens?.horizontal?.popoutTransition?.initialOpacity ?? 0,
+      transform: `translateY(${menuTokens?.horizontal?.popoutTransition?.offsetY || '10px'})`,
     },
   })
 

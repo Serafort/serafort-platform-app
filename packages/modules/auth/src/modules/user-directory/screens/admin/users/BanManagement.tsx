@@ -200,18 +200,19 @@ export default function BanManagement() {
             <Box sx={{ flexGrow: 1 }} />
             <Button
               variant='contained'
-              startIcon={<Flag />}
+              color='error'
+              startIcon={<Gavel />}
               onClick={() => setIsBanModalOpen(true)}
               sx={{
-                bgcolor: 'info.main',
-                color: 'info.contrastText',
-                '&:hover': { bgcolor: 'info.dark' },
                 textTransform: 'none',
-                fontWeight: 600,
-                boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.2)',
+                fontWeight: 700,
+                boxShadow: (theme) => `0 4px 14px 0 ${theme.palette.error.main}40`,
+                '&:hover': {
+                  boxShadow: (theme) => `0 6px 20px 0 ${theme.palette.error.main}60`,
+                },
               }}
             >
-              {t('auth.admin.issueBan')}
+              {t('auth.admin.issueBan', 'Issue Account Suspension / Ban')}
             </Button>
           </Box>
 
@@ -327,33 +328,34 @@ export default function BanManagement() {
                       </Box>
                     </Box>
 
-                    {/* Actions */}
+                    {/* Actions — Serial Position Effect: Primary (Edit) -> Action (Revoke Ban) */}
                     <Box
                       sx={{
                         display: 'flex',
                         flexDirection: { md: 'column' },
                         gap: 1,
-                        minWidth: 120,
+                        minWidth: 130,
                       }}
                     >
                       <Button
                         variant='outlined'
+                        size='small'
+                        startIcon={<Edit />}
+                        onClick={() => setEditingUser(user as AdminUser)}
+                        sx={{ textTransform: 'none', fontWeight: 600 }}
+                      >
+                        {t('auth.common.edit', 'Edit Profile')}
+                      </Button>
+                      <Button
+                        variant='outlined'
+                        color='warning'
                         size='small'
                         startIcon={<Undo />}
                         onClick={() => handleRevokeBan(user.id)}
                         disabled={unbanMutation.isPending}
                         sx={{ textTransform: 'none', fontWeight: 600 }}
                       >
-                        {t('auth.admin.revokeBan')}
-                      </Button>
-                      <Button
-                        variant='text'
-                        size='small'
-                        startIcon={<Edit />}
-                        onClick={() => setEditingUser(user as AdminUser)}
-                        sx={{ textTransform: 'none', fontWeight: 600, color: 'text.secondary' }}
-                      >
-                        {t('auth.common.edit')}
+                        {t('auth.admin.revokeBan', 'Lift Ban')}
                       </Button>
                       <Box sx={{ flexGrow: 1 }} />
                       <IconButton size='small' sx={{ alignSelf: 'flex-end' }}>

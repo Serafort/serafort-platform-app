@@ -17,10 +17,10 @@ type LogoTextProps = {
 }
 
 const LogoText = styled.span<LogoTextProps>`
-  font-size: ${dropdownTokens.logo.fontSize};
-  line-height: ${dropdownTokens.logo.lineHeight};
-  font-weight: ${dropdownTokens.logo.fontWeight};
-  letter-spacing: ${dropdownTokens.logo.letterSpacing};
+  font-size: ${({ theme }: any) => dropdownTokens?.logo?.fontSize || '1.375rem'};
+  line-height: ${({ theme }: any) => dropdownTokens?.logo?.lineHeight || '1.455'};
+  font-weight: ${({ theme }: any) => dropdownTokens?.logo?.fontWeight || 700};
+  letter-spacing: ${({ theme }: any) => dropdownTokens?.logo?.letterSpacing || '0.25px'};
   color: inherit;
   transition: ${({ transitionDuration }) =>
     `margin-inline-start ${transitionDuration}ms ease-in-out, opacity ${transitionDuration}ms ease-in-out`};
@@ -28,7 +28,7 @@ const LogoText = styled.span<LogoTextProps>`
   ${({ isHovered, isCollapsed }) =>
     isCollapsed && !isHovered
       ? 'opacity: 0; margin-inline-start: 0;'
-      : `opacity: 1; margin-inline-start: ${dropdownTokens.logo.marginInlineStart};`}
+      : `opacity: 1; margin-inline-start: ${dropdownTokens?.logo?.marginInlineStart || '12px'};`}
 `
 
 const Logo = () => {

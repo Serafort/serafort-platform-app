@@ -33,8 +33,9 @@ const button: Theme['components'] = {
           ownerState.size === 'large'
             ? 'var(--form-button-height-large, 52px)'
             : ownerState.size === 'small'
-              ? '36px'
-              : 'var(--form-button-height-primary, 44px)',
+              ? '44px'
+              : 'var(--form-button-height-primary, 48px)',
+        minWidth: '44px',
         '&.Mui-disabled': {
           opacity: 'var(--form-button-disabled-opacity, 0.45)' as any,
         },
