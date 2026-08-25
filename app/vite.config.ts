@@ -4,6 +4,7 @@ import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { createRequire } from 'module'
+import mkcert from 'vite-plugin-mkcert'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -36,6 +37,12 @@ export default defineConfig({
   envDir: workspaceRoot,
   plugins: [
     react(),
+    mkcert({
+      // Explicitly list all custom domains so the plugin generates a cert
+      // with the correct Subject Alternative Names (SANs).
+      // Without this, only `localhost` gets a SAN → ERR_CERT_COMMON_NAME_INVALID.
+      hosts: ['gldeveloper.test', 'localhost'],
+    }),
     ...(vitePWA
       ? [
           (vitePWA as any)({
@@ -145,9 +152,13 @@ export default defineConfig({
     ],
   },
   server: {
-    host: true,
-    port: 5173,
-    strictPort: false,
+    // Use the custom domain as the bind host so Vite binds to gldeveloper.test
+    // (which resolves to 127.0.0.1 via /etc/hosts). The mkcert plugin also
+    // auto-adds a string `server.host` to the cert SANs (boolean `true` is ignored).
+    host: 'gldeveloper.test',
+    port: 443,
+    strictPort: true,
+    allowedHosts: ['gldeveloper.test'],
     proxy: {
       '/api': {
         target: 'http://localhost:3333',
@@ -156,6 +167,17 @@ export default defineConfig({
           // SECURITY NOTE (Finding 4.4): This dev proxy forwards client Host as x-tenant-host for local dev.
           // Production reverse proxies / edge ingress MUST NOT trust or forward client-supplied Host headers
           // as tenant identifiers without edge signature or session-token claims.
+          proxy.on('proxyReq', (proxyReq, req) => {
+            if (req.headers.host) {
+              proxyReq.setHeader('x-tenant-host', req.headers.host)
+            }
+          })
+        },
+      },
+      '/tenants': {
+        target: 'http://localhost:3333',
+        changeOrigin: true,
+        configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq, req) => {
             if (req.headers.host) {
               proxyReq.setHeader('x-tenant-host', req.headers.host)

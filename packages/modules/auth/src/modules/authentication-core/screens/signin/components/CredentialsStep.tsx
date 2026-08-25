@@ -67,7 +67,7 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
       </Box>
       <Typography
         variant='h4'
-        sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em', textAlign: 'center' }}
+        sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em', textAlign: 'center', fontFamily: 'var(--font-h4, inherit)' }}
       >
         {t('signIn.title', 'Welcome back')}
       </Typography>
@@ -95,7 +95,6 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
         >
           {/* Email Field */}
           <Box>
-            <AuthInputLabel>{t('signIn.emailLabel', 'EMAIL ADDRESS')}</AuthInputLabel>
             <Controller
               name='email'
               control={control}
@@ -109,9 +108,11 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
               render={({ field, fieldState }) => (
                 <TextField
                   {...field}
+                  id='email'
                   type='email'
                   fullWidth
                   autoComplete='username webauthn'
+                  label={t('signIn.emailLabel', 'EMAIL ADDRESS')}
                   placeholder='name@example.com'
                   InputProps={{
                     endAdornment: isPasskeyAutofillAvailable && (
@@ -130,11 +131,13 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                   helperText={fieldState.error?.message}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      height: 48,
-                      borderRadius: '8px',
+                      minHeight: 48,
+                      borderRadius: '12px',
                       bgcolor: 'background.paper',
+                      transition: 'all 0.2s ease-in-out',
                       '& fieldset': {
                         borderColor: 'divider',
+                        transition: 'all 0.2s ease-in-out',
                       },
                       '&:hover fieldset': {
                         borderColor: 'primary.main',
@@ -143,10 +146,17 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                         borderColor: 'primary.main',
                         borderWidth: '1px',
                       },
+                      '&.Mui-focused': {
+                        boxShadow: (theme) => `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
+                      }
                     },
                     '& input::placeholder': {
                       color: 'text.secondary',
                       opacity: 0.7,
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: 'text.secondary',
+                      fontWeight: 500,
                     },
                   }}
                 />
@@ -157,7 +167,6 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
           {/* Password Field */}
           {showPasswordField && (
             <Box>
-              <AuthInputLabel>{t('signIn.passwordLabel', 'PASSWORD')}</AuthInputLabel>
               <Controller
                 name='password'
                 control={control}
@@ -167,9 +176,11 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                 render={({ field, fieldState }) => (
                   <TextField
                     {...field}
+                    id='password'
                     type={showPassword ? 'text' : 'password'}
                     fullWidth
                     autoComplete='current-password'
+                    label={t('signIn.passwordLabel', 'PASSWORD')}
                     placeholder={t('auth.common.passwordPlaceholder')}
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
@@ -190,11 +201,13 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        height: 48,
-                        borderRadius: '8px',
+                        minHeight: 48,
+                        borderRadius: '12px',
                         bgcolor: 'background.paper',
+                        transition: 'all 0.2s ease-in-out',
                         '& fieldset': {
                           borderColor: 'divider',
+                          transition: 'all 0.2s ease-in-out',
                         },
                         '&:hover fieldset': {
                           borderColor: 'primary.main',
@@ -203,10 +216,17 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                           borderColor: 'primary.main',
                           borderWidth: '1px',
                         },
+                        '&.Mui-focused': {
+                          boxShadow: (theme) => `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
+                        }
                       },
                       '& input::placeholder': {
                         color: 'text.secondary',
                         opacity: 0.7,
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: 'text.secondary',
+                        fontWeight: 500,
                       },
                     }}
                   />
@@ -265,20 +285,21 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
               disabled={isLoginPending || isPasskeyPending}
               sx={{
                 height: 48,
-                borderRadius: '8px',
+                borderRadius: '12px',
                 textTransform: 'none',
                 fontWeight: 700,
                 fontSize: '0.875rem',
                 borderColor: 'divider',
                 color: 'text.primary',
                 fontFamily: 'inherit',
+                transition: 'all 0.2s ease-in-out',
                 '&:hover': {
                   bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04),
                   borderColor: 'divider',
                 },
                 '&:focus': {
                   boxShadow: (theme) =>
-                    `0 0 0 4px ${alpha(theme.palette.action.hover, 0.05)}`,
+                    `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
                 },
                 '& .MuiButton-startIcon': {
                   color: 'primary.main',
@@ -366,16 +387,21 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
               onClick={() => onSocialLogin('google')}
               sx={{
                 height: 48,
-                borderRadius: '8px',
+                borderRadius: '12px',
                 textTransform: 'none',
                 fontWeight: 700,
                 fontSize: '0.875rem',
                 borderColor: 'divider',
                 color: 'text.primary',
                 fontFamily: 'inherit',
+                transition: 'all 0.2s ease-in-out',
                 '&:hover': {
                   bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04),
                   borderColor: 'divider',
+                },
+                '&:focus': {
+                  boxShadow: (theme) =>
+                    `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
                 },
               }}
             >
@@ -400,16 +426,21 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
               onClick={() => onSocialLogin('github')}
               sx={{
                 height: 48,
-                borderRadius: '8px',
+                borderRadius: '12px',
                 textTransform: 'none',
                 fontWeight: 700,
                 fontSize: '0.875rem',
                 borderColor: 'divider',
                 color: 'text.primary',
                 fontFamily: 'inherit',
+                transition: 'all 0.2s ease-in-out',
                 '&:hover': {
                   bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04),
                   borderColor: 'divider',
+                },
+                '&:focus': {
+                  boxShadow: (theme) =>
+                    `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
                 },
               }}
             >

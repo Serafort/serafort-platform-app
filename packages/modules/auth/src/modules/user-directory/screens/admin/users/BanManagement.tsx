@@ -48,7 +48,7 @@ import {
 import { toast } from 'react-toastify';
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
-import IssueBanDialog from './IssueBanDialog'
+import IssueBanDialog from '../../../components/IssueBanDialog'
 
 export default function BanManagement() {
   const { t } = useTranslation('common')
@@ -423,13 +423,13 @@ function AppealsQueue() {
   const resolveMutation = useResolveAppeal({
     onSuccess: (_: any, variables: any) => {
       toast.success(variables.action === 'approved'
-          ? t('auth.admin.appealApproved')
-          : t('auth.admin.appealDenied'), { },
+        ? t('auth.admin.appealApproved')
+        : t('auth.admin.appealDenied'), {},
       )
       refetch()
     },
     onError: (err: any) => {
-      toast.error(err.message || t('auth.common.errorOccurred'), {  })
+      toast.error(err.message || t('auth.common.errorOccurred'), {})
     },
   })
 

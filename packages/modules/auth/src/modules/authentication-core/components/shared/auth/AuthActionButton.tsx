@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, ButtonProps, CircularProgress, alpha } from '@mui/material'
+import { Button, ButtonProps, CircularProgress, alpha, useTheme } from '@mui/material'
 import ArrowForward from '@mui/icons-material/ArrowForward'
 import { useActionLock } from '@cap/platform-core'
 
@@ -30,7 +30,9 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
   lockDurationMs = 120,
   ...props
 }) => {
+  const theme = useTheme()
   const isBusyLoading = loading || isLoading || isSubmitting || isValidating
+  const hasHandler = !!(onExecute || onClick)
 
   const handleAction = async (e: React.MouseEvent<HTMLButtonElement>) => {
     if (onExecute) {
@@ -41,7 +43,12 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
   }
 
   const [lockedClick, isInternalLocked] = useActionLock(handleAction, { lockDurationMs })
-  const isDisabled = disabled || isBusyLoading || externalLocked || isInternalLocked
+  // When no handler is provided (e.g. type="submit" inside a form),
+  // skip the lock wrapper so native form submission propagates.
+  const resolvedOnClick = hasHandler ? lockedClick : undefined
+  const isDisabled = disabled || isBusyLoading || externalLocked || (hasHandler && isInternalLocked)
+
+  const buttonColor = props.color === 'error' ? theme.palette.error.main : theme.palette.info.main
 
   return (
     <Button
@@ -49,7 +56,7 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
       variant="contained"
       size="large"
       disabled={isDisabled}
-      onClick={lockedClick}
+      onClick={resolvedOnClick}
       endIcon={isBusyLoading ? <CircularProgress size={20} color="inherit" /> : endIcon}
       {...props}
       sx={{
@@ -59,13 +66,11 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
         fontSize: '1rem',
         textTransform: 'none',
         bgcolor: props.color === 'error' ? 'error.main' : 'info.main',
-        boxShadow: (theme) =>
-          `0 10px 20px ${alpha(props.color === 'error' ? theme.palette.error.main : theme.palette.info.main, 0.2)}`,
+        boxShadow: `0 10px 20px ${alpha(buttonColor, 0.2)}`,
         '&:hover': {
           bgcolor: props.color === 'error' ? 'error.dark' : 'info.dark',
           transform: 'translateY(-1px)',
-          boxShadow: (theme) =>
-            `0 12px 24px ${alpha(props.color === 'error' ? theme.palette.error.main : theme.palette.info.main, 0.3)}`,
+          boxShadow: `0 12px 24px ${alpha(buttonColor, 0.3)}`,
         },
         ...props.sx,
       }}

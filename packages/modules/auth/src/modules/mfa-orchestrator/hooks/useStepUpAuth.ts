@@ -138,7 +138,7 @@ export function useStepUpAuth() {
 
       if (window.PublicKeyCredential && challengeRes.data) {
         try {
-          assertionResult = await startAuthentication(challengeRes.data as any)
+          assertionResult = await startAuthentication({ optionsJSON: challengeRes.data as any })
         } catch (authErr: any) {
           // If browser prompt is cancelled or in dev/mock environment, handle appropriately
           if (authErr.name === 'NotAllowedError') {

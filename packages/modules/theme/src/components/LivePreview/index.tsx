@@ -11,7 +11,8 @@ interface LivePreviewProps {
 }
 
 export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
-  const { effects, components } = theme;
+  const effects = theme.effects || ({} as any);
+  const components = theme.components || ({} as any);
   const globalEffectType = effects.globalType || 'standard';
 
   const getEffectStyle = (componentKey: keyof typeof components): 'standard' | 'glass' | 'neu' => {
@@ -34,7 +35,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
 
       <Box
         sx={{
-          backgroundColor: theme.tokens.colors.background.value || '#f8fafc',
+          backgroundColor: theme.tokens?.colors?.background?.value || '#f8fafc',
           borderRadius: 2,
           p: 2,
           minHeight: 400,

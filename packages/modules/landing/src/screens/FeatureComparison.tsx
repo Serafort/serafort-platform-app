@@ -30,6 +30,7 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
 import { useNavigate } from 'react-router-dom'
 import { useGuest, useAuth } from '@cap/platform-core'
+import { Path } from '@cap/module-auth'
 
 interface Feature {
   name: string
@@ -208,7 +209,7 @@ export const FeatureComparison: React.FC = () => {
             variant='contained'
             size='large'
             startIcon={<LockOpenIcon />}
-            onClick={() => navigate('/auth/signup')}
+            onClick={() => navigate(Path.auth.signup)}
             sx={{ mt: 2 }}
           >
             Sign Up Free - Unlock All Features
@@ -262,7 +263,7 @@ export const FeatureComparison: React.FC = () => {
                   </Typography>
                 </Box>
                 {!isAuthenticated && (
-                  <Button variant='contained' onClick={() => navigate('/auth/signup')} fullWidth>
+                  <Button variant='contained' onClick={() => navigate(Path.auth.signup)} fullWidth>
                     Create Free Account
                   </Button>
                 )}
@@ -340,14 +341,14 @@ export const FeatureComparison: React.FC = () => {
               Sign up for free in less than 30 seconds. No credit card required.
             </Typography>
             <Stack direction='row' spacing={2} justifyContent='center' sx={{ mt: 3 }}>
-              <Button variant='outlined' size='large' onClick={() => navigate('/auth/signin')}>
+              <Button variant='outlined' size='large' onClick={() => navigate(Path.auth.signin)}>
                 Sign In
               </Button>
               <Button
                 variant='contained'
                 size='large'
                 startIcon={<LockOpenIcon />}
-                onClick={() => navigate('/auth/signup')}
+                onClick={() => navigate(Path.auth.signup)}
               >
                 Create Free Account
               </Button>

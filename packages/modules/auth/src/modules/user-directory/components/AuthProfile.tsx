@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '@cap/platform-core'
 import { UserDto } from '@cap/shared-types'
 import { useSignout } from "@auth/authentication-core/hooks/useAuthQuery"
+import { Path } from '@cap/module-auth/routes';
 
 const Profile: React.FC<{ user: UserDto }> = ({ user }) => (
   <Stack direction='column'>
@@ -64,12 +65,12 @@ const AuthProfile = () => {
   const { mutate: logout, isPending } = useSignout({
     onSuccess: () => {
       zustandSignOut()
-      navigate('/auth/sign-in', { replace: true })
+      navigate(Path.auth.signin, { replace: true })
     },
     onError: () => {
       // Even on error, clear local state
       zustandSignOut()
-      navigate('/auth/sign-in', { replace: true })
+      navigate(Path.auth.signin, { replace: true })
     },
   })
 

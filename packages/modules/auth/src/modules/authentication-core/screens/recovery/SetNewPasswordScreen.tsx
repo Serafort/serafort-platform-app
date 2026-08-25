@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Box, Button, TextField, Typography, Alert, InputAdornment, IconButton, CircularProgress, alpha, useTheme, Avatar, Stack, Link as MuiLink } from '@mui/material';
 import LockReset from '@mui/icons-material/LockReset';
@@ -10,9 +10,9 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FetchResponse, IUserResponseEmailResetPassword } from '@cap/platform-core';
 import type { ResetPasswordRequest } from '../../types/api.types';
-import { useResetPassword } from '@cap/module-auth/modules/authentication-core/hooks/useAuthQuery';
-import authService from '@cap/module-auth/modules/authentication-core/services/auth.service';
-import { Path } from '@cap/module-auth/routes/path';
+import { useResetPassword } from '../../hooks/useAuthQuery';
+import authService from '../../services/auth.service';
+import Path from '../path';
 
 const SUPPORT_EMAIL = 'support@example.com'
 
@@ -20,9 +20,21 @@ export default function SetNewPasswordScreen() {
   const { t } = useTranslation('auth')
   const theme = useTheme()
   const navigate = useNavigate()
-  const { email } = useParams()
+  const params = useParams<{ email?: string }>()
   const [searchParams] = useSearchParams()
+
+  const decodedEmail = useMemo(() => {
+    const raw = params.email || searchParams.get('email') || ''
+    if (!raw) return ''
+    try {
+      return decodeURIComponent(raw).trim().toLowerCase()
+    } catch {
+      return raw.trim().toLowerCase()
+    }
+  }, [params.email, searchParams])
+
   const signature = searchParams.get('signature')
+  const tokenParam = searchParams.get('token')
 
   const [loading, setLoading] = useState(true)
   const [signatureValid, setSignatureValid] = useState<boolean | null>(null)
@@ -33,34 +45,54 @@ export default function SetNewPasswordScreen() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let isMounted = true
+
     async function verifySignature() {
+      if (!decodedEmail || (!signature && !tokenParam)) {
+        if (isMounted) {
+          setLoading(false)
+          setSignatureValid(false)
+        }
+        return
+      }
+
       try {
-        setLoading(true)
+        if (isMounted) setLoading(true)
+        const fullQuery = searchParams.toString()
         const response: FetchResponse<IUserResponseEmailResetPassword> =
-          await authService.verifyResetPassword(email || '', signature ?? '')
-        if (response.status === 202 && response.data.isSignatureValid) {
+          await authService.verifyResetPassword(decodedEmail, fullQuery)
+
+        if (!isMounted) return
+
+        if ((response.status === 200 || response.status === 202) && response.data?.isSignatureValid !== false) {
           setSignatureValid(true)
-          setToken(response.data.token || '')
+          setToken(response.data?.token || tokenParam || '')
         } else {
           setSignatureValid(false)
         }
       } catch {
-        setSignatureValid(false)
+        if (isMounted) setSignatureValid(false)
       } finally {
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
+
     verifySignature()
-  }, [email, signature])
+
+    return () => {
+      isMounted = false
+    }
+  }, [decodedEmail, signature, tokenParam, searchParams])
 
   const resetPasswordMutation = useResetPassword({
     onSuccess: () => {
-      navigate('/auth/password-reset-success')
+      navigate(Path.passwordResetSuccess)
     },
     onError: (err: any) => {
       setError(
+        err.response?.data?.message ||
         err.response?.data?.detail ||
-          t('resetPassword.errorMsg', 'Error resetting password.'),
+        t('resetPassword.errorMsg', 'Error resetting password.'),
       )
     },
   })
@@ -82,20 +114,20 @@ export default function SetNewPasswordScreen() {
         return
       }
       const data: ResetPasswordRequest = {
-        token,
-        email: email || '',
+        token: token || tokenParam || '',
+        email: decodedEmail,
         password: newPassword,
         confirmPassword,
       }
       resetPasswordMutation.mutate({ data })
     },
-    [token, email, newPassword, confirmPassword, resetPasswordMutation, t],
+    [token, tokenParam, decodedEmail, newPassword, confirmPassword, resetPasswordMutation, t],
   )
 
   if (loading) {
     return (
-      <Box sx={{ height: '100dvh', display: 'grid', placeItems: 'center' }}>
-        <CircularProgress />
+      <Box sx={{ height: '100dvh', display: 'grid', placeItems: 'center', bgcolor: 'background.default' }}>
+        <CircularProgress size={48} />
       </Box>
     )
   }
@@ -137,7 +169,7 @@ export default function SetNewPasswordScreen() {
         </Alert>
         <Button
           component={Link}
-          to={Path.auth.forgotPassword}
+          to={Path.forgotPassword}
           fullWidth
           variant="contained"
           sx={{
@@ -146,9 +178,9 @@ export default function SetNewPasswordScreen() {
             fontWeight: 800,
             fontSize: '1rem',
             textTransform: 'none',
-            bgcolor: 'info.main',
-            boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.info.main, 0.4)}`,
-            '&:hover': { bgcolor: 'info.dark', transform: 'translateY(-1px)' },
+            bgcolor: 'primary.main',
+            boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`,
+            '&:hover': { bgcolor: 'primary.dark', transform: 'translateY(-1px)' },
           }}
         >
           {t('resetPassword.requestNewLink', 'Request New Link')}
@@ -157,7 +189,7 @@ export default function SetNewPasswordScreen() {
           <MuiLink
             component={Link}
             to={Path.signin}
-            sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', '&:hover': { color: 'info.main' } }}
+            sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', '&:hover': { color: 'primary.main' } }}
           >
             {t('common.backToLogin', 'Back to log in')}
           </MuiLink>
@@ -223,7 +255,7 @@ export default function SetNewPasswordScreen() {
             </Typography>
             <TextField
               fullWidth
-              value={email || ''}
+              value={decodedEmail}
               disabled
               slotProps={{
                 input: {
@@ -297,12 +329,12 @@ export default function SetNewPasswordScreen() {
               fontWeight: 800,
               fontSize: '1rem',
               textTransform: 'none',
-              bgcolor: 'info.main',
-              boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.info.main, 0.4)}`,
+              bgcolor: 'primary.main',
+              boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`,
               '&:hover': {
-                bgcolor: 'info.dark',
+                bgcolor: 'primary.dark',
                 transform: 'translateY(-1px)',
-                boxShadow: (theme) => `0 6px 20px ${alpha(theme.palette.info.main, 0.23)}`,
+                boxShadow: (theme) => `0 6px 20px ${alpha(theme.palette.primary.main, 0.23)}`,
               },
             }}
           >
@@ -325,7 +357,7 @@ export default function SetNewPasswordScreen() {
             fontWeight: 600,
             color: 'text.secondary',
             textDecoration: 'none',
-            '&:hover': { color: 'info.main' },
+            '&:hover': { color: 'primary.main' },
             '& .MuiSvgIcon-root': { fontSize: 18, transition: 'transform 0.2s' },
             '&:hover .MuiSvgIcon-root': { transform: 'translateX(-4px)' },
           }}

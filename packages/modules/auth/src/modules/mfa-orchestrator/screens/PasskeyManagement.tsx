@@ -25,15 +25,15 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import Add from '@mui/icons-material/Add';
-import LaptopMac from '@mui/icons-material/LaptopMac';
-import Smartphone from '@mui/icons-material/Smartphone';
-import Usb from '@mui/icons-material/Usb';
-import MoreVert from '@mui/icons-material/MoreVert';
-import Edit from '@mui/icons-material/Edit';
-import Delete from '@mui/icons-material/Delete';
+import Add from '@mui/icons-material/Add'
+import LaptopMac from '@mui/icons-material/LaptopMac'
+import Smartphone from '@mui/icons-material/Smartphone'
+import Usb from '@mui/icons-material/Usb'
+import MoreVert from '@mui/icons-material/MoreVert'
+import Edit from '@mui/icons-material/Edit'
+import Delete from '@mui/icons-material/Delete'
 import { useTranslation } from 'react-i18next'
-import { useUserPasskeys, useDeletePasskey, useUpdatePasskey } from '@auth/modules/user-directory/hooks'
+import { useUserPasskeys, useDeletePasskey, useUpdatePasskey } from '../../user-directory/hooks'
 import PasskeySetup from './PasskeySetup'
 
 interface PasskeyDevice {
@@ -216,6 +216,7 @@ export default function PasskeyManagement() {
 
     try {
       await deletePasskeyMutation.mutateAsync(menuState.passkey.id)
+      await refetch()
       setSuccessMessage(t('auth.passkey.success_deleted'))
       setDeleteDialogOpen(false)
       setMenuState({ anchorEl: null, passkey: null })
@@ -225,9 +226,9 @@ export default function PasskeyManagement() {
     }
   }
 
-  const handleSetupSuccess = () => {
+  const handleSetupSuccess = async () => {
     setSetupDialogOpen(false)
-    refetch()
+    await refetch()
     setSuccessMessage(t('auth.passkey.success_added'))
     setTimeout(() => setSuccessMessage(''), 5173)
   }

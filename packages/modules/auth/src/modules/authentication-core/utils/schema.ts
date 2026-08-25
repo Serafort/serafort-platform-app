@@ -52,6 +52,33 @@ export const RegisterSchema = z
     path: ['confirmPassword'],
   })
 
+const strongPassword = z
+  .string()
+  .min(8, { message: 'auth.validation.passwordMinLength' })
+  .regex(/[A-Z]/, { message: 'auth.validation.passwordUppercase' })
+  .regex(/[a-z]/, { message: 'auth.validation.passwordLowercase' })
+  .regex(/[0-9]/, { message: 'auth.validation.passwordNumber' })
+  .regex(/[^A-Za-z0-9]/, { message: 'auth.validation.passwordSpecial' })
+
+export const SignUpFormSchema = z
+  .object({
+    firstname: z.string().min(1, { message: 'auth.validation.firstNameRequired' }),
+    lastname: z.string().min(1, { message: 'auth.validation.lastNameRequired' }),
+    email: z
+      .string()
+      .min(1, { message: 'auth.validation.emailRequired' })
+      .email({ message: 'auth.validation.emailInvalid' }),
+    password: strongPassword,
+    confirmPassword: z.string().min(1, { message: 'auth.validation.confirmPasswordRequired' }),
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: 'auth.validation.acceptTerms',
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'auth.validation.passwordsMustMatch',
+    path: ['confirmPassword'],
+  })
+
 export const ChangePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Current password is required'),
@@ -88,7 +115,10 @@ export const UpdateProfileSchema = z.object({
 })
 
 export const ForgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email address').min(1, 'Email is required'),
+  email: z
+    .string()
+    .min(1, { message: 'auth.validation.emailRequired' })
+    .email({ message: 'auth.validation.emailInvalid' }),
 })
 
 export const ResetPasswordSchema = z
@@ -143,6 +173,7 @@ export const DetailedProfileSchema = z.object({
 
 export type LoginSchemaType = z.infer<typeof LoginSchema>
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>
+export type SignUpFormSchemaType = z.infer<typeof SignUpFormSchema>
 export type ChangePasswordSchemaType = z.infer<typeof ChangePasswordSchema>
 export type ChangeEmailSchemaType = z.infer<typeof ChangeEmailSchema>
 export type UpdateProfileSchemaType = z.infer<typeof UpdateProfileSchema>

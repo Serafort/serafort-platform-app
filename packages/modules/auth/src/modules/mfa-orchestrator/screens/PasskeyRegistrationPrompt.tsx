@@ -28,7 +28,7 @@ export default function PasskeyRegistrationPrompt() {
     setError(null)
     try {
       const optionsRes = await mfaService.passkeys.getRegistrationOptions()
-      const regResp = await startRegistration(optionsRes.data)
+      const regResp = await startRegistration({ optionsJSON: optionsRes.data })
       await mfaService.passkeys.verifyRegistration(regResp)
       navigate('/dashboard')
     } catch (err: any) {

@@ -6,6 +6,7 @@ import ArrowForward from '@mui/icons-material/ArrowForward';
 import Lock from '@mui/icons-material/Lock';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { Path } from "@cap/module-auth/routes/path"
 
 export default function PasswordResetSuccess() {
   const { t } = useTranslation('auth')
@@ -18,11 +19,11 @@ export default function PasswordResetSuccess() {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
       return () => clearTimeout(timer)
     } else {
-      navigate('/auth/sign-in')
+      navigate(Path.auth.signin)
     }
   }, [countdown, navigate])
 
-  const handleContinue = useCallback(() => navigate('/auth/sign-in'), [navigate])
+  const handleContinue = useCallback(() => navigate(Path.auth.signin), [navigate])
   const handleContactSupport = useCallback(() => navigate('/support'), [navigate])
 
   return (
@@ -100,12 +101,12 @@ export default function PasswordResetSuccess() {
           fontWeight: 800,
           fontSize: '1rem',
           textTransform: 'none',
-          bgcolor: 'info.main',
-          boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.info.main, 0.4)}`,
+          bgcolor: 'primary.main',
+          boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`,
           '&:hover': {
-            bgcolor: 'info.dark',
+            bgcolor: 'primary.dark',
             transform: 'translateY(-1px)',
-            boxShadow: (theme) => `0 6px 20px ${alpha(theme.palette.info.main, 0.23)}`,
+            boxShadow: (theme) => `0 6px 20px ${alpha(theme.palette.primary.main, 0.23)}`,
           },
         }}
       >
@@ -118,7 +119,7 @@ export default function PasswordResetSuccess() {
           <MuiLink
             component="button"
             onClick={handleContactSupport}
-            sx={{ color: 'info.main', fontWeight: 700, textDecoration: 'none', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            sx={{ color: 'primary.main', fontWeight: 700, textDecoration: 'none', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
           >
             {t('common.contactSupport', 'Contact Support')}
           </MuiLink>

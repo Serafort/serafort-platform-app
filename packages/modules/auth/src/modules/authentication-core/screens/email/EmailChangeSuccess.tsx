@@ -34,7 +34,7 @@ export default function EmailChangeSuccess() {
         {t('email.successDescription', 'Your email address has been successfully updated. Use your new email on your next login.')}
       </Typography>
       <Stack spacing={2}>
-        <Button fullWidth variant="contained" size="large" onClick={() => navigate(Path.user.overview)} endIcon={<ArrowForward />}
+        <Button fullWidth variant="contained" size="large" onClick={() => navigate(Path.account.overview)} endIcon={<ArrowForward />}
           sx={{ py: 1.5, borderRadius: 3, fontWeight: 800, fontSize: '1rem', textTransform: 'none', bgcolor: 'success.main', boxShadow: (t) => `0 4px 14px ${alpha(t.palette.success.main, 0.4)}`, '&:hover': { bgcolor: 'success.dark', transform: 'translateY(-1px)' } }}>
           {t('common.backToDashboard', 'Back to Dashboard')}
         </Button>

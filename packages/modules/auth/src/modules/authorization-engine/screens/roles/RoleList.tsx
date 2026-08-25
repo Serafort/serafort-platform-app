@@ -46,7 +46,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useDebounce } from 'use-debounce'
 import { toast } from 'react-toastify';
-import { Path } from "@auth/routes/path"
+import Path from "../../screens/path"
 
 import { useRoles, useDeleteRole, useDuplicateRole, useRoleStats } from "@auth/authorization-engine/hooks/useAdminQuery"
 import { Role } from "@auth/authorization-engine/services/adminService"
@@ -171,7 +171,7 @@ export default function RoleList() {
         <Button
           variant='contained'
           startIcon={<AddIcon />}
-          onClick={() => navigate(Path.admin.roleDetail.replace(':id', 'new'))}
+          onClick={() => navigate(Path.roleDetail.replace(':id', 'new'))}
           sx={{
             bgcolor: 'info.main',
             color: 'white',
@@ -419,7 +419,7 @@ export default function RoleList() {
                     {/* Role Name + Description */}
                     <TableCell
                       onClick={() =>
-                        navigate(Path.admin.roleDetail.replace(':id', role.id.toString()))
+                        navigate(Path.roleDetail.replace(':id', role.id.toString()))
                       }
                       sx={{ cursor: 'pointer', py: 2 }}
                     >
@@ -513,10 +513,10 @@ export default function RoleList() {
                       <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.secondary' }}>
                         {role.updated_at
                           ? new Date(role.updated_at).toLocaleDateString(undefined, {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                            })
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })
                           : null}
                       </Typography>
                     </TableCell>
@@ -528,7 +528,7 @@ export default function RoleList() {
                           <IconButton
                             size='small'
                             onClick={() =>
-                              navigate(Path.admin.roleDetail.replace(':id', role.id.toString()))
+                              navigate(Path.roleDetail.replace(':id', role.id.toString()))
                             }
                             aria-label={`Edit ${role.name}`}
                           >
@@ -591,7 +591,7 @@ export default function RoleList() {
         <MenuItem
           onClick={() => {
             handleMenuClose()
-            navigate(Path.admin.roleDetail.replace(':id', selectedRole?.id.toString() || ''))
+            navigate(Path.roleDetail.replace(':id', selectedRole?.id.toString() || ''))
           }}
         >
           <ListItemIcon>

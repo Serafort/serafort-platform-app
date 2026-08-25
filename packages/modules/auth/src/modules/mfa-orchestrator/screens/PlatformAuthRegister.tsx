@@ -56,7 +56,7 @@ export default function PlatformAuthRegister() {
       }
 
       // 2. Start native WebAuthn registration
-      const regResponse = await startRegistration(optionsRes.data)
+      const regResponse = await startRegistration({ optionsJSON: optionsRes.data })
 
       // 3. Verify on server
       await mfaService.passkeys.verifyRegistration(regResponse)

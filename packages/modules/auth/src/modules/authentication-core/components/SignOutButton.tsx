@@ -5,6 +5,7 @@ import LogoutOutlined from '@mui/icons-material/LogoutOutlined';
 import { useSignout } from '@idaas/authentication-core/hooks/useAuthQuery'
 import { useTranslation } from 'react-i18next'
 import { useAuth, StorageManager } from '@cap/platform-core'
+import { Path } from '@cap/module-auth/routes';
 
 interface SignOutButtonProps {
   variant?: 'button' | 'icon'
@@ -50,7 +51,7 @@ export const SignOutButton: React.FC<SignOutButtonProps> = ({
       onSignOutComplete?.()
 
       // Redirect to login page
-      navigate('/auth/sign-in', { replace: true })
+      navigate(Path.auth.signin, { replace: true })
     },
     onError: (error: any) => {
       console.error('[SignOut] Logout error:', error)
@@ -59,7 +60,7 @@ export const SignOutButton: React.FC<SignOutButtonProps> = ({
       zustandSignOut()
       StorageManager.clearAllUserData()
       onSignOutComplete?.()
-      navigate('/auth/sign-in', { replace: true })
+      navigate(Path.auth.signin, { replace: true })
     },
   })
 

@@ -42,7 +42,7 @@ import PersonIcon from '@mui/icons-material/Person'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import AddIcon from '@mui/icons-material/Add'
 
-import CreateUserDialog from './CreateUserDialog'
+import CreateUserDialog from '../../../components/CreateUserDialog'
 import { ConfirmationDialog } from '@idaas/authentication-core/components/shared'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -665,10 +665,10 @@ export default function UserList() {
                       <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.secondary' }}>
                         {user.createdAt
                           ? new Date(user.createdAt).toLocaleDateString(undefined, {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                            })
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })
                           : 'N/A'}
                       </Typography>
                     </TableCell>

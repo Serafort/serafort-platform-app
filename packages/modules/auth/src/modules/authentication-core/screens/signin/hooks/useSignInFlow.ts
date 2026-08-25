@@ -16,7 +16,7 @@ import { resolveRedirectPathForUser } from '../../../utils/resolveRedirect'
 
 const DEFAULT_FORM_VALUES: LoginRequest = {
   email: import.meta.env.DEV ? 'admin@example.com' : '',
-  password: import.meta.env.DEV ? 'password' : '',
+  password: import.meta.env.DEV ? 'Password#123' : '',
   rememberMe: false,
 }
 

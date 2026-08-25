@@ -11,6 +11,7 @@ import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { adminService } from '@auth/authorization-engine/services/adminService';
+import { Path } from '@cap/module-auth/routes';
 
 interface InvitationDetails {
   id: number; email: string; role: string; status: string; expiresAt: string
@@ -96,11 +97,11 @@ export default function JoinOrganization() {
   )
 
   if (state === 'loading') return wrapBox(<Groups sx={{ fontSize: 32 }} />, theme.palette.primary.main, 'Loading invitation...', 'Please wait while we retrieve your invitation details.', <CircularProgress />)
-  if (state === 'error') return wrapBox(<ErrorOutline sx={{ fontSize: 32 }} />, theme.palette.error.main, 'Something went wrong', errorMessage, ctaBtn('Go to Login', () => navigate('/auth/login')))
-  if (state === 'expired') return wrapBox(<TimerOutlined sx={{ fontSize: 32 }} />, theme.palette.warning.main, 'Invitation Expired', 'This invitation has expired. Please contact the organization administrator.', ctaBtn('Go to Login', () => navigate('/auth/login')))
+  if (state === 'error') return wrapBox(<ErrorOutline sx={{ fontSize: 32 }} />, theme.palette.error.main, 'Something went wrong', errorMessage, ctaBtn('Go to Login', () => navigate(Path.auth.signin)))
+  if (state === 'expired') return wrapBox(<TimerOutlined sx={{ fontSize: 32 }} />, theme.palette.warning.main, 'Invitation Expired', 'This invitation has expired. Please contact the organization administrator.', ctaBtn('Go to Login', () => navigate(Path.auth.signin)))
   if (state === 'already_used') return wrapBox(<ErrorOutline sx={{ fontSize: 32 }} />, theme.palette.text.disabled, 'Invitation No Longer Valid', errorMessage, ctaBtn('Go to Dashboard', () => navigate('/dashboard')))
   if (state === 'accepted') return wrapBox(<CheckCircle sx={{ fontSize: 32 }} />, theme.palette.success.main, `Welcome to ${invitation?.organization.name}!`, `You have successfully joined as a ${invitation?.role}.`, ctaBtn('Go to Dashboard', () => navigate('/dashboard')))
-  if (state === 'declined') return wrapBox(<Close sx={{ fontSize: 32 }} />, theme.palette.text.disabled, 'Invitation Declined', `You have declined the invitation to join ${invitation?.organization.name}.`, ctaBtn('Go to Login', () => navigate('/auth/login')))
+  if (state === 'declined') return wrapBox(<Close sx={{ fontSize: 32 }} />, theme.palette.text.disabled, 'Invitation Declined', `You have declined the invitation to join ${invitation?.organization.name}.`, ctaBtn('Go to Login', () => navigate(Path.auth.signin)))
 
   // Ready state â€” main invitation card
   return (

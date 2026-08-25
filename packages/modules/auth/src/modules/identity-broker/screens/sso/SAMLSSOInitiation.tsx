@@ -123,7 +123,7 @@ const SAMLSSOInitiation = () => {
           } else {
             // Navigate to the SAML wait screen with the org identifier
             navigate(
-              `${Path.auth.samlWait}?org=${discoveryData.organizationId ?? debouncedIdentifier}`,
+              `${Path.identity.samlWait}?org=${discoveryData.organizationId ?? debouncedIdentifier}`,
             )
           }
           break
@@ -135,7 +135,7 @@ const SAMLSSOInitiation = () => {
           } else {
             // Navigate to OIDC wait with clientId
             navigate(
-              `${Path.auth.oidcWait}?client_id=${discoveryData.clientId ?? ''}&domain=${debouncedIdentifier}`,
+              `${Path.identity.oidcWait}?client_id=${discoveryData.clientId ?? ''}&domain=${debouncedIdentifier}`,
             )
           }
           break
@@ -144,11 +144,11 @@ const SAMLSSOInitiation = () => {
         case 'google':
         case 'github':
         case 'microsoft': {
-          // Social providers â†’ redirect to provider selection or directly to social auth
+          // Social providers → redirect to provider selection or directly to social auth
           toast.info(
             t('auth.sso.social_redirect', `Redirecting to ${providerType} login...`)
           )
-          navigate(`${Path.auth.providerSelection}?provider=${providerType}`)
+          navigate(`${Path.identity.providerSelection}?provider=${providerType}`)
           break
         }
 

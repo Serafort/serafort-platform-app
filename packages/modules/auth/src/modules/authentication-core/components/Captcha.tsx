@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Typography, Alert } from '@mui/material'
+import { Box, Typography, Alert, useTheme } from '@mui/material'
 
 interface CaptchaProps {
   onVerify: (token: string | null) => void
@@ -15,27 +15,10 @@ const Captcha: React.FC<CaptchaProps> = ({
   // onExpire,
   theme = 'light',
 }) => {
+  const muiTheme = useTheme()
   const handleChange = (token: string | null) => {
     onVerify(token)
   }
-
-  /**
-   * Production implementation:
-   *
-   * return (
-   *   <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
-   *     <ReCAPTCHA
-   *       ref={recaptchaRef}
-   *       sitekey={RECAPTCHA_SITE_KEY}
-   *       onChange={handleChange}
-   *       onErrored={handleError}
-   *       onExpired={handleExpire}
-   *       theme={theme}
-   *       size={size}
-   *     />
-   *   </Box>
-   * )
-   */
 
   // Temporary mock implementation for development
   return (
@@ -67,11 +50,12 @@ const Captcha: React.FC<CaptchaProps> = ({
       {/* Mock CAPTCHA for development */}
       <Box
         sx={{
-          border: '2px dashed #ccc',
+          border: '2px dashed',
+          borderColor: 'divider',
           borderRadius: 1,
           p: 3,
           textAlign: 'center',
-          backgroundColor: theme === 'dark' ? '#1e1e1e' : '#f5f5f5',
+          bgcolor: 'background.paper',
         }}
       >
         <Typography variant='body2' color='text.secondary'>
@@ -87,13 +71,13 @@ const Captcha: React.FC<CaptchaProps> = ({
             mt: 2,
             px: 3,
             py: 1,
-            backgroundColor: '#4caf50',
-            color: 'white',
+            bgcolor: 'success.main',
+            color: 'success.contrastText',
             border: 'none',
             borderRadius: 1,
             cursor: 'pointer',
             '&:hover': {
-              backgroundColor: '#45a049',
+              bgcolor: 'success.dark',
             },
           }}
         >

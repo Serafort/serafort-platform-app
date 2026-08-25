@@ -1,9 +1,5 @@
-import { apiClient, ENDPOINTS } from '@cap/platform-core'
+import { apiClient, ENDPOINTS, FetchResponse } from '@cap/platform-core'
 
-/**
- * Service for MFA, Passkeys, and Step-Up Authentication.
- * Supports WebAuthn biometrics, security keys, and TOTP code verification.
- */
 export interface StepUpChallengeResponse {
   challenge: string
   rpId?: string
@@ -23,7 +19,58 @@ export interface StepUpVerificationResult {
   userId?: number | string
 }
 
+export interface TOTPSetupResponse {
+  qrDataUrl: string
+  manualEntry: string
+}
+
+export interface TOTPConfirmResponse {
+  enrolled: boolean
+  recoveryCodes: string[]
+  message: string
+}
+
 export const mfaService = {
+  // --- TOTP MFA ---
+  setupTotp: async (): Promise<FetchResponse<TOTPSetupResponse>> => {
+    return apiClient.post(ENDPOINTS.auth.mfa.setup)
+  },
+
+  confirmTotp: async (code: string): Promise<FetchResponse<TOTPConfirmResponse>> => {
+    return apiClient.post(ENDPOINTS.auth.mfa.verify, { code })
+  },
+
+  verifyLogin: async (payload: {
+    mfaToken?: string
+    mfa_token?: string
+    userId?: string | number
+    user_id?: string | number
+    code: string
+  }): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.auth.mfa.verifyLogin, payload)
+  },
+
+  recoveryVerify: async (payload: {
+    userId?: string | number
+    email?: string
+    code: string
+  }): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.auth.mfa.recoveryVerify, payload)
+  },
+
+  disableMfa: async (): Promise<FetchResponse<{ message: string }>> => {
+    return apiClient.post(ENDPOINTS.auth.mfa.disable)
+  },
+
+  getRecoveryCodes: async (): Promise<FetchResponse<{ recoveryCodes: string[] }>> => {
+    return apiClient.post(ENDPOINTS.auth.mfa.recoveryCodes)
+  },
+
+  regenerateBackupCodes: async (): Promise<FetchResponse<{ message: string; recoveryCodes: string[] }>> => {
+    return apiClient.post(ENDPOINTS.auth.mfa.regenerateBackupCodes)
+  },
+
+  // --- Passkeys (WebAuthn) ---
   passkeys: {
     getRegistrationOptions: async (email?: string) => {
       try {
@@ -89,20 +136,12 @@ export const mfaService = {
       }
     },
   },
+
   verifyMfaCode: async (userId: number, code: string) => {
-    try {
-      const response = await apiClient.post(ENDPOINTS.auth.mfa.verify, { userId, code })
-      if (response.data) return { data: response.data }
-    } catch (err) {
-      if (import.meta.env.DEV) {
-        console.warn('[mfaService] TOTP verify API fallback (DEV mode only)', err)
-        return { data: { success: true } }
-      }
-      throw err
-    }
-    return { data: { success: false } }
+    return apiClient.post(ENDPOINTS.auth.mfa.verifyLogin, { userId, code })
   },
 
+  // --- Step-Up Authentication ---
   stepUp: {
     getChallenge: async (action?: string): Promise<{ data: StepUpChallengeResponse }> => {
       return {

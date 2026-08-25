@@ -23,7 +23,7 @@ export const DataExport: React.FC = () => {
     bytesPerChunk: 128 * 1024,
     updateIntervalMs: 140,
   })
-  
+
   // Custom hook to fetch existing exports or request status
   const { data: exportData, isLoading, refetch } = useComplianceExport()
   const { mutateAsync: requestExport, isPending: isRequesting } = useExportMutation()
@@ -92,7 +92,7 @@ export const DataExport: React.FC = () => {
               <Typography variant='body2' sx={{ color: 'text.secondary', mb: 3, fontWeight: 500 }}>
                 We will gather all your data and prepare a JSON file. This process may take a few minutes. You will receive an email notification once it's ready.
               </Typography>
-              
+
               {requestSuccess ? (
                 <Alert severity="success" sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}>
                   Request submitted! We are preparing your data.
@@ -207,9 +207,9 @@ export const DataExport: React.FC = () => {
                         size="small"
                         startIcon={<DownloadIcon />}
                         onClick={() => handleDownload(item.id)}
-                        sx={{ 
-                          borderRadius: 2, 
-                          textTransform: 'none', 
+                        sx={{
+                          borderRadius: 2,
+                          textTransform: 'none',
                           fontWeight: 700,
                           bgcolor: 'secondary.main',
                           color: 'common.white',
@@ -222,8 +222,8 @@ export const DataExport: React.FC = () => {
                   }
                 >
                   <ListItemIcon>
-                    <Avatar 
-                      sx={{ 
+                    <Avatar
+                      sx={{
                         bgcolor: alpha(item.status === 'Ready' ? theme.palette.success.main : theme.palette.text.disabled, 0.1),
                         color: item.status === 'Ready' ? 'success.main' : 'text.disabled',
                         borderRadius: 2
@@ -251,7 +251,7 @@ export const DataExport: React.FC = () => {
           </List>
         )}
       </Paper>
-      
+
       <Box
         sx={(theme: any) => ({
           mt: 4,
@@ -265,10 +265,11 @@ export const DataExport: React.FC = () => {
           Important Security Notice
         </Typography>
         <Typography variant='caption' sx={{ color: 'warning.main', display: 'block' }}>
-          Your data archive contains sensitive information including PII. Please ensure you store this file in a secure location and delete it after use if possible. 
+          Your data archive contains sensitive information including PII. Please ensure you store this file in a secure location and delete it after use if possible.
           Each archive link is protected and expires after 7 days for your security.
         </Typography>
       </Box>
     </Box>
   )
 }
+export default DataExport

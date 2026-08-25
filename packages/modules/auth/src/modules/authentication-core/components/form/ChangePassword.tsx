@@ -5,6 +5,8 @@ import { TextField, Button, Box } from '@mui/material'
 import { useChangePassword } from '../../../user-directory/hooks/useUserQuery'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { AuthActionButton } from '../shared/auth/AuthActionButton'
+import { Path } from '@cap/module-auth/routes'
 
 const schema = z
   .object({
@@ -44,7 +46,7 @@ export function ChangePasswordForm() {
         alert('Password changed successfully! Please login again.')
         reset()
         // Redirect to login
-        navigate('/auth/sign-in')
+        navigate(Path.auth.login)
       },
       onError: (error: any) => {
         alert(error.response?.data?.detail || 'Failed to change password')
@@ -84,18 +86,17 @@ export function ChangePasswordForm() {
         margin='normal'
       />
 
-      <Button
+      <AuthActionButton
         type='submit'
-        variant='contained'
         data-testid='change-password-submit'
-        fullWidth
+        isLoading={changePasswordMutation.isPending}
+        label={
+          changePasswordMutation.isPending
+            ? t('auth.common.saving')
+            : t('auth.account.update_password')
+        }
         sx={{ mt: 3 }}
-        disabled={changePasswordMutation.isPending}
-      >
-        {changePasswordMutation.isPending
-          ? t('auth.common.saving')
-          : t('auth.account.update_password')}
-      </Button>
+      />
     </Box>
   )
 }

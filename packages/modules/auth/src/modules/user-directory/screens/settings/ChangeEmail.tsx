@@ -134,7 +134,7 @@ function ChangeEmail() {
           <Button
             variant='contained'
             fullWidth
-            onClick={() => navigate(Path.user.security)}
+            onClick={() => navigate(Path.account.security)}
             sx={{ bgcolor: 'info.main', fontWeight: 700 }}
           >
             {t('auth.account.back_to_security', 'Back to Security')}
@@ -490,7 +490,7 @@ function ChangeEmail() {
                   <Button
                     variant='text'
                     fullWidth
-                    onClick={() => navigate(Path.user.security)}
+                    onClick={() => navigate(Path.account.security)}
                     sx={{
                       textTransform: 'none',
                       fontWeight: 600,

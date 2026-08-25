@@ -27,7 +27,7 @@ export default function PasskeySetup({ open = true, onClose, onSuccess, onError 
     setWaitingForConfirmation(true)
     try {
       const optionsRes = await mfaService.passkeys.getRegistrationOptions()
-      const regResp = await startRegistration(optionsRes.data)
+      const regResp = await startRegistration({ optionsJSON: optionsRes.data })
       await mfaService.passkeys.verifyRegistration(regResp)
       onSuccess?.()
     } catch (err: any) {

@@ -18,7 +18,7 @@ export const usePasskey = () => {
       }
 
       // 2. Start browser-native WebAuthn authentication
-      const authResponse = await startAuthentication(optionsResponse.data)
+      const authResponse = await startAuthentication({ optionsJSON: optionsResponse.data })
 
       // 3. Verify the authentication response on the backend
       const verifyResponse = await mfaService.passkeys.verifyLogin(authResponse)

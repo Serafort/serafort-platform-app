@@ -60,7 +60,7 @@ export const MfaStep: React.FC<MfaStepProps> = ({
         <Box>
           <Typography
             variant='h5'
-            sx={{ fontWeight: 800, letterSpacing: '-0.02em', mb: 1 }}
+            sx={{ fontWeight: 800, letterSpacing: '-0.02em', mb: 1, fontFamily: 'var(--font-h5, inherit)' }}
           >
             {t('auth.twoFactor.title')}
           </Typography>
@@ -111,6 +111,7 @@ export const MfaStep: React.FC<MfaStepProps> = ({
                   '& fieldset': {
                     borderColor: 'divider',
                     borderWidth: '2px',
+                    transition: 'all 0.2s ease-in-out',
                   },
                   '&:hover fieldset': {
                     borderColor: 'primary.main',
@@ -119,6 +120,9 @@ export const MfaStep: React.FC<MfaStepProps> = ({
                     borderColor: 'primary.main',
                     borderWidth: '2px',
                   },
+                  '&.Mui-focused': {
+                    boxShadow: (theme) => `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
+                  }
                 },
               }}
             />

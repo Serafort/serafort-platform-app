@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Button, Alert as MAlert } from '@mui/material'
+import { Box, Button, Alert as MAlert, alpha } from '@mui/material'
 
 interface LockedStepProps {
   timeLeft: number
@@ -23,14 +23,14 @@ export const LockedStep: React.FC<LockedStepProps> = ({
         textAlign: 'center',
       }}
     >
-      <MAlert severity='error' sx={{ textAlign: 'left' }}>
+      <MAlert severity='error' sx={{ textAlign: 'left', borderRadius: '12px', bgcolor: (theme) => alpha(theme.palette.error.main, 0.1), color: 'error.main' }}>
         Account temporarily locked. Try again in {Math.ceil(timeLeft / 60)} minutes.
         <br />
         <Box component='span' sx={{ fontWeight: 600 }}>
           Countdown: {countdownDisplay}
         </Box>
       </MAlert>
-      <Button variant='text' onClick={onBackToLogin}>
+      <Button variant='text' onClick={onBackToLogin} sx={{ borderRadius: '12px', textTransform: 'none', fontWeight: 700 }}>
         Back to Login
       </Button>
     </Box>

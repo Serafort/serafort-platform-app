@@ -39,9 +39,6 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
     )
   }
 
-  const isUserAuthenticated =
-    isAuthenticated && user && typeof user !== 'string' && !isObjectEmpty(user)
-
   if (sessionError) {
     return (
       <Box
@@ -65,8 +62,16 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
     )
   }
 
+  const isUserAuthenticated =
+    isAuthenticated && user && typeof user !== 'string' && !isObjectEmpty(user)
+
   if (!isUserAuthenticated) {
-    return <Navigate to={Path.auth.signin} replace state={{ from: location }} />
+    return (
+      <React.Fragment>
+        <Backdrop open style={{ background: '#FFF', zIndex: 1400 }} />
+        <Navigate to={Path.auth.signin} replace state={{ from: location }} />
+      </React.Fragment>
+    )
   }
 
   if (!canAccessAdminPage) {

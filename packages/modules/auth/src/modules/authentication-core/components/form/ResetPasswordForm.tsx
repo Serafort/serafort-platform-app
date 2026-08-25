@@ -19,6 +19,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import authService from "@auth/modules/authentication-core/services/auth.service"
+import { AuthActionButton } from '../shared/auth/AuthActionButton'
 
 const resetPasswordFormSchema = z.object({
   username: z.string().optional(),
@@ -125,15 +126,13 @@ export default function ResetPasswordForm({
                   controlForm.reset()
                   handleClose()
                 }}
-                variant='contained'
+                variant='outlined'
                 color='error'
                 sx={{ mr: '20px' }}
               >
                 {t('auth.common.cancel')}
               </Button>
-              <Button type='submit' variant='contained'>
-                {t('auth.login.change_password')}
-              </Button>
+              <AuthActionButton type='submit' label={t('auth.login.change_password')} />
             </Stack>
           </Grid>
         </DialogActions>

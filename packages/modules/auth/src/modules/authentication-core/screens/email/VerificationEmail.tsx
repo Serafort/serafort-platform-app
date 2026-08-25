@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { FetchResponse, HttpError } from '@cap/platform-core';
 import { AdaptiveLogo } from '@cap/theme';
 import authService from '@idaas/authentication-core/services/auth.service';
+import { Path } from '@cap/module-auth/routes';
 
 const SUPPORT_EMAIL = 'support@example.com'
 
@@ -33,7 +34,7 @@ export default function VerificationEmail() {
         const response: FetchResponse = await authService.verifyEmail(email, signature)
         if (response.status === 200) {
           setSuccess(true)
-          timer = setTimeout(() => navigate('/auth/login'), 5000)
+          timer = setTimeout(() => navigate(Path.auth.signin), 5000)
         }
       } catch (err) {
         setError(err as HttpError)
@@ -72,9 +73,11 @@ export default function VerificationEmail() {
 
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
         <Avatar variant="square"
-          sx={{ width: 56, height: 56, bgcolor: 'transparent', borderRadius: '24px', border: '2px solid',
+          sx={{
+            width: 56, height: 56, bgcolor: 'transparent', borderRadius: '24px', border: '2px solid',
             color: success ? 'success.main' : 'error.main',
-            borderColor: alpha(success ? theme.palette.success.main : theme.palette.error.main, 0.2) }}>
+            borderColor: alpha(success ? theme.palette.success.main : theme.palette.error.main, 0.2)
+          }}>
           {success ? <CheckCircle sx={{ fontSize: 32 }} /> : <ErrorOutline sx={{ fontSize: 32 }} />}
         </Avatar>
       </Box>

@@ -85,15 +85,15 @@ const userService = {
   },
 
   passkeys: {
-    list: (): Promise<FetchResponse> => {
+    list: (): Promise<FetchResponse<any[]>> => {
       return apiClient.get(ENDPOINTS.user.passkeys.index)
     },
 
-    update: (id: string | number, data: { name: string }): Promise<FetchResponse> => {
-      return apiClient.patch(ENDPOINTS.user.passkeys.update(id), data)
+    update: (id: string | number, data: { name: string }): Promise<FetchResponse<any>> => {
+      return apiClient.put(ENDPOINTS.user.passkeys.update(id), data)
     },
 
-    delete: (id: string | number): Promise<FetchResponse> => {
+    delete: (id: string | number): Promise<FetchResponse<any>> => {
       return apiClient.delete(ENDPOINTS.user.passkeys.destroy(id))
     },
   },

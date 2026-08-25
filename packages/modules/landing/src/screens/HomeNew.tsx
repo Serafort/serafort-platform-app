@@ -12,6 +12,7 @@ import {
   PricingSection,
   FAQSection,
 } from '../components'
+import { Path } from '@cap/module-auth/routes'
 
 export default function Home() {
   const { isGuest } = useGuest()
@@ -26,8 +27,8 @@ export default function Home() {
             variant='minimal'
             message='Create a free account to unlock all features and save your job searches!'
             isGuest={isGuest}
-            onSignIn={() => navigate('/auth/sign-in')}
-            onSignUp={() => navigate('/auth/register')}
+            onSignIn={() => navigate(Path.auth.signin)}
+            onSignUp={() => navigate(Path.auth.signup)}
           />
         </Box>
       )}

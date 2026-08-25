@@ -27,7 +27,7 @@ export const API_ENDPOINTS = {
     register: '/api/auth/register',
     signup: '/api/auth/register',
     login: '/api/auth/login',
-    logout: '/api/auth/logout',
+    logout: '/api/v1/auth/logout',
     forgotPassword: '/api/auth/forgot-password',
     resetPassword: '/api/auth/reset-password',
     refresh: '/api/auth/refresh',
@@ -36,8 +36,14 @@ export const API_ENDPOINTS = {
     csrfToken: '/api/auth/csrf-token',
     verifyEmail: (email: string, signature: string) =>
       `/api/auth/verification/email/${email}?signature=${signature}`,
-    verifyResetPassword: (email: string, signature: string) =>
-      `/api/auth/reset-password/${email}?signature=${signature}`,
+    verifyResetPassword: (email: string, signature: string) => {
+      const query = signature.startsWith('?')
+        ? signature.slice(1)
+        : signature.includes('=')
+          ? signature
+          : `signature=${signature}`
+      return `/api/auth/reset-password/${email}?${query}`
+    },
     resendVerification: '/api/auth/verification/email/resend',
     verifyEmailToken: (email: string, signature: string) =>
       `/api/auth/verification/email/${email}?signature=${signature}`,
@@ -82,6 +88,9 @@ export const API_ENDPOINTS = {
       sso: '/api/auth/saml/sso',
     },
     passkey: {
+      list: '/api/auth/passkey',
+      update: (id: string | number) => `/api/auth/passkey/${id}`,
+      delete: (id: string | number) => `/api/auth/passkey/${id}`,
       registerStart: '/api/auth/passkey/register/start',
       registerFinish: '/api/auth/passkey/register/finish',
       loginStart: '/api/auth/passkey/login/start',

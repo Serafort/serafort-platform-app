@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   Backdrop,
   Button,
@@ -13,13 +13,27 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { themeConfig, IStatus } from '@cap/platform-core'
 import { Alert as MAlert } from '@cap/platform-core'
-import { QUERY_KEYS } from '@idaas/authentication-core/services'
-import authService from "@idaas/authentication-core/services/auth.service"
+import { QUERY_KEYS } from '../../services/query'
+import authService from '../../services/auth.service'
+import { Path } from '@cap/module-auth/routes/path'
 
 export default function Validate() {
-  const { t } = useTranslation()
-  const { id, token, location } = useParams()
+  const { t } = useTranslation('auth')
+  const { id, token } = useParams<{ id?: string; token?: string; email?: string }>()
+  const [searchParams] = useSearchParams()
+  const emailParam = useParams<{ email?: string }>().email || searchParams.get('email')
+  const signatureParam = searchParams.get('signature')
   const navigate = useNavigate()
+
+  // If email + signature are provided, redirect or forward to email verification flow
+  React.useEffect(() => {
+    if (emailParam && signatureParam) {
+      navigate(`${Path.auth.verifyEmail.replace(':email', encodeURIComponent(emailParam))}?signature=${encodeURIComponent(signatureParam)}`, {
+        replace: true,
+      })
+    }
+  }, [emailParam, signatureParam, navigate])
+
   const {
     data: validateUserData,
     isSuccess: isSuccessValidateUser,
@@ -29,66 +43,52 @@ export default function Validate() {
     queryFn: () => authService.validateUser(id ?? '', token ?? ''),
     enabled: !!id && !!token,
   })
+
   const validateUser = validateUserData?.data
-  const [loading] = React.useState(false)
   const [status, setStatus] = React.useState<IStatus>({
     open: false,
     type: '',
     state: '',
     msg: '',
   })
-  const handleClickStatus = (newState: React.SetStateAction<IStatus>) => {
-    setStatus({ type: '', state: '', msg: '', open: true, ...newState })
+
+  const handleClickStatus = (newState: Partial<IStatus>) => {
+    setStatus((prev) => ({ ...prev, ...newState, open: true }))
   }
 
   React.useEffect(() => {
     if (isSuccessValidateUser && validateUser) {
       const { firstname = '', lastname = '' } = validateUser.user ?? {}
       const type = validateUser.type
-      console.log({ firstname, lastname, type })
-      if (type === 'already validate')
+      if (type === 'already validate') {
         handleClickStatus({
-          open: true,
           type: 'warning',
           state: 'save',
-          msg: t('auth.validate.already_validated', { firstname, lastname }),
+          msg: t('auth.validate.already_validated', { firstname, lastname, defaultValue: 'Account is already validated.' }),
         })
-      if (type === 'validate') {
+      } else {
         handleClickStatus({
-          open: true,
           type: 'info',
           state: 'save',
-          msg: t('auth.validate.success_message', { firstname, lastname }),
+          msg: t('auth.validate.success_message', { firstname, lastname, defaultValue: 'Account validated successfully!' }),
         })
       }
-      navigate('/validate', {
-        replace: true,
-        state: {
-          from: location,
-          data: {
-            page: 'validate',
-            type: 'success',
-            state: 'validate',
-            msg: t('auth.validate.success_message', { firstname, lastname }),
-          },
-        },
-      })
     }
     if (isErrorValidateUser) {
       handleClickStatus({
-        open: true,
         type: 'error',
         state: 'save',
-        msg: t('auth.validate.error_message'),
+        msg: t('auth.validate.error_message', 'Validation failed or expired token.'),
       })
     }
-  }, [isErrorValidateUser, isSuccessValidateUser, location, navigate, validateUser, t])
+  }, [isErrorValidateUser, isSuccessValidateUser, validateUser, t])
+
   return (
     <React.Fragment>
       <title>
-        {t('auth.validate.title_page')} - {themeConfig.templateName}
+        {t('auth.validate.title_page', 'Validate Account')} - {themeConfig.templateName}
       </title>
-      <meta name='description' content={t('auth.validate.meta_desc')} />
+      <meta name='description' content={t('auth.validate.meta_desc', 'Account validation')} />
       <meta
         name='keywords'
         content={`registration validation, account validation, ${themeConfig.templateName}`}
@@ -100,34 +100,30 @@ export default function Validate() {
       >
         <Backdrop
           sx={{ color: '#FFFFFF', zIndex: (theme) => theme.zIndex.drawer + 10 }}
-          open={loading}
+          open={false}
         >
           <CircularProgress color='inherit' />
         </Backdrop>
 
-        <Card sx={{ my: { xs: 3, md: 6 }, width: '100%', maxWidth: 450 }}>
+        <Card sx={{ my: { xs: 3, md: 6 }, width: '100%', maxWidth: 450, borderRadius: 3 }}>
           <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-            <Typography component='h1' variant='h5' sx={{ textAlign: 'center', mb: 1 }}>
+            <Typography component='h1' variant='h5' sx={{ textAlign: 'center', mb: 1, fontWeight: 700 }}>
               {themeConfig.templateName}
             </Typography>
-            <Typography component='h5' variant='body1' sx={{ mb: 2, textAlign: 'center' }}>
-              {t('auth.validate.title')}
+            <Typography component='h5' variant='body1' sx={{ mb: 2, textAlign: 'center', color: 'text.secondary' }}>
+              {t('auth.validate.title', 'Account Validation')}
             </Typography>
-            <MAlert sx={{ width: '100%' }}>{status.msg}</MAlert>
+            {status.open && <MAlert sx={{ width: '100%' }} severity={status.type || 'info'}>{status.msg}</MAlert>}
             {status?.type !== 'error' && (
               <Button
                 fullWidth
                 variant='contained'
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ mt: 3, mb: 2, borderRadius: 2, py: 1.2, fontWeight: 700 }}
                 onClick={() => {
-                  navigate(location?.replace(/_/g, '/') || '/auth/sign-in', {
-                    state: {
-                      from: location,
-                    },
-                  })
+                  navigate(Path.auth.signin)
                 }}
               >
-                {t('auth.validate.button_connect')}
+                {t('auth.validate.button_connect', 'Sign In')}
               </Button>
             )}
           </CardContent>
@@ -136,4 +132,3 @@ export default function Validate() {
     </React.Fragment>
   )
 }
-

@@ -49,8 +49,8 @@ export function usePasskeyAutofill(onSuccess?: () => void) {
 
         // 4. Start authentication with explicit conditional mediation
         const authResponse = await startAuthentication({
-          ...optionsResponse.data,
-          mediation: 'conditional',
+          optionsJSON: optionsResponse.data,
+          useBrowserAutofill: true,
         })
 
         if (!mounted) return

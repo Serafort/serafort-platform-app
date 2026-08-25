@@ -69,7 +69,12 @@ const AuthRoute = ({
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={Path.auth.signin} replace state={{ from: location }} />
+    return (
+      <React.Fragment>
+        <Backdrop open style={{ background: '#FFF', zIndex: 1400 }} />
+        <Navigate to={Path.auth.signin} replace state={{ from: location }} />
+      </React.Fragment>
+    )
   }
 
   // Check role access via authorization engine

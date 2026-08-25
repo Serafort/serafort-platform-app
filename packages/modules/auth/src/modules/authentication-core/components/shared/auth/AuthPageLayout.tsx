@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 
 interface AuthPageLayoutProps {
@@ -8,6 +8,7 @@ interface AuthPageLayoutProps {
 }
 
 const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({ children, maxWidth = 440 }) => {
+  const theme = useTheme()
 
   return (
     <Box
@@ -22,7 +23,7 @@ const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({ children, maxWidth = 44
         mx: 'auto',
         p: { xs: 3, md: 5 },
         position: 'relative',
-        bgcolor: 'transparent', // Naked box standard
+        bgcolor: 'transparent',
       }}
     >
       {children}

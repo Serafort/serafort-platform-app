@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, Button, TextField, Typography, Alert, InputAdornment, IconButton, CircularProgress, alpha, useTheme, Stack, Link as MuiLink } from '@mui/material';
+import { Box, Button, TextField, Typography, Alert, InputAdornment, IconButton, CircularProgress, alpha, Stack, Link as MuiLink } from '@mui/material';
 import LockOutlined from '@mui/icons-material/LockOutlined';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -10,21 +10,33 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { FetchResponse, IUserResponseEmailResetPassword } from '@cap/platform-core';
 import type { ResetPasswordRequest } from '../../types/api.types';
-import { useResetPassword } from '@cap/module-auth/modules/authentication-core/hooks/useAuthQuery';
-import authService from '@cap/module-auth/modules/authentication-core/services/auth.service';
-import { AuthPageLayout, AuthScreenIcon, AuthInputLabel, AuthActionButton } from '@cap/module-auth/modules/authentication-core/components/shared/auth';
+import { useResetPassword } from '../../hooks/useAuthQuery';
+import authService from '../../services/auth.service';
+import { AuthPageLayout, AuthScreenIcon, AuthInputLabel, AuthActionButton } from '../../components/shared/auth';
 import { ResetPasswordSchema, ResetPasswordSchemaType } from '../../utils/schema';
 import { useActionLock } from '../../hooks/useActionLock';
+import Path from '../path';
 
 const SUPPORT_EMAIL = 'support@example.com'
 
 export default function ResetPassword() {
   const { t } = useTranslation('auth')
-  const theme = useTheme()
   const navigate = useNavigate()
-  const { email } = useParams()
+  const params = useParams<{ email?: string }>()
   const [searchParams] = useSearchParams()
+
+  const decodedEmail = useMemo(() => {
+    const raw = params.email || searchParams.get('email') || ''
+    if (!raw) return ''
+    try {
+      return decodeURIComponent(raw).trim().toLowerCase()
+    } catch {
+      return raw.trim().toLowerCase()
+    }
+  }, [params.email, searchParams])
+
   const signature = searchParams.get('signature')
+  const tokenParam = searchParams.get('token')
   const { isLocked, executeWithLock } = useActionLock(100)
 
   const [loading, setLoading] = useState(true)
@@ -44,36 +56,65 @@ export default function ResetPassword() {
   })
 
   useEffect(() => {
+    let isMounted = true
+
     async function fetchData() {
+      if (!decodedEmail || (!signature && !tokenParam)) {
+        if (isMounted) {
+          setLoading(false)
+          setSignatureError(t('resetPassword.invalidLinkTitle', 'Invalid or Expired Link'))
+        }
+        return
+      }
+
       try {
-        setLoading(true)
+        if (isMounted) setLoading(true)
+        const fullQuery = searchParams.toString()
         const response: FetchResponse<IUserResponseEmailResetPassword> =
-          await authService.verifyResetPassword(email || '', signature ?? '')
-        if (response.status === 202) {
-          if (!response.data.isSignatureValid) {
+          await authService.verifyResetPassword(decodedEmail, fullQuery)
+
+        if (!isMounted) return
+
+        if (response.status === 200 || response.status === 202) {
+          if (response.data && response.data.isSignatureValid === false) {
             setSignatureError(t('resetPassword.invalidLinkTitle', 'Invalid or Expired Link'))
           } else {
-            setToken(response.data.token || '')
+            setToken(response.data?.token || tokenParam || '')
           }
+        } else {
+          setSignatureError(t('resetPassword.invalidLinkTitle', 'Invalid or Expired Link'))
         }
       } catch (err: any) {
-        setSignatureError(err.message || t('resetPassword.errorVerifying', 'Could not verify reset link.'))
+        if (!isMounted) return
+        setSignatureError(
+          err.response?.data?.message ||
+          err.message ||
+          t('resetPassword.errorVerifying', 'Could not verify reset link.')
+        )
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
+
     fetchData()
-  }, [email, signature, t])
+
+    return () => {
+      isMounted = false
+    }
+  }, [decodedEmail, signature, tokenParam, searchParams, t])
 
   const resetPasswordMutation = useResetPassword({
     onSuccess: () => {
-      navigate('/auth/sign-in')
+      navigate(Path.passwordResetSuccess)
     },
     onError: (err: any) => {
       setError(
+        err.response?.data?.message ||
         err.response?.data?.detail ||
-          err.message ||
-          t('resetPassword.errorGeneric', 'An error occurred. Please try again.'),
+        err.message ||
+        t('resetPassword.errorGeneric', 'An error occurred. Please try again.'),
       )
     },
   })
@@ -83,21 +124,21 @@ export default function ResetPassword() {
       executeWithLock(async () => {
         setError(null)
         const payload: ResetPasswordRequest = {
-          token,
-          email: email || '',
+          token: token || tokenParam || '',
+          email: decodedEmail,
           password: data.password,
           confirmPassword: data.confirmPassword,
         }
         resetPasswordMutation.mutate({ data: payload })
       })
     },
-    [token, email, executeWithLock, resetPasswordMutation],
+    [token, tokenParam, decodedEmail, executeWithLock, resetPasswordMutation],
   )
 
   if (loading) {
     return (
-      <Box sx={{ height: '100dvh', display: 'grid', placeItems: 'center' }}>
-        <CircularProgress />
+      <Box sx={{ height: '100dvh', display: 'grid', placeItems: 'center', bgcolor: 'background.default' }}>
+        <CircularProgress size={48} />
       </Box>
     )
   }
@@ -130,7 +171,7 @@ export default function ResetPassword() {
         </Alert>
         <Button
           component={Link}
-          to="/auth/forgot-password"
+          to={Path.forgotPassword}
           fullWidth
           variant="contained"
           sx={{
@@ -139,9 +180,9 @@ export default function ResetPassword() {
             fontWeight: 800,
             fontSize: '1rem',
             textTransform: 'none',
-            bgcolor: 'info.main',
-            boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.info.main, 0.4)}`,
-            '&:hover': { bgcolor: 'info.dark', transform: 'translateY(-1px)' },
+            bgcolor: 'primary.main',
+            boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`,
+            '&:hover': { bgcolor: 'primary.dark', transform: 'translateY(-1px)' },
           }}
         >
           {t('resetPassword.requestNewLink', 'Request New Link')}
@@ -160,7 +201,7 @@ export default function ResetPassword() {
           {t('resetPassword.title', 'Set new password')}
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-          {t('resetPassword.subtitle', 'Choose a strong password you haven\'t used before.')}
+          {t('resetPassword.subtitle', "Choose a strong password you haven't used before.")}
         </Typography>
       </Box>
 
@@ -199,7 +240,7 @@ export default function ResetPassword() {
                           </IconButton>
                         </InputAdornment>
                       ),
-                      sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
+                      sx: { borderRadius: 3, bgcolor: 'background.paper' },
                     },
                   }}
                 />
@@ -224,7 +265,7 @@ export default function ResetPassword() {
                   helperText={errors.confirmPassword?.message}
                   slotProps={{
                     input: {
-                      sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
+                      sx: { borderRadius: 3, bgcolor: 'background.paper' },
                     },
                   }}
                 />
@@ -251,4 +292,3 @@ export default function ResetPassword() {
     </AuthPageLayout>
   )
 }
-

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@cap/platform-core'
+import { Path } from '@/routes'
 
 interface UseSignOutOptions {
   onSuccess?: () => void
@@ -29,7 +30,7 @@ export const useSignOut = (options?: UseSignOutOptions): UseSignOutReturn => {
       await authSignOut()
 
       // Navigate to login
-      navigate('/auth/signin')
+      navigate(Path.auth.signin)
 
       // Call success callback
       options?.onSuccess?.()

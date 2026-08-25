@@ -22,7 +22,7 @@ import { Path } from '@cap/module-auth/routes/path';
 
 import { useUser, useBanUser, useUnbanUser, useImpersonateUser, useResetUserMfa, useAuditLogs, useUpdateUser } from '@idaas/authentication-core/hooks/useAdminQuery';
 import { ConfirmationDialog } from '@idaas/authentication-core/components/shared';
-import ResetPasswordDialog from './ResetPasswordDialog';
+import ResetPasswordDialog from '../../../components/ResetPasswordDialog';
 import { adminService } from '../../../../authorization-engine/services/adminService';
 
 interface TabPanelProps {
@@ -733,7 +733,7 @@ function PermissionOverrideTab({ userId }: { userId: number }) {
     try {
       const response = await adminService.listOrganizations()
       const orgId = response.data?.data?.[0]?.id ?? 1
-      
+
       // Mocking the list for UI demonstration
       setOverrides([
         { id: 1, resource: 'vault:secrets', action: 'read', effect: 'allow', memberId: userId, permissionId: 0, grant: true, organizationId: orgId }
@@ -857,12 +857,12 @@ function PermissionOverrideTab({ userId }: { userId: number }) {
       <Dialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)} fullWidth maxWidth="xs">
         <DialogTitle sx={{ fontWeight: 800 }}>ADD PERMISSION OVERRIDE</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-           <TextField
+          <TextField
             fullWidth
             label="Resource"
             placeholder="e.g. vault:secrets"
             value={newOverride.resource}
-            onChange={(e) => setNewOverride({...newOverride, resource: e.target.value})}
+            onChange={(e) => setNewOverride({ ...newOverride, resource: e.target.value })}
             size="small"
           />
           <TextField
@@ -870,23 +870,23 @@ function PermissionOverrideTab({ userId }: { userId: number }) {
             label="Action"
             placeholder="e.g. read"
             value={newOverride.action}
-            onChange={(e) => setNewOverride({...newOverride, action: e.target.value})}
+            onChange={(e) => setNewOverride({ ...newOverride, action: e.target.value })}
             size="small"
           />
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button 
-              fullWidth 
-              variant={newOverride.effect === 'allow' ? 'contained' : 'outlined'} 
+            <Button
+              fullWidth
+              variant={newOverride.effect === 'allow' ? 'contained' : 'outlined'}
               color="success"
-              onClick={() => setNewOverride({...newOverride, effect: 'allow'})}
+              onClick={() => setNewOverride({ ...newOverride, effect: 'allow' })}
             >
               Allow
             </Button>
-            <Button 
-              fullWidth 
-              variant={newOverride.effect === 'deny' ? 'contained' : 'outlined'} 
+            <Button
+              fullWidth
+              variant={newOverride.effect === 'deny' ? 'contained' : 'outlined'}
               color="error"
-              onClick={() => setNewOverride({...newOverride, effect: 'deny'})}
+              onClick={() => setNewOverride({ ...newOverride, effect: 'deny' })}
             >
               Deny
             </Button>

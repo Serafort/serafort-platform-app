@@ -1,4 +1,4 @@
-// FILE: packages/modules/auth/src/screens/auth/signup/RegistrationScreen.tsx
+// FILE: packages/modules/auth/src/modules/authentication-core/screens/signup/components/RegistrationScreen.tsx
 import React, { useState } from 'react';
 import { Box, Typography, TextField, Button, Divider, alpha, useTheme, InputAdornment, IconButton, Stack, Alert, Checkbox, FormControlLabel } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
@@ -11,11 +11,9 @@ import Google from '@mui/icons-material/Google';
 import Microsoft from '@mui/icons-material/Microsoft';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-;
-import { AuthPageLayout, AuthScreenIcon, AuthInputLabel, AuthActionButton } from '@idaas/authentication-core/components/shared/auth';
-import { useRegister } from '@idaas/authentication-core/hooks/useAuthQuery';
-import { API_CONFIG } from '@cap/platform-core';
-import { ENDPOINTS } from '@cap/platform-core';
+import { AuthPageLayout, AuthScreenIcon, AuthInputLabel, AuthActionButton } from '../../../components/shared/auth';
+import { useRegister } from '../../../hooks/useAuthQuery';
+import { API_CONFIG, ENDPOINTS } from '@cap/platform-core';
 import { Path } from '@cap/module-auth/routes/path';
 
 export default function RegistrationScreen() {
@@ -186,7 +184,5 @@ export default function RegistrationScreen() {
         </Typography>
       </Box>
     </AuthPageLayout>
-
   )
 }
-
