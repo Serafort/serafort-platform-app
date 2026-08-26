@@ -73,6 +73,9 @@ import frUserDir from './modules/user-directory/data/dictionaries/fr.json'
 import enIdentityBroker from './modules/identity-broker/data/dictionaries/en.json'
 import arIdentityBroker from './modules/identity-broker/data/dictionaries/ar.json'
 import frIdentityBroker from './modules/identity-broker/data/dictionaries/fr.json'
+import enSessionManager from './modules/session-manager/data/dictionaries/en.json'
+import arSessionManager from './modules/session-manager/data/dictionaries/ar.json'
+import frSessionManager from './modules/session-manager/data/dictionaries/fr.json'
 import enData from './data/dictionaries/en.json'
 import arData from './data/dictionaries/ar.json'
 import frData from './data/dictionaries/fr.json'
@@ -84,6 +87,7 @@ registerDictionary({ en: enPasswordless, ar: arPasswordless, fr: frPasswordless 
 registerDictionary({ en: enAuthEngine, ar: arAuthEngine, fr: frAuthEngine })
 registerDictionary({ en: enUserDir, ar: arUserDir, fr: frUserDir })
 registerDictionary({ en: enIdentityBroker, ar: arIdentityBroker, fr: frIdentityBroker })
+registerDictionary({ en: enSessionManager, ar: arSessionManager, fr: frSessionManager })
 
 const en = getMergedDictionary('en')
 const ar = getMergedDictionary('ar')
@@ -164,6 +168,8 @@ export {
   useUpdatePreferences,
   useSecurityStatus,
   useActivityTimeline,
+  useGetUser,
+  useUserPasskeys,
   useLinkedAccounts,
   useUserTokens,
   useChangeEmail,

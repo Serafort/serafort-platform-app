@@ -48,8 +48,26 @@
             "change_phone": "Changer le numéro de téléphone",
             "change_phone_description": "Mettez à jour votre numéro de téléphone pour le contact et l'onction.",
             "common": {
-                "disabled": "Désactivé"
+                "disabled": "Désactivé",
+                "enabled": "Activé",
+                "active": "Actif",
+                "inactive": "Inactif",
+                "loading": "Chargement...",
+                "error_occurred": "Une erreur est survenue lors du chargement des données.",
+                "retry": "Réessayer"
             },
+            "banner": {
+                "passkey_title": "Renforcez votre compte avec les clés d'accès (Passkeys)",
+                "passkey_desc": "Profitez d'une connexion rapide et résistante au phishing grâce à la vérification biométrique ou aux clés de sécurité.",
+                "passkey_action": "Configurer une clé d'accès",
+                "mfa_warning_title": "Authentification multifacteur non configurée",
+                "mfa_warning_desc": "Votre compte n'a pas de protection à deux facteurs. Activez la 2FA pour bloquer les tentatives non autorisées.",
+                "mfa_warning_action": "Activer la 2FA"
+            },
+            "passkeys_enrolled": "Clés d'accès & biométrie",
+            "manage_passkeys": "Gérer les clés d'accès",
+            "register_passkey": "Ajouter une clé",
+            "security_health": "Santé de sécurité",
             "confirm_data_loss_required": "Vous devez confirmer que vos données seront définitivement supprimées",
             "confirm_password_label": "Confirmer l'identité",
             "confirm_undo_required": "Vous devez confirmer que cette action est irréversible",

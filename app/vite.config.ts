@@ -41,7 +41,7 @@ export default defineConfig({
       // Explicitly list all custom domains so the plugin generates a cert
       // with the correct Subject Alternative Names (SANs).
       // Without this, only `localhost` gets a SAN → ERR_CERT_COMMON_NAME_INVALID.
-      hosts: ['gldeveloper.test', 'localhost'],
+      hosts: ['gldeveloper.test', 'localhost', '192.168.137.1'],
     }),
     ...(vitePWA
       ? [
@@ -155,10 +155,10 @@ export default defineConfig({
     // Use the custom domain as the bind host so Vite binds to gldeveloper.test
     // (which resolves to 127.0.0.1 via /etc/hosts). The mkcert plugin also
     // auto-adds a string `server.host` to the cert SANs (boolean `true` is ignored).
-    host: 'gldeveloper.test',
+    host: true, 
     port: 443,
     strictPort: true,
-    allowedHosts: ['gldeveloper.test'],
+    allowedHosts: ['192.168.137.1', 'gldevelopertest'],
     proxy: {
       '/api': {
         target: 'http://localhost:3333',

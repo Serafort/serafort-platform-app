@@ -48,8 +48,26 @@
             "change_phone": "تغيير رقم الهاتف",
             "change_phone_description": "قم بتحديث رقم هاتفك للتواصل والأمان.",
             "common": {
-                "disabled": "معطل"
+                "disabled": "معطل",
+                "enabled": "مفعّل",
+                "active": "نشط",
+                "inactive": "غير نشط",
+                "loading": "جارٍ التحميل...",
+                "error_occurred": "حدث خطأ أثناء تحميل بيانات الحساب.",
+                "retry": "إعادة المحاولة"
             },
+            "banner": {
+                "passkey_title": "عزز أمان حسابك باستخدام مفاتيح المرور (Passkeys)",
+                "passkey_desc": "استمتع بتسجيل دخول سريع ومقاوم للتصيد الاحتيالي باستخدام التحقق البيومتري أو مفاتيح الأمان.",
+                "passkey_action": "إعداد مفتاح المرور",
+                "mfa_warning_title": "المصادقة متعددة العوامل غير مهيأة",
+                "mfa_warning_desc": "يفتقر حسابك إلى الحماية الثنائية. قم بتفعيل 2FA للحماية من محاولات الدخول غير المصرح بها.",
+                "mfa_warning_action": "تفعيل 2FA"
+            },
+            "passkeys_enrolled": "مفاتيح المرور والقياسات الحيوية",
+            "manage_passkeys": "إدارة مفاتيح المرور",
+            "register_passkey": "إضافة مفتاح",
+            "security_health": "حالة الأمان",
             "confirm_data_loss_required": "يجب عليك التأكيد أن بياناتك سيتم حذفها نهائياً",
             "confirm_password_label": "تأكيد الهوية",
             "confirm_undo_required": "يجب عليك التأكيد أن هذا الإجراء لا يمكن التراجع عنه",
