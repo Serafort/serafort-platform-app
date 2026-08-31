@@ -739,6 +739,10 @@
             "welcome_back": "Bon retour",
             "welcome_user": "Bienvenue sur {{templateName}} ! 👋🏻"
         },
+        "lockout": {
+            "message": "Compte temporairement verrouillé. Réessayez dans {{minutes}} minutes.",
+            "countdown": "Compte à rebours"
+        },
         "mfa": {
             "active_methods_count": "Vous avez {{count}} méthodes d'authentification actives protégeant votre compte.",
             "backup_codes": "Codes de secours MFA",

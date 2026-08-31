@@ -60,26 +60,13 @@ export default function ChangeAccount({ user }: { user: UserDto }) {
           { shouldFocus: true },
         )
       else controlForm.clearErrors('lastName')
-      console.log('Sending update profile body:', body)
 
       // return await userService.updateProfile(body)
     },
-    onMutate: (variables) => {
-      console.log('onMutate variables ', variables)
+    onMutate: () => {
       setLoading(true)
     },
-    onError: (error, variables, context) => {
-      console.log('onError ', { error, variables, context })
-
-      // An error happened!
-      // console.log(`rolling back optimistic update with id ${context.id}`)
-    },
-    onSuccess: async (data, variables, context) => {
-      // await set()
-      console.log('onSuccess ', { data, variables, context })
-    },
     onSettled: () => {
-      console.log('onSettled ')
       setLoading(false)
     },
   })

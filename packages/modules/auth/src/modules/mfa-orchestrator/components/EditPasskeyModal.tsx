@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   Button,
@@ -14,49 +14,90 @@ import {
   Divider,
   Chip,
   alpha,
+  Alert,
+  CircularProgress,
 } from '@mui/material'
-import Edit from '@mui/icons-material/Edit';
-import Delete from '@mui/icons-material/Delete';
-import Devices from '@mui/icons-material/Devices';
-import Schedule from '@mui/icons-material/Schedule';
+import Edit from '@mui/icons-material/Edit'
+import Delete from '@mui/icons-material/Delete'
+import Devices from '@mui/icons-material/Devices'
+import Schedule from '@mui/icons-material/Schedule'
 import { useTranslation } from 'react-i18next'
+import { useUpdatePasskeyMutation, useDeletePasskeyMutation } from '../hooks/useMfaQuery'
 
 interface EditPasskeyModalProps {
   open: boolean
   onClose: () => void
+  onSuccess?: () => void
   passkey?: {
-    id: string
+    id: string | number
     name: string
-    device: string
-    browser: string
-    createdAt: string
-    lastUsed: string
+    device?: string
+    browser?: string
+    createdAt?: string
+    lastUsed?: string | null
+    lastUsedAt?: string | null
   }
 }
 
 export default function EditPasskeyModal({
   open,
   onClose,
+  onSuccess,
   passkey = {
     id: '1',
     name: 'MacBook Pro - Chrome',
-    device: 'macOS 14.2',
-    browser: 'Chrome 120',
-    createdAt: 'Dec 15, 2023',
-    lastUsed: '2 hours ago',
+    device: 'macOS',
+    browser: 'Browser Passkey',
+    createdAt: 'Recent',
+    lastUsed: 'Recently',
   },
 }: EditPasskeyModalProps) {
-  const { t } = useTranslation()
-  const [name, setName] = useState(passkey.name)
+  const { t } = useTranslation('auth')
+  const [name, setName] = useState(passkey?.name || '')
   const [autoUse, setAutoUse] = useState(true)
   const [requireBiometric, setRequireBiometric] = useState(true)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const updateMutation = useUpdatePasskeyMutation()
+  const deleteMutation = useDeletePasskeyMutation()
+
+  // Keep name synced when passkey prop changes
+  React.useEffect(() => {
+    if (passkey?.name) {
+      setName(passkey.name)
+    }
+  }, [passkey?.name])
+
+  const handleSave = async () => {
+    if (!name.trim()) return
+    setError(null)
+    try {
+      await updateMutation.mutateAsync({ id: passkey.id, name: name.trim() })
+      onSuccess?.()
+      onClose()
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || 'Failed to update passkey name.')
+    }
+  }
+
+  const handleDelete = async () => {
+    setError(null)
+    try {
+      await deleteMutation.mutateAsync(passkey.id)
+      setShowDeleteConfirm(false)
+      onSuccess?.()
+      onClose()
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || 'Failed to delete passkey.')
+    }
+  }
 
   return (
     <>
       <Dialog
         open={open}
-        onClose={onClose}
+        onClose={updateMutation.isPending ? undefined : onClose}
         maxWidth='sm'
         fullWidth
         PaperProps={{ sx: { borderRadius: 3 } }}
@@ -83,24 +124,31 @@ export default function EditPasskeyModal({
           >
             <Edit sx={{ fontSize: 18, color: 'primary.main' }} />
           </Box>
-          {t('auth.passkey.edit_passkey', 'Edit Passkey')}
+          {t('passkey.edit_passkey', 'Edit Passkey')}
         </DialogTitle>
         <DialogContent>
+          {error && (
+            <Alert severity='error' sx={{ mb: 2, borderRadius: 2 }}>
+              {error}
+            </Alert>
+          )}
+
           {/* Name */}
           <Typography variant='subtitle2' fontWeight={600} sx={{ mb: 1, mt: 1 }}>
-            {t('auth.passkey.passkey_name', 'Passkey Name')}
+            {t('passkey.passkey_name', 'Passkey Name')}
           </Typography>
           <TextField
             fullWidth
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder='e.g., Work Laptop'
+            disabled={updateMutation.isPending}
             sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
           />
 
           {/* Device Info */}
           <Typography variant='subtitle2' fontWeight={600} sx={{ mb: 1 }}>
-            {t('auth.passkey.device_info', 'Device Information')}
+            {t('passkey.device_info', 'Device Information')}
           </Typography>
           <Box
             sx={{
@@ -117,36 +165,40 @@ export default function EditPasskeyModal({
             <Box sx={{ flex: 1 }}>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 0.5 }}>
                 <Chip
-                  label={passkey.device}
+                  label={passkey.device || 'Platform Device'}
                   size='small'
                   variant='outlined'
                   sx={{ borderRadius: 1, height: 22, fontSize: '0.7rem' }}
                 />
                 <Chip
-                  label={passkey.browser}
+                  label={passkey.browser || 'WebAuthn Authenticator'}
                   size='small'
                   variant='outlined'
                   sx={{ borderRadius: 1, height: 22, fontSize: '0.7rem' }}
                 />
               </Box>
               <Box sx={{ display: 'flex', gap: 2 }}>
-                <Typography
-                  variant='caption'
-                  color='text.disabled'
-                  sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}
-                >
-                  <Schedule sx={{ fontSize: 11 }} /> Created {passkey.createdAt}
-                </Typography>
-                <Typography variant='caption' color='text.disabled'>
-                  Last used {passkey.lastUsed}
-                </Typography>
+                {passkey.createdAt && (
+                  <Typography
+                    variant='caption'
+                    color='text.disabled'
+                    sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}
+                  >
+                    <Schedule sx={{ fontSize: 11 }} /> Created {new Date(passkey.createdAt).toLocaleDateString()}
+                  </Typography>
+                )}
+                {(passkey.lastUsed || passkey.lastUsedAt) && (
+                  <Typography variant='caption' color='text.disabled'>
+                    Last used {passkey.lastUsed || (passkey.lastUsedAt ? new Date(passkey.lastUsedAt).toLocaleDateString() : 'Never')}
+                  </Typography>
+                )}
               </Box>
             </Box>
           </Box>
 
           {/* Settings */}
           <Typography variant='subtitle2' fontWeight={600} sx={{ mb: 1 }}>
-            {t('auth.passkey.settings', 'Settings')}
+            {t('passkey.settings', 'Settings')}
           </Typography>
           <FormGroup>
             <FormControlLabel
@@ -186,7 +238,7 @@ export default function EditPasskeyModal({
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box>
               <Typography variant='subtitle2' fontWeight={600} color='error.main'>
-                {t('auth.passkey.remove_passkey', 'Remove Passkey')}
+                {t('passkey.remove_passkey', 'Remove Passkey')}
               </Typography>
               <Typography variant='caption' color='text.secondary'>
                 This action cannot be undone.
@@ -198,6 +250,7 @@ export default function EditPasskeyModal({
               size='small'
               startIcon={<Delete />}
               onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleteMutation.isPending}
               sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
             >
               {t('common.remove', 'Remove')}
@@ -205,15 +258,21 @@ export default function EditPasskeyModal({
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={onClose} sx={{ textTransform: 'none', fontWeight: 600 }}>
+          <Button
+            onClick={onClose}
+            disabled={updateMutation.isPending}
+            sx={{ textTransform: 'none', fontWeight: 600 }}
+          >
             {t('common.cancel', 'Cancel')}
           </Button>
           <Button
             variant='contained'
-            disabled={!name.trim()}
+            onClick={handleSave}
+            disabled={!name.trim() || updateMutation.isPending}
+            startIcon={updateMutation.isPending ? <CircularProgress size={16} color='inherit' /> : null}
             sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
           >
-            {t('common.save', 'Save Changes')}
+            {updateMutation.isPending ? t('common.saving', 'Saving...') : t('common.save', 'Save Changes')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -221,18 +280,18 @@ export default function EditPasskeyModal({
       {/* Delete Confirmation */}
       <Dialog
         open={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
+        onClose={deleteMutation.isPending ? undefined : () => setShowDeleteConfirm(false)}
         maxWidth='xs'
         fullWidth
         PaperProps={{ sx: { borderRadius: 3 } }}
       >
         <DialogTitle sx={{ fontWeight: 700 }}>
-          {t('auth.passkey.confirm_remove', 'Remove Passkey?')}
+          {t('passkey.confirm_remove', 'Remove Passkey?')}
         </DialogTitle>
         <DialogContent>
           <Typography variant='body2' color='text.secondary'>
             {t(
-              'auth.passkey.remove_warning',
+              'passkey.remove_warning',
               'This will permanently remove this passkey. You will need to create a new one to use passkey authentication from this device.',
             )}
           </Typography>
@@ -240,6 +299,7 @@ export default function EditPasskeyModal({
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button
             onClick={() => setShowDeleteConfirm(false)}
+            disabled={deleteMutation.isPending}
             sx={{ textTransform: 'none', fontWeight: 600 }}
           >
             {t('common.cancel', 'Cancel')}
@@ -247,9 +307,12 @@ export default function EditPasskeyModal({
           <Button
             color='error'
             variant='contained'
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+            startIcon={deleteMutation.isPending ? <CircularProgress size={16} color='inherit' /> : null}
             sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
           >
-            {t('auth.passkey.confirm_remove_btn', 'Yes, Remove')}
+            {deleteMutation.isPending ? t('common.removing', 'Removing...') : t('passkey.confirm_remove_btn', 'Yes, Remove')}
           </Button>
         </DialogActions>
       </Dialog>

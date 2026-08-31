@@ -14,9 +14,12 @@ import { useActionLock } from '../../../hooks/useActionLock'
 import authService from '../../../services/auth.service'
 import { resolveRedirectPathForUser } from '../../../utils/resolveRedirect'
 
+// Local-dev convenience only: prefill is opt-in via env vars and is compiled out
+// of production builds (`import.meta.env.DEV` is statically false there). No
+// credentials are hardcoded in source.
 const DEFAULT_FORM_VALUES: LoginRequest = {
-  email: import.meta.env.DEV ? 'admin@example.com' : '',
-  password: import.meta.env.DEV ? 'Password#123' : '',
+  email: import.meta.env.DEV ? (import.meta.env.VITE_DEV_LOGIN_EMAIL ?? '') : '',
+  password: import.meta.env.DEV ? (import.meta.env.VITE_DEV_LOGIN_PASSWORD ?? '') : '',
   rememberMe: false,
 }
 
@@ -114,7 +117,7 @@ export function useSignInFlow() {
           open: true,
           type: 'info',
           state: 'info',
-          msg: t('auth.login.mfa_required'),
+          msg: t('auth.login.mfa_required', 'Multi-factor authentication required'),
         })
         return
       }
@@ -123,14 +126,14 @@ export function useSignInFlow() {
         open: true,
         type: 'success',
         state: 'success',
-        msg: t('auth.login.login_successful'),
+        msg: t('auth.login.login_successful', 'Login successful!'),
       })
 
       const userData = response?.data?.user || response?.data
       const userRole = userData?.role as unknown as Roles | undefined
       const redirectPath = resolveRedirectPathForUser(userRole)
 
-      safeTimeout(() => navigate(redirectPath), 1500)
+      navigate(redirectPath, { replace: true })
     },
     onError: async (error: any) => {
       if (error.response?.status === 423) {
@@ -166,7 +169,7 @@ export function useSignInFlow() {
         msg:
           error.response?.data?.detail ||
           error.response?.data?.message ||
-          t('auth.login.login_failed'),
+          t('auth.login.login_failed', 'Login failed. Please check your credentials.'),
       })
     },
   })
@@ -177,18 +180,16 @@ export function useSignInFlow() {
         open: true,
         type: 'success',
         state: 'success',
-        msg: t('auth.mfa.verification_successful'),
+        msg: t('auth.mfa.verification_successful', 'Verification successful!'),
       })
       setMode('login')
       setMfaCode('')
       setPendingMfaUser(null)
-      safeTimeout(() => {
-        const userData = useAppStore.getState().user as any
-        const userRole = userData?.role || userData?.user?.role
+      const userData = useAppStore.getState().user as any
+      const userRole = userData?.role || userData?.user?.role
 
-        const redirectPath = resolveRedirectPathForUser(userRole)
-        navigate(redirectPath)
-      }, 1200)
+      const redirectPath = resolveRedirectPathForUser(userRole)
+      navigate(redirectPath, { replace: true })
     },
     onError: (error: any) => {
       setStatus({
@@ -198,7 +199,7 @@ export function useSignInFlow() {
         msg:
           error.response?.data?.detail ||
           error.response?.data?.message ||
-          t('auth.mfa.invalid_code'),
+          t('auth.mfa.invalid_code', 'Invalid verification code. Please try again.'),
       })
     },
   })
@@ -209,22 +210,20 @@ export function useSignInFlow() {
         open: true,
         type: 'success',
         state: 'success',
-        msg: t('auth.login.passkey_login_successful'),
+        msg: t('auth.login.passkey_login_successful', 'Passkey sign in successful!'),
       })
-      safeTimeout(() => {
-        const userData = useAppStore.getState().user as any
-        const userRole = (userData?.role || userData?.user?.role) as Roles
+      const userData = useAppStore.getState().user as any
+      const userRole = (userData?.role || userData?.user?.role) as Roles
 
-        const redirectPath = resolveRedirectPathForUser(userRole)
-        navigate(redirectPath)
-      }, 1500)
+      const redirectPath = resolveRedirectPathForUser(userRole)
+      navigate(redirectPath, { replace: true })
     },
     onError: (error: any) => {
       setStatus({
         open: true,
         type: 'error',
         state: 'error',
-        msg: error.response?.data?.message || t('auth.login.passkey_login_failed'),
+        msg: error.response?.data?.message || t('auth.login.passkey_login_failed', 'Passkey authentication failed'),
       })
     },
   })
@@ -236,16 +235,14 @@ export function useSignInFlow() {
       open: true,
       type: 'success',
       state: 'success',
-      msg: t('auth.login.passkey_login_successful'),
+      msg: t('auth.login.passkey_login_successful', 'Passkey sign in successful!'),
     })
-    safeTimeout(() => {
-      const userData = useAppStore.getState().user as any
-      const userRole = (userData?.role || userData?.user?.role) as Roles
+    const userData = useAppStore.getState().user as any
+    const userRole = (userData?.role || userData?.user?.role) as Roles
 
-      const redirectPath = resolveRedirectPathForUser(userRole)
-      navigate(redirectPath)
-    }, 1000)
-  }, [navigate, safeTimeout, t])
+    const redirectPath = resolveRedirectPathForUser(userRole)
+    navigate(redirectPath, { replace: true })
+  }, [navigate, t])
 
   const { isAvailable: isPasskeyAutofillAvailable } = usePasskeyAutofill(
     handlePasskeyAutofillSuccess,
@@ -265,7 +262,7 @@ export function useSignInFlow() {
           open: true,
           type: 'error',
           state: 'error',
-          msg: error.message || t('auth.login.login_failed'),
+          msg: error.message || t('auth.login.login_failed', 'Login failed. Please check your credentials.'),
         })
       }
     }
@@ -277,7 +274,7 @@ export function useSignInFlow() {
         open: true,
         type: 'error',
         state: 'error',
-        msg: t('auth.mfa.user_missing'),
+        msg: t('auth.mfa.user_missing', 'User session missing for MFA verification.'),
       })
       setMode('login')
       return
@@ -291,7 +288,7 @@ export function useSignInFlow() {
       open: true,
       type: 'info',
       state: 'info',
-      msg: t('auth.mfa.code_resent'),
+      msg: t('auth.mfa.code_resent', 'A new code has been sent to your email.'),
     })
   }, [t])
 
@@ -306,8 +303,8 @@ export function useSignInFlow() {
   }, [])
 
   const onSubmit = useCallback(
-    (data: LoginRequest) => {
-      executeWithLock(async () => {
+    async (data: LoginRequest) => {
+      await executeWithLock(async () => {
         if (ssoData && (ssoData.provider === 'saml' || ssoData.provider === 'oidc')) {
           if (ssoData.provider === 'saml' && ssoData.organizationId) {
             const organizationId = ssoData.organizationId
@@ -327,7 +324,11 @@ export function useSignInFlow() {
           return
         }
 
-        loginMutation.mutate({ data })
+        try {
+          await loginMutation.mutateAsync({ data })
+        } catch {
+          // Handled by mutation onError handler
+        }
       })
     },
     [executeWithLock, loginMutation, ssoData, safeTimeout],

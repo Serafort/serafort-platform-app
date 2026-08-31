@@ -8,6 +8,8 @@ import SecurityIcon from '@mui/icons-material/Security';
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
+import { LiquidGlassCard } from '@cap/theme'
+
 interface RegistrationSuccessProps {
   userName?: string
   redirectPath?: string
@@ -22,14 +24,16 @@ export default function RegistrationSuccess({ userName, redirectPath = '/dashboa
   const handleCompleteLater = useCallback(() => navigate('/profile/settings'), [navigate])
 
   return (
-    <Box
-      className="animate-scale-in"
-      component={motion.div}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-      sx={{ width: '100%', maxWidth: 460, mx: 'auto', p: { xs: 3, md: 5 }, textAlign: 'center' }}
-    >
+    <Box sx={{ width: '100%' }}>
+      <LiquidGlassCard blur="24px" opacity={0.85} padding="0px" borderRadius="24px">
+        <Box
+          className="animate-scale-in"
+          component={motion.div}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          sx={{ width: '100%', p: { xs: 3, sm: 4 }, textAlign: 'center' }}
+        >
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
         <Avatar
           variant="circular"
@@ -137,6 +141,8 @@ export default function RegistrationSuccess({ userName, redirectPath = '/dashboa
       <Typography variant="caption" sx={{ mt: 4, display: 'block', color: 'text.disabled', textAlign: 'center' }}>
         {t('success.footerNote', 'You can customize roles and tenant settings anytime.')}
       </Typography>
+        </Box>
+      </LiquidGlassCard>
     </Box>
   )
 }

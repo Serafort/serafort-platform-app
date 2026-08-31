@@ -13,6 +13,18 @@ const __dirname = path.dirname(__filename)
 // workspaceRoot = <boilerplate>          (packages/, node_modules/ live here)
 const workspaceRoot = path.resolve(__dirname, '..')
 
+// Security response headers applied to the Vite dev server and `vite preview`.
+// Production hosting must send the same set (see app/public/_headers).
+const securityHeaders: Record<string, string> = {
+  'Content-Security-Policy':
+    "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https: ws: wss:; worker-src 'self' blob:; frame-src 'self'",
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains',
+}
+
 let vitePWA: ((options?: any) => Plugin | Plugin[]) | null = null
 try {
   const require = createRequire(import.meta.url)
@@ -151,14 +163,18 @@ export default defineConfig({
       '@cap/module-mfa',
     ],
   },
+  preview: {
+    headers: securityHeaders,
+  },
   server: {
+    headers: securityHeaders,
     // Use the custom domain as the bind host so Vite binds to gldeveloper.test
     // (which resolves to 127.0.0.1 via /etc/hosts). The mkcert plugin also
     // auto-adds a string `server.host` to the cert SANs (boolean `true` is ignored).
-    host: true, 
+    host: true,
     port: 443,
     strictPort: true,
-    allowedHosts: ['192.168.137.1', 'gldevelopertest'],
+    allowedHosts: ['192.168.137.1', 'gldeveloper.test'],
     proxy: {
       '/api': {
         target: 'http://localhost:3333',

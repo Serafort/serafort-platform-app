@@ -4,7 +4,14 @@ interface ImportMetaEnv {
   readonly VITE_API_URL: string
   readonly VITE_API_TIMEOUT?: string
   readonly VITE_APP_NAME?: string
-  // more env variables...
+  readonly VITE_STORAGE_ENCRYPTION_KEY?: string
+  readonly VITE_STORAGE_KEY?: string
+  /** Local-dev sign-in form prefill only (never used in production builds). */
+  readonly VITE_DEV_LOGIN_EMAIL?: string
+  /** Local-dev sign-in form prefill only (never used in production builds). */
+  readonly VITE_DEV_LOGIN_PASSWORD?: string
+  // Any other VITE_* value (kept loose so build-time config reads stay type-safe).
+  readonly [key: `VITE_${string}`]: string | undefined
 }
 
 interface ImportMeta {

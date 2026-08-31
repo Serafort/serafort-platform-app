@@ -104,7 +104,19 @@ export * from './modules/authentication-core/utils/schema'
 export * from './modules/authentication-core'
 
 // Sub-module selective exports to avoid collisions
-export * from './modules/session-manager'
+export {
+  ActiveSessions,
+  ActiveSessionsManagement,
+  UserActivityTimeline,
+  AccountOverview,
+  ChangePassword,
+  DesactivateAccount,
+  sessionService,
+  SESSION_QUERY_KEYS,
+  useChangePasswordMutation,
+  useDeactivateAccountMutation,
+  normalizeUserSession,
+} from './modules/session-manager'
 export {
   useWebhooks,
   useWebhook,
@@ -116,7 +128,31 @@ export {
   useRoleStats,
   useRolePermissions,
   useRole,
+  useCreateRole,
   useUpdateRole,
+  useDeleteRole,
+  useDuplicateRole,
+  useSyncRolePermissions,
+  useSyncRoleParents,
+  usePermissions,
+  useCreatePermission,
+  useUpdatePermission,
+  useDeletePermission,
+  useGrantPermission,
+  useRevokePermission,
+  useAccessPolicies,
+  useSaveAccessPolicies,
+  useSimulatePolicy,
+  useCompilePolicy,
+  useDecompilePolicy,
+  useDefaultPolicySet,
+  useEvaluatePolicy,
+  useMemberOverrides,
+  useAddMemberOverride,
+  useRemoveMemberOverride,
+  useDeveloperApiKeys,
+  useCreateDeveloperApiKey,
+  useRevokeDeveloperApiKey,
   useClientBranding,
   useUpdateClientBranding,
   useUpdateUserStatus,
@@ -139,15 +175,75 @@ export {
   useCheckDomain,
   RoleIndicator,
   AdminRoute,
-  adminService
+  adminService,
+  authorizationService,
+  authorizationEngineRouteConfig,
 } from './modules/authorization-engine'
 export type { CreateJWKSKeyRequest, DeveloperApiKey } from './modules/authorization-engine'
 
 // Re-export types from domain-kernel for cross-package use
 export type { SAMLConfig, JWKSKey, JWKSKeyDetail, SSFConfig } from './domain-kernel/src/types'
 export { AuthRoute, GuestRoute } from './modules/authentication-core'
+
+// Platform Cluster Exports
+export {
+  AdminOverviewDashboard,
+  AuthEventsMonitor,
+  RealTimeAuthEventsMonitor,
+  RealTimeAuthEventsMonitorV2,
+  SystemHealthDashboard,
+  SecurityHealthCheck,
+  MFAUsageAnalytics,
+  EmailTestingDashboard,
+  EmailTemplatePreview,
+  ExportAuditTrail,
+  ApplicationDashboard,
+  ApplicationDetailView,
+  APIExplorerDashboard,
+  ScopesRegistry,
+  WebhookManagement,
+  ModuleManagementDashboard,
+  CsrfErrorScreen,
+  MaintenanceScreen,
+  Page401Unauthorized,
+  Page403Forbidden,
+  Page429TooManyRequests,
+  BrowserNotSupported,
+  adminMonitoringService,
+  developerService,
+  useAdminOverviewQuery,
+  useAdminSessionStatsQuery,
+  useAdminTrendsQuery,
+  useAdminMfaStatsQuery,
+  useAdminAuditLogsQuery,
+  useAdminAlertsQuery,
+  useAcknowledgeAlertMutation,
+  useResolveAlertMutation,
+  useEmailTemplatesQuery,
+  useEmailTemplateByIdQuery,
+  useEmailTemplatePreviewMutation,
+  useSendTestEmailMutation,
+  useExportAuditTrailMutation,
+  useClientsQuery,
+  useClientDetailQuery,
+  useCreateClientMutation,
+  useUpdateClientMutation,
+  useDeleteClientMutation,
+  useRotateClientSecretMutation,
+  useScopesQuery,
+  useCreateScopeMutation,
+  useUpdateScopeMutation,
+  useDeleteScopeMutation,
+  useWebhooksQuery,
+  useWebhookDetailQuery,
+  useCreateWebhookMutation,
+  useUpdateWebhookMutation,
+  useDeleteWebhookMutation,
+  useTestWebhookMutation,
+  useAuthEventsStream,
+} from './modules/platform-cluster'
 export * from './modules/mfa-orchestrator'
-export * from './modules/identity-broker'
+export * from './modules/identity-broker/screens'
 export * from './modules/passwordless-service'
 export * from './modules/developer-console'
 export { apiExplorerService } from './modules/platform-cluster'
@@ -178,15 +274,13 @@ export {
 
 export { useSessionGuard } from './modules/session-manager/middlewares/useSessionGuard'
 
-// Note: Admin screens moved to @cap/module-admin and are now exported from there to avoid circular dependencies.
-
 export { idaasFacade } from './idaas-facade/src'
 export type { IIdaasFacade } from './idaas-facade/src'
 
 export const AuthModule: CAPModule = {
   id: 'auth-module',
   version: '1.0.0',
-  routes: authRouteConfig as any,
+  routes: authRouteConfig,
   i18n: { en, ar, fr },
   plugins: [],
   navItems: [

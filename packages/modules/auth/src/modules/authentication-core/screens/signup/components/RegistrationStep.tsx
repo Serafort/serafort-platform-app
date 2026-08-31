@@ -76,6 +76,17 @@ const socialButtonSx = {
   color: 'text.primary',
   borderColor: 'divider',
   bgcolor: 'background.paper',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  transition: 'all 0.2s ease-in-out',
+  '& .MuiButton-startIcon': {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    m: 0,
+    mr: 1,
+  },
   '&:hover': {
     bgcolor: (theme: any) => alpha(theme.palette.action.hover, 0.04),
     borderColor: 'divider',

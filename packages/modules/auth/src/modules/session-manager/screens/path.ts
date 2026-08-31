@@ -1,7 +1,7 @@
 const Path = {
   overview: '/auth/account',
   activeSessions: '/auth/account/active-sessions',
-  changePassword: '/auth/account/change-password',
+  changePassword: '/auth/account/password/change',
   activityTimeline: '/auth/account/activity-timeline',
 
 }

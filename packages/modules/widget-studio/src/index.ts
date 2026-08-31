@@ -29,14 +29,18 @@ export { default as AgentPipelineTracker } from './components/AgentPipelineTrack
 export { default as DslPreviewCard } from './components/DslPreviewCard'
 export { default as PromptInput } from './components/PromptInput'
 
-// Agent layer exports
-export { runAgentPipeline, publishDraft } from './agents/AgentOrchestrator'
+// Agent layer & sanitization exports
+export { runAgentPipeline, publishDraft, cancelPipelineRun } from './agents/AgentOrchestrator'
 export { validateWidgetDsl } from './agents/ValidationAgent'
-export { sanitizePrompt, extractJson } from './agents/sanitizer'
+export { sanitizePrompt, extractJson, sanitizeWidgetDsl } from './agents/sanitizer'
 export { openRouterProvider } from './agents/OpenRouterProvider'
 export { getAIProvider } from './agents/ProviderFactory'
 export type { AIProvider, AIGenerateOptions, AIGenerateResult } from './agents/AIProvider.interface'
 export { APPROVED_WIDGETS } from './agents/ComponentAgent'
+
+// React Query Hooks & API Client
+export * from './hooks/useWidgetStudioQuery'
+export * from './services/widgetAgentClient'
 
 // i18n
 export { widgetStudioDictionaries, getMergedDictionary, i18n } from './i18n/registry'

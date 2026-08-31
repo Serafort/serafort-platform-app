@@ -110,6 +110,9 @@ export function useStepUpAuth() {
 
   const handleVerificationSuccess = useCallback(
     async (result: StepUpVerificationResult) => {
+      if (!result?.success || !result.elevationToken) {
+        throw new Error('Step-up verification was not accepted.')
+      }
       storeElevation(result)
       setIsVerifying(false)
       setIsPromptOpen(false)
@@ -134,26 +137,26 @@ export function useStepUpAuth() {
 
     try {
       const challengeRes = await mfaService.stepUp.getChallenge(actionMetadata?.actionName)
-      let assertionResult: any = { id: 'simulated-biometric-assertion' }
-
-      if (window.PublicKeyCredential && challengeRes.data) {
-        try {
-          assertionResult = await startAuthentication({ optionsJSON: challengeRes.data as any })
-        } catch (authErr: any) {
-          // If browser prompt is cancelled or in dev/mock environment, handle appropriately
-          if (authErr.name === 'NotAllowedError') {
-            throw new Error('Biometric verification cancelled by user.')
-          }
-          // In mock/test environments without hardware authenticators, fall back seamlessly
-          assertionResult = { id: 'mock-webauthn-assertion', response: { clientDataJSON: '' } }
-        }
+      if (!challengeRes.data) {
+        throw new Error('Failed to obtain biometric authentication challenge.')
       }
+
+      const assertionResult = await startAuthentication({
+        optionsJSON: challengeRes.data as any,
+      })
 
       const verifyRes = await mfaService.stepUp.verifyBiometric(assertionResult)
       await handleVerificationSuccess(verifyRes.data)
       return verifyRes.data
     } catch (err: any) {
-      setError(err.message || 'Biometric authentication failed. Please try again or use TOTP.')
+      if (err.name === 'NotAllowedError') {
+        const cancelMsg = 'Biometric verification was cancelled or timed out.'
+        setError(cancelMsg)
+        setIsVerifying(false)
+        throw new Error(cancelMsg)
+      }
+      const msg = err.response?.data?.message || err.message || 'Biometric authentication failed.'
+      setError(msg)
       setIsVerifying(false)
       throw err
     }
@@ -161,7 +164,7 @@ export function useStepUpAuth() {
 
   const verifyTotp = useCallback(
     async (code: string) => {
-      if (!code || code.length < 6) {
+      if (!code || code.trim().length !== 6) {
         setError('Please enter a valid 6-digit authentication code.')
         return
       }
@@ -170,11 +173,12 @@ export function useStepUpAuth() {
       setError(null)
 
       try {
-        const verifyRes = await mfaService.stepUp.verifyTotp(code)
+        const verifyRes = await mfaService.stepUp.verifyTotp(code.trim())
         await handleVerificationSuccess(verifyRes.data)
         return verifyRes.data
       } catch (err: any) {
-        setError(err.message || 'Invalid verification code. Please check and try again.')
+        const msg = err.response?.data?.message || err.message || 'Invalid verification code.'
+        setError(msg)
         setIsVerifying(false)
         throw err
       }

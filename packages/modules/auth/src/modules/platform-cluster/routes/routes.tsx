@@ -1,6 +1,7 @@
 import React from 'react'
 import { AuthRouteConfig } from '@cap/platform-core'
 import Path from './../screens/path'
+import { createAdminRoute } from '../../../routes/routeHelpers'
 // --- Developer screens ---
 const APIExplorerDashboard = React.lazy(() => import('../screens/developer/APIExplorerDashboard'))
 const ApplicationDashboard = React.lazy(() => import('../screens/developer/ApplicationDashboard'))
@@ -34,67 +35,27 @@ const Page429TooManyRequests = React.lazy(() => import('../screens/system/Page42
 
 
 export const platformClusterRouteConfig: AuthRouteConfig[] = [
-  // --- Developer routes ---
-  {
-    path: Path.developer.dashboard, element: <APIExplorerDashboard />,
-    layout: 'admin',
-  },
-  {
-    path: Path.developer.application, element: <ApplicationDashboard />,
-    layout: 'admin',
-  },
-  {
-    path: Path.developer.application_detail_view, element: <ApplicationDetailView />,
-    layout: 'admin',
-  },
-  {
-    path: Path.developer.module_management, element: <ModuleManagementDashboard />,
-    layout: 'admin',
-  },
-  {
-    path: Path.developer.scopes_registry, element: <ScopesRegistry />,
-    layout: 'admin',
-  },
-  {
-    path: Path.developer.webhooks, element: <WebhookManagement />,
-    layout: 'admin',
-  },
-  // --- Montoring routes ---
+  // --- Developer routes (admin-gated: session + admin policy + minimum role) ---
+  createAdminRoute(Path.developer.dashboard, <APIExplorerDashboard />),
+  createAdminRoute(Path.developer.application, <ApplicationDashboard />),
+  createAdminRoute(Path.developer.application_detail_view, <ApplicationDetailView />),
+  createAdminRoute(Path.developer.module_management, <ModuleManagementDashboard />),
+  createAdminRoute(Path.developer.scopes_registry, <ScopesRegistry />),
+  createAdminRoute(Path.developer.webhooks, <WebhookManagement />),
 
-  {
-    path: Path.monitor.dashboard, element: <AdminOverviewDashboard />,
-    layout: 'admin',
-  },
-  {
-    path: Path.monitor.events, element: <AuthEventsMonitor />,
-    layout: 'admin',
-  }, {
-    path: Path.monitor.emailTemplatePreview, element: <EmailTemplatePreview />,
-    layout: 'admin',
-  }, {
-    path: Path.monitor.emailTesting, element: <EmailTestingDashboard />,
-    layout: 'admin',
-  }, {
-    path: Path.monitor.exportAudit, element: <ExportAuditTrail />,
-    layout: 'admin',
-  }, {
-    path: Path.monitor.mfa_analytics, element: <MFAUsageAnalytics />,
-    layout: 'admin',
-  }, {
-    path: Path.monitor.real_time, element: <RealTimeAuthEventsMonitor />,
-    layout: 'admin',
-  }, {
-    path: Path.monitor.real_time_v2, element: <RealTimeAuthEventsMonitorV2 />,
-    layout: 'admin',
-  }, {
-    path: Path.monitor.health, element: <SecurityHealthCheck />,
-    layout: 'admin',
-  }, {
-    path: Path.monitor.security_health, element: <SystemHealthDashboard />,
-    layout: 'admin',
-  },
+  // --- Monitoring routes (admin-gated) ---
+  createAdminRoute(Path.monitor.dashboard, <AdminOverviewDashboard />),
+  createAdminRoute(Path.monitor.events, <AuthEventsMonitor />),
+  createAdminRoute(Path.monitor.emailTemplatePreview, <EmailTemplatePreview />),
+  createAdminRoute(Path.monitor.emailTesting, <EmailTestingDashboard />),
+  createAdminRoute(Path.monitor.exportAudit, <ExportAuditTrail />),
+  createAdminRoute(Path.monitor.mfa_analytics, <MFAUsageAnalytics />),
+  createAdminRoute(Path.monitor.real_time, <RealTimeAuthEventsMonitor />),
+  createAdminRoute(Path.monitor.real_time_v2, <RealTimeAuthEventsMonitorV2 />),
+  createAdminRoute(Path.monitor.health, <SecurityHealthCheck />),
+  createAdminRoute(Path.monitor.security_health, <SystemHealthDashboard />),
 
-  // --- System routes ---
+  // --- System routes (public by design: pre-auth error / status screens) ---
   { path: Path.system.browserNotSupported, element: <BrowserNotSupported />, layout: 'noLayout' },
   { path: Path.system.csrfError, element: <CsrfErrorScreen />, layout: 'noLayout' },
   { path: Path.system.unauthorized401, element: <Page401Unauthorized />, layout: 'noLayout' },

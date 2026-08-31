@@ -54,7 +54,7 @@ export default function SignUp() {
         content={t('auth.signup.keywords', 'signup, register, create account, saas', { appName })}
       />
 
-      <AuthPageLayout>
+      <AuthPageLayout maxWidth={480}>
         {/* Background Gradient Decoration */}
         <Box
           sx={{
@@ -82,7 +82,7 @@ export default function SignUp() {
           </MAlert>
         </Snackbar>
 
-        <Box sx={{ width: '100%', maxWidth: '480px', mx: 'auto' }}>
+        <Box sx={{ width: '100%' }}>
           {mode === 'locked' ? (
             <LiquidGlassCard blur="24px" opacity={0.82} padding="0px" borderRadius="24px">
               <LockedStep

@@ -1,4 +1,4 @@
-import { Box, Snackbar, Backdrop, CircularProgress, alpha } from '@mui/material'
+import { Box, Snackbar, alpha } from '@mui/material'
 import { Alert as MAlert, themeConfig, useTenant } from '@cap/platform-core'
 import { LiquidGlassCard } from '@cap/theme'
 import { AuthPageLayout } from '../../components/shared/auth'
@@ -51,14 +51,14 @@ export default function SignInV2() {
   return (
     <>
       <title>
-        {t('auth.login.title_page')} - {appName}
+        {t('auth.login.title_page', 'Sign In')} - {appName}
       </title>
       <meta
         name='keywords'
-        content={t('auth.login.keywords', { appName })}
+        content={t('auth.login.keywords', { appName, defaultValue: `login, sign in, ${appName}` })}
       />
 
-      <AuthPageLayout>
+      <AuthPageLayout maxWidth={480}>
         {/* Background Gradient Decoration */}
         <Box
           sx={{
@@ -71,7 +71,7 @@ export default function SignInV2() {
             opacity: 1,
             pointerEvents: 'none',
             background: (theme) =>
-              `radial-gradient(circle at 10% 20%, ${alpha(theme.palette.primary.main, 0.4)} 0%, transparent 40%), radial-gradient(circle at 90% 80%, ${alpha(theme.palette.secondary.main || theme.palette.primary.light, 0.4)} 0%, transparent 40%), radial-gradient(circle at 50% 50%, ${alpha(theme.palette.primary.dark, 0.2)} 0%, transparent 60%)`,
+              `radial-gradient(circle at 10% 20%, ${alpha(theme.palette.primary.main, 0.35)} 0%, transparent 40%), radial-gradient(circle at 90% 80%, ${alpha(theme.palette.secondary.main || theme.palette.primary.light, 0.35)} 0%, transparent 40%), radial-gradient(circle at 50% 50%, ${alpha(theme.palette.primary.dark, 0.15)} 0%, transparent 60%)`,
           }}
         />
 
@@ -86,9 +86,9 @@ export default function SignInV2() {
           </MAlert>
         </Snackbar>
 
-        <Box sx={{ width: '100%', maxWidth: '480px', mx: 'auto' }}>
+        <Box sx={{ width: '100%' }}>
           {isLockedMode ? (
-            <LiquidGlassCard blur="24px" opacity={0.82} padding="0px" borderRadius="24px">
+            <LiquidGlassCard blur="24px" opacity={0.85} padding="0px" borderRadius="24px">
               <LockedStep
                 timeLeft={timeLeft}
                 countdownDisplay={countdownDisplay}
@@ -96,7 +96,7 @@ export default function SignInV2() {
               />
             </LiquidGlassCard>
           ) : isMfaMode ? (
-            <LiquidGlassCard blur="24px" opacity={0.82} padding="0px" borderRadius="24px">
+            <LiquidGlassCard blur="24px" opacity={0.85} padding="0px" borderRadius="24px">
               <MfaStep
                 t={t}
                 pendingMfaUser={pendingMfaUser}
@@ -113,7 +113,7 @@ export default function SignInV2() {
               />
             </LiquidGlassCard>
           ) : (
-            <LiquidGlassCard blur="24px" opacity={0.82} padding="0px" borderRadius="24px">
+            <LiquidGlassCard blur="24px" opacity={0.85} padding="0px" borderRadius="24px">
               <CredentialsStep
                 t={t}
                 control={control}

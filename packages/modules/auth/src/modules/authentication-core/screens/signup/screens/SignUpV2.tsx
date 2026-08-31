@@ -162,7 +162,7 @@ export default function SignUpV2() {
         })}
       />
 
-      <AuthPageLayout>
+      <AuthPageLayout maxWidth={480}>
         <Box
           sx={{
             position: 'fixed',
@@ -177,7 +177,7 @@ export default function SignUpV2() {
           }}
         />
 
-        <Box sx={{ width: '100%', maxWidth: '480px', mx: 'auto' }}>
+        <Box sx={{ width: '100%' }}>
           <LiquidGlassCard blur="24px" opacity={0.82} padding="0px" borderRadius="24px">
             <Box sx={{ p: { xs: 3, sm: 4 } }}>
               <Box sx={{ mb: 4, textAlign: 'center' }}>

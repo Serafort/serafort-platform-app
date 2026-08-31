@@ -1,4 +1,88 @@
 {
+  "auth": {
+    "login": {
+      "already_authenticated": "You are already signed in",
+      "button_login": "Sign In",
+      "button_signing_in": "Signing In...",
+      "change_password": "Change Password",
+      "email_label": "Email address",
+      "email_mask_example": "us**@example.com",
+      "email_placeholder": "Enter your email address",
+      "email_placeholder_v2": "name@company.com",
+      "email_required": "Email is required",
+      "forgot_password": "Forgot password?",
+      "github": "GitHub",
+      "google": "Google",
+      "invalid_email": "Invalid email address",
+      "invalid_response": "Invalid server response. Please try again.",
+      "keywords": "login, sign in, authentication, {{appName}}",
+      "login_button": "Sign In",
+      "login_failed": "Login failed. Please check your credentials.",
+      "login_successful": "Login successful!",
+      "meta_desc": "Sign in to your account",
+      "mfa_required": "Multi-factor authentication required",
+      "new_password": "New Password",
+      "no_account": "Don't have an account? Sign up",
+      "no_account_prompt": "Don't have an account?",
+      "or_continue_with": "OR CONTINUE WITH",
+      "passkey_login_failed": "Passkey authentication failed",
+      "passkey_login_successful": "Passkey sign in successful!",
+      "password_complexity": "Password must contain uppercase, lowercase, number and special character",
+      "password_label": "Password",
+      "password_length": "Password must be at least 8 characters",
+      "remember_me": "Remember me",
+      "sign_in_apple": "Sign in with Apple",
+      "sign_in_facebook": "Sign in with Facebook",
+      "sign_in_github": "Sign in with GitHub",
+      "sign_in_google": "Sign in with Google",
+      "sign_in_passkey": "Sign in with Passkey",
+      "sign_up_link": "Sign up",
+      "signin_prompt": "Please enter your credentials to sign in",
+      "subtitle": "Please enter your details to sign in",
+      "subtitle_v2": "Please enter your details to sign in",
+      "title_page": "Sign In",
+      "title_welcome": "Welcome back",
+      "toggle_password": "toggle password visibility",
+      "welcome_back": "Welcome back",
+      "welcome_user": "Welcome to {{templateName}}! 👋🏻"
+    },
+    "passkey": {
+      "sign_in_with_passkey": "Sign in with Passkey",
+      "authenticating": "Authenticating...",
+      "register_passkey": "Register Passkey",
+      "passkey_error": "Passkey error occurred"
+    },
+    "mfa": {
+      "verification_successful": "Verification successful!",
+      "invalid_code": "Invalid verification code. Please try again.",
+      "user_missing": "User session missing for MFA verification.",
+      "code_resent": "A new code has been sent to your email.",
+      "enter_code": "Enter verification code",
+      "resend_code": "Resend code",
+      "title": "Two-Factor Verification",
+      "subtitle": "Enter the 6-digit code sent to your device"
+    },
+    "twoFactor": {
+      "title": "Two-Factor Authentication",
+      "subtitle": "Please enter the 6-digit authentication code sent to",
+      "expiresIn": "Expires in",
+      "verifying": "Verifying...",
+      "verifyButton": "Verify & Continue",
+      "noEmail": "Didn't receive a code?",
+      "resendCode": "Resend code",
+      "backToLogin": "Back to sign in"
+    },
+    "lockout": {
+      "message": "Account temporarily locked. Try again in {{minutes}} minutes.",
+      "countdown": "Countdown"
+    },
+    "common": {
+      "passwordPlaceholder": "••••••••",
+      "loading": "Loading...",
+      "backToLogin": "Back to sign in",
+      "submit": "Submit"
+    }
+  },
   "signIn": {
     "title": "Welcome back",
     "subtitle": "Please enter your details to sign in",

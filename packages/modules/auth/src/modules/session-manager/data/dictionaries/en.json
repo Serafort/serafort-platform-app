@@ -70,7 +70,40 @@
         "unknown_location": "Unknown Location",
         "failed": "Failed",
         "success": "Success"
-      }
+      },
+      "change_password": "Change Password",
+      "change_password_desc": "Update your account password to maintain maximum security across your sessions.",
+      "current_password": "Current Password",
+      "current_password_placeholder": "Enter your current password",
+      "new_password_label": "New Password",
+      "new_password_placeholder": "Create a strong new password",
+      "confirm_password_label": "Confirm New Password",
+      "confirm_password_placeholder": "Re-enter your new password",
+      "update_password": "Update Password",
+      "back_to_security": "Back to Security & Account",
+      "cancel": "Cancel",
+      "password_updated": "Password Updated",
+      "password_updated_desc": "Your password has been changed successfully."
+    },
+    "set_new_password": {
+      "title_page": "Change Password",
+      "password_placeholder": "Create a strong new password",
+      "confirm_password_label": "Confirm New Password",
+      "confirm_password_placeholder": "Re-enter your new password",
+      "char_limit": "At least 8 characters",
+      "uppercase": "At least one uppercase letter (A-Z)",
+      "lowercase": "At least one lowercase letter (a-z)",
+      "number": "At least one number or special character",
+      "passwords_match": "Passwords match"
+    },
+    "register": {
+      "password_requirements": "Password Requirements",
+      "password_strength": "Password Strength:",
+      "strength_weak": "Weak",
+      "strength_fair": "Fair",
+      "strength_good": "Good",
+      "strength_strong": "Strong",
+      "passwords_must_match": "Passwords do not match"
     },
     "active_sessions": {
       "title": "Active Sessions",
@@ -81,6 +114,13 @@
       "last_active": "Last active: {{date}}",
       "success_end_all": "All other sessions have been terminated",
       "success_end_session": "Session terminated successfully"
+    },
+    "common": {
+      "processing": "Processing...",
+      "appName": "Nexus IDaaS",
+      "allRightsReserved": "All rights reserved.",
+      "error": "Error",
+      "something_went_wrong": "Something went wrong"
     }
   }
 }

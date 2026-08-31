@@ -510,9 +510,6 @@ export class FetchClient {
     endpoint: string,
     config: FetchRequestConfig = {},
   ): Promise<FetchResponse<T>> {
-    if (import.meta.env.DEV) {
-      console.log('FetchClient request', endpoint, config)
-    }
     for (const handler of beforeRequestHandlers) {
       handler(endpoint, config)
     }
@@ -621,14 +618,8 @@ export class FetchClient {
     }
 
     try {
-      if (import.meta.env.DEV) {
-        console.log('FetchClient fetch', url, fetchConfig)
-      }
       const response = await fetch(url, fetchConfig)
       clearTimeout(id)
-      if (import.meta.env.DEV) {
-        console.log('response', response)
-      }
 
       const responseData = await this.parseResponse(response, config.responseType)
 
@@ -758,9 +749,6 @@ export class FetchClient {
   }
 
   post<T = unknown>(url: string, data?: unknown, config?: FetchRequestConfig) {
-    if (import.meta.env.DEV) {
-      console.log('ApiClient post', url, data, config)
-    }
     return this.request<T>(url, { ...config, method: 'POST', data })
   }
 
@@ -828,9 +816,6 @@ export class ApiClient {
     data?: unknown,
     config?: FetchRequestConfig,
   ): Promise<FetchResponse<T>> {
-    if (import.meta.env.DEV) {
-      console.log('ApiClient post', url, data, config)
-    }
     return this.instance.post<T>(url, data, config)
   }
 

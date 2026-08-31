@@ -27,7 +27,7 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
   label,
   children,
   endIcon = <ArrowForward />,
-  lockDurationMs = 120,
+  lockDurationMs = 150,
   ...props
 }) => {
   const theme = useTheme()
@@ -43,12 +43,16 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
   }
 
   const [lockedClick, isInternalLocked] = useActionLock(handleAction, { lockDurationMs })
-  // When no handler is provided (e.g. type="submit" inside a form),
-  // skip the lock wrapper so native form submission propagates.
   const resolvedOnClick = hasHandler ? lockedClick : undefined
   const isDisabled = disabled || isBusyLoading || externalLocked || (hasHandler && isInternalLocked)
 
-  const buttonColor = props.color === 'error' ? theme.palette.error.main : theme.palette.info.main
+  const isError = props.color === 'error'
+  const isSuccess = props.color === 'success'
+  const baseColor = isError
+    ? theme.palette.error.main
+    : isSuccess
+      ? theme.palette.success.main
+      : theme.palette.primary.main
 
   return (
     <Button
@@ -57,20 +61,41 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
       size="large"
       disabled={isDisabled}
       onClick={resolvedOnClick}
-      endIcon={isBusyLoading ? <CircularProgress size={20} color="inherit" /> : endIcon}
+      endIcon={
+        isBusyLoading ? (
+          <CircularProgress size={18} thickness={5} color="inherit" sx={{ display: 'inline-flex' }} />
+        ) : (
+          endIcon
+        )
+      }
       {...props}
       sx={{
-        py: 1.5,
-        borderRadius: 3,
-        fontWeight: 800,
-        fontSize: '1rem',
+        height: 48,
+        borderRadius: '12px',
+        fontWeight: 700,
+        fontSize: '0.9375rem',
         textTransform: 'none',
-        bgcolor: props.color === 'error' ? 'error.main' : 'info.main',
-        boxShadow: `0 10px 20px ${alpha(buttonColor, 0.2)}`,
+        bgcolor: baseColor,
+        color: theme.palette.getContrastText(baseColor),
+        boxShadow: `0 8px 16px ${alpha(baseColor, 0.24)}`,
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          bgcolor: props.color === 'error' ? 'error.dark' : 'info.dark',
-          transform: 'translateY(-1px)',
-          boxShadow: `0 12px 24px ${alpha(buttonColor, 0.3)}`,
+          bgcolor: isError
+            ? theme.palette.error.dark
+            : isSuccess
+              ? theme.palette.success.dark
+              : theme.palette.primary.dark,
+          transform: isDisabled ? 'none' : 'translateY(-1px)',
+          boxShadow: `0 10px 20px ${alpha(baseColor, 0.32)}`,
+        },
+        '&:active': {
+          transform: isDisabled ? 'none' : 'translateY(0)',
+        },
+        '&.Mui-disabled': {
+          bgcolor: alpha(baseColor, 0.6),
+          color: alpha(theme.palette.getContrastText(baseColor), 0.8),
+          boxShadow: 'none',
+          cursor: 'not-allowed',
         },
         ...props.sx,
       }}
@@ -81,3 +106,4 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
 }
 
 export default AuthActionButton
+

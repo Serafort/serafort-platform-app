@@ -1,0 +1,161 @@
+// @vitest-environment jsdom
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import {
+  PermissionCheckerService,
+  RoleService,
+  PermissionService,
+  type UserPermissionsContext,
+} from './authorization.service'
+import { RbacSubscriber } from './rbac.subscriber'
+import { eventBus } from '../../../../domain-kernel/src/events/event-bus'
+import {
+  AuthEventTypes,
+  SessionEventTypes,
+  TokenEventTypes,
+} from '../../../../domain-kernel/src/events/auth-events'
+
+describe('PermissionCheckerService - Multi-Tenant Security Boundaries', () => {
+  it('fails closed when request is empty or invalid', async () => {
+    const checker = new PermissionCheckerService(() => ({
+      userId: 1,
+      tenantId: 'tenant-1',
+      isAuthenticated: true,
+    }))
+
+    const result1 = await checker.checkPermission(null as any)
+    expect(result1.allowed).toBe(false)
+
+    const result2 = await checker.checkPermission({} as any)
+    expect(result2.allowed).toBe(false)
+  })
+
+  it('fails closed when user context is unauthenticated or missing', async () => {
+    const checker = new PermissionCheckerService(() => null)
+    const result = await checker.checkPermission({ permission: 'users.read' })
+    expect(result.allowed).toBe(false)
+    expect(result.reason).toContain('not authenticated')
+  })
+
+  it('enforces strict tenant boundary isolation and denies cross-tenant access for tenant admins', async () => {
+    const tenantAdminContext: UserPermissionsContext = {
+      userId: 10,
+      tenantId: 'tenant-alpha',
+      organizationId: 'tenant-alpha',
+      role: 'tenant_admin',
+      permissions: ['*'],
+      isAuthenticated: true,
+    }
+
+    const checker = new PermissionCheckerService(() => tenantAdminContext)
+
+    // Allowed within active tenant
+    const sameTenantResult = await checker.checkPermission({
+      permission: 'billing.view',
+      targetTenantId: 'tenant-alpha',
+    })
+    expect(sameTenantResult.allowed).toBe(true)
+
+    // Strictly denied for foreign tenant
+    const crossTenantResult = await checker.checkPermission({
+      permission: 'billing.view',
+      targetTenantId: 'tenant-bravo',
+    })
+    expect(crossTenantResult.allowed).toBe(false)
+    expect(crossTenantResult.reason).toBe('CROSS_TENANT_ACCESS_DENIED')
+  })
+
+  it('allows global cross-tenant access for platform super-admin', async () => {
+    const superAdminContext: UserPermissionsContext = {
+      userId: 1,
+      tenantId: 'system',
+      organizationId: 'system',
+      role: 'super-admin',
+      isAuthenticated: true,
+    }
+
+    const checker = new PermissionCheckerService(() => superAdminContext)
+    const result = await checker.checkPermission({
+      permission: 'system.settings',
+      targetTenantId: 'any-foreign-tenant',
+    })
+
+    expect(result.allowed).toBe(true)
+  })
+
+  it('evaluates wildcard and resource:action permissions accurately within tenant scope', async () => {
+    const userContext: UserPermissionsContext = {
+      userId: 42,
+      tenantId: 'tenant-100',
+      organizationId: 'tenant-100',
+      role: 'member',
+      permissions: ['documents:read', 'reports:*'],
+      isAuthenticated: true,
+    }
+
+    const checker = new PermissionCheckerService(() => userContext)
+
+    // Direct match
+    expect((await checker.checkPermission({ permission: 'documents:read', tenantId: 'tenant-100' })).allowed).toBe(true)
+    
+    // Resource + Action match with colon/dot
+    expect((await checker.checkPermission({ resource: 'documents', action: 'read', tenantId: 'tenant-100' })).allowed).toBe(true)
+    
+    // Wildcard match
+    expect((await checker.checkPermission({ resource: 'reports', action: 'export', tenantId: 'tenant-100' })).allowed).toBe(true)
+
+    // Unauthorized action
+    expect((await checker.checkPermission({ resource: 'documents', action: 'delete', tenantId: 'tenant-100' })).allowed).toBe(false)
+  })
+})
+
+describe('RbacSubscriber - Event Bus & Query Invalidation', () => {
+  let mockQueryClient: any
+
+  beforeEach(() => {
+    mockQueryClient = {
+      invalidateQueries: vi.fn().mockResolvedValue(undefined),
+    }
+  })
+
+  it('invalidates rbac, user, and me caches upon UserAuthenticated', async () => {
+    const subscriber = new RbacSubscriber({ queryClient: mockQueryClient })
+
+    await subscriber.handleUserAuthenticated({
+      id: 'evt-1',
+      type: AuthEventTypes.USER_AUTHENTICATED,
+      version: 'v1',
+      timestamp: new Date().toISOString(),
+      payload: {
+        userId: 'u1',
+        email: 'test@example.com',
+        factors: ['password'],
+        method: 'password',
+        sessionId: 's1',
+      },
+    })
+
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'rbac'] })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'users'] })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['auth', 'me'] })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['user', 'permissions'] })
+  })
+
+  it('invalidates developer tokens upon TokenIssued', async () => {
+    const subscriber = new RbacSubscriber({ queryClient: mockQueryClient })
+
+    await subscriber.handleTokenIssued({
+      id: 'evt-2',
+      type: TokenEventTypes.TOKEN_ISSUED,
+      version: 'v1',
+      timestamp: new Date().toISOString(),
+      payload: {
+        tokenId: 't1',
+        userId: 'u1',
+        tokenType: 'access',
+        expiresAt: new Date().toISOString(),
+      },
+    })
+
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'developer', 'apiKeys'] })
+  })
+})

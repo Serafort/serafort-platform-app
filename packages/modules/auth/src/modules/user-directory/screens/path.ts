@@ -18,8 +18,7 @@ const Path = {
     },
   },
   profile: {
-    edit: '/profile/edit',
-    view: '/profile/view',
+    view: '/profile',
     linkedAccounts: '/profile/linked-accounts',
   },
   settings: {

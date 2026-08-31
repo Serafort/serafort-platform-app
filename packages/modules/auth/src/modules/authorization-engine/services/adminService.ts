@@ -937,6 +937,63 @@ export class AdminService {
   }
 
   /**
+   * Simulate a visual policy graph against access request context
+   */
+  async simulatePolicyGraph(data: {
+    graph: any
+    request: {
+      subject: Record<string, any>
+      action: string
+      resource: Record<string, any>
+      environment?: Record<string, any>
+    }
+  }): Promise<FetchResponse<any>> {
+    return apiClient.post('/api/admin/rbac/policies/simulate', data)
+  }
+
+  /**
+   * Compile a visual policy graph into an executable policy set
+   */
+  async compilePolicyGraph(data: { graph: any }): Promise<FetchResponse<any>> {
+    return apiClient.post('/api/admin/rbac/policies/compile', data)
+  }
+
+  /**
+   * Decompile a policy set into a visual policy graph
+   */
+  async decompilePolicySet(data: { policySet: any }): Promise<FetchResponse<any>> {
+    return apiClient.post('/api/admin/rbac/policies/decompile', data)
+  }
+
+  /**
+   * Get default template policy set
+   */
+  async getDefaultPolicySet(): Promise<FetchResponse<any>> {
+    return apiClient.get('/api/admin/rbac/policies/default')
+  }
+
+  /**
+   * Evaluate a compiled policy against a concrete access request
+   */
+  async evaluatePolicy(data: {
+    policySet?: any
+    request: {
+      subject: Record<string, any>
+      action: string
+      resource: Record<string, any>
+      environment?: Record<string, any>
+    }
+  }): Promise<
+    FetchResponse<{
+      effect: 'Permit' | 'Deny' | 'NotApplicable' | 'Indeterminate'
+      reasons?: string[]
+      traces?: any[]
+    }>
+  > {
+    return apiClient.post('/api/admin/rbac/policies/evaluate', data)
+  }
+
+  /**
    * Get developer API keys for an organization
    */
   async getDeveloperApiKeys(orgId: number): Promise<FetchResponse<DeveloperApiKey[]>> {

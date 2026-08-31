@@ -6,16 +6,31 @@
 import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 import { FetchResponse, HttpError } from '@cap/platform-core';
 
-import { UpdateEmailRequest, UpdatePhotoRequest, ChangePasswordRequest, UpdatePreferencesRequest, UpdateMeRequest, SecurityStatusResponse, AuditLog } from '@idaas/authentication-core/types/api.types';
+import {
+  UpdateEmailRequest,
+  UpdatePhotoRequest,
+  ChangePasswordRequest,
+  UpdatePreferencesRequest,
+  UpdateMeRequest,
+  SecurityStatusResponse,
+  AuditLog,
+  UserDTO,
+  LinkedAccountDTO,
+  PersonalAccessTokenDTO,
+  CreateTokenResponse,
+} from '@idaas/authentication-core/types/api.types';
 
 import userService from '../services/user.service';
+
+import { useAppStore } from '@cap/platform-store';
 
 // ============================================================================
 // Query Keys
 // ============================================================================
 
-const USER_KEYS = {
+export const USER_KEYS = {
   profile: ['user', 'profile'] as const,
+  me: ['user', 'me'] as const,
   linkedAccounts: ['user', 'linked-accounts'] as const,
   emailPreferences: ['user', 'email-preferences'] as const,
   tokens: ['user', 'tokens'] as const,
@@ -60,12 +75,12 @@ export function useActivityTimeline(
 }
 
 /**
- * Update user profile
+ * Get user profile
  */
-export function useGetUser(options?: UseQueryOptions<FetchResponse<any>, HttpError>) {
+export function useGetUser(options?: UseQueryOptions<FetchResponse<UserDTO>, HttpError>) {
   return useQuery({
     queryKey: USER_KEYS.profile,
-    queryFn: () => userService.getProfile(),
+    queryFn: () => userService.getProfile() as Promise<FetchResponse<UserDTO>>,
     staleTime: 1000 * 60 * 5,
     ...options,
   })
@@ -79,13 +94,30 @@ export function useUpdateMe(
 
   return useMutation({
     mutationFn: (data: UpdateMeRequest) => userService.updateMe(data),
-    onSuccess: (...args) => {
+    onSuccess: (response, variables, context) => {
       queryClient.invalidateQueries({ queryKey: USER_KEYS.profile })
-      customOnSuccess?.(...args)
+      queryClient.invalidateQueries({ queryKey: USER_KEYS.me })
+      try {
+        if (variables) {
+          useAppStore.getState().updateUser({
+            firstName: variables.firstname,
+            lastName: variables.lastname,
+            name: `${variables.firstname || ''} ${variables.lastname || ''}`.trim() || undefined,
+            phone: variables.phone,
+          })
+        }
+      } catch {
+        // Safe fallback
+      }
+      if (customOnSuccess) {
+        (customOnSuccess as any)(response, variables, context)
+      }
     },
     ...restOptions,
   })
 }
+
+export const useUpdateProfile = useUpdateMe
 
 export function useUpdateUser(
   options?: UseMutationOptions<FetchResponse<any>, HttpError, UpdateMeRequest, unknown>,
@@ -95,13 +127,17 @@ export function useUpdateUser(
 
   return useMutation({
     mutationFn: (data: UpdateMeRequest) => userService.update(data),
-    onSuccess: (...args) => {
+    onSuccess: (response, variables, context) => {
       queryClient.invalidateQueries({ queryKey: USER_KEYS.profile })
-      customOnSuccess?.(...args)
+      queryClient.invalidateQueries({ queryKey: USER_KEYS.me })
+      if (customOnSuccess) {
+        (customOnSuccess as any)(response, variables, context)
+      }
     },
     ...restOptions,
   })
 }
+
 /**
  * Update user photo
  */
@@ -113,13 +149,115 @@ export function useUpdatePhoto(
 
   return useMutation({
     mutationFn: (data: UpdatePhotoRequest) => userService.updatePhoto(data),
-    onSuccess: (...args) => {
+    onSuccess: (response, variables, context) => {
       queryClient.invalidateQueries({ queryKey: USER_KEYS.profile })
-      customOnSuccess?.(...args)
+      queryClient.invalidateQueries({ queryKey: USER_KEYS.me })
+      if (customOnSuccess) {
+        (customOnSuccess as any)(response, variables, context)
+      }
     },
     ...restOptions,
   })
 }
+
+/**
+ * Upload Avatar with instant store sync
+ */
+export function useUploadAvatar(
+  options?: UseMutationOptions<FetchResponse<{ avatarUrl: string }>, HttpError, File, unknown>,
+) {
+  const queryClient = useQueryClient()
+  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
+
+  return useMutation({
+    mutationFn: (file: File) => userService.uploadAvatar(file),
+    onSuccess: (response, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: USER_KEYS.profile })
+      queryClient.invalidateQueries({ queryKey: USER_KEYS.me })
+      const avatarUrl = response?.data?.avatarUrl
+      if (avatarUrl) {
+        try {
+          useAppStore.getState().updateUser({ avatar: avatarUrl, avatarUrl: avatarUrl } as any)
+        } catch {
+          // ignore
+        }
+      }
+      if (customOnSuccess) {
+        (customOnSuccess as any)(response, variables, context)
+      }
+    },
+    ...restOptions,
+  })
+}
+
+/**
+ * Delete Avatar
+ */
+export function useDeleteAvatar(
+  options?: UseMutationOptions<FetchResponse<{ success: boolean; message: string }>, HttpError, void, unknown>,
+) {
+  const queryClient = useQueryClient()
+  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
+
+  return useMutation({
+    mutationFn: () => userService.deleteAvatar(),
+    onSuccess: (response, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: USER_KEYS.profile })
+      queryClient.invalidateQueries({ queryKey: USER_KEYS.me })
+      try {
+        useAppStore.getState().updateUser({ avatar: null, avatarUrl: null } as any)
+      } catch {
+        // ignore
+      }
+      if (customOnSuccess) {
+        (customOnSuccess as any)(response, variables, context)
+      }
+    },
+    ...restOptions,
+  })
+}
+
+/**
+ * Request email change
+ */
+export function useRequestEmailChange(
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { newEmail: string }, unknown>,
+) {
+  const queryClient = useQueryClient()
+  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
+
+  return useMutation({
+    mutationFn: (data: { newEmail: string }) => userService.requestEmailChange(data),
+    onSuccess: (response, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: USER_KEYS.profile })
+      queryClient.invalidateQueries({ queryKey: USER_KEYS.me })
+      if (customOnSuccess) {
+        (customOnSuccess as any)(response, variables, context)
+      }
+    },
+    ...restOptions,
+  })
+}
+
+/**
+ * Resend email verification
+ */
+export function useResendVerification(
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { email?: string } | void, unknown>,
+) {
+  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
+
+  return useMutation({
+    mutationFn: (data?: { email?: string } | void) => userService.resendVerification(data || undefined),
+    onSuccess: (response, variables, context) => {
+      if (customOnSuccess) {
+        (customOnSuccess as any)(response, variables, context)
+      }
+    },
+    ...restOptions,
+  })
+}
+
 /**
  * Change email
  */
@@ -131,9 +269,12 @@ export function useChangeEmail(
 
   return useMutation({
     mutationFn: (data: UpdateEmailRequest) => userService.changeEmail(data),
-    onSuccess: (...args) => {
+    onSuccess: (response, variables, context) => {
       queryClient.invalidateQueries({ queryKey: USER_KEYS.profile })
-      customOnSuccess?.(...args)
+      queryClient.invalidateQueries({ queryKey: USER_KEYS.me })
+      if (customOnSuccess) {
+        (customOnSuccess as any)(response, variables, context)
+      }
     },
     ...restOptions,
   })
@@ -143,12 +284,18 @@ export function useChangeEmail(
  * Change password
  */
 export function useChangePassword(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, ChangePasswordRequest, unknown>,
+  options?: UseMutationOptions<
+    FetchResponse<any>,
+    HttpError,
+    ChangePasswordRequest | { currentPassword: string; newPassword: string; confirmPassword: string },
+    unknown
+  >,
 ) {
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
 
   return useMutation({
-    mutationFn: (data: ChangePasswordRequest) => userService.changePassword(data),
+    mutationFn: (data: ChangePasswordRequest | { currentPassword: string; newPassword: string; confirmPassword: string }) =>
+      userService.changePassword(data),
     onSuccess: (...args) => {
       customOnSuccess?.(...args)
     },
@@ -160,11 +307,11 @@ export function useChangePassword(
  * Get user profile
  */
 export function useUserProfile(
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<FetchResponse<UserDTO>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: USER_KEYS.profile,
-    queryFn: () => userService.getProfile(),
+    queryFn: () => userService.getProfile() as Promise<FetchResponse<UserDTO>>,
     staleTime: 1000 * 60 * 5,
     ...options,
   })
@@ -319,11 +466,11 @@ export function useLinkAccount(
  * Get linked accounts
  */
 export function useLinkedAccounts(
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<FetchResponse<LinkedAccountDTO[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: USER_KEYS.linkedAccounts,
-    queryFn: () => userService.getLinkedAccounts(),
+    queryFn: () => userService.getLinkedAccounts() as Promise<FetchResponse<LinkedAccountDTO[]>>,
     staleTime: 1000 * 60 * 5,
     ...options,
   })
@@ -349,11 +496,11 @@ export function useUnlinkAccount(
 }
 
 export function useUserTokens(
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<FetchResponse<PersonalAccessTokenDTO[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: USER_KEYS.tokens,
-    queryFn: () => userService.tokens.list(),
+    queryFn: () => userService.tokens.list() as Promise<FetchResponse<PersonalAccessTokenDTO[]>>,
     staleTime: 1000 * 60 * 5,
     ...options,
   })
@@ -364,7 +511,7 @@ export function useUserTokens(
  */
 export function useCreateToken(
   options?: UseMutationOptions<
-    FetchResponse,
+    FetchResponse<CreateTokenResponse>,
     HttpError,
     { name: string; expiresIn?: string; abilities?: string[]; ipRestrictions?: string[] },
     unknown
@@ -374,7 +521,7 @@ export function useCreateToken(
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
 
   return useMutation({
-    mutationFn: (data) => userService.tokens.create(data),
+    mutationFn: (data) => userService.tokens.create(data) as Promise<FetchResponse<CreateTokenResponse>>,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({ queryKey: USER_KEYS.tokens })
       customOnSuccess?.(...args)

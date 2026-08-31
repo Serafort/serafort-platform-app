@@ -68,12 +68,10 @@ export default function ChangeEmail({ user }: { user: UserDto }) {
 
       // return await userService.updateEmail(body)
     },
-    onMutate: (variables) => {
-      console.log('onMutate variables ', variables)
+    onMutate: () => {
       setLoading(true)
     },
     onError: (error: HttpError) => {
-      // console.log('onError ', { error, variables, context })
       controlForm.setError(
         'email',
         {
@@ -83,13 +81,11 @@ export default function ChangeEmail({ user }: { user: UserDto }) {
         { shouldFocus: true },
       )
     },
-    onSuccess: async (data, variables, context) => {
+    onSuccess: async () => {
       // Refresh auth to get updated user data
       await refreshAuth()
-      console.log('onSuccess ', { data, variables, context })
     },
     onSettled: () => {
-      console.log('onSettled ')
       setLoading(false)
     },
   })

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Typography, Alert, useTheme } from '@mui/material'
+import { Box, Typography, Alert } from '@mui/material'
 
 interface CaptchaProps {
   onVerify: (token: string | null) => void
@@ -9,81 +9,42 @@ interface CaptchaProps {
   size?: 'normal' | 'compact'
 }
 
-const Captcha: React.FC<CaptchaProps> = ({
-  onVerify,
-  // onError,
-  // onExpire,
-  theme = 'light',
-}) => {
-  const muiTheme = useTheme()
-  const handleChange = (token: string | null) => {
-    onVerify(token)
-  }
+/**
+ * Captcha — placeholder.
+ *
+ * SECURITY: this component is NOT a working CAPTCHA. The previous implementation
+ * emitted a constant `'mock-captcha-token'`, which provides zero bot / credential
+ * stuffing protection while looking production-ready. It now fails closed: it
+ * renders integration instructions and never produces a token.
+ *
+ * To enable real protection, integrate a provider (Google reCAPTCHA v2/v3 or
+ * Cloudflare Turnstile), have it call `onVerify(token)` with the provider token,
+ * and ensure the backend verifies that token server-side on every guarded action.
+ */
+const Captcha: React.FC<CaptchaProps> = ({ onError }) => {
+  React.useEffect(() => {
+    // Signal to any consuming flow that verification is unavailable.
+    onError?.()
+  }, [onError])
 
-  // Temporary mock implementation for development
   return (
     <Box sx={{ my: 2 }}>
-      <Alert severity='info' sx={{ mb: 2 }}>
+      <Alert severity='warning'>
         <Typography variant='body2' gutterBottom>
-          <strong>CAPTCHA Integration Required</strong>
+          <strong>CAPTCHA is not configured</strong>
         </Typography>
         <Typography variant='caption' component='div'>
-          To enable CAPTCHA:
+          Integrate a provider before relying on this control:
           <br />
-          1. Install: <code>npm install react-google-recaptcha</code>
+          1. Install a provider SDK (e.g. <code>react-google-recaptcha</code> or Cloudflare Turnstile).
           <br />
-          2. Get reCAPTCHA site key from{' '}
-          <a
-            href='https://www.google.com/recaptcha/admin'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            Google reCAPTCHA
-          </a>
+          2. Add the site key via a build-time env var (site keys are public; secret keys stay on the backend).
           <br />
-          3. Add to .env: <code>REACT_APP_RECAPTCHA_SITE_KEY=your_key</code>
+          3. Replace this component so the provider calls <code>onVerify(token)</code>.
           <br />
-          4. Uncomment production code in Captcha.tsx
+          4. Verify the token server-side on every protected endpoint.
         </Typography>
       </Alert>
-
-      {/* Mock CAPTCHA for development */}
-      <Box
-        sx={{
-          border: '2px dashed',
-          borderColor: 'divider',
-          borderRadius: 1,
-          p: 3,
-          textAlign: 'center',
-          bgcolor: 'background.paper',
-        }}
-      >
-        <Typography variant='body2' color='text.secondary'>
-          CAPTCHA Placeholder (Development Mode)
-        </Typography>
-        <Typography variant='caption' color='text.secondary' sx={{ mt: 1, display: 'block' }}>
-          Click below to simulate verification
-        </Typography>
-        <Box
-          component='button'
-          onClick={() => handleChange('mock-captcha-token')}
-          sx={{
-            mt: 2,
-            px: 3,
-            py: 1,
-            bgcolor: 'success.main',
-            color: 'success.contrastText',
-            border: 'none',
-            borderRadius: 1,
-            cursor: 'pointer',
-            '&:hover': {
-              bgcolor: 'success.dark',
-            },
-          }}
-        >
-          Verify (Mock)
-        </Box>
-      </Box>
     </Box>
   )
 }

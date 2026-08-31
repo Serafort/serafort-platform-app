@@ -1,5 +1,6 @@
 import type { TenantThemeConfig, ThemePresetId, ColorToken } from '@cap/theme'
 import { DEFAULT_TENANT_THEME, THEME_PRESETS, applyPreset } from '@cap/theme'
+import { themeService } from './theme.service'
 
 export interface PromptAnalysisResult {
   prompt: string
@@ -77,6 +78,33 @@ export const CURATED_PROMPT_SUGGESTIONS: PromptSuggestion[] = [
     previewColors: { primary: '#a855f7', secondary: '#6366f1', background: '#0b0f19' },
   },
 ]
+
+// WCAG Contrast Utilities
+export function getLuminance(hex: string): number {
+  const rgb = hex.replace('#', '').match(/.{2}/g)
+  if (!rgb) return 0
+  const [r, g, b] = rgb.map(c => {
+    let val = parseInt(c, 16) / 255
+    return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4)
+  })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+export function getContrastRatio(hex1: string, hex2: string): number {
+  const lum1 = getLuminance(hex1)
+  const lum2 = getLuminance(hex2)
+  const brightest = Math.max(lum1, lum2)
+  const darkest = Math.min(lum1, lum2)
+  return (brightest + 0.05) / (darkest + 0.05)
+}
+
+export function getWcagComplianceBadge(foregroundHex: string, backgroundHex: string): { label: string, color: 'success' | 'warning' | 'error', ratio: number } {
+  const ratio = getContrastRatio(foregroundHex, backgroundHex)
+  if (ratio >= 7) return { label: `AAA (${ratio.toFixed(1)}:1)`, color: 'success', ratio }
+  if (ratio >= 4.5) return { label: `AA (${ratio.toFixed(1)}:1)`, color: 'success', ratio }
+  if (ratio >= 3) return { label: `AA Large (${ratio.toFixed(1)}:1)`, color: 'warning', ratio }
+  return { label: `Fail (${ratio.toFixed(1)}:1)`, color: 'error', ratio }
+}
 
 class AiThemePromptService {
   /**
@@ -306,79 +334,70 @@ class AiThemePromptService {
   async generateThemeFromPromptAsync(
     prompt: string,
     baseConfig?: TenantThemeConfig,
-    options?: { isDark?: boolean; useLlm?: boolean }
+    options?: { isDark?: boolean; useLlm?: boolean; providerType?: string; apiKey?: string }
   ): Promise<TenantThemeConfig> {
     try {
-      const baseUrl =
-        (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env
-          .VITE_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:3333'
+      const response = await themeService.generateAiTheme({
+        prompt,
+        isDark: options?.isDark,
+        useLlm: options?.useLlm ?? true,
+        providerType: options?.providerType,
+        apiKey: options?.apiKey,
+      });
 
-      const response = await fetch(`${baseUrl}/api/v1/themes/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt,
-          isDark: options?.isDark,
-          useLlm: options?.useLlm ?? true,
-        }),
-      })
+      if (response.ok && response.data?.success && response.data.themeConfig) {
+        const serverConfig = response.data.themeConfig
+        const base =
+          baseConfig ||
+          applyPreset((response.data.presetId as any) || 'corporate-clean') ||
+          DEFAULT_TENANT_THEME
 
-      if (response.ok) {
-        const data = await response.json()
-        if (data?.success && data.themeConfig) {
-          const serverConfig = data.themeConfig
-          const base =
-            baseConfig ||
-            applyPreset((data.analysis?.presetMatch as any) || 'corporate-clean') ||
-            DEFAULT_TENANT_THEME
-
-          return {
-            ...base,
-            name: serverConfig.name || `AI Theme: ${prompt.slice(0, 30)}`,
-            tokens: {
-              ...base.tokens,
-              colors: {
-                ...base.tokens.colors,
-                primary: {
-                  value: serverConfig.colors.primary,
-                  description: 'AI Generated Primary',
-                } as ColorToken,
-                secondary: {
-                  value: serverConfig.colors.secondary,
-                  description: 'AI Generated Secondary',
-                } as ColorToken,
-                background: {
-                  value: serverConfig.colors.background,
-                  description: 'AI Generated Background',
-                } as ColorToken,
-                surface: {
-                  value: serverConfig.colors.surface,
-                  description: 'AI Generated Surface',
-                } as ColorToken,
-                text: {
-                  value: serverConfig.colors.text,
-                  description: 'AI Generated Text',
-                } as ColorToken,
-                textMuted: {
-                  value: serverConfig.colors.textMuted,
-                  description: 'AI Generated Muted Text',
-                } as ColorToken,
-                border: {
-                  value: serverConfig.colors.border,
-                  description: 'AI Generated Border',
-                } as ColorToken,
-              },
+        return {
+          ...base,
+          name: serverConfig.name || `AI Theme: ${prompt.slice(0, 30)}`,
+          tokens: {
+            ...base.tokens,
+            colors: {
+              ...base.tokens.colors,
+              primary: {
+                value: serverConfig.tokens?.colors?.primary?.value || serverConfig.tokens?.colors?.primary || '#6366f1',
+                description: 'AI Generated Primary',
+              } as ColorToken,
+              secondary: {
+                value: serverConfig.tokens?.colors?.secondary?.value || serverConfig.tokens?.colors?.secondary || '#8b5cf6',
+                description: 'AI Generated Secondary',
+              } as ColorToken,
+              background: {
+                value: serverConfig.tokens?.colors?.background?.value || serverConfig.tokens?.colors?.background || '#09090b',
+                description: 'AI Generated Background',
+              } as ColorToken,
+              surface: {
+                value: serverConfig.tokens?.colors?.surface?.value || serverConfig.tokens?.colors?.surface || '#18181b',
+                description: 'AI Generated Surface',
+              } as ColorToken,
+              text: {
+                value: serverConfig.tokens?.colors?.text?.value || serverConfig.tokens?.colors?.text || '#fafafa',
+                description: 'AI Generated Text',
+              } as ColorToken,
+              textMuted: {
+                value: serverConfig.tokens?.colors?.textMuted?.value || serverConfig.tokens?.colors?.textMuted || '#71717a',
+                description: 'AI Generated Muted Text',
+              } as ColorToken,
+              border: {
+                value: serverConfig.tokens?.colors?.border?.value || serverConfig.tokens?.colors?.border || '#27272a',
+                description: 'AI Generated Border',
+              } as ColorToken,
             },
-            effects: {
-              ...base.effects,
-              globalType: serverConfig.effects?.type || 'standard',
-            },
-            metadata: {
-              ...base.metadata,
-              mode: serverConfig.mode || 'light',
-              updatedAt: new Date().toISOString(),
-            },
-          }
+          },
+          effects: {
+            ...base.effects,
+            globalType: serverConfig.effects?.globalType || 'standard',
+          },
+          metadata: {
+            ...base.metadata,
+            mode: serverConfig.metadata?.mode || 'light',
+            updatedAt: new Date().toISOString(),
+          },
         }
       }
     } catch (err) {

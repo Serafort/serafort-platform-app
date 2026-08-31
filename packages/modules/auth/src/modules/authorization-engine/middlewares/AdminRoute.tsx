@@ -2,9 +2,9 @@ import React, { Suspense, type ReactNode } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Backdrop, CircularProgress, Alert, Box, Button } from '@mui/material'
 import { isObjectEmpty, Roles, useAppStore, type LayoutOverride } from '@cap/platform-core'
-import { useSessionGuard } from '@cap/module-auth/modules/session-manager/middlewares/useSessionGuard'
-import Page403Forbidden from '@cap/module-auth/modules/platform-cluster/screens/system/Page403Forbidden'
-import { Path } from '@cap/module-auth/routes/path'
+import { useSessionGuard } from '../../session-manager/middlewares/useSessionGuard'
+import Page403Forbidden from '../../platform-cluster/screens/system/Page403Forbidden'
+import { Path } from '../../../routes/path'
 import { useCan } from '@cap/authorization'
 
 interface AdminRouteProps {

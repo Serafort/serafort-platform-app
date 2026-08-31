@@ -48,12 +48,7 @@ const UserList = React.lazy(() =>
 // ---------------------------------------------------------------------------
 // Profile screens
 // ---------------------------------------------------------------------------
-const EditProfile = React.lazy(() =>
-  import('./../screens/profile/EditProfile')
-)
-const ProfileView = React.lazy(() =>
-  import('./../screens/profile/ProfileView')
-)
+const Profile = React.lazy(() => import('../screens/profile/profile'))
 const LinkedAccountsDashboard = React.lazy(() =>
   import('./../screens/profile/LinkedAccountsDashboard')
 )
@@ -92,8 +87,7 @@ export const userDirectoryRouteConfig: Array<AuthRouteConfig> = [
   createAuthRoute(Path.admin.users.impersonation_logs, <UserImpersonationLogs />, { requiresVerification: true, layout: 'admin' }),
   createAuthRoute(Path.admin.users.list, <UserList />, { requiresVerification: true, layout: 'admin' }),
 
-  createAuthRoute(Path.profile.edit, <EditProfile />, { requiresVerification: true, layout: 'admin' }),
-  createAuthRoute(Path.profile.view, <ProfileView />, { requiresVerification: true, layout: 'admin' }),
+  createAuthRoute(Path.profile.view, <Profile />, { requiresVerification: true, layout: 'admin' }),
   createAuthRoute(Path.profile.linkedAccounts, <LinkedAccountsDashboard />, { requiresVerification: true, layout: 'admin' }),
 
   createAuthRoute(Path.settings.change_email, <ChangeEmail />, { requiresVerification: true, layout: 'admin' }),

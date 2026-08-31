@@ -11,7 +11,7 @@ import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { adminService } from '../../../authorization-engine/services/adminService';
-import { Path } from '@cap/module-auth/routes';
+import { Path } from '../../../../routes/path';
 import { useAppStore } from '@cap/platform-core';
 
 interface InvitationDetails {

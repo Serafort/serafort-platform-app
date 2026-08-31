@@ -3,7 +3,7 @@ import { AuthRouteConfig } from '@cap/platform-core'
 import GuestRoute from '../middlewares/GuestRoute'
 import Path from '../screens/path'
 import { createAuthRoute } from '../../../routes/routeHelpers'
-
+import { AppPaths } from '@cap/shared-types'
 // ---------------------------------------------------------------------------
 // Device
 // ---------------------------------------------------------------------------
@@ -30,7 +30,6 @@ const ExportVerification = React.lazy(() => import('../screens/email/ExportVerif
 // ---------------------------------------------------------------------------
 const ForgotPassword = React.lazy(() => import('../screens/recovery/ForgotPassword'))
 const ResetPassword = React.lazy(() => import('../screens/recovery/ResetPassword'))
-const SetNewPasswordScreen = React.lazy(() => import('../screens/recovery/SetNewPasswordScreen'))
 const PasswordResetSuccess = React.lazy(() => import('../screens/recovery/PasswordResetSuccess'))
 
 // ---------------------------------------------------------------------------
@@ -43,7 +42,6 @@ const SignIn = React.lazy(() => import('../screens/signin/SignIn'))
 // ---------------------------------------------------------------------------
 const SignUp = React.lazy(() => import('../screens/signup/screens/SignUp'))
 const SignUpV2 = React.lazy(() => import('../screens/signup/screens/SignUpV2'))
-const RegistrationScreen = React.lazy(() => import('../screens/signup/components/RegistrationScreen'))
 const CheckEmailConfirmation = React.lazy(() => import('../screens/signup/components/CheckEmailConfirmation'))
 const EmailVerificationScreen = React.lazy(() => import('../screens/signup/components/EmailVerificationScreen'))
 const VerificationLinkExpired = React.lazy(() => import('../screens/signup/components/VerificationLinkExpired'))
@@ -63,10 +61,10 @@ export const authCoreRouteConfig: AuthRouteConfig[] = [
   { path: Path.deviceCode, element: <DeviceCodeDisplay />, layout: 'noLayout' },
 
   // --- Email flows (auth-guarded) ---
-  createAuthRoute(Path.initiateEmailChange, <InitiateEmailChange />, {
-    requiresVerification: true,
-    layout: 'noLayout',
-  }),
+  // createAuthRoute(Path.initiateEmailChange, <InitiateEmailChange />, {
+  //   requiresVerification: true,
+  //   layout: 'noLayout',
+  // }),
   createAuthRoute(Path.emailChangeStatus, <EmailChangeStatus />, { requiresVerification: true }),
   createAuthRoute(Path.emailChangeVerificationPending, <EmailChangeVerificationPending />, {
     layout: 'noLayout',
@@ -88,17 +86,19 @@ export const authCoreRouteConfig: AuthRouteConfig[] = [
   { path: Path.resetPassword, element: <GuestRoute element={<ResetPassword />} />, layout: 'noLayout' },
   { path: Path.resetPasswordRecovery, element: <GuestRoute element={<ResetPassword />} />, layout: 'noLayout' },
   { path: Path.resetPasswordDirect, element: <GuestRoute element={<ResetPassword />} />, layout: 'noLayout' },
-  { path: Path.setNewPassword, element: <SetNewPasswordScreen />, layout: 'noLayout' },
+  { path: Path.setNewPassword, element: <GuestRoute element={<ResetPassword />} />, layout: 'noLayout' },
   { path: Path.passwordResetSuccess, element: <PasswordResetSuccess />, layout: 'noLayout' },
   { path: Path.passwordResetSuccessAlias, element: <PasswordResetSuccess />, layout: 'noLayout' },
 
   // --- Sign In ---
-  { path: Path.signin, element: <SignIn />, layout: 'noLayout' },
+  { path: Path.signin, element: <GuestRoute element={<SignIn />} />, layout: 'noLayout' },
+  { path: Path.login, element: <GuestRoute element={<SignIn />} />, layout: 'noLayout' },
 
   // --- Sign Up & Verification ---
   { path: Path.signup, element: <GuestRoute element={<SignUp />} />, layout: 'noLayout' },
   { path: Path.signupV2, element: <GuestRoute element={<SignUpV2 />} />, layout: 'noLayout' },
-  { path: Path.registration, element: <GuestRoute element={<RegistrationScreen />} />, layout: 'noLayout' },
+  // Legacy /auth/register — RegistrationScreen removed; redirect to the primary sign-up flow.
+  { path: Path.registration, element: <GuestRoute element={<SignUp />} />, layout: 'noLayout' },
   { path: Path.checkEmail, element: <CheckEmailConfirmation />, layout: 'noLayout' },
   { path: Path.emailVerification, element: <EmailVerificationScreen />, layout: 'noLayout' },
   { path: Path.verifyEmail, element: <EmailVerificationScreen />, layout: 'noLayout' },

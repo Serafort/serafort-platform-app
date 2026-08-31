@@ -209,7 +209,7 @@ export default function PermissionConsentScreen() {
                   bgcolor: 'transparent',
                 }}
               >
-                {client?.name?.charAt(0) || 'A'}
+                {client?.clientName?.charAt(0) || 'A'}
               </Avatar>
             }
           />
@@ -241,7 +241,7 @@ export default function PermissionConsentScreen() {
                     textAlign: 'center',
                   }}
                 >
-                  {client?.name || t('auth.sso.unknown_app', 'Third-party Application')}
+                  {client?.clientName || t('auth.sso.unknown_app', 'Third-party Application')}
                 </Typography>
                 <Typography
                   variant='body1'

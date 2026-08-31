@@ -11,6 +11,7 @@ import {
   Snackbar,
   Drawer,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -34,6 +35,7 @@ import type {
 } from '@cap/theme';
 import { DEFAULT_TENANT_THEME, mergeThemeWithPreset, useThemeEditorStore, themeEditorStore } from '@cap/theme';
 import type { ThemePresetId } from '@cap/theme';
+import { useTenantTheme, useUpdateTenantTheme } from '../hooks/useThemeQuery';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -58,15 +60,22 @@ export interface ThemeEditorProps {
 
 export const ThemeEditor: React.FC<ThemeEditorProps> = ({
   initialTheme,
-  organizationId = 'default',
+  organizationId = 'current',
   onSave,
   asDrawer = false,
   open: customOpen,
   onClose,
 }) => {
+  const { data: serverThemeData, isLoading: isLoadingServerTheme } = useTenantTheme(organizationId, {
+    enabled: !initialTheme, // Only fetch if no initialTheme provided
+  });
+  
+  const updateMutation = useUpdateTenantTheme(organizationId);
+
   const { isEditing, draftConfig } = useThemeEditorStore();
 
-  const rawTheme = draftConfig || initialTheme || DEFAULT_TENANT_THEME;
+  const activeInitialTheme = initialTheme || (serverThemeData?.data?.themeConfig) || DEFAULT_TENANT_THEME;
+  const rawTheme = draftConfig || activeInitialTheme;
 
   const theme: TenantThemeConfig = React.useMemo(() => {
     return {
@@ -109,7 +118,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
         ...(rawTheme?.components || {}),
       },
     };
-  }, [draftConfig, initialTheme, rawTheme]);
+  }, [draftConfig, activeInitialTheme, rawTheme]);
 
   const updateThemeState = useCallback((updater: (prev: TenantThemeConfig) => TenantThemeConfig) => {
     if (!draftConfig) {
@@ -216,11 +225,24 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     }));
   }, [organizationId, updateThemeState]);
 
+  if (isLoadingServerTheme && !initialTheme) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
       if (onSave) {
         await onSave(theme);
+      } else {
+        await updateMutation.mutateAsync({
+          themeConfig: theme,
+          isDark: theme.metadata?.mode === 'dark',
+        });
       }
       themeEditorStore.discardDraft();
       setSnackbar({

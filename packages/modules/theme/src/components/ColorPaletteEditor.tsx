@@ -5,8 +5,10 @@ import {
   Grid,
   TextField,
   InputAdornment,
+  Chip,
 } from '@mui/material';
 import type { ColorToken } from '@cap/theme';
+import { getWcagComplianceBadge } from '../services/aiThemePromptService';
 
 interface ColorPaletteEditorProps {
   colors: Record<string, ColorToken>;
@@ -27,11 +29,13 @@ const colorLabels: Record<string, string> = {
   info: 'Info',
 };
 
-const ColorSwatch = ({ color, label, onColorChange }: {
+const ColorSwatch = ({ color, label, onColorChange, contrastTarget }: {
   color: ColorToken;
   label: string;
   onColorChange: (value: string) => void;
+  contrastTarget?: string;
 }) => {
+  const contrastBadge = contrastTarget ? getWcagComplianceBadge(color.value, contrastTarget) : null;
   return (
     <Box sx={{ mb: 2 }}>
       <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
@@ -106,6 +110,14 @@ const ColorSwatch = ({ color, label, onColorChange }: {
           {color.description}
         </Typography>
       )}
+      {contrastBadge && (
+        <Chip 
+          size="small" 
+          label={contrastBadge.label} 
+          color={contrastBadge.color} 
+          sx={{ mt: 1, height: 20, fontSize: '0.7rem' }} 
+        />
+      )}
     </Box>
   );
 };
@@ -142,11 +154,13 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
             <ColorSwatch
               color={colors.primary || { value: '#6366f1' }}
               label={colorLabels.primary}
+              contrastTarget={colors.background?.value || '#f8fafc'}
               onColorChange={(value) => handleColorChange('primary', value)}
             />
             <ColorSwatch
               color={colors.secondary || { value: '#8b5cf6' }}
               label={colorLabels.secondary}
+              contrastTarget={colors.background?.value || '#f8fafc'}
               onColorChange={(value) => handleColorChange('secondary', value)}
             />
           </Box>
@@ -183,11 +197,13 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
             <ColorSwatch
               color={colors.text || { value: '#0f172a' }}
               label={colorLabels.text}
+              contrastTarget={colors.background?.value || '#f8fafc'}
               onColorChange={(value) => handleColorChange('text', value)}
             />
             <ColorSwatch
               color={colors.textMuted || { value: '#64748b' }}
               label={colorLabels.textMuted}
+              contrastTarget={colors.background?.value || '#f8fafc'}
               onColorChange={(value) => handleColorChange('textMuted', value)}
             />
           </Box>

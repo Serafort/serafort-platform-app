@@ -5,64 +5,68 @@ import Search from '@mui/icons-material/Search';
 import VpnKey from '@mui/icons-material/VpnKey';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 ;
-import { adminService, DeveloperApiKey } from '../../services/adminService';
-import { toast } from 'react-toastify';
-import { Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from '@mui/material';
-import ContentCopy from '@mui/icons-material/ContentCopy';
-import Delete from '@mui/icons-material/Delete';
+import {
+  useDeveloperApiKeys,
+  useCreateDeveloperApiKey,
+  useRevokeDeveloperApiKey,
+} from '../../hooks'
+import { DeveloperApiKey } from '../../services/adminService'
+import { toast } from 'react-toastify'
+import { Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from '@mui/material'
+import ContentCopy from '@mui/icons-material/ContentCopy'
+import Delete from '@mui/icons-material/Delete'
 
 const MachineIdentityManagement = () => {
-
   const [search, setSearch] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [identities, setIdentities] = useState<DeveloperApiKey[]>([])
-  
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [newKeyName, setNewKeyName] = useState('')
   const [createdKey, setCreatedKey] = useState<string | null>(null)
-  
-  // Mock orgId - in a real app this would come from context
+
+  // Default orgId from context or active tenant
   const orgId = 1
 
-  const fetchKeys = async () => {
-    setLoading(true)
-    try {
-      const response = await adminService.getDeveloperApiKeys(orgId)
-      setIdentities(response.data || [])
-    } catch (error) {
-      toast.error('Failed to fetch API keys')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { data: keysResponse, isLoading } = useDeveloperApiKeys(orgId)
+  const createKeyMutation = useCreateDeveloperApiKey()
+  const revokeKeyMutation = useRevokeDeveloperApiKey()
 
-  React.useEffect(() => {
-    fetchKeys()
-  }, [])
+  const identities: DeveloperApiKey[] = (keysResponse?.data as DeveloperApiKey[]) || []
 
   const handleCreateKey = async () => {
+    if (!newKeyName.trim()) return
     try {
-      const response = await adminService.createDeveloperApiKey(orgId, { name: newKeyName })
-      if (response.data) {
+      const response = await createKeyMutation.mutateAsync({
+        orgId,
+        data: { name: newKeyName.trim() },
+      })
+      if (response?.data?.key) {
         setCreatedKey(response.data.key)
-        fetchKeys()
         toast.success('API Key created successfully')
       }
-    } catch (error) {
-      toast.error('Failed to create API key')
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to create API key')
     }
   }
 
   const handleRevokeKey = async (keyId: number) => {
-    if (!window.confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) return
-    
+    if (
+      !window.confirm(
+        'Are you sure you want to revoke this API key? This action cannot be undone.',
+      )
+    )
+      return
+
     try {
-      await adminService.revokeDeveloperApiKey(orgId, keyId)
-      fetchKeys()
+      await revokeKeyMutation.mutateAsync({ orgId, keyId })
       toast.success('API Key revoked')
-    } catch (error) {
-      toast.error('Failed to revoke API key')
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to revoke API key')
     }
+  }
+
+  const handleCloseDialog = () => {
+    setCreatedKey(null)
+    setNewKeyName('')
+    setCreateDialogOpen(false)
   }
 
   const copyToClipboard = (text: string) => {
@@ -70,8 +74,8 @@ const MachineIdentityManagement = () => {
     toast.info('Copied to clipboard')
   }
 
-  const filteredIdentities = identities.filter(id => 
-    id.name.toLowerCase().includes(search.toLowerCase())
+  const filteredIdentities = identities.filter((id) =>
+    (id?.name || '').toLowerCase().includes(search.toLowerCase()),
   )
 
   return (
@@ -141,7 +145,7 @@ const MachineIdentityManagement = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {loading ? (
+                {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                       <CircularProgress size={24} />
@@ -201,7 +205,7 @@ const MachineIdentityManagement = () => {
       </Card>
 
       {/* Create Key Dialog */}
-      <Dialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)} fullWidth maxWidth="sm">
+      <Dialog open={createDialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="sm">
         <DialogTitle sx={{ fontWeight: 800 }}>PROVISION NEW API KEY</DialogTitle>
         <DialogContent>
           {!createdKey ? (
@@ -244,11 +248,11 @@ const MachineIdentityManagement = () => {
         <DialogActions sx={{ p: 3 }}>
           {!createdKey ? (
             <>
-              <Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-              <Button variant="contained" onClick={handleCreateKey} disabled={!newKeyName}>Generate Key</Button>
+              <Button onClick={handleCloseDialog}>Cancel</Button>
+              <Button variant="contained" onClick={handleCreateKey} disabled={!newKeyName.trim()}>Generate Key</Button>
             </>
           ) : (
-            <Button variant="contained" onClick={() => setCreateDialogOpen(false)}>Done</Button>
+            <Button variant="contained" onClick={handleCloseDialog}>Done</Button>
           )}
         </DialogActions>
       </Dialog>

@@ -18,13 +18,7 @@ const Path = {
   roleDetail: '/admin/roles/:id',
 
   // -- Permissions
-  // permissions: '/admin/permissions',
-  // policies: '/admin/organizations/:id/policies',
-  // applications: '/admin/applications',
-  // appDetail: '/admin/applications/:id',
-  // scopes: '/admin/scopes',
-  // apiExplorer: '/admin/api-explorer',
-  // webhooks: '/admin/webhooks',
+  permissions: '/admin/permissions',
 }
 
 export default Path

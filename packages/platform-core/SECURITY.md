@@ -54,6 +54,7 @@ const data = await localStorageManager.get<MyType>('my_pref_key', true)
 - **XSS Prevention:** Always sanitize user-provided content. Encrypted storage mitigates casual reading but cannot prevent in-memory token extraction under active XSS.
 - **No Sensitive Tokens in Storage:** Never write refresh tokens, private keys, or raw credentials to `localStorage` or `sessionStorage`.
 - **HTTP Methods:** All state-changing actions and token transmissions (e.g., logout, email verification, password reset) MUST use `POST` requests. NEVER transmit sensitive tokens via `GET` query strings.
+- **Secure Random for Credential-Shaped Values:** Any token, elevation/step-up token, nonce, or generated secret MUST come from the Web Crypto API (`crypto.randomUUID()` or `crypto.getRandomValues()`), never from `Math.random()` or `Date.now()`. Prefer a server-issued value; a client-side fallback must use a CSPRNG and fail closed (throw) if one is unavailable. A client-held "proof of elevation" is UX only — the backend must independently re-verify on every sensitive call. Correlation/trace ids that gate no security decision (e.g. `X-Request-ID`) are exempt. See `.jules/sentinel.md` (2026-08-30).
 
 ## 4. Security Audit Policy
 

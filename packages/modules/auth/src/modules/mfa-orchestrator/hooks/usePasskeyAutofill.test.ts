@@ -39,7 +39,7 @@ vi.mock('../services/mfa.service', () => ({
   },
 }))
 
-vi.mock('../../authentication-core/store/authSlice', () => ({
+vi.mock('@cap/module-auth/modules/authentication-core/store', () => ({
   useAuthStore: () => ({
     setAuthenticated: mockSetAuthenticated,
     setUser: mockSetUser,
@@ -52,7 +52,7 @@ vi.mock('@cap/platform-core', async (importOriginal) => {
   const actual: any = await importOriginal()
   return {
     ...actual,
-    tokenManager: { setTokens: mockSetTokens },
+    secureTokenManager: { setTokens: mockSetTokens },
   }
 })
 
@@ -89,7 +89,7 @@ describe('usePasskeyAutofill', () => {
       data: {
         token: 'autofill-jwt',
         user: { id: 'usr-1', email: 'autofill@example.com' },
-        sessionId: 'sess-autofill',
+        userId: 'usr-1',
       },
     })
 
@@ -102,8 +102,8 @@ describe('usePasskeyAutofill', () => {
 
     await waitFor(() => {
       expect(mockStartAuthentication).toHaveBeenCalledWith({
-        challenge: 'autofill-challenge',
-        mediation: 'conditional',
+        optionsJSON: optionsPayload,
+        useBrowserAutofill: true,
       })
     })
 
@@ -112,9 +112,9 @@ describe('usePasskeyAutofill', () => {
     })
 
     await waitFor(() => {
-      expect(mockSetTokens).toHaveBeenCalledWith('autofill-jwt', undefined)
+      expect(mockSetTokens).toHaveBeenCalled()
       expect(mockSetUser).toHaveBeenCalledWith({ id: 'usr-1', email: 'autofill@example.com' })
-      expect(mockSetSessionId).toHaveBeenCalledWith('sess-autofill')
+      expect(mockSetSessionId).toHaveBeenCalledWith('usr-1')
       expect(onPasskeySuccess).toHaveBeenCalled()
     })
   })

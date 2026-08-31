@@ -13,9 +13,14 @@ export {
   useGetUser,
   useUpdateMe,
   useUpdatePhoto,
+  useUploadAvatar,
+  useDeleteAvatar,
   useChangeEmail,
+  useRequestEmailChange,
+  useResendVerification,
   useChangePassword,
   useUserProfile,
+  useUpdateProfile,
   useCurrentUserQuery,
   useDeleteAccount,
   useActivateAccount,
@@ -37,3 +42,6 @@ export {
   useUserPreferences,
   useEmailChanges,
 } from './useUserQuery'
+
+export * from './useUserDirectoryQuery'
+export * from './useUserDirectoryMutations'

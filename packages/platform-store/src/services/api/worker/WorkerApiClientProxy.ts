@@ -71,7 +71,13 @@ export class WorkerApiClientProxy {
     url: string,
     config: FetchRequestConfig = {}
   ): Promise<FetchResponse<T>> {
-    const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+    // Correlation key for matching the worker's response back to this promise.
+    // Not security-sensitive, but use the CSPRNG when available (consistent with
+    // api.client.ts) and keep a timestamp-based fallback for exotic runtimes.
+    const requestId =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? `req_${crypto.randomUUID()}`
+        : `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`
 
     let body: string | undefined = undefined
     if (config.data) {

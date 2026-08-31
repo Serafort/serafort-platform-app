@@ -1,5 +1,5 @@
 import React from 'react'
-import { Typography, useTheme } from '@mui/material'
+import { Typography } from '@mui/material'
 
 interface AuthInputLabelProps {
   children: React.ReactNode
@@ -8,8 +8,6 @@ interface AuthInputLabelProps {
 }
 
 const AuthInputLabel: React.FC<AuthInputLabelProps> = ({ children, required, htmlFor }) => {
-  const theme = useTheme()
-  
   return (
     <Typography
       component="label"

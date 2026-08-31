@@ -9,6 +9,8 @@ export { AiThemeStudioPanel } from './components/AiThemeStudioPanel'
 export type { AiThemeStudioPanelProps } from './components/AiThemeStudioPanel'
 export { aiThemePromptService, CURATED_PROMPT_SUGGESTIONS } from './services/aiThemePromptService'
 export type { PromptSuggestion, PromptAnalysisResult } from './services/aiThemePromptService'
+export * from './services/theme.service'
+export * from './hooks/useThemeQuery'
 
 // I18n Registry & Dictionaries
 export {

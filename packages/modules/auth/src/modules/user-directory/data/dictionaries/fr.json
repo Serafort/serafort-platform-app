@@ -1,7 +1,19 @@
 {
     "auth": {
-        "account": {
-            "about_you": "À propos de vous",
+    "account": {
+      "username": "Nom d'utilisateur",
+      "role": "Rôle",
+      "not_provided": "Non renseigné",
+      "last_activity": "Dernière activité",
+      "created_at": "Créé le",
+      "export_started": "Exportation des données du compte...",
+      "export_success": "Données du compte exportées avec succès.",
+      "proceed_to_delete": "Procéder à la suppression",
+      "avatar_updated": "Avatar mis à jour avec succès.",
+      "avatar_update_error": "Échec de la mise à jour de l'avatar.",
+      "cancel_edit": "Annuler les modifications",
+      "cancel_edit_desc": "Ignorer les modifications non enregistrées",
+      "about_you": "À propos de vous",
             "about_you_description": "Mettez à jour vos informations partagées publiquement",
             "account_recovery_desc": "Une fois confirmé, vous ne pourrez plus récupérer votre compte ni vous reconnecter.",
             "account_recovery_title": "Récupération de compte",
@@ -39,6 +51,7 @@
             "cancel": "Annuler",
             "change_email": "Changer l'adresse e-mail",
             "change_email_desc": "Mettre à jour l'adresse vérifiée",
+            "email_change_restricted": "Seuls les propriétaires du système et les superadministrateurs sont autorisés à modifier l'adresse e-mail principale.",
             "change_email_description": "Mettez à jour votre adresse e-mail vérifiée utilisée pour la connexion et les notifications.",
             "change_email_title": "Changer l'adresse e-mail",
             "change_info": "Modifier les infos",

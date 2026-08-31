@@ -1,10 +1,10 @@
 import React from 'react'
-import { AuthRouteConfig } from '@cap/platform-core'
+import type { ModuleRouteConfig } from '@cap/shared-types'
 import Path from '../screens/path'
-import { createAuthRoute } from '@cap/module-auth/routes'
+import { createAdminRoute, createAuthRoute } from '../../../routes/routeHelpers'
 
 // ---------------------------------------------------------------------------
-// provisioning
+// Provisioning & Directory Sync (Admin)
 // ---------------------------------------------------------------------------
 const ConnectorDetailView = React.lazy(() => import('../screens/provisioning/ConnectorDetailView'))
 const DirectorySyncDashboard = React.lazy(() => import('../screens/provisioning/DirectorySyncDashboard'))
@@ -12,98 +12,53 @@ const SCIMConfiguration = React.lazy(() => import('../screens/provisioning/SCIMC
 const SyncLogsView = React.lazy(() => import('../screens/provisioning/SyncLogsView'))
 
 // ---------------------------------------------------------------------------
-// SSO – public / wait screens
+// SSO Admin Configuration
 // ---------------------------------------------------------------------------
-const AuthWaitScreen = React.lazy(() => import('../screens/sso/AuthWaitScreen'))
 const JWKSManagement = React.lazy(() => import('../screens/sso/JWKSManagement'))
 const OIDCClientCreate = React.lazy(() => import('../screens/sso/OIDCClientCreate'))
 const OIDCClientEdit = React.lazy(() => import('../screens/sso/OIDCClientEdit'))
 const OIDCConfigBrowser = React.lazy(() => import('../screens/sso/OIDCConfigBrowser'))
-const OIDCLoginPrompt = React.lazy(() => import('../screens/sso/OIDCLoginPrompt'))
-const OidcWaitScreen = React.lazy(() => import('../screens/sso/OidcWaitScreen'))
-const PermissionConsentScreen = React.lazy(() => import('../screens/sso/PermissionConsentScreen'))
 const SAMLConfigDashboard = React.lazy(() => import('../screens/sso/SAMLConfigDashboard'))
 const SAMLMetadataBrowser = React.lazy(() => import('../screens/sso/SAMLMetadataBrowser'))
 const SAMLMetadataDisplay = React.lazy(() => import('../screens/sso/SAMLMetadataDisplay'))
+const SSFConfiguration = React.lazy(() => import('../screens/sso/SSFConfiguration'))
+
+// ---------------------------------------------------------------------------
+// SSO Interactive & Waiting Flows (Public / Flow)
+// ---------------------------------------------------------------------------
+const AuthWaitScreen = React.lazy(() => import('../screens/sso/AuthWaitScreen'))
+const OIDCLoginPrompt = React.lazy(() => import('../screens/sso/OIDCLoginPrompt'))
+const OidcWaitScreen = React.lazy(() => import('../screens/sso/OidcWaitScreen'))
+const PermissionConsentScreen = React.lazy(() => import('../screens/sso/PermissionConsentScreen'))
 const SAMLSSOInitiation = React.lazy(() => import('../screens/sso/SAMLSSOInitiation'))
 const SamlWaitScreen = React.lazy(() => import('../screens/sso/SamlWaitScreen'))
-const SSFConfiguration = React.lazy(() => import('../screens/sso/SSFConfiguration'))
 const SSOProviderSelection = React.lazy(() => import('../screens/sso/SSOProviderSelection'))
 
-export const identityBrokerRouteConfig: AuthRouteConfig[] = [
+export const identityBrokerRouteConfig: ModuleRouteConfig[] = [
   // --- Admin Provisioning & Directory Sync ---
-  createAuthRoute(Path.connectorDetail, <ConnectorDetailView />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.syncLogs, <SyncLogsView />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.provisioning, <DirectorySyncDashboard />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.scim, <SCIMConfiguration />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
+  createAdminRoute(Path.connectorDetail, <ConnectorDetailView />, 'Connector Detail'),
+  createAdminRoute(Path.syncLogs, <SyncLogsView />, 'Sync Logs'),
+  createAdminRoute(Path.provisioning, <DirectorySyncDashboard />, 'Directory Provisioning'),
+  createAdminRoute(Path.scim, <SCIMConfiguration />, 'SCIM Configuration'),
 
   // --- Admin OIDC & SAML Configuration ---
-  createAuthRoute(Path.jwksManagement, <JWKSManagement />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.oidcClientCreate, <OIDCClientCreate />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.oidcClientEdit, <OIDCClientEdit />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.oidcConfigBrowser, <OIDCConfigBrowser />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.samlConfigDashboard, <SAMLConfigDashboard />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.samlMetadataBrowser, <SAMLMetadataBrowser />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.samlMetadataDisplay, <SAMLMetadataDisplay />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.ssfConfiguration, <SSFConfiguration />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
+  createAdminRoute(Path.jwksManagement, <JWKSManagement />, 'JWKS Key Management'),
+  createAdminRoute(Path.oidcClientCreate, <OIDCClientCreate />, 'Create OIDC Client'),
+  createAdminRoute(Path.oidcClientEdit, <OIDCClientEdit />, 'Edit OIDC Client'),
+  createAdminRoute(Path.oidcConfigBrowser, <OIDCConfigBrowser />, 'OIDC Clients'),
+  createAdminRoute(Path.samlConfigDashboard, <SAMLConfigDashboard />, 'SAML Configuration'),
+  createAdminRoute(Path.samlMetadataBrowser, <SAMLMetadataBrowser />, 'SAML Metadata Browser'),
+  createAdminRoute(Path.samlMetadataDisplay, <SAMLMetadataDisplay />, 'SAML Metadata Display'),
+  createAdminRoute(Path.ssfConfiguration, <SSFConfiguration />, 'Shared Signals (SSF)'),
 
   // --- SSO Interactive & Waiting Flows ---
-  createAuthRoute(Path.authWait, <AuthWaitScreen />, {
-    layout: 'noLayout',
-  }),
-  createAuthRoute(Path.oidcLoginPrompt, <OIDCLoginPrompt />, {
-    layout: 'noLayout',
-  }),
-  createAuthRoute(Path.oidcWait, <OidcWaitScreen />, {
-    layout: 'noLayout',
-  }),
-  createAuthRoute(Path.permissionConsent, <PermissionConsentScreen />, {
-    layout: 'noLayout',
-  }),
-  createAuthRoute(Path.samlWait, <SamlWaitScreen />, {
-    layout: 'noLayout',
-  }),
-  createAuthRoute(Path.samlSSOInitiation, <SAMLSSOInitiation />, {
-    layout: 'noLayout',
-  }),
-  createAuthRoute(Path.providerSelection, <SSOProviderSelection />, {
-    layout: 'noLayout',
-  }),
+  createAuthRoute(Path.authWait, <AuthWaitScreen />, { layout: 'noLayout', label: 'SSO Auth Wait' }),
+  createAuthRoute(Path.oidcLoginPrompt, <OIDCLoginPrompt />, { layout: 'noLayout', label: 'OIDC Login Prompt' }),
+  createAuthRoute(Path.oidcWait, <OidcWaitScreen />, { layout: 'noLayout', label: 'OIDC Authorization Wait' }),
+  createAuthRoute(Path.permissionConsent, <PermissionConsentScreen />, { layout: 'noLayout', label: 'OIDC Scope Consent' }),
+  createAuthRoute(Path.samlWait, <SamlWaitScreen />, { layout: 'noLayout', label: 'SAML Redirect Wait' }),
+  createAuthRoute(Path.samlSSOInitiation, <SAMLSSOInitiation />, { layout: 'noLayout', label: 'SAML SSO Login' }),
+  createAuthRoute(Path.providerSelection, <SSOProviderSelection />, { layout: 'noLayout', label: 'Select SSO Provider' }),
 ]
 
+export default identityBrokerRouteConfig

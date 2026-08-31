@@ -45,9 +45,10 @@ export const authorizationEngineRouteConfig: AuthRouteConfig[] = [
   createAuthRoute(Path.domainVerification, <DomainVerification />, { requiresVerification: true, layout: 'admin' }),
   // --- Visual Policy & ABAC Canvas ---
   createAuthRoute(Path.policyCanvas, <VisualPolicyCanvas />, { requiresVerification: true, layout: 'admin' }),
-  // --- Roles ---
+  // --- Roles & Permissions ---
   createAuthRoute(Path.roles, <RoleList />, { requiresVerification: true, layout: 'admin' }),
   createAuthRoute(Path.roleDetail, <RoleDetailView />, { requiresVerification: true, layout: 'admin' }),
+  createAuthRoute(Path.permissions, <PermissionRegistry />, { requiresVerification: true, layout: 'admin' }),
 ]
 
 

@@ -1,7 +1,23 @@
-export { usePasskey } from './usePasskey'
+export { usePasskey, formatWebAuthnError } from './usePasskey'
+export type { RegisterPasskeyOptions } from './usePasskey'
 export { usePasskeyAutofill } from './usePasskeyAutofill'
 export { useStepUpAuth } from './useStepUpAuth'
 export type { StepUpActionMetadata, StepUpAuthState } from './useStepUpAuth'
+export {
+  MFA_QUERY_KEYS,
+  useMfaMethodsQuery,
+  useRecoveryCodesQuery,
+  useTotpSetupMutation,
+  useTotpConfirmMutation,
+  useDisableMfaMutation,
+  useRegenerateBackupCodesMutation,
+  useSmsSendCodeMutation,
+  useSmsConfirmMutation,
+  useSmsDisableMutation,
+  usePasskeysListQuery,
+  useUpdatePasskeyMutation,
+  useDeletePasskeyMutation,
+} from './useMfaQuery'
 
 import { useMutation } from '@tanstack/react-query'
 import { mfaService } from '../services/mfa.service'
@@ -22,7 +38,7 @@ export const usePasskeyGetLoginOptions = (options?: any) => {
 
 export const useMfaLoginVerify = (options?: any) => {
   return useMutation({
-    mutationFn: (data: { userId: number; code: string }) =>
+    mutationFn: (data: { userId: number | string; code: string }) =>
       mfaService.verifyMfaCode(data.userId, data.code),
     ...options,
   })

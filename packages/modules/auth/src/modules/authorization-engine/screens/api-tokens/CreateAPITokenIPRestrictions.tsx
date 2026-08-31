@@ -100,11 +100,21 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
     // Strip leading/trailing spaces and accidental characters
     const trimmed = ip.trim().replace(/[^\d.a-fA-F:/]/g, '')
     // IPv4 CIDR regex (e.g., 192.168.1.1 or 10.0.0.0/24)
-    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/
+    const ipv4Regex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})(\/([0-9]|[1-2][0-9]|3[0-2]))?$/
     // IPv6 CIDR regex (simple)
     const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}(\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$/
+
+    const ipv4Match = trimmed.match(ipv4Regex)
+    if (ipv4Match) {
+      const octets = [Number(ipv4Match[1]), Number(ipv4Match[2]), Number(ipv4Match[3]), Number(ipv4Match[4])]
+      const allValid = octets.every((o) => o >= 0 && o <= 255)
+      if (allValid) {
+        return { valid: true, normalized: trimmed }
+      }
+      return { valid: false, normalized: trimmed }
+    }
     
-    if (ipv4Regex.test(trimmed) || ipv6Regex.test(trimmed)) {
+    if (ipv6Regex.test(trimmed)) {
       return { valid: true, normalized: trimmed }
     }
     return { valid: false, normalized: trimmed }

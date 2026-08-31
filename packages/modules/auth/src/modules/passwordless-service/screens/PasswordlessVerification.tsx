@@ -25,32 +25,35 @@ import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { usePasswordlessVerify, usePasswordlessSend } from '../hooks'
 import Path from './path'
-import { Path as AuthPath } from '@cap/module-auth/routes/path'
-import { useAuthStore } from '@cap/module-auth/modules/authentication-core/store'
-import { secureTokenManager, useAppStore } from '@cap/platform-core'
+import { Path as AuthPath } from '../../../routes/path'
+import { useAuthStore } from '../../authentication-core/store'
+import { secureTokenManager, useAppStore, safeRedirectPath } from '@cap/platform-core'
+import { resolveRedirectPathForUser } from '../../authentication-core/utils/resolveRedirect'
 
 type VerificationState = 'awaiting' | 'verifying' | 'success' | 'error'
 
 const PasswordlessVerification = () => {
   const { t } = useTranslation('common')
   const theme = useTheme()
-  const [resent, setResent] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
+  const [resendSuccess, setResendSuccess] = useState(false)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token') || ''
   const email = searchParams.get('email') || ''
+  const redirectUrl =
+    safeRedirectPath(searchParams.get('redirectUrl') || searchParams.get('returnTo')) || ''
   const { setAuthenticated, setUser, setAuthStep } = useAuthStore()
 
   const verifyQuery = usePasswordlessVerify(token)
 
   const resendMutation = usePasswordlessSend({
     onSuccess: () => {
-      setResent(true)
+      setResendSuccess(true)
       setResendCooldown(60)
     },
     onError: () => {
-      setResent(false)
+      setResendSuccess(false)
     },
   })
 
@@ -65,11 +68,11 @@ const PasswordlessVerification = () => {
 
   const state: VerificationState = useMemo(() => {
     if (!token) return 'awaiting'
-    if (verifyQuery.isError && !resent) return 'error'
-    if (verifyQuery.isSuccess) return 'success'
     if (verifyQuery.isPending) return 'verifying'
+    if (verifyQuery.isSuccess) return 'success'
+    if (verifyQuery.isError) return 'error'
     return 'awaiting'
-  }, [token, verifyQuery.isPending, verifyQuery.isSuccess, verifyQuery.isError, resent])
+  }, [token, verifyQuery.isPending, verifyQuery.isSuccess, verifyQuery.isError])
 
   useEffect(() => {
     if (!verifyQuery.isSuccess || !verifyQuery.data?.data) return
@@ -77,12 +80,10 @@ const PasswordlessVerification = () => {
     const payload: any = verifyQuery.data.data
     if (payload.token) {
       try {
-        const expiresIn = payload.expires_in || 3600
-        secureTokenManager.setTokens({
-          accessToken: payload.token,
-          expiresAt: Date.now() + expiresIn * 1000,
-        })
-      } catch {}
+        secureTokenManager.setTokens(payload.token)
+      } catch {
+        // Fallback for secure token persistence
+      }
     }
     if (payload.user) {
       setUser(payload.user)
@@ -90,18 +91,35 @@ const PasswordlessVerification = () => {
       setAuthStep('complete')
       try {
         useAppStore.getState().setUser(payload.user)
-      } catch {}
+      } catch {
+        // Safe fallback for global app store
+      }
     }
 
-    const timer = setTimeout(() => navigate(AuthPath.account.overview), 1500)
+    const userRole = payload.user?.role || payload.user?.roleId || payload.user?.user?.role
+    const defaultRedirect = resolveRedirectPathForUser(userRole)
+    const targetPath =
+      redirectUrl && redirectUrl.startsWith('/') && !redirectUrl.startsWith('//')
+        ? redirectUrl
+        : defaultRedirect
+
+    const timer = setTimeout(() => {
+      navigate(targetPath, { replace: true })
+    }, 1200)
+
     return () => clearTimeout(timer)
-  }, [verifyQuery.isSuccess, verifyQuery.data, navigate, setUser, setAuthenticated, setAuthStep])
+  }, [verifyQuery.isSuccess, verifyQuery.data, navigate, setUser, setAuthenticated, setAuthStep, redirectUrl])
 
   const handleResend = () => {
     if (email && resendCooldown === 0) {
-      resendMutation.mutate(email)
+      resendMutation.mutate({
+        email,
+        ...(redirectUrl ? { redirectUrl } : {}),
+      })
     } else if (!email) {
-      navigate(Path.setup)
+      const params = new URLSearchParams()
+      if (redirectUrl) params.set('redirectUrl', redirectUrl)
+      navigate(`${Path.setup}${params.toString() ? `?${params.toString()}` : ''}`)
     }
   }
 
@@ -173,15 +191,13 @@ const PasswordlessVerification = () => {
             </Avatar>
           </Box>
 
-          {(state === 'awaiting' || state === 'verifying') && (
+          {state === 'awaiting' && (
             <>
               <Typography variant="h5" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em' }}>
-                {state === 'awaiting'
-                  ? t('auth.passwordless.magic_link_sent', 'Check Your Email')
-                  : t('auth.passwordless.verifying_title', 'Verifying Connection...')}
+                {t('auth.passwordless.magic_link_sent', 'Check Your Email')}
               </Typography>
 
-              {email && state === 'awaiting' && (
+              {email && (
                 <Box sx={{ mb: 2 }}>
                   <Chip
                     label={email}
@@ -197,21 +213,16 @@ const PasswordlessVerification = () => {
               )}
 
               <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, mb: 3.5, lineHeight: 1.6 }}>
-                {state === 'awaiting'
-                  ? t(
-                      'auth.passwordless.awaiting_desc',
-                      'We sent a secure sign-in link to your email. Click the link in your inbox to sign in instantly.',
-                    )
-                  : t(
-                      'auth.passwordless.verifying_desc',
-                      'Please wait while we authenticate your session. This will only take a moment.',
-                    )}
+                {t(
+                  'auth.passwordless.awaiting_desc',
+                  'We sent a secure sign-in link to your email. Click the link in your inbox to sign in instantly.',
+                )}
               </Typography>
 
-              {state === 'verifying' && (
-                <Box sx={{ mb: 3, width: '80%', mx: 'auto' }}>
-                  <LinearProgress sx={{ borderRadius: 2, height: 6 }} />
-                </Box>
+              {resendSuccess && (
+                <Typography variant="caption" color="success.main" sx={{ fontWeight: 700, display: 'block', mb: 2 }}>
+                  {t('auth.passwordless.magic_link_sent', 'A new magic link has been sent!')}
+                </Typography>
               )}
 
               <Stack spacing={1.5}>
@@ -260,6 +271,23 @@ const PasswordlessVerification = () => {
             </>
           )}
 
+          {state === 'verifying' && (
+            <>
+              <Typography variant="h5" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em' }}>
+                {t('auth.passwordless.verifying_title', 'Verifying Connection...')}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, mb: 3.5, lineHeight: 1.6 }}>
+                {t(
+                  'auth.passwordless.verifying_desc',
+                  'Please wait while we authenticate your session. This will only take a moment.',
+                )}
+              </Typography>
+              <Box sx={{ mb: 3, width: '80%', mx: 'auto' }}>
+                <LinearProgress sx={{ borderRadius: 2, height: 6 }} />
+              </Box>
+            </>
+          )}
+
           {state === 'success' && (
             <>
               <Typography variant="h5" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em', color: 'success.main' }}>
@@ -290,7 +318,7 @@ const PasswordlessVerification = () => {
                 <Button
                   fullWidth
                   variant="contained"
-                  disabled={resendMutation.isPending}
+                  disabled={resendMutation.isPending || resendCooldown > 0}
                   onClick={handleResend}
                   endIcon={<ArrowForward />}
                   sx={{
@@ -304,7 +332,11 @@ const PasswordlessVerification = () => {
                     '&:hover': { bgcolor: 'primary.dark' },
                   }}
                 >
-                  {t('auth.passwordless.request_new_link', 'Request New Magic Link')}
+                  {resendMutation.isPending
+                    ? t('auth.passwordless.sending', 'Sending...')
+                    : resendCooldown > 0
+                      ? t('auth.passwordless.resend_in', `Resend in ${resendCooldown}s`)
+                      : t('auth.passwordless.request_new_link', 'Request New Magic Link')}
                 </Button>
 
                 <Button
@@ -337,4 +369,5 @@ const PasswordlessVerification = () => {
 }
 
 export default PasswordlessVerification
+
 

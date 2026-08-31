@@ -171,7 +171,7 @@ const Providers: React.FC<ChildrenType> = ({ children }) => {
               <WidgetInspectorDrawer />
             </BrowserRouter>
             <AppReactToastify position={themeConfig.toastPosition} hideProgressBar />
-            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+            <ReactQueryDevtools initialIsOpen={false} />
           </ThemeBridge>
         </TenantProvider>
       </I18nextProvider>

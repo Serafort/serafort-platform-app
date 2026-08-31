@@ -14,7 +14,6 @@ import {
   Avatar,
   Card,
   CardContent,
-  Chip,
 } from '@mui/material'
 import Email from '@mui/icons-material/Email'
 import ArrowForward from '@mui/icons-material/ArrowForward'
@@ -22,25 +21,63 @@ import AutoAwesome from '@mui/icons-material/AutoAwesome'
 import LockOutlined from '@mui/icons-material/LockOutlined'
 import ShieldOutlined from '@mui/icons-material/ShieldOutlined'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { safeRedirectPath } from '@cap/platform-core'
 import { usePasswordlessSend } from '../hooks'
 import Path from './path'
-import { Path as AuthPath } from '@cap/module-auth/routes/path'
+import { Path as AuthPath } from '../../../routes/path'
+
+const passwordlessInitiateSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Please enter your email address.')
+    .email('Please enter a valid email address.'),
+})
+
+type PasswordlessInitiateFormData = z.infer<typeof passwordlessInitiateSchema>
 
 export default function PasswordlessInitiation() {
   const { t } = useTranslation('common')
   const theme = useTheme()
   const navigate = useNavigate()
-  const [identifier, setIdentifier] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [searchParams] = useSearchParams()
+  // Only forward a same-origin path; reject absolute/external URLs so the magic
+  // link the backend emails cannot be pointed at an attacker domain.
+  const redirectUrlParam =
+    safeRedirectPath(searchParams.get('redirectUrl') || searchParams.get('returnTo')) || ''
+  const initialEmail = searchParams.get('email') || ''
+
+  const [serverError, setServerError] = useState<string | null>(null)
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PasswordlessInitiateFormData>({
+    resolver: zodResolver(passwordlessInitiateSchema),
+    defaultValues: {
+      email: initialEmail,
+    },
+    mode: 'onTouched',
+  })
 
   const sendMutation = usePasswordlessSend({
-    onSuccess: () => {
-      navigate(`${Path.verification}?email=${encodeURIComponent(identifier)}`)
+    onSuccess: (_response, variables) => {
+      const emailValue = typeof variables === 'string' ? variables : variables.email
+      const params = new URLSearchParams()
+      params.set('email', emailValue)
+      if (redirectUrlParam) {
+        params.set('redirectUrl', redirectUrlParam)
+      }
+      navigate(`${Path.verification}?${params.toString()}`)
     },
     onError: (err: any) => {
-      setError(
+      setServerError(
         err.response?.data?.message ||
           err.response?.data?.error ||
           t('auth.passwordless.send_failed', 'Failed to send the magic link. Please check your email and try again.'),
@@ -50,20 +87,12 @@ export default function PasswordlessInitiation() {
 
   const isLoading = sendMutation.isPending
 
-  const handleInitiate = (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    const emailValue = identifier.trim()
-    if (!emailValue) {
-      setError(t('auth.passwordless.error_incomplete', 'Please enter your email address.'))
-      return
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(emailValue)) {
-      setError(t('auth.passwordless.error_invalid_email', 'Please enter a valid email address.'))
-      return
-    }
-    sendMutation.mutate(emailValue)
+  const onSubmit = (data: PasswordlessInitiateFormData) => {
+    setServerError(null)
+    sendMutation.mutate({
+      email: data.email,
+      ...(redirectUrlParam ? { redirectUrl: redirectUrlParam } : {}),
+    })
   }
 
   return (
@@ -120,13 +149,13 @@ export default function PasswordlessInitiation() {
             </Typography>
           </Box>
 
-          {error && (
+          {serverError && (
             <Alert severity="error" sx={{ mb: 3, borderRadius: 2.5, '& .MuiAlert-message': { fontWeight: 600 } }}>
-              {error}
+              {serverError}
             </Alert>
           )}
 
-          <form onSubmit={handleInitiate}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <Stack spacing={2.5}>
               <Box>
                 <Typography
@@ -143,27 +172,34 @@ export default function PasswordlessInitiation() {
                 >
                   {t('auth.passwordless.email_address', 'Email Address')}
                 </Typography>
-                <TextField
-                  fullWidth
-                  placeholder="name@company.com"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  disabled={isLoading}
-                  autoComplete="email"
-                  autoFocus
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Email sx={{ color: 'text.secondary', fontSize: 20 }} />
-                        </InputAdornment>
-                      ),
-                      sx: {
-                        borderRadius: 3,
-                        bgcolor: alpha(theme.palette.background.default, 0.5),
-                      },
-                    },
-                  }}
+                <Controller
+                  name="email"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      placeholder="name@company.com"
+                      error={Boolean(errors.email)}
+                      helperText={errors.email?.message ? t(errors.email.message, errors.email.message) : undefined}
+                      disabled={isLoading}
+                      autoComplete="email"
+                      autoFocus
+                      slotProps={{
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Email sx={{ color: 'text.secondary', fontSize: 20 }} />
+                            </InputAdornment>
+                          ),
+                          sx: {
+                            borderRadius: 3,
+                            bgcolor: alpha(theme.palette.background.default, 0.5),
+                          },
+                        },
+                      }}
+                    />
+                  )}
                 />
               </Box>
 
@@ -171,7 +207,7 @@ export default function PasswordlessInitiation() {
                 type="submit"
                 fullWidth
                 variant="contained"
-                disabled={isLoading || !identifier.trim()}
+                disabled={isLoading}
                 endIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <ArrowForward />}
                 sx={{
                   py: 1.5,
@@ -236,4 +272,5 @@ export default function PasswordlessInitiation() {
     </Box>
   )
 }
+
 
