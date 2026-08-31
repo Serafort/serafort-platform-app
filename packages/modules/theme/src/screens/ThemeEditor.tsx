@@ -11,6 +11,7 @@ import {
   Snackbar,
   Drawer,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -32,8 +33,9 @@ import type {
   ComponentStyles,
   EffectType,
 } from '@cap/theme';
-import { DEFAULT_TENANT_THEME, applyPreset, useThemeEditorStore, themeEditorStore } from '@cap/theme';
+import { DEFAULT_TENANT_THEME, mergeThemeWithPreset, useThemeEditorStore, themeEditorStore } from '@cap/theme';
 import type { ThemePresetId } from '@cap/theme';
+import { useTenantTheme, useUpdateTenantTheme } from '../hooks/useThemeQuery';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -58,15 +60,65 @@ export interface ThemeEditorProps {
 
 export const ThemeEditor: React.FC<ThemeEditorProps> = ({
   initialTheme,
-  organizationId = 'default',
+  organizationId = 'current',
   onSave,
   asDrawer = false,
   open: customOpen,
   onClose,
 }) => {
+  const { data: serverThemeData, isLoading: isLoadingServerTheme } = useTenantTheme(organizationId, {
+    enabled: !initialTheme, // Only fetch if no initialTheme provided
+  });
+  
+  const updateMutation = useUpdateTenantTheme(organizationId);
+
   const { isEditing, draftConfig } = useThemeEditorStore();
 
-  const theme = draftConfig || initialTheme || DEFAULT_TENANT_THEME;
+  const activeInitialTheme = initialTheme || (serverThemeData?.data?.themeConfig) || DEFAULT_TENANT_THEME;
+  const rawTheme = draftConfig || activeInitialTheme;
+
+  const theme: TenantThemeConfig = React.useMemo(() => {
+    return {
+      ...DEFAULT_TENANT_THEME,
+      ...rawTheme,
+      tokens: {
+        ...DEFAULT_TENANT_THEME.tokens,
+        ...(rawTheme?.tokens || {}),
+        colors: {
+          ...DEFAULT_TENANT_THEME.tokens?.colors,
+          ...(rawTheme?.tokens?.colors || {}),
+        },
+        spacing: {
+          ...DEFAULT_TENANT_THEME.tokens?.spacing,
+          ...(rawTheme?.tokens?.spacing || {}),
+        },
+        borderRadius: {
+          ...DEFAULT_TENANT_THEME.tokens?.borderRadius,
+          ...(rawTheme?.tokens?.borderRadius || {}),
+        },
+        typography: {
+          ...DEFAULT_TENANT_THEME.tokens?.typography,
+          ...(rawTheme?.tokens?.typography || {}),
+        },
+      },
+      effects: {
+        ...DEFAULT_TENANT_THEME.effects,
+        ...(rawTheme?.effects || {}),
+        glassmorphism: {
+          ...DEFAULT_TENANT_THEME.effects?.glassmorphism,
+          ...(rawTheme?.effects?.glassmorphism || {}),
+        },
+        neumorphism: {
+          ...DEFAULT_TENANT_THEME.effects?.neumorphism,
+          ...(rawTheme?.effects?.neumorphism || {}),
+        },
+      },
+      components: {
+        ...DEFAULT_TENANT_THEME.components,
+        ...(rawTheme?.components || {}),
+      },
+    };
+  }, [draftConfig, activeInitialTheme, rawTheme]);
 
   const updateThemeState = useCallback((updater: (prev: TenantThemeConfig) => TenantThemeConfig) => {
     if (!draftConfig) {
@@ -91,9 +143,11 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     updateThemeState((prev) => ({
       ...prev,
       tokens: {
-        ...prev.tokens,
+        ...DEFAULT_TENANT_THEME.tokens,
+        ...prev?.tokens,
         colors: {
-          ...prev.tokens.colors,
+          ...DEFAULT_TENANT_THEME.tokens?.colors,
+          ...prev?.tokens?.colors,
           ...colors,
         } as TenantThemeConfig['tokens']['colors'],
       },
@@ -104,9 +158,10 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     updateThemeState((prev) => ({
       ...prev,
       effects: {
-        ...prev.effects,
+        ...DEFAULT_TENANT_THEME.effects,
+        ...prev?.effects,
         glassmorphism,
-        globalType: glassmorphism.enabled ? 'glass' : prev.effects.globalType,
+        globalType: glassmorphism.enabled ? 'glass' : (prev?.effects?.globalType || 'none'),
       },
     }));
   }, [updateThemeState]);
@@ -115,9 +170,10 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     updateThemeState((prev) => ({
       ...prev,
       effects: {
-        ...prev.effects,
+        ...DEFAULT_TENANT_THEME.effects,
+        ...prev?.effects,
         neumorphism,
-        globalType: neumorphism.enabled ? 'neu' : prev.effects.globalType,
+        globalType: neumorphism.enabled ? 'neu' : (prev?.effects?.globalType || 'none'),
       },
     }));
   }, [updateThemeState]);
@@ -133,7 +189,8 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     updateThemeState((prev) => ({
       ...prev,
       effects: {
-        ...prev.effects,
+        ...DEFAULT_TENANT_THEME.effects,
+        ...prev?.effects,
         globalType,
       },
     }));
@@ -143,7 +200,8 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     updateThemeState((prev) => ({
       ...prev,
       tokens: {
-        ...prev.tokens,
+        ...DEFAULT_TENANT_THEME.tokens,
+        ...prev?.tokens,
         spacing,
       },
     }));
@@ -153,25 +211,38 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     updateThemeState((prev) => ({
       ...prev,
       tokens: {
-        ...prev.tokens,
+        ...DEFAULT_TENANT_THEME.tokens,
+        ...prev?.tokens,
         borderRadius,
       },
     }));
   }, [updateThemeState]);
 
   const handlePresetSelect = useCallback((presetId: ThemePresetId) => {
-    const presetTheme = applyPreset(presetId);
-    updateThemeState(() => ({
-      ...presetTheme,
+    updateThemeState((prev) => ({
+      ...mergeThemeWithPreset(prev || DEFAULT_TENANT_THEME, presetId),
       organizationId,
     }));
   }, [organizationId, updateThemeState]);
+
+  if (isLoadingServerTheme && !initialTheme) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
       if (onSave) {
         await onSave(theme);
+      } else {
+        await updateMutation.mutateAsync({
+          themeConfig: theme,
+          isDark: theme.metadata?.mode === 'dark',
+        });
       }
       themeEditorStore.discardDraft();
       setSnackbar({
@@ -274,7 +345,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
 
           <TabPanel value={activeTab} index={2}>
             <ColorPaletteEditor
-              colors={theme.tokens.colors}
+              colors={theme.tokens?.colors || DEFAULT_TENANT_THEME.tokens.colors}
               onChange={handleColorsChange}
             />
           </TabPanel>
@@ -283,13 +354,13 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: asDrawer ? 12 : 6 }}>
                 <GlassmorphismPanel
-                  config={theme.effects.glassmorphism}
+                  config={theme.effects?.glassmorphism || DEFAULT_TENANT_THEME.effects.glassmorphism}
                   onChange={handleGlassmorphismChange}
                 />
               </Grid>
               <Grid size={{ xs: 12, md: asDrawer ? 12 : 6 }}>
                 <NeumorphismPanel
-                  config={theme.effects.neumorphism}
+                  config={theme.effects?.neumorphism || DEFAULT_TENANT_THEME.effects.neumorphism}
                   onChange={handleNeumorphismChange}
                 />
               </Grid>
@@ -298,8 +369,8 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
 
           <TabPanel value={activeTab} index={4}>
             <ComponentStyleSelector
-              components={theme.components}
-              globalEffectType={theme.effects.globalType}
+              components={theme.components || DEFAULT_TENANT_THEME.components}
+              globalEffectType={theme.effects?.globalType || 'none'}
               onChange={handleComponentsChange}
               onGlobalChange={handleGlobalEffectChange}
             />
@@ -307,8 +378,8 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
 
           <TabPanel value={activeTab} index={5}>
             <SpacingEditor
-              spacing={theme.tokens.spacing}
-              borderRadius={theme.tokens.borderRadius}
+              spacing={theme.tokens?.spacing || DEFAULT_TENANT_THEME.tokens.spacing}
+              borderRadius={theme.tokens?.borderRadius || DEFAULT_TENANT_THEME.tokens.borderRadius}
               onSpacingChange={handleSpacingChange}
               onBorderRadiusChange={handleBorderRadiusChange}
             />

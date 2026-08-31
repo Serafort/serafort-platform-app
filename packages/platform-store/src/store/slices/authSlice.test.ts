@@ -98,4 +98,17 @@ describe('authSlice Multi-Tenant and Impersonation', () => {
     expect(state.impersonationSession).toBeNull()
     expect(getImpersonationContext()).toBeNull()
   })
+
+  it('handles clearing tenant id for unauthenticated/guest contexts', () => {
+    slice.setUser({
+      id: 102,
+      email: 'guest@example.com',
+      role: TenantRoles.VIEWER,
+      activeTenantId: null,
+      memberships: [],
+    })
+
+    expect(state.activeTenantId).toBeNull()
+    expect(getTenantId()).toBeNull()
+  })
 })

@@ -11,6 +11,8 @@ import Close from '@mui/icons-material/Close'
 import RadioButtonChecked from '@mui/icons-material/RadioButtonChecked'
 import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked'
 
+import useMediaQuery from '@mui/material/useMediaQuery'
+
 const StyledBoxForShadow = styled('div')(({ theme }) => ({
   top: 60,
   left: -8,
@@ -42,6 +44,7 @@ const Navigation: React.FC<{
   const { updateSettings, settings } = useSettings()
   const { isCollapsed, isHovered, collapseVerticalNav, isBreakpointReached } = verticalNavOptions
   const isSemiDark = settings.semiDark
+  const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'))
   let isDark
 
   const isServer = typeof window === 'undefined'
@@ -64,14 +67,19 @@ const Navigation: React.FC<{
   )
 
   React.useEffect(() => {
-    if (settings.layout === 'collapsed') collapseVerticalNav(true)
-    else collapseVerticalNav(false)
-  }, [settings.layout, collapseVerticalNav])
+    if (isTablet) {
+      collapseVerticalNav(true)
+    } else {
+      if (settings.layout === 'collapsed') collapseVerticalNav(true)
+      else collapseVerticalNav(false)
+    }
+  }, [isTablet, settings.layout, collapseVerticalNav])
 
   return (
     // Sidebar Vertical Menu
     <VerticalNav
       customStyles={navigationCustomStyles(verticalNavOptions, theme)}
+      breakpoint="md"
       collapsedWidth={71}
       backgroundColor={theme.palette.background.paper}
 

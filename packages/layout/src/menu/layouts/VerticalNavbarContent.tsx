@@ -15,8 +15,8 @@ import ModeDropdown from '../shared/ModeDropdown'
 import NavSearch from '../search'
 import UserDropdown from '../shared/UserDropdown'
 
-// Definition Imports
-import { verticalLayoutClasses, layoutMenuTokens, getNavbarIconButtonHoverBg } from '@cap/theme'
+import { layoutMenuTokens, getNavbarIconButtonHoverBg } from '@cap/theme'
+import { verticalLayoutClasses } from '../../utils/layoutClasses'
 
 const NavbarContent = () => {
   const theme = useTheme()

@@ -10,7 +10,9 @@ import Close from '@mui/icons-material/Close';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { adminService } from '@auth/authorization-engine/services/adminService';
+import { adminService } from '../../../authorization-engine/services/adminService';
+import { Path } from '../../../../routes/path';
+import { useAppStore } from '@cap/platform-core';
 
 interface InvitationDetails {
   id: number; email: string; role: string; status: string; expiresAt: string
@@ -52,10 +54,23 @@ export default function JoinOrganization() {
     setState('accepting')
     try {
       const res = await adminService.acceptInvitation(token, email)
-      if (res.status >= 200 && res.status < 300) setState('accepted')
-      else { const data = res.data as any; setState('error'); setErrorMessage(data?.message || 'Failed to accept invitation.') }
-    } catch { setState('error'); setErrorMessage('Failed to accept invitation.') }
-  }, [token, email])
+      if (res.status >= 200 && res.status < 300) {
+        setState('accepted')
+        if (invitation?.organization) {
+          try {
+            useAppStore.getState().switchTenant(invitation.organization.slug || invitation.organization.id)
+          } catch {}
+        }
+      } else {
+        const data = res.data as any
+        setState('error')
+        setErrorMessage(data?.message || 'Failed to accept invitation.')
+      }
+    } catch {
+      setState('error')
+      setErrorMessage('Failed to accept invitation.')
+    }
+  }, [token, email, invitation])
 
   const handleDecline = useCallback(async () => {
     if (!token || !email) return
@@ -90,19 +105,19 @@ export default function JoinOrganization() {
 
   const ctaBtn = (label: string, onClick: () => void) => (
     <Button fullWidth variant="contained" size="large" onClick={onClick} endIcon={<ArrowForward />}
-      sx={{ py: 1.5, borderRadius: 3, fontWeight: 800, fontSize: '1rem', textTransform: 'none', bgcolor: 'info.main', boxShadow: (t) => `0 4px 14px ${alpha(t.palette.info.main, 0.4)}`, '&:hover': { bgcolor: 'info.dark', transform: 'translateY(-1px)' } }}>
+      sx={{ py: 1.5, borderRadius: 3, fontWeight: 800, fontSize: '1rem', textTransform: 'none', bgcolor: 'primary.main', boxShadow: (t) => `0 4px 14px ${alpha(t.palette.primary.main, 0.4)}`, '&:hover': { bgcolor: 'primary.dark', transform: 'translateY(-1px)' } }}>
       {label}
     </Button>
   )
 
   if (state === 'loading') return wrapBox(<Groups sx={{ fontSize: 32 }} />, theme.palette.primary.main, 'Loading invitation...', 'Please wait while we retrieve your invitation details.', <CircularProgress />)
-  if (state === 'error') return wrapBox(<ErrorOutline sx={{ fontSize: 32 }} />, theme.palette.error.main, 'Something went wrong', errorMessage, ctaBtn('Go to Login', () => navigate('/auth/login')))
-  if (state === 'expired') return wrapBox(<TimerOutlined sx={{ fontSize: 32 }} />, theme.palette.warning.main, 'Invitation Expired', 'This invitation has expired. Please contact the organization administrator.', ctaBtn('Go to Login', () => navigate('/auth/login')))
+  if (state === 'error') return wrapBox(<ErrorOutline sx={{ fontSize: 32 }} />, theme.palette.error.main, 'Something went wrong', errorMessage, ctaBtn('Go to Login', () => navigate(Path.auth.signin)))
+  if (state === 'expired') return wrapBox(<TimerOutlined sx={{ fontSize: 32 }} />, theme.palette.warning.main, 'Invitation Expired', 'This invitation has expired. Please contact the organization administrator.', ctaBtn('Go to Login', () => navigate(Path.auth.signin)))
   if (state === 'already_used') return wrapBox(<ErrorOutline sx={{ fontSize: 32 }} />, theme.palette.text.disabled, 'Invitation No Longer Valid', errorMessage, ctaBtn('Go to Dashboard', () => navigate('/dashboard')))
   if (state === 'accepted') return wrapBox(<CheckCircle sx={{ fontSize: 32 }} />, theme.palette.success.main, `Welcome to ${invitation?.organization.name}!`, `You have successfully joined as a ${invitation?.role}.`, ctaBtn('Go to Dashboard', () => navigate('/dashboard')))
-  if (state === 'declined') return wrapBox(<Close sx={{ fontSize: 32 }} />, theme.palette.text.disabled, 'Invitation Declined', `You have declined the invitation to join ${invitation?.organization.name}.`, ctaBtn('Go to Login', () => navigate('/auth/login')))
+  if (state === 'declined') return wrapBox(<Close sx={{ fontSize: 32 }} />, theme.palette.text.disabled, 'Invitation Declined', `You have declined the invitation to join ${invitation?.organization.name}.`, ctaBtn('Go to Login', () => navigate(Path.auth.signin)))
 
-  // Ready state â€” main invitation card
+  // Ready state — main invitation card
   return (
     <Box
       className="animate-scale-in"
@@ -148,7 +163,7 @@ export default function JoinOrganization() {
       <Stack spacing={1.5}>
         <Button fullWidth variant="contained" size="large" onClick={handleAccept} disabled={state === 'accepting'}
           startIcon={state === 'accepting' ? <CircularProgress size={18} color="inherit" /> : <CheckCircle />}
-          sx={{ py: 1.5, borderRadius: 3, fontWeight: 800, fontSize: '1rem', textTransform: 'none', bgcolor: 'info.main', boxShadow: (t) => `0 4px 14px ${alpha(t.palette.info.main, 0.4)}`, '&:hover': { bgcolor: 'info.dark', transform: 'translateY(-1px)' } }}>
+          sx={{ py: 1.5, borderRadius: 3, fontWeight: 800, fontSize: '1rem', textTransform: 'none', bgcolor: 'primary.main', boxShadow: (t) => `0 4px 14px ${alpha(t.palette.primary.main, 0.4)}`, '&:hover': { bgcolor: 'primary.dark', transform: 'translateY(-1px)' } }}>
           {state === 'accepting' ? t('organization.joining', 'Joining...') : t('organization.acceptJoin', 'Accept & Join Organization')}
         </Button>
         <Button fullWidth variant="text" size="large" onClick={handleDecline} disabled={state === 'declining'}

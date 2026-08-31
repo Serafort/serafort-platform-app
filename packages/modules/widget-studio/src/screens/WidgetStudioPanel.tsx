@@ -18,11 +18,12 @@ import HistoryRounded from '@mui/icons-material/HistoryRounded'
 import DeleteOutlineRounded from '@mui/icons-material/DeleteOutlineRounded'
 import PublishRounded from '@mui/icons-material/PublishRounded'
 import { useWidgetStudio } from '@cap/platform-store'
-import { runAgentPipeline, publishDraft } from '../agents/AgentOrchestrator'
+import { useGenerateWidget, usePublishWidget } from '../hooks/useWidgetStudioQuery'
 import PromptInput from '../components/PromptInput'
 import AgentPipelineTracker from '../components/AgentPipelineTracker'
 import DslPreviewCard from '../components/DslPreviewCard'
 import PublishConfirmDialog from '../components/PublishConfirmDialog'
+import { sanitizePrompt } from '../agents/sanitizer'
 
 const DRAWER_WIDTH = 400
 
@@ -34,7 +35,7 @@ const DRAWER_WIDTH = 400
  *   • Generate — prompt input + live pipeline tracker
  *   • History  — list of past drafts
  */
-const WidgetStudioPanel: React.FC = () => {
+export const WidgetStudioPanel: React.FC = () => {
   const {
     widgetStudioPanelOpen,
     closeWidgetStudioPanel,
@@ -49,33 +50,54 @@ const WidgetStudioPanel: React.FC = () => {
 
   const [tab, setTab] = useState(0)
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
-  const [isPublishing, setIsPublishing] = useState(false)
+
+  const generateMutation = useGenerateWidget()
+  const publishMutation = usePublishWidget()
 
   const activeDraft = getActiveDraft()
 
+  // ─── Generate Handler ───────────────────────────────────────────────────
+
   const handleSubmitPrompt = useCallback(
-    async (prompt: string) => {
-      const draftId = createWidgetDraft(prompt)
+    (rawPrompt: string) => {
+      const sanitized = sanitizePrompt(rawPrompt).sanitized.slice(0, 1000).trim()
+      if (!sanitized) return
+
+      const draftId = createWidgetDraft(sanitized)
       setTab(0)
 
-      await runAgentPipeline({ draftId, prompt })
+      generateMutation.mutate({
+        draftId,
+        prompt: sanitized,
+      })
     },
-    [createWidgetDraft],
+    [createWidgetDraft, generateMutation],
   )
 
-  const handlePublish = useCallback(async () => {
-    if (!activeDraftId) return
-    setIsPublishing(true)
+  // ─── Publish Handler ───────────────────────────────────────────────────
+
+  const handlePublish = useCallback(() => {
+    if (!activeDraftId || !activeDraft?.dsl) return
     setPublishDialogOpen(false)
-    await publishDraft(activeDraftId)
-    setIsPublishing(false)
-  }, [activeDraftId])
+
+    publishMutation.mutate({
+      draftId: activeDraftId,
+      dsl: activeDraft.dsl,
+      pageId: 'dashboard',
+    })
+  }, [activeDraftId, activeDraft, publishMutation])
 
   const canPublish =
     activeDraft &&
     activeDraft.dsl &&
     ['approved', 'previewed', 'validated'].includes(activeDraft.lifecycle) &&
-    !widgetStudioRunning
+    !widgetStudioRunning &&
+    !publishMutation.isPending
+
+  // ─── Error State ────────────────────────────────────────────────────────
+
+  const hasGenerationError = generateMutation.isError
+  const hasPublishError = publishMutation.isError
 
   return (
     <>
@@ -178,17 +200,43 @@ const WidgetStudioPanel: React.FC = () => {
           {/* ---- Generate Tab ---- */}
           {tab === 0 && (
             <Stack spacing={2.5}>
-              {/* API Key warning */}
-              {(() => {
-                const apiKey = (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env.VITE_GEMINI_API_KEY
-                const isKeyMissing = !apiKey || apiKey === 'your_gemini_api_key_here' || apiKey.trim() === ''
-                return isKeyMissing ? (
-                  <Alert severity="warning" sx={{ fontSize: '0.75rem', borderRadius: 2 }}>
-                    <strong>VITE_GEMINI_API_KEY</strong> is not configured.
-                    Add your Gemini API key to your <code>.env</code> file to enable AI generation.
-                  </Alert>
-                ) : null
-              })()}
+              {/* Generation error banner */}
+              {hasGenerationError && (
+                <Alert
+                  severity="error"
+                  sx={{ borderRadius: 2 }}
+                  action={
+                    <Button
+                      color="inherit"
+                      size="small"
+                      onClick={() => generateMutation.reset()}
+                    >
+                      Dismiss
+                    </Button>
+                  }
+                >
+                  {generateMutation.error?.message || 'Generation failed. Please try again.'}
+                </Alert>
+              )}
+
+              {/* Publish error banner */}
+              {hasPublishError && (
+                <Alert
+                  severity="error"
+                  sx={{ borderRadius: 2 }}
+                  action={
+                    <Button
+                      color="inherit"
+                      size="small"
+                      onClick={() => publishMutation.reset()}
+                    >
+                      Dismiss
+                    </Button>
+                  }
+                >
+                  {publishMutation.error?.message || 'Publish failed. Please try again.'}
+                </Alert>
+              )}
 
               {/* Prompt Input */}
               <Box>
@@ -198,7 +246,7 @@ const WidgetStudioPanel: React.FC = () => {
                 <PromptInput
                   onSubmit={handleSubmitPrompt}
                   disabled={false}
-                  isRunning={widgetStudioRunning}
+                  isRunning={widgetStudioRunning || generateMutation.isPending}
                 />
               </Box>
 
@@ -341,7 +389,7 @@ const WidgetStudioPanel: React.FC = () => {
         dsl={activeDraft?.dsl ?? null}
         onConfirm={handlePublish}
         onCancel={() => setPublishDialogOpen(false)}
-        isPublishing={isPublishing}
+        isPublishing={publishMutation.isPending}
       />
     </>
   )

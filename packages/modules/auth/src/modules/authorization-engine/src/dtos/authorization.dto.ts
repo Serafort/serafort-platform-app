@@ -24,7 +24,9 @@ export interface CheckPermissionRequest {
   resource?: string
   action?: string
   permission?: string
-  organizationId?: number
+  organizationId?: string | number
+  tenantId?: string | number
+  targetTenantId?: string | number
 }
 
 export interface CheckPermissionResponse {

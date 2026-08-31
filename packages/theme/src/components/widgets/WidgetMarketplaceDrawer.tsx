@@ -40,7 +40,7 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { globalWidgetRegistry } from '@cap/platform-core'
+import { globalWidgetRegistry } from '../../registry/WidgetRegistry'
 import { useAppStore } from '@cap/platform-store'
 import { useShallow } from 'zustand/shallow'
 import { widgetMarketplaceStore, useWidgetMarketplaceStore } from '../../store/widgetMarketplaceStore'
@@ -515,7 +515,7 @@ export const WidgetMarketplaceDrawer: React.FC = () => {
       setAiPrompt('')
       setSnackbar({
         open: true,
-        message: `✨ AI Generated & Registered Widget: "${catalogItem.title}"`,
+        message: `Template widget created: "${catalogItem.title}"`,
         severity: 'success',
       })
     }, 400)

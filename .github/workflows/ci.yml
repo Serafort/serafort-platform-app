@@ -1,0 +1,173 @@
+name: CI
+
+# Merge gates for the cap monorepo (plan item P0-2 in
+# boilerplate/analysis/production-launch-readiness.md).
+#
+# Every PR and every push to a release branch (main / develop) runs the full
+# matrix below. The pipeline is intentionally landed BEFORE the tree is green so
+# that regressions from here on are visible on every PR; each job is currently
+# `continue-on-error` and must be promoted to a required, blocking check as the
+# matching remediation track lands.
+#
+#   Job          Baseline on this branch (2026-08-31)      Promote to blocking when
+#   ----------   --------------------------------------    ------------------------
+#   type-check   RED  - module-landing tsconfig drags in   plan A5 (landing cleanup)
+#                       @cap/module-auth internals;         + A5/B3 (module-theme
+#                       module-theme: 3x TS2554             useThemeQuery types)
+#   lint         RED  - ~5.9k prettier/prettier CRLF        plan A4 / A5 (+ repo EOL
+#                       errors + real issues in 7 packages  normalisation)
+#   build        RED  - tsc -b: TS6133 unused symbols in    plan A5 + B3
+#                       module-auth / module-theme / theme
+#   unit         RED  - api-contracts(1) + app(2) +         triage the remainder
+#                       module-theme suite + layout          (B2/B3); the 3 EventBus
+#                       unhandled  (A2 fixed the 3 auth      tests are fixed
+#                       EventBus tests)
+#   circular     GREEN - 0 cycles (plan A6 done)             -- blocking now --
+#   e2e          RED  - scaffold only; backend checkout +   plan B2
+#                       webServer paths not wired yet
+#
+# To promote a job: delete its `continue-on-error: true` line and add the job to
+# the repository's required status checks (Settings > Branches).
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  type-check:
+    name: type-check (all packages)
+    runs-on: ubuntu-latest
+    continue-on-error: true # PROMOTE: plan A5 + A5/B3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-pnpm
+      - run: pnpm -r run type-check
+
+  lint:
+    name: lint (all packages)
+    runs-on: ubuntu-latest
+    continue-on-error: true # PROMOTE: plan A4 / A5 + repo EOL normalisation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-pnpm
+      - run: pnpm -r run lint
+
+  build:
+    name: build (@cap/app)
+    runs-on: ubuntu-latest
+    continue-on-error: true # PROMOTE: plan A5 + B3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-pnpm
+      - run: pnpm --filter @cap/app run build
+
+  unit:
+    name: unit tests (all packages)
+    runs-on: ubuntu-latest
+    continue-on-error: true # PROMOTE: plan A2, then triage the remainder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-pnpm
+      - run: pnpm -r run test
+
+  circular:
+    name: circular deps (madge)
+    runs-on: ubuntu-latest
+    # BLOCKING (plan A6 done): 0 cycles. `.madgerc` skips `import type` edges, which
+    # are compile-erased and cannot cause init-order failures, so this flags only
+    # real value cycles.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-pnpm
+      - run: pnpm run lint:circular
+
+  e2e:
+    name: e2e (Playwright + live backend)
+    runs-on: ubuntu-latest
+    continue-on-error: true # PROMOTE: plan B2
+    # SCAFFOLD: this wires the service containers and the backend checkout, but
+    # the run is not green yet. B2 owns aligning the backend env with
+    # Authentication/.env.test and fixing the playwright webServer paths
+    # (app/playwright.config.ts hard-codes `../../../Authentication`).
+    services:
+      mysql:
+        image: mysql:9.5
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: auth_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=15
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=15
+    env:
+      NODE_ENV: test
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: "3306"
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_DATABASE: auth_test
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: "6379"
+      VITE_API_URL: http://localhost:3333/api
+    steps:
+      - name: Check out frontend
+        uses: actions/checkout@v4
+
+      - name: Check out auth backend
+        uses: actions/checkout@v4
+        with:
+          repository: Serafort/serafort-auth-service
+          # Private repo: needs a read-scoped PAT / deploy key in
+          # secrets.AUTH_SERVICE_REPO_TOKEN. Until it exists this step fails,
+          # which is fine while the job is continue-on-error.
+          token: ${{ secrets.AUTH_SERVICE_REPO_TOKEN }}
+          path: Authentication
+
+      - uses: ./.github/actions/setup-node-pnpm
+
+      - name: Install backend dependencies
+        working-directory: Authentication
+        run: npm ci
+
+      - name: Backend migrate + seed
+        working-directory: Authentication
+        run: |
+          cp .env.test .env
+          node ace migration:run --force
+          node ace db:seed
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @cap/app exec playwright install --with-deps chromium
+
+      - name: Run E2E suite
+        run: pnpm --filter @cap/app run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: app/playwright-report
+          retention-days: 7
+          if-no-files-found: ignore

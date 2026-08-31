@@ -52,10 +52,6 @@ export default function Toolbar({
       | SelectChangeEvent,
     newValue: string | number,
   ) => {
-    console.log(newValue)
-    console.log(typeof newValue)
-    console.log(typeof newValue === 'string')
-
     if (setHandleChange === undefined) return
 
     // if (newValue === undefined)

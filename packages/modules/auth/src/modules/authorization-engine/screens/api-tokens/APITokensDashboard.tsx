@@ -77,9 +77,11 @@ const APITokensDashboard: React.FC = () => {
     }
   }
 
-  const filteredTokens = tokens.filter((token) =>
-    token.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  const filteredTokens = (Array.isArray(tokens) ? tokens : []).filter((token) => {
+    if (!token) return false
+    const tokenName = token.name || (token as any).token || (token as any).type || ''
+    return String(tokenName).toLowerCase().includes((searchQuery || '').toLowerCase())
+  })
 
   return (
     <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
@@ -128,7 +130,7 @@ const APITokensDashboard: React.FC = () => {
                 </Typography>
               </Box>
               <Typography variant='h4' fontWeight='bold'>
-                {tokens.filter((t) => t.status === 'active').length}
+                {tokens.filter((t) => t?.status === 'active').length}
               </Typography>
             </CardContent>
           </Card>
@@ -233,7 +235,7 @@ const APITokensDashboard: React.FC = () => {
                   <TableRow key={token.id} hover>
                     <TableCell>
                       <Typography variant='body2' fontWeight='medium'>
-                        {token.name}
+                        {token.name || (token as any).token || 'API Token'}
                       </Typography>
                       <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
                         {(token.abilities || []).slice(0, 2).map((scope) => (
@@ -257,13 +259,15 @@ const APITokensDashboard: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Chip
-                        label={token.status.toUpperCase()}
+                        label={(token.status || 'ACTIVE').toUpperCase()}
                         color={getStatusColor(token.status)}
                         size='small'
                         sx={{ fontWeight: 'bold', fontSize: '0.7rem' }}
                       />
                     </TableCell>
-                    <TableCell>{new Date(token.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {token.createdAt ? new Date(token.createdAt).toLocaleDateString() : '-'}
+                    </TableCell>
                     <TableCell>
                       {token.lastUsedAt
                         ? new Date(token.lastUsedAt).toLocaleString()

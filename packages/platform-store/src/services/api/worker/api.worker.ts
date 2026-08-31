@@ -31,15 +31,18 @@ export interface WorkerResponsePayload {
 let activeTenantId: string | null = null
 let activeAuthToken: string | null = null
 
-self.onmessage = async (event: MessageEvent<WorkerApiMessage>) => {
-  const { id, type, payload } = event.data
+const workerScope: any = typeof self !== 'undefined' ? self : null
 
-  if (type === 'SYNC_STATE') {
-    if ('tenantId' in payload) activeTenantId = payload.tenantId
-    if ('authToken' in payload) activeAuthToken = payload.authToken
-    self.postMessage({ id, ok: true, status: 200, statusText: 'OK', data: null, headers: {} })
-    return
-  }
+if (workerScope) {
+  workerScope.onmessage = async (event: MessageEvent<WorkerApiMessage>) => {
+    const { id, type, payload } = event.data
+
+    if (type === 'SYNC_STATE') {
+      if ('tenantId' in payload) activeTenantId = payload.tenantId
+      if ('authToken' in payload) activeAuthToken = payload.authToken
+      workerScope.postMessage({ id, ok: true, status: 200, statusText: 'OK', data: null, headers: {} })
+      return
+    }
 
   if (type === 'REQUEST') {
     const { url, method, headers = {}, body, timeout = 30000, responseType = 'json' }: WorkerRequestPayload = payload
@@ -105,7 +108,7 @@ self.onmessage = async (event: MessageEvent<WorkerApiMessage>) => {
         headers: responseHeaders,
       }
 
-      self.postMessage(workerResponse, { transfer: transferables })
+      workerScope.postMessage(workerResponse, { transfer: transferables })
     } catch (err: any) {
       clearTimeout(timer)
 
@@ -120,7 +123,9 @@ self.onmessage = async (event: MessageEvent<WorkerApiMessage>) => {
         error: err?.message || 'Network Error',
       }
 
-      self.postMessage(workerResponse)
+      workerScope.postMessage(workerResponse)
     }
   }
 }
+}
+

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import 'react-phone-input-2/lib/style.css'
 import Facebook from '@mui/icons-material/Facebook';
 import Google from '@mui/icons-material/Google';
-// 
 import FormLayout from './FormLayout';
 
 export default function SocialAuthentication() {

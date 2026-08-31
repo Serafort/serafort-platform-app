@@ -69,10 +69,10 @@ type StyledSubMenuProps = Pick<SubMenuProps, 'rootStyles' | 'disabled'> & {
 const StyledSubMenu = styled.li<StyledSubMenuProps>`
   position: relative;
   inline-size: 100%;
-  margin-block-start: ${menuTokens.vertical.submenu.marginBlockStart};
+  margin-block-start: ${({ theme }: any) => menuTokens?.vertical?.submenu?.marginBlockStart || '4px'};
 
   &.${menuClasses.open} > .${menuClasses.button} {
-    background-color: ${({ theme }: any) => theme.palette?.action?.hover || menuTokens.vertical.submenu.openHoverBg};
+    background-color: ${({ theme }: any) => theme.palette?.action?.hover || menuTokens?.vertical?.submenu?.openHoverBg || 'rgba(0, 0, 0, 0.04)'};
   }
 
   ${({ menuItemStyles }) => menuItemStyles};
@@ -166,7 +166,7 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
     strategy: 'fixed',
     open: openWhenCollapsed,
     onOpenChange: setOpenWhenCollapsed,
-    placement: menuTokens.vertical.submenu.placement as any,
+    placement: (menuTokens?.vertical?.submenu?.placement || 'right-start') as any,
     middleware: [
       offset({
         mainAxis: mainAxisOffset,

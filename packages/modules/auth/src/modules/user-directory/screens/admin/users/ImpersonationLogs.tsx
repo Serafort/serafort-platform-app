@@ -293,10 +293,40 @@ export default function ImpersonationLogs() {
               ) : paginatedLogs.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} align='center' sx={{ py: 8 }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 0.6 }}>
-                      <History sx={{ fontSize: 48, mb: 2, color: 'text.disabled' }} />
-                      <Typography variant='h6' sx={{ fontWeight: 800 }}>No logs found</Typography>
-                      <Typography variant='body2'>Try adjusting your search or filters.</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <Avatar
+                        sx={{
+                          width: 56,
+                          height: 56,
+                          mb: 2,
+                          bgcolor: alpha(theme.palette.primary.main, 0.08),
+                        }}
+                      >
+                        <History sx={{ fontSize: 32, color: 'primary.main' }} />
+                      </Avatar>
+                      <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
+                        {t('auth.admin.noLogsFound', 'No logs found')}
+                      </Typography>
+                      <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+                        {t('auth.admin.noLogsHint', 'Try adjusting your search or resetting filters.')}
+                      </Typography>
+                      <Button
+                        variant='outlined'
+                        color='primary'
+                        startIcon={<Refresh />}
+                        onClick={() => {
+                          setSearchTerm('');
+                          refetch();
+                        }}
+                        sx={{
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          fontWeight: 600,
+                          px: 2.5,
+                        }}
+                      >
+                        {t('auth.admin.resetAndRefresh', 'Reset Filters & Refresh')}
+                      </Button>
                     </Box>
                   </TableCell>
                 </TableRow>

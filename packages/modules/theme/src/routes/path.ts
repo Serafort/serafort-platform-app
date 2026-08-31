@@ -1,12 +1,10 @@
 // ---------------------------------------------------------------------------
 // Canonical path registry for the Theme module.
-// Single source of truth for theme route URLs.
+// Derives directly from Tier 0 SSOT (AppPaths in @cap/shared-types).
 // ---------------------------------------------------------------------------
+import { AppPaths } from '@cap/shared-types'
 
-export const ThemePath = {
-  theme: '/theme',
-
-} as const
+export const ThemePath = AppPaths.theme
 
 export const Path = ThemePath
 export default ThemePath

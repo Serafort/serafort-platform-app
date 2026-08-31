@@ -156,4 +156,11 @@ describe('API_CONTRACTS registry', () => {
     const registryType: API_CONTRACTS_TYPE = API_CONTRACTS
     expect(registryType).toBe(API_CONTRACTS)
   })
+
+  describe('Synchronized Backend DTOs', () => {
+    it('verifies DTO contracts are exported and type-checked', async () => {
+      const dtos = await import('./dtos')
+      expect(dtos).toBeDefined()
+    })
+  })
 })

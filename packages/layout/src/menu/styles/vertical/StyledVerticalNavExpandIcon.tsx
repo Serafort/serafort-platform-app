@@ -1,4 +1,4 @@
-import { styled } from '@cap/theme'
+import styled from '@emotion/styled'
 import type { RootStylesType } from '../../types'
 import type { VerticalMenuContextProps } from '../../contexts/verticalMenuContext'
 

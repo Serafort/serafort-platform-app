@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import encryption from '../services/encryption'
 
 import { createAuthSlice, type AuthSlice } from './slices/authSlice'
-import { onTerminalError } from '../services/api/api.client'
+import { onTerminalError, setGlobalNotificationHandler } from '../services/api/api.client'
 import { createGuestSlice, type GuestSlice } from './slices/guestSlice'
 import { createProfileSlice, type ProfileSlice } from './slices/profileSlice'
 import { createNotificationSlice, type NotificationSlice } from './slices/notificationSlice'
@@ -89,7 +89,12 @@ const secureStorage = {
   setItem: async (name: string, value: string): Promise<void> => {
     const storageKey = (import.meta as any).env?.VITE_STORAGE_KEY || 'cap-platform-storage'
     if (name === storageKey) {
-      const masterKey = (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY || 'default-cap-storage-encryption-key-32-chars'
+      // Fail closed: never fall back to a hardcoded key. A predictable key gives
+      // zero at-rest protection for the persisted store and must not ship.
+      const masterKey = (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY
+      if (!masterKey) {
+        throw new Error('VITE_STORAGE_ENCRYPTION_KEY is not defined')
+      }
       const encrypted = await encryption.encryptData(value, masterKey)
       localStorage.setItem(name, encrypted)
     } else {
@@ -227,6 +232,11 @@ onTerminalError(() => {
       tokens: null,
     }))
   }
+})
+
+// Wire global notification handler from API client to store
+setGlobalNotificationHandler((notification) => {
+  useAppStore.getState().addNotification(notification)
 })
 
 import { useShallow } from 'zustand/shallow'

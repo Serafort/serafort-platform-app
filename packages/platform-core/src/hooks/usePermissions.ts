@@ -1,5 +1,5 @@
 import { useAppStore } from '@cap/platform-store'
-import { hasAdminRole, normalizeRole, Roles } from '../types/app-types'
+import { hasAdminRole, normalizeRole, Roles } from '@cap/shared-types/auth'
 import { useAbility } from '@cap/authorization'
 
 export const usePermissions = () => {
@@ -16,9 +16,18 @@ export const usePermissions = () => {
     if (!isAuthenticated || !user) return false
 
     const userData = (user as any).user || user
-    const userRole = normalizeRole(userData.role) || normalizeRole(userData.roleObject) || normalizeRole(userData.roleName)
+    const userRole =
+      normalizeRole(userData.role) ||
+      normalizeRole(userData.roleId) ||
+      normalizeRole(userData.role_id) ||
+      normalizeRole(userData.roleObject) ||
+      normalizeRole(userData.roleName) ||
+      normalizeRole(userData.role_name)
 
-    if (!userRole) return false
+    if (!userRole) {
+      if (userData.isAdmin || (user as any).isAdmin) return true
+      return false
+    }
 
     const rolesArray = (Array.isArray(roles) ? roles : [roles])
       .map((role) => normalizeRole(role))
@@ -58,7 +67,16 @@ export const usePermissions = () => {
       : []
 
     if (userPermissions.length === 0) {
-      if (hasAdminRole(userData.role) || hasAdminRole(userData.roleObject) || hasAdminRole(userData.roleName))
+      if (
+        hasAdminRole(userData.role) ||
+        hasAdminRole(userData.roleId) ||
+        hasAdminRole(userData.role_id) ||
+        hasAdminRole(userData.roleObject) ||
+        hasAdminRole(userData.roleName) ||
+        hasAdminRole(userData.role_name) ||
+        userData.isAdmin ||
+        (user as any).isAdmin
+      )
         return true
       return false
     }

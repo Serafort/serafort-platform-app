@@ -104,6 +104,9 @@ Date: 2026-08-06 · Scope: `packages/modules/auth` against the "Multi-Tenant IDa
 | 10 | `UserActivityTimeline` shows fake data | Medium | `UserActivityTimeline.tsx:10-61` |
 | 11 | Hardcoded `localhost:3333` in OIDC/social redirect paths | Medium | `OidcWaitScreen.tsx:25`, `SignInV2.tsx:289,299` |
 | 12 | `useAuthStore`/`user` typed as `any` | Low | `store/index.ts:6` |
+| 13 | Step-up `elevationToken` fabricated client-side from `Date.now()`; `stepUp.verifyTotp` hard-coded `success: true` | Medium (credential-shaped, predictable; not yet transmitted to backend) | `mfa-orchestrator/services/mfa.service.ts` |
+
+> **Update 2026-08-30 (findings #3, #13):** `mfa.service.ts` `stepUp.verifyBiometric` / `verifyTotp` now prefer the server-issued token, fall back to `crypto.randomUUID()` (fail closed), and derive `success` from the response body; `useStepUpAuth` rejects unverified results. The legacy `verifyMfaCode` always-success mock (finding #3) inside `SignInV2` is unchanged pending a real `@cap/module-mfa` backend. See `technical-issues.md` §9 and `.jules/sentinel.md` (2026-08-30).
 
 ---
 

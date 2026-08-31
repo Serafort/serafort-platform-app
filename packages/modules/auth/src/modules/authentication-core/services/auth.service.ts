@@ -260,13 +260,62 @@ const authService = {
   // ========================================================================
   passwordless: {
     /** Send a magic link to the user's email */
-    send: (email: string): Promise<FetchResponse<any>> => {
-      return apiClient.post(ENDPOINTS.auth.passwordless.send, { email })
+    send: (payload: string | { email: string; redirectUrl?: string }): Promise<FetchResponse<any>> => {
+      const body = typeof payload === 'string' ? { email: payload } : payload
+      return apiClient.post(ENDPOINTS.auth.passwordless.send, body)
     },
 
-    /** Verify a magic link token */
-    verify: (token: string): Promise<FetchResponse<any>> => {
-      return apiClient.get(ENDPOINTS.auth.passwordless.verify, { params: { token } })
+    /** Verify a magic link token and hydrate session */
+    verify: async (tokenOrParams: string | { token: string; email?: string }): Promise<FetchResponse<any>> => {
+      const params = typeof tokenOrParams === 'string' ? { token: tokenOrParams } : tokenOrParams
+      const response = await apiClient.get(ENDPOINTS.auth.passwordless.verify, { params })
+      const data: any = response?.data
+      if (data) {
+        if (data.token) {
+          try {
+            await secureTokenManager.setTokens(data.token)
+          } catch {
+            // Token manager storage fallback
+          }
+        }
+        if (data.user) {
+          const userId = String(data.user.id || data.user.userId || 'unknown')
+          const sessionId = String(data.session?.id || data.sessionId || `session-${crypto.randomUUID().slice(0, 8)}`)
+          const email = data.user.email || (typeof params === 'object' ? params.email : '') || ''
+
+          await eventBus.publish(
+            createUserAuthenticatedEvent({
+              userId,
+              email,
+              factors: ['magic_link'],
+              method: 'magic_link',
+              sessionId,
+            })
+          )
+
+          await eventBus.publish(
+            createSessionCreatedEvent({
+              sessionId,
+              userId,
+              createdAt: new Date().toISOString(),
+              expiresAt: data.expiresAt || new Date(Date.now() + (data.expiresIn || 3600) * 1000).toISOString(),
+            })
+          )
+
+          if (data.token) {
+            await eventBus.publish(
+              createTokenIssuedEvent({
+                tokenId: data.tokenId || 'magic-link-token',
+                userId,
+                tokenType: 'access',
+                expiresAt: data.expiresAt || new Date(Date.now() + (data.expiresIn || 3600) * 1000).toISOString(),
+                scopes: data.scopes || ['read', 'write'],
+              })
+            )
+          }
+        }
+      }
+      return response
     },
   },
 

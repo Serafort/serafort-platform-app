@@ -1,15 +1,19 @@
 import React from 'react';
-import { globalWidgetRegistry } from '@cap/platform-core';
+import { globalWidgetRegistry } from '../registry/WidgetRegistry';
 import DynamicAiWidget, { type DynamicAiWidgetSpec } from '../components/widgets/DynamicAiWidget';
 import type { WidgetCatalogItem } from '../components/widgets/WidgetMarketplaceDrawer';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
-class AiWidgetGeneratorService {
+/**
+ * Local Template Widget Generator — Generates preview/sample widget specifications
+ * locally for instant prototyping and demo purposes.
+ */
+class TemplateWidgetGeneratorService {
   private generatedCount = 0;
 
   generateWidget(prompt: string): { spec: DynamicAiWidgetSpec; catalogItem: WidgetCatalogItem } {
     this.generatedCount++;
-    const id = `genai-widget-${Date.now()}-${this.generatedCount}`;
+    const id = `template-widget-${Date.now()}-${this.generatedCount}`;
     const cleanPrompt = prompt.trim();
     const lower = cleanPrompt.toLowerCase();
 
@@ -19,7 +23,7 @@ class AiWidgetGeneratorService {
       widgetSpec = {
         id,
         title: cleanPrompt.length > 30 ? 'Revenue & Growth Analytics' : cleanPrompt,
-        subtitle: 'GenAI Visual Chart Data',
+        subtitle: 'Sample Chart Widget',
         type: 'bar-chart',
         prompt: cleanPrompt,
         items: [
@@ -83,5 +87,6 @@ class AiWidgetGeneratorService {
   }
 }
 
-export const aiWidgetGeneratorService = new AiWidgetGeneratorService();
+export const aiWidgetGeneratorService = new TemplateWidgetGeneratorService();
 export default aiWidgetGeneratorService;
+

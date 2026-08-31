@@ -9,3 +9,6 @@ export { default as AuthenticationCorePath } from './screens/path'
 export { useAuthStore } from './store'
 
 
+import { authenticationCoreDictionaries, registerDictionary } from './i18n/registry'
+
+registerDictionary(authenticationCoreDictionaries as any)

@@ -10,25 +10,29 @@ This workspace uses a **Monorepo** architecture leveraging `pnpm` workspaces. It
 
 ### Monorepo Structure
 
-*   **Host Application (`/app`)**: The main entry point (Vite-based) that orchestrates, mounts, and serves dynamic domain modules.
+*   **Host Application (`/app`)**: The main entry point (Vite-based) that orchestrates, mounts, and serves dynamic domain modules with granular code splitting.
 *   **Shared Platform Packages (`/packages/`)**:
     *   `shared-types`: Zero-dependency TypeScript types, domain entities, and API contracts.
-    *   `platform-core`: Utilities, hooks, and core business logic.
-    *   `platform-store`: State management (hydration, secure storage).
-    *   `layout`: The dedicated UI layout package (App shell, sidebar, templates).
-    *   `theme`: Global styles and design tokens.
-    *   `api-contracts` & `auth-contracts`: Strict API and Auth type boundaries.
+    *   `platform-core`: Utilities, hooks, module assembly, and runtime orchestration.
+    *   `platform-store`: State management (hydration, encrypted secure storage, Zustand).
+    *   `authorization`: High-performance permission checker and ABAC/RBAC engine.
+    *   `layout`: Dedicated UI layout package (Vertical, Horizontal, Blank, and Public shells).
+    *   `theme`: Global styles, design tokens, AI theme synthesis, and visual effects.
+    *   `api-contracts` & `auth-contracts`: Strict API, IAM, and Auth type boundaries.
 *   **Domain Modules (`/packages/modules/`)**:
-    *   `auth`: Enterprise-grade Identity and Access Management (IDaaS), MFA, Passkey, Passwordless.
-    *   `landing`: Public landing pages.
-    *   `theme`: Tenant branding and theme preset editor.
+    *   `auth`: Enterprise-grade Identity and Access Management (IDaaS), MFA, Passkey, WebAuthn, SSO, SCIM, and User Directory.
+    *   `landing`: Public landing pages and onboarding pipelines.
+    *   `theme`: Tenant branding and theme preset customizer.
+    *   `dashboard`: Modular multi-tenant widget workspace and layout engine.
+    *   `widget-studio`: Multi-agent AI widget generation studio with real-time SSE streaming.
 
 ## 🛠️ Tech Stack
 
-*   **Core:** React 19, TypeScript
-*   **Build Tool:** Vite
+*   **Core:** React 19, TypeScript 5.8
+*   **Build Tool:** Vite 7 with modular `manualChunks` code splitting
 *   **Routing:** React Router v7
 *   **Styling & UI:** Material UI (MUI) v7, Virtualized React Tables
+*   **State & Query:** Zustand 5, TanStack React Query 5
 *   **PWA:** Workbox for offline support and service workers
 *   **Testing:** Playwright for E2E testing, Vitest for unit testing
 *   **Package Management:** `pnpm` workspaces
@@ -82,6 +86,9 @@ We rely on **Playwright** for robust End-to-End (E2E) integration tests, specifi
 
 ### Code Quality & Audits
 
+*   **Type-Checking:** `pnpm -r run type-check` (verifies 0 TypeScript errors across all 15 packages)
+*   **Production Build:** `pnpm --filter @cap/app run build` (`tsc -b && vite build`)
+*   **Unit Tests:** `pnpm -r run test` (`vitest run`)
 *   **Linting:** `pnpm run lint`
 *   **Security Audits:** `pnpm run audit:ci` checks dependencies for known vulnerabilities.
 *   **Circular Dependency Check:** `pnpm run lint:circular` (madge) — also wired into the pre-commit hook.

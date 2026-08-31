@@ -6,7 +6,8 @@
     "types": "src/index.ts",
     "scripts": {
         "lint": "eslint .",
-        "type-check": "tsc --noEmit"
+        "type-check": "tsc --noEmit",
+        "test": "vitest run --passWithNoTests"
     },
     "dependencies": {
         "@cap/auth-contracts": "workspace:*",
@@ -16,13 +17,14 @@
         "@cap/shared-types": "workspace:*",
         "@mui/material": "^7.0.0",
         "@mui/icons-material": "^7.0.0",
-        "react-router-dom": "^7.1.1"
+        "react-router-dom": "^7.18.3"
     },
     "peerDependencies": {
         "react": "^19.0.0",
         "react-dom": "^19.0.0"
     },
     "devDependencies": {
-        "typescript": "^5.7.2"
+        "typescript": "^5.7.2",
+        "vitest": "^4.0.16"
     }
 }

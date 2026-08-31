@@ -28,18 +28,24 @@ const button: Theme['components'] = {
   MuiButton: {
     styleOverrides: {
       root: ({ theme, ownerState }) => ({
-        borderRadius: 'var(--comp-button-border-radius, 6px)',
+        borderRadius: 'var(--form-button-radius, var(--comp-button-border-radius, var(--radius-md, 8px)))',
+        minHeight:
+          ownerState.size === 'large'
+            ? 'var(--form-button-height-large, 52px)'
+            : ownerState.size === 'small'
+              ? '44px'
+              : 'var(--form-button-height-primary, 48px)',
+        minWidth: '44px',
         '&.Mui-disabled': {
-          opacity: 0.45,
+          opacity: 'var(--form-button-disabled-opacity, 0.45)' as any,
         },
         '&:focus-visible, &.Mui-focusVisible': {
           outline: `2px solid ${theme.palette.primary.main}`,
           outlineOffset: 2,
         },
         transform: 'scale(1.001)',
-        transition: theme.transitions.create('all', {
-          duration: theme.transitions.duration.short,
-        }),
+        transition:
+          'all var(--motion-duration-quick, 120ms) var(--motion-easing-standard, cubic-bezier(0.4, 0.0, 0.2, 1))',
         '&:not(.Mui-disabled):active': {
           transform: 'scale(0.98)',
         },

@@ -635,13 +635,34 @@ const ROLE_ALIASES: Record<string, string> = {
   'provider admin': TenantRoles.PROVIDER_ADMIN,
 }
 
+const ROLE_NUMBER_MAP: Record<number, string> = {
+  1: 'user',
+  2: 'participant',
+  3: 'judge',
+  4: 'provider_employee',
+  5: 'provider_admin',
+  6: 'admin',
+  7: 'super_admin_employee',
+  8: 'super_admin',
+}
+
 export const normalizeRole = (role: unknown): string | undefined => {
-  if (!role) return undefined
+  if (role === undefined || role === null || role === '') return undefined
+
+  if (typeof role === 'number') {
+    return ROLE_NUMBER_MAP[role] || undefined
+  }
 
   if (typeof role === 'string') {
-    const normalized = role.trim().toLowerCase().replace(/[\s-]+/g, '_')
+    const trimmed = role.trim()
+    const numericRole = Number(trimmed)
+    if (!Number.isNaN(numericRole) && ROLE_NUMBER_MAP[numericRole]) {
+      return ROLE_NUMBER_MAP[numericRole]
+    }
+
+    const normalized = trimmed.toLowerCase().replace(/[\s-]+/g, '_')
     if (ROLE_VALUES.has(normalized)) return normalized
-    return ROLE_ALIASES[role.trim().toLowerCase()] || ROLE_ALIASES[normalized]
+    return ROLE_ALIASES[trimmed.toLowerCase()] || ROLE_ALIASES[normalized]
   }
 
   if (typeof role === 'object') {
@@ -650,9 +671,13 @@ export const normalizeRole = (role: unknown): string | undefined => {
       normalizeRole(roleLike.slug) ||
       normalizeRole(roleLike.name) ||
       normalizeRole(roleLike.role) ||
+      normalizeRole(roleLike.roleId) ||
+      normalizeRole(roleLike.role_id) ||
       normalizeRole(roleLike.roleName) ||
+      normalizeRole(roleLike.role_name) ||
       normalizeRole(roleLike.value) ||
-      normalizeRole(roleLike.code)
+      normalizeRole(roleLike.code) ||
+      normalizeRole(roleLike.id)
     )
   }
 

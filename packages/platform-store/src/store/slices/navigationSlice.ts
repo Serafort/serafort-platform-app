@@ -15,6 +15,7 @@ export interface NavigationSlice {
   updateIsBreakpointReached: (isBreakpointReached: boolean) => void
 
   navItems: NavItemConfig[]
+  setNavigationItems: (items: NavItemConfig[]) => void
   registerModuleNavigation: (items: NavItemConfig[]) => void
   clearNavigation: () => void
 }
@@ -82,6 +83,11 @@ export const createNavigationSlice: StateCreator<
   },
 
   navItems: [],
+  setNavigationItems: (items: NavItemConfig[]) => {
+    set((state) => {
+      state.navItems = items
+    })
+  },
   registerModuleNavigation: (items: NavItemConfig[]) => {
     set((state) => {
       items.forEach((item) => {

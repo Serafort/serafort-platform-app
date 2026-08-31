@@ -23,11 +23,11 @@ const lightSecondary = {
 const lightSurface = {
   100: '#FFFFFF',
   200: '#FFFFFF',
-  300: '#F8F9FA',
-  400: '#F1F3F5',
-  500: '#E9ECEF',
-  600: '#CED4DA',
-  main: '#F8F9FA',
+  300: '#F8FAFC',
+  400: '#F1F5F9',
+  500: '#E2E8F0',
+  600: '#CBD5E1',
+  main: '#F8FAFC',
 }
 
 const lightSurfaceMixed = {

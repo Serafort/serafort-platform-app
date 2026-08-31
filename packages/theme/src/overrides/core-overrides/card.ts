@@ -11,11 +11,12 @@ const card = (skin: Skin): Theme['components'] => {
       },
       styleOverrides: {
         root: ({ ownerState }) => ({
-          borderRadius: 'var(--comp-card-border-radius, 12px)',
-          backgroundColor: 'var(--effect-bg, var(--mui-palette-background-paper))',
-          backdropFilter: 'var(--effect-backdrop, none)',
+          borderRadius: 'var(--bento-radius, var(--comp-card-border-radius, var(--radius-lg, 12px)))',
+          backgroundColor: 'var(--surface-paper, var(--effect-bg, var(--mui-palette-background-paper)))',
+          borderColor: 'var(--surface-border, var(--glass-border, var(--mui-palette-divider)))',
+          backdropFilter: 'var(--glass-blur, var(--effect-backdrop, none))',
           ...(ownerState.variant !== 'outlined' && {
-            boxShadow: 'var(--effect-shadow, var(--comp-card-box-shadow, var(--mui-customShadows-md)))',
+            boxShadow: 'var(--glass-shadow, var(--effect-shadow, var(--comp-card-box-shadow, var(--mui-customShadows-md))))',
           }),
         }),
       },

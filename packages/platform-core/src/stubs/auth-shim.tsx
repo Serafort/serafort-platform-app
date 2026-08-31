@@ -1,5 +1,6 @@
 import React from 'react';
 import { Avatar } from '@mui/material';
+import { AppPaths } from '@cap/shared-types';
 
 /**
  * @cap/module-auth Shim
@@ -35,21 +36,19 @@ export const CustomAvatar = (props: CustomAvatarProps) => {
 
 export const RoleIndicator = (props: { showLabel?: boolean, size?: string }) => null;
 
-import { AppPaths } from '@cap/shared-types';
-
 // 2. Constants & Data Structures
 export const Path = {
   auth: {
     signin: AppPaths.auth.login,
-    signup: AppPaths.auth.register,
+    signup: AppPaths.auth.signup,
   },
   admin: {
     users: AppPaths.admin.users,
     roles: AppPaths.admin.roles,
   },
   account: {
-    overview: AppPaths.account.settings,
-    edit: AppPaths.account.settings,
+    overview: AppPaths.account.overview,
+    edit: AppPaths.account.edit,
   },
 };
 

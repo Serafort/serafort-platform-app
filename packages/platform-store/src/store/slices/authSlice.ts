@@ -64,11 +64,15 @@ const normalizeUserData = (userData: any) => {
 
   const resolvedRole =
     normalizeRole(normalized.role) ||
+    normalizeRole(normalized.roleId) ||
+    normalizeRole(normalized.role_id) ||
     normalizeRole(normalized.roleObject) ||
-    normalizeRole(normalized.roleName)
+    normalizeRole(normalized.roleName) ||
+    normalizeRole(normalized.role_name)
 
   if (resolvedRole) {
     normalized.role = resolvedRole
+    normalized.roleName = resolvedRole
   }
 
   if (normalized.avatar && !normalized.avatarUrl) {

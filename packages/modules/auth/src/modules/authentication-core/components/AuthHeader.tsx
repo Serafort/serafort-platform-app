@@ -18,10 +18,10 @@ const AuthHeader = () => {
         width: '100%',
         whiteSpace: 'nowrap',
         borderBottom: '1px solid',
-        borderColor: theme.palette.mode === 'dark' ? '#222831' : '#dbdfe6',
+        borderColor: 'divider',
         px: { xs: 4, sm: 10 },
         py: 2,
-        bgcolor: theme.palette.mode === 'dark' ? '#101622' : '#ffffff',
+        bgcolor: 'background.paper',
         position: 'absolute',
         top: 0,
         left: 0,
@@ -33,7 +33,7 @@ const AuthHeader = () => {
           sx={{
             width: 32,
             height: 32,
-            color: '#135bec',
+            color: 'primary.main',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -48,8 +48,7 @@ const AuthHeader = () => {
             fontWeight: 700,
             lineHeight: 1.2,
             letterSpacing: '-0.015em',
-            color: theme.palette.mode === 'dark' ? '#ffffff' : '#111318',
-            fontFamily: "'Manrope', sans-serif",
+            color: 'text.primary',
           }}
         >
           {t('auth.common.appName')}
@@ -63,10 +62,9 @@ const AuthHeader = () => {
             textTransform: 'none',
             fontSize: '0.875rem',
             fontWeight: 500,
-            color: theme.palette.mode === 'dark' ? '#9ca3af' : '#616f89',
-            fontFamily: "'Manrope', sans-serif",
+            color: 'text.secondary',
             '&:hover': {
-              color: '#135bec',
+              color: 'primary.main',
               bgcolor: 'transparent',
             },
           }}

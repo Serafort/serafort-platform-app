@@ -29,7 +29,7 @@ const getBaseURL = (): string => {
 
 export const API_CONFIG = {
   baseURL: getBaseURL(),
-  timeout: import.meta.env.VITE_API_TIMEOUT ? Number(import.meta.env.VITE_API_TIMEOUT) : 51730,
+  timeout: import.meta.env.VITE_API_TIMEOUT ? Number(import.meta.env.VITE_API_TIMEOUT) : 15000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -68,6 +68,28 @@ export function getImpersonationContext(): ImpersonationSession | null {
   return currentImpersonationSession
 }
 
+export type GlobalNotificationPayload = {
+  title: string
+  message: string
+  type: 'error' | 'warning' | 'info' | 'success'
+}
+
+export type GlobalNotificationHandler = (notification: GlobalNotificationPayload) => void
+
+let globalNotificationHandler: GlobalNotificationHandler | null = null
+
+export function setGlobalNotificationHandler(handler: GlobalNotificationHandler | null): void {
+  globalNotificationHandler = handler
+}
+
+export function emitGlobalNotification(notification: GlobalNotificationPayload): void {
+  try {
+    if (globalNotificationHandler) {
+      globalNotificationHandler(notification)
+    }
+  } catch {}
+}
+
 import {
   RefreshResponseDto,
   ApiResponse,
@@ -85,6 +107,7 @@ export interface FetchRequestConfig extends RequestInit {
   timeout?: number
   responseType?: 'json' | 'text' | 'blob' | 'arraybuffer' | 'formData'
   _retry?: boolean
+  skipGlobalNotification?: boolean
 }
 
 export interface FetchResponse<T = unknown> {
@@ -96,23 +119,134 @@ export interface FetchResponse<T = unknown> {
   ok: boolean
 }
 
-export class HttpError extends Error {
-  config: FetchRequestConfig
-  request?: Request
+const DB_ERROR_PATTERNS = [
+  /syntax error at or near/i,
+  /pg_/i,
+  /relation ".*" does not exist/i,
+  /column ".*" does not exist/i,
+  /violates.*constraint/i,
+  /duplicate key value/i,
+  /deadlock detected/i,
+  /QueryFailedError/i,
+  /Sequelize/i,
+  /TypeORM/i,
+  /Prisma/i,
+  /SQLSTATE/i,
+  /ORA-\d+/i,
+  /ER_DUP_ENTRY/i,
+  /MongoError/i,
+  /select .* from/i,
+  /insert into/i,
+  /update .* set/i,
+  /delete from/i,
+]
+
+export function sanitizeErrorMessage(
+  rawMessage: unknown,
+  status?: number,
+): { message: string; i18nKey: string } {
+  const str = typeof rawMessage === 'string' ? rawMessage : (rawMessage as any)?.message || ''
+
+  // If string matches DB/ORM traces or raw SQL leak, return sanitized server error
+  const isDbLeak = DB_ERROR_PATTERNS.some((pattern) => pattern.test(str))
+  if (isDbLeak || (status && status >= 500 && (!str || str.toLowerCase().includes('internal server error')))) {
+    return {
+      message: 'A server error occurred. Please try again later.',
+      i18nKey: 'errors.server_error',
+    }
+  }
+
+  if (status === 400) {
+    return { message: str || 'Invalid request parameters.', i18nKey: 'errors.bad_request' }
+  }
+  if (status === 401) {
+    return { message: str || 'Your session has expired or you are unauthorized.', i18nKey: 'errors.unauthorized' }
+  }
+  if (status === 403) {
+    return { message: str || 'You do not have permission to perform this action.', i18nKey: 'errors.forbidden' }
+  }
+  if (status === 404) {
+    return { message: str || 'The requested resource was not found.', i18nKey: 'errors.not_found' }
+  }
+  if (status === 409) {
+    return { message: str || 'A resource conflict occurred. Please refresh.', i18nKey: 'errors.conflict' }
+  }
+  if (status === 422) {
+    return { message: str || 'Validation failed. Please check your input.', i18nKey: 'errors.validation_error' }
+  }
+  if (status === 423) {
+    return { message: str || 'This account or resource is temporarily locked.', i18nKey: 'errors.locked' }
+  }
+  if (status === 429) {
+    return { message: str || 'Too many requests. Please slow down and try again.', i18nKey: 'errors.rate_limit' }
+  }
+  if (status && status >= 500) {
+    return { message: 'A server error occurred. Please try again later.', i18nKey: 'errors.server_error' }
+  }
+
+  return { message: str || 'An unexpected error occurred.', i18nKey: 'errors.unknown' }
+}
+
+export class AppError extends Error {
+  config?: FetchRequestConfig
   response?: FetchResponse<unknown>
   code?: string
+  status: number
+  i18nKey: string
+  userMessage: string
+  errors?: Record<string, string[]>
+
+  constructor(options: {
+    message?: string
+    userMessage?: string
+    i18nKey?: string
+    config?: FetchRequestConfig
+    response?: FetchResponse<unknown>
+    code?: string
+    status?: number
+    errors?: Record<string, string[]>
+  }) {
+    const sanitized = sanitizeErrorMessage(options.userMessage || options.message, options.status)
+    const finalMsg = options.userMessage || sanitized.message
+    super(finalMsg)
+    this.name = 'AppError'
+    this.config = options.config
+    this.response = options.response
+    this.code = options.code || (options.status ? String(options.status) : 'UNKNOWN_ERROR')
+    this.status = options.status || (options.response?.status ?? 0)
+    this.i18nKey = options.i18nKey || sanitized.i18nKey
+    this.userMessage = finalMsg
+    this.errors = options.errors
+  }
+}
+
+export function isAppError(error: unknown): error is AppError {
+  return error instanceof AppError || (typeof error === 'object' && error !== null && (error as any).name === 'AppError')
+}
+
+export class HttpError extends AppError {
+  request?: Request
 
   constructor(
     message: string,
     config: FetchRequestConfig,
     response?: FetchResponse<unknown>,
     code?: string,
+    errors?: Record<string, string[]>,
   ) {
-    super(message)
+    const status = response?.status ?? 0
+    const sanitized = sanitizeErrorMessage(message, status)
+    super({
+      message,
+      userMessage: sanitized.message,
+      i18nKey: sanitized.i18nKey,
+      config,
+      response,
+      code,
+      status,
+      errors,
+    })
     this.name = 'HttpError'
-    this.config = config
-    this.response = response
-    this.code = code
   }
 }
 
@@ -163,6 +297,42 @@ class TokenRefreshManager {
     resolve: (token: string) => void
     reject: (error: unknown) => void
   }> = []
+  private channel: BroadcastChannel | null = null
+
+  constructor() {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      try {
+        this.channel = new BroadcastChannel('cap_token_refresh_sync')
+        this.channel.onmessage = (event: MessageEvent) => {
+          if (!event.data) return
+          if (event.data.type === 'REFRESH_STARTED') {
+            this.isRefreshing = true
+          } else if (event.data.type === 'REFRESH_SUCCESS' && event.data.token) {
+            this.isRefreshing = false
+            this.refreshPromise = null
+            this.isPaused = false
+            this.processQueue(null, event.data.token)
+          } else if (event.data.type === 'REFRESH_FAILURE') {
+            this.isRefreshing = false
+            this.refreshPromise = null
+            this.processQueue(new Error(event.data.error || 'Cross-tab refresh failure'), null)
+          }
+        }
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.warn('[TokenRefreshManager] BroadcastChannel init error:', err)
+        }
+      }
+    }
+  }
+
+  private broadcast(message: { type: string; token?: string; error?: string }) {
+    try {
+      this.channel?.postMessage(message)
+    } catch {
+      // Ignore broadcast errors
+    }
+  }
 
   private processQueue(error: unknown = null, token: string | null = null) {
     this.failedQueue.forEach((promise) => {
@@ -246,6 +416,8 @@ class TokenRefreshManager {
       return this.refreshPromise
     }
 
+    this.broadcast({ type: 'REFRESH_STARTED' })
+
     this.refreshPromise = (async () => {
       this.isRefreshing = true
 
@@ -253,6 +425,7 @@ class TokenRefreshManager {
         const token = await this.refreshTokenRequest()
         this.isPaused = false
         this.processQueue(null, token)
+        this.broadcast({ type: 'REFRESH_SUCCESS', token })
         return token
       } catch (error) {
         const isNetworkError =
@@ -265,6 +438,7 @@ class TokenRefreshManager {
           this.isPaused = true
           this.isRefreshing = false
           this.refreshPromise = null
+          this.broadcast({ type: 'REFRESH_FAILURE', error: 'Network error during token refresh' })
           throw error
         }
 
@@ -276,10 +450,12 @@ class TokenRefreshManager {
         if (isAuthFailure) {
           this.handleRefreshFailure()
           this.processQueue(error, null)
+          this.broadcast({ type: 'REFRESH_FAILURE', error: (error as Error)?.message || 'Auth failure' })
           throw error
         }
 
         this.processQueue(error, null)
+        this.broadcast({ type: 'REFRESH_FAILURE', error: (error as Error)?.message })
         throw error
       } finally {
         if (!this.isPaused) {
@@ -334,9 +510,6 @@ export class FetchClient {
     endpoint: string,
     config: FetchRequestConfig = {},
   ): Promise<FetchResponse<T>> {
-    if (import.meta.env.DEV) {
-      console.log('FetchClient request', endpoint, config)
-    }
     for (const handler of beforeRequestHandlers) {
       handler(endpoint, config)
     }
@@ -362,8 +535,23 @@ export class FetchClient {
       }
     })
 
-    if (currentTenantId && !headers.has(TENANT_ID_HEADER)) {
-      headers.set(TENANT_ID_HEADER, currentTenantId)
+    const effectiveTenantId =
+      currentTenantId ||
+      (typeof window !== 'undefined'
+        ? localStorage.getItem('cap_active_tenant_id')
+        : null)
+
+    if (effectiveTenantId && !headers.has(TENANT_ID_HEADER)) {
+      headers.set(TENANT_ID_HEADER, effectiveTenantId)
+    }
+
+    if (!headers.has('X-Request-ID')) {
+      headers.set(
+        'X-Request-ID',
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`,
+      )
     }
 
     if (currentImpersonationSession) {
@@ -430,14 +618,8 @@ export class FetchClient {
     }
 
     try {
-      if (import.meta.env.DEV) {
-        console.log('FetchClient fetch', url, fetchConfig)
-      }
       const response = await fetch(url, fetchConfig)
       clearTimeout(id)
-      if (import.meta.env.DEV) {
-        console.log('response', response)
-      }
 
       const responseData = await this.parseResponse(response, config.responseType)
 
@@ -484,12 +666,25 @@ export class FetchClient {
           notifyForbiddenError()
         }
 
-        throw new HttpError(
-          (responseData as { message?: string })?.message || `Request failed with status ${response.status}`,
+        const rawMsg = (responseData as { message?: string; error?: string })?.message || (responseData as { error?: string })?.error || `Request failed with status ${response.status}`
+        const errorDetails = (responseData as { errors?: Record<string, string[]> })?.errors
+        const httpError = new HttpError(
+          rawMsg,
           config,
           result,
           String(response.status),
+          errorDetails,
         )
+
+        if (!config.skipGlobalNotification && response.status !== 401) {
+          emitGlobalNotification({
+            title: response.status >= 500 ? 'Server Error' : 'Request Notice',
+            message: httpError.userMessage,
+            type: response.status >= 500 ? 'error' : 'warning',
+          })
+        }
+
+        throw httpError
       }
 
       return result
@@ -498,7 +693,15 @@ export class FetchClient {
       if (error instanceof HttpError) throw error
 
       if ((error as { name?: string }).name === 'AbortError') {
-        throw new HttpError('Request timeout', config, undefined, 'TIMEOUT')
+        const timeoutError = new HttpError('Request timeout', config, undefined, 'TIMEOUT')
+        if (!config.skipGlobalNotification) {
+          emitGlobalNotification({
+            title: 'Request Timeout',
+            message: timeoutError.userMessage,
+            type: 'error',
+          })
+        }
+        throw timeoutError
       }
 
       const minimalResponse: FetchResponse<null> = {
@@ -509,12 +712,20 @@ export class FetchClient {
         config,
         ok: false,
       }
-      throw new HttpError(
+      const netError = new HttpError(
         (error as Error).message || 'Network Error',
         config,
         minimalResponse,
         'NETWORK_ERROR',
       )
+      if (!config.skipGlobalNotification) {
+        emitGlobalNotification({
+          title: 'Network Error',
+          message: netError.userMessage,
+          type: 'error',
+        })
+      }
+      throw netError
     }
   }
 
@@ -538,9 +749,6 @@ export class FetchClient {
   }
 
   post<T = unknown>(url: string, data?: unknown, config?: FetchRequestConfig) {
-    if (import.meta.env.DEV) {
-      console.log('ApiClient post', url, data, config)
-    }
     return this.request<T>(url, { ...config, method: 'POST', data })
   }
 
@@ -608,9 +816,6 @@ export class ApiClient {
     data?: unknown,
     config?: FetchRequestConfig,
   ): Promise<FetchResponse<T>> {
-    if (import.meta.env.DEV) {
-      console.log('ApiClient post', url, data, config)
-    }
     return this.instance.post<T>(url, data, config)
   }
 
@@ -698,13 +903,24 @@ export class ApiClient {
 }
 
 export function handleApiError(error: unknown): ApiErrorResponse {
-  if ((error as { response?: { data?: { message?: string; code?: string }; status?: number } }).response) {
-    const err = error as { response: { data?: { message?: string; code?: string }; status?: number } }
+  if (isAppError(error)) {
     return {
-      message: err.response.data?.message || 'An error occurred',
-      errors: err.response.data as Record<string, string[]>,
+      message: error.userMessage,
+      errors: error.errors as Record<string, string[]> | undefined,
+      status: error.status,
+      code: error.code,
+    }
+  }
+
+  if ((error as { response?: { data?: { message?: string; code?: string; error?: string }; status?: number } }).response) {
+    const err = error as { response: { data?: { message?: string; code?: string; error?: string }; status?: number } }
+    const rawMsg = err.response.data?.message || err.response.data?.error || 'An error occurred'
+    const sanitized = sanitizeErrorMessage(rawMsg, err.response.status)
+    return {
+      message: sanitized.message,
+      errors: (err.response.data as any)?.errors as Record<string, string[]> | undefined,
       status: err.response.status || 0,
-      code: err.response.data?.code,
+      code: err.response.data?.code || (err.response.status ? String(err.response.status) : undefined),
     }
   }
 
@@ -716,8 +932,11 @@ export function handleApiError(error: unknown): ApiErrorResponse {
     }
   }
 
+  const raw = (error as Error)?.message || 'An unexpected error occurred'
+  const sanitized = sanitizeErrorMessage(raw)
+
   return {
-    message: (error as Error).message || 'An unexpected error occurred',
+    message: sanitized.message,
     status: 0,
     code: 'UNKNOWN_ERROR',
   }

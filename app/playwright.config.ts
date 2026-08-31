@@ -41,7 +41,7 @@ export default defineConfig({
     // New project for Authentication Package E2E
     {
       name: 'auth-package',
-      testDir: '../../../Authentication/tests/e2e',
+      testDir: '../../Authentication/tests/e2e',
       use: {
         ...devices['Desktop Chrome'],
         // Enable virtual authenticator for passkey tests
@@ -67,8 +67,8 @@ export default defineConfig({
       timeout: 300 * 1000,
     },
     {
-      command: 'cd ../../../Authentication && npm run dev',
-      url: 'http://127.0.0.1:3333',
+      command: 'cd ../../Authentication && npm run dev',
+      url: 'http://127.0.0.1:3333/health',
       reuseExistingServer: !process.env.CI,
       timeout: 300 * 1000,
     },

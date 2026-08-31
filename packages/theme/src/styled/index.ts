@@ -1,4 +1,5 @@
 export { GlassCard, type GlassCardProps } from './GlassCard';
+export { LiquidGlassCard, type LiquidGlassCardProps } from './LiquidGlassCard';
 export { GlassButton, type GlassButtonProps } from './GlassButton';
 export { NeuCard, type NeuCardProps } from './NeuCard';
 export { NeuButton, type NeuButtonProps } from './NeuButton';

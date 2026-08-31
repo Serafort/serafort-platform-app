@@ -46,9 +46,7 @@ let installed = false
  * Safe to call once per app session (idempotent; re-installation is a no-op).
  */
 export const installAuthorization = (options: InstallAuthorizationOptions = {}): void => {
-  if (installed) {
-    return
-  }
+  if (installed) return
   installed = true
 
   policyEngine.setPolicySet(DEFAULT_POLICY_SET)

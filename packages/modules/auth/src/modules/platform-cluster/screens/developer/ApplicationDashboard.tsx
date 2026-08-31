@@ -25,6 +25,13 @@ import { Path } from '@auth/routes/path';
 import { CreateOIDCClientRequest } from '@auth/modules/authentication-core/types/api.types';
 import logger from '@idaas/authentication-core/utils/logger';
 
+// Seed new OAuth clients with a redirect URI on the current origin rather than a
+// hardcoded dev port, so the suggestion is sensible in every environment.
+const DEFAULT_REDIRECT_URI =
+  typeof window !== 'undefined' && window.location?.origin
+    ? `${window.location.origin}/callback`
+    : 'http://localhost:5173/callback';
+
 export default function ApplicationDashboard() {
   const navigate = useNavigate()
   const theme = useTheme()
@@ -60,7 +67,7 @@ export default function ApplicationDashboard() {
 
   const [formData, setFormData] = useState<CreateOIDCClientRequest>({
     name: '',
-    redirectUris: ['http://localhost:5173/callback'],
+    redirectUris: [DEFAULT_REDIRECT_URI],
     grantTypes: ['authorization_code', 'refresh_token'],
     responseTypes: ['code'],
   })
@@ -83,7 +90,7 @@ export default function ApplicationDashboard() {
       setSelectedAppId(app.id)
       setFormData({
         name: app.name || app.client_name,
-        redirectUris: app.redirectUris || app.redirect_uris || ['http://localhost:5173/callback'],
+        redirectUris: app.redirectUris || app.redirect_uris || [DEFAULT_REDIRECT_URI],
         grantTypes: app.grantTypes || app.grant_types || ['authorization_code'],
         responseTypes: app.responseTypes || app.response_types || ['code'],
       })
@@ -92,7 +99,7 @@ export default function ApplicationDashboard() {
       setSelectedAppId(null)
       setFormData({
         name: '',
-        redirectUris: ['http://localhost:5173/callback'],
+        redirectUris: [DEFAULT_REDIRECT_URI],
         grantTypes: ['authorization_code', 'refresh_token'],
         responseTypes: ['code'],
       })

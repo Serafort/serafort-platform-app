@@ -48,6 +48,7 @@ export interface MenuTokens {
       minBlockSize: string
       paddingInlineEnd: string
       basePaddingInlineStart: number
+      collapsedPaddingInline: string
     }
     header: {
       paddingBlockSpacing: number
@@ -59,6 +60,7 @@ export interface MenuTokens {
     root: {
       paddingBlockSpacing: number
       paddingInlineSpacing: number
+      collapsedPaddingInlineSpacing: number
     }
     section: {
       collapsedPaddingBlockSpacing: number
@@ -75,6 +77,8 @@ export interface MenuTokens {
     item: {
       paddingBlock: string
       paddingInline: string
+      collapsedPaddingBlock: string
+      collapsedPaddingInline: string
       marginBlockStartSpacing: number
       activeSubmenuAlpha: number
       activeGradientAlpha: number
@@ -84,6 +88,7 @@ export interface MenuTokens {
       iconMarginLevel0: number
       iconMarginLevel1: number
       iconMarginPopout: number
+      collapsedIconMargin: number
       prefixMarginEnd: number
       suffixMarginStart: number
       popoutSubmenuInlineSize: string
@@ -137,6 +142,7 @@ export const menuTokens: MenuTokens = {
       minBlockSize: '30px',
       paddingInlineEnd: '20px',
       basePaddingInlineStart: 20,
+      collapsedPaddingInline: '0px',
     },
     header: {
       paddingBlockSpacing: 5,
@@ -148,6 +154,7 @@ export const menuTokens: MenuTokens = {
     root: {
       paddingBlockSpacing: 1,
       paddingInlineSpacing: 3,
+      collapsedPaddingInlineSpacing: 1.5,
     },
     section: {
       collapsedPaddingBlockSpacing: 3.625,
@@ -179,6 +186,8 @@ export const menuTokens: MenuTokens = {
     item: {
       paddingBlock: '8px',
       paddingInline: '12px',
+      collapsedPaddingBlock: '8px',
+      collapsedPaddingInline: '0px',
       marginBlockStartSpacing: 1.5,
       activeSubmenuAlpha: 0.16,
       activeGradientAlpha: 0.7,
@@ -188,6 +197,7 @@ export const menuTokens: MenuTokens = {
       iconMarginLevel0: 2,
       iconMarginLevel1: 3.5,
       iconMarginPopout: 2,
+      collapsedIconMargin: 0,
       prefixMarginEnd: 2,
       suffixMarginStart: 2,
       popoutSubmenuInlineSize: '260px',

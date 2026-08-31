@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Typography, Card, CardContent, Button, TextField, InputAdornment, alpha, useTheme, Stack, Chip, IconButton, Switch, FormControlLabel, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Tooltip, Alert, Grid } from '@mui/material';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import VpnKey from '@mui/icons-material/VpnKey';
@@ -16,10 +17,8 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
-import { useSCIMTokens, useCreateSCIMToken, useRevokeSCIMToken, useOrganizationScimConfig, useUpdateOrganizationScimConfig, useTestSCIMConnection } from '@auth/authorization-engine/hooks/useAdminQuery';
-
-import type { SCIMToken } from '@auth/authorization-engine/services/adminService';
+import { useSCIMTokens, useCreateSCIMToken, useRevokeSCIMToken, useOrganizationScimConfig, useUpdateOrganizationScimConfig, useTestSCIMConnection } from '../../hooks';
+import type { SCIMToken } from '../../types';
 import logger from '@cap/module-auth/modules/authentication-core/utils/logger';
 
 function StatCard({
@@ -173,7 +172,7 @@ export default function SCIMConfiguration() {
   const testConnectionMutation = useTestSCIMConnection({
     onSuccess: (resp) => {
       const data = resp.data
-      if (data.status === 'success') {
+      if (data.success) {
         toast.success(data.message, { autoClose: 5000 })
       } else {
         toast.warning(data.message, { autoClose: 5000 })
@@ -231,12 +230,12 @@ export default function SCIMConfiguration() {
       revokeTokenMutation.mutate(activeToken.id)
     }
     setNewlyCreatedToken(null)
-    createTokenMutation.mutate({ label: 'SCIM Bearer Token' })
+    createTokenMutation.mutate({ name: 'SCIM Bearer Token' })
   }
 
   const handleGenerateToken = () => {
     setNewlyCreatedToken(null)
-    createTokenMutation.mutate({ label: 'SCIM Bearer Token' })
+    createTokenMutation.mutate({ name: 'SCIM Bearer Token' })
   }
 
   const handleMappingChange = (index: number, value: string) => {

@@ -40,6 +40,8 @@ export interface TenantThemeConfig {
     createdBy?: string;
     preset?: string;
     mode?: 'light' | 'dark' | 'system';
+    synthesisSource?: 'llm' | 'heuristic' | string;
+    [key: string]: unknown;
   };
 }
 
@@ -79,6 +81,7 @@ export interface AppliedThemeVariables {
   spacing: CSSVariableMap;
   borderRadius: CSSVariableMap;
   typography: CSSVariableMap;
+  shadows: CSSVariableMap;
   effects: CSSVariableMap;
   components: CSSVariableMap;
 }
@@ -206,9 +209,9 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
   name: 'Default Theme',
   tokens: {
     colors: {
-      primary: { value: '#D4AF37' },
-      secondary: { value: '#8B4513' },
-      background: { value: '#F5F5DC' },
+      primary: { value: '#2563EB' },
+      secondary: { value: '#64748B' },
+      background: { value: '#F8FAFC' },
       surface: { value: '#ffffff' },
       text: { value: '#0f172a' },
       textMuted: { value: '#64748b' },

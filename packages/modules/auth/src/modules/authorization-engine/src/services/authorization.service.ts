@@ -115,6 +115,7 @@ export class PermissionService implements IPermissionReader, IPermissionWriter {
 
 export interface UserPermissionsContext {
   userId?: string | number
+  tenantId?: string | number
   organizationId?: string | number
   role?: string
   roleObject?: { name?: string; permissions?: (string | { name?: string })[] }
@@ -150,9 +151,11 @@ export class PermissionCheckerService implements IPermissionChecker {
         const storeState = useAppStore.getState()
         if (storeState && storeState.isAuthenticated && storeState.user) {
           const u = (storeState.user as any).user || storeState.user
+          const activeTenantId = (storeState as any).activeTenantId || (storeState as any).tenantId || u.tenantId || u.activeTenantId
           userContext = {
             userId: u.id || u.userId || u.sub,
-            organizationId: u.organizationId || u.orgId || u.activeTenantId,
+            tenantId: activeTenantId,
+            organizationId: u.organizationId || u.orgId || activeTenantId,
             role: u.role || u.roleName,
             roleObject: u.roleObject,
             permissions: Array.isArray(u.permissions) ? u.permissions : [],
@@ -178,34 +181,51 @@ export class PermissionCheckerService implements IPermissionChecker {
       return { allowed: false, reason: 'Request userId does not match authenticated user context' }
     }
 
-    // 4. Role-based evaluation with tenant scoping
-    const userRoleStr = (userContext.role || userContext.roleObject?.name || '').toString().toLowerCase()
+    const userRoleStr = (userContext.role || userContext.roleObject?.name || '').toString().toLowerCase().trim()
 
     // Platform Super-admin role has global authority
-    if (
+    const isSuperAdmin =
       userRoleStr === 'super-admin' ||
       userRoleStr === 'super_admin' ||
       userRoleStr === 'superadmin' ||
       userRoleStr === 'platform_owner'
-    ) {
-      return { allowed: true }
-    }
 
-    // Tenant admin has authority within their own tenant scope
-    if (userRoleStr === 'admin' || userRoleStr === 'tenant_admin' || userRoleStr === 'tenant_owner') {
-      if (request.organizationId != null && userContext.organizationId != null) {
-        if (String(request.organizationId) === String(userContext.organizationId)) {
-          return { allowed: true }
-        }
-        return { allowed: false, reason: 'Organization ID mismatch for tenant admin role' }
+    // Enforce tenant boundary containment
+    if (!isSuperAdmin) {
+      if (
+        request.targetTenantId != null &&
+        (userContext.tenantId == null || String(request.targetTenantId) !== String(userContext.tenantId))
+      ) {
+        return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' };
       }
+
+      if (
+        request.tenantId != null &&
+        (userContext.tenantId == null || String(request.tenantId) !== String(userContext.tenantId))
+      ) {
+        return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' };
+      }
+
+      if (
+        request.organizationId != null &&
+        (userContext.organizationId == null || String(request.organizationId) !== String(userContext.organizationId))
+      ) {
+        return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' };
+      }
+    }
+
+    if (isSuperAdmin) {
       return { allowed: true }
     }
 
-    // 5. Explicit permissions evaluation
+    // 4. Explicit permissions evaluation with wildcard matching
+    const isTenantAdmin =
+      userRoleStr === 'admin' || userRoleStr === 'tenant_admin' || userRoleStr === 'tenant_owner'
+
     const rawPermissions = [
       ...(Array.isArray(userContext.permissions) ? userContext.permissions : []),
       ...(Array.isArray(userContext.roleObject?.permissions) ? userContext.roleObject!.permissions! : []),
+      ...(isTenantAdmin ? ['tenant:manage', 'org:admin'] : []),
     ]
 
     const userPermissions = rawPermissions
@@ -223,11 +243,9 @@ export class PermissionCheckerService implements IPermissionChecker {
       return false
     })
 
-    if (isAllowed) {
-      return { allowed: true }
-    }
+    if (isAllowed) return { allowed: true }
 
-    return { allowed: false, reason: `Permission '${permissionTarget}' denied` }
+    return { allowed: false, reason: `Permission '${permissionTarget}' denied for current role and scope` }
   }
 }
 

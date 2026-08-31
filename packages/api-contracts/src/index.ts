@@ -11,5 +11,6 @@
 
 export * from './endpoints'
 export * from './contracts'
+export * from './dtos'
 export * from './types/endpoint-contract'
 export * from './types/module-contract'

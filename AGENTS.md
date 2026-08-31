@@ -15,18 +15,16 @@ The workspace is a multi-tenant, modular web framework built with React 19, Type
 ```
 Tier 5: Shell App             [@cap/app]
                                   │
-Tier 4: Feature Modules       [@cap/module-auth, @cap/module-landing, @cap/module-theme]
+Tier 4: Feature Modules       [@cap/module-auth, @cap/module-landing, @cap/module-theme, @cap/module-dashboard, @cap/module-widget-studio]
                                   │
 Tier 3: Platform Façade       [@cap/platform-core]
                                   │
-Tier 2: Platform Services     [@cap/layout, @cap/auth-contracts]
+Tier 2: Platform Services     [@cap/layout, @cap/authorization, @cap/auth-contracts]
                                   │
 Tier 1: Core Domain           [@cap/platform-store, @cap/theme, @cap/api-contracts]
                                   │
 Tier 0: Foundation            [@cap/shared-types]
 ```
-
-> **Note on "enforcement":** the tier diagram above is the **conceptual** model used throughout the docs. The tooling-side grouping in `eslint.config.js` uses a *different*, more granular set of layers (`FOUNDATION`/`LAYER_1`…`LAYER_6` — e.g. `@cap/layout` is `LAYER_4` there and `@cap/platform-core` is `LAYER_3`, so `layout → platform-core` imports are legal). As of this writing the `layerConfigs` defined in that file are **not yet wired into any active ESLint config** (the root config's default export is only `baseConfig`; per-package configs don't apply them), so the boundaries are aspirational rather than enforced today. The same file also lists several `@cap/module-*` and `@cap/civil-registry` packages that **do not exist yet on disk** (provisioned ahead of creation) — don't be misled into thinking they're missing/broken; see technical-debt-report.md §2.1 before "fixing" this.
 
 #### Package Responsibilities
 
@@ -34,13 +32,16 @@ Tier 0: Foundation            [@cap/shared-types]
 * **`@cap/api-contracts`** (`packages/api-contracts`): API query key factories, request/response models, and endpoint schema declarations.
 * **`@cap/platform-store`** (`packages/platform-store`): Main Zustand global state management (`useAppStore`) with encrypted persistent storage (`secureStorage`), sliced by domain.
 * **`@cap/theme`** (`packages/theme`): MUI v7 design tokens, token composition (`composeMuiTheme`), tenant theme context (`TenantThemeProvider`), visual effects (glassmorphism, neumorphism, bento, brutalism, organic, immersive), component overrides, baseline styles, and default `themeConfig`.
+* **`@cap/authorization`** (`packages/authorization`): High-performance permission checker and ABAC/RBAC evaluation engine.
 * **`@cap/auth-contracts`** (`packages/auth-contracts`): Contracts and administrative services specific to identity and access management.
 * **`@cap/layout`** (`packages/layout`): Structural layout components (`VerticalLayout`, `HorizontalLayout`, `PublicLayout`, `BlankLayout`), navigation shells, `ThemeBridge`, `ModuleMenuRenderer`, and `SkipToContent`.
 * **`@cap/platform-core`** (`packages/platform-core`): Central orchestration façade for runtime module assembly (`assembleApp`), routing, i18n initialization, plugin registry (`globalPluginRegistry`), `TenantProvider`, and `LayoutRouteWrapper`.
 * **`@cap/module-auth`** (`packages/modules/auth`): Complete IDaaS module encompassing auth-core, MFA, passwordless, SAML, JWKS, identity broker, user directory, and session management.
 * **`@cap/module-landing`** (`packages/modules/landing`): Public marketing pages, workflow step pipeline, pricing tables, contact forms, and legal screens.
-* **`@cap/module-theme`** (`packages/modules/theme`): Tenant branding module — theme preset picker and live `ColorPaletteEditor` for the tenant design system.
-* **`@cap/app`** (`app`): Shell application entry point (`main.tsx`), provider assembly (`Providers.tsx`), top-level layout selector (`layout.tsx`), Vite config, and Playwright e2e tests.
+* **`@cap/module-theme`** (`packages/modules/theme`): Tenant branding module — theme preset picker, AI prompt theme synthesis, and live `ColorPaletteEditor`.
+* **`@cap/module-dashboard`** (`packages/modules/dashboard`): Layout customizer and live multi-tenant widget workspace.
+* **`@cap/module-widget-studio`** (`packages/modules/widget-studio`): Multi-agent AI widget generation studio with SSE streaming pipeline.
+* **`@cap/app`** (`app`): Shell application entry point (`main.tsx`), provider assembly (`Providers.tsx`), top-level layout selector (`layout.tsx`), Vite config with modular `manualChunks`, and Playwright e2e test suite.
 
 ---
 
@@ -100,6 +101,21 @@ These are real, code-confirmed gaps (not stylistic nitpicks) found during the Au
 * **i18n discipline**: All user-facing strings go through `t()`/the module's `i18n` dictionary bundle, even in shared UI packages like `@cap/layout`. A hardcoded locale-specific string in a shared component (found once already — see technical-debt-report.md §1.3) defeats the multi-tenant i18n contract for every other locale.
 * **No demo credentials as form defaults**: Don't pre-fill auth forms (`useForm({ defaultValues: ... })`) with real-shaped credentials, even for local dev convenience. Gate any demo-fill behavior behind `import.meta.env.DEV` explicitly, or leave fields empty.
 
+### Cognitive UX & 4 Key Principles Guiding UI
+All UI components, workflows, and layouts MUST adhere to the **4 Key UI Principles** and psychological UX heuristics (see [`packages/theme/laws_of_ux.md`](file:///c:/Node.Js/proj/boilerplate/packages/theme/laws_of_ux.md)):
+
+* **4 Key Principles Guiding UI**:
+  * **Visual Hierarchy**: Guiding the eye to the most important information first.
+  * **Contrast**: Making elements legible and distinct from one another.
+  * **Alignment**: Creating visual order to reduce the user's mental effort.
+  * **Proximity**: Grouping related elements to indicate that they share a function.
+* **Doherty Threshold (<400ms)**: UI transitions and debounce feedback must resolve in <400ms. Operations >400ms require immediate skeleton or optimistic feedback.
+* **Fitts’s Law**: Primary touch/click targets must be >= 44x44px (`minHeight: 48px` on inputs).
+* **Miller’s Law & Chunking**: Group related fields into cards; navigation menus capped at 5-7 items per section.
+* **Postel’s Law**: Be liberal in what you accept (masks/resilient inputs) and conservative in what you send (strict API contracts).
+* **Von Restorff Effect**: Isolate primary actions with high visual weight; keep secondary actions neutral.
+* **4 UI States Discipline**: Every interactive view must render Idle/Empty, Loading, Success, and Error states.
+
 ### Security & Privacy
 * **Zero PII Logging**: NEVER log sensitive credentials, authorization tokens, or raw user storage payload objects (`state.user`) to the console.
 * **Environment Guards**: Wrap diagnostic logging in `if (import.meta.env.DEV)`.
@@ -124,7 +140,33 @@ These are real, code-confirmed gaps (not stylistic nitpicks) found during the Au
 | **Architecture Review (Aug 2026)** | [`analysis/architecture-report.md`](file:///c:/Node.Js/proj/boilerplate/analysis/architecture-report.md) | Principal-level review: dependency graph, theme scalability, layout/routing findings. |
 | **Technical Debt Report (Aug 2026)** | [`analysis/technical-debt-report.md`](file:///c:/Node.Js/proj/boilerplate/analysis/technical-debt-report.md) | UI/UX audit + code-quality audit with severity-ranked findings. |
 | **Improvement Roadmap (Aug 2026)** | [`analysis/improvement-roadmap.md`](file:///c:/Node.Js/proj/boilerplate/analysis/improvement-roadmap.md) | Sequenced, phased fix plan. Awaiting approval before implementation. |
+| **Laws of UX Reference Guide** | [`packages/theme/laws_of_ux.md`](file:///c:/Node.Js/proj/boilerplate/packages/theme/laws_of_ux.md) | Comprehensive 31-principle cognitive UX guide and engineering implementation mapping. |
 | **Module Development Guide** | [`MODULE_DEVELOPMENT_GUIDE.md`](file:///c:/Node.Js/proj/boilerplate/MODULE_DEVELOPMENT_GUIDE.md) | Step-by-step guide for creating modules, route declarations, navigation items, and plugins. |
-| **Theme System Guide** | [`packages/theme/THEME_SYSTEM.md`](file:///c:/Node.Js/proj/boilerplate/packages/theme/THEME_SYSTEM.md) | Design token pipeline, theme presets, and visual effect generators. |
-| **Design System Standards** | [`packages/theme/DESIGN_SYSTEM.md`](file:///c:/Node.Js/proj/boilerplate/packages/theme/DESIGN_SYSTEM.md) | MUI component styling rules, typography standards, and accessibility requirements. |
 | **Contributing Guide** | [`CONTRIBUTING.md`](file:///c:/Node.Js/proj/boilerplate/CONTRIBUTING.md) | Environment setup, CLI commands, and PR guidelines. |
+
+---
+
+## 8. Verification, Build & Testing Playbook
+
+### Monorepo Validation Commands
+1. **Type-Checking across all packages:**
+   ```bash
+   pnpm -r run type-check
+   ```
+   *Expectation:* Must pass with 0 errors across all 15 packages.
+2. **Production Bundle Compilation & Chunk Audit:**
+   ```bash
+   pnpm --filter @cap/app run build
+   ```
+   *Expectation:* `tsc -b && vite build` succeeds. Entry bootstrap bundle `dist/assets/index-*.js` remains slim (< 60 kB gzip). Feature modules are cleanly code-split into `dist/assets/module-*.js` and `vendor-*.js` chunks.
+3. **End-to-End Testing against Local Backend:**
+   ```bash
+   pnpm --filter @cap/app run test:e2e
+   ```
+   *Prerequisites:*
+   - MySQL 9.5 running on `127.0.0.1:3306` (database migrated via `node ace migration:run` and seeded via `node ace db:seed`).
+   - Redis / Memurai running on `127.0.0.1:6379`.
+   - AdonisJS Backend running on `http://127.0.0.1:3333` (healthcheck: `/health`).
+   - Vite Dev Server running on `http://localhost:5173`.
+
+

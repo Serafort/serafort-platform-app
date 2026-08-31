@@ -66,6 +66,7 @@ const NavbarContent = () => {
         <HorizontalNavToggle />
         {/* Hide Logo on Smaller screens */}
         {!isBreakpointReached && <Logo />}
+        <NavSearch />
       </Box>
 
       <Box
@@ -75,7 +76,6 @@ const NavbarContent = () => {
           gap: layoutMenuTokens.navbarContent.actionsGap,
         }}
       >
-        <NavSearch />
         <RoleIndicator showLabel={true} size='small' />
         <Box
           sx={{

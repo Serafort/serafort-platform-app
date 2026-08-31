@@ -2,9 +2,9 @@ import React, { Suspense, type ReactNode } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Backdrop, CircularProgress, Alert, Box, Button } from '@mui/material'
 import { isObjectEmpty, Roles, useAppStore, type LayoutOverride } from '@cap/platform-core'
-import { useSessionGuard } from '@cap/module-auth/modules/session-manager/middlewares/useSessionGuard'
-import Page403Forbidden from '@cap/module-auth/modules/platform-cluster/screens/system/Page403Forbidden'
-import { Path } from '@cap/module-auth/routes/path'
+import { useSessionGuard } from '../../session-manager/middlewares/useSessionGuard'
+import Page403Forbidden from '../../platform-cluster/screens/system/Page403Forbidden'
+import { Path } from '../../../routes/path'
 import { useCan } from '@cap/authorization'
 
 interface AdminRouteProps {
@@ -25,14 +25,11 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
   React.useEffect(() => {
     if (layout !== 'none') {
       updateLayoutOverride(layout)
-      // Only reset to none if we are NOT an admin, to allow layout persistence for admins
       return () => {
-        if (!canAccessAdminPage) {
-          updateLayoutOverride('none')
-        }
+        updateLayoutOverride('none')
       }
     }
-  }, [layout, updateLayoutOverride, canAccessAdminPage])
+  }, [layout, updateLayoutOverride])
 
   if (isLoading) {
     return (
@@ -41,9 +38,6 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
       </Backdrop>
     )
   }
-
-  const isUserAuthenticated =
-    isAuthenticated && user && typeof user !== 'string' && !isObjectEmpty(user)
 
   if (sessionError) {
     return (
@@ -68,8 +62,16 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
     )
   }
 
+  const isUserAuthenticated =
+    isAuthenticated && user && typeof user !== 'string' && !isObjectEmpty(user)
+
   if (!isUserAuthenticated) {
-    return <Navigate to={Path.auth.signin} replace state={{ from: location }} />
+    return (
+      <React.Fragment>
+        <Backdrop open style={{ background: '#FFF', zIndex: 1400 }} />
+        <Navigate to={Path.auth.signin} replace state={{ from: location }} />
+      </React.Fragment>
+    )
   }
 
   if (!canAccessAdminPage) {

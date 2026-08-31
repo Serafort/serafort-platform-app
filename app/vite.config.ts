@@ -4,6 +4,7 @@ import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { createRequire } from 'module'
+import mkcert from 'vite-plugin-mkcert'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -11,6 +12,18 @@ const __dirname = path.dirname(__filename)
 // __dirname = <boilerplate>/app
 // workspaceRoot = <boilerplate>          (packages/, node_modules/ live here)
 const workspaceRoot = path.resolve(__dirname, '..')
+
+// Security response headers applied to the Vite dev server and `vite preview`.
+// Production hosting must send the same set (see app/public/_headers).
+const securityHeaders: Record<string, string> = {
+  'Content-Security-Policy':
+    "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https: ws: wss:; worker-src 'self' blob:; frame-src 'self'",
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains',
+}
 
 let vitePWA: ((options?: any) => Plugin | Plugin[]) | null = null
 try {
@@ -36,6 +49,16 @@ export default defineConfig({
   envDir: workspaceRoot,
   plugins: [
     react(),
+    ...(process.env.HTTPS === 'true'
+      ? [
+          mkcert({
+            // Explicitly list all custom domains so the plugin generates a cert
+            // with the correct Subject Alternative Names (SANs).
+            // Without this, only `localhost` gets a SAN → ERR_CERT_COMMON_NAME_INVALID.
+            hosts: ['gldeveloper.test', 'localhost', '192.168.137.1'],
+          }),
+        ]
+      : []),
     ...(vitePWA
       ? [
           (vitePWA as any)({
@@ -144,18 +167,37 @@ export default defineConfig({
       '@cap/module-mfa',
     ],
   },
+  preview: {
+    headers: securityHeaders,
+  },
   server: {
+    headers: securityHeaders,
+    // Use the custom domain as the bind host so Vite binds to gldeveloper.test
+    // (which resolves to 127.0.0.1 via /etc/hosts). The mkcert plugin also
+    // auto-adds a string `server.host` to the cert SANs (boolean `true` is ignored).
     host: true,
-    port: 5173,
+    port: Number(process.env.PORT) || 5173,
     strictPort: false,
+    allowedHosts: ['192.168.137.1', 'gldeveloper.test', 'localhost', '127.0.0.1'],
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:3333',
+        target: 'http://localhost:3333',
         changeOrigin: true,
         configure: (proxy) => {
           // SECURITY NOTE (Finding 4.4): This dev proxy forwards client Host as x-tenant-host for local dev.
           // Production reverse proxies / edge ingress MUST NOT trust or forward client-supplied Host headers
           // as tenant identifiers without edge signature or session-token claims.
+          proxy.on('proxyReq', (proxyReq, req) => {
+            if (req.headers.host) {
+              proxyReq.setHeader('x-tenant-host', req.headers.host)
+            }
+          })
+        },
+      },
+      '/tenants': {
+        target: 'http://localhost:3333',
+        changeOrigin: true,
+        configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq, req) => {
             if (req.headers.host) {
               proxyReq.setHeader('x-tenant-host', req.headers.host)
@@ -169,7 +211,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // ── Vendor splits — keeps the main entry chunk under 2 MB ──────────────
+          // ── Vendor splits — keeps the main entry chunk slim ───────────────────────
           if (id.includes('@mui/icons-material')) return 'vendor-mui-icons'
           if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts'
           if (id.includes('framer-motion')) return 'vendor-motion'
@@ -180,6 +222,21 @@ export default defineConfig({
           if (id.includes('@tanstack/')) return 'vendor-tanstack'
           if (id.includes('zustand')) return 'vendor-zustand'
           if (id.includes('comlink')) return 'vendor-comlink'
+          if (id.includes('i18next') || id.includes('react-i18next')) return 'vendor-i18n'
+
+          // ── Feature Module splits ────────────────────────────────────────────────
+          if (id.includes('packages/modules/auth') || id.includes('@cap/module-auth')) {
+            if (id.includes('user-directory')) return 'module-auth-user-directory'
+            if (id.includes('identity-broker')) return 'module-auth-identity-broker'
+            if (id.includes('platform-cluster')) return 'module-auth-platform-cluster'
+            if (id.includes('mfa-orchestrator') || id.includes('passwordless-service')) return 'module-auth-mfa'
+            return 'module-auth-core'
+          }
+          if (id.includes('packages/modules/dashboard') || id.includes('@cap/module-dashboard')) return 'module-dashboard'
+          if (id.includes('packages/modules/landing') || id.includes('@cap/module-landing')) return 'module-landing'
+          if (id.includes('packages/modules/widget-studio') || id.includes('@cap/module-widget-studio')) return 'module-widget-studio'
+          if (id.includes('packages/modules/theme') || id.includes('@cap/module-theme')) return 'module-theme'
+          if (id.includes('packages/layout') || id.includes('@cap/layout')) return 'module-layout'
         },
       },
     },

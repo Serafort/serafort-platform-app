@@ -27,7 +27,7 @@ export const API_ENDPOINTS = {
     register: '/api/auth/register',
     signup: '/api/auth/register',
     login: '/api/auth/login',
-    logout: '/api/auth/logout',
+    logout: '/api/v1/auth/logout',
     forgotPassword: '/api/auth/forgot-password',
     resetPassword: '/api/auth/reset-password',
     refresh: '/api/auth/refresh',
@@ -36,8 +36,14 @@ export const API_ENDPOINTS = {
     csrfToken: '/api/auth/csrf-token',
     verifyEmail: (email: string, signature: string) =>
       `/api/auth/verification/email/${email}?signature=${signature}`,
-    verifyResetPassword: (email: string, signature: string) =>
-      `/api/auth/reset-password/${email}?signature=${signature}`,
+    verifyResetPassword: (email: string, signature: string) => {
+      const query = signature.startsWith('?')
+        ? signature.slice(1)
+        : signature.includes('=')
+          ? signature
+          : `signature=${signature}`
+      return `/api/auth/reset-password/${email}?${query}`
+    },
     resendVerification: '/api/auth/verification/email/resend',
     verifyEmailToken: (email: string, signature: string) =>
       `/api/auth/verification/email/${email}?signature=${signature}`,
@@ -82,6 +88,9 @@ export const API_ENDPOINTS = {
       sso: '/api/auth/saml/sso',
     },
     passkey: {
+      list: '/api/auth/passkey',
+      update: (id: string | number) => `/api/auth/passkey/${id}`,
+      delete: (id: string | number) => `/api/auth/passkey/${id}`,
       registerStart: '/api/auth/passkey/register/start',
       registerFinish: '/api/auth/passkey/register/finish',
       loginStart: '/api/auth/passkey/login/start',
@@ -95,6 +104,12 @@ export const API_ENDPOINTS = {
       recoveryVerify: '/api/auth/mfa/recovery-verify',
       verifyLogin: '/api/auth/mfa/verify-login',
       regenerateBackupCodes: '/api/auth/mfa/regenerate-backup-codes',
+      sms: {
+        sendCode: '/api/auth/mfa/sms/send-code',
+        verify: '/api/auth/mfa/sms/verify',
+        disable: '/api/auth/mfa/sms/disable',
+        verifyLogin: '/api/auth/mfa/sms/verify-login',
+      },
     },
     sessions: '/api/auth/sessions',
     revokeSession: (sessionId: string) => `/api/auth/sessions/${sessionId}`,
@@ -518,6 +533,10 @@ export const API_QUERY_KEYS = {
     securityLogs: (params: unknown) => ['auth', 'security-logs', params] as const,
     linkedAccounts: ['auth', 'linked-accounts'] as const,
     emailPreferences: ['auth', 'email-preferences'] as const,
+    passwordless: {
+      all: ['auth', 'passwordless'] as const,
+      verify: (token: string) => ['auth', 'passwordless', 'verify', token] as const,
+    },
   },
   translation: (code: string) => ['translation', code] as const,
   settings: ['settings'] as const,

@@ -1,6 +1,13 @@
 import authenticationService from "../../modules/authentication-core/services/auth.service"
 import { authorizationService } from "../../modules/authorization-engine/src/services/authorization.service"
+import userService from "../../modules/user-directory/services/user.service"
 import type { ILogin, IForgetPassword, IResetPassword, FetchResponse } from '@cap/platform-core'
+import type {
+  UpdateMeRequest,
+  UpdatePhotoRequest,
+  UpdateEmailRequest,
+  ChangePasswordRequest,
+} from "../../modules/authentication-core/types/api.types"
 
 export interface VerifyEmailRequest { token: string; email?: string }
 export interface ResendVerificationRequest { email: string }
@@ -42,6 +49,20 @@ export interface IIdaasFacade {
     assignRoleToUser: (data: { user_id: number; role_id: number }) => Promise<void>
     getUserRoles: (userId: number) => Promise<RoleDto[]>
   }
+  userDirectory: {
+    getProfile: () => Promise<FetchResponse>
+    updateProfile: (data: UpdateMeRequest) => Promise<FetchResponse>
+    updatePhoto: (data: UpdatePhotoRequest) => Promise<FetchResponse>
+    changeEmail: (data: UpdateEmailRequest) => Promise<FetchResponse>
+    changePassword: (data: ChangePasswordRequest) => Promise<FetchResponse>
+    getLinkedAccounts: () => Promise<FetchResponse>
+    unlinkAccount: (provider: string) => Promise<FetchResponse>
+  }
+  sessions: {
+    listSessions: () => Promise<FetchResponse>
+    revokeSession: (sessionId: string) => Promise<FetchResponse>
+    revokeAllSessions: () => Promise<FetchResponse>
+  }
 }
 
 class IdaasFacadeImpl implements IIdaasFacade {
@@ -77,8 +98,25 @@ class IdaasFacadeImpl implements IIdaasFacade {
       authorizationService.userRole.assignRoleToUser(data),
     getUserRoles: (userId: number) => authorizationService.userRole.getUserRoles(userId),
   }
+
+  userDirectory = {
+    getProfile: () => userService.getProfile(),
+    updateProfile: (data: UpdateMeRequest) => userService.update(data),
+    updatePhoto: (data: UpdatePhotoRequest) => userService.updatePhoto(data),
+    changeEmail: (data: UpdateEmailRequest) => userService.changeEmail(data),
+    changePassword: (data: ChangePasswordRequest) => userService.changePassword(data),
+    getLinkedAccounts: () => userService.getLinkedAccounts(),
+    unlinkAccount: (provider: string) => userService.unlinkAccount(provider),
+  }
+
+  sessions = {
+    listSessions: () => authenticationService.getSessions(),
+    revokeSession: (sessionId: string) => authenticationService.revokeSession(sessionId),
+    revokeAllSessions: () => authenticationService.revokeAllSessions(),
+  }
 }
 
 export const idaasFacade = new IdaasFacadeImpl()
 
 export type { IIdaasFacade as IdaasFacade }
+

@@ -23,6 +23,7 @@ const DashboardScreen: React.FC = () => {
   const PAGE_ID = 'dashboard'
 
   const [activeWidgetInfo, setActiveWidgetInfo] = useState<{ id: string; widgetId?: string } | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   useEffect(() => {
     let isMounted = true
@@ -33,10 +34,8 @@ const DashboardScreen: React.FC = () => {
           initializeLayout(PAGE_ID, response.data.layoutConfig)
           return
         }
-      } catch (err) {
-        if (import.meta.env.DEV) {
-          console.warn('[DashboardScreen] Could not load backend layout, using default:', err)
-        }
+      } catch {
+        // Use default layout on load error
       }
       if (isMounted) {
         initializeLayout(PAGE_ID, DEFAULT_DASHBOARD_GRID_LAYOUT)
@@ -51,72 +50,54 @@ const DashboardScreen: React.FC = () => {
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const data = event.active.data.current
-    if (import.meta.env.DEV) {
-      console.log('[DND] handleDragStart:', {
-        id: event.active.id,
-        data,
-      })
-    }
     setActiveWidgetInfo({
-      id: event.active.id as string,
+      id: String(event.active.id),
       widgetId: data?.widgetId,
     })
   }, [])
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    setActiveWidgetInfo(null)
-    const { active, over } = event
-    if (import.meta.env.DEV) {
-      console.log('[DND] handleDragEnd:', {
-        activeId: active?.id,
-        activeData: active?.data?.current,
-        overId: over?.id,
-        overData: over?.data?.current,
-      })
-    }
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const { active, over } = event
+      setActiveWidgetInfo(null)
 
-    if (!over) {
-      console.warn('[DND] Dropped outside any valid target')
-      return
-    }
-
-    const activeData = active.data.current
-    const overData = over.data.current
-
-    if (activeData && overData) {
-      const fromLayout = activeData.layoutId
-      const fromSlot = activeData.slotId
-      const toLayout = overData.layoutId
-      const toSlot = overData.slotId
-
-      if (import.meta.env.DEV) {
-        console.log('[DND] Transfer Request:', { fromLayout, fromSlot, toLayout, toSlot })
+      if (!over) {
+        return
       }
 
-      if (fromLayout === toLayout) {
-        if (fromSlot !== toSlot) {
-          if (import.meta.env.DEV) console.log('[DND] Executing moveWidget within same layout:', fromLayout, fromSlot, '->', toSlot)
-          moveWidget(fromLayout, fromSlot, toSlot)
+      const activeData = active.data.current
+      const overData = over.data.current
+
+      if (activeData && overData) {
+        const fromLayout = activeData.layoutId
+        const fromSlot = activeData.slotId
+        const toLayout = overData.layoutId
+        const toSlot = overData.slotId
+
+        if (fromLayout === toLayout) {
+          if (fromSlot !== toSlot) {
+            moveWidget(fromLayout, fromSlot, toSlot)
+          }
         } else {
-          if (import.meta.env.DEV) console.log('[DND] Same layout and same slot - no-op')
+          transferWidget(fromLayout, fromSlot, toLayout, toSlot)
         }
-      } else {
-        if (import.meta.env.DEV) console.log('[DND] Executing transferWidget across layouts:', fromLayout, fromSlot, '->', toLayout, toSlot)
-        transferWidget(fromLayout, fromSlot, toLayout, toSlot)
-      }
 
-      // Sync updated layout to backend
-      setTimeout(() => {
-        const store = useAppStore.getState()
-        const currentLayout = store.layouts?.[PAGE_ID]
-        if (currentLayout) {
-          dashboardService.saveLayout(PAGE_ID, { layoutConfig: currentLayout }).catch(() => {})
+        // Persist updated layout to backend
+        try {
+          const store = useAppStore.getState()
+          const currentLayout = store.layouts?.[PAGE_ID]
+          if (currentLayout) {
+            await dashboardService.saveLayout(PAGE_ID, { layoutConfig: currentLayout })
+            setSaveError(null)
+          }
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Failed to save dashboard layout'
+          setSaveError(message)
         }
-      }, 300)
-    } else {
-      console.warn('[DND] Missing activeData or overData:', { activeData, overData })
-    }
-  }, [moveWidget, transferWidget])
+      }
+    },
+    [moveWidget, transferWidget]
+  )
 
   return (
     <DndContext
@@ -131,6 +112,12 @@ const DashboardScreen: React.FC = () => {
             {t('dashboard.subtitle')}
           </Typography>
         </Box>
+
+        {saveError && (
+          <Alert severity="warning" onClose={() => setSaveError(null)} sx={{ mb: 3 }}>
+            {saveError}
+          </Alert>
+        )}
 
         {isCustomMode && (
           <Alert severity="info" sx={{ mb: 3 }}>

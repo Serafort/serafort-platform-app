@@ -86,16 +86,12 @@ class AuthRegistry implements IAuthRegistry {
 
     // 1. Gather active statically defined plugins
     for (const id of enabledIds) {
-      if (knownPlugins[id]) {
-        active.push(knownPlugins[id])
-      }
+      if (knownPlugins[id]) active.push(knownPlugins[id])
     }
 
     // 2. Gather active dynamically registered plugins
     for (const [id, plugin] of this.dynamicPlugins.entries()) {
-      if (enabledIds.includes(id) && !knownPlugins[id]) {
-        active.push(plugin)
-      }
+      if (enabledIds.includes(id) && !knownPlugins[id]) active.push(plugin)
     }
 
     return active

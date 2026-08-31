@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Box, Button, Container, Typography, Card, CardContent, Grid, TextField, Switch, FormControlLabel, alpha, useTheme, Chip, Avatar, Stack, IconButton, CircularProgress, Alert, Divider } from '@mui/material';
-// import from '@mui/icons-material/ExpandMore';
 import Save from '@mui/icons-material/Save';
 import Security from '@mui/icons-material/Security';
 import Language from '@mui/icons-material/Language';
@@ -8,7 +7,6 @@ import SwapHoriz from '@mui/icons-material/SwapHoriz';
 import Fingerprint from '@mui/icons-material/Fingerprint';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 import ArrowBack from '@mui/icons-material/ArrowBack';
-// import from '@mui/icons-material/InfoOutlined';
 import Add from '@mui/icons-material/Add';
 import DeleteOutline from '@mui/icons-material/DeleteOutline';
 import ContentCopy from '@mui/icons-material/ContentCopy';
@@ -18,19 +16,20 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { useSAMLConfig, useUpdateSAMLConfig, Path } from '@auth';
+import { useSAMLConfig, useUpdateSAMLConfig, useJWKSKeys, Path } from '@auth';
 
 export default function SAMLConfigDashboard() {
   const { t } = useTranslation()
   const theme = useTheme()
   const navigate = useNavigate()
   const { data: configResponse, isLoading, isError, error } = useSAMLConfig()
+  const { data: jwksResponse, isLoading: isKeysLoading } = useJWKSKeys()
   const updateConfig = useUpdateSAMLConfig({
     onSuccess: () => {
       toast.info(t('auth.sso.config_saved', 'Configuration saved successfully'))
     },
     onError: (err: any) => {
-      toast.error(err?.message || t('auth.sso.save_failed', 'Failed to save configuration'), {  })
+      toast.error(err?.message || t('auth.sso.save_failed', 'Failed to save configuration'), {})
     },
   })
 
@@ -273,13 +272,13 @@ export default function SAMLConfigDashboard() {
                       variant='outlined'
                       placeholder="https://your-domain.com/saml/metadata"
                       helperText={t('auth.sso.issuer_desc', 'Unique identifier for your Identity Provider.')}
-                      sx={{ 
-                        '& .MuiOutlinedInput-root': { 
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
                           bgcolor: alpha('#000', 0.4),
                           '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                           '&:hover fieldset': { borderColor: alpha(theme.palette.primary.main, 0.2) },
-                        } 
+                        }
                       }}
                     />
                   </Grid>
@@ -290,13 +289,13 @@ export default function SAMLConfigDashboard() {
                       value={settings.acsUrl}
                       onChange={(e) => setSettings({ ...settings, acsUrl: e.target.value })}
                       variant='outlined'
-                      sx={{ 
-                        '& .MuiOutlinedInput-root': { 
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
                           bgcolor: alpha('#000', 0.4),
                           '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                           '&:hover fieldset': { borderColor: alpha(theme.palette.primary.main, 0.2) },
-                        } 
+                        }
                       }}
                     />
                   </Grid>
@@ -307,13 +306,13 @@ export default function SAMLConfigDashboard() {
                       value={settings.ssoUrl}
                       onChange={(e) => setSettings({ ...settings, ssoUrl: e.target.value })}
                       variant='outlined'
-                      sx={{ 
-                        '& .MuiOutlinedInput-root': { 
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
                           bgcolor: alpha('#000', 0.4),
                           '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                           '&:hover fieldset': { borderColor: alpha(theme.palette.primary.main, 0.2) },
-                        } 
+                        }
                       }}
                     />
                   </Grid>
@@ -371,13 +370,13 @@ export default function SAMLConfigDashboard() {
                           label="SAML Attribute"
                           value={saml}
                           disabled
-                          sx={{ 
-                            flex: 1, 
-                            '& .MuiOutlinedInput-root': { 
+                          sx={{
+                            flex: 1,
+                            '& .MuiOutlinedInput-root': {
                               borderRadius: '8px',
                               bgcolor: alpha('#000', 0.2),
                               '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
-                            } 
+                            }
                           }}
                         />
                         <ArrowForward sx={{ color: 'text.secondary', fontSize: 20 }} />
@@ -386,13 +385,13 @@ export default function SAMLConfigDashboard() {
                           label="Internal Field"
                           value={internal}
                           disabled
-                          sx={{ 
-                            flex: 1, 
-                            '& .MuiOutlinedInput-root': { 
+                          sx={{
+                            flex: 1,
+                            '& .MuiOutlinedInput-root': {
                               borderRadius: '8px',
                               bgcolor: alpha('#000', 0.2),
                               '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
-                            } 
+                            }
                           }}
                         />
                         <IconButton
@@ -429,13 +428,13 @@ export default function SAMLConfigDashboard() {
                         value={newMapping.saml}
                         onChange={(e) => setNewMapping({ ...newMapping, saml: e.target.value })}
                         label="SAML Attribute Name"
-                        sx={{ 
-                          bgcolor: alpha('#000', 0.4), 
-                          '& .MuiOutlinedInput-root': { 
+                        sx={{
+                          bgcolor: alpha('#000', 0.4),
+                          '& .MuiOutlinedInput-root': {
                             borderRadius: '8px',
                             '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                             '&:hover fieldset': { borderColor: alpha(theme.palette.primary.main, 0.2) },
-                          } 
+                          }
                         }}
                       />
                     </Grid>
@@ -447,13 +446,13 @@ export default function SAMLConfigDashboard() {
                         value={newMapping.internal}
                         onChange={(e) => setNewMapping({ ...newMapping, internal: e.target.value })}
                         label="Internal User Field"
-                        sx={{ 
-                          bgcolor: alpha('#000', 0.4), 
-                          '& .MuiOutlinedInput-root': { 
+                        sx={{
+                          bgcolor: alpha('#000', 0.4),
+                          '& .MuiOutlinedInput-root': {
                             borderRadius: '8px',
                             '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                             '&:hover fieldset': { borderColor: alpha(theme.palette.primary.main, 0.2) },
-                          } 
+                          }
                         }}
                       />
                     </Grid>
@@ -567,39 +566,46 @@ export default function SAMLConfigDashboard() {
               </Box>
 
               <Stack spacing={2}>
-                {[
-                  { label: 'Prod Signing Key', expires: 'Dec 20, 2026', status: 'PRIMARY', color: 'success' },
-                  { label: 'Next-Gen Rotation Key', expires: 'Pending Activation', status: 'STANDBY', color: 'info' },
-                ].map((cert) => (
-                  <Box
-                    key={cert.label}
-                    sx={{
-                      p: 2,
-                      borderRadius: '16px',
-                      border: '1px solid',
-                      borderColor: alpha(theme.palette.divider, 0.05),
-                      bgcolor: alpha('#000', 0.4),
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 1,
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <Typography variant='subtitle2' sx={{ fontWeight: 800 }}>
-                        {cert.label}
-                      </Typography>
-                      <Chip
-                        label={cert.status}
-                        size='small'
-                        color={cert.color as any}
-                        sx={{ borderRadius: '6px', fontWeight: 900, height: 18, fontSize: '0.6rem', letterSpacing: '0.05em' }}
-                      />
-                    </Box>
-                    <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 600 }}>
-                      {t('auth.sso.expires', 'Expires')}: {cert.expires}
-                    </Typography>
+                {isKeysLoading ? (
+                  <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                    <CircularProgress size={20} />
                   </Box>
-                ))}
+                ) : jwksResponse?.data && jwksResponse.data.length > 0 ? (
+                  jwksResponse.data.slice(0, 3).map((key: any, idx: number) => (
+                    <Box
+                      key={key.kid || idx}
+                      sx={{
+                        p: 2,
+                        borderRadius: '16px',
+                        border: '1px solid',
+                        borderColor: alpha(theme.palette.divider, 0.05),
+                        bgcolor: alpha('#000', 0.4),
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <Typography variant='subtitle2' sx={{ fontWeight: 800 }}>
+                          {key.kid || `Key #${idx + 1}`}
+                        </Typography>
+                        <Chip
+                          label={key.use === 'sig' || idx === 0 ? 'PRIMARY' : 'ACTIVE'}
+                          size='small'
+                          color={idx === 0 ? 'success' : 'info'}
+                          sx={{ borderRadius: '6px', fontWeight: 900, height: 18, fontSize: '0.6rem', letterSpacing: '0.05em' }}
+                        />
+                      </Box>
+                      <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 600 }}>
+                        {key.alg ? `Alg: ${key.alg}` : 'RSA-OAEP'} • {key.kty || 'RSA'}
+                      </Typography>
+                    </Box>
+                  ))
+                ) : (
+                  <Typography variant='caption' color='text.secondary' sx={{ textAlign: 'center', py: 2 }}>
+                    {t('auth.sso.no_keys_configured', 'No active key pairs found.')}
+                  </Typography>
+                )}
               </Stack>
 
               <Button

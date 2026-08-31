@@ -1,15 +1,14 @@
-import { Children, isValidElement } from 'react'
+import { isValidElement } from 'react'
 import type { ReactElement, ReactNode } from 'react'
 import type { CSSObject } from '@emotion/styled'
 import type { ChildrenType, RenderExpandedMenuItemIcon } from '../types'
-import HorizontalSubMenu from '../components/horizontal-menu/SubMenu'
-import HorizontalMenuItem from '../components/horizontal-menu/MenuItem'
-import HorizontalMenu from '../components/horizontal-menu/Menu'
-import VerticalSubMenu from '../components/vertical-menu/SubMenu'
-import VerticalMenuItem from '../components/vertical-menu/MenuItem'
-import VerticalMenu from '../components/vertical-menu/Menu'
 import { menuClasses } from './menuClasses'
 import StyledMenuIcon from '../styles/StyledMenuIcon'
+
+// NOTE: `mapHorizontalToVerticalMenu` was moved to ./mapHorizontalToVerticalMenu.
+// It is the only helper here that needs the menu components, and keeping it in
+// this file created a component <-> util require cycle (the components import the
+// pure helpers below). Import it directly from ./mapHorizontalToVerticalMenu.
 
 type RenderMenuIconParams = {
   level?: number
@@ -56,47 +55,6 @@ export const confirmUrlInChildren = (children: ChildrenType['children'], url: st
   }
 
   return false
-}
-
-/*
- * Reason behind mapping the children of the horizontal-menu component to the vertical-menu component:
- * The Horizontal menu components will not work inside of Vertical menu on small screens.
- * So, we have to map the children of the horizontal-menu components to the vertical-menu components.
- * We also kept the same names and almost similar props for menuitem and submenu components for easy mapping.
- */
-export const mapHorizontalToVerticalMenu = (children: ChildrenType['children']) => {
-  return Children.map(children, (child) => {
-    if (isValidElement(child)) {
-      // Type guard to safely access props
-      const childProps = child.props as {
-        children?: ReactNode
-        verticalMenuProps?: Record<string, unknown>
-        [key: string]: unknown
-      }
-      const { children, verticalMenuProps, ...rest } = childProps
-
-      switch (child.type) {
-        case HorizontalMenuItem:
-          return <VerticalMenuItem {...rest}>{children}</VerticalMenuItem>
-        case HorizontalSubMenu:
-          return (
-            <VerticalSubMenu {...(rest as Record<string, unknown> & { label: ReactNode })}>
-              {mapHorizontalToVerticalMenu(children)}
-            </VerticalSubMenu>
-          )
-        case HorizontalMenu:
-          return (
-            <VerticalMenu {...(verticalMenuProps || {})}>
-              {mapHorizontalToVerticalMenu(children)}
-            </VerticalMenu>
-          )
-        default:
-          return child
-      }
-    }
-
-    return null
-  })
 }
 
 /*

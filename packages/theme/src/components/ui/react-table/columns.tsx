@@ -60,31 +60,11 @@ export const columns1: Array<ColumnDef<UsersTypeWithAction, any>> = [
       // const onBlur = () => {
       //   table.options.meta?.updateData(row.index, column.id, value)
       // }
-      const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        // const checked = event.target.checked
-        console.log(`row ${row.original.firstName} event.target.checked ${event.target.checked}`)
-        console.log(`row.index: ${row.index} column.id: ${column.id}`)
-
+      const handleChange = (_event: React.ChangeEvent<HTMLInputElement>) => {
         try {
           setLoading(!loading)
-          // setLoading(true)
-          // const response = await handleUpdateStatus({
-          //   status: newStatus ? 1 : 0,
-          //   admin_ids: [row.original.id]
-          // })
-          // if (response.response_code === DEFAULT_STATUS_UPDATE_200.response_code) {
-          //   toast.success('Update status sucess')
-          // table.options.meta?.updateData(row.index, column.id, checked)
-          // }
-          // if (response.response_code === DEFAULT_400.response_code) {
-          //   response.errors.forEach(error => {
-          //     toast.error(`${error.message}`)
-          //   })
-          // }
-        } catch (error) {
-          console.log(error)
-        } finally {
-          // setLoading(false)
+        } catch {
+          // Ignore
         }
       }
       React.useEffect(() => {

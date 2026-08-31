@@ -13,8 +13,8 @@ type StyledNavHeaderProps = {
 }
 
 const StyledNavHeader = styled.div<StyledNavHeaderProps>`
-  padding: ${menuTokens.vertical.header.paddingDefault};
-  padding-inline-start: ${menuTokens.vertical.header.paddingInlineStart};
+  padding: ${({ theme }: any) => menuTokens?.vertical?.header?.paddingDefault || '15px'};
+  padding-inline-start: ${({ theme }: any) => menuTokens?.vertical?.header?.paddingInlineStart || '20px'};
   display: flex;
   align-items: center;
   justify-content: space-between;

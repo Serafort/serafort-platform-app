@@ -1,6 +1,5 @@
 import type { StateCreator } from 'zustand'
 import type { AppStore } from '../../types'
-import { themeConfig } from '@cap/theme'
 
 import type { Mode, Skin, Layout, LayoutComponentWidth } from '@cap/shared-types'
 
@@ -30,15 +29,19 @@ export interface SettingsSlice {
   setMode: (mode: Mode) => void
 }
 
+// Mirrors the defaults in @cap/theme's `themeConfig` (config/themeConfig.ts), inlined
+// here so this Tier-1 store slice does not import @cap/theme (another Tier-1 package) —
+// that cross-import formed a real require cycle (theme -> platform-store -> theme).
+// Keep these in sync with themeConfig if its defaults change.
 const defaultSettings: Settings = {
-  mode: themeConfig.mode,
-  skin: themeConfig.skin,
-  semiDark: themeConfig.semiDark,
-  layout: themeConfig.layout,
-  navbarContentWidth: themeConfig.navbar.contentWidth,
-  contentWidth: themeConfig.contentWidth,
-  footerContentWidth: themeConfig.footer.contentWidth,
-  primaryColor: themeConfig.colors.primary.main,
+  mode: 'light',
+  skin: 'default',
+  semiDark: false,
+  layout: 'vertical',
+  navbarContentWidth: 'compact',
+  contentWidth: 'compact',
+  footerContentWidth: 'compact',
+  primaryColor: '#D4AF37',
 }
 
 export const createSettingsSlice: StateCreator<

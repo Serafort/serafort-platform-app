@@ -46,7 +46,7 @@ export const UserMenu: React.FC = () => {
     [navItems]
   )
   const dashboardPath = useMemo(
-    () => resolveDynamicPath(navItems, 'admin-dashboard', '/dashboard'),
+    () => resolveDynamicPath(navItems, 'admin-dashboard', AppPaths.dashboard.dashboard),
     [navItems]
   )
 

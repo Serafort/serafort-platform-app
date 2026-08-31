@@ -1,32 +1,14 @@
 import type { TenantThemeConfig, CSSVariableMap, AppliedThemeVariables } from '../types';
-import { computeNeumorphismBoxShadow, getGlassmorphismStyles, getBrutalismStyles, getBentoStyles } from './computeEffects';
+import {
+  computeNeumorphismBoxShadow,
+  getGlassmorphismStyles,
+  getBrutalismStyles,
+  getBentoStyles,
+  hexToRgba,
+  rgbaToHex,
+} from './computeEffects';
 
-/**
- * @deprecated Internal package styling now reads from the shared MUI theme.
- * These helpers remain exported only for compatibility with external consumers
- * that still mirror tenant tokens onto CSS custom properties.
- */
-export const hexToRgba = (hex: string, alpha: number = 1): string => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!result) return `rgba(0, 0, 0, ${alpha})`;
-  
-  const r = parseInt(result[1], 16);
-  const g = parseInt(result[2], 16);
-  const b = parseInt(result[3], 16);
-  
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
-
-export const rgbaToHex = (rgba: string): string => {
-  const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-  if (!match) return '#000000';
-  
-  const r = parseInt(match[1]).toString(16).padStart(2, '0');
-  const g = parseInt(match[2]).toString(16).padStart(2, '0');
-  const b = parseInt(match[3]).toString(16).padStart(2, '0');
-  
-  return `#${r}${g}${b}`;
-};
+export { hexToRgba, rgbaToHex };
 
 export const hexToHsl = (hex: string): { h: number; s: number; l: number } => {
   const r = parseInt(hex.slice(1, 3), 16) / 255;
@@ -81,6 +63,7 @@ export const generateThemeVariables = (theme: TenantThemeConfig): AppliedThemeVa
   const spacing: CSSVariableMap = {};
   const borderRadius: CSSVariableMap = {};
   const typography: CSSVariableMap = {};
+  const shadows: CSSVariableMap = {};
   const effects: CSSVariableMap = {};
   
   for (const [key, token] of Object.entries(theme.tokens.colors)) {
@@ -101,6 +84,12 @@ export const generateThemeVariables = (theme: TenantThemeConfig): AppliedThemeVa
   
   for (const [key, value] of Object.entries(theme.tokens.borderRadius)) {
     borderRadius[`--radius-${key}`] = value;
+  }
+  
+  if (theme.tokens.shadows) {
+    for (const [key, value] of Object.entries(theme.tokens.shadows)) {
+      shadows[`--shadow-${key}`] = value;
+    }
   }
   
   if (theme.tokens.typography) {
@@ -260,7 +249,7 @@ export const generateThemeVariables = (theme: TenantThemeConfig): AppliedThemeVa
     }
   }
   
-  return { colors, spacing, borderRadius, typography, effects, components };
+  return { colors, spacing, borderRadius, typography, shadows, effects, components };
 };
 
 let lastAppliedVariables: Record<string, string | number> = {};
@@ -270,6 +259,7 @@ const flattenAppliedVariables = (vars: AppliedThemeVariables): Record<string, st
   ...vars.spacing,
   ...vars.borderRadius,
   ...vars.typography,
+  ...vars.shadows,
   ...vars.effects,
   ...vars.components,
 });
@@ -305,16 +295,38 @@ export const applyThemeVariables = (theme: TenantThemeConfig): AppliedThemeVaria
   return vars;
 };
 
-export const applyThemeVariablesSync = (theme: TenantThemeConfig): AppliedThemeVariables => {
-  const vars = generateThemeVariables(theme);
+export function applyThemeVariablesSync(tokens: Record<string, string>): void;
+export function applyThemeVariablesSync(theme: TenantThemeConfig): AppliedThemeVariables;
+export function applyThemeVariablesSync(
+  tokensOrTheme: Record<string, string> | TenantThemeConfig
+): AppliedThemeVariables | void {
+  if (typeof document === 'undefined') return;
+
   const root = document.documentElement;
 
+  // Check if direct token dictionary was provided
+  if (
+    typeof tokensOrTheme === 'object' &&
+    tokensOrTheme !== null &&
+    !('tokens' in tokensOrTheme) &&
+    !('id' in tokensOrTheme) &&
+    !('name' in tokensOrTheme)
+  ) {
+    requestAnimationFrame(() => {
+      Object.entries(tokensOrTheme as Record<string, string>).forEach(([key, value]) => {
+        root.style.setProperty(key, value);
+      });
+    });
+    return;
+  }
+
+  const vars = generateThemeVariables(tokensOrTheme as TenantThemeConfig);
   const flattenedNew = flattenAppliedVariables(vars);
 
   applyVariableDiff(root, flattenedNew);
 
   return vars;
-};
+}
 
 export const removeThemeVariables = (...prefixes: string[]) => {
   const root = document.documentElement;
@@ -325,7 +337,8 @@ export const removeThemeVariables = (...prefixes: string[]) => {
       k.startsWith(`--color-${prefix}`) || 
       k.startsWith(`--radius-${prefix}`) ||
       k.startsWith(`--spacing-${prefix}`) ||
-      k.startsWith(`--font-${prefix}`)
+      k.startsWith(`--font-${prefix}`) ||
+      k.startsWith(`--shadow-${prefix}`)
     );
     for (const key of keysToRemove) {
       root.style.removeProperty(key);

@@ -13,7 +13,6 @@ const t = (key: string, fallback?: string) => {
 }
 
 const Home = React.lazy(() => import('../screens/Home'))
-const ChronosMycelium = React.lazy(() => import('../screens/ChronosMycelium'))
 const FeatureComparison = React.lazy(() => import('../screens/FeatureComparison'))
 const PrivacyPolicy = React.lazy(() => import('../screens/PrivacyPolicy'))
 const TermsOfService = React.lazy(() => import('../screens/TermsOfService'))
@@ -30,12 +29,6 @@ export const landingRouteConfig: ModuleRouteConfig[] = [
     layout: 'public',
     variant: ['public'],
     guestOnly: true,
-  },
-  {
-    path: LandingPath.chronosMycelium,
-    element: <ChronosMycelium />,
-    label: 'landing.chronosMycelium',
-    layout: 'public',
   },
   {
     path: LandingPath.features,

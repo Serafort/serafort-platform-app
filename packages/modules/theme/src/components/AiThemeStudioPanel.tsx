@@ -23,12 +23,14 @@ import History from '@mui/icons-material/History'
 import Tune from '@mui/icons-material/Tune'
 import ArrowForward from '@mui/icons-material/ArrowForward'
 import Check from '@mui/icons-material/Check'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import type { TenantThemeConfig } from '@cap/theme'
 import {
   aiThemePromptService,
   CURATED_PROMPT_SUGGESTIONS,
-  PromptSuggestion,
-  PromptAnalysisResult,
+  type PromptSuggestion,
+  type PromptAnalysisResult,
+  getWcagComplianceBadge,
 } from '../services/aiThemePromptService'
 
 export interface AiThemeStudioPanelProps {
@@ -44,6 +46,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
   const [prompt, setPrompt] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [lastAnalysis, setLastAnalysis] = useState<PromptAnalysisResult | null>(null)
+  const [synthesisSource, setSynthesisSource] = useState<'llm' | 'heuristic' | null>(null)
   const [promptHistory, setPromptHistory] = useState<string[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
 
@@ -54,7 +57,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
       ? CURATED_PROMPT_SUGGESTIONS
       : CURATED_PROMPT_SUGGESTIONS.filter((s) => s.category === selectedCategory)
 
-  const handleGenerate = (customPrompt?: string) => {
+  const handleGenerate = async (customPrompt?: string) => {
     const textToRun = (customPrompt || prompt).trim()
     if (!textToRun) return
 
@@ -63,7 +66,14 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
       const analysis = aiThemePromptService.analyzePrompt(textToRun)
       setLastAnalysis(analysis)
 
-      const generatedConfig = aiThemePromptService.generateThemeFromPrompt(textToRun, currentTheme)
+      // Always try to hit the backend generation API first
+      const generatedConfig = await aiThemePromptService.generateThemeFromPromptAsync(
+        textToRun, 
+        currentTheme
+      )
+      
+      const source = (generatedConfig.metadata as any)?.synthesisSource === 'llm' ? 'llm' : 'heuristic'
+      setSynthesisSource(source)
       onThemeGenerated(generatedConfig)
 
       setPromptHistory((prev) => [textToRun, ...prev.filter((p) => p !== textToRun)].slice(0, 5))
@@ -176,13 +186,14 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Check color='success' sx={{ fontSize: 20 }} />
                 <Typography variant='subtitle1' sx={{ fontWeight: 800, color: 'text.primary' }}>
-                  AI Synthesis Active: {lastAnalysis.detectedMood}
+                  {synthesisSource === 'heuristic' ? 'Local Heuristic Synthesis: ' : 'AI LLM Synthesis Active: '}
+                  {lastAnalysis.detectedMood}
                 </Typography>
               </Box>
               <Chip
-                label={lastAnalysis.presetMatch}
+                label={synthesisSource === 'heuristic' ? `Heuristic (${lastAnalysis.presetMatch})` : `LLM (${lastAnalysis.presetMatch})`}
                 size='small'
-                color='primary'
+                color={synthesisSource === 'heuristic' ? 'default' : 'primary'}
                 variant='outlined'
                 sx={{ fontWeight: 700, textTransform: 'capitalize' }}
               />

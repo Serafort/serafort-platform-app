@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Alert, CircularProgress } from '@mui/material';
+import { Box, Typography, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Alert, CircularProgress, LinearProgress, Grid } from '@mui/material';
 import Download from '@mui/icons-material/Download';
 import History from '@mui/icons-material/History';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 import Pending from '@mui/icons-material/Pending';
 import CloudDownload from '@mui/icons-material/CloudDownload';
 import Delete from '@mui/icons-material/Delete';
+import StorageIcon from '@mui/icons-material/Storage';
+import SpeedIcon from '@mui/icons-material/Speed';
+import TimerIcon from '@mui/icons-material/Timer';
 import { adminService } from '../../../../authorization-engine/services/adminService';
+import { useChunkProgressTracker } from '../../../../authentication-core/hooks/useChunkProgressTracker';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
 
@@ -15,6 +19,12 @@ const DataExport = () => {
   const [loading, setLoading] = useState(false)
   const [requesting, setRequesting] = useState(false)
   const [exports, setExports] = useState<any[]>([])
+  const tracker = useChunkProgressTracker({
+    totalChunks: 30,
+    chunkSize: 200,
+    bytesPerChunk: 112 * 1024,
+    updateIntervalMs: 130,
+  })
   
   const fetchExports = async () => {
     setLoading(true)
@@ -38,11 +48,14 @@ const DataExport = () => {
 
   const handleRequestExport = async () => {
     setRequesting(true)
+    tracker.start()
     try {
       await adminService.requestDataExport(Number(userId))
+      tracker.finish()
       toast.success('Data export request submitted. You will be notified when it is ready.')
       fetchExports()
     } catch (error) {
+      tracker.reset()
       toast.error('Failed to request data export')
     } finally {
       setRequesting(false)
@@ -65,20 +78,79 @@ const DataExport = () => {
       </Alert>
 
       <Card sx={{ borderRadius: 4, mb: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-        <CardContent sx={{ p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>Request New Export</Typography>
-            <Typography variant="body2" color="text.secondary">Generate a comprehensive archive of all user data.</Typography>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 800 }}>Request New Export</Typography>
+              <Typography variant="body2" color="text.secondary">Generate a comprehensive archive of all user data.</Typography>
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={requesting ? <CircularProgress size={20} color="inherit" /> : <CloudDownload />}
+              onClick={handleRequestExport}
+              disabled={requesting}
+              sx={{ borderRadius: 2, px: 3, textTransform: 'none', fontWeight: 700 }}
+            >
+              {requesting ? `Processing (${tracker.progress}%)` : 'Request Download'}
+            </Button>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={requesting ? <CircularProgress size={20} color="inherit" /> : <CloudDownload />}
-            onClick={handleRequestExport}
-            disabled={requesting}
-            sx={{ borderRadius: 2, px: 3, textTransform: 'none', fontWeight: 700 }}
-          >
-            {requesting ? 'Processing...' : 'Request Download'}
-          </Button>
+
+          {requesting && (
+            <Paper
+              variant="outlined"
+              sx={{
+                mt: 2.5,
+                p: 2,
+                borderRadius: 2,
+                bgcolor: 'background.default',
+                border: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800 }}>
+                  Exporting User Portability Chunk {tracker.processedChunks} of {tracker.totalChunks}
+                </Typography>
+                <Chip
+                  label={`${tracker.progress}%`}
+                  color="primary"
+                  size="small"
+                  sx={{ fontWeight: 800, height: 20, fontSize: '0.7rem' }}
+                />
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={tracker.progress}
+                sx={{ height: 6, borderRadius: 3, mb: 1.5 }}
+              />
+              <Grid container spacing={1}>
+                <Grid size={{ xs: 4 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <StorageIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                      {tracker.processedBytesFormatted} / {tracker.totalBytesFormatted}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 4 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <SpeedIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                      {tracker.itemsPerSecond} rec/s
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 4 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <TimerIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                      ETA: {tracker.etaFormatted}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Paper>
+          )}
         </CardContent>
       </Card>
 

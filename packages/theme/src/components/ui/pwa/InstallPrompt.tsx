@@ -43,7 +43,6 @@ export function InstallPrompt() {
     window.addEventListener('appinstalled', () => {
       setIsInstalled(true)
       setShowPrompt(false)
-      console.log('PWA was installed')
     })
 
     return () => {
@@ -58,8 +57,7 @@ export function InstallPrompt() {
     deferredPrompt.prompt()
 
     // Wait for the user's response
-    const { outcome } = await deferredPrompt.userChoice
-    console.log(`User response to the install prompt: ${outcome}`)
+    await deferredPrompt.userChoice
 
     // Clear the deferred prompt
     setDeferredPrompt(null)

@@ -29,7 +29,7 @@ export interface UserAuthenticatedPayload {
   userId: string
   email: string
   factors: string[]
-  method: 'password' | 'mfa' | 'passkey' | 'sso'
+  method: 'password' | 'mfa' | 'passkey' | 'sso' | 'magic_link' | 'passwordless'
   sessionId: string
   ipAddress?: string
   userAgent?: string
@@ -148,7 +148,7 @@ export interface UserAuthenticatedInit {
   causationId?: string
   email?: string
   factors?: string[]
-  method?: 'password' | 'mfa' | 'passkey' | 'sso'
+  method?: 'password' | 'mfa' | 'passkey' | 'sso' | 'magic_link' | 'passwordless'
   sessionId?: string
   ipAddress?: string
   userAgent?: string

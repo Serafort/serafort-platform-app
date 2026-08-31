@@ -143,33 +143,44 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     }
   }, [tenant, updateSettings])
 
-  const saveTheme = useCallback(async (themeToSave: TenantThemeBase) => {
+  const saveTheme = useCallback(async (themeToSave: any) => {
     setIsLoadingTheme(true)
     setErrorTheme(null)
     try {
       const organizationId = tenant?.id || DEFAULT_THEME_CONFIG.organizationId
-      const themePayload: TenantThemeConfig = {
-        ...DEFAULT_THEME_CONFIG,
-        organizationId,
-        name: tenant?.name ? `${tenant.name} Theme` : DEFAULT_THEME_CONFIG.name,
-        metadata: {
-          ...DEFAULT_THEME_CONFIG.metadata,
-          mode: themeToSave.mode,
-        },
-        tokens: {
-          ...DEFAULT_THEME_CONFIG.tokens,
-          colors: {
-            ...DEFAULT_THEME_CONFIG.tokens.colors,
-            primary: {
-              ...DEFAULT_THEME_CONFIG.tokens.colors.primary,
-              value: themeToSave.primaryColor,
-            },
-            secondary: {
-              ...DEFAULT_THEME_CONFIG.tokens.colors.secondary,
-              value: themeToSave.secondaryColor,
+      let themePayload: TenantThemeConfig
+
+      // If themeToSave is already a full TenantThemeConfig (from ThemeEditor or ThemeBridge)
+      if (themeToSave?.tokens?.colors || themeToSave?.effects || themeToSave?.components) {
+        themePayload = {
+          ...DEFAULT_THEME_CONFIG,
+          ...themeToSave,
+          organizationId: themeToSave.organizationId || organizationId,
+        }
+      } else {
+        themePayload = {
+          ...DEFAULT_THEME_CONFIG,
+          organizationId,
+          name: tenant?.name ? `${tenant.name} Theme` : DEFAULT_THEME_CONFIG.name,
+          metadata: {
+            ...DEFAULT_THEME_CONFIG.metadata,
+            mode: themeToSave?.mode || 'light',
+          },
+          tokens: {
+            ...DEFAULT_THEME_CONFIG.tokens,
+            colors: {
+              ...DEFAULT_THEME_CONFIG.tokens.colors,
+              primary: {
+                ...DEFAULT_THEME_CONFIG.tokens.colors.primary,
+                value: themeToSave?.primaryColor || DEFAULT_THEME_CONFIG.tokens.colors.primary.value,
+              },
+              secondary: {
+                ...DEFAULT_THEME_CONFIG.tokens.colors.secondary,
+                value: themeToSave?.secondaryColor || DEFAULT_THEME_CONFIG.tokens.colors.secondary.value,
+              },
             },
           },
-        },
+        }
       }
 
       await themeService.saveTheme(themePayload)
@@ -178,7 +189,13 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         if (!prev) return null
         return {
           ...prev,
-          theme: themeToSave,
+          theme: {
+            mode: themePayload.metadata?.mode || 'light',
+            primaryColor: themePayload.tokens?.colors?.primary?.value || '#2463EB',
+            secondaryColor: themePayload.tokens?.colors?.secondary?.value || '#475569',
+            skin: prev.theme?.skin || 'default',
+            semiDark: prev.theme?.semiDark ?? false,
+          },
         }
       })
     } catch (err) {

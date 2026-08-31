@@ -12,16 +12,20 @@ import CheckCircle from '@mui/icons-material/CheckCircle';
 import { useTranslation } from 'react-i18next';
 import { themeConfig, useNotifications } from '@cap/platform-core';
 import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Path } from '@cap/module-auth/routes/path';
 import { useCurrentUserQuery, useChangeEmail } from '../../hooks/useUserQuery';
 import { buildLayoutSurfaceEffect } from '@cap/layout';
 import { getTenantThemeEffects } from '@cap/theme';
 
-interface ChangeEmailRequestFormData {
-  CurrentEmail: string
-  newEmail: string
-  password: string
-}
+const changeEmailRequestSchema = z.object({
+  CurrentEmail: z.string().optional(),
+  newEmail: z.string().email('Invalid email address').min(1, 'New email is required'),
+  password: z.string().min(1, 'Password is required to confirm identity'),
+})
+
+type ChangeEmailRequestFormData = z.infer<typeof changeEmailRequestSchema>
 
 function ChangeEmail() {
   const { t } = useTranslation()
@@ -36,6 +40,7 @@ function ChangeEmail() {
   const handleClickShowConfirmPassword = () => setShowConfirmPassword(!showConfirmPassword)
 
   const controlForm = useForm<ChangeEmailRequestFormData>({
+    resolver: zodResolver(changeEmailRequestSchema),
     defaultValues: {
       CurrentEmail: '',
       newEmail: '',
@@ -129,7 +134,7 @@ function ChangeEmail() {
           <Button
             variant='contained'
             fullWidth
-            onClick={() => navigate(Path.user.security)}
+            onClick={() => navigate(Path.account.security)}
             sx={{ bgcolor: 'info.main', fontWeight: 700 }}
           >
             {t('auth.account.back_to_security', 'Back to Security')}
@@ -485,7 +490,7 @@ function ChangeEmail() {
                   <Button
                     variant='text'
                     fullWidth
-                    onClick={() => navigate(Path.user.security)}
+                    onClick={() => navigate(Path.account.security)}
                     sx={{
                       textTransform: 'none',
                       fontWeight: 600,

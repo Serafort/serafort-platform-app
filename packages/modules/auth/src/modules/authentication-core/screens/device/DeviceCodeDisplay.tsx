@@ -95,12 +95,12 @@ const DeviceCodeDisplay = () => {
             <TextField fullWidth placeholder="0000-0000" value={code}
               onChange={(e) => setCode(e.target.value)} variant="outlined" autoFocus autoComplete="off"
               inputProps={{ maxLength: 9, style: { textAlign: 'center', fontSize: '1.75rem', fontWeight: 700, letterSpacing: '0.15em' } }}
-              slotProps={{ input: { sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) } } }} />
+              slotProps={{ input: { sx: { borderRadius: 3, bgcolor: 'background.paper' } } }} />
           </Box>
 
           <Button type="submit" fullWidth variant="contained" size="large" disabled={isPending || code.replace(/-/g, '').length !== 8}
             endIcon={isPending ? <CircularProgress size={20} color="inherit" /> : <CheckCircleOutline />}
-            sx={{ py: 1.5, borderRadius: 3, fontWeight: 800, fontSize: '1rem', textTransform: 'none', bgcolor: 'info.main', boxShadow: (t) => `0 4px 14px ${alpha(t.palette.info.main, 0.4)}`, '&:hover': { bgcolor: 'info.dark', transform: 'translateY(-1px)' } }}>
+            sx={{ py: 1.5, borderRadius: 3, fontWeight: 800, fontSize: '1rem', textTransform: 'none', bgcolor: 'primary.main', boxShadow: (t) => `0 4px 14px ${alpha(t.palette.primary.main, 0.4)}`, '&:hover': { bgcolor: 'primary.dark', transform: 'translateY(-1px)' } }}>
             {t('device.continue', 'Continue')}
           </Button>
         </Stack>

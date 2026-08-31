@@ -5,7 +5,7 @@ import LockOutlined from '@mui/icons-material/LockOutlined';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 import { motion } from 'framer-motion'
-import { Path } from "@cap/module-auth/routes/path"
+import { Path } from "../../../../routes/path"
 
 const Page403Forbidden = () => {
   const navigate = useNavigate()

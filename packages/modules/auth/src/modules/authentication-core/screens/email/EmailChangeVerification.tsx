@@ -19,12 +19,14 @@ export default function EmailChangeVerification() {
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying')
 
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null
+
     const verifyToken = async () => {
       try {
         const response = await authService.verifyEmailChange(token as string)
         if (response.status === 200 || response.status === 202) {
           setStatus('success')
-          setTimeout(() => navigate(Path.auth.emailChangeSuccess), 2000)
+          timer = setTimeout(() => navigate(Path.auth.emailChangeSuccess), 2000)
         } else {
           setStatus('error')
         }
@@ -32,8 +34,15 @@ export default function EmailChangeVerification() {
         setStatus('error')
       }
     }
-    if (token) verifyToken()
-    else setTimeout(() => setStatus('error'), 0)
+    if (token) {
+      verifyToken()
+    } else {
+      timer = setTimeout(() => setStatus('error'), 0)
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer)
+    }
   }, [token, navigate])
 
   if (status === 'verifying') {

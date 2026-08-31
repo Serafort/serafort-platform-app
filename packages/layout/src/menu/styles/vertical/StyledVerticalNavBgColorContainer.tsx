@@ -1,4 +1,4 @@
-import { styled } from '@cap/theme'
+import { styled } from '@mui/material/styles'
 import type { VerticalNavProps } from '../../components/vertical-menu/VerticalNav'
 
 type StyledVerticalNavBgColorContainerProps = Pick<VerticalNavProps, 'backgroundColor'>

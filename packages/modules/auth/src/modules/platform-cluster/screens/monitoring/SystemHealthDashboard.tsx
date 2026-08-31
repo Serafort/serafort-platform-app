@@ -30,7 +30,7 @@ import Info from '@mui/icons-material/Info';
 import Dns from '@mui/icons-material/Dns';
 import { alpha, useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
-import { useDetailedHealth } from "@cap/module-auth/modules/authentication-core/hooks/useHealthQuery"
+import { useDetailedHealth } from '../../hooks/useHealthQuery'
 
 interface ApiDependency {
   id: string
@@ -68,12 +68,12 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
     refetch,
     isFetching,
   } = useDetailedHealth({
-    refetchInterval: 51730, // Refresh every 30 seconds
-    staleTime: 10000, // Consider data fresh for 10 seconds
-    refetchOnWindowFocus: false, // Don't refetch on window focus
+    refetchInterval: 30000,
+    staleTime: 10000,
+    refetchOnWindowFocus: false,
   } as any)
 
-  const healthData = healthResponse?.data
+  const healthData = (healthResponse as any)?.data || healthResponse
 
   // Map dependency IDs to icons and colors
   const getIconConfig = (id: string) => {
