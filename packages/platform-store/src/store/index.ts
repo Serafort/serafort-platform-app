@@ -105,20 +105,27 @@ export const useHasHydrated = () => {
  */
 const secureStorage = {
   getItem: async (name: string): Promise<string | null> => {
+    if (typeof localStorage === "undefined") return null;
     const value = localStorage.getItem(name);
     if (!value) return null;
 
     const storageKey =
-      (import.meta as any).env?.VITE_STORAGE_KEY || "cap-platform-storage";
+      (import.meta as any).env?.VITE_STORAGE_KEY ||
+      (typeof process !== "undefined" ? process.env?.VITE_STORAGE_KEY : undefined) ||
+      "cap-platform-storage";
     if (name === storageKey) {
       try {
-        const masterKey = (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY;
+        const masterKey =
+          (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY ||
+          (typeof process !== "undefined"
+            ? process.env?.VITE_STORAGE_ENCRYPTION_KEY
+            : undefined);
         if (!masterKey) {
           throw new Error("VITE_STORAGE_ENCRYPTION_KEY is not defined");
         }
         return await encryption.decryptData(value, masterKey);
       } catch (e) {
-        if (import.meta.env.DEV) {
+        if (import.meta.env?.DEV) {
           console.warn(
             "[secureStorage] Decryption failed, falling back to raw value",
             e,
@@ -130,12 +137,19 @@ const secureStorage = {
     return value;
   },
   setItem: async (name: string, value: string): Promise<void> => {
+    if (typeof localStorage === "undefined") return;
     const storageKey =
-      (import.meta as any).env?.VITE_STORAGE_KEY || "cap-platform-storage";
+      (import.meta as any).env?.VITE_STORAGE_KEY ||
+      (typeof process !== "undefined" ? process.env?.VITE_STORAGE_KEY : undefined) ||
+      "cap-platform-storage";
     if (name === storageKey) {
       // Fail closed: never fall back to a hardcoded key. A predictable key gives
       // zero at-rest protection for the persisted store and must not ship.
-      const masterKey = (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY;
+      const masterKey =
+        (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY ||
+        (typeof process !== "undefined"
+          ? process.env?.VITE_STORAGE_ENCRYPTION_KEY
+          : undefined);
       if (!masterKey) {
         throw new Error("VITE_STORAGE_ENCRYPTION_KEY is not defined");
       }
@@ -146,6 +160,7 @@ const secureStorage = {
     }
   },
   removeItem: (name: string): void => {
+    if (typeof localStorage === "undefined") return;
     localStorage.removeItem(name);
   },
 };

@@ -17,6 +17,7 @@ describe('PluginRegistry', () => {
         name: 'Test Plugin',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn(),
       }
 
@@ -32,6 +33,7 @@ describe('PluginRegistry', () => {
         name: 'Test Plugin 1',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn(),
       }
 
@@ -40,6 +42,7 @@ describe('PluginRegistry', () => {
         name: 'Test Plugin 2',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn(),
       }
 
@@ -53,6 +56,7 @@ describe('PluginRegistry', () => {
         name: 'Dependent Plugin',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         dependencies: ['non-existent-plugin'],
         install: vi.fn(),
       }
@@ -67,6 +71,7 @@ describe('PluginRegistry', () => {
         name: 'Test Plugin',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: installFn,
       }
 
@@ -109,8 +114,8 @@ describe('PluginRegistry', () => {
         pluginType: 'route',
         install: vi.fn(),
         routes: [
-          { path: '/test', element: null },
-          { path: '/test2', element: null },
+          { path: '/test', component: () => null },
+          { path: '/test2', component: () => null },
         ],
       }
 
@@ -128,7 +133,7 @@ describe('PluginRegistry', () => {
         version: '1.0.0',
         pluginType: 'route',
         install: vi.fn(),
-        routes: [{ path: '/test', element: null }],
+        routes: [{ path: '/test', component: () => null }],
         routePrefix: '/prefix',
       }
 
@@ -166,6 +171,7 @@ describe('PluginRegistry', () => {
         name: 'Test Plugin',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn(),
         onStateChange,
       }
@@ -182,6 +188,7 @@ describe('PluginRegistry', () => {
         name: 'Test Plugin',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn().mockRejectedValue(error),
       }
 
@@ -222,6 +229,7 @@ describe('PluginRegistry', () => {
         name: 'Test Plugin',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn(),
         uninstall: uninstallFn,
       }
@@ -239,7 +247,7 @@ describe('PluginRegistry', () => {
         version: '1.0.0',
         pluginType: 'route',
         install: vi.fn(),
-        routes: [{ path: '/test', element: null }],
+        routes: [{ path: '/test', component: () => null }],
       }
 
       await registry.register(plugin)
@@ -283,6 +291,7 @@ describe('PluginRegistry', () => {
         name: 'Test Plugin',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn().mockImplementation(() => installPromise),
       }
 
@@ -304,6 +313,7 @@ describe('PluginRegistry', () => {
         name: 'Test Plugin',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn(),
       }
 
@@ -325,6 +335,7 @@ describe('PluginRegistry', () => {
         name: 'Plugin 1',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn(),
       }
 
@@ -333,6 +344,7 @@ describe('PluginRegistry', () => {
         name: 'Plugin 2',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn(),
       }
 
@@ -351,6 +363,7 @@ describe('PluginRegistry', () => {
         name: 'Component Plugin',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn(),
       }
 
@@ -359,6 +372,7 @@ describe('PluginRegistry', () => {
         name: 'Service Plugin',
         version: '1.0.0',
         pluginType: 'service',
+        services: {},
         install: vi.fn(),
       }
 
@@ -388,7 +402,7 @@ describe('PluginRegistry', () => {
         version: '1.0.0',
         pluginType: 'route',
         install: vi.fn(),
-        routes: [{ path: '/test', element: null }],
+        routes: [{ path: '/test', component: () => null }],
       }
 
       const servicePlugin: CAPPlugin & ServicePlugin = {
@@ -441,6 +455,7 @@ describe('PluginRegistry', () => {
         name: 'Test Plugin',
         version: '1.0.0',
         pluginType: 'component',
+        components: {},
         install: vi.fn(),
       }
 
@@ -449,6 +464,7 @@ describe('PluginRegistry', () => {
         name: 'Test Plugin 2',
         version: '1.0.0',
         pluginType: 'route',
+        routes: [],
         install: vi.fn(),
       }
 

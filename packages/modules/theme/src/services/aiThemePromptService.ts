@@ -260,72 +260,84 @@ class AiThemePromptService {
     let secondaryHex = hexMatches[1] || "";
 
     // 4. Color name semantic mapping
+    const COLOR_MAP: Array<{ names: string[]; hex: string }> = [
+      { names: ["cyan", "aqua"], hex: "#00f0ff" },
+      { names: ["magenta", "fuchsia"], hex: "#ff007f" },
+      { names: ["gold", "champagne"], hex: "#D4AF37" },
+      { names: ["sapphire", "navy", "blue"], hex: "#0f62fe" },
+      { names: ["indigo", "electric blue"], hex: "#6366f1" },
+      { names: ["emerald", "mint", "forest", "green"], hex: "#10b981" },
+      { names: ["terracotta", "clay", "rust"], hex: "#c85a32" },
+      { names: ["violet", "purple"], hex: "#8b5cf6" },
+      { names: ["coral", "peach", "orange"], hex: "#f97316" },
+      { names: ["crimson", "ruby", "red"], hex: "#ef4444" },
+      { names: ["yellow", "amber"], hex: "#f59e0b" },
+      { names: ["teal"], hex: "#14b8a6" },
+      { names: ["rose", "pink"], hex: "#ec4899" },
+    ];
+
     if (!primaryHex) {
-      if (text.includes("cyan") || text.includes("aqua"))
-        primaryHex = "#00f0ff";
-      else if (text.includes("magenta") || text.includes("fuchsia"))
-        primaryHex = "#ff007f";
-      else if (text.includes("gold") || text.includes("champagne"))
-        primaryHex = "#D4AF37";
-      else if (
-        text.includes("emerald") ||
-        text.includes("mint") ||
-        text.includes("forest")
-      )
-        primaryHex = "#10b981";
-      else if (
-        text.includes("terracotta") ||
-        text.includes("clay") ||
-        text.includes("rust")
-      )
-        primaryHex = "#c85a32";
-      else if (text.includes("indigo") || text.includes("electric blue"))
-        primaryHex = "#6366f1";
-      else if (
-        text.includes("sapphire") ||
-        text.includes("navy") ||
-        text.includes("blue")
-      )
-        primaryHex = "#0f62fe";
-      else if (text.includes("violet") || text.includes("purple"))
-        primaryHex = "#8b5cf6";
-      else if (
-        text.includes("coral") ||
-        text.includes("peach") ||
-        text.includes("orange")
-      )
-        primaryHex = "#f97316";
-      else if (
-        text.includes("crimson") ||
-        text.includes("ruby") ||
-        text.includes("red")
-      )
-        primaryHex = "#ef4444";
-      else if (text.includes("yellow") || text.includes("amber"))
-        primaryHex = "#f59e0b";
-      else if (text.includes("teal")) primaryHex = "#14b8a6";
-      else if (text.includes("rose") || text.includes("pink"))
-        primaryHex = "#ec4899";
-      else {
+      // Check for explicit "primary" specifier (e.g. "sapphire blue primary")
+      const primaryMatch = text.match(/(?:deep\s+)?([a-z\s]+?)\s+primary/);
+      if (primaryMatch) {
+        const candidate = primaryMatch[1];
+        for (const entry of COLOR_MAP) {
+          if (entry.names.some((name) => candidate.includes(name))) {
+            primaryHex = entry.hex;
+            break;
+          }
+        }
+      }
+      if (!primaryHex) {
+        for (const entry of COLOR_MAP) {
+          if (entry.names.some((name) => text.includes(name))) {
+            primaryHex = entry.hex;
+            break;
+          }
+        }
+      }
+      if (!primaryHex) {
         primaryHex =
           THEME_PRESETS[presetMatch]?.preview.primaryColor ||
           (isDark ? "#6366f1" : "#1e40af");
       }
     }
 
+    const SECONDARY_COLOR_MAP: Array<{ names: string[]; hex: string }> = [
+      {
+        names: ["magenta", "fuchsia", "neon pink", "pink", "rose"],
+        hex: "#ec4899",
+      },
+      { names: ["cyan", "aqua", "electric blue"], hex: "#06b6d4" },
+      { names: ["gold", "champagne", "bronze", "amber"], hex: "#b45309" },
+      { names: ["sage", "olive"], hex: "#4a7c59" },
+      { names: ["emerald", "mint", "forest", "green"], hex: "#10b981" },
+      { names: ["indigo"], hex: "#4f46e5" },
+      { names: ["purple", "violet"], hex: "#a855f7" },
+    ];
+
     if (!secondaryHex) {
-      if (text.includes("magenta") || text.includes("neon pink"))
-        secondaryHex = "#ec4899";
-      else if (text.includes("cyan") || text.includes("electric blue"))
-        secondaryHex = "#06b6d4";
-      else if (text.includes("bronze") || text.includes("amber"))
-        secondaryHex = "#b45309";
-      else if (text.includes("sage") || text.includes("olive"))
-        secondaryHex = "#4a7c59";
-      else if (text.includes("indigo")) secondaryHex = "#4f46e5";
-      else if (text.includes("purple") || text.includes("violet"))
-        secondaryHex = "#a855f7";
-      else {
+      const secondaryMatch = text.match(
+        /(?:deep\s+)?([a-z\s]+?)\s+(?:secondary|accent|accents)/,
+      );
+      if (secondaryMatch) {
+        const candidate = secondaryMatch[1];
+        for (const entry of SECONDARY_COLOR_MAP) {
+          if (entry.names.some((name) => candidate.includes(name))) {
+            secondaryHex = entry.hex;
+            break;
+          }
+        }
+      }
+      if (!secondaryHex) {
+        for (const entry of SECONDARY_COLOR_MAP) {
+          if (entry.names.some((name) => text.includes(name))) {
+            secondaryHex = entry.hex;
+            break;
+          }
+        }
+      }
+      if (!secondaryHex) {
         secondaryHex =
           THEME_PRESETS[presetMatch]?.preview.secondaryColor ||
           (isDark ? "#8b5cf6" : "#3b82f6");

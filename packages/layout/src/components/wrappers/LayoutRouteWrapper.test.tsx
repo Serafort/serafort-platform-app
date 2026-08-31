@@ -1,17 +1,18 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, beforeAll } from 'vitest'
+if (typeof process !== 'undefined') {
+  process.env.VITE_STORAGE_ENCRYPTION_KEY = 'test-key-32-chars-long-secret-key-ok!'
+}
+if (typeof (import.meta as any).env === 'undefined') {
+  ;(import.meta as any).env = {}
+}
+;(import.meta as any).env.VITE_STORAGE_ENCRYPTION_KEY = 'test-key-32-chars-long-secret-key-ok!'
+
+import { describe, it, expect, beforeEach } from 'vitest'
 import React from 'react'
 import { render, cleanup } from '@testing-library/react'
 import { LayoutRouteWrapper } from './LayoutRouteWrapper'
 import { useAppStore } from '@cap/platform-store'
 import { RouteLayoutEnum } from '@cap/shared-types'
-
-beforeAll(() => {
-  if (typeof (import.meta as any).env === 'undefined') {
-    ;(import.meta as any).env = {}
-  }
-  ;(import.meta as any).env.VITE_STORAGE_ENCRYPTION_KEY = 'test-key-32-chars-long-secret-key-ok!'
-})
 
 describe('LayoutRouteWrapper', () => {
   beforeEach(() => {

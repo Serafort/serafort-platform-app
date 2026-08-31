@@ -27,6 +27,11 @@ export function useActionLock(
   const lockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isExecutingRef = useRef(false)
 
+  const isLegacy = typeof actionOrDuration === 'number' || actionOrDuration === undefined
+  const legacyDuration = typeof actionOrDuration === 'number' ? actionOrDuration : 100
+  const action = typeof actionOrDuration === 'function' ? actionOrDuration : undefined
+  const lockDuration = options?.lockDurationMs ?? 100
+
   useEffect(() => {
     return () => {
       if (lockTimerRef.current) {
@@ -35,42 +40,31 @@ export function useActionLock(
     }
   }, [])
 
-  // If called with a duration number or no arguments, return legacy object format
-  if (typeof actionOrDuration === 'number' || actionOrDuration === undefined) {
-    const duration = typeof actionOrDuration === 'number' ? actionOrDuration : 100
-
-    const executeWithLock = useCallback(
-      async <R>(action: () => Promise<R> | R): Promise<R | undefined> => {
-        if (isExecutingRef.current || isLocked) {
-          return undefined
+  const executeWithLock = useCallback(
+    async <R>(fn: () => Promise<R> | R): Promise<R | undefined> => {
+      if (isExecutingRef.current || isLocked) {
+        return undefined
+      }
+      isExecutingRef.current = true
+      setIsLocked(true)
+      try {
+        return await fn()
+      } finally {
+        isExecutingRef.current = false
+        if (lockTimerRef.current) {
+          clearTimeout(lockTimerRef.current)
         }
-        isExecutingRef.current = true
-        setIsLocked(true)
-        try {
-          return await action()
-        } finally {
-          isExecutingRef.current = false
-          if (lockTimerRef.current) {
-            clearTimeout(lockTimerRef.current)
-          }
-          lockTimerRef.current = setTimeout(() => {
-            setIsLocked(false)
-          }, duration)
-        }
-      },
-      [isLocked, duration],
-    )
-
-    return { isLocked, executeWithLock, setIsLocked }
-  }
-
-  // Tuple signature: [execute, isLocked] = useActionLock(action, options)
-  const action = actionOrDuration
-  const lockDuration = options?.lockDurationMs ?? 100
+        lockTimerRef.current = setTimeout(() => {
+          setIsLocked(false)
+        }, legacyDuration)
+      }
+    },
+    [isLocked, legacyDuration],
+  )
 
   const execute = useCallback(
     async (...args: any[]): Promise<any> => {
-      if (isExecutingRef.current || isLocked) {
+      if (isExecutingRef.current || isLocked || !action) {
         return undefined
       }
 
@@ -92,6 +86,10 @@ export function useActionLock(
     },
     [action, isLocked, lockDuration],
   )
+
+  if (isLegacy) {
+    return { isLocked, executeWithLock, setIsLocked }
+  }
 
   return [execute, isLocked]
 }

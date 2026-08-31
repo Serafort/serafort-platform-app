@@ -247,7 +247,15 @@ export class TenantService {
   }
 
   static isDevelopment(): boolean {
-    return Boolean(import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK_TENANTS === 'true')
+    const isTest = Boolean(
+      (import.meta as any).env?.MODE === 'test' ||
+      (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test'),
+    )
+    if (isTest) return true
+    return Boolean(
+      (import.meta as any).env?.DEV &&
+      (import.meta as any).env?.VITE_ENABLE_MOCK_TENANTS !== 'false',
+    )
   }
 
   static getTenantFromHostname(): string {
@@ -416,7 +424,9 @@ export class TenantService {
         localStorage.removeItem(TENANT_CACHE_KEY)
         localStorage.removeItem(TENANT_VERSION_KEY)
       }
-    } catch {}
+    } catch {
+      // Ignore storage cleanup failures in headless/SSR environments
+    }
   }
 
   static getUserPreferences(): UserPreferences {

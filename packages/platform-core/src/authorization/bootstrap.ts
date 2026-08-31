@@ -14,7 +14,7 @@ import { onBeforeRequest, type FetchRequestConfig } from '@cap/platform-store'
  */
 export const defaultResourceMapper = (
   endpoint: string,
-  _config: FetchRequestConfig,
+  _config?: FetchRequestConfig,
 ): PolicyResource | undefined => {
   if (endpoint.startsWith('/api/admin/rbac/roles')) return { type: 'role' }
   if (endpoint.startsWith('/api/admin/rbac/permissions')) return { type: 'permission' }

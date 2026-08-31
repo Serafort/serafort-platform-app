@@ -57,6 +57,5 @@
     },
     "types": ["react", "node", "vite/client"]
   },
-  "include": ["src/**/*", "vite-env.d.ts"],
-  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
+  "include": ["src/**/*", "vite-env.d.ts"]
 }

@@ -36,12 +36,13 @@ export const API_ENDPOINTS = {
     csrfToken: "/api/auth/csrf-token",
     verifyEmail: (email: string, signature: string) =>
       `/api/auth/verification/email/${email}?signature=${signature}`,
-    verifyResetPassword: (email: string, signature: string) => {
-      const query = signature.startsWith("?")
-        ? signature.slice(1)
-        : signature.includes("=")
-          ? signature
-          : `signature=${signature}`;
+    verifyResetPassword: (email: string | number, signature: string | number) => {
+      const sigStr = String(signature ?? "");
+      const query = sigStr.startsWith("?")
+        ? sigStr.slice(1)
+        : sigStr.includes("=")
+          ? sigStr
+          : `signature=${sigStr}`;
       return `/api/auth/reset-password/${email}?${query}`;
     },
     resendVerification: "/api/auth/verification/email/resend",

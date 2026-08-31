@@ -45,7 +45,6 @@ jobs:
   type-check:
     name: type-check (all packages)
     runs-on: ubuntu-latest
-    continue-on-error: true # PROMOTE: plan A5 + A5/B3
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node-pnpm
@@ -63,7 +62,6 @@ jobs:
   build:
     name: build (@cap/app)
     runs-on: ubuntu-latest
-    continue-on-error: true # PROMOTE: plan A5 + B3
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node-pnpm
@@ -72,7 +70,6 @@ jobs:
   unit:
     name: unit tests (all packages)
     runs-on: ubuntu-latest
-    continue-on-error: true # PROMOTE: plan A2, then triage the remainder
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node-pnpm
