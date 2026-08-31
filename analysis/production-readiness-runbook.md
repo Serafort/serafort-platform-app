@@ -17,13 +17,13 @@ Each step has: **Goal → Commands → Fix work → Acceptance → Owner → Est
 
 ### Ownership legend
 
-| Role | Responsible for |
-|---|---|
-| **FE** | Frontend / `@cap/app` + packages |
-| **BE** | `Authentication/` AdonisJS service |
-| **DevOps** | CI, environments, secrets, edge config |
+| Role         | Responsible for                                     |
+| ------------ | --------------------------------------------------- |
+| **FE**       | Frontend / `@cap/app` + packages                    |
+| **BE**       | `Authentication/` AdonisJS service                  |
+| **DevOps**   | CI, environments, secrets, edge config              |
 | **SecOwner** | Security sign-off, pen-test vendor, risk acceptance |
-| **QA** | E2E suite, load/smoke tests |
+| **QA**       | E2E suite, load/smoke tests                         |
 
 ---
 
@@ -31,27 +31,27 @@ Each step has: **Goal → Commands → Fix work → Acceptance → Owner → Est
 
 Verified against the working tree this date.
 
-| Area | State | Evidence |
-|---|---|---|
-| Release branch | 🟢 `main` clean, hardening branch merged (PR #1, `24ac9a9`) | `git status` clean |
-| `@cap/module-auth` type-check | 🟢 0 errors | prior session |
-| MFA always-success mock | 🟢 removed — `verifyMfaCode` is a real `apiClient.post` | [mfa.service.ts:242](../packages/modules/auth/src/modules/mfa-orchestrator/services/mfa.service.ts#L242) |
-| Demo credentials in sign-in | 🟢 gated behind `import.meta.env.DEV` | `useSignInFlow.ts` |
-| Auth EventBus unit tests | 🟢 fixed (plan A2) | [ci.yml](../.github/workflows/ci.yml) baseline table |
-| Multi-tenant `X-Tenant-Id` propagation | 🟢 wired FE + backend middleware | [production-launch-readiness.md](production-launch-readiness.md) §6 |
-| RBAC fails closed | 🟢 `PermissionCheckerService` | [production-launch-readiness.md](production-launch-readiness.md) §6 |
-| Circular deps | 🟢 0 cycles | `pnpm run lint:circular` |
-| **CI pipeline** | 🔴 exists but every job except `circular` is `continue-on-error` and RED | [ci.yml](../.github/workflows/ci.yml) |
-| **Monorepo type-check (all pkgs)** | 🔴 `module-landing` / `module-theme` errors | ci.yml baseline |
-| **Lint (all pkgs)** | 🔴 ~5.9k prettier/CRLF + real issues in 7 pkgs | ci.yml baseline |
-| **Build (`@cap/app`)** | 🔴 `tsc -b` unused-symbol errors in `module-auth`/`module-theme`/`theme` | ci.yml baseline |
-| **Unit tests (all pkgs)** | 🔴 `api-contracts` (1) + `app` (2) + `module-theme` suite + `layout` unhandled | ci.yml baseline |
-| **E2E vs. live backend** | 🔴 scaffold only; backend checkout + webServer paths not wired in CI | ci.yml baseline; [playwright.config.ts](../app/playwright.config.ts) |
-| Non-auth modules audited | 🔴 `dashboard`, `landing`, `theme`, `widget-studio` not reviewed | [production-launch-readiness.md](production-launch-readiness.md) §2 |
-| `Authentication/` backend audited | 🔴 only tenant middleware reviewed | [production-launch-readiness.md](production-launch-readiness.md) §2 |
-| Third-party pen test / threat model | 🔴 no evidence | [security-architecture.md](security-architecture.md) |
-| Prod env contract verified | 🔴 not confirmed against a real deploy | this doc §6 |
-| `as any` density in `@cap/module-auth` | 🟡 ~230 occurrences | [production-launch-readiness.md](production-launch-readiness.md) §P1-1 |
+| Area                                   | State                                                                          | Evidence                                                                                                 |
+| -------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| Release branch                         | 🟢 `main` clean, hardening branch merged (PR #1, `24ac9a9`)                    | `git status` clean                                                                                       |
+| `@cap/module-auth` type-check          | 🟢 0 errors                                                                    | prior session                                                                                            |
+| MFA always-success mock                | 🟢 removed — `verifyMfaCode` is a real `apiClient.post`                        | [mfa.service.ts:242](../packages/modules/auth/src/modules/mfa-orchestrator/services/mfa.service.ts#L242) |
+| Demo credentials in sign-in            | 🟢 gated behind `import.meta.env.DEV`                                          | `useSignInFlow.ts`                                                                                       |
+| Auth EventBus unit tests               | 🟢 fixed (plan A2)                                                             | [ci.yml](../.github/workflows/ci.yml) baseline table                                                     |
+| Multi-tenant `X-Tenant-Id` propagation | 🟢 wired FE + backend middleware                                               | [production-launch-readiness.md](production-launch-readiness.md) §6                                      |
+| RBAC fails closed                      | 🟢 `PermissionCheckerService`                                                  | [production-launch-readiness.md](production-launch-readiness.md) §6                                      |
+| Circular deps                          | 🟢 0 cycles                                                                    | `pnpm run lint:circular`                                                                                 |
+| **CI pipeline**                        | 🔴 exists but every job except `circular` is `continue-on-error` and RED       | [ci.yml](../.github/workflows/ci.yml)                                                                    |
+| **Monorepo type-check (all pkgs)**     | 🔴 `module-landing` / `module-theme` errors                                    | ci.yml baseline                                                                                          |
+| **Lint (all pkgs)**                    | 🔴 ~5.9k prettier/CRLF + real issues in 7 pkgs                                 | ci.yml baseline                                                                                          |
+| **Build (`@cap/app`)**                 | 🔴 `tsc -b` unused-symbol errors in `module-auth`/`module-theme`/`theme`       | ci.yml baseline                                                                                          |
+| **Unit tests (all pkgs)**              | 🔴 `api-contracts` (1) + `app` (2) + `module-theme` suite + `layout` unhandled | ci.yml baseline                                                                                          |
+| **E2E vs. live backend**               | 🔴 scaffold only; backend checkout + webServer paths not wired in CI           | ci.yml baseline; [playwright.config.ts](../app/playwright.config.ts)                                     |
+| Non-auth modules audited               | 🔴 `dashboard`, `landing`, `theme`, `widget-studio` not reviewed               | [production-launch-readiness.md](production-launch-readiness.md) §2                                      |
+| `Authentication/` backend audited      | 🔴 only tenant middleware reviewed                                             | [production-launch-readiness.md](production-launch-readiness.md) §2                                      |
+| Third-party pen test / threat model    | 🔴 no evidence                                                                 | [security-architecture.md](security-architecture.md)                                                     |
+| Prod env contract verified             | 🔴 not confirmed against a real deploy                                         | this doc §6                                                                                              |
+| `as any` density in `@cap/module-auth` | 🟡 ~230 occurrences                                                            | [production-launch-readiness.md](production-launch-readiness.md) §P1-1                                   |
 
 **Verdict: NOT READY.** Internal work ≈ 6–10 working days. External pen test ≈ 2–4 weeks elapsed and is a hard gate.
 
@@ -60,6 +60,7 @@ Verified against the working tree this date.
 ## 2. Phase 0 — Prerequisites (Day 0, ~half day)
 
 ### Step 0.1 — Cut the release branch
+
 - **Goal:** a single, stable target for all Phase 1–6 work.
 - **Commands:**
   ```bash
@@ -73,18 +74,21 @@ Verified against the working tree this date.
 - **Owner:** DevOps · **Est:** 15 min
 
 ### Step 0.2 — Freeze scope
+
 - **Goal:** no new features land on `release/auth-v1`. Only fixes traceable to a step in this runbook or a filed ticket.
 - **Fix work:** announce the freeze; branch-protect `release/auth-v1` (see Step 2.3).
 - **Acceptance:** written freeze notice; branch protection on.
 - **Owner:** DevOps + Eng lead · **Est:** 30 min
 
 ### Step 0.3 — Start external pen-test procurement (do not wait)
+
 - **Goal:** vendor engaged now so Phase 7 is not the critical path.
 - **Fix work:** see Phase 7, Step 7.1 — send the RFP today.
 - **Acceptance:** vendor shortlist contacted; SOW in draft.
 - **Owner:** SecOwner · **Est:** 2 h to send; days to contract
 
 ### Step 0.4 — Stand up a staging environment
+
 - **Goal:** a production-shaped target for E2E, smoke, load, and pen testing — never localhost.
 - **Fix work:**
   - Deploy `Authentication/` to staging (its own DB, Redis, secrets).
@@ -100,6 +104,7 @@ Verified against the working tree this date.
 Run every sub-step from `boilerplate/`. Fix, commit in coherent units, re-run. The CI file's own baseline table names the culprits — use it as the checklist.
 
 ### Step 1.1 — Monorepo type-check
+
 - **Goal:** `pnpm -r run type-check` exits `0` across all 14 packages.
 - **Command:**
   ```bash
@@ -113,6 +118,7 @@ Run every sub-step from `boilerplate/`. Fix, commit in coherent units, re-run. T
 - **Owner:** FE · **Est:** 1 day
 
 ### Step 1.2 — Lint + formatting + line endings
+
 - **Goal:** `pnpm -r run lint` exits `0`.
 - **Commands:**
   ```bash
@@ -132,6 +138,7 @@ Run every sub-step from `boilerplate/`. Fix, commit in coherent units, re-run. T
 - **Owner:** FE · **Est:** 0.5–1 day
 
 ### Step 1.3 — Production build
+
 - **Goal:** `pnpm --filter @cap/app run build` (`tsc -b && vite build`) exits `0`.
 - **Command:**
   ```bash
@@ -142,6 +149,7 @@ Run every sub-step from `boilerplate/`. Fix, commit in coherent units, re-run. T
 - **Owner:** FE · **Est:** 2–4 h
 
 ### Step 1.4 — Unit tests
+
 - **Goal:** `pnpm -r run test` exits `0`.
 - **Command:**
   ```bash
@@ -159,6 +167,7 @@ Run every sub-step from `boilerplate/`. Fix, commit in coherent units, re-run. T
 - **Owner:** FE · **Est:** 1 day
 
 ### Step 1.5 — Circular dependencies (already green — keep it)
+
 - **Command:**
   ```bash
   pnpm run lint:circular
@@ -167,6 +176,7 @@ Run every sub-step from `boilerplate/`. Fix, commit in coherent units, re-run. T
 - **Owner:** FE · **Est:** 5 min (verify only)
 
 ### Step 1.6 — Dependency / CVE audit
+
 - **Goal:** no known high/critical CVEs shipped.
 - **Command:**
   ```bash
@@ -181,18 +191,21 @@ Run every sub-step from `boilerplate/`. Fix, commit in coherent units, re-run. T
 ## 4. Phase 2 — Make CI blocking (Day 3, ~2 h)
 
 ### Step 2.1 — Promote jobs to blocking
+
 - **Goal:** [ci.yml](../.github/workflows/ci.yml) enforces every gate on every PR.
 - **Fix work:** once Phase 1 is green on `release/auth-v1`, delete the `continue-on-error: true` line from each job: `type-check`, `lint`, `build`, `unit`, `e2e` (e2e after Phase 3). `circular` is already blocking.
 - **Acceptance:** a PR that breaks any gate cannot be merged.
 - **Owner:** DevOps · **Est:** 30 min
 
 ### Step 2.2 — Add a coverage gate
+
 - **Goal:** prevent silent test-coverage regressions.
 - **Fix work:** add a job running `pnpm --filter @cap/app run test:coverage` with a `vitest` `coverage.thresholds` floor (start at current measured %, ratchet up; target ≥ 80% per `CLAUDE.md`).
 - **Acceptance:** coverage job present and blocking; threshold committed in `vitest.config`.
 - **Owner:** FE + DevOps · **Est:** 2 h
 
 ### Step 2.3 — Branch protection
+
 - **Goal:** `release/auth-v1` (and `main`) require green CI + review.
 - **Fix work:** GitHub → Settings → Branches → require status checks (`type-check`, `lint`, `build`, `unit`, `circular`, `e2e`, `coverage`), require 1–2 reviews, no force-push, no self-merge for release branches.
 - **Acceptance:** protection rules visible; a test PR is blocked until checks pass.
@@ -205,6 +218,7 @@ Run every sub-step from `boilerplate/`. Fix, commit in coherent units, re-run. T
 The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`, `session`, `password-reset`, `email-verification`, plus `auth.setup.ts`. All real authentication is the `Authentication/` service's job — nothing is validated until this runs green against it.
 
 ### Step 3.1 — Wire the backend into CI
+
 - **Goal:** the `e2e` job checks out and runs `Authentication/` with MySQL + Redis service containers.
 - **Fix work in [ci.yml](../.github/workflows/ci.yml):**
   - The job already declares `mysql:9.5` + `redis:7` services and a checkout of `Serafort/serafort-auth-service` into `Authentication/`. Provision the read-scoped PAT/deploy key as `secrets.AUTH_SERVICE_REPO_TOKEN` (plan B2).
@@ -215,6 +229,7 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 - **Owner:** DevOps + BE · **Est:** 1 day
 
 ### Step 3.2 — Run the full suite green
+
 - **Goal:** every spec passes against a freshly-migrated, seeded backend (locally first, then CI).
 - **Commands (local):**
   ```bash
@@ -228,6 +243,7 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 - **Owner:** QA + FE · **Est:** 1–2 days
 
 ### Step 3.3 — Cross-browser
+
 - **Goal:** chromium + firefox projects both green (config already defines them).
 - **Acceptance:** both projects pass in CI.
 - **Owner:** QA · **Est:** 2 h
@@ -239,18 +255,22 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 **Method for every target:** static read + `grep` for `setTimeout(` fake submits, `TODO`/`FIXME`/`mock`/`Simulate`, hardcoded hosts (`localhost`, `127.0.0.1`, `:3333`, `:5173`), hardcoded keys/secrets/JWKS, `as any` in `onError`/`onSuccess`/`catch`, unguarded `console.*` on prod paths, `window.alert`/`confirm`. Then `type-check` + `test` for that package.
 
 ### Step 4.1 — `packages/modules/dashboard`
+
 - **Acceptance:** every screen calls a real hook/service; no fake timers; type-check + tests green; findings ticketed & fixed or risk-accepted.
 - **Owner:** FE · **Est:** 0.5 day
 
 ### Step 4.2 — `packages/modules/landing`
+
 - **Acceptance:** as 4.1; plus its `tsconfig` no longer reaches into `@cap/module-auth` internals (ties to Step 1.1).
 - **Owner:** FE · **Est:** 0.5 day
 
 ### Step 4.3 — `packages/modules/theme` + `packages/theme`
+
 - **Acceptance:** as 4.1; `useThemeQuery` types fixed; `mergeDeep` in `mergeTheme.ts` proven used (with a test) or removed.
 - **Owner:** FE · **Est:** 0.5 day
 
 ### Step 4.4 — `packages/modules/widget-studio` (AI integration — highest risk)
+
 - **Goal:** the Gemini / OpenRouter integration is safe to expose.
 - **Checks:**
   - No API keys in client bundle or committed env — keys must be server-proxied.
@@ -261,6 +281,7 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 - **Owner:** FE + BE + SecOwner · **Est:** 1 day
 
 ### Step 4.5 — `packages/platform-core` + `packages/platform-store`
+
 - **Goal:** assembly, config resolution, storage obfuscation, SSE, and the API client are sound.
 - **Checks:**
   - [api.client.ts](../packages/platform-store/src/services/api/api.client.ts) already throws on unset / non-HTTPS `VITE_API_URL` in prod — keep that; confirm the shared-worker client (`api.shared-worker.ts`) has the same guard and the same `X-Tenant-Id` attachment.
@@ -270,6 +291,7 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 - **Owner:** FE · **Est:** 0.5 day
 
 ### Step 4.6 — `@cap/module-auth` residual items (from [auth-audit.md](auth-audit.md) / P1)
+
 - `UserActivityTimeline.tsx` — wire to `useActivityTimeline` or remove (currently hardcoded 5 fake rows).
 - `SAMLConfigDashboard.tsx` / `SSFConfiguration.tsx` — replace hardcoded fake signing keys / JWKS URL with real data flows before exposing federation admin UI.
 - `identity-broker` test files (`useSAMLQuery`, `useJWKSQuery`, `useSCIMQuery`, `useSSFQuery`, `useProvisioningQuery`) — audit for the "mocks the wrong module" pattern that rotted `useOidcCompliance.test.ts`.
@@ -280,6 +302,7 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 - **Owner:** FE · **Est:** 1–2 days
 
 ### Step 4.7 — `Authentication/` backend full review
+
 - **Goal:** the service that performs all authentication is audited.
 - **Checks:**
   - **AuthN:** password hashing (argon2id params), login throttling / lockout, credential-stuffing protection, timing-safe compares.
@@ -309,6 +332,7 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 ## 7. Phase 5 — Production environment & config hardening (Days 8–10)
 
 ### Step 5.1 — Frontend env contract
+
 - **Goal:** the prod build fails safe if misconfigured.
 - **Checklist (per environment):**
   | Var | Requirement |
@@ -328,6 +352,7 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 - **Owner:** DevOps + FE · **Est:** 2 h
 
 ### Step 5.2 — Edge security headers
+
 - **Goal:** `app/public/_headers` (or the platform equivalent) is actually served in prod.
 - **Fix work:**
   - If the host is not Netlify/Cloudflare Pages, replicate the full header set (`Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, COOP, CORP) in that platform's config.
@@ -341,6 +366,7 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 - **Owner:** DevOps · **Est:** 3 h
 
 ### Step 5.3 — Backend runtime config
+
 - **Checklist:** TLS terminated with a valid cert; HSTS on the API too; cookie flags (Step 4.7) confirmed on live responses; CORS allow-list = staging + prod only; rate limiter backed by Redis (not in-memory) so it works across instances; DB connection pool sized; secrets from the secret manager.
 - **Command:**
   ```bash
@@ -350,6 +376,7 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 - **Owner:** BE + DevOps · **Est:** 3 h
 
 ### Step 5.4 — Token lifecycle end-to-end
+
 - **Goal:** verify on staging, by hand + a spec:
   1. Login → access + refresh issued.
   2. Access token expires → silent refresh → new access token; **refresh token rotates**.
@@ -363,11 +390,13 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 ## 8. Phase 6 — Observability, rollback, runbooks (parallel, Days 4–10)
 
 ### Step 6.1 — Error + performance monitoring
+
 - **Fix work:** wire Sentry (or equivalent) in `@cap/app` and `Authentication/`; propagate a request ID across FE → BE; dashboard auth-failure rate, 5xx rate, p95 latency.
 - **Acceptance:** a thrown error in staging appears in the tool with request-ID correlation; auth-failure-rate alert configured.
 - **Owner:** FE + BE + DevOps · **Est:** 1 day
 
 ### Step 6.2 — Performance budget
+
 - **Commands:**
   ```bash
   pnpm --filter @cap/app run build:analyze
@@ -380,16 +409,19 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 - **Owner:** FE · **Est:** 0.5 day
 
 ### Step 6.3 — Rollback plan (rehearsed)
+
 - **Fix work:** document + **practice** on staging: redeploy previous frontend build; roll back backend release; roll back / forward-fix a DB migration; feature-flag or config to disable a broken auth method (password / magic-link / passkey / SSO) without a full deploy.
 - **Acceptance:** a dry-run rollback on staging completed and timed; steps written down.
 - **Owner:** DevOps + BE · **Est:** 0.5 day
 
 ### Step 6.4 — Incident runbook
+
 - **Contents:** how to reset a locked account; revoke all sessions for a user/tenant; rotate `VITE_STORAGE_ENCRYPTION_KEY` / `APP_KEY` / signing keys; disable a compromised OIDC/SAML client; on-call rota + escalation (Technical Lead → CTO; Security Architect → CISO per `CLAUDE.md`).
 - **Acceptance:** runbook reviewed by on-call engineers; linked from the ops channel.
 - **Owner:** DevOps + SecOwner · **Est:** 0.5 day
 
 ### Step 6.5 — Load / concurrency smoke of tenant resolution
+
 - **Fix work:** k6/Artillery against staging: concurrent logins across multiple tenants; assert no cross-tenant data bleed, stable p95, rate limiter holds.
 - **Acceptance:** target RPS sustained; zero cross-tenant leakage; error rate < 1%.
 - **Owner:** QA + DevOps · **Est:** 0.5 day
@@ -401,21 +433,25 @@ The suite in [app/e2e/](../app/e2e/) covers `signin`, `signup`, `mfa`, `passkey`
 Mandated by [security-architecture.md](security-architecture.md) and `CLAUDE.md` ("third-party audit firm contracted", "penetration test pass rate: 100%", "threat-model workshop completed").
 
 ### Step 7.1 — Contract the vendor (Day 0)
+
 - **Fix work:** send RFP/SOW: scope = `@cap/app` + `Authentication/` + tenant isolation + OIDC/SAML federation; grey-box; staging + source access; retest included.
 - **Acceptance:** signed SOW; test window booked; staging + creds handed over.
 - **Owner:** SecOwner · **Est:** 2 h + procurement lead time
 
 ### Step 7.2 — Threat-model workshop
+
 - **Fix work:** run a STRIDE/attack-tree session on the auth + tenant model; record assets, trust boundaries, threats, mitigations, residual risk.
 - **Acceptance:** threat-model doc committed to `analysis/`; action items ticketed.
 - **Owner:** SecOwner + FE + BE · **Est:** 1 day
 
 ### Step 7.3 — OWASP Top 10 self-review (before the vendor starts)
+
 - **Fix work:** walk ASVS L2 auth + session + access-control controls; fix the cheap wins so the pen test finds fewer criticals.
 - **Acceptance:** checklist completed; criticals fixed.
 - **Owner:** SecOwner + FE + BE · **Est:** 1 day
 
 ### Step 7.4 — Pen test + remediation + retest
+
 - **Acceptance:** vendor's final report shows **zero** critical and **zero** high open; all remediations retested and confirmed by the vendor; report filed with SecOwner.
 - **Owner:** SecOwner (all teams remediate) · **Est:** 1–2 weeks elapsed + remediation
 
@@ -478,17 +514,17 @@ SIGN-OFF
 
 ## 11. Suggested schedule
 
-| Day | Track A (FE) | Track B (BE/DevOps) | Track C (Sec) |
-|---|---|---|---|
-| 0 | Cut `release/auth-v1`, scope freeze | Stand up staging | **Send pen-test RFP**, book workshop |
-| 1–2 | 1.1 type-check, 1.2 lint | Staging finish, CI backend wiring (3.1) | Threat-model workshop (7.2) |
-| 3 | 1.3 build, 1.4 unit, 1.6 audit | 2.1–2.3 CI blocking + branch protection | OWASP self-review (7.3) |
-| 4–5 | 3.2 E2E green, 4.1–4.3 module audits | 4.7 backend audit begins | — |
-| 6–7 | 4.4 widget-studio, 4.5 platform-core, 4.6 module-auth | 4.7 backend audit finishes, 5.3 | (vendor engaged) |
-| 8–9 | 5.1 env, 6.2 perf budget | 5.2 headers, 5.4 tokens, 6.1 monitoring | — |
-| 10 | 4.6 residual cleanup | 6.3 rollback drill, 6.4 runbook, 6.5 load | — |
-| ~2–4 wks | remediation | remediation | **7.4 pen test + retest** |
-| after 7.4 | Phase 8 Go/No-Go | | |
+| Day       | Track A (FE)                                          | Track B (BE/DevOps)                       | Track C (Sec)                        |
+| --------- | ----------------------------------------------------- | ----------------------------------------- | ------------------------------------ |
+| 0         | Cut `release/auth-v1`, scope freeze                   | Stand up staging                          | **Send pen-test RFP**, book workshop |
+| 1–2       | 1.1 type-check, 1.2 lint                              | Staging finish, CI backend wiring (3.1)   | Threat-model workshop (7.2)          |
+| 3         | 1.3 build, 1.4 unit, 1.6 audit                        | 2.1–2.3 CI blocking + branch protection   | OWASP self-review (7.3)              |
+| 4–5       | 3.2 E2E green, 4.1–4.3 module audits                  | 4.7 backend audit begins                  | —                                    |
+| 6–7       | 4.4 widget-studio, 4.5 platform-core, 4.6 module-auth | 4.7 backend audit finishes, 5.3           | (vendor engaged)                     |
+| 8–9       | 5.1 env, 6.2 perf budget                              | 5.2 headers, 5.4 tokens, 6.1 monitoring   | —                                    |
+| 10        | 4.6 residual cleanup                                  | 6.3 rollback drill, 6.4 runbook, 6.5 load | —                                    |
+| ~2–4 wks  | remediation                                           | remediation                               | **7.4 pen test + retest**            |
+| after 7.4 | Phase 8 Go/No-Go                                      |                                           |                                      |
 
 Internal readiness (Phases 1–6): **~10 working days**. Gate to launch: **Phase 7.4 pass**.
 
@@ -520,17 +556,17 @@ npm test
 
 ## Appendix B — Key files
 
-| File | Why it matters |
-|---|---|
-| [.github/workflows/ci.yml](../.github/workflows/ci.yml) | the gate; has an honest per-job baseline table |
-| [app/playwright.config.ts](../app/playwright.config.ts) | E2E; hard-codes `../../Authentication` webServer path |
-| [app/e2e/](../app/e2e/) | 8 auth specs + setup |
-| [app/.env.example](../app/.env.example) | frontend env contract |
-| [app/public/_headers](../app/public/_headers) | edge security headers (Netlify/CF format) |
-| [packages/platform-store/src/services/api/api.client.ts](../packages/platform-store/src/services/api/api.client.ts) | throws on unset/non-HTTPS `VITE_API_URL` in prod |
-| [packages/modules/auth/src/modules/authorization-engine/src/services/authorization.service.ts](../packages/modules/auth/src/modules/authorization-engine/src/services/authorization.service.ts) | RBAC; fail-closed soft spots ~L194–231 |
-| [packages/modules/auth/src/modules/mfa-orchestrator/services/mfa.service.ts](../packages/modules/auth/src/modules/mfa-orchestrator/services/mfa.service.ts) | MFA/step-up; CSPRNG fallbacks |
-| [.jules/sentinel.md](../.jules/sentinel.md) | prior security findings + learnings |
+| File                                                                                                                                                                                            | Why it matters                                        |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| [.github/workflows/ci.yml](../.github/workflows/ci.yml)                                                                                                                                         | the gate; has an honest per-job baseline table        |
+| [app/playwright.config.ts](../app/playwright.config.ts)                                                                                                                                         | E2E; hard-codes `../../Authentication` webServer path |
+| [app/e2e/](../app/e2e/)                                                                                                                                                                         | 8 auth specs + setup                                  |
+| [app/.env.example](../app/.env.example)                                                                                                                                                         | frontend env contract                                 |
+| [app/public/\_headers](../app/public/_headers)                                                                                                                                                  | edge security headers (Netlify/CF format)             |
+| [packages/platform-store/src/services/api/api.client.ts](../packages/platform-store/src/services/api/api.client.ts)                                                                             | throws on unset/non-HTTPS `VITE_API_URL` in prod      |
+| [packages/modules/auth/src/modules/authorization-engine/src/services/authorization.service.ts](../packages/modules/auth/src/modules/authorization-engine/src/services/authorization.service.ts) | RBAC; fail-closed soft spots ~L194–231                |
+| [packages/modules/auth/src/modules/mfa-orchestrator/services/mfa.service.ts](../packages/modules/auth/src/modules/mfa-orchestrator/services/mfa.service.ts)                                     | MFA/step-up; CSPRNG fallbacks                         |
+| [.jules/sentinel.md](../.jules/sentinel.md)                                                                                                                                                     | prior security findings + learnings                   |
 
 ## Appendix C — Risk acceptance template
 

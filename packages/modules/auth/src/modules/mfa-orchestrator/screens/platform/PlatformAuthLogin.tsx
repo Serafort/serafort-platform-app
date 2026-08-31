@@ -42,7 +42,7 @@ export default function PlatformAuthLogin() {
   const displayError = localError || passkeyError
 
   return (
-    <Container maxWidth="xs" sx={{ py: 8 }}>
+    <Container maxWidth='xs' sx={{ py: 8 }}>
       <Box sx={{ textAlign: 'center' }}>
         {/* Animated Scanner */}
         <Box
@@ -84,37 +84,37 @@ export default function PlatformAuthLogin() {
           )}
         </Box>
 
-        <Typography variant="h5" fontWeight={700} letterSpacing="-0.02em" sx={{ mb: 1 }}>
+        <Typography variant='h5' fontWeight={700} letterSpacing='-0.02em' sx={{ mb: 1 }}>
           {isScanning
             ? t('passkey.verifying', 'Verifying your identity...')
             : t('passkey.use_biometric', 'Use Biometric to Sign In')}
         </Typography>
         <Typography
-          variant="body1"
-          color="text.secondary"
+          variant='body1'
+          color='text.secondary'
           sx={{ mb: 4, maxWidth: 360, mx: 'auto' }}
         >
           {isScanning
             ? t(
                 'passkey.follow_prompt',
-                'Follow the prompt on your device to complete authentication.'
+                'Follow the prompt on your device to complete authentication.',
               )
             : t(
                 'passkey.biometric_description',
-                "Use your device's built-in authenticator — Touch ID, Face ID, or Windows Hello — for a fast, secure sign-in."
+                "Use your device's built-in authenticator — Touch ID, Face ID, or Windows Hello — for a fast, secure sign-in.",
               )}
         </Typography>
 
         {displayError && (
-          <Alert severity="error" sx={{ mb: 3, textAlign: 'left', borderRadius: 2 }}>
+          <Alert severity='error' sx={{ mb: 3, textAlign: 'left', borderRadius: 2 }}>
             {displayError}
           </Alert>
         )}
 
         <Button
           fullWidth
-          variant="contained"
-          size="large"
+          variant='contained'
+          size='large'
           onClick={handleStart}
           disabled={isScanning}
           startIcon={!isScanning && <Fingerprint />}
@@ -135,7 +135,7 @@ export default function PlatformAuthLogin() {
 
         <Button
           fullWidth
-          variant="text"
+          variant='text'
           onClick={() => navigate('/auth/login')}
           sx={{ textTransform: 'none', color: 'text.secondary', fontWeight: 600 }}
         >
@@ -152,7 +152,7 @@ export default function PlatformAuthLogin() {
           }}
         >
           <Lock sx={{ fontSize: 14, color: 'text.disabled' }} />
-          <Typography variant="caption" color="text.disabled">
+          <Typography variant='caption' color='text.disabled'>
             {t('passkey.fido2_secure', 'FIDO2 / WebAuthn Certified')}
           </Typography>
         </Box>

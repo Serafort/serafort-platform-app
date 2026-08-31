@@ -4,12 +4,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Box, Grid, IconButton, TextField, InputAdornment, FormHelperText } from '@mui/material'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useTranslation } from 'react-i18next'
 import { UserDto } from '@cap/shared-types'
-import FormLayout from "@auth/authentication-core/components/form/FormLayout"
-import { ChangePhoneSchema, type ChangePhoneSchemaType } from '@auth/modules/authentication-core/utils/schema'
+import FormLayout from '@auth/authentication-core/components/form/FormLayout'
+import {
+  ChangePhoneSchema,
+  type ChangePhoneSchemaType,
+} from '@auth/modules/authentication-core/utils/schema'
 
 // Type-safe wrapper for PhoneInput to fix React 19 compatibility
 const PhoneInputWrapper = PhoneInput as unknown as React.ComponentType<any>
@@ -123,5 +126,3 @@ export default function ChangePhone({ user }: { user: UserDto }) {
     </FormLayout>
   )
 }
-
-

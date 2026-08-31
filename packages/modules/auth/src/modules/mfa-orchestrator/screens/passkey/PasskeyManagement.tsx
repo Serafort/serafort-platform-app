@@ -110,14 +110,16 @@ const formatDate = (dateString: string | null, t: any): string => {
   const diffDays = Math.floor(diffMs / 86400000)
 
   if (diffMins < 5) return t('auth.passkey.time_just_now', 'Just now')
-  if (diffMins < 60) return t('auth.passkey.time_minutes_ago', '{{count}} minutes ago', { count: diffMins })
+  if (diffMins < 60)
+    return t('auth.passkey.time_minutes_ago', '{{count}} minutes ago', { count: diffMins })
   if (diffHours < 24) {
     return diffHours === 1
       ? t('auth.passkey.time_yesterday', 'Yesterday')
       : t('auth.passkey.time_hours_ago', '{{count}} hours ago', { count: diffHours })
   }
   if (diffDays === 1) return t('auth.passkey.time_yesterday', 'Yesterday')
-  if (diffDays < 30) return t('auth.passkey.time_days_ago', '{{count}} days ago', { count: diffDays })
+  if (diffDays < 30)
+    return t('auth.passkey.time_days_ago', '{{count}} days ago', { count: diffDays })
   if (diffDays < 365) {
     const months = Math.floor(diffDays / 30)
     return months === 1
@@ -347,7 +349,10 @@ export default function PasskeyManagement() {
                 </Typography>
               </Box>
             </Stack>
-            <Typography variant='body2' sx={{ color: 'text.secondary', maxWidth: 640, lineHeight: 1.6 }}>
+            <Typography
+              variant='body2'
+              sx={{ color: 'text.secondary', maxWidth: 640, lineHeight: 1.6 }}
+            >
               {t(
                 'auth.passkey.management_desc',
                 'Manage your registered passkeys for fast, phishing-resistant passwordless sign-in across your devices.',
@@ -860,7 +865,11 @@ export default function PasskeyManagement() {
               minWidth: 90,
             }}
           >
-            {isRenaming ? <CircularProgress size={18} color='inherit' /> : t('auth.common.save', 'Save')}
+            {isRenaming ? (
+              <CircularProgress size={18} color='inherit' />
+            ) : (
+              t('auth.common.save', 'Save')
+            )}
           </Button>
         </DialogActions>
       </Dialog>
@@ -949,7 +958,8 @@ export default function PasskeyManagement() {
                   {menuState.passkey.name}
                 </Typography>
                 <Typography variant='caption' color='text.secondary'>
-                  {t('auth.passkey.created', 'Created')}: {formatCreatedDate(menuState.passkey.createdAt)}
+                  {t('auth.passkey.created', 'Created')}:{' '}
+                  {formatCreatedDate(menuState.passkey.createdAt)}
                 </Typography>
               </Box>
             </Box>
@@ -1012,4 +1022,3 @@ export default function PasskeyManagement() {
     </Box>
   )
 }
-

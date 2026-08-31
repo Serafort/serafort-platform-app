@@ -19,8 +19,10 @@ export const ADMIN_MONITORING_KEYS = {
   sessionStats: () => [...ADMIN_MONITORING_KEYS.all, 'session-stats'] as const,
   trends: (range?: string) => [...ADMIN_MONITORING_KEYS.all, 'trends', range] as const,
   mfaStats: () => [...ADMIN_MONITORING_KEYS.all, 'mfa-stats'] as const,
-  auditLogs: (params?: Record<string, any>) => [...ADMIN_MONITORING_KEYS.all, 'audit-logs', params] as const,
-  alerts: (params?: Record<string, any>) => [...ADMIN_MONITORING_KEYS.all, 'alerts', params] as const,
+  auditLogs: (params?: Record<string, any>) =>
+    [...ADMIN_MONITORING_KEYS.all, 'audit-logs', params] as const,
+  alerts: (params?: Record<string, any>) =>
+    [...ADMIN_MONITORING_KEYS.all, 'alerts', params] as const,
   emailTemplates: () => [...ADMIN_MONITORING_KEYS.all, 'email-templates'] as const,
   emailTemplateById: (id: string) => [...ADMIN_MONITORING_KEYS.all, 'email-template', id] as const,
 }
@@ -85,7 +87,12 @@ export function useAdminAuditLogsQuery(params?: {
       const response = await adminMonitoringService.getAuditLogs(params)
       const data = response.data
       if (Array.isArray(data)) {
-        return { logs: data, total: data.length, page: params?.page ?? 1, limit: params?.limit ?? 50 }
+        return {
+          logs: data,
+          total: data.length,
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 50,
+        }
       }
       if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
         return {

@@ -20,7 +20,10 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
   const updateLayoutOverride = useAppStore((state) => state.updateLayoutOverride)
 
   const canAccessAdminPage = useCan('access', { type: 'admin_route' })
-  const hasMinimumRolePermission = useCan('access', { type: 'admin_route', attributes: { minimumRole } })
+  const hasMinimumRolePermission = useCan('access', {
+    type: 'admin_route',
+    attributes: { minimumRole },
+  })
 
   React.useEffect(() => {
     if (layout !== 'none') {
@@ -118,6 +121,3 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
 }
 
 export default AdminRoute
-
-
-

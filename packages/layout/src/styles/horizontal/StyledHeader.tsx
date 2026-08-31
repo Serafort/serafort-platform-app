@@ -16,13 +16,18 @@ type StyledHeaderProps = {
   compactContentWidth: number
 }
 
-const StyledHeader = styled('header')<StyledHeaderProps>(({ theme, layoutPadding, compactContentWidth, overrideStyles }) => {
+const StyledHeader = styled('header')<StyledHeaderProps>(({
+  theme,
+  layoutPadding,
+  compactContentWidth,
+  overrideStyles,
+}) => {
   const surfaceEffect = SurfaceEffectFactory.create(getTenantThemeEffects(theme), theme)
 
   return {
     boxShadow: getHeaderElevationShadow(theme),
     ...surfaceEffect,
-    
+
     '[data-skin="bordered"] &': {
       boxShadow: headerTokens.borderedSkin.boxShadow,
       borderBlockEnd: getHeaderBorderBlockEnd(theme),

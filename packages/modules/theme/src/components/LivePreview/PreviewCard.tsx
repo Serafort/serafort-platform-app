@@ -1,9 +1,9 @@
-import React from 'react';
-import { Box, Typography, Paper } from '@mui/material';
-import type { EffectType } from '@cap/theme';
+import React from "react";
+import { Box, Typography, Paper } from "@mui/material";
+import type { EffectType } from "@cap/theme";
 
 interface PreviewCardProps {
-  variant: 'standard' | 'glass' | 'neu';
+  variant: "standard" | "glass" | "neu";
   effectType?: EffectType;
   style?: React.CSSProperties;
 }
@@ -42,36 +42,68 @@ const NeuCardPreview = styled.div`
   background: #e0e5ec;
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.15), -5px -5px 10px rgba(255, 255, 255, 0.8);
+  box-shadow:
+    5px 5px 10px rgba(0, 0, 0, 0.15),
+    -5px -5px 10px rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 7px 7px 14px rgba(0, 0, 0, 0.18), -7px -7px 14px rgba(255, 255, 255, 0.9);
+    box-shadow:
+      7px 7px 14px rgba(0, 0, 0, 0.18),
+      -7px -7px 14px rgba(255, 255, 255, 0.9);
   }
 `;
 
-import styled from '@emotion/styled';
+import styled from "@emotion/styled";
 
-export const PreviewCard: React.FC<PreviewCardProps> = ({
-  variant,
-  style,
-}) => {
-  const CardComponent = variant === 'glass' ? GlassCardPreview : variant === 'neu' ? NeuCardPreview : StandardCard;
+export const PreviewCard: React.FC<PreviewCardProps> = ({ variant, style }) => {
+  const CardComponent =
+    variant === "glass"
+      ? GlassCardPreview
+      : variant === "neu"
+        ? NeuCardPreview
+        : StandardCard;
 
   return (
     <CardComponent style={style}>
       <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-        {variant === 'glass' ? 'Glass' : variant === 'neu' ? 'Neumorphic' : 'Standard'} Card
+        {variant === "glass"
+          ? "Glass"
+          : variant === "neu"
+            ? "Neumorphic"
+            : "Standard"}{" "}
+        Card
       </Typography>
       <Typography variant="body2" color="text.secondary">
-        This is a preview of the {variant} card style.
-        Hover to see the interactive effect.
+        This is a preview of the {variant} card style. Hover to see the
+        interactive effect.
       </Typography>
-      <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-        <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'primary.main' }} />
-        <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'secondary.main' }} />
-        <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'success.main' }} />
+      <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+        <Box
+          sx={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            backgroundColor: "primary.main",
+          }}
+        />
+        <Box
+          sx={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            backgroundColor: "secondary.main",
+          }}
+        />
+        <Box
+          sx={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            backgroundColor: "success.main",
+          }}
+        />
       </Box>
     </CardComponent>
   );

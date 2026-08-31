@@ -42,7 +42,7 @@ export default function DesactivateAccount() {
   const { mutate: deactivate, isPending } = useDeactivateAccountMutation({
     onSuccess: () => {
       toast.success(
-        t('auth.account.deactivate_success', 'Your account has been deactivated successfully.')
+        t('auth.account.deactivate_success', 'Your account has been deactivated successfully.'),
       )
       setConfirmOpen(false)
       navigate(Path.auth.login || '/auth/login')
@@ -51,7 +51,7 @@ export default function DesactivateAccount() {
       toast.error(
         error?.response?.data?.message ||
           error?.message ||
-          t('auth.account.deactivate_failed', 'Failed to deactivate account.')
+          t('auth.account.deactivate_failed', 'Failed to deactivate account.'),
       )
       setConfirmOpen(false)
     },
@@ -86,7 +86,7 @@ export default function DesactivateAccount() {
         <Typography variant='body2' color='text.secondary'>
           {t(
             'auth.account.deactivate_warning_desc',
-            'Deactivating your account will disable your login access and terminate all active sessions. You can contact an administrator to reactivate.'
+            'Deactivating your account will disable your login access and terminate all active sessions. You can contact an administrator to reactivate.',
           )}
         </Typography>
       </Box>
@@ -109,7 +109,7 @@ export default function DesactivateAccount() {
                   }
                   label={t(
                     'auth.account.deactivate_confirm',
-                    'I understand that my account will be deactivated immediately.'
+                    'I understand that my account will be deactivated immediately.',
                   )}
                   labelPlacement='end'
                 />
@@ -148,7 +148,7 @@ export default function DesactivateAccount() {
         title={t('auth.account.confirm_deactivate_title', 'Confirm Account Deactivation')}
         message={t(
           'auth.account.confirm_deactivate_msg',
-          'Are you sure you want to deactivate your account? All active sessions will be terminated and you will be signed out immediately.'
+          'Are you sure you want to deactivate your account? All active sessions will be terminated and you will be signed out immediately.',
         )}
         confirmLabel={t('auth.account.deactivate_submit_button', 'Deactivate Account')}
         cancelLabel={t('common.cancel', 'Cancel')}

@@ -84,7 +84,7 @@ export default function SignUp() {
 
         <Box sx={{ width: '100%' }}>
           {mode === 'locked' ? (
-            <LiquidGlassCard blur="24px" opacity={0.82} padding="0px" borderRadius="24px">
+            <LiquidGlassCard blur='24px' opacity={0.82} padding='0px' borderRadius='24px'>
               <LockedStep
                 t={t}
                 timeLeft={timeLeft}
@@ -93,7 +93,7 @@ export default function SignUp() {
               />
             </LiquidGlassCard>
           ) : mode === 'verify' ? (
-            <LiquidGlassCard blur="24px" opacity={0.82} padding="0px" borderRadius="24px">
+            <LiquidGlassCard blur='24px' opacity={0.82} padding='0px' borderRadius='24px'>
               <VerifyEmailStep
                 t={t}
                 pendingEmail={pendingEmail}
@@ -111,11 +111,11 @@ export default function SignUp() {
               />
             </LiquidGlassCard>
           ) : mode === 'success' ? (
-            <LiquidGlassCard blur="24px" opacity={0.82} padding="0px" borderRadius="24px">
+            <LiquidGlassCard blur='24px' opacity={0.82} padding='0px' borderRadius='24px'>
               <SuccessStep t={t} />
             </LiquidGlassCard>
           ) : (
-            <LiquidGlassCard blur="24px" opacity={0.82} padding="0px" borderRadius="24px">
+            <LiquidGlassCard blur='24px' opacity={0.82} padding='0px' borderRadius='24px'>
               <RegistrationStep
                 t={t}
                 control={control}

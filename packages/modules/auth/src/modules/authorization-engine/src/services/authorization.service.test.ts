@@ -95,16 +95,43 @@ describe('PermissionCheckerService - Multi-Tenant Security Boundaries', () => {
     const checker = new PermissionCheckerService(() => userContext)
 
     // Direct match
-    expect((await checker.checkPermission({ permission: 'documents:read', tenantId: 'tenant-100' })).allowed).toBe(true)
-    
+    expect(
+      (await checker.checkPermission({ permission: 'documents:read', tenantId: 'tenant-100' }))
+        .allowed,
+    ).toBe(true)
+
     // Resource + Action match with colon/dot
-    expect((await checker.checkPermission({ resource: 'documents', action: 'read', tenantId: 'tenant-100' })).allowed).toBe(true)
-    
+    expect(
+      (
+        await checker.checkPermission({
+          resource: 'documents',
+          action: 'read',
+          tenantId: 'tenant-100',
+        })
+      ).allowed,
+    ).toBe(true)
+
     // Wildcard match
-    expect((await checker.checkPermission({ resource: 'reports', action: 'export', tenantId: 'tenant-100' })).allowed).toBe(true)
+    expect(
+      (
+        await checker.checkPermission({
+          resource: 'reports',
+          action: 'export',
+          tenantId: 'tenant-100',
+        })
+      ).allowed,
+    ).toBe(true)
 
     // Unauthorized action
-    expect((await checker.checkPermission({ resource: 'documents', action: 'delete', tenantId: 'tenant-100' })).allowed).toBe(false)
+    expect(
+      (
+        await checker.checkPermission({
+          resource: 'documents',
+          action: 'delete',
+          tenantId: 'tenant-100',
+        })
+      ).allowed,
+    ).toBe(false)
   })
 
   it('fails closed with CROSS_TENANT_ACCESS_DENIED when request specifies tenantId/targetTenantId/organizationId but context is unresolved', async () => {
@@ -166,8 +193,14 @@ describe('PermissionCheckerService - Multi-Tenant Security Boundaries', () => {
     expect(arbitraryResourceResult.reason).toContain('denied for current role and scope')
 
     // Standard tenant management permissions are still granted
-    expect((await checker.checkPermission({ permission: 'tenant:manage', tenantId: 'tenant-alpha' })).allowed).toBe(true)
-    expect((await checker.checkPermission({ permission: 'org:admin', tenantId: 'tenant-alpha' })).allowed).toBe(true)
+    expect(
+      (await checker.checkPermission({ permission: 'tenant:manage', tenantId: 'tenant-alpha' }))
+        .allowed,
+    ).toBe(true)
+    expect(
+      (await checker.checkPermission({ permission: 'org:admin', tenantId: 'tenant-alpha' }))
+        .allowed,
+    ).toBe(true)
 
     // When real permission is explicitly granted, it passes
     const adminWithExplicitPermContext: UserPermissionsContext = {
@@ -175,8 +208,24 @@ describe('PermissionCheckerService - Multi-Tenant Security Boundaries', () => {
       permissions: ['billing:read'],
     }
     const explicitChecker = new PermissionCheckerService(() => adminWithExplicitPermContext)
-    expect((await explicitChecker.checkPermission({ resource: 'billing', action: 'read', tenantId: 'tenant-alpha' })).allowed).toBe(true)
-    expect((await explicitChecker.checkPermission({ resource: 'billing', action: 'delete', tenantId: 'tenant-alpha' })).allowed).toBe(false)
+    expect(
+      (
+        await explicitChecker.checkPermission({
+          resource: 'billing',
+          action: 'read',
+          tenantId: 'tenant-alpha',
+        })
+      ).allowed,
+    ).toBe(true)
+    expect(
+      (
+        await explicitChecker.checkPermission({
+          resource: 'billing',
+          action: 'delete',
+          tenantId: 'tenant-alpha',
+        })
+      ).allowed,
+    ).toBe(false)
   })
 })
 
@@ -209,7 +258,9 @@ describe('RbacSubscriber - Event Bus & Query Invalidation', () => {
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'rbac'] })
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'users'] })
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['auth', 'me'] })
-    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['user', 'permissions'] })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['user', 'permissions'],
+    })
   })
 
   it('invalidates developer tokens upon TokenIssued', async () => {
@@ -228,6 +279,8 @@ describe('RbacSubscriber - Event Bus & Query Invalidation', () => {
       },
     })
 
-    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'developer', 'apiKeys'] })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['admin', 'developer', 'apiKeys'],
+    })
   })
 })

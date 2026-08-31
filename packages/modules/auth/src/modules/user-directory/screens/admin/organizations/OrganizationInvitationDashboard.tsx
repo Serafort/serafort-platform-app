@@ -1,23 +1,57 @@
-import { useState } from 'react';
-import { Box, Typography, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Button, TextField, InputAdornment, Avatar, alpha, useTheme, Stack, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Tooltip, Menu, ListItemIcon, ListItemText } from '@mui/material';
-import Search from '@mui/icons-material/Search';
-import MoreVert from '@mui/icons-material/MoreVert';
-import Email from '@mui/icons-material/Email';
-import PersonAdd from '@mui/icons-material/PersonAdd';
-import Timer from '@mui/icons-material/Timer';
-import CheckCircle from '@mui/icons-material/CheckCircle';
-import Cancel from '@mui/icons-material/Cancel';
-import ArrowBack from '@mui/icons-material/ArrowBack';
-import ContentCopy from '@mui/icons-material/ContentCopy';
-import Replay from '@mui/icons-material/Replay';
-import BlockOutlined from '@mui/icons-material/BlockOutlined';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Path } from '@cap/module-auth/routes/path';
-import { useOrganizationInvitations, useInviteOrganizationMember, useRevokeOrganizationInvitation } from '@idaas/authentication-core/hooks/useAdminQuery';
-import { toast } from 'react-toastify';
-import { buildLayoutSurfaceEffect } from '@cap/layout';
-import { getTenantThemeEffects } from '@cap/theme';
+import { useState } from 'react'
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  IconButton,
+  Button,
+  TextField,
+  InputAdornment,
+  Avatar,
+  alpha,
+  useTheme,
+  Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  MenuItem,
+  Tooltip,
+  Menu,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material'
+import Search from '@mui/icons-material/Search'
+import MoreVert from '@mui/icons-material/MoreVert'
+import Email from '@mui/icons-material/Email'
+import PersonAdd from '@mui/icons-material/PersonAdd'
+import Timer from '@mui/icons-material/Timer'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import Cancel from '@mui/icons-material/Cancel'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import ContentCopy from '@mui/icons-material/ContentCopy'
+import Replay from '@mui/icons-material/Replay'
+import BlockOutlined from '@mui/icons-material/BlockOutlined'
+import { useTranslation } from 'react-i18next'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Path } from '@cap/module-auth/routes/path'
+import {
+  useOrganizationInvitations,
+  useInviteOrganizationMember,
+  useRevokeOrganizationInvitation,
+} from '@idaas/authentication-core/hooks/useAdminQuery'
+import { toast } from 'react-toastify'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 
 interface Invitation {
   id: string | number
@@ -308,8 +342,8 @@ export default function OrganizationInvitationDashboard() {
                     <Typography variant='body2' color='text.secondary'>
                       {invite.created_at || (invite as any).createdAt
                         ? new Date(
-                          invite.created_at || (invite as any).createdAt!,
-                        ).toLocaleDateString()
+                            invite.created_at || (invite as any).createdAt!,
+                          ).toLocaleDateString()
                         : 'â€”'}
                     </Typography>
                   </TableCell>
@@ -317,8 +351,8 @@ export default function OrganizationInvitationDashboard() {
                     <Typography variant='body2' color='text.secondary'>
                       {invite.expires_at || (invite as any).expiresAt
                         ? new Date(
-                          invite.expires_at || (invite as any).expiresAt!,
-                        ).toLocaleDateString()
+                            invite.expires_at || (invite as any).expiresAt!,
+                          ).toLocaleDateString()
                         : 'â€”'}
                     </Typography>
                   </TableCell>
@@ -374,10 +408,8 @@ export default function OrganizationInvitationDashboard() {
               inviteMutation.mutate(
                 { orgId: Number(id), email: menuInvite.email, role: menuInvite.role },
                 {
-                  onSuccess: () =>
-                    toast.success(t('auth.admin.successInvitationSent')),
-                  onError: () =>
-                    toast.error(t('auth.admin.errorSendInvitation')),
+                  onSuccess: () => toast.success(t('auth.admin.successInvitationSent')),
+                  onError: () => toast.error(t('auth.admin.errorSendInvitation')),
                 },
               )
             }
@@ -417,10 +449,8 @@ export default function OrganizationInvitationDashboard() {
                 revokeMutation.mutate(
                   { orgId: Number(id), invitationId: menuInvite.id },
                   {
-                    onSuccess: () =>
-                      toast.warning(t('auth.admin.revokeInvitation')),
-                    onError: () =>
-                      toast.error(t('auth.admin.errorSendInvitation')),
+                    onSuccess: () => toast.warning(t('auth.admin.revokeInvitation')),
+                    onError: () => toast.error(t('auth.admin.errorSendInvitation')),
                   },
                 )
               }
@@ -505,4 +535,3 @@ export default function OrganizationInvitationDashboard() {
     </Box>
   )
 }
-

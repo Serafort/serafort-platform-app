@@ -61,8 +61,19 @@ describe('useProvisioningQuery hooks', () => {
   it('provisioningKeys generates correct query keys', () => {
     expect(provisioningKeys.all).toEqual(['admin', 'provisioning'])
     expect(provisioningKeys.connectors()).toEqual(['admin', 'provisioning', 'connectors'])
-    expect(provisioningKeys.connector('conn-1')).toEqual(['admin', 'provisioning', 'connectors', 'conn-1'])
-    expect(provisioningKeys.logs('conn-1')).toEqual(['admin', 'provisioning', 'connectors', 'conn-1', 'logs'])
+    expect(provisioningKeys.connector('conn-1')).toEqual([
+      'admin',
+      'provisioning',
+      'connectors',
+      'conn-1',
+    ])
+    expect(provisioningKeys.logs('conn-1')).toEqual([
+      'admin',
+      'provisioning',
+      'connectors',
+      'conn-1',
+      'logs',
+    ])
   })
 
   it('useProvisioningConnectors fetches connector list', async () => {
@@ -82,15 +93,23 @@ describe('useProvisioningQuery hooks', () => {
 
   it('useCreateProvisioningConnector creates connector', async () => {
     mockCreateConnector.mockResolvedValue({ data: { id: 'c-2' } })
-    const { result } = renderHook(() => useCreateProvisioningConnector(), { wrapper: makeWrapper() })
-    result.current.mutate({ name: 'Google Workspace', type: 'scim', endpoint: 'https://g.test' } as any)
+    const { result } = renderHook(() => useCreateProvisioningConnector(), {
+      wrapper: makeWrapper(),
+    })
+    result.current.mutate({
+      name: 'Google Workspace',
+      type: 'scim',
+      endpoint: 'https://g.test',
+    } as any)
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(mockCreateConnector).toHaveBeenCalledTimes(1)
   })
 
   it('useUpdateProvisioningConnector updates connector', async () => {
     mockUpdateConnector.mockResolvedValue({ data: { id: 'c-1', name: 'Updated' } })
-    const { result } = renderHook(() => useUpdateProvisioningConnector('c-1'), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useUpdateProvisioningConnector('c-1'), {
+      wrapper: makeWrapper(),
+    })
     result.current.mutate({ name: 'Updated' } as any)
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(mockUpdateConnector).toHaveBeenCalledWith('c-1', { name: 'Updated' })
@@ -98,7 +117,9 @@ describe('useProvisioningQuery hooks', () => {
 
   it('useDeleteProvisioningConnector deletes connector', async () => {
     mockDeleteConnector.mockResolvedValue({ data: { message: 'Deleted' } })
-    const { result } = renderHook(() => useDeleteProvisioningConnector(), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useDeleteProvisioningConnector(), {
+      wrapper: makeWrapper(),
+    })
     result.current.mutate('c-old')
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(mockDeleteConnector).toHaveBeenCalledWith('c-old')
@@ -114,7 +135,9 @@ describe('useProvisioningQuery hooks', () => {
 
   it('useProvisioningConnectorLogs fetches connector logs', async () => {
     mockGetConnectorLogs.mockResolvedValue({ data: [{ id: 'l-1', status: 'SUCCESS' }] })
-    const { result } = renderHook(() => useProvisioningConnectorLogs('c-1'), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useProvisioningConnectorLogs('c-1'), {
+      wrapper: makeWrapper(),
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(mockGetConnectorLogs).toHaveBeenCalledWith('c-1')
   })

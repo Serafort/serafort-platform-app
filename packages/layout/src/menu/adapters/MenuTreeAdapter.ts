@@ -28,11 +28,12 @@ export class MenuTreeAdapter {
   public static translateKey(
     key?: string,
     dictionary?: Dictionary,
-    t?: (key: string, options?: { defaultValue?: string }) => string
+    t?: (key: string, options?: { defaultValue?: string }) => string,
   ): string {
     if (!key) return ''
     const cleanKey = key.replace(/^navigation\./, '')
-    const dictValue = dictionary?.['navigation']?.[cleanKey] || dictionary?.[key] || dictionary?.[cleanKey]
+    const dictValue =
+      dictionary?.['navigation']?.[cleanKey] || dictionary?.[key] || dictionary?.[cleanKey]
     if (dictValue && typeof dictValue === 'string') return dictValue
 
     if (t) {
@@ -57,7 +58,7 @@ export class MenuTreeAdapter {
     maxItems: number,
     sectionKey: string,
     dictionary?: Dictionary,
-    t?: (key: string, options?: { defaultValue?: string }) => string
+    t?: (key: string, options?: { defaultValue?: string }) => string,
   ): ProcessedNavItem[] {
     if (items.length <= maxItems) return items
 
@@ -84,7 +85,7 @@ export class MenuTreeAdapter {
     dictionary?: Dictionary,
     t?: (key: string, options?: { defaultValue?: string }) => string,
     filterFn?: (item: NavItemConfig) => boolean,
-    options?: MenuTreeOptions
+    options?: MenuTreeOptions,
   ): ProcessedMenuSection[] {
     const maxItems = options?.maxItemsPerSection ?? DEFAULT_MAX_ITEMS_PER_SECTION
     const enableProgressiveDisclosure = options?.enableProgressiveDisclosure ?? true
@@ -93,12 +94,13 @@ export class MenuTreeAdapter {
       if (filterFn && !filterFn(item)) return null
 
       const label = MenuTreeAdapter.translateKey(item.label, dictionary, t)
-      const sortedChildren = item.children && item.children.length > 0
-        ? [...item.children]
-            .sort((a, b) => (a.order || 0) - (b.order || 0))
-            .map(processItem)
-            .filter((child): child is ProcessedNavItem => child !== null)
-        : undefined
+      const sortedChildren =
+        item.children && item.children.length > 0
+          ? [...item.children]
+              .sort((a, b) => (a.order || 0) - (b.order || 0))
+              .map(processItem)
+              .filter((child): child is ProcessedNavItem => child !== null)
+          : undefined
 
       return {
         id: item.id,
@@ -117,7 +119,13 @@ export class MenuTreeAdapter {
       if (currentItems.length > 0) {
         const sectionKey = currentSectionId || `section_${sections.length}`
         const finalItems = enableProgressiveDisclosure
-          ? MenuTreeAdapter.applyProgressiveDisclosure(currentItems, maxItems, sectionKey, dictionary, t)
+          ? MenuTreeAdapter.applyProgressiveDisclosure(
+              currentItems,
+              maxItems,
+              sectionKey,
+              dictionary,
+              t,
+            )
           : currentItems
 
         if (currentSectionId) {

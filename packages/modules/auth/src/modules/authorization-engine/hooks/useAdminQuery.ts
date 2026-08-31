@@ -90,10 +90,53 @@ export const adminKeys = {
   systemMetrics: () => ['admin', 'systemMetrics'] as const,
 }
 // ============================================================================
-import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
-import { FetchResponse, HttpError, PaginatedResponse } from '@cap/platform-core';
-import { adminService } from '../services/adminService';
-import type { OIDCClient, CreateOIDCClientRequest, UpdateOIDCClientRequest, AdminUser, CreateUserRequest, UpdateUserRequest, SSFConfig, MessageResponse, Role, Permission, AccessPolicy, Organization, CreateOrganizationRequest, OrganizationMember, Connector, ConnectorLog, SCIMToken, SAMLConfig, EmailTemplate, EmailTestRequest, BroadcastSSFEventRequest, BroadcastSSFEventResponse, MFAStats, UserStats, BulkActionRequest, BulkActionResult, AuthScope, CreateScopeRequest, UpdateScopeRequest, SCIMConfig, DetailedHealthReport, BasicMetrics, JWKSKey, JWKSKeyDetail, CreateJWKSKeyRequest, DomainVerification } from '../services/adminService';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  UseQueryOptions,
+  UseMutationOptions,
+} from '@tanstack/react-query'
+import { FetchResponse, HttpError, PaginatedResponse } from '@cap/platform-core'
+import { adminService } from '../services/adminService'
+import type {
+  OIDCClient,
+  CreateOIDCClientRequest,
+  UpdateOIDCClientRequest,
+  AdminUser,
+  CreateUserRequest,
+  UpdateUserRequest,
+  SSFConfig,
+  MessageResponse,
+  Role,
+  Permission,
+  AccessPolicy,
+  Organization,
+  CreateOrganizationRequest,
+  OrganizationMember,
+  Connector,
+  ConnectorLog,
+  SCIMToken,
+  SAMLConfig,
+  EmailTemplate,
+  EmailTestRequest,
+  BroadcastSSFEventRequest,
+  BroadcastSSFEventResponse,
+  MFAStats,
+  UserStats,
+  BulkActionRequest,
+  BulkActionResult,
+  AuthScope,
+  CreateScopeRequest,
+  UpdateScopeRequest,
+  SCIMConfig,
+  DetailedHealthReport,
+  BasicMetrics,
+  JWKSKey,
+  JWKSKeyDetail,
+  CreateJWKSKeyRequest,
+  DomainVerification,
+} from '../services/adminService'
 // ============================================================================
 // OIDC Client Management Hooks
 // ============================================================================
@@ -681,7 +724,8 @@ export function useVerifyDomain(
 ) {
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
   return useMutation({
-    mutationFn: ({ domain, organizationId }) => adminService.verifyDomain(organizationId ?? 0, domain),
+    mutationFn: ({ domain, organizationId }) =>
+      adminService.verifyDomain(organizationId ?? 0, domain),
     onSuccess: (...args) => {
       customOnSuccess?.(...args)
     },
@@ -695,11 +739,17 @@ export function useVerifyDomain(
  * Check domain verification status
  */
 export function useCheckDomain(
-  options?: UseMutationOptions<FetchResponse<DomainVerification>, HttpError, { domainId: number; organizationId: number }, unknown>,
+  options?: UseMutationOptions<
+    FetchResponse<DomainVerification>,
+    HttpError,
+    { domainId: number; organizationId: number },
+    unknown
+  >,
 ) {
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
   return useMutation({
-    mutationFn: ({ domainId, organizationId }) => adminService.checkDomain(organizationId, domainId),
+    mutationFn: ({ domainId, organizationId }) =>
+      adminService.checkDomain(organizationId, domainId),
     ...options,
     onSuccess: (...args) => {
       customOnSuccess?.(...args)
@@ -2176,11 +2226,7 @@ export function useSSFConfig(
 
 export function useUpdateSSFConfig(
   options?: Omit<
-    UseMutationOptions<
-      FetchResponse<{ message: string; config: SSFConfig }>,
-      HttpError,
-      SSFConfig
-    >,
+    UseMutationOptions<FetchResponse<{ message: string; config: SSFConfig }>, HttpError, SSFConfig>,
     'mutationFn'
   >,
 ) {
@@ -2266,7 +2312,7 @@ export function useRotateJWKSKeys(
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
-  
+
   return useMutation({
     mutationFn: () => adminService.rotateJWKSKeys(),
     onSuccess: (...args) => {
@@ -2285,7 +2331,7 @@ export function useDeleteJWKSKey(
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
-  
+
   return useMutation({
     mutationFn: (kid: string) => adminService.deleteJWKSKey(kid),
     onSuccess: (...args) => {
@@ -2300,7 +2346,10 @@ export function useDeleteJWKSKey(
  * Manually create a JWKS key
  */
 export function useCreateJWKSKey(
-  options?: Omit<UseMutationOptions<FetchResponse<JWKSKey>, HttpError, CreateJWKSKeyRequest, unknown>, 'mutationFn'>,
+  options?: Omit<
+    UseMutationOptions<FetchResponse<JWKSKey>, HttpError, CreateJWKSKeyRequest, unknown>,
+    'mutationFn'
+  >,
 ) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -2328,4 +2377,3 @@ export function useGetJWKSKeyDetail(
     ...options,
   })
 }
-

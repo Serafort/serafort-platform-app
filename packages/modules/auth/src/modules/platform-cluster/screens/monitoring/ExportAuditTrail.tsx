@@ -1,17 +1,36 @@
-import { useState } from 'react';
-import { Box, Typography, Card, CardContent, Grid, Button, FormControl, InputLabel, Select, MenuItem, TextField, Stack, Chip, LinearProgress, Alert, AlertTitle, Divider, Paper } from '@mui/material';
-import History from '@mui/icons-material/History';
-import FileDownload from '@mui/icons-material/FileDownload';
-import CloudDownload from '@mui/icons-material/CloudDownload';
-import Analytics from '@mui/icons-material/Analytics';
-import SpeedIcon from '@mui/icons-material/Speed';
-import TimerIcon from '@mui/icons-material/Timer';
-import StorageIcon from '@mui/icons-material/Storage';
-import { useTranslation } from 'react-i18next';
-import { useNotifications } from '@cap/platform-core';
-import { useExportAuditLogs } from '../../../authorization-engine/hooks/useAdminQuery';
-import { useChunkProgressTracker } from '../../../authentication-core/hooks/useChunkProgressTracker';
-import logger from '../../../authentication-core/utils/logger';
+import { useState } from 'react'
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Grid,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Stack,
+  Chip,
+  LinearProgress,
+  Alert,
+  AlertTitle,
+  Divider,
+  Paper,
+} from '@mui/material'
+import History from '@mui/icons-material/History'
+import FileDownload from '@mui/icons-material/FileDownload'
+import CloudDownload from '@mui/icons-material/CloudDownload'
+import Analytics from '@mui/icons-material/Analytics'
+import SpeedIcon from '@mui/icons-material/Speed'
+import TimerIcon from '@mui/icons-material/Timer'
+import StorageIcon from '@mui/icons-material/Storage'
+import { useTranslation } from 'react-i18next'
+import { useNotifications } from '@cap/platform-core'
+import { useExportAuditLogs } from '../../../authorization-engine/hooks/useAdminQuery'
+import { useChunkProgressTracker } from '../../../authentication-core/hooks/useChunkProgressTracker'
+import logger from '../../../authentication-core/utils/logger'
 
 export default function ExportAuditTrail() {
   const { t } = useTranslation('common')
@@ -182,7 +201,7 @@ export default function ExportAuditTrail() {
 
                 {exportMutation.isPending && (
                   <Paper
-                    variant="outlined"
+                    variant='outlined'
                     sx={{
                       p: 2.5,
                       borderRadius: 2,
@@ -191,14 +210,21 @@ export default function ExportAuditTrail() {
                       borderColor: 'divider',
                     }}
                   >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        mb: 1.5,
+                      }}
+                    >
+                      <Typography variant='body2' sx={{ fontWeight: 800 }}>
                         Exporting Chunk {tracker.processedChunks} of {tracker.totalChunks}
                       </Typography>
                       <Chip
                         label={`${tracker.progress}%`}
-                        color="primary"
-                        size="small"
+                        color='primary'
+                        size='small'
                         sx={{ fontWeight: 800, borderRadius: 1.5 }}
                       />
                     </Box>
@@ -212,12 +238,18 @@ export default function ExportAuditTrail() {
                     <Grid container spacing={1.5}>
                       <Grid size={{ xs: 4 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                          <StorageIcon fontSize="small" sx={{ color: 'text.secondary', fontSize: 16 }} />
+                          <StorageIcon
+                            fontSize='small'
+                            sx={{ color: 'text.secondary', fontSize: 16 }}
+                          />
                           <Box>
-                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', fontSize: '0.7rem' }}>
+                            <Typography
+                              variant='caption'
+                              sx={{ color: 'text.secondary', display: 'block', fontSize: '0.7rem' }}
+                            >
                               Payload
                             </Typography>
-                            <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                            <Typography variant='caption' sx={{ fontWeight: 700 }}>
                               {tracker.processedBytesFormatted} / {tracker.totalBytesFormatted}
                             </Typography>
                           </Box>
@@ -225,12 +257,18 @@ export default function ExportAuditTrail() {
                       </Grid>
                       <Grid size={{ xs: 4 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                          <SpeedIcon fontSize="small" sx={{ color: 'text.secondary', fontSize: 16 }} />
+                          <SpeedIcon
+                            fontSize='small'
+                            sx={{ color: 'text.secondary', fontSize: 16 }}
+                          />
                           <Box>
-                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', fontSize: '0.7rem' }}>
+                            <Typography
+                              variant='caption'
+                              sx={{ color: 'text.secondary', display: 'block', fontSize: '0.7rem' }}
+                            >
                               Throughput
                             </Typography>
-                            <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                            <Typography variant='caption' sx={{ fontWeight: 700 }}>
                               {tracker.itemsPerSecond} logs/s
                             </Typography>
                           </Box>
@@ -238,12 +276,18 @@ export default function ExportAuditTrail() {
                       </Grid>
                       <Grid size={{ xs: 4 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                          <TimerIcon fontSize="small" sx={{ color: 'text.secondary', fontSize: 16 }} />
+                          <TimerIcon
+                            fontSize='small'
+                            sx={{ color: 'text.secondary', fontSize: 16 }}
+                          />
                           <Box>
-                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', fontSize: '0.7rem' }}>
+                            <Typography
+                              variant='caption'
+                              sx={{ color: 'text.secondary', display: 'block', fontSize: '0.7rem' }}
+                            >
                               ETA
                             </Typography>
-                            <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                            <Typography variant='caption' sx={{ fontWeight: 700 }}>
                               {tracker.etaFormatted}
                             </Typography>
                           </Box>
@@ -328,4 +372,3 @@ export default function ExportAuditTrail() {
     </Box>
   )
 }
-

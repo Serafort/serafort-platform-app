@@ -1,4 +1,4 @@
-import StorageManager from './storage.service'
+import StorageManager from "./storage.service";
 
 export const localStorageManager = {
   set: async (key: string, value: any, encrypt = false) =>
@@ -7,17 +7,17 @@ export const localStorageManager = {
     await StorageManager.getFromLocalStorage<T>(key, decrypt),
   has: (key: string) => {
     try {
-      return localStorage.getItem(key) !== null
+      return localStorage.getItem(key) !== null;
     } catch {
-      return false
+      return false;
     }
   },
   remove: (key: string) => StorageManager.deleteFromLocalStorage(key),
   clear: () => {
     try {
-      localStorage.clear()
+      localStorage.clear();
     } catch (error) {
-      console.error('LocalStorage clear error:', error)
+      console.error("LocalStorage clear error:", error);
     }
   },
-}
+};

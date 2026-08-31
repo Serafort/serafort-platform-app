@@ -1,14 +1,14 @@
-import React, { createContext, useContext } from 'react'
-import type { ElementSize, ContainerSize } from '../hooks/useResizeObserver'
+import React, { createContext, useContext } from "react";
+import type { ElementSize, ContainerSize } from "../hooks/useResizeObserver";
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
 const INITIAL_SIZE: ElementSize = {
   width: 0,
   height: 0,
-  containerSize: 'md',
+  containerSize: "md",
   entry: null,
-}
+};
 
 /**
  * Context that carries the measured container size downward through the React tree.
@@ -16,13 +16,13 @@ const INITIAL_SIZE: ElementSize = {
  * deeply nested widget sub-components can introspect their host container dimensions
  * without prop drilling.
  */
-export const ContainerSizeContext = createContext<ElementSize>(INITIAL_SIZE)
+export const ContainerSizeContext = createContext<ElementSize>(INITIAL_SIZE);
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export interface ContainerSizeProviderProps {
-  size: ElementSize
-  children: React.ReactNode
+  size: ElementSize;
+  children: React.ReactNode;
 }
 
 /**
@@ -37,9 +37,14 @@ export interface ContainerSizeProviderProps {
  *   </ContainerSizeProvider>
  * )
  */
-export const ContainerSizeProvider: React.FC<ContainerSizeProviderProps> = ({ size, children }) => (
-  <ContainerSizeContext.Provider value={size}>{children}</ContainerSizeContext.Provider>
-)
+export const ContainerSizeProvider: React.FC<ContainerSizeProviderProps> = ({
+  size,
+  children,
+}) => (
+  <ContainerSizeContext.Provider value={size}>
+    {children}
+  </ContainerSizeContext.Provider>
+);
 
 // ─── Consumer Hook ────────────────────────────────────────────────────────────
 
@@ -52,7 +57,7 @@ export const ContainerSizeProvider: React.FC<ContainerSizeProviderProps> = ({ si
  * return containerSize === 'xs' ? <CompactView /> : <FullView />
  */
 export function useContainerSize(): ElementSize {
-  return useContext(ContainerSizeContext)
+  return useContext(ContainerSizeContext);
 }
 
 /**
@@ -64,5 +69,5 @@ export function useContainerSize(): ElementSize {
  * // containerSize: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
  */
 export function useContainerSizeClass(): ContainerSize {
-  return useContext(ContainerSizeContext).containerSize
+  return useContext(ContainerSizeContext).containerSize;
 }

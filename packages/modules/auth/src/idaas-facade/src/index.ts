@@ -1,22 +1,27 @@
-import authenticationService from "../../modules/authentication-core/services/auth.service"
-import { authorizationService } from "../../modules/authorization-engine/src/services/authorization.service"
-import userService from "../../modules/user-directory/services/user.service"
+import authenticationService from '../../modules/authentication-core/services/auth.service'
+import { authorizationService } from '../../modules/authorization-engine/src/services/authorization.service'
+import userService from '../../modules/user-directory/services/user.service'
 import type { ILogin, IForgetPassword, IResetPassword, FetchResponse } from '@cap/platform-core'
 import type {
   UpdateMeRequest,
   UpdatePhotoRequest,
   UpdateEmailRequest,
   ChangePasswordRequest,
-} from "../../modules/authentication-core/types/api.types"
+} from '../../modules/authentication-core/types/api.types'
 
-export interface VerifyEmailRequest { token: string; email?: string }
-export interface ResendVerificationRequest { email: string }
+export interface VerifyEmailRequest {
+  token: string
+  email?: string
+}
+export interface ResendVerificationRequest {
+  email: string
+}
 import type {
   RoleDto,
   PermissionDto,
   CheckPermissionRequest,
   CheckPermissionResponse,
-} from "../../modules/authorization-engine/src/dtos/authorization.dto"
+} from '../../modules/authorization-engine/src/dtos/authorization.dto'
 
 export interface IIdaasFacade {
   auth: {
@@ -70,8 +75,7 @@ class IdaasFacadeImpl implements IIdaasFacade {
     login: (request: ILogin) => authenticationService.signin(request),
     refreshToken: () => authenticationService.refreshToken(),
     logout: () => authenticationService.signout(),
-    forgotPassword: (request: IForgetPassword) =>
-      authenticationService.forgotPassword(request),
+    forgotPassword: (request: IForgetPassword) => authenticationService.forgotPassword(request),
     resetPassword: (request: IResetPassword) => authenticationService.resetPassword(request),
     verifyEmail: (request: VerifyEmailRequest) =>
       authenticationService.verifyEmail(request.email || '', request.token),
@@ -119,4 +123,3 @@ class IdaasFacadeImpl implements IIdaasFacade {
 export const idaasFacade = new IdaasFacadeImpl()
 
 export type { IIdaasFacade as IdaasFacade }
-

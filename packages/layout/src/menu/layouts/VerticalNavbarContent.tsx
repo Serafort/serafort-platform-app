@@ -34,7 +34,9 @@ const NavbarContent = () => {
       const rawSection = item.section || ''
       const cleanSectionKey = rawSection.replace(/^navigation\./, '')
       const translatedSection = rawSection
-        ? t(rawSection, { defaultValue: t(`navigation.${cleanSectionKey}`, { defaultValue: rawSection }) })
+        ? t(rawSection, {
+            defaultValue: t(`navigation.${cleanSectionKey}`, { defaultValue: rawSection }),
+          })
         : ''
 
       return {
@@ -61,7 +63,13 @@ const NavbarContent = () => {
         <NavToggle />
         <NavSearch />
       </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: layoutMenuTokens.navbarContent.actionsGap }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: layoutMenuTokens.navbarContent.actionsGap,
+        }}
+      >
         <RoleIndicator showLabel={true} size='small' />
         <Box
           sx={{

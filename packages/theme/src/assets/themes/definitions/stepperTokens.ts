@@ -5,23 +5,23 @@
 
 export interface StepperTokens {
   connector: {
-    borderBlockStartWidth: number
-    borderRadius: number
-    alternativeLabelTop: number
-  }
+    borderBlockStartWidth: number;
+    borderRadius: number;
+    alternativeLabelTop: number;
+  };
   vertical: {
-    stepContentBorderInlineStartWidth: number
-    stepContentMarginLeftSpacing: number
-    buttonWrapperMarginTopSpacing: number
-  }
+    stepContentBorderInlineStartWidth: number;
+    stepContentMarginLeftSpacing: number;
+    buttonWrapperMarginTopSpacing: number;
+  };
   progress: {
-    badgeBorderRadius: string
-    badgeFontSize: string
-    badgeFontWeight: number
-    stepIndicatorLetterSpacing: string
-    stepTransitionDuration: string
-    completionGradient: string
-  }
+    badgeBorderRadius: string;
+    badgeFontSize: string;
+    badgeFontWeight: number;
+    stepIndicatorLetterSpacing: string;
+    stepTransitionDuration: string;
+    completionGradient: string;
+  };
 }
 
 export const stepperTokens: StepperTokens = {
@@ -36,11 +36,11 @@ export const stepperTokens: StepperTokens = {
     buttonWrapperMarginTopSpacing: 4,
   },
   progress: {
-    badgeBorderRadius: '50px',
-    badgeFontSize: '0.75rem',
+    badgeBorderRadius: "50px",
+    badgeFontSize: "0.75rem",
     badgeFontWeight: 700,
-    stepIndicatorLetterSpacing: '0.05em',
-    stepTransitionDuration: '250ms cubic-bezier(0.4, 0, 0.2, 1)',
-    completionGradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+    stepIndicatorLetterSpacing: "0.05em",
+    stepTransitionDuration: "250ms cubic-bezier(0.4, 0, 0.2, 1)",
+    completionGradient: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
   },
-}
+};

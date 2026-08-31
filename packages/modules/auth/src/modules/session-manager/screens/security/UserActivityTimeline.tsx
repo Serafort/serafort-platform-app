@@ -49,7 +49,11 @@ const toActivityItems = (logs: AuditLogItem[]): ActivityItem[] =>
     let color: TimelineDotColor = 'grey'
     const actionLower = (log.action || '').toLowerCase()
 
-    if (actionLower.includes('login') || actionLower.includes('signin') || actionLower.includes('auth')) {
+    if (
+      actionLower.includes('login') ||
+      actionLower.includes('signin') ||
+      actionLower.includes('auth')
+    ) {
       icon = <Login fontSize='small' />
       color = 'success'
     } else if (actionLower.includes('password')) {
@@ -61,7 +65,11 @@ const toActivityItems = (logs: AuditLogItem[]): ActivityItem[] =>
     } else if (actionLower.includes('token') || actionLower.includes('key')) {
       icon = <VpnKey fontSize='small' />
       color = 'primary'
-    } else if (actionLower.includes('fail') || actionLower.includes('error') || actionLower.includes('revoke')) {
+    } else if (
+      actionLower.includes('fail') ||
+      actionLower.includes('error') ||
+      actionLower.includes('revoke')
+    ) {
       icon = <NotificationImportant fontSize='small' />
       color = 'error'
     }
@@ -96,7 +104,9 @@ export const UserActivityTimeline: React.FC = () => {
 
   return (
     <Container maxWidth='lg' sx={{ py: 6 }}>
-      <Box sx={{ mb: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <Box
+        sx={{ mb: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
+      >
         <Box>
           <Typography
             variant='h4'
@@ -110,7 +120,7 @@ export const UserActivityTimeline: React.FC = () => {
           <Typography variant='body1' color='text.secondary'>
             {t(
               'auth.account.activity_timeline_desc',
-              'Chronological feed of login events, security changes, and profile updates to help you monitor your account security.'
+              'Chronological feed of login events, security changes, and profile updates to help you monitor your account security.',
             )}
           </Typography>
         </Box>
@@ -148,7 +158,11 @@ export const UserActivityTimeline: React.FC = () => {
                 </Button>
               }
             >
-              {error?.message || t('auth.account.activity.load_failed', 'Unable to load activity. Please try again.')}
+              {error?.message ||
+                t(
+                  'auth.account.activity.load_failed',
+                  'Unable to load activity. Please try again.',
+                )}
             </Alert>
           </Box>
         ) : activities.length === 0 ? (
@@ -158,7 +172,10 @@ export const UserActivityTimeline: React.FC = () => {
               {t('auth.account.activity.no_recent_activity', 'No recent activity found')}
             </Typography>
             <Typography color='text.secondary'>
-              {t('auth.account.activity.no_activity_desc', 'Security and login events will appear here in chronological order.')}
+              {t(
+                'auth.account.activity.no_activity_desc',
+                'Security and login events will appear here in chronological order.',
+              )}
             </Typography>
           </Box>
         ) : (

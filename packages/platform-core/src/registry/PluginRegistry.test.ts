@@ -77,7 +77,7 @@ describe('PluginRegistry', () => {
         expect.objectContaining({
           moduleId: 'global',
           registry: expect.any(Object),
-        })
+        }),
       )
     })
 

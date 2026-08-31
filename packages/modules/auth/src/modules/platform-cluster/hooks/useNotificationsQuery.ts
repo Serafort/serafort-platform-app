@@ -171,5 +171,3 @@ export function useUpdateNotificationPreferences(
     ...restOptions,
   })
 }
-
-

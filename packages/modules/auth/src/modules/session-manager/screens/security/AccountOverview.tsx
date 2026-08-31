@@ -221,11 +221,7 @@ export const AccountOverview: React.FC = () => {
   // })
 
   const isLoading =
-    isUserLoading ||
-    isSecurityLoading ||
-    isPasskeysLoading ||
-    isLinkedLoading ||
-    isTokensLoading
+    isUserLoading || isSecurityLoading || isPasskeysLoading || isLinkedLoading || isTokensLoading
   const isFetching =
     isUserFetching ||
     isSecurityFetching ||
@@ -248,14 +244,7 @@ export const AccountOverview: React.FC = () => {
     refetchLinked()
     refetchTokens()
     refetchActivity()
-  }, [
-    refetchUser,
-    refetchSecurity,
-    refetchPasskeys,
-    refetchLinked,
-    refetchTokens,
-    refetchActivity,
-  ])
+  }, [refetchUser, refetchSecurity, refetchPasskeys, refetchLinked, refetchTokens, refetchActivity])
 
   // ── Data Normalization & Extraction ──
   const user = useMemo<UserDTO>(() => {
@@ -358,10 +347,7 @@ export const AccountOverview: React.FC = () => {
         (meta.device as string) ||
         ''
       const location =
-        (meta.location as string) ||
-        (meta.city as string) ||
-        (meta.country as string) ||
-        ''
+        (meta.location as string) || (meta.city as string) || (meta.country as string) || ''
 
       const metadataParts = [device, location, ip].filter(Boolean)
       const metaString =
@@ -454,7 +440,7 @@ export const AccountOverview: React.FC = () => {
       >
         <Box>
           <Typography
-            variant="h4"
+            variant='h4'
             sx={{
               fontWeight: 800,
               color: 'text.primary',
@@ -465,7 +451,7 @@ export const AccountOverview: React.FC = () => {
             {t('auth.account.overview_title', 'Account Overview')}
           </Typography>
           <Typography
-            variant="body2"
+            variant='body2'
             sx={{
               color: 'text.secondary',
               fontSize: '0.875rem',
@@ -479,11 +465,11 @@ export const AccountOverview: React.FC = () => {
           </Typography>
         </Box>
 
-        <Stack direction="row" spacing={1.5} alignItems="center">
+        <Stack direction='row' spacing={1.5} alignItems='center'>
           <Button
             component={RouterLink}
             to={Path.user.profile.view}
-            variant="outlined"
+            variant='outlined'
             startIcon={<EditOutlined sx={{ fontSize: 16 }} />}
             sx={{
               borderColor: 'divider',
@@ -510,12 +496,12 @@ export const AccountOverview: React.FC = () => {
       {/* ── Error Banner if any query failed ── */}
       {isAnyError && (
         <Alert
-          severity="warning"
+          severity='warning'
           sx={{ mb: 3.5, borderRadius: '12px' }}
           action={
             <Button
-              color="inherit"
-              size="small"
+              color='inherit'
+              size='small'
               startIcon={<Refresh />}
               onClick={handleRefreshAll}
               disabled={isFetching}
@@ -536,7 +522,7 @@ export const AccountOverview: React.FC = () => {
 
       {/* ── User Identity Profile Summary Card ── */}
       <Card
-        variant="outlined"
+        variant='outlined'
         sx={{
           mb: 3.5,
           p: { xs: 2, sm: 2.5 },
@@ -550,11 +536,11 @@ export const AccountOverview: React.FC = () => {
           direction={{ xs: 'column', sm: 'row' }}
           spacing={2.5}
           alignItems={{ xs: 'flex-start', sm: 'center' }}
-          justifyContent="space-between"
+          justifyContent='space-between'
         >
-          <Stack direction="row" spacing={2} alignItems="center" sx={{ minWidth: 0 }}>
+          <Stack direction='row' spacing={2} alignItems='center' sx={{ minWidth: 0 }}>
             {isUserLoading ? (
-              <Skeleton variant="circular" width={56} height={56} />
+              <Skeleton variant='circular' width={56} height={56} />
             ) : (
               <Avatar
                 src={avatarUrl}
@@ -581,9 +567,9 @@ export const AccountOverview: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                  <Stack direction='row' spacing={1} alignItems='center' flexWrap='wrap'>
                     <Typography
-                      variant="h6"
+                      variant='h6'
                       sx={{
                         fontWeight: 700,
                         color: 'text.primary',
@@ -595,7 +581,7 @@ export const AccountOverview: React.FC = () => {
                     </Typography>
                     <Chip
                       label={userStatus}
-                      size="small"
+                      size='small'
                       sx={{
                         height: 20,
                         fontSize: '0.6875rem',
@@ -615,7 +601,7 @@ export const AccountOverview: React.FC = () => {
                       <Chip
                         icon={<CheckCircleOutline sx={{ fontSize: '14px !important' }} />}
                         label={t('auth.account.verified', 'Verified')}
-                        size="small"
+                        size='small'
                         sx={{
                           height: 20,
                           fontSize: '0.6875rem',
@@ -628,7 +614,7 @@ export const AccountOverview: React.FC = () => {
                     )}
                   </Stack>
                   <Typography
-                    variant="body2"
+                    variant='body2'
                     sx={{ color: 'text.secondary', fontSize: '0.875rem', mt: 0.25 }}
                     noWrap
                   >
@@ -639,13 +625,13 @@ export const AccountOverview: React.FC = () => {
             </Box>
           </Stack>
 
-          <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
+          <Stack direction='row' spacing={1.5} alignItems='center' flexWrap='wrap'>
             {userRole && (
               <Chip
                 icon={<AdminPanelSettingsOutlined sx={{ fontSize: '15px !important' }} />}
                 label={typeof userRole === 'string' ? userRole.toUpperCase() : `Role #${userRole}`}
-                variant="outlined"
-                size="small"
+                variant='outlined'
+                size='small'
                 sx={{
                   borderRadius: '6px',
                   fontWeight: 600,
@@ -657,8 +643,8 @@ export const AccountOverview: React.FC = () => {
             {user.tenantId && (
               <Chip
                 label={`${t('auth.account.tenant', 'Tenant')}: ${user.tenantId}`}
-                variant="outlined"
-                size="small"
+                variant='outlined'
+                size='small'
                 sx={{
                   borderRadius: '6px',
                   fontWeight: 500,
@@ -673,7 +659,7 @@ export const AccountOverview: React.FC = () => {
 
       {/* ── Passkey Promotion Banner ── */}
       <Card
-        variant="outlined"
+        variant='outlined'
         sx={{
           my: { xs: 2, sm: 0, md: 2, lg: 2 },
           mb: 3.5,
@@ -689,7 +675,7 @@ export const AccountOverview: React.FC = () => {
           gap: 2.5,
         }}
       >
-        <Stack direction="row" spacing={2.5} alignItems="center" sx={{ flex: 1 }}>
+        <Stack direction='row' spacing={2.5} alignItems='center' sx={{ flex: 1 }}>
           <Avatar
             sx={{
               bgcolor: alpha(theme.palette.warning.main, 0.12),
@@ -704,7 +690,7 @@ export const AccountOverview: React.FC = () => {
           </Avatar>
           <Box>
             <Typography
-              variant="subtitle1"
+              variant='subtitle1'
               sx={{ fontWeight: 700, color: 'text.primary', fontSize: '1rem', mb: 0.25 }}
             >
               {passkeysCount > 0
@@ -712,18 +698,18 @@ export const AccountOverview: React.FC = () => {
                 : t('auth.account.passkey_banner_title', 'Strengthen Your Account with Passkeys')}
             </Typography>
             <Typography
-              variant="body2"
+              variant='body2'
               sx={{ color: 'text.secondary', fontSize: '0.875rem', lineHeight: 1.45 }}
             >
               {passkeysCount > 0
                 ? t(
-                  'auth.account.passkey_active_desc',
-                  'Your account is protected by biometric passkeys. You can manage or add new security keys anytime.',
-                )
+                    'auth.account.passkey_active_desc',
+                    'Your account is protected by biometric passkeys. You can manage or add new security keys anytime.',
+                  )
                 : t(
-                  'auth.account.passkey_banner_desc',
-                  'Experience fast, phishing-resistant logins using biometric verification (Touch ID, Face ID, Windows Hello) or security keys.',
-                )}
+                    'auth.account.passkey_banner_desc',
+                    'Experience fast, phishing-resistant logins using biometric verification (Touch ID, Face ID, Windows Hello) or security keys.',
+                  )}
             </Typography>
           </Box>
         </Stack>
@@ -731,7 +717,7 @@ export const AccountOverview: React.FC = () => {
         <Button
           component={RouterLink}
           to={Path.mfa.passkey.management}
-          variant="outlined"
+          variant='outlined'
           startIcon={<VpnKeyOutlined sx={{ fontSize: 16 }} />}
           sx={{
             borderColor: 'divider',
@@ -779,12 +765,11 @@ export const AccountOverview: React.FC = () => {
             // my: { xs: 1, sm: 0 },
             m: { xs: 0, sx: 0, md: 2, lg: 2 },
             ml: { xs: 0, sx: 0, md: 0, lg: 0 },
-            my: { xs: 2, sm: 0, md: 2, lg: 2 }
-
+            my: { xs: 2, sm: 0, md: 2, lg: 2 },
           }}
         >
           <Card
-            variant="outlined"
+            variant='outlined'
             sx={{
               borderRadius: '16px',
               borderColor: 'divider',
@@ -795,12 +780,22 @@ export const AccountOverview: React.FC = () => {
               flexDirection: 'column',
               justifyContent: 'space-between',
               minHeight: 160,
-              padding: '12px'
+              padding: '12px',
             }}
           >
             <Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.875rem' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant='body2'
+                  sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.875rem' }}
+                >
                   {t('auth.account.active_sessions', 'Active Sessions')}
                 </Typography>
                 <Avatar
@@ -816,9 +811,17 @@ export const AccountOverview: React.FC = () => {
                 </Avatar>
               </Box>
               {isLoading ? (
-                <Skeleton width="40%" height={40} />
+                <Skeleton width='40%' height={40} />
               ) : (
-                <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', fontSize: '1.875rem', lineHeight: 1 }}>
+                <Typography
+                  variant='h4'
+                  sx={{
+                    fontWeight: 800,
+                    color: 'text.primary',
+                    fontSize: '1.875rem',
+                    lineHeight: 1,
+                  }}
+                >
                   {stats.activeSessions}
                 </Typography>
               )}
@@ -827,8 +830,16 @@ export const AccountOverview: React.FC = () => {
             <Button
               component={RouterLink}
               to={Path.session.activeSessions}
-              variant="text"
-              endIcon={<ChevronRight sx={{ fontSize: 16, transition: 'transform 0.2s', '.MuiButton-root:hover &': { transform: 'translateX(3px)' } }} />}
+              variant='text'
+              endIcon={
+                <ChevronRight
+                  sx={{
+                    fontSize: 16,
+                    transition: 'transform 0.2s',
+                    '.MuiButton-root:hover &': { transform: 'translateX(3px)' },
+                  }}
+                />
+              }
               sx={{
                 justifyContent: 'flex-start',
                 px: 0,
@@ -854,12 +865,11 @@ export const AccountOverview: React.FC = () => {
           sx={{
             // my: { xs: 1, sm: 0 },
             m: { xs: 0, sx: 0, md: 2, lg: 2 },
-            my: { xs: 2, sm: 0, md: 2, lg: 2 }
-
+            my: { xs: 2, sm: 0, md: 2, lg: 2 },
           }}
         >
           <Card
-            variant="outlined"
+            variant='outlined'
             sx={{
               borderRadius: '16px',
               borderColor: 'divider',
@@ -870,12 +880,22 @@ export const AccountOverview: React.FC = () => {
               flexDirection: 'column',
               justifyContent: 'space-between',
               minHeight: 160,
-              padding: '12px'
+              padding: '12px',
             }}
           >
             <Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.875rem' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant='body2'
+                  sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.875rem' }}
+                >
                   {t('auth.account.passkeys_enrolled', 'Passkeys & Biometrics')}
                 </Typography>
                 <Avatar
@@ -891,13 +911,24 @@ export const AccountOverview: React.FC = () => {
                 </Avatar>
               </Box>
               {isLoading ? (
-                <Skeleton width="40%" height={40} />
+                <Skeleton width='40%' height={40} />
               ) : (
-                <Stack direction="row" spacing={1} alignItems="baseline">
-                  <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', fontSize: '1.875rem', lineHeight: 1 }}>
+                <Stack direction='row' spacing={1} alignItems='baseline'>
+                  <Typography
+                    variant='h4'
+                    sx={{
+                      fontWeight: 800,
+                      color: 'text.primary',
+                      fontSize: '1.875rem',
+                      lineHeight: 1,
+                    }}
+                  >
                     {stats.passkeysCount}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.875rem' }}>
+                  <Typography
+                    variant='body2'
+                    sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.875rem' }}
+                  >
                     {stats.passkeysCount > 0
                       ? t('auth.account.common.active', 'Active')
                       : t('auth.account.common.disabled', 'Disabled')}
@@ -909,8 +940,16 @@ export const AccountOverview: React.FC = () => {
             <Button
               component={RouterLink}
               to={Path.mfa.passkey.management}
-              variant="text"
-              endIcon={<ChevronRight sx={{ fontSize: 16, transition: 'transform 0.2s', '.MuiButton-root:hover &': { transform: 'translateX(3px)' } }} />}
+              variant='text'
+              endIcon={
+                <ChevronRight
+                  sx={{
+                    fontSize: 16,
+                    transition: 'transform 0.2s',
+                    '.MuiButton-root:hover &': { transform: 'translateX(3px)' },
+                  }}
+                />
+              }
               sx={{
                 justifyContent: 'flex-start',
                 px: 0,
@@ -936,12 +975,11 @@ export const AccountOverview: React.FC = () => {
           sx={{
             // my: { xs: 1, sm: 0 },
             m: { xs: 0, sx: 0, md: 2, lg: 2 },
-            my: { xs: 2, sm: 0, md: 2, lg: 2 }
-
+            my: { xs: 2, sm: 0, md: 2, lg: 2 },
           }}
         >
           <Card
-            variant="outlined"
+            variant='outlined'
             sx={{
               borderRadius: '16px',
               borderColor: 'divider',
@@ -952,18 +990,28 @@ export const AccountOverview: React.FC = () => {
               flexDirection: 'column',
               justifyContent: 'space-between',
               minHeight: 160,
-              padding: '12px'
+              padding: '12px',
             }}
           >
             <Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.875rem' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant='body2'
+                  sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.875rem' }}
+                >
                   {t('auth.account.mfa_status', 'MFA Status')}
                 </Typography>
-                <Stack direction="row" spacing={0.75} alignItems="center">
+                <Stack direction='row' spacing={0.75} alignItems='center'>
                   <Chip
-                    label="2FA"
-                    size="small"
+                    label='2FA'
+                    size='small'
                     sx={{
                       height: 20,
                       fontSize: '0.7rem',
@@ -971,9 +1019,7 @@ export const AccountOverview: React.FC = () => {
                       bgcolor: stats.isMfaEnabled
                         ? '#dcfce7'
                         : alpha(theme.palette.warning.main, 0.12),
-                      color: stats.isMfaEnabled
-                        ? '#15803d'
-                        : theme.palette.warning.main,
+                      color: stats.isMfaEnabled ? '#15803d' : theme.palette.warning.main,
                       borderRadius: '4px',
                     }}
                   />
@@ -993,9 +1039,17 @@ export const AccountOverview: React.FC = () => {
                 </Stack>
               </Box>
               {isLoading ? (
-                <Skeleton width="50%" height={40} />
+                <Skeleton width='50%' height={40} />
               ) : (
-                <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', fontSize: '1.75rem', lineHeight: 1 }}>
+                <Typography
+                  variant='h4'
+                  sx={{
+                    fontWeight: 800,
+                    color: 'text.primary',
+                    fontSize: '1.75rem',
+                    lineHeight: 1,
+                  }}
+                >
                   {stats.isMfaEnabled
                     ? t('auth.account.mfa.enabled', 'Enabled')
                     : t('auth.account.mfa.disabled', 'Disabled')}
@@ -1006,8 +1060,16 @@ export const AccountOverview: React.FC = () => {
             <Button
               component={RouterLink}
               to={stats.isMfaEnabled ? Path.mfa.mfa.dashboard : Path.mfa.mfa.setup}
-              variant="text"
-              endIcon={<ChevronRight sx={{ fontSize: 16, transition: 'transform 0.2s', '.MuiButton-root:hover &': { transform: 'translateX(3px)' } }} />}
+              variant='text'
+              endIcon={
+                <ChevronRight
+                  sx={{
+                    fontSize: 16,
+                    transition: 'transform 0.2s',
+                    '.MuiButton-root:hover &': { transform: 'translateX(3px)' },
+                  }}
+                />
+              }
               sx={{
                 justifyContent: 'flex-start',
                 px: 0,
@@ -1035,11 +1097,11 @@ export const AccountOverview: React.FC = () => {
           sx={{
             m: { xs: 0, sx: 0, md: 2, lg: 2 },
             mr: { xs: 0, sx: 0, md: 0, lg: 0 },
-            my: { xs: 2, sm: 0, md: 2, lg: 2 }
+            my: { xs: 2, sm: 0, md: 2, lg: 2 },
           }}
         >
           <Card
-            variant="outlined"
+            variant='outlined'
             sx={{
               borderRadius: '16px',
               borderColor: 'divider',
@@ -1050,12 +1112,22 @@ export const AccountOverview: React.FC = () => {
               flexDirection: 'column',
               justifyContent: 'space-between',
               minHeight: 160,
-              padding: '12px'
+              padding: '12px',
             }}
           >
             <Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.875rem' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant='body2'
+                  sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.875rem' }}
+                >
                   {t('auth.account.linked_accounts', 'Linked Accounts')}
                 </Typography>
                 <Avatar
@@ -1071,9 +1143,17 @@ export const AccountOverview: React.FC = () => {
                 </Avatar>
               </Box>
               {isLoading ? (
-                <Skeleton width="40%" height={40} />
+                <Skeleton width='40%' height={40} />
               ) : (
-                <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', fontSize: '1.875rem', lineHeight: 1 }}>
+                <Typography
+                  variant='h4'
+                  sx={{
+                    fontWeight: 800,
+                    color: 'text.primary',
+                    fontSize: '1.875rem',
+                    lineHeight: 1,
+                  }}
+                >
                   {stats.linkedAccounts}
                 </Typography>
               )}
@@ -1082,8 +1162,16 @@ export const AccountOverview: React.FC = () => {
             <Button
               component={RouterLink}
               to={Path.user.profile.linkedAccounts}
-              variant="text"
-              endIcon={<ChevronRight sx={{ fontSize: 16, transition: 'transform 0.2s', '.MuiButton-root:hover &': { transform: 'translateX(3px)' } }} />}
+              variant='text'
+              endIcon={
+                <ChevronRight
+                  sx={{
+                    fontSize: 16,
+                    transition: 'transform 0.2s',
+                    '.MuiButton-root:hover &': { transform: 'translateX(3px)' },
+                  }}
+                />
+              }
               sx={{
                 justifyContent: 'flex-start',
                 px: 0,
@@ -1403,7 +1491,7 @@ export const AccountOverview: React.FC = () => {
 
       {/* ── Recent Security Activity Card ── */}
       <Card
-        variant="outlined"
+        variant='outlined'
         sx={{
           borderRadius: '16px',
           borderColor: 'divider',
@@ -1426,10 +1514,13 @@ export const AccountOverview: React.FC = () => {
           }}
         >
           <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'text.primary', fontSize: '1.05rem', mb: 0.25 }}>
+            <Typography
+              variant='subtitle1'
+              sx={{ fontWeight: 700, color: 'text.primary', fontSize: '1.05rem', mb: 0.25 }}
+            >
               {t('auth.account.activity.recent_feed', 'Recent Security Activity')}
             </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+            <Typography variant='body2' sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
               {t(
                 'auth.account.activity.subtitle',
                 'Chronological feed of login events, security changes, and sessions.',
@@ -1440,7 +1531,7 @@ export const AccountOverview: React.FC = () => {
           <Button
             component={RouterLink}
             to={Path.session.activityTimeline}
-            variant="text"
+            variant='text'
             endIcon={<ChevronRight sx={{ fontSize: 18 }} />}
             sx={{
               color: 'text.primary',
@@ -1462,12 +1553,12 @@ export const AccountOverview: React.FC = () => {
           <Box sx={{ p: 2.5 }}>
             {[1, 2, 3].map((item) => (
               <Box key={item} sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
-                <Skeleton variant="circular" width={36} height={36} />
+                <Skeleton variant='circular' width={36} height={36} />
                 <Box sx={{ flex: 1 }}>
-                  <Skeleton width="30%" height={20} />
-                  <Skeleton width="60%" height={16} />
+                  <Skeleton width='30%' height={20} />
+                  <Skeleton width='60%' height={16} />
                 </Box>
-                <Skeleton width="15%" height={16} />
+                <Skeleton width='15%' height={16} />
               </Box>
             ))}
           </Box>
@@ -1512,17 +1603,17 @@ export const AccountOverview: React.FC = () => {
                   <ListItemText
                     primary={
                       <Typography
-                        variant="body2"
+                        variant='body2'
                         sx={{ fontWeight: 700, color: 'text.primary', fontSize: '0.875rem' }}
                       >
                         {item.title}
                       </Typography>
                     }
                     secondary={
-                      <Box component="span" sx={{ display: 'inline-block', mt: 0.5 }}>
+                      <Box component='span' sx={{ display: 'inline-block', mt: 0.5 }}>
                         <Chip
                           label={item.meta}
-                          size="small"
+                          size='small'
                           sx={{
                             height: 22,
                             fontSize: '0.75rem',
@@ -1539,7 +1630,7 @@ export const AccountOverview: React.FC = () => {
                   />
 
                   <Typography
-                    variant="caption"
+                    variant='caption'
                     sx={{
                       color: 'text.secondary',
                       fontWeight: 500,
@@ -1556,7 +1647,7 @@ export const AccountOverview: React.FC = () => {
         ) : (
           <Box sx={{ p: 4, textAlign: 'center' }}>
             <ErrorOutline sx={{ fontSize: 36, color: 'text.disabled', mb: 1 }} />
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            <Typography variant='body2' sx={{ color: 'text.secondary' }}>
               {t('auth.account.activity.no_recent_activity', 'No recent security activity found.')}
             </Typography>
           </Box>

@@ -12,7 +12,10 @@ export const usePermissions = () => {
    * @param roles Single role enum or array of role enums
    * @param logic 'AND' (default) requires all roles, 'OR' requires at least one
    */
-  const hasRole = (roles: Roles | Roles[] | string | string[], logic: 'AND' | 'OR' = 'OR'): boolean => {
+  const hasRole = (
+    roles: Roles | Roles[] | string | string[],
+    logic: 'AND' | 'OR' = 'OR',
+  ): boolean => {
     if (!isAuthenticated || !user) return false
 
     const userData = (user as any).user || user

@@ -92,7 +92,9 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
         renderExpandIcon={({ open }: { open?: boolean }) => (
           <RenderExpandIcon open={open} transitionDuration={transitionDuration} />
         )}
-        renderExpandedMenuItemIcon={{ icon: <i className={layoutMenuTokens.verticalMenu.expandedMenuItemIconClass} /> }}
+        renderExpandedMenuItemIcon={{
+          icon: <i className={layoutMenuTokens.verticalMenu.expandedMenuItemIconClass} />,
+        }}
         menuSectionStyles={{
           ...menuSectionStyles(verticalNavOptions, theme),
           root: {

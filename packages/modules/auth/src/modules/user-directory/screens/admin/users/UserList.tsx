@@ -59,10 +59,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useDebounce } from 'use-debounce'
 import { Path } from '@cap/module-auth/routes/path'
-import {
-  useUsersQuery,
-  useRolesQuery,
-} from '../../../hooks/useUserDirectoryQuery'
+import { useUsersQuery, useRolesQuery } from '../../../hooks/useUserDirectoryQuery'
 import {
   useUpdateUserStatusMutation,
   useSendPasswordResetMutation,
@@ -80,7 +77,11 @@ import AssignRolesModal from '../../../components/AssignRolesModal'
 import DeleteUserDialog from '../../../components/DeleteUserDialog'
 import BulkActionModal from '../../../components/BulkActionModal'
 
-const STATUS_OPTIONS: Array<{ label: string; value: UserStatus | 'ALL'; color?: 'default' | 'success' | 'warning' | 'error' }> = [
+const STATUS_OPTIONS: Array<{
+  label: string
+  value: UserStatus | 'ALL'
+  color?: 'default' | 'success' | 'warning' | 'error'
+}> = [
   { label: 'All Users', value: 'ALL' },
   { label: 'Active', value: 'ACTIVE', color: 'success' },
   { label: 'Inactive', value: 'INACTIVE', color: 'default' },
@@ -98,12 +99,12 @@ export default function UserList() {
   const [searchInput, setSearchInput] = useState<string>(urlParams.get('search') || '')
   const [debouncedSearch] = useDebounce(searchInput, 300)
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'ALL'>(
-    (urlParams.get('status') as UserStatus) || 'ALL'
+    (urlParams.get('status') as UserStatus) || 'ALL',
   )
   const [roleFilter, setRoleFilter] = useState<string>(urlParams.get('role') || 'ALL')
   const [sortBy, setSortBy] = useState<string>(urlParams.get('sortBy') || 'createdAt')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(
-    (urlParams.get('sortOrder') as 'asc' | 'desc') || 'desc'
+    (urlParams.get('sortOrder') as 'asc' | 'desc') || 'desc',
   )
   const [page, setPage] = useState<number>(Number(urlParams.get('page')) || 1)
   const [perPage, setPerPage] = useState<number>(Number(urlParams.get('perPage')) || 10)
@@ -119,18 +120,23 @@ export default function UserList() {
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState<boolean>(false)
   const [isAssignRolesOpen, setIsAssignRolesOpen] = useState<boolean>(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false)
-  const [bulkAction, setBulkAction] = useState<'ACTIVATE' | 'DEACTIVATE' | 'SUSPEND' | 'DELETE' | null>(null)
+  const [bulkAction, setBulkAction] = useState<
+    'ACTIVATE' | 'DEACTIVATE' | 'SUSPEND' | 'DELETE' | null
+  >(null)
 
   // Filter params object
-  const filterParams: UserDirectoryFilterParams = useMemo(() => ({
-    page,
-    perPage,
-    search: debouncedSearch.trim() || undefined,
-    status: statusFilter === 'ALL' ? undefined : statusFilter,
-    role: roleFilter === 'ALL' ? undefined : roleFilter,
-    sortBy,
-    sortOrder,
-  }), [page, perPage, debouncedSearch, statusFilter, roleFilter, sortBy, sortOrder])
+  const filterParams: UserDirectoryFilterParams = useMemo(
+    () => ({
+      page,
+      perPage,
+      search: debouncedSearch.trim() || undefined,
+      status: statusFilter === 'ALL' ? undefined : statusFilter,
+      role: roleFilter === 'ALL' ? undefined : roleFilter,
+      sortBy,
+      sortOrder,
+    }),
+    [page, perPage, debouncedSearch, statusFilter, roleFilter, sortBy, sortOrder],
+  )
 
   // Queries
   const {
@@ -181,7 +187,7 @@ export default function UserList() {
 
   const handleSelectOne = (id: number) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     )
   }
 
@@ -189,7 +195,10 @@ export default function UserList() {
   const isSomeSelected = selectedIds.length > 0 && selectedIds.length < usersList.length
 
   // Quick Action Menu Handlers
-  const handleOpenActionMenu = (event: React.MouseEvent<HTMLElement>, user: UserDirectoryItemDTO) => {
+  const handleOpenActionMenu = (
+    event: React.MouseEvent<HTMLElement>,
+    user: UserDirectoryItemDTO,
+  ) => {
     event.stopPropagation()
     setActionMenuAnchor(event.currentTarget)
     setSelectedUser(user)
@@ -259,8 +268,8 @@ export default function UserList() {
       case 'ACTIVE':
         return (
           <Chip
-            size="small"
-            label="Active"
+            size='small'
+            label='Active'
             icon={<CheckCircleIcon sx={{ fontSize: '14px !important' }} />}
             sx={{
               bgcolor: alpha(theme.palette.success.main, 0.12),
@@ -273,8 +282,8 @@ export default function UserList() {
       case 'SUSPENDED':
         return (
           <Chip
-            size="small"
-            label="Suspended"
+            size='small'
+            label='Suspended'
             icon={<BlockIcon sx={{ fontSize: '14px !important' }} />}
             sx={{
               bgcolor: alpha(theme.palette.warning.main, 0.12),
@@ -287,8 +296,8 @@ export default function UserList() {
       case 'BANNED':
         return (
           <Chip
-            size="small"
-            label="Banned"
+            size='small'
+            label='Banned'
             icon={<HighlightOffIcon sx={{ fontSize: '14px !important' }} />}
             sx={{
               bgcolor: alpha(theme.palette.error.main, 0.12),
@@ -301,8 +310,8 @@ export default function UserList() {
       default:
         return (
           <Chip
-            size="small"
-            label="Inactive"
+            size='small'
+            label='Inactive'
             sx={{
               bgcolor: alpha(theme.palette.text.secondary, 0.1),
               color: theme.palette.text.secondary,
@@ -319,31 +328,31 @@ export default function UserList() {
       {/* Header Banner */}
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
-        justifyContent="space-between"
+        justifyContent='space-between'
         alignItems={{ xs: 'flex-start', sm: 'center' }}
         spacing={2}
         mb={3.5}
       >
         <Box>
-          <Stack direction="row" spacing={1.5} alignItems="center" mb={0.5}>
-            <Typography variant="h4" fontWeight={800} letterSpacing="-0.02em">
+          <Stack direction='row' spacing={1.5} alignItems='center' mb={0.5}>
+            <Typography variant='h4' fontWeight={800} letterSpacing='-0.02em'>
               User Directory
             </Typography>
             {isFetching && !isLoading && (
               <CircularProgress size={16} sx={{ color: 'text.secondary' }} />
             )}
           </Stack>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant='body2' color='text.secondary'>
             Manage organization members, security statuses, roles, and administrative credentials.
           </Typography>
         </Box>
 
-        <Stack direction="row" spacing={1.5} alignItems="center" width={{ xs: '100%', sm: 'auto' }}>
+        <Stack direction='row' spacing={1.5} alignItems='center' width={{ xs: '100%', sm: 'auto' }}>
           <Button
-            variant="outlined"
+            variant='outlined'
             startIcon={
               exportUsersMutation.isPending ? (
-                <CircularProgress size={16} color="inherit" />
+                <CircularProgress size={16} color='inherit' />
               ) : (
                 <GetAppIcon />
               )
@@ -361,7 +370,7 @@ export default function UserList() {
             Export CSV
           </Button>
           <Button
-            variant="contained"
+            variant='contained'
             startIcon={<PersonAddIcon />}
             onClick={() => setIsInviteModalOpen(true)}
             sx={{
@@ -445,20 +454,20 @@ export default function UserList() {
         >
           {/* Search Input */}
           <TextField
-            size="small"
-            placeholder="Search by name, email, or department..."
+            size='small'
+            placeholder='Search by name, email, or department...'
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             InputProps={{
               startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                <InputAdornment position='start'>
+                  <SearchIcon fontSize='small' sx={{ color: 'text.secondary' }} />
                 </InputAdornment>
               ),
               endAdornment: searchInput ? (
-                <InputAdornment position="end">
-                  <IconButton size="small" onClick={() => setSearchInput('')}>
-                    <ClearIcon fontSize="small" />
+                <InputAdornment position='end'>
+                  <IconButton size='small' onClick={() => setSearchInput('')}>
+                    <ClearIcon fontSize='small' />
                   </IconButton>
                 </InputAdornment>
               ) : null,
@@ -467,8 +476,8 @@ export default function UserList() {
           />
 
           {/* Role & Sorting Selectors */}
-          <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
-            <FormControl size="small" sx={{ minWidth: 140 }}>
+          <Stack direction='row' spacing={1.5} alignItems='center' flexWrap='wrap'>
+            <FormControl size='small' sx={{ minWidth: 140 }}>
               <Select
                 value={roleFilter}
                 onChange={(e) => {
@@ -478,7 +487,7 @@ export default function UserList() {
                 displayEmpty
                 sx={{ borderRadius: 2, bgcolor: 'background.paper' }}
               >
-                <MenuItem value="ALL">All Roles</MenuItem>
+                <MenuItem value='ALL'>All Roles</MenuItem>
                 {roles.map((r) => (
                   <MenuItem key={r.id} value={String(r.id)}>
                     {r.name}
@@ -487,7 +496,7 @@ export default function UserList() {
               </Select>
             </FormControl>
 
-            <FormControl size="small" sx={{ minWidth: 150 }}>
+            <FormControl size='small' sx={{ minWidth: 150 }}>
               <Select
                 value={`${sortBy}-${sortOrder}`}
                 onChange={(e) => {
@@ -497,25 +506,25 @@ export default function UserList() {
                 }}
                 sx={{ borderRadius: 2, bgcolor: 'background.paper' }}
               >
-                <MenuItem value="createdAt-desc">Newest First</MenuItem>
-                <MenuItem value="createdAt-asc">Oldest First</MenuItem>
-                <MenuItem value="lastName-asc">Name (A - Z)</MenuItem>
-                <MenuItem value="lastName-desc">Name (Z - A)</MenuItem>
-                <MenuItem value="email-asc">Email (A - Z)</MenuItem>
+                <MenuItem value='createdAt-desc'>Newest First</MenuItem>
+                <MenuItem value='createdAt-asc'>Oldest First</MenuItem>
+                <MenuItem value='lastName-asc'>Name (A - Z)</MenuItem>
+                <MenuItem value='lastName-desc'>Name (Z - A)</MenuItem>
+                <MenuItem value='email-asc'>Email (A - Z)</MenuItem>
               </Select>
             </FormControl>
 
-            <Tooltip title="Refresh Directory">
+            <Tooltip title='Refresh Directory'>
               <IconButton
                 onClick={() => refetch()}
-                size="small"
+                size='small'
                 sx={{
                   border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
                   borderRadius: 2,
                   p: 0.9,
                 }}
               >
-                <RefreshIcon fontSize="small" />
+                <RefreshIcon fontSize='small' />
               </IconButton>
             </Tooltip>
           </Stack>
@@ -536,44 +545,44 @@ export default function UserList() {
               gap: 1.5,
             }}
           >
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <LayersIcon fontSize="small" color="primary" />
-              <Typography variant="body2" fontWeight={700} color="primary.main">
+            <Stack direction='row' spacing={1.5} alignItems='center'>
+              <LayersIcon fontSize='small' color='primary' />
+              <Typography variant='body2' fontWeight={700} color='primary.main'>
                 {selectedIds.length} user{selectedIds.length > 1 ? 's' : ''} selected
               </Typography>
             </Stack>
 
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction='row' spacing={1} alignItems='center'>
               <Button
-                size="small"
-                variant="outlined"
-                color="success"
+                size='small'
+                variant='outlined'
+                color='success'
                 onClick={() => setBulkAction('ACTIVATE')}
                 sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5 }}
               >
                 Activate
               </Button>
               <Button
-                size="small"
-                variant="outlined"
-                color="warning"
+                size='small'
+                variant='outlined'
+                color='warning'
                 onClick={() => setBulkAction('SUSPEND')}
                 sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5 }}
               >
                 Suspend
               </Button>
               <Button
-                size="small"
-                variant="outlined"
-                color="error"
+                size='small'
+                variant='outlined'
+                color='error'
                 onClick={() => setBulkAction('DELETE')}
                 sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5 }}
               >
                 Delete
               </Button>
               <Button
-                size="small"
-                color="inherit"
+                size='small'
+                color='inherit'
                 onClick={() => setSelectedIds([])}
                 sx={{ textTransform: 'none', ml: 1 }}
               >
@@ -587,9 +596,9 @@ export default function UserList() {
         {isError && (
           <Box sx={{ p: 3 }}>
             <Alert
-              severity="error"
+              severity='error'
               action={
-                <Button color="inherit" size="small" onClick={() => refetch()}>
+                <Button color='inherit' size='small' onClick={() => refetch()}>
                   Retry
                 </Button>
               }
@@ -604,12 +613,12 @@ export default function UserList() {
           <Table sx={{ minWidth: 800 }}>
             <TableHead sx={{ bgcolor: alpha(theme.palette.background.default, 0.5) }}>
               <TableRow>
-                <TableCell padding="checkbox" sx={{ pl: 3 }}>
+                <TableCell padding='checkbox' sx={{ pl: 3 }}>
                   <Checkbox
                     indeterminate={isSomeSelected}
                     checked={isAllSelected}
                     onChange={handleSelectAll}
-                    color="primary"
+                    color='primary'
                   />
                 </TableCell>
                 <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>User</TableCell>
@@ -617,7 +626,7 @@ export default function UserList() {
                 <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>Roles</TableCell>
                 <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>Department</TableCell>
                 <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>Joined Date</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700, fontSize: '0.8125rem', pr: 3 }}>
+                <TableCell align='right' sx={{ fontWeight: 700, fontSize: '0.8125rem', pr: 3 }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -628,32 +637,37 @@ export default function UserList() {
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, idx) => (
                   <TableRow key={idx}>
-                    <TableCell padding="checkbox" sx={{ pl: 3 }}>
-                      <Skeleton variant="rectangular" width={20} height={20} sx={{ borderRadius: 0.5 }} />
+                    <TableCell padding='checkbox' sx={{ pl: 3 }}>
+                      <Skeleton
+                        variant='rectangular'
+                        width={20}
+                        height={20}
+                        sx={{ borderRadius: 0.5 }}
+                      />
                     </TableCell>
                     <TableCell>
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <Skeleton variant="circular" width={40} height={40} />
+                      <Stack direction='row' spacing={2} alignItems='center'>
+                        <Skeleton variant='circular' width={40} height={40} />
                         <Box sx={{ flex: 1 }}>
-                          <Skeleton variant="text" width={140} height={20} />
-                          <Skeleton variant="text" width={180} height={16} />
+                          <Skeleton variant='text' width={140} height={20} />
+                          <Skeleton variant='text' width={180} height={16} />
                         </Box>
                       </Stack>
                     </TableCell>
                     <TableCell>
-                      <Skeleton variant="rounded" width={70} height={24} />
+                      <Skeleton variant='rounded' width={70} height={24} />
                     </TableCell>
                     <TableCell>
-                      <Skeleton variant="rounded" width={90} height={24} />
+                      <Skeleton variant='rounded' width={90} height={24} />
                     </TableCell>
                     <TableCell>
-                      <Skeleton variant="text" width={100} height={20} />
+                      <Skeleton variant='text' width={100} height={20} />
                     </TableCell>
                     <TableCell>
-                      <Skeleton variant="text" width={80} height={20} />
+                      <Skeleton variant='text' width={80} height={20} />
                     </TableCell>
-                    <TableCell align="right" sx={{ pr: 3 }}>
-                      <Skeleton variant="circular" width={28} height={28} sx={{ ml: 'auto' }} />
+                    <TableCell align='right' sx={{ pr: 3 }}>
+                      <Skeleton variant='circular' width={28} height={28} sx={{ ml: 'auto' }} />
                     </TableCell>
                   </TableRow>
                 ))
@@ -672,20 +686,20 @@ export default function UserList() {
                           color: theme.palette.primary.main,
                         }}
                       >
-                        <PeopleOutlineIcon fontSize="large" />
+                        <PeopleOutlineIcon fontSize='large' />
                       </Avatar>
-                      <Typography variant="h6" fontWeight={700} gutterBottom>
+                      <Typography variant='h6' fontWeight={700} gutterBottom>
                         No users found
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" mb={3}>
+                      <Typography variant='body2' color='text.secondary' mb={3}>
                         {searchInput || statusFilter !== 'ALL' || roleFilter !== 'ALL'
                           ? 'No results matched your search criteria. Try adjusting your active filters.'
                           : 'Your directory is currently empty. Invite your team members to get started.'}
                       </Typography>
-                      <Stack direction="row" spacing={1.5} justifyContent="center">
+                      <Stack direction='row' spacing={1.5} justifyContent='center'>
                         {(searchInput || statusFilter !== 'ALL' || roleFilter !== 'ALL') && (
                           <Button
-                            variant="outlined"
+                            variant='outlined'
                             onClick={handleResetFilters}
                             sx={{ textTransform: 'none', fontWeight: 600 }}
                           >
@@ -693,7 +707,7 @@ export default function UserList() {
                           </Button>
                         )}
                         <Button
-                          variant="contained"
+                          variant='contained'
                           startIcon={<PersonAddIcon />}
                           onClick={() => setIsInviteModalOpen(true)}
                           sx={{ textTransform: 'none', fontWeight: 700 }}
@@ -723,19 +737,19 @@ export default function UserList() {
                       }}
                     >
                       <TableCell
-                        padding="checkbox"
+                        padding='checkbox'
                         sx={{ pl: 3 }}
                         onClick={(e) => {
                           e.stopPropagation()
                           handleSelectOne(user.id)
                         }}
                       >
-                        <Checkbox checked={isSelected} color="primary" />
+                        <Checkbox checked={isSelected} color='primary' />
                       </TableCell>
 
                       {/* User Info Column */}
                       <TableCell>
-                        <Stack direction="row" spacing={1.75} alignItems="center">
+                        <Stack direction='row' spacing={1.75} alignItems='center'>
                           <Avatar
                             src={user.avatarUrl || undefined}
                             sx={{
@@ -750,9 +764,9 @@ export default function UserList() {
                           </Avatar>
                           <Box sx={{ minWidth: 0 }}>
                             <Typography
-                              variant="body2"
+                              variant='body2'
                               fontWeight={700}
-                              color="text.primary"
+                              color='text.primary'
                               noWrap
                               sx={{
                                 '&:hover': {
@@ -763,7 +777,12 @@ export default function UserList() {
                             >
                               {user.fullName || `${user.firstName} ${user.lastName}`}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary" noWrap display="block">
+                            <Typography
+                              variant='caption'
+                              color='text.secondary'
+                              noWrap
+                              display='block'
+                            >
                               {user.email}
                             </Typography>
                           </Box>
@@ -775,14 +794,14 @@ export default function UserList() {
 
                       {/* Roles Column */}
                       <TableCell>
-                        <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
+                        <Stack direction='row' spacing={0.5} flexWrap='wrap' gap={0.5}>
                           {user.roles && user.roles.length > 0 ? (
                             user.roles.map((r, idx) => (
                               <Chip
                                 key={idx}
                                 label={typeof r === 'object' ? r.name : r}
-                                size="small"
-                                variant="outlined"
+                                size='small'
+                                variant='outlined'
                                 sx={{
                                   fontSize: '0.7rem',
                                   height: 22,
@@ -792,7 +811,7 @@ export default function UserList() {
                               />
                             ))
                           ) : (
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography variant='caption' color='text.secondary'>
                               Standard User
                             </Typography>
                           )}
@@ -801,11 +820,11 @@ export default function UserList() {
 
                       {/* Department / Job Title */}
                       <TableCell>
-                        <Typography variant="body2" fontWeight={500}>
+                        <Typography variant='body2' fontWeight={500}>
                           {user.department || user.jobTitle || '—'}
                         </Typography>
                         {user.department && user.jobTitle && (
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography variant='caption' color='text.secondary'>
                             {user.jobTitle}
                           </Typography>
                         )}
@@ -813,7 +832,7 @@ export default function UserList() {
 
                       {/* Created Date */}
                       <TableCell>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant='body2' color='text.secondary'>
                           {user.createdAt
                             ? new Date(user.createdAt).toLocaleDateString(undefined, {
                                 month: 'short',
@@ -825,16 +844,16 @@ export default function UserList() {
                       </TableCell>
 
                       {/* Actions Menu */}
-                      <TableCell align="right" sx={{ pr: 3 }} onClick={(e) => e.stopPropagation()}>
+                      <TableCell align='right' sx={{ pr: 3 }} onClick={(e) => e.stopPropagation()}>
                         <IconButton
-                          size="small"
+                          size='small'
                           onClick={(e) => handleOpenActionMenu(e, user)}
                           sx={{
                             color: 'text.secondary',
                             '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.05) },
                           }}
                         >
-                          <MoreVertIcon fontSize="small" />
+                          <MoreVertIcon fontSize='small' />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -859,7 +878,7 @@ export default function UserList() {
             bgcolor: alpha(theme.palette.background.default, 0.3),
           }}
         >
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant='caption' color='text.secondary'>
             Showing{' '}
             <strong>
               {usersList.length > 0 ? (page - 1) * perPage + 1 : 0}-
@@ -868,8 +887,8 @@ export default function UserList() {
             of <strong>{meta.total}</strong> users
           </Typography>
 
-          <Stack direction="row" spacing={2} alignItems="center">
-            <FormControl size="small">
+          <Stack direction='row' spacing={2} alignItems='center'>
+            <FormControl size='small'>
               <Select
                 value={perPage}
                 onChange={(e) => {
@@ -888,9 +907,9 @@ export default function UserList() {
               count={meta.lastPage || 1}
               page={page}
               onChange={(_, val) => setPage(val)}
-              color="primary"
-              shape="rounded"
-              size="small"
+              color='primary'
+              shape='rounded'
+              size='small'
             />
           </Stack>
         </Box>
@@ -912,30 +931,30 @@ export default function UserList() {
       >
         <MenuItem onClick={() => selectedUser && handleViewProfile(selectedUser)}>
           <ListItemIcon>
-            <VisibilityIcon fontSize="small" />
+            <VisibilityIcon fontSize='small' />
           </ListItemIcon>
-          <ListItemText primary="View Details" />
+          <ListItemText primary='View Details' />
         </MenuItem>
 
         <MenuItem onClick={() => selectedUser && handleOpenEdit(selectedUser)}>
           <ListItemIcon>
-            <EditIcon fontSize="small" />
+            <EditIcon fontSize='small' />
           </ListItemIcon>
-          <ListItemText primary="Edit Profile" />
+          <ListItemText primary='Edit Profile' />
         </MenuItem>
 
         <MenuItem onClick={() => selectedUser && handleOpenAssignRoles(selectedUser)}>
           <ListItemIcon>
-            <SecurityIcon fontSize="small" />
+            <SecurityIcon fontSize='small' />
           </ListItemIcon>
-          <ListItemText primary="Assign Roles" />
+          <ListItemText primary='Assign Roles' />
         </MenuItem>
 
         <MenuItem onClick={() => selectedUser && handleSendResetPassword(selectedUser)}>
           <ListItemIcon>
-            <LockResetIcon fontSize="small" />
+            <LockResetIcon fontSize='small' />
           </ListItemIcon>
-          <ListItemText primary="Reset Password" />
+          <ListItemText primary='Reset Password' />
         </MenuItem>
 
         <Divider sx={{ my: 0.5 }} />
@@ -943,24 +962,24 @@ export default function UserList() {
         {selectedUser?.status === 'ACTIVE' ? (
           <MenuItem onClick={() => selectedUser && handleToggleStatus(selectedUser)}>
             <ListItemIcon>
-              <BlockIcon fontSize="small" color="warning" />
+              <BlockIcon fontSize='small' color='warning' />
             </ListItemIcon>
-            <ListItemText primary="Suspend User" sx={{ color: 'warning.main' }} />
+            <ListItemText primary='Suspend User' sx={{ color: 'warning.main' }} />
           </MenuItem>
         ) : (
           <MenuItem onClick={() => selectedUser && handleToggleStatus(selectedUser)}>
             <ListItemIcon>
-              <CheckCircleIcon fontSize="small" color="success" />
+              <CheckCircleIcon fontSize='small' color='success' />
             </ListItemIcon>
-            <ListItemText primary="Activate User" sx={{ color: 'success.main' }} />
+            <ListItemText primary='Activate User' sx={{ color: 'success.main' }} />
           </MenuItem>
         )}
 
         <MenuItem onClick={() => selectedUser && handleOpenDelete(selectedUser)}>
           <ListItemIcon>
-            <DeleteIcon fontSize="small" color="error" />
+            <DeleteIcon fontSize='small' color='error' />
           </ListItemIcon>
-          <ListItemText primary="Delete User" sx={{ color: 'error.main' }} />
+          <ListItemText primary='Delete User' sx={{ color: 'error.main' }} />
         </MenuItem>
       </Menu>
 

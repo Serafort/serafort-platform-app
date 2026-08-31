@@ -20,7 +20,9 @@ const JoinOrganization = React.lazy(() => import('../screens/organization/JoinOr
 // ---------------------------------------------------------------------------
 const InitiateEmailChange = React.lazy(() => import('../screens/email/InitiateEmailChange'))
 const EmailChangeStatus = React.lazy(() => import('../screens/email/EmailChangeStatus'))
-const EmailChangeVerificationPending = React.lazy(() => import('../screens/email/EmailChangeVerificationPending'))
+const EmailChangeVerificationPending = React.lazy(
+  () => import('../screens/email/EmailChangeVerificationPending'),
+)
 const EmailChangeVerification = React.lazy(() => import('../screens/email/EmailChangeVerification'))
 const EmailChangeSuccess = React.lazy(() => import('../screens/email/EmailChangeSuccess'))
 const EmailChangeFailed = React.lazy(() => import('../screens/email/EmailChangeFailed'))
@@ -42,14 +44,21 @@ const SignIn = React.lazy(() => import('../screens/signin/SignIn'))
 // Sign Up
 // ---------------------------------------------------------------------------
 const SignUp = React.lazy(() => import('../screens/signup/screens/SignUp'))
-const CheckEmailConfirmation = React.lazy(() => import('../screens/signup/components/CheckEmailConfirmation'))
-const EmailVerificationScreen = React.lazy(() => import('../screens/signup/components/EmailVerificationScreen'))
-const VerificationLinkExpired = React.lazy(() => import('../screens/signup/components/VerificationLinkExpired'))
-const RegistrationSuccess = React.lazy(() => import('../screens/signup/components/RegistrationSuccess'))
-const EmailVerifiedSuccess = React.lazy(() => import('../screens/signup/components/EmailVerifiedSuccess'))
-
-
-
+const CheckEmailConfirmation = React.lazy(
+  () => import('../screens/signup/components/CheckEmailConfirmation'),
+)
+const EmailVerificationScreen = React.lazy(
+  () => import('../screens/signup/components/EmailVerificationScreen'),
+)
+const VerificationLinkExpired = React.lazy(
+  () => import('../screens/signup/components/VerificationLinkExpired'),
+)
+const RegistrationSuccess = React.lazy(
+  () => import('../screens/signup/components/RegistrationSuccess'),
+)
+const EmailVerifiedSuccess = React.lazy(
+  () => import('../screens/signup/components/EmailVerifiedSuccess'),
+)
 
 const Validate = React.lazy(() => import('../screens/shared/Validate'))
 
@@ -80,13 +89,41 @@ export const authCoreRouteConfig: AuthRouteConfig[] = [
   { path: Path.joinOrganization, element: <JoinOrganization />, layout: 'noLayout' },
 
   // --- Recovery ---
-  { path: Path.forgotPassword, element: <GuestRoute element={<ForgotPassword />} />, layout: 'noLayout' },
-  { path: Path.forgotPasswordAlias, element: <GuestRoute element={<ForgotPassword />} />, layout: 'noLayout' },
-  { path: Path.forgotPasswordDirect, element: <GuestRoute element={<ForgotPassword />} />, layout: 'noLayout' },
-  { path: Path.resetPassword, element: <GuestRoute element={<ResetPassword />} />, layout: 'noLayout' },
-  { path: Path.resetPasswordRecovery, element: <GuestRoute element={<ResetPassword />} />, layout: 'noLayout' },
-  { path: Path.resetPasswordDirect, element: <GuestRoute element={<ResetPassword />} />, layout: 'noLayout' },
-  { path: Path.setNewPassword, element: <GuestRoute element={<ResetPassword />} />, layout: 'noLayout' },
+  {
+    path: Path.forgotPassword,
+    element: <GuestRoute element={<ForgotPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.forgotPasswordAlias,
+    element: <GuestRoute element={<ForgotPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.forgotPasswordDirect,
+    element: <GuestRoute element={<ForgotPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.resetPassword,
+    element: <GuestRoute element={<ResetPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.resetPasswordRecovery,
+    element: <GuestRoute element={<ResetPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.resetPasswordDirect,
+    element: <GuestRoute element={<ResetPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.setNewPassword,
+    element: <GuestRoute element={<ResetPassword />} />,
+    layout: 'noLayout',
+  },
   { path: Path.passwordResetSuccess, element: <PasswordResetSuccess />, layout: 'noLayout' },
   { path: Path.passwordResetSuccessAlias, element: <PasswordResetSuccess />, layout: 'noLayout' },
 
@@ -110,4 +147,3 @@ export const authCoreRouteConfig: AuthRouteConfig[] = [
   { path: Path.validate, element: <Validate />, layout: 'noLayout' },
   { path: Path.validateDirect, element: <Validate />, layout: 'noLayout' },
 ]
-

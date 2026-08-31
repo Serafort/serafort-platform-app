@@ -15,7 +15,7 @@ const AuthLoadingScreen: React.FC = () => {
       }}
     >
       <CircularProgress size={60} thickness={4} sx={{ mb: 2 }} />
-      <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 600 }}>
+      <Typography variant='h6' color='text.secondary' sx={{ fontWeight: 600 }}>
         Loading...
       </Typography>
     </Box>

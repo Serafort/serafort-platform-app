@@ -57,7 +57,7 @@ export default function PlatformAuthRegister() {
   const displayError = localError || passkeyError
 
   return (
-    <Container maxWidth="sm" sx={{ py: 6 }}>
+    <Container maxWidth='sm' sx={{ py: 6 }}>
       {/* Header */}
       <Box sx={{ textAlign: 'center', mb: 4 }}>
         <Box
@@ -83,20 +83,20 @@ export default function PlatformAuthRegister() {
             <Fingerprint sx={{ fontSize: 36, color: 'primary.main' }} />
           )}
         </Box>
-        <Typography variant="h5" fontWeight={700} letterSpacing="-0.02em" sx={{ mb: 0.5 }}>
+        <Typography variant='h5' fontWeight={700} letterSpacing='-0.02em' sx={{ mb: 0.5 }}>
           {isComplete
             ? t('passkey.registration_complete', 'Passkey Registered!')
             : t('passkey.set_up_biometric', 'Set Up Biometric Sign-In')}
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant='body1' color='text.secondary'>
           {isComplete
             ? t(
                 'passkey.can_now_sign_in',
-                'You can now sign in using Touch ID, Face ID, or Windows Hello.'
+                'You can now sign in using Touch ID, Face ID, or Windows Hello.',
               )
             : t(
                 'passkey.registration_subtitle',
-                'Enable instant, secure sign-in with your device biometrics.'
+                'Enable instant, secure sign-in with your device biometrics.',
               )}
         </Typography>
       </Box>
@@ -113,7 +113,7 @@ export default function PlatformAuthRegister() {
       )}
 
       {displayError && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+        <Alert severity='error' sx={{ mb: 3, borderRadius: 2 }}>
           {displayError}
         </Alert>
       )}
@@ -136,18 +136,15 @@ export default function PlatformAuthRegister() {
                 <ListItemIcon sx={{ color: 'primary.main', minWidth: 40 }}>
                   {benefit.icon}
                 </ListItemIcon>
-                <ListItemText
-                  primary={benefit.text}
-                  primaryTypographyProps={{ fontWeight: 500 }}
-                />
+                <ListItemText primary={benefit.text} primaryTypographyProps={{ fontWeight: 500 }} />
               </ListItem>
             ))}
           </List>
 
           <Button
             fullWidth
-            variant="contained"
-            size="large"
+            variant='contained'
+            size='large'
             onClick={() => setActiveStep(1)}
             endIcon={<ArrowForward />}
             sx={{ py: 1.5, borderRadius: 2.5, fontWeight: 700, textTransform: 'none', mb: 2 }}
@@ -156,7 +153,7 @@ export default function PlatformAuthRegister() {
           </Button>
           <Button
             fullWidth
-            variant="text"
+            variant='text'
             onClick={() => navigate(-1)}
             sx={{ textTransform: 'none', color: 'text.secondary', fontWeight: 600 }}
           >
@@ -168,26 +165,20 @@ export default function PlatformAuthRegister() {
       {/* Step 1: Register Authenticator */}
       {!isComplete && activeStep === 1 && (
         <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          <Typography variant='body1' color='text.secondary' sx={{ mb: 4 }}>
             {t(
               'passkey.click_to_prompt',
-              'Click below to register this device. Your browser will prompt you to authenticate using biometrics or a security key.'
+              'Click below to register this device. Your browser will prompt you to authenticate using biometrics or a security key.',
             )}
           </Typography>
 
           <Button
             fullWidth
-            variant="contained"
-            size="large"
+            variant='contained'
+            size='large'
             onClick={handleRegister}
             disabled={isLoading}
-            startIcon={
-              isLoading ? (
-                <CircularProgress size={20} color="inherit" />
-              ) : (
-                <Fingerprint />
-              )
-            }
+            startIcon={isLoading ? <CircularProgress size={20} color='inherit' /> : <Fingerprint />}
             sx={{ py: 1.5, borderRadius: 2.5, fontWeight: 700, textTransform: 'none', mb: 2 }}
           >
             {isLoading
@@ -197,7 +188,7 @@ export default function PlatformAuthRegister() {
 
           <Button
             fullWidth
-            variant="text"
+            variant='text'
             onClick={() => setActiveStep(0)}
             disabled={isLoading}
             sx={{ textTransform: 'none', color: 'text.secondary', fontWeight: 600 }}
@@ -212,8 +203,8 @@ export default function PlatformAuthRegister() {
         <Box sx={{ textAlign: 'center' }}>
           <Button
             fullWidth
-            variant="contained"
-            size="large"
+            variant='contained'
+            size='large'
             onClick={() => navigate(AuthPath.account.overview || '/dashboard')}
             endIcon={<ArrowForward />}
             sx={{ py: 1.5, borderRadius: 2.5, fontWeight: 700, textTransform: 'none' }}

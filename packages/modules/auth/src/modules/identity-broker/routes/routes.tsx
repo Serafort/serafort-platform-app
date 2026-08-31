@@ -7,7 +7,9 @@ import { createAdminRoute, createAuthRoute } from '../../../routes/routeHelpers'
 // Provisioning & Directory Sync (Admin)
 // ---------------------------------------------------------------------------
 const ConnectorDetailView = React.lazy(() => import('../screens/provisioning/ConnectorDetailView'))
-const DirectorySyncDashboard = React.lazy(() => import('../screens/provisioning/DirectorySyncDashboard'))
+const DirectorySyncDashboard = React.lazy(
+  () => import('../screens/provisioning/DirectorySyncDashboard'),
+)
 const SCIMConfiguration = React.lazy(() => import('../screens/provisioning/SCIMConfiguration'))
 const SyncLogsView = React.lazy(() => import('../screens/provisioning/SyncLogsView'))
 
@@ -52,13 +54,34 @@ export const identityBrokerRouteConfig: ModuleRouteConfig[] = [
   createAdminRoute(Path.ssfConfiguration, <SSFConfiguration />, 'Shared Signals (SSF)'),
 
   // --- SSO Interactive & Waiting Flows ---
-  createAuthRoute(Path.authWait, <AuthWaitScreen />, { layout: 'noLayout', label: 'SSO Auth Wait' }),
-  createAuthRoute(Path.oidcLoginPrompt, <OIDCLoginPrompt />, { layout: 'noLayout', label: 'OIDC Login Prompt' }),
-  createAuthRoute(Path.oidcWait, <OidcWaitScreen />, { layout: 'noLayout', label: 'OIDC Authorization Wait' }),
-  createAuthRoute(Path.permissionConsent, <PermissionConsentScreen />, { layout: 'noLayout', label: 'OIDC Scope Consent' }),
-  createAuthRoute(Path.samlWait, <SamlWaitScreen />, { layout: 'noLayout', label: 'SAML Redirect Wait' }),
-  createAuthRoute(Path.samlSSOInitiation, <SAMLSSOInitiation />, { layout: 'noLayout', label: 'SAML SSO Login' }),
-  createAuthRoute(Path.providerSelection, <SSOProviderSelection />, { layout: 'noLayout', label: 'Select SSO Provider' }),
+  createAuthRoute(Path.authWait, <AuthWaitScreen />, {
+    layout: 'noLayout',
+    label: 'SSO Auth Wait',
+  }),
+  createAuthRoute(Path.oidcLoginPrompt, <OIDCLoginPrompt />, {
+    layout: 'noLayout',
+    label: 'OIDC Login Prompt',
+  }),
+  createAuthRoute(Path.oidcWait, <OidcWaitScreen />, {
+    layout: 'noLayout',
+    label: 'OIDC Authorization Wait',
+  }),
+  createAuthRoute(Path.permissionConsent, <PermissionConsentScreen />, {
+    layout: 'noLayout',
+    label: 'OIDC Scope Consent',
+  }),
+  createAuthRoute(Path.samlWait, <SamlWaitScreen />, {
+    layout: 'noLayout',
+    label: 'SAML Redirect Wait',
+  }),
+  createAuthRoute(Path.samlSSOInitiation, <SAMLSSOInitiation />, {
+    layout: 'noLayout',
+    label: 'SAML SSO Login',
+  }),
+  createAuthRoute(Path.providerSelection, <SSOProviderSelection />, {
+    layout: 'noLayout',
+    label: 'Select SSO Provider',
+  }),
 ]
 
 export default identityBrokerRouteConfig

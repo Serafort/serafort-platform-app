@@ -26,7 +26,10 @@ const AuthRoute = ({
   const navigate = useNavigate()
 
   const isAdminSession = useCan('access', { type: 'admin_route' })
-  const hasAllowedRoleAccess = useCan('access', { type: 'auth_route', attributes: { allowedRoles } })
+  const hasAllowedRoleAccess = useCan('access', {
+    type: 'auth_route',
+    attributes: { allowedRoles },
+  })
 
   React.useEffect(() => {
     if (layout !== 'none') {
@@ -150,6 +153,3 @@ const AuthRoute = ({
 }
 
 export default AuthRoute
-
-
-

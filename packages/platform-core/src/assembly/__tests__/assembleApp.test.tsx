@@ -1,8 +1,7 @@
-
-import { describe, it, expect } from 'vitest';
-import i18next from 'i18next';
-import { assembleApp } from '../index';
-import { CAPModule } from '../../types';
+import { describe, it, expect } from 'vitest'
+import i18next from 'i18next'
+import { assembleApp } from '../index'
+import { CAPModule } from '../../types'
 
 describe('assembleApp layout association', () => {
   it('compiles app with routes wrapped in LayoutRouteWrapper', () => {
@@ -68,11 +67,10 @@ describe('assembleApp catch-all route', () => {
     render(
       <MemoryRouter initialEntries={['/non-existent-route']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     )
 
     expect(screen.getByText('404')).toBeInTheDocument()
     expect(screen.getByText('Page Not Found')).toBeInTheDocument()
   })
 })
-

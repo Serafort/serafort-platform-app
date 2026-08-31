@@ -1,6 +1,6 @@
 /**
  * I18n Registry for Layout Module
- * 
+ *
  * Registers module-specific dictionaries and re-exports canonical
  * i18n functions from @cap/platform-core.
  */

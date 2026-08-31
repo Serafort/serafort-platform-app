@@ -34,7 +34,14 @@ export default function EmailTestingDashboard() {
   const [testEmail, setTestEmail] = useState('')
   const [selectedTemplate, setSelectedTemplate] = useState('welcome')
   const [testLogs, setTestLogs] = useState<
-    Array<{ id: string; template: string; recipient: string; status: string; time: string; error?: string }>
+    Array<{
+      id: string
+      template: string
+      recipient: string
+      status: string
+      time: string
+      error?: string
+    }>
   >([
     {
       id: '1',
@@ -130,7 +137,14 @@ export default function EmailTestingDashboard() {
         <Grid size={{ xs: 12, md: 5 }}>
           <Stack spacing={4}>
             {/* Test Send Card */}
-            <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none', borderRadius: 3 }}>
+            <Card
+              sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: 'none',
+                borderRadius: 3,
+              }}
+            >
               <CardContent sx={{ p: 4 }}>
                 <Typography variant='h6' sx={{ fontWeight: 800, mb: 3 }}>
                   {t('auth.admin.sendTestEmail', 'Dispatch Test Email')}
@@ -163,7 +177,13 @@ export default function EmailTestingDashboard() {
                     variant='contained'
                     size='large'
                     fullWidth
-                    startIcon={sendEmailMutation.isPending ? <CircularProgress size={18} color='inherit' /> : <Send />}
+                    startIcon={
+                      sendEmailMutation.isPending ? (
+                        <CircularProgress size={18} color='inherit' />
+                      ) : (
+                        <Send />
+                      )
+                    }
                     onClick={handleSendTestEmail}
                     disabled={sendEmailMutation.isPending || !testEmail}
                     sx={{
@@ -184,7 +204,14 @@ export default function EmailTestingDashboard() {
 
             {/* Config Status */}
             <Card
-              sx={{ px: 2, py: 1, border: '1px solid', borderColor: 'divider', boxShadow: 'none', borderRadius: 2 }}
+              sx={{
+                px: 2,
+                py: 1,
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: 'none',
+                borderRadius: 2,
+              }}
             >
               <List>
                 <ListItem sx={{ px: 1 }}>
@@ -227,7 +254,13 @@ export default function EmailTestingDashboard() {
                 {testLogs.map((log) => (
                   <ListItem
                     key={log.id}
-                    sx={{ py: 2, px: 2, borderRadius: 2, mb: 1, '&:hover': { bgcolor: 'action.hover' } }}
+                    sx={{
+                      py: 2,
+                      px: 2,
+                      borderRadius: 2,
+                      mb: 1,
+                      '&:hover': { bgcolor: 'action.hover' },
+                    }}
                   >
                     <ListItemIcon>
                       {log.status === 'delivered' ? (

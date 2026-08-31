@@ -27,26 +27,26 @@ import {
   DialogActions,
   Paper,
 } from '@mui/material'
-import Save from '@mui/icons-material/Save';
-import Shield from '@mui/icons-material/Shield';
-import ArrowBack from '@mui/icons-material/ArrowBack';
-import Group from '@mui/icons-material/Group';
-import VpnKey from '@mui/icons-material/VpnKey';
-import Settings from '@mui/icons-material/Settings';
-import Add from '@mui/icons-material/Add';
-import Delete from '@mui/icons-material/Delete';
-import ChevronRight from '@mui/icons-material/ChevronRight';
-import Security from '@mui/icons-material/Security';
-import Person from '@mui/icons-material/Person';
-import Storage from '@mui/icons-material/Storage';
-import Language from '@mui/icons-material/Language';
-import Description from '@mui/icons-material/Description';
-import ContentCopy from '@mui/icons-material/ContentCopy';
-import HistoryIcon from '@mui/icons-material/History';
+import Save from '@mui/icons-material/Save'
+import Shield from '@mui/icons-material/Shield'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import Group from '@mui/icons-material/Group'
+import VpnKey from '@mui/icons-material/VpnKey'
+import Settings from '@mui/icons-material/Settings'
+import Add from '@mui/icons-material/Add'
+import Delete from '@mui/icons-material/Delete'
+import ChevronRight from '@mui/icons-material/ChevronRight'
+import Security from '@mui/icons-material/Security'
+import Person from '@mui/icons-material/Person'
+import Storage from '@mui/icons-material/Storage'
+import Language from '@mui/icons-material/Language'
+import Description from '@mui/icons-material/Description'
+import ContentCopy from '@mui/icons-material/ContentCopy'
+import HistoryIcon from '@mui/icons-material/History'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import { toast } from 'react-toastify';
-import { Path } from "@auth/routes/path"
+import { toast } from 'react-toastify'
+import { Path } from '@auth/routes/path'
 import {
   useRole,
   useRoles,
@@ -56,7 +56,7 @@ import {
   useSyncRoleParents,
   useDeleteRole,
   useDuplicateRole,
-} from "@auth/authorization-engine/hooks/useAdminQuery"
+} from '@auth/authorization-engine/hooks/useAdminQuery'
 import ConfirmationDialog from '@auth/modules/authentication-core/components/shared/Modals/ConfirmationDialog'
 
 // Resource Icon Mapping for better visual grouping
@@ -108,20 +108,17 @@ export default function RoleDetailView() {
   // â”€â”€ Mutations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const updateRole = useUpdateRole({
     onSuccess: () => toast.success(t('auth.admin.roleUpdated')),
-    onError: (err: any) =>
-      toast.error(err.message || t('auth.admin.errorUpdateRole')),
+    onError: (err: any) => toast.error(err.message || t('auth.admin.errorUpdateRole')),
   })
 
   const syncPermissions = useSyncRolePermissions({
     onSuccess: () => toast.success(t('auth.admin.permissionsUpdated')),
-    onError: (err: any) =>
-      toast.error(err.message || t('auth.admin.errorSyncPermissions')),
+    onError: (err: any) => toast.error(err.message || t('auth.admin.errorSyncPermissions')),
   })
 
   const syncRoleParents = useSyncRoleParents({
     onSuccess: () => toast.success(t('auth.admin.roleParentsUpdated')),
-    onError: (err: any) =>
-      toast.error(err.message || t('auth.admin.errorSyncRoleParents')),
+    onError: (err: any) => toast.error(err.message || t('auth.admin.errorSyncRoleParents')),
   })
 
   const duplicateRoleMutation = useDuplicateRole({
@@ -137,8 +134,7 @@ export default function RoleDetailView() {
       toast.success(t('auth.admin.roleDeleted'))
       navigate(Path.admin.roles)
     },
-    onError: (err: any) =>
-      toast.error(err.message || t('auth.admin.errorDeleteRole')),
+    onError: (err: any) => toast.error(err.message || t('auth.admin.errorDeleteRole')),
   })
 
   // â”€â”€ Local State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -438,7 +434,9 @@ export default function RoleDetailView() {
                       {allPermissions
                         .filter((p) => getResource(p) === resource)
                         .map((perm) => {
-                          const isAssigned = (role.permissions ?? []).some((rp) => rp.id === perm.id)
+                          const isAssigned = (role.permissions ?? []).some(
+                            (rp) => rp.id === perm.id,
+                          )
                           const isInherited = inheritedPermissionIds.has(perm.id)
                           return (
                             <Box
@@ -932,8 +930,3 @@ function AutocompleteDialog({
     </Dialog>
   )
 }
-
-
-
-
-

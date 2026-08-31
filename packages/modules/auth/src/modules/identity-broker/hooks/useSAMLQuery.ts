@@ -1,4 +1,10 @@
-import { useQuery, useMutation, useQueryClient, type UseQueryOptions, type UseMutationOptions } from '@tanstack/react-query'
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type UseQueryOptions,
+  type UseMutationOptions,
+} from '@tanstack/react-query'
 import type { FetchResponse, HttpError } from '@cap/platform-core'
 import samlService from '../services/saml.service'
 import type {
@@ -21,7 +27,7 @@ export const samlKeys = {
 }
 
 export function useSAMLConfig(
-  options?: Omit<UseQueryOptions<FetchResponse<SAMLConfig>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<FetchResponse<SAMLConfig>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: samlKeys.config(),
@@ -31,7 +37,12 @@ export function useSAMLConfig(
 }
 
 export function useUpdateSAMLConfig(
-  options?: UseMutationOptions<FetchResponse<{ message: string; config?: SAMLConfig }>, HttpError, UpdateSAMLConfigDTO, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<{ message: string; config?: SAMLConfig }>,
+    HttpError,
+    UpdateSAMLConfigDTO,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -46,7 +57,10 @@ export function useUpdateSAMLConfig(
 }
 
 export function useSAMLMetadata(
-  options?: Omit<UseQueryOptions<FetchResponse<SAMLMetadataResponse>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<FetchResponse<SAMLMetadataResponse>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: samlKeys.metadata(),
@@ -56,7 +70,12 @@ export function useSAMLMetadata(
 }
 
 export function useUploadSAMLMetadata(
-  options?: UseMutationOptions<FetchResponse<RemoteMetadataResult>, HttpError, FormData | { metadata: string }, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<RemoteMetadataResult>,
+    HttpError,
+    FormData | { metadata: string },
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -72,7 +91,12 @@ export function useUploadSAMLMetadata(
 }
 
 export function useFetchRemoteMetadata(
-  options?: UseMutationOptions<FetchResponse<RemoteMetadataResult>, HttpError, string | RemoteMetadataFetchDTO, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<RemoteMetadataResult>,
+    HttpError,
+    string | RemoteMetadataFetchDTO,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -90,7 +114,10 @@ export function useFetchRemoteMetadata(
 }
 
 export function useRecentSAMLEntities(
-  options?: Omit<UseQueryOptions<FetchResponse<RecentSAMLEntity[]>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<FetchResponse<RecentSAMLEntity[]>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: samlKeys.recentEntities(),
@@ -100,7 +127,12 @@ export function useRecentSAMLEntities(
 }
 
 export function useInitiateSamlSso(
-  options?: UseMutationOptions<FetchResponse<SAMLSSOInitiateResponse>, HttpError, SAMLSSOInitiateDTO, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<SAMLSSOInitiateResponse>,
+    HttpError,
+    SAMLSSOInitiateDTO,
+    unknown
+  >,
 ) {
   return useMutation({
     mutationFn: (data: SAMLSSOInitiateDTO) => samlService.initiateSso(data),
@@ -110,7 +142,7 @@ export function useInitiateSamlSso(
 
 export function useSsoDiscovery(
   identifier: string | null | undefined,
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: samlKeys.discovery(identifier || ''),

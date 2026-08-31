@@ -65,11 +65,16 @@ const apiExplorerService = {
     return apiClient.get<OpenAPISpec>(ENDPOINTS.admin.docs || '/api/admin/docs')
   },
 
-  executeSandbox: async (params: SandboxExecutionParams): Promise<FetchResponse<SandboxExecutionResult>> => {
+  executeSandbox: async (
+    params: SandboxExecutionParams,
+  ): Promise<FetchResponse<SandboxExecutionResult>> => {
     const startTime = performance.now()
     try {
       // First attempt execution via backend sandbox endpoint
-      const response = await apiClient.post<SandboxExecutionResult>('/api/admin/sandbox/execute', params)
+      const response = await apiClient.post<SandboxExecutionResult>(
+        '/api/admin/sandbox/execute',
+        params,
+      )
       const duration = Math.round(performance.now() - startTime)
       return {
         ...response,

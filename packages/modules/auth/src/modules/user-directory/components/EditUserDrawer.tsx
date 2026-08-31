@@ -40,7 +40,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { editUserSchema, EditUserFormData } from '../schemas/userDirectory.schema'
 import { UserDirectoryItemDTO, UserDetailDTO } from '../types/userDirectory.types'
 import { useUserDetailQuery, useRolesQuery } from '../hooks/useUserDirectoryQuery'
-import { useUpdateUserMutation, useUpdateUserStatusMutation } from '../hooks/useUserDirectoryMutations'
+import {
+  useUpdateUserMutation,
+  useUpdateUserStatusMutation,
+} from '../hooks/useUserDirectoryMutations'
 
 export interface EditUserDrawerProps {
   open: boolean
@@ -80,7 +83,7 @@ export default function EditUserDrawer({
 
   // Fetch full details if needed
   const { data: userDetailResponse, isLoading: isDetailLoading } = useUserDetailQuery(
-    open && userId ? userId : null
+    open && userId ? userId : null,
   )
   const { data: rolesResponse } = useRolesQuery()
 
@@ -88,7 +91,12 @@ export default function EditUserDrawer({
     return (
       rolesResponse?.data || [
         { id: 1, name: 'User', slug: 'user', description: 'Standard tenant user access' },
-        { id: 2, name: 'Administrator', slug: 'admin', description: 'Full tenant admin privileges' },
+        {
+          id: 2,
+          name: 'Administrator',
+          slug: 'admin',
+          description: 'Full tenant admin privileges',
+        },
         { id: 3, name: 'Manager', slug: 'manager', description: 'Department management' },
         { id: 4, name: 'Auditor', slug: 'auditor', description: 'Read-only audit log access' },
       ]
@@ -131,7 +139,9 @@ export default function EditUserDrawer({
   // Reset form when user data arrives
   useEffect(() => {
     if (user) {
-      const assignedRoleIds = user.roles?.map((r: any) => (typeof r === 'object' ? r.id : Number(r))) || [1]
+      const assignedRoleIds = user.roles?.map((r: any) =>
+        typeof r === 'object' ? r.id : Number(r),
+      ) || [1]
       reset({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
@@ -214,7 +224,7 @@ export default function EditUserDrawer({
   return (
     <>
       <Drawer
-        anchor="right"
+        anchor='right'
         open={open}
         onClose={handleCloseAttempt}
         PaperProps={{
@@ -239,7 +249,7 @@ export default function EditUserDrawer({
             borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           }}
         >
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Stack direction='row' spacing={2} alignItems='center'>
             <Avatar
               src={user?.avatarUrl || undefined}
               sx={{
@@ -252,16 +262,16 @@ export default function EditUserDrawer({
               {user?.firstName?.[0] || user?.fullName?.[0] || 'U'}
             </Avatar>
             <Box>
-              <Typography variant="h6" fontWeight={700}>
+              <Typography variant='h6' fontWeight={700}>
                 {user ? user.fullName || `${user.firstName} ${user.lastName}` : 'Edit User'}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant='caption' color='text.secondary'>
                 {user?.email || 'Update user settings and access'}
               </Typography>
             </Box>
           </Stack>
-          <IconButton onClick={handleCloseAttempt} size="small" sx={{ color: 'text.secondary' }}>
-            <CloseIcon fontSize="small" />
+          <IconButton onClick={handleCloseAttempt} size='small' sx={{ color: 'text.secondary' }}>
+            <CloseIcon fontSize='small' />
           </IconButton>
         </Box>
 
@@ -280,9 +290,21 @@ export default function EditUserDrawer({
               },
             }}
           >
-            <Tab icon={<PersonOutlineIcon fontSize="small" />} iconPosition="start" label="General Info" />
-            <Tab icon={<SecurityIcon fontSize="small" />} iconPosition="start" label="Roles & Access" />
-            <Tab icon={<VpnKeyIcon fontSize="small" />} iconPosition="start" label="Account Status" />
+            <Tab
+              icon={<PersonOutlineIcon fontSize='small' />}
+              iconPosition='start'
+              label='General Info'
+            />
+            <Tab
+              icon={<SecurityIcon fontSize='small' />}
+              iconPosition='start'
+              label='Roles & Access'
+            />
+            <Tab
+              icon={<VpnKeyIcon fontSize='small' />}
+              iconPosition='start'
+              label='Account Status'
+            />
           </Tabs>
         </Box>
 
@@ -293,19 +315,19 @@ export default function EditUserDrawer({
               <CircularProgress size={32} />
             </Box>
           ) : (
-            <form id="edit-user-form" onSubmit={handleSubmit(handleFormSubmit)}>
+            <form id='edit-user-form' onSubmit={handleSubmit(handleFormSubmit)}>
               {/* Tab 1: General Info */}
               {tabIndex === 0 && (
                 <Stack spacing={2.5}>
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                     <Controller
-                      name="firstName"
+                      name='firstName'
                       control={control}
                       render={({ field, fieldState }) => (
                         <TextField
                           {...field}
                           fullWidth
-                          label="First Name"
+                          label='First Name'
                           error={Boolean(fieldState.error)}
                           helperText={fieldState.error?.message}
                           required
@@ -313,13 +335,13 @@ export default function EditUserDrawer({
                       )}
                     />
                     <Controller
-                      name="lastName"
+                      name='lastName'
                       control={control}
                       render={({ field, fieldState }) => (
                         <TextField
                           {...field}
                           fullWidth
-                          label="Last Name"
+                          label='Last Name'
                           error={Boolean(fieldState.error)}
                           helperText={fieldState.error?.message}
                           required
@@ -329,14 +351,14 @@ export default function EditUserDrawer({
                   </Stack>
 
                   <Controller
-                    name="email"
+                    name='email'
                     control={control}
                     render={({ field, fieldState }) => (
                       <TextField
                         {...field}
                         fullWidth
-                        type="email"
-                        label="Email Address"
+                        type='email'
+                        label='Email Address'
                         error={Boolean(fieldState.error)}
                         helperText={fieldState.error?.message}
                         required
@@ -345,15 +367,15 @@ export default function EditUserDrawer({
                   />
 
                   <Controller
-                    name="phoneNumber"
+                    name='phoneNumber'
                     control={control}
                     render={({ field, fieldState }) => (
                       <TextField
                         {...field}
                         value={field.value || ''}
                         fullWidth
-                        label="Phone Number"
-                        placeholder="+1 (555) 000-0000"
+                        label='Phone Number'
+                        placeholder='+1 (555) 000-0000'
                         error={Boolean(fieldState.error)}
                         helperText={fieldState.error?.message}
                       />
@@ -362,28 +384,28 @@ export default function EditUserDrawer({
 
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                     <Controller
-                      name="jobTitle"
+                      name='jobTitle'
                       control={control}
                       render={({ field, fieldState }) => (
                         <TextField
                           {...field}
                           value={field.value || ''}
                           fullWidth
-                          label="Job Title"
+                          label='Job Title'
                           error={Boolean(fieldState.error)}
                           helperText={fieldState.error?.message}
                         />
                       )}
                     />
                     <Controller
-                      name="department"
+                      name='department'
                       control={control}
                       render={({ field, fieldState }) => (
                         <TextField
                           {...field}
                           value={field.value || ''}
                           fullWidth
-                          label="Department"
+                          label='Department'
                           error={Boolean(fieldState.error)}
                           helperText={fieldState.error?.message}
                         />
@@ -393,12 +415,12 @@ export default function EditUserDrawer({
 
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                     <Controller
-                      name="timezone"
+                      name='timezone'
                       control={control}
                       render={({ field }) => (
                         <FormControl fullWidth>
-                          <InputLabel id="timezone-label">Timezone</InputLabel>
-                          <Select labelId="timezone-label" {...field} label="Timezone">
+                          <InputLabel id='timezone-label'>Timezone</InputLabel>
+                          <Select labelId='timezone-label' {...field} label='Timezone'>
                             {TIMEZONES.map((tz) => (
                               <MenuItem key={tz.value} value={tz.value}>
                                 {tz.label}
@@ -409,12 +431,12 @@ export default function EditUserDrawer({
                       )}
                     />
                     <Controller
-                      name="locale"
+                      name='locale'
                       control={control}
                       render={({ field }) => (
                         <FormControl fullWidth>
-                          <InputLabel id="locale-label">Language / Locale</InputLabel>
-                          <Select labelId="locale-label" {...field} label="Language / Locale">
+                          <InputLabel id='locale-label'>Language / Locale</InputLabel>
+                          <Select labelId='locale-label' {...field} label='Language / Locale'>
                             {LOCALES.map((loc) => (
                               <MenuItem key={loc.value} value={loc.value}>
                                 {loc.label}
@@ -427,7 +449,7 @@ export default function EditUserDrawer({
                   </Stack>
 
                   <Controller
-                    name="bio"
+                    name='bio'
                     control={control}
                     render={({ field, fieldState }) => (
                       <TextField
@@ -436,8 +458,8 @@ export default function EditUserDrawer({
                         fullWidth
                         multiline
                         rows={3}
-                        label="Bio / Notes"
-                        placeholder="Brief summary or administrator notes..."
+                        label='Bio / Notes'
+                        placeholder='Brief summary or administrator notes...'
                         error={Boolean(fieldState.error)}
                         helperText={fieldState.error?.message}
                       />
@@ -449,25 +471,28 @@ export default function EditUserDrawer({
               {/* Tab 2: Roles & Access */}
               {tabIndex === 1 && (
                 <Stack spacing={2.5}>
-                  <Alert severity="info">
-                    Roles define permissions and tenant administrative privileges. Multiple roles can be assigned simultaneously.
+                  <Alert severity='info'>
+                    Roles define permissions and tenant administrative privileges. Multiple roles
+                    can be assigned simultaneously.
                   </Alert>
 
                   <Controller
-                    name="roleIds"
+                    name='roleIds'
                     control={control}
                     render={({ field, fieldState }) => (
                       <FormControl fullWidth error={Boolean(fieldState.error)}>
-                        <InputLabel id="edit-roles-label">Assigned Roles</InputLabel>
+                        <InputLabel id='edit-roles-label'>Assigned Roles</InputLabel>
                         <Select
-                          labelId="edit-roles-label"
+                          labelId='edit-roles-label'
                           multiple
                           value={field.value || []}
                           onChange={(e) => {
                             const val = e.target.value
-                            field.onChange(typeof val === 'string' ? val.split(',').map(Number) : val)
+                            field.onChange(
+                              typeof val === 'string' ? val.split(',').map(Number) : val,
+                            )
                           }}
-                          input={<OutlinedInput label="Assigned Roles" />}
+                          input={<OutlinedInput label='Assigned Roles' />}
                           renderValue={(selected) => (
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                               {selected.map((roleId: number) => {
@@ -476,9 +501,9 @@ export default function EditUserDrawer({
                                   <Chip
                                     key={roleId}
                                     label={role?.name || `Role #${roleId}`}
-                                    size="small"
-                                    color="primary"
-                                    variant="outlined"
+                                    size='small'
+                                    color='primary'
+                                    variant='outlined'
                                   />
                                 )
                               })}
@@ -487,26 +512,32 @@ export default function EditUserDrawer({
                         >
                           {availableRoles.map((role) => (
                             <MenuItem key={role.id} value={role.id}>
-                              <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between" width="100%">
+                              <Stack
+                                direction='row'
+                                spacing={1}
+                                alignItems='center'
+                                justifyContent='space-between'
+                                width='100%'
+                              >
                                 <Box>
-                                  <Typography variant="body2" fontWeight={600}>
+                                  <Typography variant='body2' fontWeight={600}>
                                     {role.name}
                                   </Typography>
                                   {role.description && (
-                                    <Typography variant="caption" color="text.secondary">
+                                    <Typography variant='caption' color='text.secondary'>
                                       {role.description}
                                     </Typography>
                                   )}
                                 </Box>
                                 {selectedRoleIds?.includes(role.id) && (
-                                  <CheckCircleOutlineIcon fontSize="small" color="primary" />
+                                  <CheckCircleOutlineIcon fontSize='small' color='primary' />
                                 )}
                               </Stack>
                             </MenuItem>
                           ))}
                         </Select>
                         {fieldState.error && (
-                          <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
+                          <Typography variant='caption' color='error' sx={{ mt: 0.5 }}>
                             {fieldState.error.message}
                           </Typography>
                         )}
@@ -519,39 +550,45 @@ export default function EditUserDrawer({
               {/* Tab 3: Account Status */}
               {tabIndex === 2 && (
                 <Stack spacing={2.5}>
-                  <Typography variant="subtitle2" fontWeight={700}>
+                  <Typography variant='subtitle2' fontWeight={700}>
                     User Account Status
                   </Typography>
 
                   <Controller
-                    name="status"
+                    name='status'
                     control={control}
                     render={({ field }) => (
                       <FormControl fullWidth>
-                        <InputLabel id="user-status-select-label">Account Status</InputLabel>
-                        <Select labelId="user-status-select-label" {...field} label="Account Status">
-                          <MenuItem value="ACTIVE">
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <Chip label="ACTIVE" size="small" color="success" />
-                              <Typography variant="body2">Active & Allowed to Login</Typography>
+                        <InputLabel id='user-status-select-label'>Account Status</InputLabel>
+                        <Select
+                          labelId='user-status-select-label'
+                          {...field}
+                          label='Account Status'
+                        >
+                          <MenuItem value='ACTIVE'>
+                            <Stack direction='row' spacing={1} alignItems='center'>
+                              <Chip label='ACTIVE' size='small' color='success' />
+                              <Typography variant='body2'>Active & Allowed to Login</Typography>
                             </Stack>
                           </MenuItem>
-                          <MenuItem value="INACTIVE">
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <Chip label="INACTIVE" size="small" color="default" />
-                              <Typography variant="body2">Inactive (Login Disabled)</Typography>
+                          <MenuItem value='INACTIVE'>
+                            <Stack direction='row' spacing={1} alignItems='center'>
+                              <Chip label='INACTIVE' size='small' color='default' />
+                              <Typography variant='body2'>Inactive (Login Disabled)</Typography>
                             </Stack>
                           </MenuItem>
-                          <MenuItem value="SUSPENDED">
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <Chip label="SUSPENDED" size="small" color="warning" />
-                              <Typography variant="body2">Suspended / Temporarily Locked</Typography>
+                          <MenuItem value='SUSPENDED'>
+                            <Stack direction='row' spacing={1} alignItems='center'>
+                              <Chip label='SUSPENDED' size='small' color='warning' />
+                              <Typography variant='body2'>
+                                Suspended / Temporarily Locked
+                              </Typography>
                             </Stack>
                           </MenuItem>
-                          <MenuItem value="BANNED">
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <Chip label="BANNED" size="small" color="error" />
-                              <Typography variant="body2">Banned from Platform</Typography>
+                          <MenuItem value='BANNED'>
+                            <Stack direction='row' spacing={1} alignItems='center'>
+                              <Chip label='BANNED' size='small' color='error' />
+                              <Typography variant='body2'>Banned from Platform</Typography>
                             </Stack>
                           </MenuItem>
                         </Select>
@@ -560,13 +597,15 @@ export default function EditUserDrawer({
                   />
 
                   {form.watch('status') === 'SUSPENDED' && (
-                    <Alert severity="warning">
-                      Suspending this account will immediately revoke all active refresh tokens and terminate ongoing sessions.
+                    <Alert severity='warning'>
+                      Suspending this account will immediately revoke all active refresh tokens and
+                      terminate ongoing sessions.
                     </Alert>
                   )}
                   {form.watch('status') === 'BANNED' && (
-                    <Alert severity="error">
-                      Banning this user will block all authentication requests from their associated IP addresses and linked credentials.
+                    <Alert severity='error'>
+                      Banning this user will block all authentication requests from their associated
+                      IP addresses and linked credentials.
                     </Alert>
                   )}
                 </Stack>
@@ -586,13 +625,17 @@ export default function EditUserDrawer({
             bgcolor: alpha(theme.palette.background.default, 0.5),
           }}
         >
-          <Button onClick={handleCloseAttempt} color="inherit" sx={{ textTransform: 'none', fontWeight: 600 }}>
+          <Button
+            onClick={handleCloseAttempt}
+            color='inherit'
+            sx={{ textTransform: 'none', fontWeight: 600 }}
+          >
             Cancel
           </Button>
           <Button
-            type="submit"
-            form="edit-user-form"
-            variant="contained"
+            type='submit'
+            form='edit-user-form'
+            variant='contained'
             disabled={isSubmitting || !isDirty}
             sx={{
               textTransform: 'none',
@@ -602,29 +645,44 @@ export default function EditUserDrawer({
               minWidth: 130,
             }}
           >
-            {isSubmitting ? <CircularProgress size={20} color="inherit" /> : 'Save Changes'}
+            {isSubmitting ? <CircularProgress size={20} color='inherit' /> : 'Save Changes'}
           </Button>
         </Box>
       </Drawer>
 
       {/* Unsaved Changes Confirmation Dialog */}
-      <Dialog open={unsavedDialogOpen} onClose={() => setUnsavedDialogOpen(false)} maxWidth="xs" fullWidth>
+      <Dialog
+        open={unsavedDialogOpen}
+        onClose={() => setUnsavedDialogOpen(false)}
+        maxWidth='xs'
+        fullWidth
+      >
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <WarningAmberIcon color="warning" />
-          <Typography variant="h6" fontWeight={700}>
+          <WarningAmberIcon color='warning' />
+          <Typography variant='h6' fontWeight={700}>
             Discard Unsaved Changes?
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <Typography variant="body2" color="text.secondary">
-            You have unsaved changes in this drawer. If you close now, all modifications will be lost.
+          <Typography variant='body2' color='text.secondary'>
+            You have unsaved changes in this drawer. If you close now, all modifications will be
+            lost.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setUnsavedDialogOpen(false)} color="inherit" sx={{ textTransform: 'none' }}>
+          <Button
+            onClick={() => setUnsavedDialogOpen(false)}
+            color='inherit'
+            sx={{ textTransform: 'none' }}
+          >
             Keep Editing
           </Button>
-          <Button onClick={handleConfirmDiscard} color="error" variant="contained" sx={{ textTransform: 'none' }}>
+          <Button
+            onClick={handleConfirmDiscard}
+            color='error'
+            variant='contained'
+            sx={{ textTransform: 'none' }}
+          >
             Discard Changes
           </Button>
         </DialogActions>

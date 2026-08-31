@@ -8,9 +8,9 @@
 export { default as departementState } from '../../utils/departement_state.json'
 
 // Legacy JS modules (import directly when needed)
-// - countryState: 
-// - zone2: 
-// - size: 
+// - countryState:
+// - zone2:
+// - size:
 
 // Application constants
 export const API_TIMEOUT = 51730

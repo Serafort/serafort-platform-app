@@ -1,18 +1,32 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, TextField, Typography, Alert, InputAdornment, alpha, Stack, Link as MuiLink } from '@mui/material';
-import LockReset from '@mui/icons-material/LockReset';
-import Mail from '@mui/icons-material/Mail';
-import ArrowBack from '@mui/icons-material/ArrowBack';
-import { useTranslation } from 'react-i18next';
-import { useForgotPassword } from '../../hooks/useAuthQuery';
-import Path from '../path';
-import { themeConfig, useTenant, type HttpError } from '@cap/platform-core';
-import { LiquidGlassCard } from '@cap/theme';
-import { AuthPageLayout, AuthScreenIcon, AuthInputLabel, AuthActionButton } from '../../components/shared/auth';
-import { ForgotPasswordSchema, ForgotPasswordSchemaType } from '../../utils/schema';
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  Box,
+  TextField,
+  Typography,
+  Alert,
+  InputAdornment,
+  alpha,
+  Stack,
+  Link as MuiLink,
+} from '@mui/material'
+import LockReset from '@mui/icons-material/LockReset'
+import Mail from '@mui/icons-material/Mail'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import { useTranslation } from 'react-i18next'
+import { useForgotPassword } from '../../hooks/useAuthQuery'
+import Path from '../path'
+import { themeConfig, useTenant, type HttpError } from '@cap/platform-core'
+import { LiquidGlassCard } from '@cap/theme'
+import {
+  AuthPageLayout,
+  AuthScreenIcon,
+  AuthInputLabel,
+  AuthActionButton,
+} from '../../components/shared/auth'
+import { ForgotPasswordSchema, ForgotPasswordSchemaType } from '../../utils/schema'
 
 export default function ForgotPassword() {
   const { t } = useTranslation('auth')
@@ -46,7 +60,7 @@ export default function ForgotPassword() {
         onSuccess: () => {
           navigate(`${Path.checkEmail}?email=${encodeURIComponent(data.email)}&type=recovery`)
         },
-      }
+      },
     )
   }
 
@@ -59,7 +73,10 @@ export default function ForgotPassword() {
       </title>
       <meta
         name='keywords'
-        content={t('forgotPassword.keywords', { appName, defaultValue: `${appName} forgot password reset recovery` })}
+        content={t('forgotPassword.keywords', {
+          appName,
+          defaultValue: `${appName} forgot password reset recovery`,
+        })}
       />
 
       <AuthPageLayout>
@@ -80,26 +97,29 @@ export default function ForgotPassword() {
         />
 
         <Box sx={{ width: '100%', maxWidth: '480px', mx: 'auto' }}>
-          <LiquidGlassCard blur="24px" opacity={0.82} padding="0px" borderRadius="24px">
+          <LiquidGlassCard blur='24px' opacity={0.82} padding='0px' borderRadius='24px'>
             <Box sx={{ p: 4 }}>
               <Box sx={{ mb: 4, textAlign: 'center' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
                   <AuthScreenIcon icon={<LockReset sx={{ fontSize: 32 }} />} />
                 </Box>
-                <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+                <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
                   {t('forgotPassword.title', 'Forgot password?')}
                 </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-                  {t('forgotPassword.subtitle', "Enter your email and we'll send you a reset link.")}
+                <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
+                  {t(
+                    'forgotPassword.subtitle',
+                    "Enter your email and we'll send you a reset link.",
+                  )}
                 </Typography>
               </Box>
 
               {error && (
                 <Alert
-                  id="forgot-password-error"
-                  severity="error"
-                  role="alert"
-                  aria-live="polite"
+                  id='forgot-password-error'
+                  severity='error'
+                  role='alert'
+                  aria-live='polite'
                   sx={{ mb: 4, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 600 } }}
                 >
                   {error}
@@ -109,19 +129,21 @@ export default function ForgotPassword() {
               <form onSubmit={handleSubmit(onSubmit)} noValidate>
                 <Stack spacing={3}>
                   <Box>
-                    <AuthInputLabel>{t('forgotPassword.emailLabel', 'EMAIL ADDRESS')}</AuthInputLabel>
+                    <AuthInputLabel>
+                      {t('forgotPassword.emailLabel', 'EMAIL ADDRESS')}
+                    </AuthInputLabel>
                     <Controller
-                      name="email"
+                      name='email'
                       control={control}
                       render={({ field }) => (
                         <TextField
                           {...field}
-                          id="forgot-password-email"
+                          id='forgot-password-email'
                           fullWidth
-                          type="email"
-                          placeholder="name@example.com"
+                          type='email'
+                          placeholder='name@example.com'
                           disabled={isPending || isSubmitting}
-                          autoComplete="email"
+                          autoComplete='email'
                           autoFocus
                           error={Boolean(errors.email)}
                           helperText={errors.email?.message ? t(errors.email.message) : undefined}
@@ -129,7 +151,7 @@ export default function ForgotPassword() {
                           slotProps={{
                             input: {
                               startAdornment: (
-                                <InputAdornment position="start">
+                                <InputAdornment position='start'>
                                   <Mail sx={{ color: 'text.secondary', fontSize: 20 }} />
                                 </InputAdornment>
                               ),
@@ -145,8 +167,8 @@ export default function ForgotPassword() {
                   </Box>
 
                   <AuthActionButton
-                    id="forgot-password-submit"
-                    type="submit"
+                    id='forgot-password-submit'
+                    type='submit'
                     isLoading={isPending}
                     isSubmitting={isSubmitting}
                     isValidating={isValidating}
@@ -163,8 +185,8 @@ export default function ForgotPassword() {
 
               <Box sx={{ mt: 5, textAlign: 'center' }}>
                 <MuiLink
-                  id="forgot-password-back-to-signin"
-                  component="button"
+                  id='forgot-password-back-to-signin'
+                  component='button'
                   onClick={() => navigate(Path.signin)}
                   sx={{
                     display: 'inline-flex',

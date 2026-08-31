@@ -6,7 +6,11 @@ import { SurfaceEffectFactory } from '../../../utils/buildLayoutSurfaceEffect'
 
 type StyledVerticalNavContainerProps = Pick<VerticalNavProps, 'width' | 'transitionDuration'>
 
-const StyledVerticalNavContainer = styled('div')<StyledVerticalNavContainerProps>(({ theme, width, transitionDuration }: any) => {
+const StyledVerticalNavContainer = styled('div')<StyledVerticalNavContainerProps>(({
+  theme,
+  width,
+  transitionDuration,
+}: any) => {
   const surfaceEffect = SurfaceEffectFactory.create(getTenantThemeEffects(theme), theme)
 
   return {
@@ -19,11 +23,12 @@ const StyledVerticalNavContainer = styled('div')<StyledVerticalNavContainerProps
     transitionTimingFunction: 'ease-in-out',
     ...surfaceEffect,
 
-    [`.${verticalNavClasses.root}.${verticalNavClasses.hovered} &, &.${verticalNavClasses.hovered}, &.${verticalNavClasses.expanding}`]: {
-      inlineSize: `${width}px`,
-      minInlineSize: `${width}px`,
-      boxShadow: theme.shadows?.[10] || '0 4px 20px rgba(0,0,0,0.15)',
-    },
+    [`.${verticalNavClasses.root}.${verticalNavClasses.hovered} &, &.${verticalNavClasses.hovered}, &.${verticalNavClasses.expanding}`]:
+      {
+        inlineSize: `${width}px`,
+        minInlineSize: `${width}px`,
+        boxShadow: theme.shadows?.[10] || '0 4px 20px rgba(0,0,0,0.15)',
+      },
   }
 })
 

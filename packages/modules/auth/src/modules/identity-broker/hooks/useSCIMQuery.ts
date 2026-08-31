@@ -1,4 +1,10 @@
-import { useQuery, useMutation, useQueryClient, type UseQueryOptions, type UseMutationOptions } from '@tanstack/react-query'
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type UseQueryOptions,
+  type UseMutationOptions,
+} from '@tanstack/react-query'
 import type { FetchResponse, HttpError } from '@cap/platform-core'
 import scimService from '../services/scim.service'
 import type {
@@ -17,7 +23,7 @@ export const scimKeys = {
 }
 
 export function useSCIMConfig(
-  options?: Omit<UseQueryOptions<FetchResponse<SCIMConfig>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<FetchResponse<SCIMConfig>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: scimKeys.config(),
@@ -27,7 +33,12 @@ export function useSCIMConfig(
 }
 
 export function useUpdateSCIMConfig(
-  options?: UseMutationOptions<FetchResponse<{ message: string; config?: SCIMConfig }>, HttpError, UpdateSCIMConfigDTO, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<{ message: string; config?: SCIMConfig }>,
+    HttpError,
+    UpdateSCIMConfigDTO,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -46,7 +57,7 @@ export const useOrganizationScimConfig = useSCIMConfig
 export const useUpdateOrganizationScimConfig = useUpdateSCIMConfig
 
 export function useSCIMTokens(
-  options?: Omit<UseQueryOptions<FetchResponse<SCIMToken[]>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<FetchResponse<SCIMToken[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: scimKeys.tokens(),
@@ -56,7 +67,12 @@ export function useSCIMTokens(
 }
 
 export function useCreateSCIMToken(
-  options?: UseMutationOptions<FetchResponse<CreateSCIMTokenResponse>, HttpError, CreateSCIMTokenDTO, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<CreateSCIMTokenResponse>,
+    HttpError,
+    CreateSCIMTokenDTO,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -71,7 +87,12 @@ export function useCreateSCIMToken(
 }
 
 export function useRevokeSCIMToken(
-  options?: UseMutationOptions<FetchResponse<{ message?: string }>, HttpError, string | number, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<{ message?: string }>,
+    HttpError,
+    string | number,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -86,7 +107,7 @@ export function useRevokeSCIMToken(
 }
 
 export function useTestSCIMConnection(
-  options?: UseMutationOptions<FetchResponse<SCIMConnectionTestResponse>, HttpError, void, unknown>
+  options?: UseMutationOptions<FetchResponse<SCIMConnectionTestResponse>, HttpError, void, unknown>,
 ) {
   return useMutation({
     mutationFn: () => scimService.testConnection(),

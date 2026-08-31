@@ -10,9 +10,9 @@ interface AuthInputLabelProps {
 const AuthInputLabel: React.FC<AuthInputLabelProps> = ({ children, required, htmlFor }) => {
   return (
     <Typography
-      component="label"
+      component='label'
       htmlFor={htmlFor}
-      variant="caption"
+      variant='caption'
       sx={{
         fontWeight: 800,
         textTransform: 'uppercase',
@@ -25,7 +25,7 @@ const AuthInputLabel: React.FC<AuthInputLabelProps> = ({ children, required, htm
     >
       {children}
       {required && (
-        <Typography component="span" sx={{ color: 'error.main', ml: 0.5 }}>
+        <Typography component='span' sx={{ color: 'error.main', ml: 0.5 }}>
           *
         </Typography>
       )}

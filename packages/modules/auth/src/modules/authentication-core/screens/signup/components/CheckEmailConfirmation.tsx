@@ -38,7 +38,7 @@ export default function CheckEmailConfirmation() {
     onError: (error: any) => {
       setResendError(
         error.response?.data?.message ||
-        t('email.resendError', 'Failed to resend email. Please try again.'),
+          t('email.resendError', 'Failed to resend email. Please try again.'),
       )
     },
   })
@@ -55,9 +55,9 @@ export default function CheckEmailConfirmation() {
   return (
     <AuthPageLayout maxWidth={480}>
       <Box sx={{ width: '100%' }}>
-        <LiquidGlassCard blur="24px" opacity={0.85} padding="0px" borderRadius="24px">
+        <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
           <Box
-            className="animate-scale-in"
+            className='animate-scale-in'
             component={motion.div}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -70,7 +70,7 @@ export default function CheckEmailConfirmation() {
           >
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
               <Avatar
-                variant="square"
+                variant='square'
                 sx={{
                   width: 56,
                   height: 56,
@@ -85,32 +85,52 @@ export default function CheckEmailConfirmation() {
               </Avatar>
             </Box>
 
-            <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+            <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
               {t('email.checkHeading', 'Check your email')}
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500, mb: 4, lineHeight: 1.6 }}>
+            <Typography
+              variant='body1'
+              color='text.secondary'
+              sx={{ fontWeight: 500, mb: 4, lineHeight: 1.6 }}
+            >
               {t('email.checkDescription', "We've sent a verification link to")}{' '}
-              <Box component="span" sx={{ fontWeight: 700, color: 'text.primary' }}>
+              <Box component='span' sx={{ fontWeight: 700, color: 'text.primary' }}>
                 {email || t('email.yourEmail', 'your email address')}
               </Box>
               . {t('email.clickLink', 'Please click the link to verify your account.')}
             </Typography>
 
             {resendSuccess && (
-              <Alert severity="success" sx={{ mb: 4, borderRadius: 2, textAlign: 'left', '& .MuiAlert-message': { fontWeight: 600 } }}>
+              <Alert
+                severity='success'
+                sx={{
+                  mb: 4,
+                  borderRadius: 2,
+                  textAlign: 'left',
+                  '& .MuiAlert-message': { fontWeight: 600 },
+                }}
+              >
                 {t('email.resendSuccess', 'Verification email resent successfully!')}
               </Alert>
             )}
             {resendError && (
-              <Alert severity="error" sx={{ mb: 4, borderRadius: 2, textAlign: 'left', '& .MuiAlert-message': { fontWeight: 600 } }}>
+              <Alert
+                severity='error'
+                sx={{
+                  mb: 4,
+                  borderRadius: 2,
+                  textAlign: 'left',
+                  '& .MuiAlert-message': { fontWeight: 600 },
+                }}
+              >
                 {resendError}
               </Alert>
             )}
 
             <Stack spacing={2}>
               <Button
-                variant="contained"
-                size="large"
+                variant='contained'
+                size='large'
                 fullWidth
                 onClick={() => window.open('https://mail.google.com', '_blank')}
                 endIcon={<ArrowForward />}
@@ -133,18 +153,12 @@ export default function CheckEmailConfirmation() {
               </Button>
 
               <Button
-                variant="outlined"
-                size="large"
+                variant='outlined'
+                size='large'
                 fullWidth
                 disabled={resendMutation.isPending}
                 onClick={handleResendEmail}
-                startIcon={
-                  resendMutation.isPending ? (
-                    <CircularProgress size={18} />
-                  ) : (
-                    <Refresh />
-                  )
-                }
+                startIcon={resendMutation.isPending ? <CircularProgress size={18} /> : <Refresh />}
                 sx={{
                   py: 1.2,
                   borderRadius: 3,
@@ -163,7 +177,7 @@ export default function CheckEmailConfirmation() {
 
             <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
               <MuiLink
-                component="button"
+                component='button'
                 onClick={() => navigate(Path.auth.signin)}
                 sx={{
                   display: 'inline-flex',
@@ -187,4 +201,3 @@ export default function CheckEmailConfirmation() {
     </AuthPageLayout>
   )
 }
-

@@ -26,7 +26,7 @@ describe('useAuthEventsStream', () => {
       useAuthEventsStream({
         autoConnect: false,
         enableFallbackPolling: false,
-      })
+      }),
     )
 
     expect(result.current.status).toBe('disconnected')
@@ -46,7 +46,7 @@ describe('useAuthEventsStream', () => {
       useAuthEventsStream({
         autoConnect: false,
         enableFallbackPolling: false,
-      })
+      }),
     )
 
     act(() => {

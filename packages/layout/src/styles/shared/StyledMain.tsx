@@ -14,7 +14,8 @@ type StyledMainProps = {
 }
 
 const StyledMain = styled('main', {
-  shouldForwardProp: (prop) => !['isContentCompact', 'layoutPadding', 'compactContentWidth'].includes(prop as string),
+  shouldForwardProp: (prop) =>
+    !['isContentCompact', 'layoutPadding', 'compactContentWidth'].includes(prop as string),
 })<StyledMainProps>(({ theme, isContentCompact, compactContentWidth }: any) => ({
   flexGrow: mainTokens.layout.flexGrow,
   inlineSize: '100%',

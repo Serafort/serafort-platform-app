@@ -90,8 +90,12 @@ export const developerService = {
     return apiClient.delete<{ message: string }>(ENDPOINTS.admin.clients.destroy(id))
   },
 
-  rotateClientSecret: (id: string): Promise<FetchResponse<{ clientSecret: string; client_secret?: string }>> => {
-    return apiClient.post<{ clientSecret: string; client_secret?: string }>(ENDPOINTS.admin.clients.rotateSecret(id))
+  rotateClientSecret: (
+    id: string,
+  ): Promise<FetchResponse<{ clientSecret: string; client_secret?: string }>> => {
+    return apiClient.post<{ clientSecret: string; client_secret?: string }>(
+      ENDPOINTS.admin.clients.rotateSecret(id),
+    )
   },
 
   // Scopes

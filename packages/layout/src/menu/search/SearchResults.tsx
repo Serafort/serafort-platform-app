@@ -38,7 +38,7 @@ const getFilteredResults = (results: Results): Results => {
     const nextSectionIndex = sectionIndices[index + 1] || results.length
     const sectionResults = results.slice(
       sectionIndex,
-      Math.min(sectionIndex + MAX_SUGGESTIONS_PER_CATEGORY + 1, nextSectionIndex)
+      Math.min(sectionIndex + MAX_SUGGESTIONS_PER_CATEGORY + 1, nextSectionIndex),
     )
 
     data.push(...sectionResults)
@@ -47,7 +47,13 @@ const getFilteredResults = (results: Results): Results => {
   return data
 }
 
-const SearchResults = ({ currentPath, data }: { currentPath: string; data: Array<SearchItemConfig> }) => {
+const SearchResults = ({
+  currentPath,
+  data,
+}: {
+  currentPath: string
+  data: Array<SearchItemConfig>
+}) => {
   // Use ref to track query without causing re-renders
   const queryRef = useRef<string | undefined>('')
 

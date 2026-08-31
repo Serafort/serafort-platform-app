@@ -66,7 +66,9 @@ describe('adminMonitoringService', () => {
 
   it('getTrends queries trend timeline by range', async () => {
     vi.mocked(apiClient.get).mockResolvedValueOnce(
-      createMockResponse([{ timestamp: '2026-08-28', signIns: 50, failedSignIns: 2, mfaChallenges: 48, newUsers: 5 }])
+      createMockResponse([
+        { timestamp: '2026-08-28', signIns: 50, failedSignIns: 2, mfaChallenges: 48, newUsers: 5 },
+      ]),
     )
 
     const res = await adminMonitoringService.getTrends({ range: '30d' })
@@ -99,7 +101,10 @@ describe('adminMonitoringService', () => {
     }
     vi.mocked(apiClient.post).mockResolvedValueOnce(createMockResponse(mockExportRes))
 
-    const res = await adminMonitoringService.exportAuditLogs({ format: 'csv', startDate: '2026-08-01' })
+    const res = await adminMonitoringService.exportAuditLogs({
+      format: 'csv',
+      startDate: '2026-08-01',
+    })
     expect(apiClient.post).toHaveBeenCalledWith('/api/admin/audit-logs/export', {
       format: 'csv',
       startDate: '2026-08-01',
@@ -108,7 +113,9 @@ describe('adminMonitoringService', () => {
   })
 
   it('acknowledgeAlert posts acknowledge mutation', async () => {
-    vi.mocked(apiClient.post).mockResolvedValueOnce(createMockResponse({ message: 'Alert acknowledged' }))
+    vi.mocked(apiClient.post).mockResolvedValueOnce(
+      createMockResponse({ message: 'Alert acknowledged' }),
+    )
 
     const res = await adminMonitoringService.acknowledgeAlert(42)
     expect(apiClient.post).toHaveBeenCalledWith('/api/admin/alerts/42/acknowledge')
@@ -117,7 +124,7 @@ describe('adminMonitoringService', () => {
 
   it('sendTestEmail dispatches transactional test email', async () => {
     vi.mocked(apiClient.post).mockResolvedValueOnce(
-      createMockResponse({ message: 'Email queued', messageId: 'msg-555' })
+      createMockResponse({ message: 'Email queued', messageId: 'msg-555' }),
     )
 
     const res = await adminMonitoringService.sendTestEmail({

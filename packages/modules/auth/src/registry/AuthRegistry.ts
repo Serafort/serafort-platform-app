@@ -10,26 +10,26 @@ const knownPlugins: Record<string, IAuthPlugin> = {
     type: 'secondary',
     ui: {
       loginOption: React.lazy(() =>
-        import('../plugins/MFATOTPPlugin').then(m => ({
-          default: m.MFATOTPPlugin.ui?.loginOption || (() => null)
-        }))
+        import('../plugins/MFATOTPPlugin').then((m) => ({
+          default: m.MFATOTPPlugin.ui?.loginOption || (() => null),
+        })),
       ),
       verificationView: React.lazy(() =>
-        import('../plugins/MFATOTPPlugin').then(m => ({
-          default: m.MFATOTPPlugin.ui?.verificationView || (() => null)
-        }))
+        import('../plugins/MFATOTPPlugin').then((m) => ({
+          default: m.MFATOTPPlugin.ui?.verificationView || (() => null),
+        })),
       ),
       setupView: React.lazy(() =>
-        import('../plugins/MFATOTPPlugin').then(m => ({
-          default: m.MFATOTPPlugin.ui?.setupView || (() => null)
-        }))
+        import('../plugins/MFATOTPPlugin').then((m) => ({
+          default: m.MFATOTPPlugin.ui?.setupView || (() => null),
+        })),
       ),
     },
     handleChallenge: async (challengeData) => {
       const m = await import('../plugins/MFATOTPPlugin')
       return m.MFATOTPPlugin.handleChallenge(challengeData)
-    }
-  }
+    },
+  },
 }
 
 /**
@@ -45,7 +45,7 @@ class AuthRegistry implements IAuthRegistry {
   register(plugin: IAuthPlugin) {
     if (knownPlugins[plugin.id]) {
       console.warn(
-        `[AuthRegistry] Collision detected: plugin ID "${plugin.id}" is already statically defined. Skipping dynamic registration.`
+        `[AuthRegistry] Collision detected: plugin ID "${plugin.id}" is already statically defined. Skipping dynamic registration.`,
       )
       return
     }
@@ -53,19 +53,19 @@ class AuthRegistry implements IAuthRegistry {
       const existing = this.dynamicPlugins.get(plugin.id)
       throw new Error(
         `[AuthRegistry] Duplicate module id "${plugin.id}". ` +
-        `Module IDs must be globally unique. ` +
-        `Already registered by: ${existing?.type ?? 'unknown'}`
+          `Module IDs must be globally unique. ` +
+          `Already registered by: ${existing?.type ?? 'unknown'}`,
       )
     }
     this.dynamicPlugins.set(plugin.id, plugin)
   }
 
   getPlugin(id: string) {
-    return this.activePlugins.find(p => p.id === id)
+    return this.activePlugins.find((p) => p.id === id)
   }
 
   getPluginsByType(type: IAuthPlugin['type']) {
-    return this.activePlugins.filter(p => p.type === type)
+    return this.activePlugins.filter((p) => p.type === type)
   }
 
   /**

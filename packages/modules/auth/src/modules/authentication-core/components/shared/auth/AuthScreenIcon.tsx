@@ -11,7 +11,7 @@ const AuthScreenIcon: React.FC<AuthScreenIconProps> = ({ icon, color = 'primary.
 
   return (
     <Avatar
-      variant="square"
+      variant='square'
       sx={{
         width: 56,
         height: 56,

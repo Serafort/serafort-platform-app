@@ -58,13 +58,14 @@ export default function DeleteUserDialog({
     })
   }
 
-  const isEmailMatch = !user?.email || confirmEmail.trim().toLowerCase() === user.email.toLowerCase()
+  const isEmailMatch =
+    !user?.email || confirmEmail.trim().toLowerCase() === user.email.toLowerCase()
 
   return (
     <Dialog
       open={open}
       onClose={deleteUserMutation.isPending ? undefined : onClose}
-      maxWidth="xs"
+      maxWidth='xs'
       fullWidth
       PaperProps={{
         sx: {
@@ -84,7 +85,7 @@ export default function DeleteUserDialog({
           justifyContent: 'space-between',
         }}
       >
-        <Stack direction="row" spacing={1.5} alignItems="center">
+        <Stack direction='row' spacing={1.5} alignItems='center'>
           <Box
             sx={{
               p: 1,
@@ -97,16 +98,16 @@ export default function DeleteUserDialog({
             <WarningAmberIcon />
           </Box>
           <Box>
-            <Typography variant="h6" fontWeight={700} color="error.main">
+            <Typography variant='h6' fontWeight={700} color='error.main'>
               Delete User Account
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant='caption' color='text.secondary'>
               This action soft-deletes the user profile
             </Typography>
           </Box>
         </Stack>
-        <IconButton onClick={onClose} size="small" disabled={deleteUserMutation.isPending}>
-          <CloseIcon fontSize="small" />
+        <IconButton onClick={onClose} size='small' disabled={deleteUserMutation.isPending}>
+          <CloseIcon fontSize='small' />
         </IconButton>
       </DialogTitle>
 
@@ -124,31 +125,35 @@ export default function DeleteUserDialog({
                 gap: 2,
               }}
             >
-              <Avatar src={user.avatarUrl || undefined} sx={{ width: 40, height: 40, bgcolor: 'primary.main' }}>
+              <Avatar
+                src={user.avatarUrl || undefined}
+                sx={{ width: 40, height: 40, bgcolor: 'primary.main' }}
+              >
                 {user.firstName?.[0] || 'U'}
               </Avatar>
               <Box sx={{ minWidth: 0 }}>
-                <Typography variant="subtitle2" fontWeight={700} noWrap>
+                <Typography variant='subtitle2' fontWeight={700} noWrap>
                   {user.fullName || `${user.firstName} ${user.lastName}`}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" noWrap display="block">
+                <Typography variant='caption' color='text.secondary' noWrap display='block'>
                   {user.email}
                 </Typography>
               </Box>
             </Box>
           )}
 
-          <Alert severity="error" sx={{ '& .MuiAlert-message': { fontSize: '0.8125rem' } }}>
-            Deleting this account will immediately revoke all access tokens, active sessions, and permissions. Associated data will be archived according to tenant retention policies.
+          <Alert severity='error' sx={{ '& .MuiAlert-message': { fontSize: '0.8125rem' } }}>
+            Deleting this account will immediately revoke all access tokens, active sessions, and
+            permissions. Associated data will be archived according to tenant retention policies.
           </Alert>
 
           <Box>
-            <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>
+            <Typography variant='caption' color='text.secondary' display='block' mb={0.75}>
               Type <strong>{user?.email}</strong> to confirm:
             </Typography>
             <TextField
               fullWidth
-              size="small"
+              size='small'
               placeholder={user?.email}
               value={confirmEmail}
               onChange={(e) => setConfirmEmail(e.target.value)}
@@ -157,9 +162,9 @@ export default function DeleteUserDialog({
 
           <TextField
             fullWidth
-            size="small"
-            label="Reason for deletion (Optional)"
-            placeholder="e.g. Employee offboarding, GDPR request"
+            size='small'
+            label='Reason for deletion (Optional)'
+            placeholder='e.g. Employee offboarding, GDPR request'
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
@@ -174,13 +179,13 @@ export default function DeleteUserDialog({
           justifyContent: 'space-between',
         }}
       >
-        <Button onClick={onClose} color="inherit" sx={{ textTransform: 'none', fontWeight: 600 }}>
+        <Button onClick={onClose} color='inherit' sx={{ textTransform: 'none', fontWeight: 600 }}>
           Cancel
         </Button>
         <Button
           onClick={handleDelete}
-          variant="contained"
-          color="error"
+          variant='contained'
+          color='error'
           disabled={deleteUserMutation.isPending || !isEmailMatch}
           sx={{
             textTransform: 'none',
@@ -190,7 +195,11 @@ export default function DeleteUserDialog({
             minWidth: 120,
           }}
         >
-          {deleteUserMutation.isPending ? <CircularProgress size={20} color="inherit" /> : 'Delete User'}
+          {deleteUserMutation.isPending ? (
+            <CircularProgress size={20} color='inherit' />
+          ) : (
+            'Delete User'
+          )}
         </Button>
       </DialogActions>
     </Dialog>

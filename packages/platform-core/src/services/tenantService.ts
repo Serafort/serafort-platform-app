@@ -18,7 +18,7 @@ interface TenantCache {
 }
 
 const mockTenants: Record<string, TenantConfig> = {
-  'localhost': {
+  localhost: {
     _version: 1,
     id: 'default',
     slug: 'default',
@@ -53,7 +53,13 @@ const mockTenants: Record<string, TenantConfig> = {
       companyName: 'Acme Corporation',
       welcomeText: 'Welcome to Acme Corp',
     },
-    features: { darkMode: true, rtl: false, notifications: true, chat: true, enabledAuthPlugins: [] },
+    features: {
+      darkMode: true,
+      rtl: false,
+      notifications: true,
+      chat: true,
+      enabledAuthPlugins: [],
+    },
     version: 1,
   },
   '127.0.0.1': {
@@ -91,7 +97,13 @@ const mockTenants: Record<string, TenantConfig> = {
       companyName: 'Acme Corporation',
       welcomeText: 'Welcome to Acme Corp',
     },
-    features: { darkMode: true, rtl: false, notifications: true, chat: true, enabledAuthPlugins: ['mfa-totp'] },
+    features: {
+      darkMode: true,
+      rtl: false,
+      notifications: true,
+      chat: true,
+      enabledAuthPlugins: ['mfa-totp'],
+    },
     version: 1,
   },
   'tenant1.localhost': {
@@ -129,7 +141,13 @@ const mockTenants: Record<string, TenantConfig> = {
       companyName: 'Acme Corporation',
       welcomeText: 'Welcome to Acme Corp',
     },
-    features: { darkMode: true, rtl: false, notifications: true, chat: true, enabledAuthPlugins: ['mfa-totp'] },
+    features: {
+      darkMode: true,
+      rtl: false,
+      notifications: true,
+      chat: true,
+      enabledAuthPlugins: ['mfa-totp'],
+    },
     version: 1,
   },
   'tenant2.localhost': {
@@ -167,7 +185,13 @@ const mockTenants: Record<string, TenantConfig> = {
       companyName: 'TechStart Inc',
       welcomeText: 'Innovate with TechStart',
     },
-    features: { darkMode: true, rtl: false, notifications: true, chat: false, enabledAuthPlugins: [] },
+    features: {
+      darkMode: true,
+      rtl: false,
+      notifications: true,
+      chat: false,
+      enabledAuthPlugins: [],
+    },
     version: 1,
   },
   'tenant3.localhost': {
@@ -205,7 +229,13 @@ const mockTenants: Record<string, TenantConfig> = {
       companyName: 'Green Eco Solutions',
       welcomeText: 'Go Green with Us',
     },
-    features: { darkMode: false, rtl: false, notifications: true, chat: true, enabledAuthPlugins: [] },
+    features: {
+      darkMode: false,
+      rtl: false,
+      notifications: true,
+      chat: true,
+      enabledAuthPlugins: [],
+    },
     version: 1,
   },
 }
@@ -222,16 +252,16 @@ export class TenantService {
 
   static getTenantFromHostname(): string {
     const hostname = this.getCurrentHostname()
-    
+
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return 'default'
     }
-    
+
     const parts = hostname.split('.')
     if (parts.length >= 2 && parts[0] !== 'www') {
       return parts[0]
     }
-    
+
     return 'default'
   }
 
@@ -265,15 +295,15 @@ export class TenantService {
       if (typeof window === 'undefined' || typeof localStorage === 'undefined') return null
       const cache = this.getCache()
       const cached = cache[domain]
-      
+
       if (!cached) return null
-      
+
       if (Date.now() - cached.timestamp > CACHE_EXPIRY_MS) {
         delete cache[domain]
         localStorage.setItem(TENANT_CACHE_KEY, JSON.stringify(cache))
         return null
       }
-      
+
       return cached.config
     } catch {
       return null
@@ -284,7 +314,10 @@ export class TenantService {
    * Independently verifies whether an authentication plugin/feature (e.g. 'mfa-totp')
    * is enabled for the specified tenant configuration.
    */
-  static isAuthPluginEnabledForTenant(config: TenantConfig | null | undefined, pluginId: string): boolean {
+  static isAuthPluginEnabledForTenant(
+    config: TenantConfig | null | undefined,
+    pluginId: string,
+  ): boolean {
     if (!config || !config.features || !Array.isArray(config.features.enabledAuthPlugins)) {
       return false
     }
@@ -299,7 +332,7 @@ export class TenantService {
     if (!pluginId) return false
     const domain = domainOrHostname || this.getCurrentHostname()
     const cachedConfig = this.getCachedTenant(domain)
-    
+
     if (cachedConfig) {
       return this.isAuthPluginEnabledForTenant(cachedConfig, pluginId)
     }
@@ -314,7 +347,6 @@ export class TenantService {
   static async fetchTenant(_tenantSlug?: string): Promise<TenantConfig> {
     const domain = this.getCurrentHostname()
 
-    
     // 1. Try Cache
     const cached = this.getCachedTenant(domain)
     if (cached) {
@@ -324,15 +356,17 @@ export class TenantService {
 
     // 2. Try Backend API (Primary Source of truth for per-tenant branding)
     try {
-      const response = await apiClient.get<TenantConfig>(ENDPOINTS.guest.tenantConfig, { params: { domain } })
-      
+      const response = await apiClient.get<TenantConfig>(ENDPOINTS.guest.tenantConfig, {
+        params: { domain },
+      })
+
       if (response.data) {
         const config = response.data
         console.log('[TenantService] Successfully fetched tenant config from backend:', domain)
         this.setCache(domain, config)
         return config
       }
-      
+
       console.warn(`[TenantService] Backend returned null data for ${domain}, checking mocks...`)
     } catch (error) {
       console.error('[TenantService] Network error fetching tenant config:', error)
@@ -355,13 +389,13 @@ export class TenantService {
     const domain = this.getCurrentHostname()
     const cache = this.getCache()
     const cached = cache[domain]
-    
+
     if (!cached) return false
-    
+
     try {
       const slug = this.getTenantFromHostname()
       const response = await apiClient.get<any>(`/tenants/${slug}/version`)
-      
+
       if (response.data) {
         const { version } = response.data
         if (version !== cached.config.version) {
@@ -372,7 +406,7 @@ export class TenantService {
     } catch {
       // Silently fail - will use cached version
     }
-    
+
     return false
   }
 

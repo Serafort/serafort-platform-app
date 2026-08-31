@@ -59,18 +59,21 @@ export default function EmailChangeStatusDashboard() {
       addNotification?.({
         type: 'success',
         title: t('auth.account.resend_success', 'Verification Link Resent'),
-        message: t(
-          'auth.account.resend_desc',
-          'A fresh confirmation link was sent to {{email}}.',
-          { email: stateNewEmail },
-        ),
+        message: t('auth.account.resend_desc', 'A fresh confirmation link was sent to {{email}}.', {
+          email: stateNewEmail,
+        }),
       })
     },
     onError: (err) => {
       addNotification?.({
         type: 'error',
         title: t('auth.account.resend_failed', 'Resend Failed'),
-        message: err?.message || t('auth.account.resend_failed_desc', 'Unable to resend confirmation link at this moment.'),
+        message:
+          err?.message ||
+          t(
+            'auth.account.resend_failed_desc',
+            'Unable to resend confirmation link at this moment.',
+          ),
       })
     },
   })
@@ -94,7 +97,7 @@ export default function EmailChangeStatusDashboard() {
         label: t('auth.account.verify_current_email', 'Request Email Change'),
         description: t(
           'auth.account.current_email_desc',
-          `Identity verified for current account (${currentEmail}).`
+          `Identity verified for current account (${currentEmail}).`,
         ),
         completed: true,
       },
@@ -102,12 +105,12 @@ export default function EmailChangeStatusDashboard() {
         label: t('auth.account.confirm_new_email', 'Confirm New Email Address'),
         description: t(
           'auth.account.confirm_new_email_desc',
-          `We've dispatched a secure confirmation link to ${stateNewEmail}. Please click the link to finalize your new login credentials.`
+          `We've dispatched a secure confirmation link to ${stateNewEmail}. Please click the link to finalize your new login credentials.`,
         ),
         completed: false,
       },
     ],
-    [t, currentEmail, stateNewEmail]
+    [t, currentEmail, stateNewEmail],
   )
 
   const handleResend = () => {
@@ -132,7 +135,7 @@ export default function EmailChangeStatusDashboard() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }}>
+    <Container maxWidth='md' sx={{ py: { xs: 3, md: 5 } }}>
       {/* Navigation and Title */}
       <Box sx={{ mb: 4 }}>
         <Button
@@ -150,13 +153,13 @@ export default function EmailChangeStatusDashboard() {
         >
           {t('common.backToProfile', 'Back to Profile')}
         </Button>
-        <Typography variant="h4" fontWeight={800} letterSpacing="-0.025em" gutterBottom>
+        <Typography variant='h4' fontWeight={800} letterSpacing='-0.025em' gutterBottom>
           {t('auth.account.email_change_request', 'Email Change Request')}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant='body2' color='text.secondary'>
           {t(
             'auth.account.email_change_request_desc',
-            'Follow the verification steps below to securely transition your account email.'
+            'Follow the verification steps below to securely transition your account email.',
           )}
         </Typography>
       </Box>
@@ -173,7 +176,7 @@ export default function EmailChangeStatusDashboard() {
         }}
       >
         <CardContent sx={{ p: { xs: 2.5, md: 4 } }}>
-          <Stepper orientation="vertical" nonLinear activeStep={1}>
+          <Stepper orientation='vertical' nonLinear activeStep={1}>
             {steps.map((step, index) => (
               <Step key={step.label} expanded active={index === 1}>
                 <StepLabel
@@ -200,31 +203,31 @@ export default function EmailChangeStatusDashboard() {
                       {step.completed ? (
                         <CheckCircle sx={{ fontSize: 20 }} />
                       ) : (
-                        <Typography variant="caption" fontWeight={800}>
+                        <Typography variant='caption' fontWeight={800}>
                           {index + 1}
                         </Typography>
                       )}
                     </Box>
                   )}
                 >
-                  <Typography variant="subtitle1" fontWeight={700}>
+                  <Typography variant='subtitle1' fontWeight={700}>
                     {step.label}
                   </Typography>
                 </StepLabel>
                 <StepContent>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2, mt: 0.5 }}>
+                  <Typography variant='body2' color='text.secondary' sx={{ mb: 2, mt: 0.5 }}>
                     {step.description}
                   </Typography>
                   {index === 1 && (
-                    <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
+                    <Stack direction='row' spacing={1.5} alignItems='center' sx={{ mb: 1 }}>
                       <Button
-                        variant="outlined"
-                        size="small"
+                        variant='outlined'
+                        size='small'
                         onClick={handleResend}
                         disabled={isResending || secondsRemaining === 0}
                         startIcon={
                           isResending ? (
-                            <CircularProgress size={16} color="inherit" />
+                            <CircularProgress size={16} color='inherit' />
                           ) : (
                             <Mail sx={{ fontSize: 16 }} />
                           )
@@ -260,15 +263,15 @@ export default function EmailChangeStatusDashboard() {
             }}
           >
             <Typography
-              variant="caption"
-              color="text.secondary"
-              textTransform="uppercase"
+              variant='caption'
+              color='text.secondary'
+              textTransform='uppercase'
               fontWeight={700}
-              letterSpacing="0.08em"
+              letterSpacing='0.08em'
             >
               {t('auth.account.security_link_expires_in', 'Security Link Expires In')}
             </Typography>
-            <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
+            <Stack direction='row' spacing={2} justifyContent='center' sx={{ mt: 2 }}>
               {[
                 { value: hours, label: t('common.hours', 'Hours') },
                 { value: minutes, label: t('common.minutes', 'Minutes') },
@@ -276,7 +279,7 @@ export default function EmailChangeStatusDashboard() {
               ].map((unit, i) => (
                 <Box key={i} sx={{ textAlign: 'center' }}>
                   <Paper
-                    variant="outlined"
+                    variant='outlined'
                     sx={{
                       width: 60,
                       height: 60,
@@ -290,24 +293,24 @@ export default function EmailChangeStatusDashboard() {
                     }}
                   >
                     <Typography
-                      variant="h5"
+                      variant='h5'
                       fontWeight={800}
                       color={secondsRemaining < 120 ? 'error.main' : 'primary.main'}
                     >
                       {unit.value}
                     </Typography>
                   </Paper>
-                  <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                  <Typography variant='caption' color='text.secondary' fontWeight={600}>
                     {unit.label}
                   </Typography>
                 </Box>
               ))}
             </Stack>
             {secondsRemaining === 0 && (
-              <Alert severity="warning" sx={{ mt: 2, borderRadius: 2 }}>
+              <Alert severity='warning' sx={{ mt: 2, borderRadius: 2 }}>
                 {t(
                   'auth.account.link_expired_alert',
-                  'The confirmation link has expired. Please click "Resend Confirmation Link" to generate a new one.'
+                  'The confirmation link has expired. Please click "Resend Confirmation Link" to generate a new one.',
                 )}
               </Alert>
             )}
@@ -329,24 +332,24 @@ export default function EmailChangeStatusDashboard() {
           gap: 2,
         }}
       >
-        <Stack direction="row" spacing={1.5} alignItems="flex-start">
-          <Info color="info" sx={{ mt: 0.25 }} />
+        <Stack direction='row' spacing={1.5} alignItems='flex-start'>
+          <Info color='info' sx={{ mt: 0.25 }} />
           <Box>
-            <Typography variant="subtitle2" fontWeight={700} color="info.main">
+            <Typography variant='subtitle2' fontWeight={700} color='info.main'>
               {t('auth.account.cancel_change_prompt', 'Need to cancel this change?')}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant='body2' color='text.secondary'>
               {t(
                 'auth.account.cancel_change_prompt_desc',
-                "If you didn't initiate this request or prefer to keep your existing email address, you can cancel the process at any time."
+                "If you didn't initiate this request or prefer to keep your existing email address, you can cancel the process at any time.",
               )}
             </Typography>
           </Box>
         </Stack>
         <Button
-          variant="outlined"
-          color="error"
-          size="small"
+          variant='outlined'
+          color='error'
+          size='small'
           onClick={() => setIsCancelDialogOpen(true)}
           sx={{
             textTransform: 'none',
@@ -364,7 +367,7 @@ export default function EmailChangeStatusDashboard() {
       <Dialog
         open={isCancelDialogOpen}
         onClose={() => setIsCancelDialogOpen(false)}
-        maxWidth="xs"
+        maxWidth='xs'
         fullWidth
         PaperProps={{
           sx: {
@@ -375,32 +378,32 @@ export default function EmailChangeStatusDashboard() {
         }}
       >
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <CancelOutlined color="error" />
-          <Typography variant="h6" fontWeight={700}>
+          <CancelOutlined color='error' />
+          <Typography variant='h6' fontWeight={700}>
             {t('auth.account.cancel_email_change_dialog_title', 'Cancel Email Change?')}
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant='body2' color='text.secondary'>
             {t(
               'auth.account.cancel_email_change_dialog_desc',
               'Are you sure you want to cancel this pending email change? Your account will continue to use {{email}}.',
-              { email: currentEmail }
+              { email: currentEmail },
             )}
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button
             onClick={() => setIsCancelDialogOpen(false)}
-            color="inherit"
+            color='inherit'
             sx={{ textTransform: 'none', fontWeight: 600 }}
           >
             {t('auth.account.keep_pending', 'Keep Pending')}
           </Button>
           <Button
             onClick={handleCancelRequest}
-            variant="contained"
-            color="error"
+            variant='contained'
+            color='error'
             sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
           >
             {t('auth.account.confirm_cancel', 'Confirm Cancel')}

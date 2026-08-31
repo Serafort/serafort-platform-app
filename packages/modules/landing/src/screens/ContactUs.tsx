@@ -83,24 +83,25 @@ const ContactUs: React.FC = () => {
     <>
       <title>Contact Us - {themeConfig.templateName}</title>
       <meta
-        name="description"
+        name='description'
         content={`Contact us for support or inquiries at ${themeConfig.templateName}`}
       />
 
-      <Container maxWidth="lg" sx={{ py: 8 }}>
+      <Container maxWidth='lg' sx={{ py: 8 }}>
         <Box sx={{ textAlign: 'center', mb: 8 }}>
-          <Typography variant="h2" component="h1" fontWeight={700} gutterBottom>
+          <Typography variant='h2' component='h1' fontWeight={700} gutterBottom>
             Get in Touch
           </Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 650, mx: 'auto' }}>
-            Have a question, custom enterprise inquiry, or need technical support? Fill out the form below and our team will get back to you promptly.
+          <Typography variant='h6' color='text.secondary' sx={{ maxWidth: 650, mx: 'auto' }}>
+            Have a question, custom enterprise inquiry, or need technical support? Fill out the form
+            below and our team will get back to you promptly.
           </Typography>
         </Box>
 
         <Grid container spacing={8}>
           {/* Left Side: Contact Form / Confirmation */}
           <Grid size={{ xs: 12, md: 7 }}>
-            <Typography variant="h4" component="h2" fontWeight={600} gutterBottom>
+            <Typography variant='h4' component='h2' fontWeight={600} gutterBottom>
               Send us a Message
             </Typography>
 
@@ -116,21 +117,22 @@ const ContactUs: React.FC = () => {
                   textAlign: 'center',
                 }}
               >
-                <CheckCircleOutlineIcon color="success" sx={{ fontSize: 64, mb: 2 }} />
-                <Typography variant="h5" fontWeight={700} gutterBottom>
+                <CheckCircleOutlineIcon color='success' sx={{ fontSize: 64, mb: 2 }} />
+                <Typography variant='h5' fontWeight={700} gutterBottom>
                   Thank You for Reaching Out!
                 </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                  Your inquiry has been received. Our solutions engineering team will review your message and respond to <strong>{email}</strong> within 1 business day.
+                <Typography variant='body1' color='text.secondary' sx={{ mb: 3 }}>
+                  Your inquiry has been received. Our solutions engineering team will review your
+                  message and respond to <strong>{email}</strong> within 1 business day.
                 </Typography>
-                <Button variant="outlined" onClick={handleReset}>
+                <Button variant='outlined' onClick={handleReset}>
                   Send Another Message
                 </Button>
               </Paper>
             ) : (
-              <Box component="form" onSubmit={handleSubmit} noValidate>
+              <Box component='form' onSubmit={handleSubmit} noValidate>
                 {error && (
-                  <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+                  <Alert severity='error' sx={{ mb: 3 }} onClose={() => setError(null)}>
                     {error}
                   </Alert>
                 )}
@@ -140,12 +142,12 @@ const ContactUs: React.FC = () => {
                     <TextField
                       required
                       fullWidth
-                      id="full-name"
-                      label="Full Name"
-                      name="fullName"
+                      id='full-name'
+                      label='Full Name'
+                      name='fullName'
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      placeholder="e.g. Alex Morgan"
+                      placeholder='e.g. Alex Morgan'
                       disabled={isLoading}
                     />
                   </Grid>
@@ -153,13 +155,13 @@ const ContactUs: React.FC = () => {
                     <TextField
                       required
                       fullWidth
-                      id="email"
-                      label="Email Address"
-                      name="email"
-                      type="email"
+                      id='email'
+                      label='Email Address'
+                      name='email'
+                      type='email'
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="e.g. alex@company.com"
+                      placeholder='e.g. alex@company.com'
                       disabled={isLoading}
                     />
                   </Grid>
@@ -167,12 +169,12 @@ const ContactUs: React.FC = () => {
                     <TextField
                       required
                       fullWidth
-                      id="subject"
-                      label="Subject"
-                      name="subject"
+                      id='subject'
+                      label='Subject'
+                      name='subject'
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
-                      placeholder="e.g. Enterprise SSO Inquiry / Dedicated Instance"
+                      placeholder='e.g. Enterprise SSO Inquiry / Dedicated Instance'
                       disabled={isLoading}
                     />
                   </Grid>
@@ -180,24 +182,26 @@ const ContactUs: React.FC = () => {
                     <TextField
                       required
                       fullWidth
-                      id="message"
-                      label="Message"
-                      name="message"
+                      id='message'
+                      label='Message'
+                      name='message'
                       multiline
                       rows={6}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Tell us about your team and requirements..."
+                      placeholder='Tell us about your team and requirements...'
                       disabled={isLoading}
                     />
                   </Grid>
                   <Grid size={{ xs: 12 }}>
                     <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <SendIcon />}
+                      type='submit'
+                      variant='contained'
+                      color='primary'
+                      size='large'
+                      startIcon={
+                        isLoading ? <CircularProgress size={20} color='inherit' /> : <SendIcon />
+                      }
                       disabled={isLoading}
                       sx={{ py: 1.5, px: 4, borderRadius: 2 }}
                     >
@@ -211,38 +215,42 @@ const ContactUs: React.FC = () => {
 
           {/* Right Side: Other Ways to Reach Us */}
           <Grid size={{ xs: 12, md: 5 }}>
-            <Typography variant="h4" component="h2" fontWeight={600} gutterBottom>
+            <Typography variant='h4' component='h2' fontWeight={600} gutterBottom>
               Other Ways to Reach Us
             </Typography>
             <Stack spacing={3}>
-              <Card variant="outlined" sx={{ borderRadius: 2 }}>
+              <Card variant='outlined' sx={{ borderRadius: 2 }}>
                 <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <EmailOutlined color="primary" sx={{ fontSize: 40 }} />
+                  <EmailOutlined color='primary' sx={{ fontSize: 40 }} />
                   <Box>
-                    <Typography variant="h6" fontWeight={600}>Support & Enterprise Sales</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant='h6' fontWeight={600}>
+                      Support & Enterprise Sales
+                    </Typography>
+                    <Typography variant='body2' color='text.secondary'>
                       For technical support and inquiries.
                     </Typography>
-                    <Link href="mailto:support@mascayiti.com" color="primary" fontWeight={500}>
+                    <Link href='mailto:support@mascayiti.com' color='primary' fontWeight={500}>
                       support@mascayiti.com
                     </Link>
                   </Box>
                 </CardContent>
               </Card>
 
-              <Card variant="outlined" sx={{ borderRadius: 2 }}>
+              <Card variant='outlined' sx={{ borderRadius: 2 }}>
                 <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <PeopleOutline color="primary" sx={{ fontSize: 40 }} />
+                  <PeopleOutline color='primary' sx={{ fontSize: 40 }} />
                   <Box>
-                    <Typography variant="h6" fontWeight={600}>Community & Socials</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant='h6' fontWeight={600}>
+                      Community & Socials
+                    </Typography>
+                    <Typography variant='body2' color='text.secondary'>
                       Follow our engineering updates.
                     </Typography>
                     <Box sx={{ mt: 0.5 }}>
-                      <IconButton color="primary" size="small">
+                      <IconButton color='primary' size='small'>
                         <LinkedIn />
                       </IconButton>
-                      <IconButton color="primary" size="small">
+                      <IconButton color='primary' size='small'>
                         <Twitter />
                       </IconButton>
                     </Box>
@@ -250,15 +258,17 @@ const ContactUs: React.FC = () => {
                 </CardContent>
               </Card>
 
-              <Card variant="outlined" sx={{ borderRadius: 2 }}>
+              <Card variant='outlined' sx={{ borderRadius: 2 }}>
                 <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <HelpOutline color="primary" sx={{ fontSize: 40 }} />
+                  <HelpOutline color='primary' sx={{ fontSize: 40 }} />
                   <Box>
-                    <Typography variant="h6" fontWeight={600}>Developer Documentation</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant='h6' fontWeight={600}>
+                      Developer Documentation
+                    </Typography>
+                    <Typography variant='body2' color='text.secondary'>
                       SDK references, API endpoints, and guides.
                     </Typography>
-                    <Link href="/developer/docs" color="primary" fontWeight={500}>
+                    <Link href='/developer/docs' color='primary' fontWeight={500}>
                       Browse API Reference & Guides
                     </Link>
                   </Box>

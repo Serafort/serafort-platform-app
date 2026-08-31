@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { fetchClient, FetchRequestConfig, FetchResponse, HttpError, requestDeduplicator } from '@cap/platform-store'
+import {
+  fetchClient,
+  FetchRequestConfig,
+  FetchResponse,
+  HttpError,
+  requestDeduplicator,
+} from '@cap/platform-store'
 
 interface UseDeduplicatedRequestOptions<T> extends FetchRequestConfig {
   /**

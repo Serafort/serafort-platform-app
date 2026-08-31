@@ -81,17 +81,26 @@ export const ImpersonationBanner: React.FC<ImpersonationBannerProps> = ({ onExit
           }}
         >
           <VisibilityIcon sx={{ fontSize: 16 }} />
-          <Typography variant='caption' sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.75 }}>
+          <Typography
+            variant='caption'
+            sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.75 }}
+          >
             Active Impersonation
           </Typography>
         </Box>
 
         <Typography variant='body2' sx={{ fontWeight: 600 }}>
-          Viewing workspace as: <strong>{impersonationSession.targetOrgName || `Org #${impersonationSession.targetOrgId}`}</strong>
+          Viewing workspace as:{' '}
+          <strong>
+            {impersonationSession.targetOrgName || `Org #${impersonationSession.targetOrgId}`}
+          </strong>
         </Typography>
 
         {impersonationSession.reason && (
-          <Typography variant='caption' sx={{ opacity: 0.9, display: { xs: 'none', sm: 'inline' } }}>
+          <Typography
+            variant='caption'
+            sx={{ opacity: 0.9, display: { xs: 'none', sm: 'inline' } }}
+          >
             (Reason: {impersonationSession.reason})
           </Typography>
         )}

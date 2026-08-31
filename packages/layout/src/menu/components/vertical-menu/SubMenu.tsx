@@ -69,10 +69,14 @@ type StyledSubMenuProps = Pick<SubMenuProps, 'rootStyles' | 'disabled'> & {
 const StyledSubMenu = styled.li<StyledSubMenuProps>`
   position: relative;
   inline-size: 100%;
-  margin-block-start: ${({ theme }: any) => menuTokens?.vertical?.submenu?.marginBlockStart || '4px'};
+  margin-block-start: ${({ theme }: any) =>
+    menuTokens?.vertical?.submenu?.marginBlockStart || '4px'};
 
   &.${menuClasses.open} > .${menuClasses.button} {
-    background-color: ${({ theme }: any) => theme.palette?.action?.hover || menuTokens?.vertical?.submenu?.openHoverBg || 'rgba(0, 0, 0, 0.04)'};
+    background-color: ${({ theme }: any) =>
+      theme.palette?.action?.hover ||
+      menuTokens?.vertical?.submenu?.openHoverBg ||
+      'rgba(0, 0, 0, 0.04)'};
   }
 
   ${({ menuItemStyles }) => menuItemStyles};
@@ -270,12 +274,11 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
 
   const hasMatchingChild = React.useMemo(
     () => confirmUrlInChildren(children, pathname),
-    [children, pathname]
+    [children, pathname],
   )
 
   React.useEffect(() => {
-    if (hasMatchingChild)
-      openSubmenusRef?.current.push({ level, label, active: true, id })
+    if (hasMatchingChild) openSubmenusRef?.current.push({ level, label, active: true, id })
     else {
       if (defaultOpen) openSubmenusRef?.current.push({ level, label, active: false, id })
     }

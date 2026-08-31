@@ -47,11 +47,7 @@ export const authRoutes: React.FC<RoutesProps> = () => (
         <Route
           key={path}
           path={path}
-          element={
-            <LayoutRouteWrapper layout={layout || 'noLayout'}>
-              {element}
-            </LayoutRouteWrapper>
-          }
+          element={<LayoutRouteWrapper layout={layout || 'noLayout'}>{element}</LayoutRouteWrapper>}
         />
       ))}
     </>

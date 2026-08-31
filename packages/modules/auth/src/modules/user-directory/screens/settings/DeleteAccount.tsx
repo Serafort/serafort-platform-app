@@ -105,7 +105,10 @@ export default function DeleteAccount() {
         title: t('auth.account.error', 'Error'),
         message:
           err?.message ||
-          t('auth.common.errorOccurred', 'An error occurred while attempting to delete the account.'),
+          t(
+            'auth.common.errorOccurred',
+            'An error occurred while attempting to delete the account.',
+          ),
       })
       setOpenConfirmDialog(false)
     },

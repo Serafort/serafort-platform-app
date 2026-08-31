@@ -34,9 +34,9 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import ShieldIcon from '@mui/icons-material/Shield'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { toast } from 'react-toastify';
-import { useCreateToken } from "@auth/user-directory/hooks/useUserQuery"
-import { Path } from "@auth/routes/path"
+import { toast } from 'react-toastify'
+import { useCreateToken } from '@auth/user-directory/hooks/useUserQuery'
+import { Path } from '@auth/routes/path'
 
 export interface CreateAPITokenIPRestrictionsProps {
   isWizard?: boolean
@@ -72,17 +72,20 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
   const theme = useTheme()
 
   // Use state from navigation or default to empty values
-  const state = isWizard && formData ? formData : ((location.state as CreateTokenState) || {
-    name: '',
-    abilities: [],
-    expiresIn: '30 days',
-  })
+  const state =
+    isWizard && formData
+      ? formData
+      : (location.state as CreateTokenState) || {
+          name: '',
+          abilities: [],
+          expiresIn: '30 days',
+        }
   const isMissingState = !state.name
 
   const [ipInput, setIpInput] = useState('')
   const [ipError, setIpError] = useState(false)
   const [localIpList, setLocalIpList] = useState<string[]>(
-    isWizard && formData?.ipRestrictions ? formData.ipRestrictions : []
+    isWizard && formData?.ipRestrictions ? formData.ipRestrictions : [],
   )
 
   const ipList = isWizard && formData?.ipRestrictions ? formData.ipRestrictions : localIpList
@@ -102,18 +105,24 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
     // IPv4 CIDR regex (e.g., 192.168.1.1 or 10.0.0.0/24)
     const ipv4Regex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})(\/([0-9]|[1-2][0-9]|3[0-2]))?$/
     // IPv6 CIDR regex (simple)
-    const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}(\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$/
+    const ipv6Regex =
+      /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}(\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$/
 
     const ipv4Match = trimmed.match(ipv4Regex)
     if (ipv4Match) {
-      const octets = [Number(ipv4Match[1]), Number(ipv4Match[2]), Number(ipv4Match[3]), Number(ipv4Match[4])]
+      const octets = [
+        Number(ipv4Match[1]),
+        Number(ipv4Match[2]),
+        Number(ipv4Match[3]),
+        Number(ipv4Match[4]),
+      ]
       const allValid = octets.every((o) => o >= 0 && o <= 255)
       if (allValid) {
         return { valid: true, normalized: trimmed }
       }
       return { valid: false, normalized: trimmed }
     }
-    
+
     if (ipv6Regex.test(trimmed)) {
       return { valid: true, normalized: trimmed }
     }
@@ -126,7 +135,12 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
     const { valid, normalized } = validateAndNormalizeIP(ipInput)
     if (!valid) {
       setIpError(true)
-      toast.error(t('api_tokens:invalid_ip_format', 'Invalid IP address or CIDR notation (e.g. 192.168.1.1 or 10.0.0.0/24)'))
+      toast.error(
+        t(
+          'api_tokens:invalid_ip_format',
+          'Invalid IP address or CIDR notation (e.g. 192.168.1.1 or 10.0.0.0/24)',
+        ),
+      )
       return
     }
 
@@ -241,7 +255,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
             <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1.05rem' }}>
               {t(
                 'api_tokens:restrictions_subheader',
-                'Enhance security by restricting API calls to specific originating IP addresses.'
+                'Enhance security by restricting API calls to specific originating IP addresses.',
               )}
             </Typography>
           </Box>
@@ -265,7 +279,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
             >
               {t(
                 'api_tokens:config_state_lost',
-                'Configuration state was lost. Please go back and re-enter the token details.'
+                'Configuration state was lost. Please go back and re-enter the token details.',
               )}
             </Alert>
           )}
@@ -590,6 +604,3 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
 }
 
 export default CreateAPITokenIPRestrictions
-
-
-

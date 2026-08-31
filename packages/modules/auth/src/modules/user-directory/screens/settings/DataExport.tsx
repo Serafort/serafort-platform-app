@@ -1,18 +1,36 @@
-import React, { useCallback, useState, useMemo } from 'react';
-import { Box, Button, Card, CardContent, Typography, Divider, List, ListItem, ListItemText, ListItemIcon, CircularProgress, Alert, Paper, Avatar, LinearProgress, Chip, Grid } from '@mui/material';
-import { useTheme, alpha } from '@mui/material/styles';
-import DownloadIcon from '@mui/icons-material/Download';
-import FileIcon from '@mui/icons-material/FilePresent';
-import HistoryIcon from '@mui/icons-material/History';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import StorageIcon from '@mui/icons-material/Storage';
-import SpeedIcon from '@mui/icons-material/Speed';
-import TimerIcon from '@mui/icons-material/Timer';
-import { buildLayoutSurfaceEffect } from '@cap/layout';
-import { getTenantThemeEffects } from '@cap/theme';
-import { useComplianceExport, useExportMutation } from '../../hooks/useUserQuery';
-import { useChunkProgressTracker } from '../../../authentication-core/hooks/useChunkProgressTracker';
-import logger from '@idaas/authentication-core/utils/logger';
+import React, { useCallback, useState, useMemo } from 'react'
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  CircularProgress,
+  Alert,
+  Paper,
+  Avatar,
+  LinearProgress,
+  Chip,
+  Grid,
+} from '@mui/material'
+import { useTheme, alpha } from '@mui/material/styles'
+import DownloadIcon from '@mui/icons-material/Download'
+import FileIcon from '@mui/icons-material/FilePresent'
+import HistoryIcon from '@mui/icons-material/History'
+import ScheduleIcon from '@mui/icons-material/Schedule'
+import StorageIcon from '@mui/icons-material/Storage'
+import SpeedIcon from '@mui/icons-material/Speed'
+import TimerIcon from '@mui/icons-material/Timer'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
+import { useComplianceExport, useExportMutation } from '../../hooks/useUserQuery'
+import { useChunkProgressTracker } from '../../../authentication-core/hooks/useChunkProgressTracker'
+import logger from '@idaas/authentication-core/utils/logger'
 
 export const DataExport: React.FC = () => {
   const theme = useTheme()
@@ -57,12 +75,13 @@ export const DataExport: React.FC = () => {
   }, [exportData])
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', py: 4 }} className="animate-scale-in">
+    <Box sx={{ maxWidth: 800, mx: 'auto', py: 4 }} className='animate-scale-in'>
       <Typography variant='h4' sx={{ mb: 1, fontWeight: 900, letterSpacing: '-0.027em' }}>
         Personal Data Archive
       </Typography>
       <Typography variant='body1' sx={{ color: 'text.secondary', mb: 4, fontWeight: 500 }}>
-        Download a copy of your personal data. This archive includes your profile information, activity logs, and connected account data as per GDPR Right to Portability.
+        Download a copy of your personal data. This archive includes your profile information,
+        activity logs, and connected account data as per GDPR Right to Portability.
       </Typography>
 
       <Card
@@ -91,11 +110,12 @@ export const DataExport: React.FC = () => {
                 Request New Archive
               </Typography>
               <Typography variant='body2' sx={{ color: 'text.secondary', mb: 3, fontWeight: 500 }}>
-                We will gather all your data and prepare a JSON file. This process may take a few minutes. You will receive an email notification once it's ready.
+                We will gather all your data and prepare a JSON file. This process may take a few
+                minutes. You will receive an email notification once it's ready.
               </Typography>
 
               {requestSuccess ? (
-                <Alert severity="success" sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}>
+                <Alert severity='success' sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}>
                   Request submitted! We are preparing your data.
                 </Alert>
               ) : (
@@ -104,7 +124,13 @@ export const DataExport: React.FC = () => {
                     variant='contained'
                     onClick={handleRequestExport}
                     disabled={isRequesting}
-                    startIcon={isRequesting ? <CircularProgress size={20} color="inherit" /> : <ScheduleIcon />}
+                    startIcon={
+                      isRequesting ? (
+                        <CircularProgress size={20} color='inherit' />
+                      ) : (
+                        <ScheduleIcon />
+                      )
+                    }
                     sx={{
                       borderRadius: 2.5,
                       textTransform: 'none',
@@ -115,12 +141,14 @@ export const DataExport: React.FC = () => {
                       fontWeight: 700,
                     }}
                   >
-                    {isRequesting ? `Processing Archive (${tracker.progress}%)` : 'Generate New Export'}
+                    {isRequesting
+                      ? `Processing Archive (${tracker.progress}%)`
+                      : 'Generate New Export'}
                   </Button>
 
                   {isRequesting && (
                     <Paper
-                      variant="outlined"
+                      variant='outlined'
                       sx={{
                         mt: 2.5,
                         p: 2,
@@ -130,19 +158,26 @@ export const DataExport: React.FC = () => {
                         borderColor: 'divider',
                       }}
                     >
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 800 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          mb: 1,
+                        }}
+                      >
+                        <Typography variant='caption' sx={{ fontWeight: 800 }}>
                           Collecting GDPR Chunk {tracker.processedChunks} of {tracker.totalChunks}
                         </Typography>
                         <Chip
                           label={`${tracker.progress}%`}
-                          color="info"
-                          size="small"
+                          color='info'
+                          size='small'
                           sx={{ fontWeight: 800, height: 20, fontSize: '0.7rem' }}
                         />
                       </Box>
                       <LinearProgress
-                        variant="determinate"
+                        variant='determinate'
                         value={tracker.progress}
                         sx={{ height: 6, borderRadius: 3, mb: 1.5 }}
                       />
@@ -150,7 +185,10 @@ export const DataExport: React.FC = () => {
                         <Grid size={{ xs: 4 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <StorageIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                            <Typography
+                              variant='caption'
+                              sx={{ color: 'text.secondary', fontWeight: 600 }}
+                            >
                               {tracker.processedBytesFormatted} / {tracker.totalBytesFormatted}
                             </Typography>
                           </Box>
@@ -158,7 +196,10 @@ export const DataExport: React.FC = () => {
                         <Grid size={{ xs: 4 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <SpeedIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                            <Typography
+                              variant='caption'
+                              sx={{ color: 'text.secondary', fontWeight: 600 }}
+                            >
                               {tracker.itemsPerSecond} rec/s
                             </Typography>
                           </Box>
@@ -166,7 +207,10 @@ export const DataExport: React.FC = () => {
                         <Grid size={{ xs: 4 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <TimerIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                            <Typography
+                              variant='caption'
+                              sx={{ color: 'text.secondary', fontWeight: 600 }}
+                            >
                               ETA: {tracker.etaFormatted}
                             </Typography>
                           </Box>
@@ -181,11 +225,23 @@ export const DataExport: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Typography variant='h6' sx={{ mb: 2, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <HistoryIcon color="info" /> Recent Exports
+      <Typography
+        variant='h6'
+        sx={{ mb: 2, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 1.5 }}
+      >
+        <HistoryIcon color='info' /> Recent Exports
       </Typography>
 
-      <Paper variant="outlined" sx={{ borderRadius: 4, overflow: 'hidden', bgcolor: 'transparent', border: '1px solid', borderColor: 'divider' }}>
+      <Paper
+        variant='outlined'
+        sx={{
+          borderRadius: 4,
+          overflow: 'hidden',
+          bgcolor: 'transparent',
+          border: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
         {isLoading ? (
           <Box sx={{ p: 6, textAlign: 'center' }}>
             <CircularProgress size={40} />
@@ -199,13 +255,13 @@ export const DataExport: React.FC = () => {
                     px: 4,
                     py: 3,
                     transition: 'all 0.2s',
-                    '&:hover': { bgcolor: alpha(theme.palette.action.hover, 0.4) }
+                    '&:hover': { bgcolor: alpha(theme.palette.action.hover, 0.4) },
                   }}
                   secondaryAction={
                     item.status === 'Ready' && (
                       <Button
-                        variant="contained"
-                        size="small"
+                        variant='contained'
+                        size='small'
                         startIcon={<DownloadIcon />}
                         onClick={() => handleDownload(item.id)}
                         sx={{
@@ -214,7 +270,7 @@ export const DataExport: React.FC = () => {
                           fontWeight: 700,
                           bgcolor: 'secondary.main',
                           color: 'common.white',
-                          '&:hover': { bgcolor: 'secondary.dark' }
+                          '&:hover': { bgcolor: 'secondary.dark' },
                         }}
                       >
                         Download
@@ -225,9 +281,14 @@ export const DataExport: React.FC = () => {
                   <ListItemIcon>
                     <Avatar
                       sx={{
-                        bgcolor: alpha(item.status === 'Ready' ? theme.palette.success.main : theme.palette.text.disabled, 0.1),
+                        bgcolor: alpha(
+                          item.status === 'Ready'
+                            ? theme.palette.success.main
+                            : theme.palette.text.disabled,
+                          0.1,
+                        ),
                         color: item.status === 'Ready' ? 'success.main' : 'text.disabled',
-                        borderRadius: 2
+                        borderRadius: 2,
                       }}
                     >
                       <FileIcon />
@@ -235,13 +296,24 @@ export const DataExport: React.FC = () => {
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      <Typography sx={{ fontWeight: 800 }}>
-                        Data Archive - {item.date}
-                      </Typography>
+                      <Typography sx={{ fontWeight: 800 }}>Data Archive - {item.date}</Typography>
                     }
                     secondary={
-                      <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                        ID: {item.id} • Status: <Box component="span" sx={{ color: item.status === 'Ready' ? 'success.main' : 'error.main', fontWeight: 700 }}>{item.status}</Box> • {item.expires}
+                      <Typography
+                        variant='caption'
+                        sx={{ color: 'text.secondary', fontWeight: 600 }}
+                      >
+                        ID: {item.id} • Status:{' '}
+                        <Box
+                          component='span'
+                          sx={{
+                            color: item.status === 'Ready' ? 'success.main' : 'error.main',
+                            fontWeight: 700,
+                          }}
+                        >
+                          {item.status}
+                        </Box>{' '}
+                        • {item.expires}
                       </Typography>
                     }
                   />
@@ -266,8 +338,9 @@ export const DataExport: React.FC = () => {
           Important Security Notice
         </Typography>
         <Typography variant='caption' sx={{ color: 'warning.main', display: 'block' }}>
-          Your data archive contains sensitive information including PII. Please ensure you store this file in a secure location and delete it after use if possible.
-          Each archive link is protected and expires after 7 days for your security.
+          Your data archive contains sensitive information including PII. Please ensure you store
+          this file in a secure location and delete it after use if possible. Each archive link is
+          protected and expires after 7 days for your security.
         </Typography>
       </Box>
     </Box>

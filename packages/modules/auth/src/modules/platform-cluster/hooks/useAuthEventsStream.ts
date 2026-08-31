@@ -16,7 +16,12 @@ export interface LiveAuthEvent {
   country?: string
 }
 
-export type StreamConnectionStatus = 'connected' | 'connecting' | 'fallback_polling' | 'disconnected' | 'paused'
+export type StreamConnectionStatus =
+  | 'connected'
+  | 'connecting'
+  | 'fallback_polling'
+  | 'disconnected'
+  | 'paused'
 
 export interface UseAuthEventsStreamOptions {
   endpoint?: string
@@ -85,7 +90,7 @@ export function useAuthEventsStream(options: UseAuthEventsStreamOptions = {}) {
       pendingBufferRef.current.push(event)
       scheduleFlush()
     },
-    [scheduleFlush]
+    [scheduleFlush],
   )
 
   // Fallback polling loop

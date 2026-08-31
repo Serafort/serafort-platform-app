@@ -33,7 +33,7 @@ export const userDirectoryService = {
    * List Users (Paginated with search, filters, and sorting)
    */
   getUsers: async (
-    params: UserDirectoryFilterParams = {}
+    params: UserDirectoryFilterParams = {},
   ): Promise<FetchResponse<PaginatedUsersResponseDTO>> => {
     const queryParams: Record<string, any> = {
       page: params.page || 1,
@@ -52,7 +52,7 @@ export const userDirectoryService = {
 
     try {
       return await apiClient.get<PaginatedUsersResponseDTO>(
-        `/api/v1/user-directory/users${queryString}`
+        `/api/v1/user-directory/users${queryString}`,
       )
     } catch {
       // Fallback to existing admin endpoint
@@ -60,17 +60,16 @@ export const userDirectoryService = {
       const raw = response.data
 
       // Transform admin pagination structure if needed
-      const normalizedData = Array.isArray(raw)
-        ? raw
-        : Array.isArray(raw?.data)
-        ? raw.data
-        : []
+      const normalizedData = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : []
 
       const meta = raw?.meta || {
         total: raw?.total || normalizedData.length,
         perPage: raw?.perPage || params.perPage || 10,
         currentPage: raw?.currentPage || raw?.page || params.page || 1,
-        lastPage: raw?.lastPage || Math.ceil((raw?.total || normalizedData.length) / (params.perPage || 10)) || 1,
+        lastPage:
+          raw?.lastPage ||
+          Math.ceil((raw?.total || normalizedData.length) / (params.perPage || 10)) ||
+          1,
         firstPage: 1,
       }
 
@@ -148,7 +147,8 @@ export const userDirectoryService = {
         locale: raw.locale || raw.profile?.locale || 'en-us',
         dateFormat: raw.dateFormat || raw.profile?.dateFormat || 'mm-dd-yyyy',
         directReportsCount: raw.directReportsCount || 0,
-        permissions: raw.permissions || raw.role?.permissions?.map((p: any) => p.slug || p.name) || [],
+        permissions:
+          raw.permissions || raw.role?.permissions?.map((p: any) => p.slug || p.name) || [],
         securitySummary: raw.securitySummary || {
           passwordLastChangedAt: raw.passwordLastChangedAt || null,
           activeSessionsCount: raw.activeSessionsCount || 1,
@@ -209,7 +209,7 @@ export const userDirectoryService = {
           lastname: '',
           role_id: payload.roleIds[0] || 1,
           department: payload.department,
-        })
+        }),
       )
       const results = await Promise.allSettled(promises)
       const succeeded = results.filter((r) => r.status === 'fulfilled').length
@@ -227,7 +227,7 @@ export const userDirectoryService = {
    */
   updateUser: async (
     id: string | number,
-    payload: UpdateUserRequestDTO
+    payload: UpdateUserRequestDTO,
   ): Promise<FetchResponse<any>> => {
     try {
       return await apiClient.put(`/api/v1/user-directory/users/${id}`, payload)
@@ -252,7 +252,7 @@ export const userDirectoryService = {
    */
   updateUserStatus: async (
     id: string | number,
-    payload: UpdateUserStatusRequestDTO
+    payload: UpdateUserStatusRequestDTO,
   ): Promise<FetchResponse<any>> => {
     try {
       return await apiClient.patch(`/api/v1/user-directory/users/${id}/status`, payload)
@@ -260,9 +260,9 @@ export const userDirectoryService = {
       if (payload.status === 'SUSPENDED' || payload.status === 'BANNED') {
         return await apiClient.post(`/api/admin/users/${id}/suspend`, { reason: payload.reason })
       } else if (payload.status === 'ACTIVE') {
-        return await apiClient.post(`/api/admin/users/${id}/unsuspend`).catch(() =>
-          apiClient.patch(`/api/admin/users/${id}/status`, { status: 'ACTIVE' })
-        )
+        return await apiClient
+          .post(`/api/admin/users/${id}/unsuspend`)
+          .catch(() => apiClient.patch(`/api/admin/users/${id}/status`, { status: 'ACTIVE' }))
       } else {
         return await apiClient.patch(`/api/admin/users/${id}/status`, { status: payload.status })
       }
@@ -291,8 +291,8 @@ export const userDirectoryService = {
       const raw = Array.isArray(response.data)
         ? response.data
         : Array.isArray(response.data?.data)
-        ? response.data.data
-        : []
+          ? response.data.data
+          : []
 
       const formattedRoles: RoleDTO[] = raw.map((r: any) => ({
         id: r.id,
@@ -317,7 +317,7 @@ export const userDirectoryService = {
   syncUserRoles: async (
     id: string | number,
     roleIds: number[],
-    reason?: string
+    reason?: string,
   ): Promise<FetchResponse<any>> => {
     try {
       return await apiClient.put(`/api/v1/user-directory/users/${id}/roles`, { roleIds, reason })
@@ -336,7 +336,7 @@ export const userDirectoryService = {
   bulkUpdateStatus: async (
     userIds: number[],
     status: string,
-    reason?: string
+    reason?: string,
   ): Promise<FetchResponse<any>> => {
     try {
       return await apiClient.post('/api/v1/user-directory/users/bulk-status', {
@@ -347,7 +347,8 @@ export const userDirectoryService = {
     } catch {
       return await apiClient.post('/api/admin/users/bulk', {
         userIds,
-        action: status === 'ACTIVE' ? 'activate' : status === 'SUSPENDED' ? 'suspend' : 'deactivate',
+        action:
+          status === 'ACTIVE' ? 'activate' : status === 'SUSPENDED' ? 'suspend' : 'deactivate',
         reason,
       })
     }
@@ -388,11 +389,11 @@ export const userDirectoryService = {
    */
   getUserActivityLogs: async (
     id: string | number,
-    limit: number = 20
+    limit: number = 20,
   ): Promise<FetchResponse<UserActivityLogDTO[]>> => {
     try {
       return await apiClient.get<UserActivityLogDTO[]>(
-        `/api/v1/user-directory/users/${id}/activity?limit=${limit}`
+        `/api/v1/user-directory/users/${id}/activity?limit=${limit}`,
       )
     } catch {
       const res = await apiClient.get<any>(`/api/admin/audit-logs?userId=${id}&limit=${limit}`)
@@ -438,7 +439,7 @@ export const userDirectoryService = {
    */
   exportUsers: async (
     params: UserDirectoryFilterParams = {},
-    fallbackData?: any[]
+    fallbackData?: any[],
   ): Promise<void> => {
     const queryString = buildQueryString(params)
     const exportUrl = `/api/v1/user-directory/users/export${queryString}`
@@ -462,7 +463,16 @@ export const userDirectoryService = {
     } catch {
       // Client-side CSV generation fallback
       const usersToExport = fallbackData || []
-      const headers = ['ID', 'Email', 'Full Name', 'Status', 'Roles', 'Department', 'Job Title', 'Created At']
+      const headers = [
+        'ID',
+        'Email',
+        'Full Name',
+        'Status',
+        'Roles',
+        'Department',
+        'Job Title',
+        'Created At',
+      ]
       const rows = usersToExport.map((u) => [
         u.id,
         `"${(u.email || '').replace(/"/g, '""')}"`,
@@ -474,7 +484,9 @@ export const userDirectoryService = {
         u.createdAt,
       ])
 
-      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n')
+      const csvContent =
+        'data:text/csv;charset=utf-8,' +
+        [headers.join(','), ...rows.map((e) => e.join(','))].join('\n')
       const encodedUri = encodeURI(csvContent)
       const link = document.createElement('a')
       link.setAttribute('href', encodedUri)

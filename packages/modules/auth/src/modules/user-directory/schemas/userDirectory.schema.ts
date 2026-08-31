@@ -24,9 +24,7 @@ export const inviteUserSchema = z.object({
     .trim()
     .min(1, 'Last name is required')
     .max(50, 'Last name cannot exceed 50 characters'),
-  roleIds: z
-    .array(z.number())
-    .min(1, 'At least one role must be assigned'),
+  roleIds: z.array(z.number()).min(1, 'At least one role must be assigned'),
   department: z
     .string()
     .trim()
@@ -58,14 +56,15 @@ export const bulkInviteUserSchema = z.object({
     .trim()
     .min(1, 'Please enter at least one email address')
     .refine((val) => {
-      const emailList = val.split(/[,\n;]+/).map((e) => e.trim()).filter(Boolean)
+      const emailList = val
+        .split(/[,\n;]+/)
+        .map((e) => e.trim())
+        .filter(Boolean)
       if (emailList.length === 0) return false
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       return emailList.every((e) => emailRegex.test(e))
     }, 'One or more email addresses are invalid'),
-  roleIds: z
-    .array(z.number())
-    .min(1, 'At least one role must be assigned to invited users'),
+  roleIds: z.array(z.number()).min(1, 'At least one role must be assigned to invited users'),
   department: z.string().trim().optional().or(z.literal('')),
   sendInviteEmail: z.boolean(),
 })
@@ -154,9 +153,7 @@ export type EditUserFormData = z.infer<typeof editUserSchema>
  * Assign Roles Schema
  */
 export const assignRolesSchema = z.object({
-  roleIds: z
-    .array(z.number())
-    .min(1, 'Select at least one role to assign'),
+  roleIds: z.array(z.number()).min(1, 'Select at least one role to assign'),
   reason: z
     .string()
     .trim()

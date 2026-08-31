@@ -10,8 +10,8 @@ import {
   IconButton,
   InputAdornment,
 } from '@mui/material'
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useTranslation } from 'react-i18next'
 import { useNotifications } from '@cap/platform-core'
 import { useResetUserPassword } from '../../authorization-engine/hooks/useAdminQuery'
@@ -42,7 +42,8 @@ export default function ResetPasswordDialog({ open, onClose, userId }: ResetPass
       addNotification({
         type: 'error',
         title: t('common.error', 'Error'),
-        message: error.message || t('auth.admin.errorPasswordReset', 'Failed to reset user password.'),
+        message:
+          error.message || t('auth.admin.errorPasswordReset', 'Failed to reset user password.'),
       })
     },
   })
@@ -102,5 +103,3 @@ export default function ResetPasswordDialog({ open, onClose, userId }: ResetPass
     </Dialog>
   )
 }
-
-

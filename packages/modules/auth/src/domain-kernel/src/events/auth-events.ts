@@ -154,7 +154,9 @@ export interface UserAuthenticatedInit {
   userAgent?: string
 }
 
-export class UserAuthenticated implements DomainEvent<UserAuthenticatedPayload & { role?: string }> {
+export class UserAuthenticated implements DomainEvent<
+  UserAuthenticatedPayload & { role?: string }
+> {
   id: string
   type: string = AuthEventTypes.USER_AUTHENTICATED
   version: string = EventVersions.V1

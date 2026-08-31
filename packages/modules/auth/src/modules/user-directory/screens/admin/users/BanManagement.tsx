@@ -26,16 +26,16 @@ import {
   DialogActions,
   Tooltip,
 } from '@mui/material'
-import Gavel from '@mui/icons-material/Gavel';
-import History from '@mui/icons-material/History';
-import MoreVert from '@mui/icons-material/MoreVert';
-import Block from '@mui/icons-material/Block';
-import Undo from '@mui/icons-material/Undo';
-import Search from '@mui/icons-material/Search';
-import Flag from '@mui/icons-material/Flag';
-import Security from '@mui/icons-material/Security';
-import Edit from '@mui/icons-material/Edit';
-import { AdminUser } from "@idaas/authentication-core/hooks/useAdminQuery"
+import Gavel from '@mui/icons-material/Gavel'
+import History from '@mui/icons-material/History'
+import MoreVert from '@mui/icons-material/MoreVert'
+import Block from '@mui/icons-material/Block'
+import Undo from '@mui/icons-material/Undo'
+import Search from '@mui/icons-material/Search'
+import Flag from '@mui/icons-material/Flag'
+import Security from '@mui/icons-material/Security'
+import Edit from '@mui/icons-material/Edit'
+import { AdminUser } from '@idaas/authentication-core/hooks/useAdminQuery'
 import { useTranslation } from 'react-i18next'
 import {
   useUsers,
@@ -44,8 +44,8 @@ import {
   useAdminDashboard,
   useAppeals,
   useResolveAppeal,
-} from "@idaas/authentication-core/hooks/useAdminQuery"
-import { toast } from 'react-toastify';
+} from '@idaas/authentication-core/hooks/useAdminQuery'
+import { toast } from 'react-toastify'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import IssueBanDialog from '../../../components/IssueBanDialog'
@@ -221,7 +221,12 @@ export default function BanManagement() {
               <Typography>{t('auth.common.loading')}</Typography>
             </Box>
           ) : !bannedUsersData?.data?.data?.length ? (
-            <Alert severity='info' sx={(theme: any) => ({ ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme) })}>
+            <Alert
+              severity='info'
+              sx={(theme: any) => ({
+                ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+              })}
+            >
               {t('auth.admin.noBannedUsers')}
             </Alert>
           ) : (
@@ -424,9 +429,11 @@ function AppealsQueue() {
 
   const resolveMutation = useResolveAppeal({
     onSuccess: (_: any, variables: any) => {
-      toast.success(variables.action === 'approved'
-        ? t('auth.admin.appealApproved')
-        : t('auth.admin.appealDenied'), {},
+      toast.success(
+        variables.action === 'approved'
+          ? t('auth.admin.appealApproved')
+          : t('auth.admin.appealDenied'),
+        {},
       )
       refetch()
     },
@@ -439,7 +446,10 @@ function AppealsQueue() {
 
   return (
     <Stack spacing={3} className='animate-scale-in'>
-      <Alert severity='info' sx={(theme: any) => ({ ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme) })}>
+      <Alert
+        severity='info'
+        sx={(theme: any) => ({ ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme) })}
+      >
         {t('auth.admin.appealsInfo')}
       </Alert>
       {isLoading ? (
@@ -447,7 +457,12 @@ function AppealsQueue() {
           <Typography>{t('auth.common.loading')}</Typography>
         </Box>
       ) : appeals.length === 0 ? (
-        <Alert severity='success' sx={(theme: any) => ({ ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme) })}>
+        <Alert
+          severity='success'
+          sx={(theme: any) => ({
+            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+          })}
+        >
           {t('auth.admin.noAppeals')}
         </Alert>
       ) : (
@@ -503,9 +518,7 @@ function AppealsQueue() {
                       color='success'
                       size='small'
                       startIcon={<Undo />}
-                      onClick={() =>
-                        resolveMutation.mutate({ id: appeal.id, action: 'approved' })
-                      }
+                      onClick={() => resolveMutation.mutate({ id: appeal.id, action: 'approved' })}
                       disabled={resolveMutation.isPending}
                       sx={{ textTransform: 'none', fontWeight: 600 }}
                     >
@@ -659,7 +672,14 @@ function BanFullHistory() {
           <Typography>{t('auth.common.loading')}</Typography>
         </Box>
       ) : logs.length === 0 ? (
-        <Alert severity='info' sx={(theme: any) => ({ ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme) })}>{t('auth.admin.noBanHistory')}</Alert>
+        <Alert
+          severity='info'
+          sx={(theme: any) => ({
+            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+          })}
+        >
+          {t('auth.admin.noBanHistory')}
+        </Alert>
       ) : (
         logs.map((log: any) => (
           <Card
@@ -705,5 +725,3 @@ function BanFullHistory() {
     </Stack>
   )
 }
-
-

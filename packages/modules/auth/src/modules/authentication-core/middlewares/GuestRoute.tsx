@@ -52,6 +52,3 @@ const GuestRoute = ({ element, redirectTo, layout = 'none' }: GuestRouteProps) =
 }
 
 export default GuestRoute
-
-
-

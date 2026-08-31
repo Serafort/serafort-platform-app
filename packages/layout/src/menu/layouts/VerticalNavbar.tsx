@@ -32,19 +32,16 @@ const Navbar: React.FC<
       overrideStyles={overrideStyles}
       layoutPadding={themeConfig.layoutPadding as number}
       compactContentWidth={themeConfig.compactContentWidth as number}
-      className={classnames(
-        verticalLayoutClasses.header,
-        {
-          [verticalLayoutClasses.headerFixed]: headerFixed,
-          [verticalLayoutClasses.headerStatic]: headerStatic,
-          [verticalLayoutClasses.headerFloating]: headerFloating,
-          [verticalLayoutClasses.headerDetached]: !headerFloating && headerDetached,
-          [verticalLayoutClasses.headerAttached]: !headerFloating && headerAttached,
-          [verticalLayoutClasses.headerBlur]: headerBlur,
-          [verticalLayoutClasses.headerContentCompact]: headerContentCompact,
-          [verticalLayoutClasses.headerContentWide]: headerContentWide,
-        },
-      )}
+      className={classnames(verticalLayoutClasses.header, {
+        [verticalLayoutClasses.headerFixed]: headerFixed,
+        [verticalLayoutClasses.headerStatic]: headerStatic,
+        [verticalLayoutClasses.headerFloating]: headerFloating,
+        [verticalLayoutClasses.headerDetached]: !headerFloating && headerDetached,
+        [verticalLayoutClasses.headerAttached]: !headerFloating && headerAttached,
+        [verticalLayoutClasses.headerBlur]: headerBlur,
+        [verticalLayoutClasses.headerContentCompact]: headerContentCompact,
+        [verticalLayoutClasses.headerContentWide]: headerContentWide,
+      })}
       style={layoutMenuTokens.verticalNavbar.containerStyles}
     >
       <Box

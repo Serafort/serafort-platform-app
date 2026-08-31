@@ -1,12 +1,5 @@
-import React from 'react';
-import {
-  Box,
-  Typography,
-  Paper,
-  TextField,
-  Grid,
-} from '@mui/material';
-
+import React from "react";
+import { Box, Typography, Paper, TextField, Grid } from "@mui/material";
 
 interface SpacingEditorProps {
   spacing: Record<string, string>;
@@ -16,21 +9,21 @@ interface SpacingEditorProps {
 }
 
 const spacingLabels: Record<string, string> = {
-  xs: 'Extra Small',
-  sm: 'Small',
-  md: 'Medium (Default)',
-  lg: 'Large',
-  xl: 'Extra Large',
-  '2xl': '2x Extra Large',
+  xs: "Extra Small",
+  sm: "Small",
+  md: "Medium (Default)",
+  lg: "Large",
+  xl: "Extra Large",
+  "2xl": "2x Extra Large",
 };
 
 const borderRadiusLabels: Record<string, string> = {
-  none: 'None (0px)',
-  sm: 'Small (4px)',
-  md: 'Medium (8px)',
-  lg: 'Large (12px)',
-  xl: 'Extra Large (16px)',
-  full: 'Full (pill shape)',
+  none: "None (0px)",
+  sm: "Small (4px)",
+  md: "Medium (8px)",
+  lg: "Large (12px)",
+  xl: "Extra Large (16px)",
+  full: "Full (pill shape)",
 };
 
 export const SpacingEditor: React.FC<SpacingEditorProps> = ({
@@ -68,12 +61,16 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
               </Typography>
               <TextField
                 size="small"
-                value={spacing[key] || '1rem'}
+                value={spacing[key] || "1rem"}
                 onChange={(e) => handleSpacingChange(key, e.target.value)}
                 placeholder="1rem"
                 sx={{ width: 150 }}
               />
-              <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ ml: 1 }}
+              >
                 (e.g., 8px, 1rem, 0.5em)
               </Typography>
             </Box>
@@ -91,20 +88,20 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
               </Typography>
               <TextField
                 size="small"
-                value={borderRadius[key] || '0px'}
+                value={borderRadius[key] || "0px"}
                 onChange={(e) => handleBorderRadiusChange(key, e.target.value)}
                 placeholder="8px"
                 sx={{ width: 150 }}
               />
               <Box
                 sx={{
-                  display: 'inline-block',
+                  display: "inline-block",
                   width: 32,
                   height: 32,
                   ml: 2,
-                  backgroundColor: 'primary.main',
-                  borderRadius: borderRadius[key] || '0px',
-                  verticalAlign: 'middle',
+                  backgroundColor: "primary.main",
+                  borderRadius: borderRadius[key] || "0px",
+                  verticalAlign: "middle",
                 }}
               />
             </Box>
@@ -118,28 +115,31 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
         </Typography>
         <Box
           sx={{
-            display: 'flex',
+            display: "flex",
             gap: 2,
-            flexWrap: 'wrap',
+            flexWrap: "wrap",
             p: 3,
-            backgroundColor: 'background.default',
+            backgroundColor: "background.default",
             borderRadius: 1,
           }}
         >
-          {(['none', 'sm', 'md', 'lg', 'xl', 'full'] as const).map((key) => (
+          {(["none", "sm", "md", "lg", "xl", "full"] as const).map((key) => (
             <Box
               key={key}
               sx={{
                 width: 48,
                 height: 48,
-                backgroundColor: 'primary.main',
-                borderRadius: borderRadius[key] || '0px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                backgroundColor: "primary.main",
+                borderRadius: borderRadius[key] || "0px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              <Typography variant="caption" sx={{ color: 'primary.contrastText' }}>
+              <Typography
+                variant="caption"
+                sx={{ color: "primary.contrastText" }}
+              >
                 {key}
               </Typography>
             </Box>

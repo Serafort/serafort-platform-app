@@ -1,6 +1,6 @@
-import { useState, useLayoutEffect, useEffect, useRef } from 'react'
-import { observeElement } from '../utils/resizeObserver'
-import type { ResizeBoxSizing, ObserveOptions } from '../utils/resizeObserver'
+import { useState, useLayoutEffect, useEffect, useRef } from "react";
+import { observeElement } from "../utils/resizeObserver";
+import type { ResizeBoxSizing, ObserveOptions } from "../utils/resizeObserver";
 
 // ─── Container Size Breakpoints ──────────────────────────────────────────────
 
@@ -8,14 +8,14 @@ import type { ResizeBoxSizing, ObserveOptions } from '../utils/resizeObserver'
  * Named container size derived from container width — mirrors MUI breakpoint names.
  * Uses common dashboard breakpoints suitable for widget containers.
  */
-export type ContainerSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+export type ContainerSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 export interface ContainerBreakpoints {
-  xs: number  // 0–default
-  sm: number  // >= sm
-  md: number  // >= md
-  lg: number  // >= lg
-  xl: number  // >= xl
+  xs: number; // 0–default
+  sm: number; // >= sm
+  md: number; // >= md
+  lg: number; // >= lg
+  xl: number; // >= xl
 }
 
 const DEFAULT_BREAKPOINTS: ContainerBreakpoints = {
@@ -24,49 +24,53 @@ const DEFAULT_BREAKPOINTS: ContainerBreakpoints = {
   md: 768,
   lg: 1024,
   xl: 1280,
-}
+};
 
-function deriveContainerSize(width: number, breakpoints: ContainerBreakpoints): ContainerSize {
-  if (width >= breakpoints.xl) return 'xl'
-  if (width >= breakpoints.lg) return 'lg'
-  if (width >= breakpoints.md) return 'md'
-  if (width >= breakpoints.sm) return 'sm'
-  return 'xs'
+function deriveContainerSize(
+  width: number,
+  breakpoints: ContainerBreakpoints,
+): ContainerSize {
+  if (width >= breakpoints.xl) return "xl";
+  if (width >= breakpoints.lg) return "lg";
+  if (width >= breakpoints.md) return "md";
+  if (width >= breakpoints.sm) return "sm";
+  return "xs";
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface ElementSize {
-  width: number
-  height: number
+  width: number;
+  height: number;
   /** Named size derived from container width using configurable breakpoints. */
-  containerSize: ContainerSize
-  entry: ResizeObserverEntry | null
+  containerSize: ContainerSize;
+  entry: ResizeObserverEntry | null;
 }
 
 export interface UseResizeObserverOptions {
   /** Optional debounce delay in milliseconds before updating size state */
-  debounce?: number
+  debounce?: number;
   /** Set to true to temporarily disable observation */
-  disabled?: boolean
+  disabled?: boolean;
   /** Initial dimensions before first observer callback */
-  initialSize?: { width: number; height: number }
+  initialSize?: { width: number; height: number };
   /** Custom container breakpoints (overrides defaults) */
-  breakpoints?: Partial<ContainerBreakpoints>
+  breakpoints?: Partial<ContainerBreakpoints>;
   /** Which box model to observe. Defaults to 'content-box'. */
-  box?: ResizeBoxSizing
+  box?: ResizeBoxSizing;
   /** If true, inject CSS custom properties (--container-width, --container-height) onto the element. Defaults to true. */
-  injectCssVars?: boolean
+  injectCssVars?: boolean;
   /**
    * Imperative callback mode — fires on every resize without triggering React state updates.
    * Use for high-frequency cases (canvas drawing, animation) where re-renders are too expensive.
    */
-  onResize?: (entry: ResizeObserverEntry) => void
+  onResize?: (entry: ResizeObserverEntry) => void;
 }
 
 // ─── Isomorphic Layout Effect ─────────────────────────────────────────────────
 
-const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
@@ -88,7 +92,7 @@ const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffec
  */
 export function useResizeObserver<T extends HTMLElement = HTMLElement>(
   ref: React.RefObject<T | null>,
-  options: UseResizeObserverOptions = {}
+  options: UseResizeObserverOptions = {},
 ): ElementSize {
   const {
     debounce = 0,
@@ -98,39 +102,39 @@ export function useResizeObserver<T extends HTMLElement = HTMLElement>(
     box,
     injectCssVars,
     onResize,
-  } = options
+  } = options;
 
   const resolvedBreakpoints: ContainerBreakpoints = {
     ...DEFAULT_BREAKPOINTS,
     ...customBreakpoints,
-  }
+  };
 
   const [size, setSize] = useState<ElementSize>({
     width: initialSize.width,
     height: initialSize.height,
     containerSize: deriveContainerSize(initialSize.width, resolvedBreakpoints),
     entry: null,
-  })
+  });
 
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const onResizeRef = useRef(onResize)
-  onResizeRef.current = onResize
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onResizeRef = useRef(onResize);
+  onResizeRef.current = onResize;
 
   useIsomorphicLayoutEffect(() => {
-    const element = ref.current
+    const element = ref.current;
     if (!element || disabled) {
-      return
+      return;
     }
 
     const handleResize = (entry: ResizeObserverEntry) => {
       // Imperative callback mode — fires without state update
       if (onResizeRef.current) {
-        onResizeRef.current(entry)
-        return
+        onResizeRef.current(entry);
+        return;
       }
 
-      const { width, height } = entry.contentRect
-      const nextContainerSize = deriveContainerSize(width, resolvedBreakpoints)
+      const { width, height } = entry.contentRect;
+      const nextContainerSize = deriveContainerSize(width, resolvedBreakpoints);
 
       const updateState = () => {
         setSize((prev) => {
@@ -140,37 +144,37 @@ export function useResizeObserver<T extends HTMLElement = HTMLElement>(
             prev.containerSize === nextContainerSize &&
             prev.entry === entry
           ) {
-            return prev
+            return prev;
           }
-          return { width, height, containerSize: nextContainerSize, entry }
-        })
-      }
+          return { width, height, containerSize: nextContainerSize, entry };
+        });
+      };
 
       if (debounce > 0) {
         if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current)
+          clearTimeout(timeoutRef.current);
         }
-        timeoutRef.current = setTimeout(updateState, debounce)
+        timeoutRef.current = setTimeout(updateState, debounce);
       } else {
-        updateState()
+        updateState();
       }
-    }
+    };
 
-    const observeOptions: ObserveOptions = {}
-    if (box !== undefined) observeOptions.box = box
-    if (injectCssVars !== undefined) observeOptions.injectCssVars = injectCssVars
+    const observeOptions: ObserveOptions = {};
+    if (box !== undefined) observeOptions.box = box;
+    if (injectCssVars !== undefined)
+      observeOptions.injectCssVars = injectCssVars;
 
-    const cleanup = observeElement(element, handleResize, observeOptions)
+    const cleanup = observeElement(element, handleResize, observeOptions);
 
     return () => {
-      cleanup()
+      cleanup();
       if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
+        clearTimeout(timeoutRef.current);
       }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ref, disabled, debounce, box, injectCssVars])
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ref, disabled, debounce, box, injectCssVars]);
 
-  return size
+  return size;
 }
-

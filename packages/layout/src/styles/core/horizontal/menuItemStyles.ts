@@ -26,7 +26,10 @@ const menuItemStyles = (settings: Settings, theme: Theme): MenuItemStyles => ({
         }
       : {
           [`&:not([aria-expanded]) > .${menuClasses.button}.${menuClasses.active}`]: {
-            backgroundColor: alpha(theme.palette.primary.main, menuTokens.horizontal.item.activeSubmenuAlpha),
+            backgroundColor: alpha(
+              theme.palette.primary.main,
+              menuTokens.horizontal.item.activeSubmenuAlpha,
+            ),
             color: theme.palette.primary.main,
           },
           [`&[aria-expanded] > .${menuClasses.button}.${menuClasses.active}`]: {
@@ -58,7 +61,10 @@ const menuItemStyles = (settings: Settings, theme: Theme): MenuItemStyles => ({
     marginInlineEnd: theme.spacing(menuTokens.horizontal.item.iconMarginInlineEndSpacing),
     ...(level < 2
       ? { fontSize: menuTokens.horizontal.item.iconSizePrimary }
-      : { fontSize: menuTokens.horizontal.item.iconSizeSecondary, color: theme.palette.text.secondary }),
+      : {
+          fontSize: menuTokens.horizontal.item.iconSizeSecondary,
+          color: theme.palette.text.secondary,
+        }),
     '& > i, & > svg': {
       fontSize: 'inherit',
     },

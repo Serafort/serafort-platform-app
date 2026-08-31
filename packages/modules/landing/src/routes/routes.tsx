@@ -89,9 +89,7 @@ export const landingRoutes: React.FC<RoutesProps> = () => (
         key={route.path}
         path={route.path}
         element={
-          <LayoutRouteWrapper layout={route.layout || 'public'}>
-            {route.element}
-          </LayoutRouteWrapper>
+          <LayoutRouteWrapper layout={route.layout || 'public'}>{route.element}</LayoutRouteWrapper>
         }
       />
     ))}

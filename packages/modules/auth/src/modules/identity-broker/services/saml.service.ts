@@ -15,7 +15,9 @@ export const samlService = {
     return apiClient.get<SAMLConfig>(ENDPOINTS.admin.saml.config)
   },
 
-  updateConfig: async (data: UpdateSAMLConfigDTO): Promise<FetchResponse<{ message: string; config?: SAMLConfig }>> => {
+  updateConfig: async (
+    data: UpdateSAMLConfigDTO,
+  ): Promise<FetchResponse<{ message: string; config?: SAMLConfig }>> => {
     return apiClient.put(ENDPOINTS.admin.saml.config, data)
   },
 
@@ -23,11 +25,18 @@ export const samlService = {
     return apiClient.get<SAMLMetadataResponse>(ENDPOINTS.admin.saml.metadata)
   },
 
-  uploadMetadata: async (metadataXmlOrFormData: FormData | { metadata: string }): Promise<FetchResponse<RemoteMetadataResult>> => {
-    return apiClient.post<RemoteMetadataResult>(ENDPOINTS.admin.saml.uploadMetadata, metadataXmlOrFormData)
+  uploadMetadata: async (
+    metadataXmlOrFormData: FormData | { metadata: string },
+  ): Promise<FetchResponse<RemoteMetadataResult>> => {
+    return apiClient.post<RemoteMetadataResult>(
+      ENDPOINTS.admin.saml.uploadMetadata,
+      metadataXmlOrFormData,
+    )
   },
 
-  fetchRemoteMetadata: async (payload: RemoteMetadataFetchDTO): Promise<FetchResponse<RemoteMetadataResult>> => {
+  fetchRemoteMetadata: async (
+    payload: RemoteMetadataFetchDTO,
+  ): Promise<FetchResponse<RemoteMetadataResult>> => {
     return apiClient.post<RemoteMetadataResult>(ENDPOINTS.admin.saml.fetchRemoteMetadata, payload)
   },
 
@@ -35,12 +44,16 @@ export const samlService = {
     return apiClient.get<RecentSAMLEntity[]>(ENDPOINTS.admin.saml.recentEntities)
   },
 
-  initiateSso: async (data: SAMLSSOInitiateDTO): Promise<FetchResponse<SAMLSSOInitiateResponse>> => {
+  initiateSso: async (
+    data: SAMLSSOInitiateDTO,
+  ): Promise<FetchResponse<SAMLSSOInitiateResponse>> => {
     return apiClient.post<SAMLSSOInitiateResponse>(ENDPOINTS.auth.saml.sso, data)
   },
 
   discoverSso: async (identifier: string): Promise<FetchResponse<any>> => {
-    return apiClient.get(`${ENDPOINTS.auth.sso.discover}?identifier=${encodeURIComponent(identifier)}`)
+    return apiClient.get(
+      `${ENDPOINTS.auth.sso.discover}?identifier=${encodeURIComponent(identifier)}`,
+    )
   },
 }
 

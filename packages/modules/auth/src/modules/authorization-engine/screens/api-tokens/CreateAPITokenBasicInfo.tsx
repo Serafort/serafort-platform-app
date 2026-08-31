@@ -29,9 +29,9 @@ import SecurityIcon from '@mui/icons-material/Security'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useScopes } from "@auth/authorization-engine/hooks/useAdminQuery"
-import type { AuthScope } from "@auth/authorization-engine/services/adminService"
-import { Path } from "@auth/routes/path"
+import { useScopes } from '@auth/authorization-engine/hooks/useAdminQuery'
+import type { AuthScope } from '@auth/authorization-engine/services/adminService'
+import { Path } from '@auth/routes/path'
 
 export interface CreateAPITokenBasicInfoProps {
   isWizard?: boolean
@@ -57,10 +57,16 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
   const location = useLocation()
   const theme = useTheme()
 
-  const prevState = location.state as { name?: string; expiresIn?: string; abilities?: string[] } | null
+  const prevState = location.state as {
+    name?: string
+    expiresIn?: string
+    abilities?: string[]
+  } | null
   const [localTokenName, setLocalTokenName] = useState(prevState?.name || '')
   const [localExpiration, setLocalExpiration] = useState(prevState?.expiresIn || '30 days')
-  const [localSelectedScopes, setLocalSelectedScopes] = useState<string[]>(prevState?.abilities || [])
+  const [localSelectedScopes, setLocalSelectedScopes] = useState<string[]>(
+    prevState?.abilities || [],
+  )
 
   const tokenName = isWizard && formData ? formData.name : localTokenName
   const expiration = isWizard && formData ? formData.expiresIn : localExpiration
@@ -159,7 +165,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
             <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1.05rem' }}>
               {t(
                 'api_tokens:create_subheader',
-                'Configure authentication and permissions for your integrations.'
+                'Configure authentication and permissions for your integrations.',
               )}
             </Typography>
           </Box>
@@ -488,7 +494,3 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
 }
 
 export default CreateAPITokenBasicInfo
-
-
-
-

@@ -28,7 +28,10 @@ export const oidcService = {
     return apiClient.post<OIDCClient>(ENDPOINTS.admin.clients.store, data)
   },
 
-  updateClient: async (id: string, data: UpdateOIDCClientDTO): Promise<FetchResponse<OIDCClient>> => {
+  updateClient: async (
+    id: string,
+    data: UpdateOIDCClientDTO,
+  ): Promise<FetchResponse<OIDCClient>> => {
     return apiClient.patch<OIDCClient>(ENDPOINTS.admin.clients.update(id), data)
   },
 
@@ -44,7 +47,10 @@ export const oidcService = {
     return apiClient.get<OIDCClientBranding>(ENDPOINTS.admin.clients.branding(id))
   },
 
-  updateBranding: async (id: string, data: OIDCClientBranding): Promise<FetchResponse<OIDCClientBranding>> => {
+  updateBranding: async (
+    id: string,
+    data: OIDCClientBranding,
+  ): Promise<FetchResponse<OIDCClientBranding>> => {
     return apiClient.patch<OIDCClientBranding>(ENDPOINTS.admin.clients.branding(id), data)
   },
 
@@ -53,11 +59,17 @@ export const oidcService = {
     return apiClient.get<OIDCInteractionDetails>(ENDPOINTS.auth.oidcInteraction.get(uid))
   },
 
-  loginInteraction: async (uid: string, credentials: OIDCLoginCredentials): Promise<FetchResponse<OIDCLoginResponse>> => {
+  loginInteraction: async (
+    uid: string,
+    credentials: OIDCLoginCredentials,
+  ): Promise<FetchResponse<OIDCLoginResponse>> => {
     return apiClient.post<OIDCLoginResponse>(ENDPOINTS.auth.oidcInteraction.login(uid), credentials)
   },
 
-  verifyMfaInteraction: async (uid: string, data: OIDCMfaVerifyDTO): Promise<FetchResponse<OIDCRedirectResult>> => {
+  verifyMfaInteraction: async (
+    uid: string,
+    data: OIDCMfaVerifyDTO,
+  ): Promise<FetchResponse<OIDCRedirectResult>> => {
     return apiClient.post<OIDCRedirectResult>(`/api/auth/oidc/interaction/${uid}/mfa`, data)
   },
 
@@ -65,8 +77,14 @@ export const oidcService = {
     return apiClient.get<OIDCInteractionDetails>(ENDPOINTS.auth.oidcInteraction.consent(uid))
   },
 
-  confirmInteraction: async (uid: string, data?: OIDCConsentDTO): Promise<FetchResponse<OIDCRedirectResult>> => {
-    return apiClient.post<OIDCRedirectResult>(ENDPOINTS.auth.oidcInteraction.confirm(uid), data || {})
+  confirmInteraction: async (
+    uid: string,
+    data?: OIDCConsentDTO,
+  ): Promise<FetchResponse<OIDCRedirectResult>> => {
+    return apiClient.post<OIDCRedirectResult>(
+      ENDPOINTS.auth.oidcInteraction.confirm(uid),
+      data || {},
+    )
   },
 
   abortInteraction: async (uid: string): Promise<FetchResponse<OIDCRedirectResult>> => {
@@ -92,7 +110,9 @@ export const oidcService = {
 
   // --- Device Flow ---
   verifyDeviceCode: async (userCode: string): Promise<FetchResponse<OIDCDeviceVerifyResult>> => {
-    return apiClient.post<OIDCDeviceVerifyResult>(ENDPOINTS.auth.oidcDevice.verifyAction, { userCode })
+    return apiClient.post<OIDCDeviceVerifyResult>(ENDPOINTS.auth.oidcDevice.verifyAction, {
+      userCode,
+    })
   },
 }
 

@@ -1,7 +1,20 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Box, Container, Toolbar, IconButton, List, ListItemButton, ListItemText, Menu, Stack, Theme, useTheme, InputBase } from '@mui/material'
+import {
+  Box,
+  Container,
+  Toolbar,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemText,
+  Menu,
+  Stack,
+  Theme,
+  useTheme,
+  InputBase,
+} from '@mui/material'
 import MuiAppBar from '@mui/material/AppBar'
 import { styled } from '@mui/material/styles'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -75,7 +88,9 @@ const StyledInputBase = styled(InputBase)(({ theme }: { theme: Theme }) => ({
 function SearchBar() {
   const { t } = useTranslation()
   const theme: Theme = useTheme()
-  const searchPlaceholder = t('search.input_placeholder', { defaultValue: t('common.search', { defaultValue: 'Search…' }) })
+  const searchPlaceholder = t('search.input_placeholder', {
+    defaultValue: t('common.search', { defaultValue: 'Search…' }),
+  })
   const searchAriaLabel = t('search.aria_label', { defaultValue: 'search' })
 
   return (
@@ -88,7 +103,10 @@ function SearchBar() {
             }}
           />
         </SearchIconWrapper>
-        <StyledInputBase placeholder={searchPlaceholder} inputProps={{ 'aria-label': searchAriaLabel }} />
+        <StyledInputBase
+          placeholder={searchPlaceholder}
+          inputProps={{ 'aria-label': searchAriaLabel }}
+        />
       </Search>
       <IconButton
         aria-label={searchAriaLabel}
@@ -161,7 +179,11 @@ export default function NavBar() {
             }}
           >
             {pages?.map((page) => {
-              const targetPath = page?.path ? (page.path.startsWith('/') ? page.path : `/${page.path}`) : '/'
+              const targetPath = page?.path
+                ? page.path.startsWith('/')
+                  ? page.path
+                  : `/${page.path}`
+                : '/'
               const isSelected = location.pathname === targetPath
               return (
                 <List key={page.id} onClick={handleCloseNavMenu}>
@@ -228,7 +250,11 @@ export default function NavBar() {
               }}
             >
               {pages?.map((page) => {
-                const targetPath = page?.path ? (page.path.startsWith('/') ? page.path : `/${page.path}`) : '/'
+                const targetPath = page?.path
+                  ? page.path.startsWith('/')
+                    ? page.path
+                    : `/${page.path}`
+                  : '/'
                 const isSelected = location.pathname === targetPath
                 return (
                   <List key={page.id} onClick={handleCloseNavMenu}>

@@ -153,7 +153,10 @@ export function useSignUpFlow() {
         open: true,
         type: 'success',
         state: 'success',
-        msg: t('signUp.verificationSent', 'A verification email has been sent. Please check your inbox.'),
+        msg: t(
+          'signUp.verificationSent',
+          'A verification email has been sent. Please check your inbox.',
+        ),
       })
 
       // Redirect user to check-email confirmation screen without auto-logging in

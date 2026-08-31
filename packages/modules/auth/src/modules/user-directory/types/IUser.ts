@@ -1,6 +1,6 @@
 import IProfile from './IProfile'
-import IRole from "@auth/modules/authorization-engine/types/IRole"
-import ISessionLog from "@auth/modules/session-manager/types/ISessionLog"
+import IRole from '@auth/modules/authorization-engine/types/IRole'
+import ISessionLog from '@auth/modules/session-manager/types/ISessionLog'
 
 export default interface IUser {
   id: number
@@ -41,5 +41,3 @@ export default interface IUser {
   profile?: IProfile
   sessions?: Array<ISessionLog>
 }
-
-

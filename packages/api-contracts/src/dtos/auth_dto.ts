@@ -10,90 +10,90 @@
  */
 
 export interface LoginRequestDTO {
-  email?: string
-  username?: string
-  password?: string
-  remember?: boolean
-  tenantId?: string | number
-  twoFactorCode?: string
-  turnstileToken?: string
-  recaptchaToken?: string
+  email?: string;
+  username?: string;
+  password?: string;
+  remember?: boolean;
+  tenantId?: string | number;
+  twoFactorCode?: string;
+  turnstileToken?: string;
+  recaptchaToken?: string;
 }
 
 export interface RegisterRequestDTO {
-  email: string
-  password?: string
-  firstName?: string
-  firstname?: string
-  lastName?: string
-  lastname?: string
-  username?: string
-  phone?: string
-  tenantId?: string | number
-  isTermsSign?: boolean
+  email: string;
+  password?: string;
+  firstName?: string;
+  firstname?: string;
+  lastName?: string;
+  lastname?: string;
+  username?: string;
+  phone?: string;
+  tenantId?: string | number;
+  isTermsSign?: boolean;
 }
 
 export interface ForgotPasswordRequestDTO {
-  email: string
+  email: string;
 }
 
 export interface ResetPasswordRequestDTO {
-  email: string
-  token: string
-  password?: string
-  newPassword?: string
+  email: string;
+  token: string;
+  password?: string;
+  newPassword?: string;
 }
 
 export interface VerifyEmailRequestDTO {
-  email: string
-  token: string
+  email: string;
+  token: string;
 }
 
 export interface ResendVerificationRequestDTO {
-  email: string
+  email: string;
 }
 
 export interface PasswordlessSendDTO {
-  email: string
-  tenantId?: string | number
-  redirectUrl?: string
+  email: string;
+  tenantId?: string | number;
+  redirectUrl?: string;
 }
 
 export interface PasswordlessVerifyDTO {
-  token: string
+  token: string;
 }
 
 export interface PasskeyRegisterStartDTO {
-  userId?: number
+  userId?: number;
 }
 
 export interface PasskeyRegisterFinishDTO {
-  userId?: number
-  credential: unknown
+  userId?: number;
+  credential: unknown;
 }
 
 export interface PasskeyLoginStartDTO {
-  email?: string
-  tenantId?: string | number
+  email?: string;
+  tenantId?: string | number;
 }
 
 export interface PasskeyLoginFinishDTO {
-  response: unknown
+  response: unknown;
 }
 
 export interface RefreshTokenRequestDTO {
-  refreshToken?: string
+  refreshToken?: string;
 }
 
 export interface AuthSessionDTO {
-  id: number
-  userId: number
-  ipAddress?: string | null
-  userAgent?: string | null
-  browser?: string
-  device?: string
-  location?: string
-  isActive: boolean
-  loginAt?: string | null
-  lastTouchedAt?: string | null
+  id: number;
+  userId: number;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  browser?: string;
+  device?: string;
+  location?: string;
+  isActive: boolean;
+  loginAt?: string | null;
+  lastTouchedAt?: string | null;
 }

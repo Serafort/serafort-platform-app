@@ -2,7 +2,8 @@ import { z } from 'zod'
 
 export const LoginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
-  password: z.string()
+  password: z
+    .string()
     .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
     .regex(/[a-z]/, 'Must contain at least one lowercase letter')
@@ -38,14 +39,18 @@ export const RegisterSchema = z
   .object({
     fullName: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email address').min(1, 'Email is required'),
-    password: z.string()
+    password: z
+      .string()
       .min(8, 'Password must be at least 8 characters')
       .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
       .regex(/[a-z]/, 'Must contain at least one lowercase letter')
       .regex(/[0-9]/, 'Must contain at least one number')
       .regex(/[^A-Za-z0-9]/, 'Must contain at least one special character'),
     confirmPassword: z.string(),
-    acceptTerms: z.boolean().refine((val) => val === true, 'You must accept the terms of service').optional(),
+    acceptTerms: z
+      .boolean()
+      .refine((val) => val === true, 'You must accept the terms of service')
+      .optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -82,7 +87,8 @@ export const SignUpFormSchema = z
 export const ChangePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z.string()
+    newPassword: z
+      .string()
       .min(8, 'New password must be at least 8 characters')
       .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
       .regex(/[a-z]/, 'Must contain at least one lowercase letter')
@@ -123,7 +129,8 @@ export const ForgotPasswordSchema = z.object({
 
 export const ResetPasswordSchema = z
   .object({
-    password: z.string()
+    password: z
+      .string()
       .min(8, 'Password must be at least 8 characters')
       .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
       .regex(/[a-z]/, 'Must contain at least one lowercase letter')
@@ -200,7 +207,7 @@ export const DomainVerificationSchema = z.object({
     .transform(normalizeDomain)
     .refine(
       (val) => /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(val),
-      'Please enter a valid domain name (e.g. company.com)'
+      'Please enter a valid domain name (e.g. company.com)',
     ),
 })
 
@@ -212,8 +219,10 @@ export const CidrBlockSchema = z.object({
     .refine(
       (val) =>
         /^(\d{1,3}\.){3}\d{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/.test(val) ||
-        /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}(\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$/.test(val),
-      'Please enter a valid IPv4/IPv6 address or CIDR range (e.g. 192.168.1.1 or 10.0.0.0/24)'
+        /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}(\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$/.test(
+          val,
+        ),
+      'Please enter a valid IPv4/IPv6 address or CIDR range (e.g. 192.168.1.1 or 10.0.0.0/24)',
     ),
 })
 
@@ -231,5 +240,3 @@ export type ResetPasswordSchemaType = z.infer<typeof ResetPasswordSchema>
 export type ChangePhoneSchemaType = z.infer<typeof ChangePhoneSchema>
 export type DeactivateAccountSchemaType = z.infer<typeof DeactivateAccountSchema>
 export type SsoIdentifierSchemaType = z.infer<typeof SsoIdentifierSchema>
-
-

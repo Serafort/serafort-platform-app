@@ -59,7 +59,9 @@ describe('useAdminMonitoringQuery', () => {
       signIns24h: 50,
       failedSignIns24h: 1,
     }
-    vi.mocked(adminMonitoringService.getOverview).mockResolvedValueOnce(createMockResponse(mockData))
+    vi.mocked(adminMonitoringService.getOverview).mockResolvedValueOnce(
+      createMockResponse(mockData),
+    )
 
     const { result } = renderHook(() => useAdminOverviewQuery(), { wrapper: createWrapper() })
 
@@ -95,7 +97,9 @@ describe('useAdminMonitoringQuery', () => {
         timestamp: '2026-08-28',
       },
     ]
-    vi.mocked(adminMonitoringService.getAuditLogs).mockResolvedValueOnce(createMockResponse(mockLogs))
+    vi.mocked(adminMonitoringService.getAuditLogs).mockResolvedValueOnce(
+      createMockResponse(mockLogs),
+    )
 
     const { result } = renderHook(() => useAdminAuditLogsQuery({ limit: 10 }), {
       wrapper: createWrapper(),
@@ -108,7 +112,7 @@ describe('useAdminMonitoringQuery', () => {
 
   it('useAcknowledgeAlertMutation calls service and triggers success', async () => {
     vi.mocked(adminMonitoringService.acknowledgeAlert).mockResolvedValueOnce(
-      createMockResponse({ message: 'Alert acknowledged' })
+      createMockResponse({ message: 'Alert acknowledged' }),
     )
 
     const { result } = renderHook(() => useAcknowledgeAlertMutation(), {

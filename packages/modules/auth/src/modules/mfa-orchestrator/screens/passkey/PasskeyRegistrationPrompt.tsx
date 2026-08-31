@@ -61,7 +61,7 @@ export default function PasskeyRegistrationPrompt() {
 
   return (
     <Box
-      className="animate-scale-in"
+      className='animate-scale-in'
       component={motion.div}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -71,7 +71,7 @@ export default function PasskeyRegistrationPrompt() {
       <Box sx={{ textAlign: 'center', mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
           <Avatar
-            variant="square"
+            variant='square'
             sx={{
               width: 56,
               height: 56,
@@ -85,17 +85,33 @@ export default function PasskeyRegistrationPrompt() {
             <Fingerprint sx={{ fontSize: 32 }} />
           </Avatar>
         </Box>
-        <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+        <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
           {t('passkey.registrationTitle', 'Add a passkey')}
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500, maxWidth: 360, mx: 'auto' }}>
-          {t('passkey.registrationDesc', 'Passkeys replace passwords with your device biometrics for a faster, safer sign-in.')}
+        <Typography
+          variant='body1'
+          color='text.secondary'
+          sx={{ fontWeight: 500, maxWidth: 360, mx: 'auto' }}
+        >
+          {t(
+            'passkey.registrationDesc',
+            'Passkeys replace passwords with your device biometrics for a faster, safer sign-in.',
+          )}
         </Typography>
       </Box>
 
       <List disablePadding sx={{ mb: 4 }}>
         {benefits.map((benefit, index) => (
-          <ListItem key={index} sx={{ px: 1.5, py: 1.5, borderRadius: 2, mb: 1, '&:hover': { bgcolor: 'action.hover' } }}>
+          <ListItem
+            key={index}
+            sx={{
+              px: 1.5,
+              py: 1.5,
+              borderRadius: 2,
+              mb: 1,
+              '&:hover': { bgcolor: 'action.hover' },
+            }}
+          >
             <ListItemIcon sx={{ color: 'primary.main', minWidth: 40 }}>{benefit.icon}</ListItemIcon>
             <ListItemText
               primary={benefit.title}
@@ -108,14 +124,20 @@ export default function PasskeyRegistrationPrompt() {
       </List>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 3 }}>
-        <CheckCircle color="primary" sx={{ fontSize: 16 }} />
-        <Typography variant="caption" color="text.secondary" fontWeight={500}>
-          {t('passkey.supportedOn', 'Supported on Touch ID, Face ID, Windows Hello, and hardware keys')}
+        <CheckCircle color='primary' sx={{ fontSize: 16 }} />
+        <Typography variant='caption' color='text.secondary' fontWeight={500}>
+          {t(
+            'passkey.supportedOn',
+            'Supported on Touch ID, Face ID, Windows Hello, and hardware keys',
+          )}
         </Typography>
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 600 } }}>
+        <Alert
+          severity='error'
+          sx={{ mb: 3, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 600 } }}
+        >
           {error}
         </Alert>
       )}
@@ -123,11 +145,11 @@ export default function PasskeyRegistrationPrompt() {
       <Stack spacing={2}>
         <Button
           fullWidth
-          variant="contained"
-          size="large"
+          variant='contained'
+          size='large'
           onClick={handleCreatePasskey}
           disabled={isLoading}
-          startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+          startIcon={isLoading ? <CircularProgress size={20} color='inherit' /> : null}
           endIcon={!isLoading ? <ArrowForward /> : null}
           sx={{
             py: 1.5,
@@ -144,14 +166,16 @@ export default function PasskeyRegistrationPrompt() {
             },
           }}
         >
-          {isLoading ? t('passkey.creatingPasskey', 'Creating Passkey...') : t('passkey.createPasskey', 'Create a passkey')}
+          {isLoading
+            ? t('passkey.creatingPasskey', 'Creating Passkey...')
+            : t('passkey.createPasskey', 'Create a passkey')}
         </Button>
 
         <Link
-          component="button"
-          variant="body2"
+          component='button'
+          variant='body2'
           onClick={() => navigate('/dashboard')}
-          underline="none"
+          underline='none'
           disabled={isLoading}
           sx={{
             display: 'block',

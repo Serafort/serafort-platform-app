@@ -97,7 +97,14 @@ const DefaultSuggestions = () => {
           >
             {section.sectionLabel}
           </Typography>
-          <List sx={{ display: 'flex', flexDirection: 'column', gap: searchTokens.defaultSuggestions.sectionGap, p: 0 }}>
+          <List
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: searchTokens.defaultSuggestions.sectionGap,
+              p: 0,
+            }}
+          >
             {section.items.map((item) => (
               <ListItem key={item.id} sx={{ display: 'flex', p: 0 }}>
                 <Box
@@ -117,12 +124,22 @@ const DefaultSuggestions = () => {
                   }}
                 >
                   {item.icon && (
-                    <Box sx={{ display: 'flex', fontSize: searchTokens.defaultSuggestions.iconFontSize, alignItems: 'center' }}>
-                      {React.isValidElement(item.icon)
-                        ? item.icon
-                        : typeof item.icon === 'string' ? (
-                            <Box component='i' className={item.icon} sx={{ fontSize: searchTokens.defaultSuggestions.iconFontSize }} />
-                          ) : null}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        fontSize: searchTokens.defaultSuggestions.iconFontSize,
+                        alignItems: 'center',
+                      }}
+                    >
+                      {React.isValidElement(item.icon) ? (
+                        item.icon
+                      ) : typeof item.icon === 'string' ? (
+                        <Box
+                          component='i'
+                          className={item.icon}
+                          sx={{ fontSize: searchTokens.defaultSuggestions.iconFontSize }}
+                        />
+                      ) : null}
                     </Box>
                   )}
                   <Typography

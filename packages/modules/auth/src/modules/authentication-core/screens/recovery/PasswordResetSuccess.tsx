@@ -1,12 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography, alpha, useTheme, Avatar, Link as MuiLink, CircularProgress } from '@mui/material';
-import CheckCircle from '@mui/icons-material/CheckCircle';
-import ArrowForward from '@mui/icons-material/ArrowForward';
-import Lock from '@mui/icons-material/Lock';
-import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
-import { Path } from "@cap/module-auth/routes/path"
+import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  Box,
+  Button,
+  Typography,
+  alpha,
+  useTheme,
+  Avatar,
+  Link as MuiLink,
+  CircularProgress,
+} from '@mui/material'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import ArrowForward from '@mui/icons-material/ArrowForward'
+import Lock from '@mui/icons-material/Lock'
+import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
+import { Path } from '@cap/module-auth/routes/path'
 
 export default function PasswordResetSuccess() {
   const { t } = useTranslation('auth')
@@ -28,7 +37,7 @@ export default function PasswordResetSuccess() {
 
   return (
     <Box
-      className="animate-scale-in"
+      className='animate-scale-in'
       component={motion.div}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -44,7 +53,7 @@ export default function PasswordResetSuccess() {
     >
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
         <Avatar
-          variant="circular"
+          variant='circular'
           sx={{
             width: 64,
             height: 64,
@@ -59,10 +68,10 @@ export default function PasswordResetSuccess() {
         </Avatar>
       </Box>
 
-      <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+      <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
         {t('passwordReset.successHeading', 'Password Reset!')}
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500, mb: 2 }}>
+      <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500, mb: 2 }}>
         {t('passwordReset.successMessage', 'Your password has been successfully changed.')}
       </Typography>
 
@@ -81,9 +90,9 @@ export default function PasswordResetSuccess() {
         }}
       >
         <CircularProgress size={14} thickness={5} />
-        <Typography variant="caption" sx={{ fontWeight: 500, color: 'text.secondary' }}>
+        <Typography variant='caption' sx={{ fontWeight: 500, color: 'text.secondary' }}>
           {t('passwordReset.redirecting', 'Redirecting in')}{' '}
-          <Box component="span" sx={{ color: 'primary.main', fontWeight: 700 }}>
+          <Box component='span' sx={{ color: 'primary.main', fontWeight: 700 }}>
             {countdown}s
           </Box>
         </Typography>
@@ -91,8 +100,8 @@ export default function PasswordResetSuccess() {
 
       <Button
         fullWidth
-        variant="contained"
-        size="large"
+        variant='contained'
+        size='large'
         onClick={handleContinue}
         endIcon={<ArrowForward />}
         sx={{
@@ -114,21 +123,36 @@ export default function PasswordResetSuccess() {
       </Button>
 
       <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
-        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-          {t('passwordReset.unauthorizedAction', 'Didn\'t request this?')}{' '}
+        <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
+          {t('passwordReset.unauthorizedAction', "Didn't request this?")}{' '}
           <MuiLink
-            component="button"
+            component='button'
             onClick={handleContactSupport}
-            sx={{ color: 'primary.main', fontWeight: 700, textDecoration: 'none', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            sx={{
+              color: 'primary.main',
+              fontWeight: 700,
+              textDecoration: 'none',
+              cursor: 'pointer',
+              '&:hover': { textDecoration: 'underline' },
+            }}
           >
             {t('common.contactSupport', 'Contact Support')}
           </MuiLink>
         </Typography>
       </Box>
 
-      <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, color: 'text.disabled' }}>
+      <Box
+        sx={{
+          mt: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 0.5,
+          color: 'text.disabled',
+        }}
+      >
         <Lock sx={{ fontSize: 13 }} />
-        <Typography variant="caption">
+        <Typography variant='caption'>
           {t('common.secureConnection', 'Secured connection')}
         </Typography>
       </Box>

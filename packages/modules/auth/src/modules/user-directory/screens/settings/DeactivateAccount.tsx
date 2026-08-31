@@ -1,13 +1,21 @@
-import { useState, useCallback } from 'react';
-import { Box, Button, TextField, Typography, Alert, CircularProgress, Link as MuiLink } from '@mui/material';
-import Warning from '@mui/icons-material/Warning';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { useDeactivateAccount, useUserProfile } from '../../hooks/useUserQuery';
-import logger from '@idaas/authentication-core/utils/logger';
-import { Path } from '@cap/module-auth/routes/path';
-import { buildLayoutSurfaceEffect } from '@cap/layout';
-import { getTenantThemeEffects } from '@cap/theme';
+import { useState, useCallback } from 'react'
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Alert,
+  CircularProgress,
+  Link as MuiLink,
+} from '@mui/material'
+import Warning from '@mui/icons-material/Warning'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { useDeactivateAccount, useUserProfile } from '../../hooks/useUserQuery'
+import logger from '@idaas/authentication-core/utils/logger'
+import { Path } from '@cap/module-auth/routes/path'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 
 export default function DeactivateAccount() {
   const { t } = useTranslation()
@@ -111,7 +119,10 @@ export default function DeactivateAccount() {
               lineHeight: 1.6,
             }}
           >
-            {t('auth.account.deactivate_description', 'Deactivating your account will temporarily disable your profile and access. You can reactivate anytime by logging back in.')}
+            {t(
+              'auth.account.deactivate_description',
+              'Deactivating your account will temporarily disable your profile and access. You can reactivate anytime by logging back in.',
+            )}
           </Typography>
         </Box>
 
@@ -125,7 +136,6 @@ export default function DeactivateAccount() {
           )}
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-
             {/* Confirmation Input */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Typography
@@ -136,7 +146,10 @@ export default function DeactivateAccount() {
                   fontWeight: 600,
                 }}
               >
-                {t('auth.account.deactivate_confirm_instruction', 'To confirm, please type DEACTIVATE below:')}
+                {t(
+                  'auth.account.deactivate_confirm_instruction',
+                  'To confirm, please type DEACTIVATE below:',
+                )}
               </Typography>
               <TextField
                 id='confirm-deactivate'
@@ -181,7 +194,11 @@ export default function DeactivateAccount() {
                 variant='contained'
                 color='error'
                 onClick={handleDeactivate}
-                disabled={(confirmText.toUpperCase() !== 'DEACTIVATE' && confirmText.toUpperCase() !== 'DELETE') || deactivateAccountMutation.isPending}
+                disabled={
+                  (confirmText.toUpperCase() !== 'DEACTIVATE' &&
+                    confirmText.toUpperCase() !== 'DELETE') ||
+                  deactivateAccountMutation.isPending
+                }
                 sx={{
                   height: 44,
                   fontSize: '0.875rem',
@@ -235,4 +252,3 @@ export default function DeactivateAccount() {
     </Box>
   )
 }
-

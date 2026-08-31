@@ -28,9 +28,12 @@ export default function Validate() {
   // If email + signature are provided, redirect or forward to email verification flow
   React.useEffect(() => {
     if (emailParam && signatureParam) {
-      navigate(`${Path.auth.verifyEmail.replace(':email', encodeURIComponent(emailParam))}?signature=${encodeURIComponent(signatureParam)}`, {
-        replace: true,
-      })
+      navigate(
+        `${Path.auth.verifyEmail.replace(':email', encodeURIComponent(emailParam))}?signature=${encodeURIComponent(signatureParam)}`,
+        {
+          replace: true,
+        },
+      )
     }
   }, [emailParam, signatureParam, navigate])
 
@@ -64,13 +67,21 @@ export default function Validate() {
         handleClickStatus({
           type: 'warning',
           state: 'save',
-          msg: t('auth.validate.already_validated', { firstname, lastname, defaultValue: 'Account is already validated.' }),
+          msg: t('auth.validate.already_validated', {
+            firstname,
+            lastname,
+            defaultValue: 'Account is already validated.',
+          }),
         })
       } else {
         handleClickStatus({
           type: 'info',
           state: 'save',
-          msg: t('auth.validate.success_message', { firstname, lastname, defaultValue: 'Account validated successfully!' }),
+          msg: t('auth.validate.success_message', {
+            firstname,
+            lastname,
+            defaultValue: 'Account validated successfully!',
+          }),
         })
       }
     }
@@ -107,13 +118,25 @@ export default function Validate() {
 
         <Card sx={{ my: { xs: 3, md: 6 }, width: '100%', maxWidth: 450, borderRadius: 3 }}>
           <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-            <Typography component='h1' variant='h5' sx={{ textAlign: 'center', mb: 1, fontWeight: 700 }}>
+            <Typography
+              component='h1'
+              variant='h5'
+              sx={{ textAlign: 'center', mb: 1, fontWeight: 700 }}
+            >
               {themeConfig.templateName}
             </Typography>
-            <Typography component='h5' variant='body1' sx={{ mb: 2, textAlign: 'center', color: 'text.secondary' }}>
+            <Typography
+              component='h5'
+              variant='body1'
+              sx={{ mb: 2, textAlign: 'center', color: 'text.secondary' }}
+            >
               {t('auth.validate.title', 'Account Validation')}
             </Typography>
-            {status.open && <MAlert sx={{ width: '100%' }} severity={status.type || 'info'}>{status.msg}</MAlert>}
+            {status.open && (
+              <MAlert sx={{ width: '100%' }} severity={status.type || 'info'}>
+                {status.msg}
+              </MAlert>
+            )}
             {status?.type !== 'error' && (
               <Button
                 fullWidth

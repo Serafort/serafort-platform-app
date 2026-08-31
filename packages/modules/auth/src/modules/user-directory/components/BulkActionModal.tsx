@@ -84,7 +84,7 @@ export default function BulkActionModal({
     <Dialog
       open={open}
       onClose={bulkMutation.isPending ? undefined : onClose}
-      maxWidth="xs"
+      maxWidth='xs'
       fullWidth
       PaperProps={{
         sx: {
@@ -95,8 +95,8 @@ export default function BulkActionModal({
             isDelete
               ? alpha(theme.palette.error.main, 0.2)
               : isSuspend
-              ? alpha(theme.palette.warning.main, 0.2)
-              : alpha(theme.palette.divider, 0.15)
+                ? alpha(theme.palette.warning.main, 0.2)
+                : alpha(theme.palette.divider, 0.15)
           }`,
         },
       }}
@@ -110,7 +110,7 @@ export default function BulkActionModal({
           justifyContent: 'space-between',
         }}
       >
-        <Stack direction="row" spacing={1.5} alignItems="center">
+        <Stack direction='row' spacing={1.5} alignItems='center'>
           <Box
             sx={{
               p: 1,
@@ -118,51 +118,52 @@ export default function BulkActionModal({
               bgcolor: isDelete
                 ? alpha(theme.palette.error.main, 0.1)
                 : isSuspend
-                ? alpha(theme.palette.warning.main, 0.1)
-                : alpha(theme.palette.primary.main, 0.1),
+                  ? alpha(theme.palette.warning.main, 0.1)
+                  : alpha(theme.palette.primary.main, 0.1),
               color: isDelete
                 ? theme.palette.error.main
                 : isSuspend
-                ? theme.palette.warning.main
-                : theme.palette.primary.main,
+                  ? theme.palette.warning.main
+                  : theme.palette.primary.main,
               display: 'flex',
             }}
           >
             {isDelete || isSuspend ? <WarningAmberIcon /> : <LayersIcon />}
           </Box>
           <Box>
-            <Typography variant="h6" fontWeight={700}>
+            <Typography variant='h6' fontWeight={700}>
               {actionTitle}
             </Typography>
             <Chip
               label={`${selectedUserIds.length} users selected`}
-              size="small"
+              size='small'
               sx={{ height: 20, fontSize: '0.7rem', mt: 0.25 }}
             />
           </Box>
         </Stack>
-        <IconButton onClick={onClose} size="small" disabled={bulkMutation.isPending}>
-          <CloseIcon fontSize="small" />
+        <IconButton onClick={onClose} size='small' disabled={bulkMutation.isPending}>
+          <CloseIcon fontSize='small' />
         </IconButton>
       </DialogTitle>
 
       <DialogContent sx={{ p: 3, pt: 1 }}>
         <Stack spacing={2.5}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant='body2' color='text.secondary'>
             {actionDescription}
           </Typography>
 
           {(isDelete || isSuspend) && (
             <Alert severity={isDelete ? 'error' : 'warning'}>
-              Please ensure this action is compliant with your organization's administrative guidelines.
+              Please ensure this action is compliant with your organization's administrative
+              guidelines.
             </Alert>
           )}
 
           <TextField
             fullWidth
-            size="small"
-            label="Audit Reason"
-            placeholder="e.g. Quarterly access review, Department restructuring"
+            size='small'
+            label='Audit Reason'
+            placeholder='e.g. Quarterly access review, Department restructuring'
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
@@ -177,12 +178,12 @@ export default function BulkActionModal({
           justifyContent: 'space-between',
         }}
       >
-        <Button onClick={onClose} color="inherit" sx={{ textTransform: 'none', fontWeight: 600 }}>
+        <Button onClick={onClose} color='inherit' sx={{ textTransform: 'none', fontWeight: 600 }}>
           Cancel
         </Button>
         <Button
           onClick={handleExecute}
-          variant="contained"
+          variant='contained'
           color={isDelete ? 'error' : isSuspend ? 'warning' : 'primary'}
           disabled={bulkMutation.isPending}
           sx={{
@@ -193,7 +194,11 @@ export default function BulkActionModal({
             minWidth: 120,
           }}
         >
-          {bulkMutation.isPending ? <CircularProgress size={20} color="inherit" /> : 'Confirm Action'}
+          {bulkMutation.isPending ? (
+            <CircularProgress size={20} color='inherit' />
+          ) : (
+            'Confirm Action'
+          )}
         </Button>
       </DialogActions>
     </Dialog>

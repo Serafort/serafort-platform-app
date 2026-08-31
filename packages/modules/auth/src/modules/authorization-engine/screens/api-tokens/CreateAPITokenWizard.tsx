@@ -46,18 +46,13 @@ export const CreateAPITokenWizard: React.FC = () => {
   const [activeStep, setActiveStep] = useState<number>(0)
 
   // Use persistent form for draft resilience (Zeigarnik Effect / Postel's Law)
-  const {
-    formData,
-    handleChange,
-    setFormData,
-    clearForm,
-  } = usePersistentForm<APITokenDraftForm>(
+  const { formData, handleChange, setFormData, clearForm } = usePersistentForm<APITokenDraftForm>(
     'create_api_token_wizard',
     {
       ...INITIAL_TOKEN_DRAFT,
       ...(locationState?.name ? locationState : {}),
     },
-    async () => {}
+    async () => {},
   )
 
   const createTokenMutation = useCreateToken({
@@ -94,7 +89,8 @@ export const CreateAPITokenWizard: React.FC = () => {
   }
 
   const handleSubmit = (finalIpRestrictions?: string[]) => {
-    const ipsToSubmit = finalIpRestrictions !== undefined ? finalIpRestrictions : formData.ipRestrictions
+    const ipsToSubmit =
+      finalIpRestrictions !== undefined ? finalIpRestrictions : formData.ipRestrictions
     createTokenMutation.mutate({
       name: formData.name,
       expiresIn: formData.expiresIn,
@@ -135,7 +131,16 @@ export const CreateAPITokenWizard: React.FC = () => {
       </Breadcrumbs>
 
       {/* Header & Goal-Gradient Progress */}
-      <Box sx={{ mb: 4, display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2 }}>
+      <Box
+        sx={{
+          mb: 4,
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: 2,
+        }}
+      >
         <Box>
           <Typography variant='h3' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
             {t('api_tokens:create_header', 'Create API Token')}
@@ -143,7 +148,7 @@ export const CreateAPITokenWizard: React.FC = () => {
           <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1.05rem' }}>
             {t(
               'api_tokens:create_subheader',
-              'Configure authentication and permissions for your integrations.'
+              'Configure authentication and permissions for your integrations.',
             )}
           </Typography>
         </Box>
@@ -180,15 +185,21 @@ export const CreateAPITokenWizard: React.FC = () => {
               borderBlockStartWidth: stepperTokens.connector.borderBlockStartWidth,
               borderRadius: stepperTokens.connector.borderRadius,
             },
-            '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line, & .MuiStepConnector-root.Mui-completed .MuiStepConnector-line': {
-              borderColor: theme.palette.primary.main,
-            },
+            '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line, & .MuiStepConnector-root.Mui-completed .MuiStepConnector-line':
+              {
+                borderColor: theme.palette.primary.main,
+              },
           }}
         >
           {stepLabels.map((step, idx) => (
             <Step key={step.title} completed={activeStep > idx}>
               <StepLabel>
-                <Typography sx={{ fontWeight: activeStep === idx ? 800 : 600, color: activeStep === idx ? 'text.primary' : 'text.disabled' }}>
+                <Typography
+                  sx={{
+                    fontWeight: activeStep === idx ? 800 : 600,
+                    color: activeStep === idx ? 'text.primary' : 'text.disabled',
+                  }}
+                >
                   {step.title}
                 </Typography>
                 <Typography variant='caption' sx={{ color: 'text.secondary', display: 'block' }}>
@@ -205,7 +216,9 @@ export const CreateAPITokenWizard: React.FC = () => {
         <CreateAPITokenBasicInfo
           isWizard={true}
           formData={formData}
-          onUpdate={(updates: Partial<APITokenDraftForm>) => setFormData((prev: APITokenDraftForm) => ({ ...prev, ...updates }))}
+          onUpdate={(updates: Partial<APITokenDraftForm>) =>
+            setFormData((prev: APITokenDraftForm) => ({ ...prev, ...updates }))
+          }
           onNext={handleNext}
           onCancel={handleCancel}
         />
@@ -213,7 +226,9 @@ export const CreateAPITokenWizard: React.FC = () => {
         <CreateAPITokenIPRestrictions
           isWizard={true}
           formData={formData}
-          onUpdate={(updates: { ipRestrictions: string[] }) => setFormData((prev: APITokenDraftForm) => ({ ...prev, ...updates }))}
+          onUpdate={(updates: { ipRestrictions: string[] }) =>
+            setFormData((prev: APITokenDraftForm) => ({ ...prev, ...updates }))
+          }
           onBack={handleBack}
           onSubmit={handleSubmit}
           isSubmitting={createTokenMutation.isPending}

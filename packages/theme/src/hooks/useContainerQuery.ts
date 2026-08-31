@@ -1,4 +1,4 @@
-import { useResizeObserver, type ElementSize } from './useResizeObserver'
+import { useResizeObserver, type ElementSize } from "./useResizeObserver";
 
 /**
  * Convenience hook that evaluates a predicate against the container's current size
@@ -15,8 +15,8 @@ import { useResizeObserver, type ElementSize } from './useResizeObserver'
  */
 export function useContainerQuery<T extends HTMLElement = HTMLElement>(
   ref: React.RefObject<T | null>,
-  predicate: (size: ElementSize) => boolean
+  predicate: (size: ElementSize) => boolean,
 ): boolean {
-  const size = useResizeObserver(ref)
-  return predicate(size)
+  const size = useResizeObserver(ref);
+  return predicate(size);
 }

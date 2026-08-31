@@ -38,8 +38,7 @@ const RECOVERY_OPTIONS = [
     value: 'authenticator',
     icon: <Smartphone />,
     label: 'Authenticator App',
-    description:
-      'Use Google Authenticator, Authy, or 1Password for time-based verification codes.',
+    description: 'Use Google Authenticator, Authy, or 1Password for time-based verification codes.',
     recommended: true,
   },
   {
@@ -100,7 +99,9 @@ export default function PasskeyRecoveryOptions() {
     try {
       if (selectedMethod === 'authenticator') {
         await mfaService.confirmTotp(verificationCode)
-        setSuccessMsg(t('mfa.totpSetupSuccess', 'Authenticator app recovery configured successfully.'))
+        setSuccessMsg(
+          t('mfa.totpSetupSuccess', 'Authenticator app recovery configured successfully.'),
+        )
       } else if (selectedMethod === 'sms') {
         await mfaService.sms.confirm(verificationCode)
         setSuccessMsg(t('mfa.smsSetupSuccess', 'SMS recovery configured successfully.'))
@@ -125,8 +126,11 @@ export default function PasskeyRecoveryOptions() {
   const handleDownloadCodes = () => {
     if (!backupCodes.length) return
     const blob = new Blob(
-      [`MFA Recovery Backup Codes\nGenerated: ${new Date().toISOString()}\n\n` + backupCodes.join('\n')],
-      { type: 'text/plain;charset=utf-8' }
+      [
+        `MFA Recovery Backup Codes\nGenerated: ${new Date().toISOString()}\n\n` +
+          backupCodes.join('\n'),
+      ],
+      { type: 'text/plain;charset=utf-8' },
     )
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -137,7 +141,7 @@ export default function PasskeyRecoveryOptions() {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
+    <Container maxWidth='sm' sx={{ py: 4 }}>
       {/* Breadcrumb */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         <Button
@@ -147,10 +151,10 @@ export default function PasskeyRecoveryOptions() {
         >
           {t('common.back', 'Back')}
         </Button>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant='body2' color='text.secondary'>
           /
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant='body2' color='text.secondary'>
           {t('passkey.passkeys', 'Passkeys')}
         </Typography>
       </Box>
@@ -172,36 +176,36 @@ export default function PasskeyRecoveryOptions() {
         >
           <Shield sx={{ fontSize: 28, color: 'warning.main' }} />
         </Box>
-        <Typography variant="h5" fontWeight={700} letterSpacing="-0.02em" sx={{ mb: 0.5 }}>
+        <Typography variant='h5' fontWeight={700} letterSpacing='-0.02em' sx={{ mb: 0.5 }}>
           {t('passkey.recovery_title', 'Passkey Recovery Options')}
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant='body1' color='text.secondary'>
           {t(
             'passkey.recovery_subtitle',
-            'Set up a backup method in case you lose access to your passkey device.'
+            'Set up a backup method in case you lose access to your passkey device.',
           )}
         </Typography>
       </Box>
 
       {/* Warning Banner */}
       <Alert
-        severity="warning"
+        severity='warning'
         icon={<WarningAmber />}
         sx={{ mb: 3, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 500 } }}
       >
         {t(
           'passkey.recovery_warning',
-          'Without a recovery method, losing your passkey device means losing access to your account permanently.'
+          'Without a recovery method, losing your passkey device means losing access to your account permanently.',
         )}
       </Alert>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+        <Alert severity='error' sx={{ mb: 3, borderRadius: 2 }}>
           {error}
         </Alert>
       )}
       {successMsg && (
-        <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
+        <Alert severity='success' sx={{ mb: 3, borderRadius: 2 }}>
           {successMsg}
         </Alert>
       )}
@@ -210,7 +214,7 @@ export default function PasskeyRecoveryOptions() {
       <Card sx={{ borderRadius: 3, border: 1, borderColor: 'divider', mb: 3 }}>
         <CardContent sx={{ p: 0 }}>
           <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider' }}>
-            <Typography variant="subtitle1" fontWeight={600}>
+            <Typography variant='subtitle1' fontWeight={600}>
               {t('passkey.select_recovery', 'Select Recovery Method')}
             </Typography>
           </Box>
@@ -252,19 +256,19 @@ export default function PasskeyRecoveryOptions() {
                     </Box>
                     <Box sx={{ flex: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography variant="subtitle2" fontWeight={600}>
+                        <Typography variant='subtitle2' fontWeight={600}>
                           {option.label}
                         </Typography>
                         {option.recommended && (
                           <Chip
-                            label="Recommended"
-                            size="small"
-                            color="primary"
+                            label='Recommended'
+                            size='small'
+                            color='primary'
                             sx={{ height: 20, fontSize: '0.65rem', fontWeight: 600 }}
                           />
                         )}
                       </Box>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant='caption' color='text.secondary'>
                         {option.description}
                       </Typography>
                     </Box>
@@ -288,7 +292,7 @@ export default function PasskeyRecoveryOptions() {
       <Collapse in={showSetup}>
         <Card sx={{ borderRadius: 3, border: 1, borderColor: 'divider', mb: 3 }}>
           <CardContent>
-            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+            <Typography variant='subtitle1' fontWeight={600} sx={{ mb: 2 }}>
               {t('passkey.verify_recovery', 'Verify Recovery Method')}
             </Typography>
 
@@ -302,23 +306,30 @@ export default function PasskeyRecoveryOptions() {
               <Box sx={{ textAlign: 'center', mb: 2 }}>
                 {setupData.qrDataUrl && (
                   <Box
-                    component="img"
+                    component='img'
                     src={setupData.qrDataUrl}
-                    alt="QR Code"
+                    alt='QR Code'
                     sx={{ width: 160, height: 160, mx: 'auto', mb: 2, borderRadius: 2 }}
                   />
                 )}
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
                   Scan the QR code with your authenticator app, then enter the 6-digit code.
                 </Typography>
                 <TextField
                   fullWidth
                   value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="000 000"
+                  onChange={(e) =>
+                    setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+                  }
+                  placeholder='000 000'
                   inputProps={{
                     maxLength: 6,
-                    style: { textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '0.3em' },
+                    style: {
+                      textAlign: 'center',
+                      fontSize: '1.5rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.3em',
+                    },
                   }}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                 />
@@ -327,17 +338,24 @@ export default function PasskeyRecoveryOptions() {
 
             {!loading && selectedMethod === 'sms' && (
               <Box sx={{ textAlign: 'center', mb: 2 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
                   Enter the 6-digit verification code sent to your registered phone number.
                 </Typography>
                 <TextField
                   fullWidth
                   value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="000 000"
+                  onChange={(e) =>
+                    setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+                  }
+                  placeholder='000 000'
                   inputProps={{
                     maxLength: 6,
-                    style: { textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '0.3em' },
+                    style: {
+                      textAlign: 'center',
+                      fontSize: '1.5rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.3em',
+                    },
                   }}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                 />
@@ -346,7 +364,7 @@ export default function PasskeyRecoveryOptions() {
 
             {!loading && selectedMethod === 'backup_codes' && (
               <Box sx={{ textAlign: 'center', mb: 2 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
                   Save these backup codes in a secure password manager.
                 </Typography>
                 <Box
@@ -361,19 +379,29 @@ export default function PasskeyRecoveryOptions() {
                   }}
                 >
                   {backupCodes.map((c, i) => (
-                    <Chip key={i} label={c} variant="outlined" sx={{ fontFamily: 'monospace', fontWeight: 700 }} />
+                    <Chip
+                      key={i}
+                      label={c}
+                      variant='outlined'
+                      sx={{ fontFamily: 'monospace', fontWeight: 700 }}
+                    />
                   ))}
                 </Box>
-                <Stack direction="row" spacing={1.5} justifyContent="center">
+                <Stack direction='row' spacing={1.5} justifyContent='center'>
                   <Button
-                    variant="outlined"
-                    size="small"
+                    variant='outlined'
+                    size='small'
                     onClick={handleCopyCodes}
                     startIcon={copiedCodes ? <Check /> : <ContentCopy />}
                   >
                     {copiedCodes ? 'Copied' : 'Copy Codes'}
                   </Button>
-                  <Button variant="outlined" size="small" onClick={handleDownloadCodes} startIcon={<Download />}>
+                  <Button
+                    variant='outlined'
+                    size='small'
+                    onClick={handleDownloadCodes}
+                    startIcon={<Download />}
+                  >
                     Download .txt
                   </Button>
                 </Stack>
@@ -389,9 +417,12 @@ export default function PasskeyRecoveryOptions() {
           {t('common.cancel', 'Cancel')}
         </Button>
         <Button
-          variant="contained"
+          variant='contained'
           onClick={showSetup ? handleConfirmSetup : handleStartSetup}
-          disabled={loading || (showSetup && selectedMethod !== 'backup_codes' && verificationCode.length !== 6)}
+          disabled={
+            loading ||
+            (showSetup && selectedMethod !== 'backup_codes' && verificationCode.length !== 6)
+          }
           endIcon={showSetup ? undefined : <ArrowForward />}
           sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2, px: 4 }}
         >
@@ -406,8 +437,8 @@ export default function PasskeyRecoveryOptions() {
       {/* Footer */}
       <Box sx={{ mt: 4, textAlign: 'center' }}>
         <Typography
-          variant="caption"
-          color="text.disabled"
+          variant='caption'
+          color='text.disabled'
           sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}
         >
           <Lock sx={{ fontSize: 12 }} />

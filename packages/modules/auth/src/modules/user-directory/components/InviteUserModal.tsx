@@ -47,7 +47,10 @@ import {
   BulkInviteUserFormData,
 } from '../schemas/userDirectory.schema'
 import { useRolesQuery } from '../hooks/useUserDirectoryQuery'
-import { useInviteUserMutation, useBulkInviteUsersMutation } from '../hooks/useUserDirectoryMutations'
+import {
+  useInviteUserMutation,
+  useBulkInviteUsersMutation,
+} from '../hooks/useUserDirectoryMutations'
 
 export interface InviteUserModalProps {
   open: boolean
@@ -66,9 +69,19 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
     return (
       rolesResponse?.data || [
         { id: 1, name: 'User', slug: 'user', description: 'Standard tenant user access' },
-        { id: 2, name: 'Administrator', slug: 'admin', description: 'Full tenant admin privileges' },
+        {
+          id: 2,
+          name: 'Administrator',
+          slug: 'admin',
+          description: 'Full tenant admin privileges',
+        },
         { id: 3, name: 'Manager', slug: 'manager', description: 'Department and team management' },
-        { id: 4, name: 'Auditor', slug: 'auditor', description: 'Read-only audit and compliance log access' },
+        {
+          id: 4,
+          name: 'Auditor',
+          slug: 'auditor',
+          description: 'Read-only audit and compliance log access',
+        },
       ]
     )
   }, [rolesResponse])
@@ -145,7 +158,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
     <Dialog
       open={open}
       onClose={isSubmitting ? undefined : onClose}
-      maxWidth="md"
+      maxWidth='md'
       fullWidth
       PaperProps={{
         sx: {
@@ -168,7 +181,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
           borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
         }}
       >
-        <Stack direction="row" spacing={1.5} alignItems="center">
+        <Stack direction='row' spacing={1.5} alignItems='center'>
           <Box
             sx={{
               p: 1,
@@ -183,24 +196,24 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
             {tabIndex === 0 ? <PersonAddIcon /> : <GroupAddIcon />}
           </Box>
           <Box>
-            <Typography variant="h6" fontWeight={700}>
+            <Typography variant='h6' fontWeight={700}>
               {tabIndex === 0 ? 'Invite Single User' : 'Bulk User Invitation'}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant='caption' color='text.secondary'>
               Provision access and roles for new directory members
             </Typography>
           </Box>
         </Stack>
         <IconButton
           onClick={onClose}
-          size="small"
+          size='small'
           disabled={isSubmitting}
           sx={{
             color: 'text.secondary',
             '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.05) },
           }}
         >
-          <CloseIcon fontSize="small" />
+          <CloseIcon fontSize='small' />
         </IconButton>
       </DialogTitle>
 
@@ -219,26 +232,26 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
             },
           }}
         >
-          <Tab icon={<PersonAddIcon fontSize="small" />} iconPosition="start" label="Single User" />
-          <Tab icon={<GroupAddIcon fontSize="small" />} iconPosition="start" label="Bulk Import" />
+          <Tab icon={<PersonAddIcon fontSize='small' />} iconPosition='start' label='Single User' />
+          <Tab icon={<GroupAddIcon fontSize='small' />} iconPosition='start' label='Bulk Import' />
         </Tabs>
       </Box>
 
       {/* Form Content */}
       <DialogContent sx={{ p: 3, py: 2.5 }}>
         {tabIndex === 0 ? (
-          <form id="invite-single-form" onSubmit={singleForm.handleSubmit(handleSingleSubmit)}>
+          <form id='invite-single-form' onSubmit={singleForm.handleSubmit(handleSingleSubmit)}>
             <Grid container spacing={2.5}>
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Controller
-                  name="firstName"
+                  name='firstName'
                   control={singleForm.control}
                   render={({ field, fieldState }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      label="First Name"
-                      placeholder="e.g. John"
+                      label='First Name'
+                      placeholder='e.g. John'
                       error={Boolean(fieldState.error)}
                       helperText={fieldState.error?.message}
                       required
@@ -248,14 +261,14 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Controller
-                  name="lastName"
+                  name='lastName'
                   control={singleForm.control}
                   render={({ field, fieldState }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      label="Last Name"
-                      placeholder="e.g. Doe"
+                      label='Last Name'
+                      placeholder='e.g. Doe'
                       error={Boolean(fieldState.error)}
                       helperText={fieldState.error?.message}
                       required
@@ -265,15 +278,15 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
               </Grid>
               <Grid size={{ xs: 12 }}>
                 <Controller
-                  name="email"
+                  name='email'
                   control={singleForm.control}
                   render={({ field, fieldState }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      type="email"
-                      label="Email Address"
-                      placeholder="e.g. john.doe@company.com"
+                      type='email'
+                      label='Email Address'
+                      placeholder='e.g. john.doe@company.com'
                       error={Boolean(fieldState.error)}
                       helperText={fieldState.error?.message}
                       required
@@ -283,14 +296,14 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Controller
-                  name="department"
+                  name='department'
                   control={singleForm.control}
                   render={({ field, fieldState }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      label="Department"
-                      placeholder="e.g. Engineering"
+                      label='Department'
+                      placeholder='e.g. Engineering'
                       error={Boolean(fieldState.error)}
                       helperText={fieldState.error?.message}
                     />
@@ -299,14 +312,14 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Controller
-                  name="jobTitle"
+                  name='jobTitle'
                   control={singleForm.control}
                   render={({ field, fieldState }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      label="Job Title"
-                      placeholder="e.g. Senior Software Engineer"
+                      label='Job Title'
+                      placeholder='e.g. Senior Software Engineer'
                       error={Boolean(fieldState.error)}
                       helperText={fieldState.error?.message}
                     />
@@ -317,20 +330,20 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
               {/* Role Multi-Select */}
               <Grid size={{ xs: 12 }}>
                 <Controller
-                  name="roleIds"
+                  name='roleIds'
                   control={singleForm.control}
                   render={({ field, fieldState }) => (
                     <FormControl fullWidth error={Boolean(fieldState.error)}>
-                      <InputLabel id="role-select-label">Assigned Roles</InputLabel>
+                      <InputLabel id='role-select-label'>Assigned Roles</InputLabel>
                       <Select
-                        labelId="role-select-label"
+                        labelId='role-select-label'
                         multiple
                         value={field.value || []}
                         onChange={(e) => {
                           const val = e.target.value
                           field.onChange(typeof val === 'string' ? val.split(',').map(Number) : val)
                         }}
-                        input={<OutlinedInput label="Assigned Roles" />}
+                        input={<OutlinedInput label='Assigned Roles' />}
                         renderValue={(selected) => (
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                             {selected.map((roleId: number) => {
@@ -339,9 +352,9 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                                 <Chip
                                   key={roleId}
                                   label={role?.name || `Role #${roleId}`}
-                                  size="small"
-                                  color="primary"
-                                  variant="outlined"
+                                  size='small'
+                                  color='primary'
+                                  variant='outlined'
                                 />
                               )
                             })}
@@ -350,26 +363,32 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                       >
                         {availableRoles.map((role) => (
                           <MenuItem key={role.id} value={role.id}>
-                            <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between" width="100%">
+                            <Stack
+                              direction='row'
+                              spacing={1}
+                              alignItems='center'
+                              justifyContent='space-between'
+                              width='100%'
+                            >
                               <Box>
-                                <Typography variant="body2" fontWeight={600}>
+                                <Typography variant='body2' fontWeight={600}>
                                   {role.name}
                                 </Typography>
                                 {role.description && (
-                                  <Typography variant="caption" color="text.secondary">
+                                  <Typography variant='caption' color='text.secondary'>
                                     {role.description}
                                   </Typography>
                                 )}
                               </Box>
                               {selectedRoleIds?.includes(role.id) && (
-                                <CheckCircleOutlineIcon fontSize="small" color="primary" />
+                                <CheckCircleOutlineIcon fontSize='small' color='primary' />
                               )}
                             </Stack>
                           </MenuItem>
                         ))}
                       </Select>
                       {fieldState.error && (
-                        <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
+                        <Typography variant='caption' color='error' sx={{ mt: 0.5 }}>
                           {fieldState.error.message}
                         </Typography>
                       )}
@@ -389,16 +408,22 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                       border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                     }}
                   >
-                    <Typography variant="caption" color="text.secondary" fontWeight={600} display="block" mb={0.75}>
+                    <Typography
+                      variant='caption'
+                      color='text.secondary'
+                      fontWeight={600}
+                      display='block'
+                      mb={0.75}
+                    >
                       Included Role Capabilities:
                     </Typography>
-                    <Stack direction="row" flexWrap="wrap" gap={0.75}>
+                    <Stack direction='row' flexWrap='wrap' gap={0.75}>
                       {selectedRoles.map((r) => (
                         <Chip
                           key={r.id}
-                          icon={<SecurityIcon fontSize="small" />}
+                          icon={<SecurityIcon fontSize='small' />}
                           label={r.name}
-                          size="small"
+                          size='small'
                           sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                         />
                       ))}
@@ -413,18 +438,24 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
 
               <Grid size={{ xs: 12 }}>
                 <Controller
-                  name="sendInviteEmail"
+                  name='sendInviteEmail'
                   control={singleForm.control}
                   render={({ field }) => (
                     <FormControlLabel
-                      control={<Switch checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />}
+                      control={
+                        <Switch
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                        />
+                      }
                       label={
                         <Box>
-                          <Typography variant="body2" fontWeight={600}>
+                          <Typography variant='body2' fontWeight={600}>
                             Send invitation email with activation link
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            User will receive instructions to set up their password and activate their profile.
+                          <Typography variant='caption' color='text.secondary'>
+                            User will receive instructions to set up their password and activate
+                            their profile.
                           </Typography>
                         </Box>
                       }
@@ -435,14 +466,15 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
             </Grid>
           </form>
         ) : (
-          <form id="invite-bulk-form" onSubmit={bulkForm.handleSubmit(handleBulkSubmit)}>
+          <form id='invite-bulk-form' onSubmit={bulkForm.handleSubmit(handleBulkSubmit)}>
             <Stack spacing={2.5}>
-              <Alert severity="info" icon={<InfoOutlinedIcon fontSize="small" />}>
-                Enter multiple email addresses separated by commas, semicolons, or new lines. Each invited user will be assigned the selected roles.
+              <Alert severity='info' icon={<InfoOutlinedIcon fontSize='small' />}>
+                Enter multiple email addresses separated by commas, semicolons, or new lines. Each
+                invited user will be assigned the selected roles.
               </Alert>
 
               <Controller
-                name="emails"
+                name='emails'
                 control={bulkForm.control}
                 render={({ field, fieldState }) => (
                   <TextField
@@ -450,8 +482,8 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                     fullWidth
                     multiline
                     rows={4}
-                    label="Email Addresses"
-                    placeholder="alex@company.com&#10;sarah@company.com&#10;david@company.com"
+                    label='Email Addresses'
+                    placeholder='alex@company.com&#10;sarah@company.com&#10;david@company.com'
                     error={Boolean(fieldState.error)}
                     helperText={fieldState.error?.message}
                     required
@@ -460,20 +492,20 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
               />
 
               <Controller
-                name="roleIds"
+                name='roleIds'
                 control={bulkForm.control}
                 render={({ field, fieldState }) => (
                   <FormControl fullWidth error={Boolean(fieldState.error)}>
-                    <InputLabel id="bulk-role-select-label">Default Assigned Roles</InputLabel>
+                    <InputLabel id='bulk-role-select-label'>Default Assigned Roles</InputLabel>
                     <Select
-                      labelId="bulk-role-select-label"
+                      labelId='bulk-role-select-label'
                       multiple
                       value={field.value || []}
                       onChange={(e) => {
                         const val = e.target.value
                         field.onChange(typeof val === 'string' ? val.split(',').map(Number) : val)
                       }}
-                      input={<OutlinedInput label="Default Assigned Roles" />}
+                      input={<OutlinedInput label='Default Assigned Roles' />}
                       renderValue={(selected) => (
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                           {selected.map((roleId: number) => {
@@ -482,9 +514,9 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                               <Chip
                                 key={roleId}
                                 label={role?.name || `Role #${roleId}`}
-                                size="small"
-                                color="primary"
-                                variant="outlined"
+                                size='small'
+                                color='primary'
+                                variant='outlined'
                               />
                             )
                           })}
@@ -493,26 +525,32 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                     >
                       {availableRoles.map((role) => (
                         <MenuItem key={role.id} value={role.id}>
-                          <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between" width="100%">
+                          <Stack
+                            direction='row'
+                            spacing={1}
+                            alignItems='center'
+                            justifyContent='space-between'
+                            width='100%'
+                          >
                             <Box>
-                              <Typography variant="body2" fontWeight={600}>
+                              <Typography variant='body2' fontWeight={600}>
                                 {role.name}
                               </Typography>
                               {role.description && (
-                                <Typography variant="caption" color="text.secondary">
+                                <Typography variant='caption' color='text.secondary'>
                                   {role.description}
                                 </Typography>
                               )}
                             </Box>
                             {selectedRoleIds?.includes(role.id) && (
-                              <CheckCircleOutlineIcon fontSize="small" color="primary" />
+                              <CheckCircleOutlineIcon fontSize='small' color='primary' />
                             )}
                           </Stack>
                         </MenuItem>
                       ))}
                     </Select>
                     {fieldState.error && (
-                      <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
+                      <Typography variant='caption' color='error' sx={{ mt: 0.5 }}>
                         {fieldState.error.message}
                       </Typography>
                     )}
@@ -521,14 +559,14 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
               />
 
               <Controller
-                name="department"
+                name='department'
                 control={bulkForm.control}
                 render={({ field, fieldState }) => (
                   <TextField
                     {...field}
                     fullWidth
-                    label="Department (Optional)"
-                    placeholder="e.g. Sales, Marketing"
+                    label='Department (Optional)'
+                    placeholder='e.g. Sales, Marketing'
                     error={Boolean(fieldState.error)}
                     helperText={fieldState.error?.message}
                   />
@@ -536,13 +574,18 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
               />
 
               <Controller
-                name="sendInviteEmail"
+                name='sendInviteEmail'
                 control={bulkForm.control}
                 render={({ field }) => (
                   <FormControlLabel
-                    control={<Switch checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />}
+                    control={
+                      <Switch
+                        checked={field.value}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                      />
+                    }
                     label={
-                      <Typography variant="body2" fontWeight={600}>
+                      <Typography variant='body2' fontWeight={600}>
                         Send activation email to all invited users
                       </Typography>
                     }
@@ -565,16 +608,16 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
       >
         <Button
           onClick={onClose}
-          color="inherit"
+          color='inherit'
           disabled={isSubmitting}
           sx={{ textTransform: 'none', fontWeight: 600 }}
         >
           Cancel
         </Button>
         <Button
-          type="submit"
+          type='submit'
           form={tabIndex === 0 ? 'invite-single-form' : 'invite-bulk-form'}
-          variant="contained"
+          variant='contained'
           disabled={isSubmitting}
           sx={{
             textTransform: 'none',
@@ -585,7 +628,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
           }}
         >
           {isSubmitting ? (
-            <CircularProgress size={20} color="inherit" />
+            <CircularProgress size={20} color='inherit' />
           ) : tabIndex === 0 ? (
             'Send Invitation'
           ) : (

@@ -23,7 +23,7 @@ describe('LayoutRouteWrapper', () => {
     const { unmount } = render(
       <LayoutRouteWrapper layout={RouteLayoutEnum.NO_LAYOUT}>
         <div>Test Page</div>
-      </LayoutRouteWrapper>
+      </LayoutRouteWrapper>,
     )
 
     expect(useAppStore.getState().layoutOverride).toBe('noLayout')
@@ -35,9 +35,9 @@ describe('LayoutRouteWrapper', () => {
 
   it('renders child element cleanly', () => {
     const { getByText } = render(
-      <LayoutRouteWrapper layout="admin">
+      <LayoutRouteWrapper layout='admin'>
         <div>Admin Content</div>
-      </LayoutRouteWrapper>
+      </LayoutRouteWrapper>,
     )
 
     expect(getByText('Admin Content')).toBeTruthy()

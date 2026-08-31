@@ -695,9 +695,7 @@ export function ChangePassword() {
                     boxShadow: 'none',
                   },
                 }}
-                startIcon={
-                  isPending ? <CircularProgress size={18} color='inherit' /> : undefined
-                }
+                startIcon={isPending ? <CircularProgress size={18} color='inherit' /> : undefined}
               >
                 {isPending
                   ? t('auth.common.processing', 'Processing...')

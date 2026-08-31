@@ -11,7 +11,6 @@ import {
 } from '@cap/module-auth/modules/identity-broker/hooks/useOidcCompliance'
 import { useInitiateSamlSso } from './useSAMLQuery'
 
-
 const { mockUserinfo, mockIntrospect, mockRevoke, mockEndSession, mockSso } = vi.hoisted(() => ({
   mockUserinfo: vi.fn(),
   mockIntrospect: vi.fn(),
@@ -38,7 +37,6 @@ vi.mock('../services/saml.service', () => ({
   },
 }))
 
-
 function makeWrapper() {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -47,7 +45,6 @@ function makeWrapper() {
     React.createElement(QueryClientProvider, { client }, children)
   return Wrapper
 }
-
 
 describe('oidcComplianceKeys', () => {
   it('all key is a stable tuple', () => {
@@ -209,5 +206,3 @@ describe('useInitiateSamlSso', () => {
     await waitFor(() => expect(result.current.isError).toBe(true))
   })
 })
-
-

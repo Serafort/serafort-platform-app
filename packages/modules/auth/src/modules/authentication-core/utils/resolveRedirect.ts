@@ -20,4 +20,3 @@ export const resolveRedirectPathForUser = (userRole?: Roles | string | number): 
   }
   return '/auth/account'
 }
-

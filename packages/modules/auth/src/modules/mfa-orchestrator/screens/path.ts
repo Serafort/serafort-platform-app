@@ -24,7 +24,6 @@ const Path = {
     setup_auto: '/auth/passkey/setup/auto',
     usage_stats: '/auth/passkey/usage-stats',
     example: '/auth/passkey/example',
-
   },
   platform: {
     login: '/auth/platform/login',

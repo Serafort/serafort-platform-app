@@ -14,21 +14,21 @@ import {
   LinearProgress,
   alpha,
 } from '@mui/material'
-import Analytics from '@mui/icons-material/Analytics';
-import CheckCircle from '@mui/icons-material/CheckCircle';
-import Timer from '@mui/icons-material/Timer';
-import NotificationsActive from '@mui/icons-material/NotificationsActive';
-import Smartphone from '@mui/icons-material/Smartphone';
-import Sms from '@mui/icons-material/Sms';
-import Email from '@mui/icons-material/Email';
-import UsbOutlined from '@mui/icons-material/UsbOutlined';
-import Key from '@mui/icons-material/Key';
-import GppBad from '@mui/icons-material/GppBad';
-import TravelExplore from '@mui/icons-material/TravelExplore';
-import Policy from '@mui/icons-material/Policy';
-import DevicesOther from '@mui/icons-material/DevicesOther';
-import PublicOff from '@mui/icons-material/PublicOff';
-import Schedule from '@mui/icons-material/Schedule';
+import Analytics from '@mui/icons-material/Analytics'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import Timer from '@mui/icons-material/Timer'
+import NotificationsActive from '@mui/icons-material/NotificationsActive'
+import Smartphone from '@mui/icons-material/Smartphone'
+import Sms from '@mui/icons-material/Sms'
+import Email from '@mui/icons-material/Email'
+import UsbOutlined from '@mui/icons-material/UsbOutlined'
+import Key from '@mui/icons-material/Key'
+import GppBad from '@mui/icons-material/GppBad'
+import TravelExplore from '@mui/icons-material/TravelExplore'
+import Policy from '@mui/icons-material/Policy'
+import DevicesOther from '@mui/icons-material/DevicesOther'
+import PublicOff from '@mui/icons-material/PublicOff'
+import Schedule from '@mui/icons-material/Schedule'
 import { useTranslation } from 'react-i18next'
 
 interface StatCard {

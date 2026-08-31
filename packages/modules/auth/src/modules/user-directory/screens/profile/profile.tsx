@@ -133,9 +133,21 @@ const LANGUAGES = [
 
 const TIMEZONES = [
   { label: 'auth.account.timezones.utc', title: 'UTC (Coordinated Universal Time)', value: 'utc' },
-  { label: 'auth.account.timezones.pst', title: 'PST (Pacific Standard Time, UTC-8)', value: 'pst' },
-  { label: 'auth.account.timezones.est', title: 'EST (Eastern Standard Time, UTC-5)', value: 'est' },
-  { label: 'auth.account.timezones.cet', title: 'CET (Central European Time, UTC+1)', value: 'cet' },
+  {
+    label: 'auth.account.timezones.pst',
+    title: 'PST (Pacific Standard Time, UTC-8)',
+    value: 'pst',
+  },
+  {
+    label: 'auth.account.timezones.est',
+    title: 'EST (Eastern Standard Time, UTC-5)',
+    value: 'est',
+  },
+  {
+    label: 'auth.account.timezones.cet',
+    title: 'CET (Central European Time, UTC+1)',
+    value: 'cet',
+  },
 ]
 
 const DATE_FORMATS = [
@@ -160,7 +172,12 @@ export default function ProfileView({
   const theme = useTheme()
   const { t } = useTranslation()
   const { user: authUser } = useAuth()
-  const { data: profileResponse, isLoading: isProfileLoading, isError: isProfileError, refetch: refetchProfile } = useUserProfile()
+  const {
+    data: profileResponse,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+    refetch: refetchProfile,
+  } = useUserProfile()
   const { addNotification } = useNotifications()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { can } = useAbility()
@@ -244,7 +261,11 @@ export default function ProfileView({
     handleSubmit: handleProfileSubmit,
     reset: resetProfileForm,
     setError: setProfileError,
-    formState: { isDirty: isProfileDirty, isSubmitting: isProfileSubmitting, errors: profileErrors },
+    formState: {
+      isDirty: isProfileDirty,
+      isSubmitting: isProfileSubmitting,
+      errors: profileErrors,
+    },
   } = profileForm
 
   // Change Password Form
@@ -275,7 +296,10 @@ export default function ProfileView({
       resetProfileForm({
         firstName: user?.firstName || userAny?.firstname || '',
         lastName: user?.lastName || userAny?.lastname || '',
-        displayName: userAny?.displayName || userAny?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+        displayName:
+          userAny?.displayName ||
+          userAny?.name ||
+          `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
         email: user?.email || '',
         phoneNumber: user?.phone || userAny?.phoneNumber || '',
         jobTitle: profile?.jobTitle || '',
@@ -340,7 +364,10 @@ export default function ProfileView({
       addNotification({
         type: 'error',
         title: t('user.profile.error', 'Update Failed'),
-        message: error?.message || error?.data?.message || t('user.profile.update_error', 'Failed to update profile details.'),
+        message:
+          error?.message ||
+          error?.data?.message ||
+          t('user.profile.update_error', 'Failed to update profile details.'),
       })
     },
   })
@@ -359,7 +386,9 @@ export default function ProfileView({
       addNotification({
         type: 'error',
         title: t('user.profile.error', 'Upload Failed'),
-        message: err?.message || t('user.profile.avatar_update_error', 'Failed to upload new profile photo.'),
+        message:
+          err?.message ||
+          t('user.profile.avatar_update_error', 'Failed to upload new profile photo.'),
       })
     },
   })
@@ -408,7 +437,8 @@ export default function ProfileView({
       addNotification({
         type: 'error',
         title: t('user.profile.error', 'Error'),
-        message: error?.message || t('user.profile.password_change_failed', 'Failed to change password.'),
+        message:
+          error?.message || t('user.profile.password_change_failed', 'Failed to change password.'),
       })
     },
   })
@@ -418,7 +448,10 @@ export default function ProfileView({
       addNotification({
         type: 'success',
         title: t('user.profile.success', 'Verification Sent'),
-        message: t('user.profile.email_change_requested', 'A confirmation link has been sent to the requested email.'),
+        message: t(
+          'user.profile.email_change_requested',
+          'A confirmation link has been sent to the requested email.',
+        ),
       })
       setEmailDialogOpen(false)
       emailForm.reset()
@@ -427,7 +460,9 @@ export default function ProfileView({
       addNotification({
         type: 'error',
         title: t('user.profile.error', 'Request Failed'),
-        message: error?.message || t('user.profile.email_change_failed', 'Failed to request email change.'),
+        message:
+          error?.message ||
+          t('user.profile.email_change_failed', 'Failed to request email change.'),
       })
     },
   })
@@ -444,7 +479,9 @@ export default function ProfileView({
       addNotification({
         type: 'error',
         title: t('user.profile.error', 'Error'),
-        message: error?.message || t('user.profile.verification_resend_failed', 'Failed to resend verification email.'),
+        message:
+          error?.message ||
+          t('user.profile.verification_resend_failed', 'Failed to resend verification email.'),
       })
     },
   })
@@ -466,7 +503,10 @@ export default function ProfileView({
         addNotification({
           type: 'error',
           title: t('user.profile.invalid_file', 'Invalid File Type'),
-          message: t('user.profile.image_format_hint', 'Please select a valid image (.png, .jpg, .jpeg, .webp).'),
+          message: t(
+            'user.profile.image_format_hint',
+            'Please select a valid image (.png, .jpg, .jpeg, .webp).',
+          ),
         })
         if (fileInputRef.current) fileInputRef.current.value = ''
         return
@@ -522,7 +562,10 @@ export default function ProfileView({
       resetProfileForm({
         firstName: user?.firstName || userAny?.firstname || '',
         lastName: user?.lastName || userAny?.lastname || '',
-        displayName: userAny?.displayName || userAny?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+        displayName:
+          userAny?.displayName ||
+          userAny?.name ||
+          `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
         email: user?.email || '',
         phoneNumber: user?.phone || userAny?.phoneNumber || '',
         jobTitle: profile?.jobTitle || '',
@@ -680,7 +723,10 @@ export default function ProfileView({
       {
         id: 'export-data',
         label: t('user.profile.export_data', 'Export Data'),
-        description: t('user.profile.export_data_desc', 'Download a secure JSON copy of your profile'),
+        description: t(
+          'user.profile.export_data_desc',
+          'Download a secure JSON copy of your profile',
+        ),
         icon: isExporting ? <CircularProgress size={18} color='inherit' /> : <Download />,
         onClick: handleExportData,
       },
@@ -725,7 +771,8 @@ export default function ProfileView({
       {
         id: 'phone',
         label: t('user.profile.phone', 'Phone Number'),
-        value: user?.phone || userAny?.phoneNumber || t('user.profile.not_provided', 'Not provided'),
+        value:
+          user?.phone || userAny?.phoneNumber || t('user.profile.not_provided', 'Not provided'),
       },
       {
         id: 'role',
@@ -810,9 +857,15 @@ export default function ProfileView({
                   <Skeleton variant='text' width={180} height={32} />
                   <Skeleton variant='text' width={240} height={20} sx={{ mb: 2 }} />
                   <Grid container spacing={2}>
-                    <Grid size={{ xs: 4 }}><Skeleton variant='rounded' height={60} sx={{ borderRadius: '12px' }} /></Grid>
-                    <Grid size={{ xs: 4 }}><Skeleton variant='rounded' height={60} sx={{ borderRadius: '12px' }} /></Grid>
-                    <Grid size={{ xs: 4 }}><Skeleton variant='rounded' height={60} sx={{ borderRadius: '12px' }} /></Grid>
+                    <Grid size={{ xs: 4 }}>
+                      <Skeleton variant='rounded' height={60} sx={{ borderRadius: '12px' }} />
+                    </Grid>
+                    <Grid size={{ xs: 4 }}>
+                      <Skeleton variant='rounded' height={60} sx={{ borderRadius: '12px' }} />
+                    </Grid>
+                    <Grid size={{ xs: 4 }}>
+                      <Skeleton variant='rounded' height={60} sx={{ borderRadius: '12px' }} />
+                    </Grid>
                   </Grid>
                 </Box>
               </Box>
@@ -832,7 +885,12 @@ export default function ProfileView({
             <Card variant='outlined' sx={{ borderRadius: '16px', p: 2 }}>
               <Skeleton variant='text' width={120} height={28} sx={{ m: 1 }} />
               {[1, 2, 3, 4, 5].map((i) => (
-                <Skeleton key={i} variant='rounded' height={52} sx={{ borderRadius: '12px', mb: 1.5 }} />
+                <Skeleton
+                  key={i}
+                  variant='rounded'
+                  height={52}
+                  sx={{ borderRadius: '12px', mb: 1.5 }}
+                />
               ))}
             </Card>
           </Grid>
@@ -1014,7 +1072,10 @@ export default function ProfileView({
                   style={{ display: 'none' }}
                 />
 
-                <Tooltip title={t('user.profile.upload_avatar_hint', 'Click to upload photo (< 5MB)')} arrow>
+                <Tooltip
+                  title={t('user.profile.upload_avatar_hint', 'Click to upload photo (< 5MB)')}
+                  arrow
+                >
                   <Box
                     sx={{
                       position: 'relative',
@@ -1062,7 +1123,10 @@ export default function ProfileView({
                       ) : (
                         <>
                           <PhotoCamera sx={{ color: 'white', fontSize: 26 }} />
-                          <Typography variant='caption' sx={{ color: 'white', fontWeight: 600, fontSize: '0.6875rem', mt: 0.5 }}>
+                          <Typography
+                            variant='caption'
+                            sx={{ color: 'white', fontWeight: 600, fontSize: '0.6875rem', mt: 0.5 }}
+                          >
                             {t('user.profile.change', 'Change')}
                           </Typography>
                         </>
@@ -1097,7 +1161,13 @@ export default function ProfileView({
                     color='error'
                     onClick={handleRemoveAvatar}
                     disabled={deleteAvatarMutation.isPending}
-                    startIcon={deleteAvatarMutation.isPending ? <CircularProgress size={12} /> : <DeleteOutline sx={{ fontSize: 14 }} />}
+                    startIcon={
+                      deleteAvatarMutation.isPending ? (
+                        <CircularProgress size={12} />
+                      ) : (
+                        <DeleteOutline sx={{ fontSize: 14 }} />
+                      )
+                    }
                     sx={{
                       mt: 1.5,
                       textTransform: 'none',
@@ -1154,12 +1224,18 @@ export default function ProfileView({
                   <Chip
                     icon={<Verified sx={{ fontSize: 14 }} />}
                     label={
-                      (user as any)?.emailVerified !== false && (user as any)?.isEmailVerified !== false
+                      (user as any)?.emailVerified !== false &&
+                      (user as any)?.isEmailVerified !== false
                         ? t('user.profile.verified', 'Verified')
                         : t('user.profile.unverified', 'Unverified')
                     }
                     size='small'
-                    color={(user as any)?.emailVerified !== false && (user as any)?.isEmailVerified !== false ? 'success' : 'default'}
+                    color={
+                      (user as any)?.emailVerified !== false &&
+                      (user as any)?.isEmailVerified !== false
+                        ? 'success'
+                        : 'default'
+                    }
                     variant='outlined'
                     sx={{
                       height: 22,
@@ -1268,7 +1344,9 @@ export default function ProfileView({
                       </Typography>
 
                       <Typography variant='body2' fontWeight={600} noWrap>
-                        {formatDate(user?.updatedAt || (user as any)?.lastLoginAt || new Date().toISOString())}
+                        {formatDate(
+                          user?.updatedAt || (user as any)?.lastLoginAt || new Date().toISOString(),
+                        )}
                       </Typography>
                     </Box>
                   </Grid>
@@ -1558,7 +1636,9 @@ export default function ProfileView({
                               'Tell us a little about your role and background...',
                             )}
                             error={!!fieldState.error}
-                            helperText={fieldState.error?.message || `${(field.value || '').length}/500`}
+                            helperText={
+                              fieldState.error?.message || `${(field.value || '').length}/500`
+                            }
                             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                           />
                         )}
@@ -1768,7 +1848,9 @@ export default function ProfileView({
                   <Button
                     type='submit'
                     variant='contained'
-                    disabled={updateProfileMutation.isPending || isProfileSubmitting || !isProfileDirty}
+                    disabled={
+                      updateProfileMutation.isPending || isProfileSubmitting || !isProfileDirty
+                    }
                     startIcon={
                       updateProfileMutation.isPending || isProfileSubmitting ? (
                         <CircularProgress size={16} color='inherit' />
@@ -2043,7 +2125,11 @@ export default function ProfileView({
                             onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                             edge='end'
                           >
-                            {showCurrentPassword ? <VisibilityOff fontSize='small' /> : <Visibility fontSize='small' />}
+                            {showCurrentPassword ? (
+                              <VisibilityOff fontSize='small' />
+                            ) : (
+                              <Visibility fontSize='small' />
+                            )}
                           </IconButton>
                         </InputAdornment>
                       ),
@@ -2075,7 +2161,11 @@ export default function ProfileView({
                             onClick={() => setShowNewPassword(!showNewPassword)}
                             edge='end'
                           >
-                            {showNewPassword ? <VisibilityOff fontSize='small' /> : <Visibility fontSize='small' />}
+                            {showNewPassword ? (
+                              <VisibilityOff fontSize='small' />
+                            ) : (
+                              <Visibility fontSize='small' />
+                            )}
                           </IconButton>
                         </InputAdornment>
                       ),
@@ -2107,7 +2197,11 @@ export default function ProfileView({
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                             edge='end'
                           >
-                            {showConfirmPassword ? <VisibilityOff fontSize='small' /> : <Visibility fontSize='small' />}
+                            {showConfirmPassword ? (
+                              <VisibilityOff fontSize='small' />
+                            ) : (
+                              <Visibility fontSize='small' />
+                            )}
                           </IconButton>
                         </InputAdornment>
                       ),
@@ -2136,7 +2230,13 @@ export default function ProfileView({
               type='submit'
               variant='contained'
               disabled={changePasswordMutation.isPending}
-              startIcon={changePasswordMutation.isPending ? <CircularProgress size={16} color='inherit' /> : <Check />}
+              startIcon={
+                changePasswordMutation.isPending ? (
+                  <CircularProgress size={16} color='inherit' />
+                ) : (
+                  <Check />
+                )
+              }
               sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
             >
               {changePasswordMutation.isPending
@@ -2177,7 +2277,9 @@ export default function ProfileView({
           noValidate
         >
           <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-            <Box sx={{ p: 2, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: '12px' }}>
+            <Box
+              sx={{ p: 2, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: '12px' }}
+            >
               <Typography variant='caption' color='text.secondary' fontWeight={600} display='block'>
                 {t('user.profile.current_email', 'Current Email')}
               </Typography>
@@ -2351,7 +2453,10 @@ export default function ProfileView({
         </DialogTitle>
 
         <DialogContent>
-          <DialogContentText id='delete-account-dialog-description' sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+          <DialogContentText
+            id='delete-account-dialog-description'
+            sx={{ color: 'text.secondary', fontSize: '0.875rem' }}
+          >
             {t(
               'user.profile.delete_account_confirm_desc',
               'Are you sure you want to proceed to the account deletion page? This action will permanently erase your profile and all associated records.',

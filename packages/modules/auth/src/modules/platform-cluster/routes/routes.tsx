@@ -12,18 +12,26 @@ const ModuleManagementDashboard = React.lazy(
 const ScopesRegistry = React.lazy(() => import('../screens/developer/ScopesRegistry'))
 const WebhookManagement = React.lazy(() => import('../screens/developer/WebhookManagement'))
 // --- Montoring screens ---
-const AdminOverviewDashboard = React.lazy(() => import('../screens/monitoring/AdminOverviewDashboard'))
+const AdminOverviewDashboard = React.lazy(
+  () => import('../screens/monitoring/AdminOverviewDashboard'),
+)
 const AuthEventsMonitor = React.lazy(() => import('../screens/monitoring/AuthEventsMonitor'))
 const EmailTemplatePreview = React.lazy(() => import('../screens/monitoring/EmailTemplatePreview'))
-const EmailTestingDashboard = React.lazy(() => import('../screens/monitoring/EmailTestingDashboard'))
+const EmailTestingDashboard = React.lazy(
+  () => import('../screens/monitoring/EmailTestingDashboard'),
+)
 const ExportAuditTrail = React.lazy(() => import('../screens/monitoring/ExportAuditTrail'))
 const MFAUsageAnalytics = React.lazy(() => import('../screens/monitoring/MFAUsageAnalytics'))
-const RealTimeAuthEventsMonitor = React.lazy(() => import('../screens/monitoring/RealTimeAuthEventsMonitor'))
-const RealTimeAuthEventsMonitorV2 = React.lazy(() => import('../screens/monitoring/RealTimeAuthEventsMonitorV2'))
+const RealTimeAuthEventsMonitor = React.lazy(
+  () => import('../screens/monitoring/RealTimeAuthEventsMonitor'),
+)
+const RealTimeAuthEventsMonitorV2 = React.lazy(
+  () => import('../screens/monitoring/RealTimeAuthEventsMonitorV2'),
+)
 const SecurityHealthCheck = React.lazy(() => import('../screens/monitoring/SecurityHealthCheck'))
-const SystemHealthDashboard = React.lazy(() => import('../screens/monitoring/SystemHealthDashboard'))
-
-
+const SystemHealthDashboard = React.lazy(
+  () => import('../screens/monitoring/SystemHealthDashboard'),
+)
 
 const BrowserNotSupported = React.lazy(() => import('../screens/system/BrowserNotSupported'))
 const CsrfErrorScreen = React.lazy(() => import('../screens/system/CsrfErrorScreen'))
@@ -32,7 +40,6 @@ const MaintenanceScreen = React.lazy(() => import('../screens/system/Maintenance
 const Page401Unauthorized = React.lazy(() => import('../screens/system/Page401Unauthorized'))
 const Page403Forbidden = React.lazy(() => import('../screens/system/Page403Forbidden'))
 const Page429TooManyRequests = React.lazy(() => import('../screens/system/Page429TooManyRequests'))
-
 
 export const platformClusterRouteConfig: AuthRouteConfig[] = [
   // --- Developer routes (admin-gated: session + admin policy + minimum role) ---
@@ -62,5 +69,4 @@ export const platformClusterRouteConfig: AuthRouteConfig[] = [
   { path: Path.system.maintenance, element: <MaintenanceScreen />, layout: 'noLayout' },
   { path: Path.system.tooManyRequests429, element: <Page429TooManyRequests />, layout: 'noLayout' },
   { path: Path.system.forbidden403, element: <Page403Forbidden />, layout: 'noLayout' },
-
 ]

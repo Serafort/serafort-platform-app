@@ -23,7 +23,7 @@ const PublicLayout: React.FC<
     >
       {/* Header Section */}
       <Box
-        component="header"
+        component='header'
         sx={{
           color: 'white',
           width: '100%',
@@ -34,13 +34,13 @@ const PublicLayout: React.FC<
       </Box>
 
       {/* Main Content Area */}
-      <Box component="main" sx={{ flex: '1 1 auto' }}>
+      <Box component='main' sx={{ flex: '1 1 auto' }}>
         <LayoutContent>{children}</LayoutContent>
       </Box>
 
       {/* Footer Section */}
       <Box
-        component="footer"
+        component='footer'
         sx={{
           backgroundColor: 'background.paper',
           color: 'text.primary',

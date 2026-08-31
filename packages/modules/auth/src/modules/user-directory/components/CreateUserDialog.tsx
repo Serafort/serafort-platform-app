@@ -14,8 +14,8 @@ import {
   CircularProgress,
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'react-toastify';
-import { useCreateUser } from "@idaas/authentication-core/hooks/useAdminQuery"
+import { toast } from 'react-toastify'
+import { useCreateUser } from '@idaas/authentication-core/hooks/useAdminQuery'
 
 interface CreateUserRequest {
   email: string
@@ -123,7 +123,10 @@ export default function CreateUserDialog({ open, onClose }: CreateUserDialogProp
                   value={formData.role_id}
                   label={t('auth.common.roleLabel')}
                   onChange={(e) =>
-                    setFormData((prev: CreateUserRequest) => ({ ...prev, role_id: e.target.value as number }))
+                    setFormData((prev: CreateUserRequest) => ({
+                      ...prev,
+                      role_id: e.target.value as number,
+                    }))
                   }
                 >
                   <MenuItem value={1}>{t('auth.common.user')}</MenuItem>
@@ -154,5 +157,3 @@ export default function CreateUserDialog({ open, onClose }: CreateUserDialogProp
     </Dialog>
   )
 }
-
-

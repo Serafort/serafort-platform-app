@@ -15,19 +15,21 @@ This directory contains generic, technical React hooks and React integrations fo
 
 ## Directory Convention
 
-| Directory | Purpose | Examples |
-|-----------|---------|----------|
-| `src/hooks/` | **Domain hooks** - Business logic, user state | `useAuth`, `usePermissions`, `useNavigation` |
-| `src/services/hooks/` | **Infrastructure hooks** - Technical utilities | `useDebounce`, `useApi`, `useSSE` |
+| Directory             | Purpose                                        | Examples                                     |
+| --------------------- | ---------------------------------------------- | -------------------------------------------- |
+| `src/hooks/`          | **Domain hooks** - Business logic, user state  | `useAuth`, `usePermissions`, `useNavigation` |
+| `src/services/hooks/` | **Infrastructure hooks** - Technical utilities | `useDebounce`, `useApi`, `useSSE`            |
 
 ## When to use which?
 
 **Use `src/hooks/`** when the hook:
+
 - Depends on business domain concepts (users, roles, navigation)
 - Uses domain-specific types or stores
 - Ties to application feature logic
 
 **Use `src/services/hooks/`** when the hook:
+
 - Is generic/reusable across any application
 - Wraps a technical service (API, storage, SSE)
 - Provides utility functionality (debounce, deduplication)

@@ -23,9 +23,20 @@ const ChangePassword = React.lazy(() =>
 // Route config
 // ---------------------------------------------------------------------------
 export const sessionManagerRouteConfig: AuthRouteConfig[] = [
-  createAuthRoute(Path.overview, <AccountOverview />, { requiresVerification: true, layout: 'admin' }),
-  createAuthRoute(Path.activeSessions, <ActiveSessionsManagement />, { requiresVerification: true, layout: 'admin' }),
-  createAuthRoute(Path.activityTimeline, <UserActivityTimeline />, { requiresVerification: true, layout: 'admin' }),
-  createAuthRoute(Path.changePassword, <ChangePassword />, { requiresVerification: true, layout: 'admin' }),
+  createAuthRoute(Path.overview, <AccountOverview />, {
+    requiresVerification: true,
+    layout: 'admin',
+  }),
+  createAuthRoute(Path.activeSessions, <ActiveSessionsManagement />, {
+    requiresVerification: true,
+    layout: 'admin',
+  }),
+  createAuthRoute(Path.activityTimeline, <UserActivityTimeline />, {
+    requiresVerification: true,
+    layout: 'admin',
+  }),
+  createAuthRoute(Path.changePassword, <ChangePassword />, {
+    requiresVerification: true,
+    layout: 'admin',
+  }),
 ]
-

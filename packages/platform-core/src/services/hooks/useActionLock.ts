@@ -18,9 +18,7 @@ export function useActionLock<T extends (...args: any[]) => Promise<any> | any>(
   action: T,
   options?: UseActionLockOptions,
 ): [T, boolean]
-export function useActionLock(
-  lockDurationMs?: number,
-): UseActionLockLegacyReturn
+export function useActionLock(lockDurationMs?: number): UseActionLockLegacyReturn
 export function useActionLock(
   actionOrDuration?: ((...args: any[]) => any) | number,
   options?: UseActionLockOptions,
@@ -42,7 +40,7 @@ export function useActionLock(
     const duration = typeof actionOrDuration === 'number' ? actionOrDuration : 100
 
     const executeWithLock = useCallback(
-      async <R,>(action: () => Promise<R> | R): Promise<R | undefined> => {
+      async <R>(action: () => Promise<R> | R): Promise<R | undefined> => {
         if (isExecutingRef.current || isLocked) {
           return undefined
         }
