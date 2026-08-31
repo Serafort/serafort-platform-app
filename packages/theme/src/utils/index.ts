@@ -5,4 +5,5 @@ export * from './composeMuiTheme';
 export * from './themeObjectStyles';
 export * from './SurfaceEffectFactory';
 export * from './widgetEventBus';
+export * from './resizeObserver';
 

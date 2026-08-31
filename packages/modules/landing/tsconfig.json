@@ -37,7 +37,17 @@
             "@cap/module-auth": ["../auth/src", "../../platform-core/src/stubs/auth-shim.tsx"],
             "@cap/module-auth/*": ["../auth/src/*", "../../platform-core/src/stubs/auth-shim.tsx"],
             "@auth": ["../auth/src", "../../platform-core/src/stubs/auth-shim.tsx"],
-            "@auth/*": ["../auth/src/*", "../../platform-core/src/stubs/auth-shim.tsx"]
+            "@auth/*": ["../auth/src/*", "../../platform-core/src/stubs/auth-shim.tsx"],
+            "@auth/authentication-core/*": ["../auth/src/modules/authentication-core/*"],
+            "@auth/authorization-engine/*": ["../auth/src/modules/authorization-engine/*"],
+            "@auth/identity-broker/*": ["../auth/src/modules/identity-broker/*"],
+            "@auth/mfa-orchestrator/*": ["../auth/src/modules/mfa-orchestrator/*"],
+            "@auth/passwordless-service/*": ["../auth/src/modules/passwordless-service/*"],
+            "@auth/platform-cluster/*": ["../auth/src/modules/platform-cluster/*"],
+            "@auth/session-manager/*": ["../auth/src/modules/session-manager/*"],
+            "@auth/user-directory/*": ["../auth/src/modules/user-directory/*"],
+            "@auth/domain-kernel/*": ["../auth/src/domain-kernel/*"],
+            "@idaas/*": ["../auth/src/modules/*"]
         },
         "types": ["react", "react-dom", "node", "vite/client"]
     },

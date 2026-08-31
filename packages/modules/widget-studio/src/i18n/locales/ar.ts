@@ -32,8 +32,8 @@ export const widgetStudioAr = {
       success: 'تم نشر الودجة على لوحة التحكم!',
     },
     errors: {
-      noApiKey: 'لم يتم تهيئة VITE_GEMINI_API_KEY. أضفه إلى ملف .env الخاص بك.',
-      injectionDetected: 'يحتوي موجهك على أنماط لا يمكن معالجتها لأسباب أمنية.',
+      noApiKey: 'خدمة AI Widget Studio غير متوفرة. يرجى الاتصال بمسؤول النظام.',
+      injectionDetected: 'يحتوي النص على أنماط لا يمكن معالجتها لأسباب أمنية.',
     },
   },
 }

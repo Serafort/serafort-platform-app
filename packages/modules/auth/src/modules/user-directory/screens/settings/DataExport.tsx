@@ -12,6 +12,7 @@ import { buildLayoutSurfaceEffect } from '@cap/layout';
 import { getTenantThemeEffects } from '@cap/theme';
 import { useComplianceExport, useExportMutation } from '../../hooks/useUserQuery';
 import { useChunkProgressTracker } from '../../../authentication-core/hooks/useChunkProgressTracker';
+import logger from '@idaas/authentication-core/utils/logger';
 
 export const DataExport: React.FC = () => {
   const theme = useTheme()
@@ -42,7 +43,7 @@ export const DataExport: React.FC = () => {
       setRequestSuccess(true)
       refetch()
     } catch (error) {
-      console.error('Failed to request export', error)
+      logger.error('Failed to request export', { error })
       tracker.reset()
     }
   }, [requestExport, refetch, tracker])

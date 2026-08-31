@@ -32,7 +32,7 @@ export const widgetStudioEn = {
       success: 'Widget published to your dashboard!',
     },
     errors: {
-      noApiKey: 'VITE_GEMINI_API_KEY is not configured. Add it to your .env file.',
+      noApiKey: 'AI Widget Studio service is not available. Please contact your administrator.',
       injectionDetected: 'Your prompt contains patterns that cannot be processed for security reasons.',
     },
   },

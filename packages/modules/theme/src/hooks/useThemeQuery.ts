@@ -37,12 +37,14 @@ export function useTenantTheme(
  */
 export function useUpdateTenantTheme(
   organizationId?: string | number,
-  options?: UseMutationOptions<FetchResponse<TenantThemeResponse>, HttpError, SaveTenantThemeRequest>
+  options?: UseMutationOptions<FetchResponse<TenantThemeResponse>, HttpError, SaveTenantThemeRequest, { previousTheme?: FetchResponse<TenantThemeResponse> }>
 ) {
   const queryClient = useQueryClient()
   const queryKey = THEME_QUERY_KEYS.tenant(organizationId || 'current')
+  const { onSuccess: customOnSuccess, onError: customOnError, onSettled: customOnSettled, ...restOptions } = options || {}
 
   return useMutation({
+    ...restOptions,
     mutationFn: (payload: SaveTenantThemeRequest) => themeService.saveTenantTheme(payload, organizationId),
     onMutate: async (newThemePayload) => {
       // Cancel any outgoing refetches to avoid overwriting optimistic update
@@ -70,27 +72,22 @@ export function useUpdateTenantTheme(
 
       return { previousTheme }
     },
-    onError: (err, newTheme, context) => {
+    onError: (...args) => {
+      const [err, , context] = args
       // Revert to snapshot on error
       if (context?.previousTheme) {
         queryClient.setQueryData(queryKey, context.previousTheme)
         applyThemeVariablesSync(context.previousTheme.data.themeConfig)
       }
-      if (options?.onError) {
-        options.onError(err, newTheme, context)
-      }
+      customOnError?.(...args)
     },
-    onSettled: (data, error, variables, context) => {
+    onSettled: (...args) => {
       // Always refetch after error or success to ensure synchronization
       queryClient.invalidateQueries({ queryKey })
-      if (options?.onSettled) {
-        options.onSettled(data, error, variables, context)
-      }
+      customOnSettled?.(...args)
     },
-    onSuccess: (data, variables, context) => {
-      if (options?.onSuccess) {
-        options.onSuccess(data, variables, context)
-      }
+    onSuccess: (...args) => {
+      customOnSuccess?.(...args)
     }
   })
 }

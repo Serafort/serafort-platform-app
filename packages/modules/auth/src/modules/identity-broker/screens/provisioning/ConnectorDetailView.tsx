@@ -17,8 +17,14 @@ import Save from '@mui/icons-material/Save';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
-import { useProvisioningConnector, useSyncProvisioningConnector, useUpdateProvisioningConnector, useDeleteProvisioningConnector, useProvisioningConnectorLogs } from '@idaas/authentication-core/hooks/useAdminQuery';
 import Path from '../path';
+import {
+  useProvisioningConnector,
+  useSyncProvisioningConnector,
+  useUpdateProvisioningConnector,
+  useDeleteProvisioningConnector,
+  useProvisioningConnectorLogs,
+} from '../../hooks/useProvisioningQuery';
 import logger from '@idaas/authentication-core/utils/logger';
 
 interface TabPanelProps {
@@ -125,15 +131,12 @@ const ConnectorDetailView: React.FC = () => {
     isLoading,
     error,
     refetch: refetchConnector,
-  } = (useProvisioningConnector as any)(connectorId)
-  const connector = (connectorData as any)?.data as any
+  } = useProvisioningConnector(connectorId)
+  const connector = connectorData?.data
 
-  const { data: logsData, isLoading: isLogsLoading } = (useProvisioningConnectorLogs as any)(connectorId, {
-    page,
-    limit: pageSize,
-  } as any)
-  const logs = (logsData as any)?.data?.data ?? (logsData as any)?.data ?? []
-  const pagination = (logsData as any)?.data?.meta ?? { total: 0, last_page: 1 }
+  const { data: logsData, isLoading: isLogsLoading } = useProvisioningConnectorLogs(connectorId)
+  const logs = Array.isArray(logsData?.data) ? logsData.data : []
+  const pagination = { total: logs.length, last_page: 1 }
 
   const syncMutation = useSyncProvisioningConnector({
     onSuccess: () => {
@@ -146,7 +149,7 @@ const ConnectorDetailView: React.FC = () => {
     },
   })
 
-  const updateMutation = useUpdateProvisioningConnector({
+  const updateMutation = useUpdateProvisioningConnector(connectorId, {
     onSuccess: () => {
       toast.success(t('admin.provisioning.connector.messages.config_saved'))
       refetchConnector()

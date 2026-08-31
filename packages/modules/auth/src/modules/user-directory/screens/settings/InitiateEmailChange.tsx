@@ -202,8 +202,8 @@ export default function InitiateEmailChange() {
                         <TextField
                           {...field}
                           fullWidth
-                          label="New Email Address"
-                          placeholder="e.g. name@work.com"
+                          label={t('auth.account.new_email_address', 'New Email Address')}
+                          placeholder={t('auth.account.new_email_placeholder', 'e.g. name@work.com')}
                           error={Boolean(errors.newEmail)}
                           helperText={errors.newEmail?.message}
                           InputProps={{
@@ -227,7 +227,7 @@ export default function InitiateEmailChange() {
                           fullWidth
                           type={showPassword ? 'text' : 'password'}
                           label={t('auth.account.current_password', 'Current Password')}
-                          placeholder="Confirm your password"
+                          placeholder={t('auth.account.confirm_password_placeholder', 'Confirm your password')}
                           error={Boolean(errors.currentPassword)}
                           helperText={errors.currentPassword?.message}
                           InputProps={{
@@ -277,7 +277,9 @@ export default function InitiateEmailChange() {
                   fontWeight: 700,
                 }}
               >
-                {isSubmitting ? 'Dispatching Verification...' : 'Continue to Confirmation'}
+                {isSubmitting
+                  ? t('auth.account.dispatching_verification', 'Dispatching Verification...')
+                  : t('auth.account.continue_to_confirmation', 'Continue to Confirmation')}
               </Button>
             </Stack>
           </Grid>
@@ -314,7 +316,10 @@ export default function InitiateEmailChange() {
                 }}
               >
                 <Typography variant="caption" color="text.secondary" display="block" textAlign="center">
-                  Protected by end-to-end multi-factor validation and enterprise audit logging.
+                  {t(
+                    'auth.account.security_footer',
+                    'Protected by end-to-end multi-factor validation and enterprise audit logging.'
+                  )}
                 </Typography>
               </Box>
             </Stack>

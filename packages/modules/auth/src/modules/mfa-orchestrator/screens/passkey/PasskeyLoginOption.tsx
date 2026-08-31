@@ -49,9 +49,11 @@ export default function PasskeyLoginOption() {
         })
       }
 
-      setSuccessMessage(t('passkey.loginSuccess', 'Signed in. Redirecting…'))
+      const userObj = payload.user as Record<string, unknown> | undefined
       const role =
-        payload.user?.role ?? payload.user?.roleId ?? payload.user?.user?.role
+        (userObj?.role as string) ??
+        (userObj?.roleId as number | undefined) ??
+        ((userObj?.user as Record<string, unknown>)?.role as string | undefined)
       successTimer.current = setTimeout(() => {
         navigate(resolveRedirectPathForUser(role), { replace: true })
       }, 800)

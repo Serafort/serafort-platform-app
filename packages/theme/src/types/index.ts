@@ -40,6 +40,8 @@ export interface TenantThemeConfig {
     createdBy?: string;
     preset?: string;
     mode?: 'light' | 'dark' | 'system';
+    synthesisSource?: 'llm' | 'heuristic' | string;
+    [key: string]: unknown;
   };
 }
 

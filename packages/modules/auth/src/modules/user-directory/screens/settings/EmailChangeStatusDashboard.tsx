@@ -236,7 +236,9 @@ export default function EmailChangeStatusDashboard() {
                           borderColor: alpha(theme.palette.divider, 0.2),
                         }}
                       >
-                        {isResending ? 'Resending Link...' : 'Resend Confirmation Link'}
+                        {isResending
+                          ? t('auth.account.resending_link', 'Resending Link...')
+                          : t('auth.account.resend_confirmation_link', 'Resend Confirmation Link')}
                       </Button>
                     </Stack>
                   )}
@@ -264,13 +266,13 @@ export default function EmailChangeStatusDashboard() {
               fontWeight={700}
               letterSpacing="0.08em"
             >
-              Security Link Expires In
+              {t('auth.account.security_link_expires_in', 'Security Link Expires In')}
             </Typography>
             <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
               {[
-                { value: hours, label: 'Hours' },
-                { value: minutes, label: 'Minutes' },
-                { value: seconds, label: 'Seconds' },
+                { value: hours, label: t('common.hours', 'Hours') },
+                { value: minutes, label: t('common.minutes', 'Minutes') },
+                { value: seconds, label: t('common.seconds', 'Seconds') },
               ].map((unit, i) => (
                 <Box key={i} sx={{ textAlign: 'center' }}>
                   <Paper
@@ -303,8 +305,10 @@ export default function EmailChangeStatusDashboard() {
             </Stack>
             {secondsRemaining === 0 && (
               <Alert severity="warning" sx={{ mt: 2, borderRadius: 2 }}>
-                The confirmation link has expired. Please click &ldquo;Resend Confirmation Link&rdquo; to
-                generate a new one.
+                {t(
+                  'auth.account.link_expired_alert',
+                  'The confirmation link has expired. Please click "Resend Confirmation Link" to generate a new one.'
+                )}
               </Alert>
             )}
           </Box>
@@ -329,11 +333,13 @@ export default function EmailChangeStatusDashboard() {
           <Info color="info" sx={{ mt: 0.25 }} />
           <Box>
             <Typography variant="subtitle2" fontWeight={700} color="info.main">
-              Need to cancel this change?
+              {t('auth.account.cancel_change_prompt', 'Need to cancel this change?')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              If you didn&apos;t initiate this request or prefer to keep your existing email address, you
-              can cancel the process at any time.
+              {t(
+                'auth.account.cancel_change_prompt_desc',
+                "If you didn't initiate this request or prefer to keep your existing email address, you can cancel the process at any time."
+              )}
             </Typography>
           </Box>
         </Stack>
@@ -350,7 +356,7 @@ export default function EmailChangeStatusDashboard() {
             alignSelf: { xs: 'flex-start', sm: 'center' },
           }}
         >
-          Cancel Request
+          {t('auth.account.cancel_request', 'Cancel Request')}
         </Button>
       </Box>
 
@@ -371,13 +377,16 @@ export default function EmailChangeStatusDashboard() {
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <CancelOutlined color="error" />
           <Typography variant="h6" fontWeight={700}>
-            Cancel Email Change?
+            {t('auth.account.cancel_email_change_dialog_title', 'Cancel Email Change?')}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary">
-            Are you sure you want to cancel this pending email change? Your account will continue to
-            use <strong>{currentEmail}</strong>.
+            {t(
+              'auth.account.cancel_email_change_dialog_desc',
+              'Are you sure you want to cancel this pending email change? Your account will continue to use {{email}}.',
+              { email: currentEmail }
+            )}
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -386,7 +395,7 @@ export default function EmailChangeStatusDashboard() {
             color="inherit"
             sx={{ textTransform: 'none', fontWeight: 600 }}
           >
-            Keep Pending
+            {t('auth.account.keep_pending', 'Keep Pending')}
           </Button>
           <Button
             onClick={handleCancelRequest}
@@ -394,7 +403,7 @@ export default function EmailChangeStatusDashboard() {
             color="error"
             sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
           >
-            Confirm Cancel
+            {t('auth.account.confirm_cancel', 'Confirm Cancel')}
           </Button>
         </DialogActions>
       </Dialog>

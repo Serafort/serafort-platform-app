@@ -194,24 +194,21 @@ export class PermissionCheckerService implements IPermissionChecker {
     if (!isSuperAdmin) {
       if (
         request.targetTenantId != null &&
-        userContext.tenantId != null &&
-        String(request.targetTenantId) !== String(userContext.tenantId)
+        (userContext.tenantId == null || String(request.targetTenantId) !== String(userContext.tenantId))
       ) {
         return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' };
       }
 
       if (
         request.tenantId != null &&
-        userContext.tenantId != null &&
-        String(request.tenantId) !== String(userContext.tenantId)
+        (userContext.tenantId == null || String(request.tenantId) !== String(userContext.tenantId))
       ) {
         return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' };
       }
 
       if (
         request.organizationId != null &&
-        userContext.organizationId != null &&
-        String(request.organizationId) !== String(userContext.organizationId)
+        (userContext.organizationId == null || String(request.organizationId) !== String(userContext.organizationId))
       ) {
         return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' };
       }
@@ -228,7 +225,7 @@ export class PermissionCheckerService implements IPermissionChecker {
     const rawPermissions = [
       ...(Array.isArray(userContext.permissions) ? userContext.permissions : []),
       ...(Array.isArray(userContext.roleObject?.permissions) ? userContext.roleObject!.permissions! : []),
-      ...(isTenantAdmin ? ['tenant:manage', 'org:admin', `${request.resource}:*`] : []),
+      ...(isTenantAdmin ? ['tenant:manage', 'org:admin'] : []),
     ]
 
     const userPermissions = rawPermissions

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Navigate } from 'react-router-dom'
 import { AuthRouteConfig } from '@cap/platform-core'
 import GuestRoute from '../middlewares/GuestRoute'
 import Path from '../screens/path'
@@ -41,7 +42,6 @@ const SignIn = React.lazy(() => import('../screens/signin/SignIn'))
 // Sign Up
 // ---------------------------------------------------------------------------
 const SignUp = React.lazy(() => import('../screens/signup/screens/SignUp'))
-const SignUpV2 = React.lazy(() => import('../screens/signup/screens/SignUpV2'))
 const CheckEmailConfirmation = React.lazy(() => import('../screens/signup/components/CheckEmailConfirmation'))
 const EmailVerificationScreen = React.lazy(() => import('../screens/signup/components/EmailVerificationScreen'))
 const VerificationLinkExpired = React.lazy(() => import('../screens/signup/components/VerificationLinkExpired'))
@@ -96,9 +96,9 @@ export const authCoreRouteConfig: AuthRouteConfig[] = [
 
   // --- Sign Up & Verification ---
   { path: Path.signup, element: <GuestRoute element={<SignUp />} />, layout: 'noLayout' },
-  { path: Path.signupV2, element: <GuestRoute element={<SignUpV2 />} />, layout: 'noLayout' },
-  // Legacy /auth/register — RegistrationScreen removed; redirect to the primary sign-up flow.
-  { path: Path.registration, element: <GuestRoute element={<SignUp />} />, layout: 'noLayout' },
+  { path: Path.signupV2, element: <Navigate to={Path.signup} replace />, layout: 'noLayout' },
+  // Legacy /auth/register — redirect to the primary sign-up flow.
+  { path: Path.registration, element: <Navigate to={Path.signup} replace />, layout: 'noLayout' },
   { path: Path.checkEmail, element: <CheckEmailConfirmation />, layout: 'noLayout' },
   { path: Path.emailVerification, element: <EmailVerificationScreen />, layout: 'noLayout' },
   { path: Path.verifyEmail, element: <EmailVerificationScreen />, layout: 'noLayout' },

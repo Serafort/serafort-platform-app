@@ -49,12 +49,16 @@ export default defineConfig({
   envDir: workspaceRoot,
   plugins: [
     react(),
-    mkcert({
-      // Explicitly list all custom domains so the plugin generates a cert
-      // with the correct Subject Alternative Names (SANs).
-      // Without this, only `localhost` gets a SAN → ERR_CERT_COMMON_NAME_INVALID.
-      hosts: ['gldeveloper.test', 'localhost', '192.168.137.1'],
-    }),
+    ...(process.env.HTTPS === 'true'
+      ? [
+          mkcert({
+            // Explicitly list all custom domains so the plugin generates a cert
+            // with the correct Subject Alternative Names (SANs).
+            // Without this, only `localhost` gets a SAN → ERR_CERT_COMMON_NAME_INVALID.
+            hosts: ['gldeveloper.test', 'localhost', '192.168.137.1'],
+          }),
+        ]
+      : []),
     ...(vitePWA
       ? [
           (vitePWA as any)({
@@ -172,9 +176,9 @@ export default defineConfig({
     // (which resolves to 127.0.0.1 via /etc/hosts). The mkcert plugin also
     // auto-adds a string `server.host` to the cert SANs (boolean `true` is ignored).
     host: true,
-    port: 443,
-    strictPort: true,
-    allowedHosts: ['192.168.137.1', 'gldeveloper.test'],
+    port: Number(process.env.PORT) || 5173,
+    strictPort: false,
+    allowedHosts: ['192.168.137.1', 'gldeveloper.test', 'localhost', '127.0.0.1'],
     proxy: {
       '/api': {
         target: 'http://localhost:3333',
@@ -207,7 +211,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // ── Vendor splits — keeps the main entry chunk under 2 MB ──────────────
+          // ── Vendor splits — keeps the main entry chunk slim ───────────────────────
           if (id.includes('@mui/icons-material')) return 'vendor-mui-icons'
           if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts'
           if (id.includes('framer-motion')) return 'vendor-motion'
@@ -218,6 +222,21 @@ export default defineConfig({
           if (id.includes('@tanstack/')) return 'vendor-tanstack'
           if (id.includes('zustand')) return 'vendor-zustand'
           if (id.includes('comlink')) return 'vendor-comlink'
+          if (id.includes('i18next') || id.includes('react-i18next')) return 'vendor-i18n'
+
+          // ── Feature Module splits ────────────────────────────────────────────────
+          if (id.includes('packages/modules/auth') || id.includes('@cap/module-auth')) {
+            if (id.includes('user-directory')) return 'module-auth-user-directory'
+            if (id.includes('identity-broker')) return 'module-auth-identity-broker'
+            if (id.includes('platform-cluster')) return 'module-auth-platform-cluster'
+            if (id.includes('mfa-orchestrator') || id.includes('passwordless-service')) return 'module-auth-mfa'
+            return 'module-auth-core'
+          }
+          if (id.includes('packages/modules/dashboard') || id.includes('@cap/module-dashboard')) return 'module-dashboard'
+          if (id.includes('packages/modules/landing') || id.includes('@cap/module-landing')) return 'module-landing'
+          if (id.includes('packages/modules/widget-studio') || id.includes('@cap/module-widget-studio')) return 'module-widget-studio'
+          if (id.includes('packages/modules/theme') || id.includes('@cap/module-theme')) return 'module-theme'
+          if (id.includes('packages/layout') || id.includes('@cap/layout')) return 'module-layout'
         },
       },
     },

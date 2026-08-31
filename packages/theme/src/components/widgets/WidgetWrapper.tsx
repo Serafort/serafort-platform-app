@@ -28,7 +28,9 @@ import ViewColumn from '@mui/icons-material/ViewColumn';
 import ErrorBoundary from '../ui/ErrorBoundary'
 import { widgetInspectorStore } from '../../store/widgetInspectorStore'
 import { useTranslation } from 'react-i18next'
-import { globalWidgetRegistry, useResizeObserver, ContainerSizeProvider } from '@cap/platform-core'
+import { globalWidgetRegistry } from '../../registry/WidgetRegistry'
+import { useResizeObserver } from '../../hooks/useResizeObserver'
+import { ContainerSizeProvider } from '../../contexts/ContainerSizeContext'
 import { useAppStore, DEFAULT_SLOT_SIZE } from '@cap/platform-store'
 import { useShallow } from 'zustand/shallow'
 import type {

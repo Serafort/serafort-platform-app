@@ -6,11 +6,48 @@
  * 2. Security validation (no executable code, no injections)
  * 3. Component validation (widgetId in approved registry)
  * 4. Tenant validation (theme-compatible, no dangerous overrides)
- *
- * @see Architecture spec §13.2 Layer 3
  */
 import type { WidgetDefinition, ValidationOutput } from '@cap/shared-types'
-import { APPROVED_WIDGETS } from './ComponentAgent'
+
+/** Approved widget registry — mirrors globalWidgetRegistry entries */
+export const APPROVED_WIDGETS = [
+  {
+    id: 'dashboard-widget-weather',
+    name: 'Weather Widget',
+    description: 'Current weather conditions with temperature, humidity, and wind speed',
+    bestFor: ['weather', 'climate', 'temperature'],
+  },
+  {
+    id: 'dashboard-widget-revenueChart',
+    name: 'Revenue Chart Widget',
+    description: 'Area chart showing revenue data over time with a target line',
+    bestFor: ['chart', 'revenue', 'sales', 'trends', 'analytics', 'time-series'],
+  },
+  {
+    id: 'dashboard-widget-recentOrders',
+    name: 'Recent Orders / Table Widget',
+    description: 'Data table showing recent records, orders, transactions, or list data',
+    bestFor: ['table', 'list', 'orders', 'records', 'transactions'],
+  },
+  {
+    id: 'dashboard-widget-statCard',
+    name: 'Stat Card / KPI Widget',
+    description: 'Key Performance Indicator card showing a metric with label, value, trend, and icon',
+    bestFor: ['metric', 'kpi', 'stat', 'count', 'total', 'users', 'number'],
+  },
+  {
+    id: 'dashboard-widget-aiChat',
+    name: 'AI Chat Widget',
+    description: 'Conversational AI chat interface embedded in the dashboard',
+    bestFor: ['chat', 'ai', 'assistant', 'conversation', 'help'],
+  },
+  {
+    id: 'core-dynamic-layout',
+    name: 'Dynamic Layout Widget',
+    description: 'A highly flexible generic renderer that composes custom UI from a recursive tree of nodes.',
+    bestFor: ['custom', 'creative', 'unique', 'composite', 'freeform'],
+  },
+]
 
 /** Patterns that should never appear in DSL values (security enforcement) */
 const DANGEROUS_PATTERNS: RegExp[] = [
@@ -49,7 +86,7 @@ export function validateWidgetDsl(
   // ---- 1. Schema Validation ----
   for (const field of REQUIRED_FIELDS) {
     if (!dsl[field]) {
-      schemaErrors.push(`Missing required field: "${field}"`)
+      schemaErrors.push(`Missing required field: "${String(field)}"`)
     }
   }
 

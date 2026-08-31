@@ -396,6 +396,7 @@ class AiThemePromptService {
           metadata: {
             ...base.metadata,
             mode: serverConfig.metadata?.mode || 'light',
+            synthesisSource: 'llm',
             updatedAt: new Date().toISOString(),
           },
         }
@@ -408,7 +409,14 @@ class AiThemePromptService {
     }
 
     // Fallback to local synchronous synthesis
-    return this.generateThemeFromPrompt(prompt, baseConfig)
+    const localTheme = this.generateThemeFromPrompt(prompt, baseConfig)
+    return {
+      ...localTheme,
+      metadata: {
+        ...localTheme.metadata,
+        synthesisSource: 'heuristic',
+      },
+    }
   }
 }
 

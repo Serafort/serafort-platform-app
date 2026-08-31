@@ -1,3 +1,4 @@
 export * from './helper'
-export * from './resizeObserver'
+export * from './logger'
+export { default as logger } from './logger'
 

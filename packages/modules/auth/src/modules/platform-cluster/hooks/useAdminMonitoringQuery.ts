@@ -87,11 +87,19 @@ export function useAdminAuditLogsQuery(params?: {
       if (Array.isArray(data)) {
         return { logs: data, total: data.length, page: params?.page ?? 1, limit: params?.limit ?? 50 }
       }
+      if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
+        return {
+          logs: data.data,
+          total: data.total ?? data.data.length,
+          page: data.page ?? params?.page ?? 1,
+          limit: data.limit ?? params?.limit ?? 50,
+        }
+      }
       return {
-        logs: (data as any)?.data || [],
-        total: (data as any)?.total || 0,
-        page: (data as any)?.page || 1,
-        limit: (data as any)?.limit || 50,
+        logs: [],
+        total: 0,
+        page: params?.page ?? 1,
+        limit: params?.limit ?? 50,
       }
     },
     staleTime: 15000,
@@ -109,9 +117,12 @@ export function useAdminAlertsQuery(params?: {
       const response = await adminMonitoringService.getAlerts(params)
       const data = response.data
       if (Array.isArray(data)) {
-        return data as AlertItem[]
+        return data
       }
-      return ((data as any)?.data || []) as AlertItem[]
+      if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
+        return data.data
+      }
+      return []
     },
     staleTime: 30000,
     refetchInterval: 30000,

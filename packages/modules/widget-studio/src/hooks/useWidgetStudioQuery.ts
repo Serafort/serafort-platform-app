@@ -80,9 +80,12 @@ export const WIDGET_STUDIO_KEYS = {
  * After a successful POST, automatically connects the SSE stream to Zustand.
  */
 export function useGenerateWidget(
-  options?: UseMutationOptions<FetchResponse<GenerateWidgetResponse>, HttpError, GenerateWidgetRequest>
+  options?: UseMutationOptions<FetchResponse<GenerateWidgetResponse>, HttpError, GenerateWidgetRequest, unknown>
 ) {
+  const { onSuccess: customOnSuccess, onError: customOnError, onSettled: customOnSettled, ...restOptions } = options || {}
+
   return useMutation({
+    ...restOptions,
     mutationFn: async (payload: GenerateWidgetRequest) => {
       const store = useAppStore.getState()
 
@@ -101,7 +104,8 @@ export function useGenerateWidget(
         runAsync: true,
       })
     },
-    onSuccess: (response, variables, context) => {
+    onSuccess: (...args) => {
+      const [response, variables] = args
       const data = response.data
       if (data?.success && data.runId) {
         // Connect to the SSE stream now that we have a runId
@@ -120,25 +124,20 @@ export function useGenerateWidget(
         })
         store.setWidgetStudioRunning(false)
       }
-      if (options?.onSuccess) {
-        (options.onSuccess as any)(response, variables, context)
-      }
+      customOnSuccess?.(...args)
     },
-    onError: (error, variables, context) => {
+    onError: (...args) => {
+      const [error, variables] = args
       const store = useAppStore.getState()
       store.updateWidgetAgent(variables.draftId, 'requirement', {
         status: 'error',
         error: error.message || 'Network error',
       })
       store.setWidgetStudioRunning(false)
-      if (options?.onError) {
-        (options.onError as any)(error, variables, context)
-      }
+      customOnError?.(...args)
     },
-    onSettled: (data, error, variables, context) => {
-      if (options?.onSettled) {
-        (options.onSettled as any)(data, error, variables, context)
-      }
+    onSettled: (...args) => {
+      customOnSettled?.(...args)
     },
   })
 }
@@ -150,11 +149,13 @@ export function useGenerateWidget(
  * Invalidates dashboard layout caches on success.
  */
 export function usePublishWidget(
-  options?: UseMutationOptions<FetchResponse<PublishWidgetResponse>, HttpError, PublishWidgetRequest>
+  options?: UseMutationOptions<FetchResponse<PublishWidgetResponse>, HttpError, PublishWidgetRequest, unknown>
 ) {
   const queryClient = useQueryClient()
+  const { onSuccess: customOnSuccess, onError: customOnError, onSettled: customOnSettled, ...restOptions } = options || {}
 
   return useMutation({
+    ...restOptions,
     mutationFn: (payload: PublishWidgetRequest) =>
       apiClient.post<PublishWidgetResponse>('/api/v1/widgets/publish', {
         draftId: payload.draftId,
@@ -163,7 +164,8 @@ export function usePublishWidget(
         tenantId: payload.tenantId,
         runId: payload.runId,
       }),
-    onSuccess: (response, variables, context) => {
+    onSuccess: (...args) => {
+      const [response, variables] = args
       const store = useAppStore.getState()
       if (response.data?.success) {
         store.setWidgetLifecycle(variables.draftId, 'published')
@@ -191,24 +193,19 @@ export function usePublishWidget(
       // Invalidate dashboard caches
       queryClient.invalidateQueries({ queryKey: WIDGET_STUDIO_KEYS.dashboardLayouts() })
 
-      if (options?.onSuccess) {
-        (options.onSuccess as any)(response, variables, context)
-      }
+      customOnSuccess?.(...args)
     },
-    onError: (error, variables, context) => {
+    onError: (...args) => {
+      const [error, variables] = args
       const store = useAppStore.getState()
       store.updateWidgetAgent(variables.draftId, 'publish', {
         status: 'error',
         error: error.message || 'Publish failed',
       })
-      if (options?.onError) {
-        (options.onError as any)(error, variables, context)
-      }
+      customOnError?.(...args)
     },
-    onSettled: (data, error, variables, context) => {
-      if (options?.onSettled) {
-        (options.onSettled as any)(data, error, variables, context)
-      }
+    onSettled: (...args) => {
+      customOnSettled?.(...args)
     },
   })
 }

@@ -52,10 +52,13 @@ export interface ConnectStreamOptions {
  * Resolve the API base URL from Vite environment.
  */
 export function getApiBaseUrl(): string {
-  const envUrl = (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env
-    .VITE_API_URL
+  const env = (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env
+  const envUrl = env.VITE_API_URL
   if (envUrl && envUrl.trim() !== '') {
     return envUrl.replace(/\/api\/?$/, '').replace(/\/+$/, '')
+  }
+  if (env.PROD || env.NODE_ENV === 'production') {
+    return typeof window !== 'undefined' ? window.location.origin : ''
   }
   return 'http://localhost:3333'
 }

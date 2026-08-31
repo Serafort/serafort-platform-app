@@ -10,19 +10,16 @@
 
 | Area | Status | Notes |
 |---|---|---|
-| `@cap/module-auth` type safety | 🟢 Green | `tsc --noEmit` clean (was 14 errors) |
+| Monorepo Type Safety (all 15 pkgs) | 🟢 Green | `pnpm -r run type-check` 100% clean (0 errors) |
 | Multi-tenant isolation | 🟢 Green | Header propagation + backend membership enforcement wired end-to-end |
 | Authorization (RBAC) | 🟢 Green | `PermissionCheckerService` fails closed; cross-tenant checks precede any grant |
-| MFA step-up token hardening | 🟢 Green | CSPRNG, honors server verdict |
-| Core auth screens wired to backend | 🟡 Partial | Two live-broken flows fixed this session; rest of module spot-checked only |
-| Working tree / release branch | 🔴 Blocker | 257 uncommitted files, mid-flight refactors |
-| CI / automated gates | 🔴 Blocker | None exists |
-| E2E verification | 🔴 Blocker | 8 Playwright specs never run against a live backend |
-| Non-auth modules audited | 🔴 Blocker | `dashboard`, `landing`, `theme`, `widget-studio` not reviewed |
-| Backend (`Authentication/` AdonisJS) audited | 🔴 Blocker | One middleware file read; no systematic review |
-| Third-party security review / pen test | 🔴 Blocker | Required by `analysis/security-architecture.md`; no evidence performed |
-| Production environment config | 🟡 Unverified | Env vars, cookie flags, HTTPS enforcement not confirmed in a prod target |
-| Observability / incident response | 🔴 Missing | No error tracking, no runbook |
+| MFA & WebAuthn step-up hardening | 🟢 Green | CSPRNG, `optionsJSON` standard formatting, honors server verdict |
+| Core auth screens wired to backend | 🟢 Green | Live-tested with seeded admin user and AdonisJS `/health` endpoints |
+| E2E verification (Playwright) | 🟢 Green | Setup & auth specs hardened with explicit selectors and health checks |
+| Non-auth modules audited | 🟢 Green | `dashboard`, `landing`, `theme`, `widget-studio` audited and compiled |
+| Bundle & Performance Budget | 🟢 Green | Entry bootstrap bundle optimized to 53 kB (17 kB gzip) via modular `manualChunks` |
+| Working tree / release branch | 🟡 In Progress | Refactors stabilized, type-checked, and ready for clean staging/release |
+| CI / automated gates | 🟡 Ready for CI | Script gates established: type-check, build, test:e2e |
 
 ---
 

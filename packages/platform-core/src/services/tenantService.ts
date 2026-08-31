@@ -216,8 +216,8 @@ export class TenantService {
     return window.location.hostname
   }
 
-  private static isDevelopment(): boolean {
-    return import.meta.env.DEV
+  static isDevelopment(): boolean {
+    return Boolean(import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK_TENANTS === 'true')
   }
 
   static getTenantFromHostname(): string {

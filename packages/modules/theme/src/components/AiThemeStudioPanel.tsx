@@ -25,7 +25,6 @@ import ArrowForward from '@mui/icons-material/ArrowForward'
 import Check from '@mui/icons-material/Check'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import type { TenantThemeConfig } from '@cap/theme'
-import { useGenerateAiTheme } from '../hooks/useThemeQuery'
 import {
   aiThemePromptService,
   CURATED_PROMPT_SUGGESTIONS,
@@ -47,15 +46,9 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
   const [prompt, setPrompt] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [lastAnalysis, setLastAnalysis] = useState<PromptAnalysisResult | null>(null)
+  const [synthesisSource, setSynthesisSource] = useState<'llm' | 'heuristic' | null>(null)
   const [promptHistory, setPromptHistory] = useState<string[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
-  
-  // Custom provider selection
-  const [providerType, setProviderType] = useState<string>('gemini')
-  const [apiKey, setApiKey] = useState<string>('')
-
-  // Query Hook
-  const generateMutation = useGenerateAiTheme()
 
   const categories = ['All', 'Modern Dark', 'Clean SaaS', 'Vibrant & Creative', 'Warm & Earthy', 'Luxury & Boutique']
 
@@ -76,10 +69,11 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
       // Always try to hit the backend generation API first
       const generatedConfig = await aiThemePromptService.generateThemeFromPromptAsync(
         textToRun, 
-        currentTheme, 
-        { providerType, apiKey }
+        currentTheme
       )
       
+      const source = (generatedConfig.metadata as any)?.synthesisSource === 'llm' ? 'llm' : 'heuristic'
+      setSynthesisSource(source)
       onThemeGenerated(generatedConfig)
 
       setPromptHistory((prev) => [textToRun, ...prev.filter((p) => p !== textToRun)].slice(0, 5))
@@ -192,13 +186,14 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Check color='success' sx={{ fontSize: 20 }} />
                 <Typography variant='subtitle1' sx={{ fontWeight: 800, color: 'text.primary' }}>
-                  AI Synthesis Active: {lastAnalysis.detectedMood}
+                  {synthesisSource === 'heuristic' ? 'Local Heuristic Synthesis: ' : 'AI LLM Synthesis Active: '}
+                  {lastAnalysis.detectedMood}
                 </Typography>
               </Box>
               <Chip
-                label={lastAnalysis.presetMatch}
+                label={synthesisSource === 'heuristic' ? `Heuristic (${lastAnalysis.presetMatch})` : `LLM (${lastAnalysis.presetMatch})`}
                 size='small'
-                color='primary'
+                color={synthesisSource === 'heuristic' ? 'default' : 'primary'}
                 variant='outlined'
                 sx={{ fontWeight: 700, textTransform: 'capitalize' }}
               />

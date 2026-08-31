@@ -23,3 +23,9 @@ export * from './assets/themes'
 export { default as coreOverrides } from './overrides/core-overrides'
 export { default as themeConfig, type ThemeConfig } from './config/themeConfig'
 
+// Container-size context + widget registry. These moved here from @cap/platform-core
+// (a higher tier) so the widget components in this package no longer import upward.
+// @cap/platform-core re-exports them, so its public API is unchanged.
+export * from './contexts/ContainerSizeContext'
+export * from './registry/WidgetRegistry'
+

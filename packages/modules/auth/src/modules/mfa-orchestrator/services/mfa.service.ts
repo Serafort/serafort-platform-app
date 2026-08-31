@@ -1,4 +1,5 @@
 import { apiClient, ENDPOINTS, FetchResponse } from '@cap/platform-core'
+import type { IAuth } from '@cap/shared-types'
 import type {
   PublicKeyCredentialCreationOptionsJSON,
   PublicKeyCredentialRequestOptionsJSON,
@@ -77,6 +78,21 @@ export interface PasskeyItem {
   aaguid?: string
 }
 
+export interface MfaLoginCompletionResponse {
+  token?: string
+  access_token?: string
+  refresh_token?: string | null
+  expires_in?: number
+  user?: IAuth
+  userId?: number | string
+  verified?: boolean
+  success?: boolean
+  message?: string
+  requiresMfa?: boolean
+  mfaToken?: string
+  sessionId?: string
+}
+
 export const mfaService = {
   // --- TOTP MFA ---
   setupTotp: async (): Promise<FetchResponse<TOTPSetupResponse>> => {
@@ -93,13 +109,13 @@ export const mfaService = {
     userId?: string | number
     user_id?: string | number
     code: string
-  }): Promise<FetchResponse<any>> => {
+  }): Promise<FetchResponse<MfaLoginCompletionResponse>> => {
     const formattedPayload = {
       mfa_token: payload.mfa_token || payload.mfaToken,
       userId: payload.userId || payload.user_id,
       code: payload.code,
     }
-    return apiClient.post(ENDPOINTS.auth.mfa.verifyLogin, formattedPayload)
+    return apiClient.post<MfaLoginCompletionResponse>(ENDPOINTS.auth.mfa.verifyLogin, formattedPayload)
   },
 
   recoveryVerify: async (payload: {
@@ -107,13 +123,13 @@ export const mfaService = {
     user_id?: string | number
     email?: string
     code: string
-  }): Promise<FetchResponse<any>> => {
+  }): Promise<FetchResponse<MfaLoginCompletionResponse>> => {
     const formattedPayload = {
       userId: payload.userId || payload.user_id,
       email: payload.email,
       code: payload.code,
     }
-    return apiClient.post(ENDPOINTS.auth.mfa.recoveryVerify, formattedPayload)
+    return apiClient.post<MfaLoginCompletionResponse>(ENDPOINTS.auth.mfa.recoveryVerify, formattedPayload)
   },
 
   disableMfa: async (): Promise<FetchResponse<{ message: string }>> => {
@@ -160,8 +176,8 @@ export const mfaService = {
     verifyLogin: async (payload: {
       userId: string | number
       code: string
-    }): Promise<FetchResponse<any>> => {
-      return apiClient.post(
+    }): Promise<FetchResponse<MfaLoginCompletionResponse>> => {
+      return apiClient.post<MfaLoginCompletionResponse>(
         (ENDPOINTS.auth.mfa as any).sms?.verifyLogin || '/api/auth/mfa/sms/verify-login',
         payload
       )
@@ -200,16 +216,9 @@ export const mfaService = {
     verifyLogin: async (
       data: AuthenticationResponseJSON
     ): Promise<
-      FetchResponse<{
-        verified: boolean
-        user: any
-        token: string
-        refresh_token?: string | null
-        expires_in?: number
-        userId?: string | number
-      }>
+      FetchResponse<MfaLoginCompletionResponse>
     > => {
-      return apiClient.post(ENDPOINTS.auth.passkey.loginFinish, data)
+      return apiClient.post<MfaLoginCompletionResponse>(ENDPOINTS.auth.passkey.loginFinish, data)
     },
 
     list: async (): Promise<FetchResponse<PasskeyItem[]>> => {
@@ -230,8 +239,8 @@ export const mfaService = {
     },
   },
 
-  verifyMfaCode: async (userId: number | string, code: string): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.auth.mfa.verifyLogin, { userId, code })
+  verifyMfaCode: async (userId: number | string, code: string): Promise<FetchResponse<MfaLoginCompletionResponse>> => {
+    return apiClient.post<MfaLoginCompletionResponse>(ENDPOINTS.auth.mfa.verifyLogin, { userId, code })
   },
 
   // --- Step-Up Authentication ---

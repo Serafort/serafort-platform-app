@@ -23,11 +23,33 @@ export * from './hooks/useDynamicTheme'
 export * from './hooks/useNetworkSync'
 export * from './hooks/useAuth'
 export * from './hooks/useNavigation'
-export * from './hooks/useResizeObserver'
-export * from './hooks/useContainerQuery'
-export * from './contexts/ContainerSizeContext'
+// Container-size / widget-registry primitives now live in @cap/theme (a lower tier)
+// so @cap/theme's widget components no longer need to import up into @cap/platform-core.
+// Re-exported here to keep @cap/platform-core's public surface unchanged.
+export {
+  useResizeObserver,
+  useContainerQuery,
+  ContainerSizeContext,
+  ContainerSizeProvider,
+  useContainerSize,
+  useContainerSizeClass,
+  observeElement,
+  unobserveElement,
+  globalWidgetRegistry,
+  registerModuleWidgets,
+} from '@cap/theme'
+export type {
+  ResizeBoxSizing,
+  ObserveOptions,
+  ContainerSize,
+  ContainerBreakpoints,
+  ElementSize,
+  UseResizeObserverOptions,
+  ContainerSizeProviderProps,
+  WidgetDescriptor,
+  RegisterModuleWidgetsOptions,
+} from '@cap/theme'
 export * from './components'
 
 export * from './registry/PluginRegistry'
-export * from './registry/WidgetRegistry'
 export * from './authorization/bootstrap'

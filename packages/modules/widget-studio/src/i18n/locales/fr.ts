@@ -32,7 +32,7 @@ export const widgetStudioFr = {
       success: 'Widget publié sur votre tableau de bord !',
     },
     errors: {
-      noApiKey: "VITE_GEMINI_API_KEY n'est pas configuré. Ajoutez-le à votre fichier .env.",
+      noApiKey: "Le service AI Widget Studio n'est pas disponible. Veuillez contacter votre administrateur.",
       injectionDetected: 'Votre invite contient des modèles qui ne peuvent pas être traités pour des raisons de sécurité.',
     },
   },

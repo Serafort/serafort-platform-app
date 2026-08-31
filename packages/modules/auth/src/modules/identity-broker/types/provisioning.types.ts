@@ -22,6 +22,8 @@ export interface DirectoryConnector {
   synchronized_users?: number
   synchronizedGroups?: number
   synchronized_groups?: number
+  sync_count?: number
+  syncCount?: number
   sync_interval_minutes?: number
   endpointUrl?: string
   endpoint_url?: string

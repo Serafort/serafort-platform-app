@@ -130,7 +130,13 @@ export const adminMonitoringService = {
     startDate?: string
     endDate?: string
   }): Promise<FetchResponse<{ data: AuditLogItem[]; total: number; page: number; limit: number } | AuditLogItem[]>> => {
-    const query = params ? `?${new URLSearchParams(params as any).toString()}` : ''
+    const searchParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) searchParams.append(key, String(value))
+      })
+    }
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : ''
     return apiClient.get(`${ENDPOINTS.admin.auditLogs.index}${query}`)
   },
 
@@ -143,7 +149,13 @@ export const adminMonitoringService = {
     severity?: string
     limit?: number
   }): Promise<FetchResponse<{ data: AlertItem[]; count?: number } | AlertItem[]>> => {
-    const query = params ? `?${new URLSearchParams(params as any).toString()}` : ''
+    const searchParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) searchParams.append(key, String(value))
+      })
+    }
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : ''
     return apiClient.get(`${ENDPOINTS.admin.security.alerts}${query}`)
   },
 

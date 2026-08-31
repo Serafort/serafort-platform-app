@@ -14,12 +14,17 @@ import { useActionLock } from '../../../hooks/useActionLock'
 import authService from '../../../services/auth.service'
 import { resolveRedirectPathForUser } from '../../../utils/resolveRedirect'
 
-// Local-dev convenience only: prefill is opt-in via env vars and is compiled out
-// of production builds (`import.meta.env.DEV` is statically false there). No
-// credentials are hardcoded in source.
+// [SECURITY] F-09: previously pre-filled from VITE_DEV_LOGIN_EMAIL/PASSWORD.
+// The `import.meta.env.DEV` guard here only compiled out this *usage* in
+// production — it did not stop Vite from inlining the *values* into the
+// production bundle. Another dependency in the tree accesses
+// `import.meta.env` dynamically, which forces Vite to emit the whole env
+// object (including these two variables) into shipped JS regardless of any
+// DEV check at the call site. There is no way to safely keep a credential in
+// a VITE_* variable, so this prefill is removed rather than re-guarded.
 const DEFAULT_FORM_VALUES: LoginRequest = {
-  email: import.meta.env.DEV ? (import.meta.env.VITE_DEV_LOGIN_EMAIL ?? '') : '',
-  password: import.meta.env.DEV ? (import.meta.env.VITE_DEV_LOGIN_PASSWORD ?? '') : '',
+  email: '',
+  password: '',
   rememberMe: false,
 }
 
@@ -254,7 +259,7 @@ export function useSignInFlow() {
       const optionsResponse = await passkeyGetOptionsMutation.mutateAsync(email)
       const options = optionsResponse.data
 
-      const authenticationResponse = await startAuthentication(options)
+      const authenticationResponse = await startAuthentication({ optionsJSON: options })
       passkeyLoginMutation.mutate(authenticationResponse)
     } catch (error: any) {
       if (error.name !== 'NotAllowedError') {

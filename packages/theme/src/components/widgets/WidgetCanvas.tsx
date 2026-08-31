@@ -3,7 +3,8 @@ import { Box, Grid, IconButton, Tooltip, Typography } from '@mui/material'
 import Delete from '@mui/icons-material/Delete';
 import Add from '@mui/icons-material/Add';
 import { useAppStore } from '@cap/platform-store'
-import { globalWidgetRegistry, useResizeObserver } from '@cap/platform-core'
+import { globalWidgetRegistry } from '../../registry/WidgetRegistry'
+import { useResizeObserver } from '../../hooks/useResizeObserver'
 import WidgetWrapper, { type DashboardMode } from './WidgetWrapper'
 import type { GridLayout, SlotWidgetValue, SlotSizeConfig } from '@cap/shared-types'
 import {

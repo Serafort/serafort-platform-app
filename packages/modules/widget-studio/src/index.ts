@@ -31,12 +31,8 @@ export { default as PromptInput } from './components/PromptInput'
 
 // Agent layer & sanitization exports
 export { runAgentPipeline, publishDraft, cancelPipelineRun } from './agents/AgentOrchestrator'
-export { validateWidgetDsl } from './agents/ValidationAgent'
+export { validateWidgetDsl, APPROVED_WIDGETS } from './agents/ValidationAgent'
 export { sanitizePrompt, extractJson, sanitizeWidgetDsl } from './agents/sanitizer'
-export { openRouterProvider } from './agents/OpenRouterProvider'
-export { getAIProvider } from './agents/ProviderFactory'
-export type { AIProvider, AIGenerateOptions, AIGenerateResult } from './agents/AIProvider.interface'
-export { APPROVED_WIDGETS } from './agents/ComponentAgent'
 
 // React Query Hooks & API Client
 export * from './hooks/useWidgetStudioQuery'

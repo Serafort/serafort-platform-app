@@ -23,6 +23,7 @@ import PromptInput from '../components/PromptInput'
 import AgentPipelineTracker from '../components/AgentPipelineTracker'
 import DslPreviewCard from '../components/DslPreviewCard'
 import PublishConfirmDialog from '../components/PublishConfirmDialog'
+import { sanitizePrompt } from '../agents/sanitizer'
 
 const DRAWER_WIDTH = 400
 
@@ -34,7 +35,7 @@ const DRAWER_WIDTH = 400
  *   • Generate — prompt input + live pipeline tracker
  *   • History  — list of past drafts
  */
-const WidgetStudioPanel: React.FC = () => {
+export const WidgetStudioPanel: React.FC = () => {
   const {
     widgetStudioPanelOpen,
     closeWidgetStudioPanel,
@@ -58,13 +59,16 @@ const WidgetStudioPanel: React.FC = () => {
   // ─── Generate Handler ───────────────────────────────────────────────────
 
   const handleSubmitPrompt = useCallback(
-    (prompt: string) => {
-      const draftId = createWidgetDraft(prompt)
+    (rawPrompt: string) => {
+      const sanitized = sanitizePrompt(rawPrompt).sanitized.slice(0, 1000).trim()
+      if (!sanitized) return
+
+      const draftId = createWidgetDraft(sanitized)
       setTab(0)
 
       generateMutation.mutate({
         draftId,
-        prompt,
+        prompt: sanitized,
       })
     },
     [createWidgetDraft, generateMutation],

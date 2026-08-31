@@ -106,6 +106,78 @@ describe('PermissionCheckerService - Multi-Tenant Security Boundaries', () => {
     // Unauthorized action
     expect((await checker.checkPermission({ resource: 'documents', action: 'delete', tenantId: 'tenant-100' })).allowed).toBe(false)
   })
+
+  it('fails closed with CROSS_TENANT_ACCESS_DENIED when request specifies tenantId/targetTenantId/organizationId but context is unresolved', async () => {
+    const unassignedUserContext: UserPermissionsContext = {
+      userId: 77,
+      tenantId: undefined,
+      organizationId: undefined,
+      role: 'member',
+      permissions: ['documents:read'],
+      isAuthenticated: true,
+    }
+
+    const checker = new PermissionCheckerService(() => unassignedUserContext)
+
+    // targetTenantId specified but user context tenantId is unresolved
+    const targetTenantResult = await checker.checkPermission({
+      permission: 'documents:read',
+      targetTenantId: 'tenant-xyz',
+    })
+    expect(targetTenantResult.allowed).toBe(false)
+    expect(targetTenantResult.reason).toBe('CROSS_TENANT_ACCESS_DENIED')
+
+    // tenantId specified but user context tenantId is unresolved
+    const tenantResult = await checker.checkPermission({
+      permission: 'documents:read',
+      tenantId: 'tenant-xyz',
+    })
+    expect(tenantResult.allowed).toBe(false)
+    expect(tenantResult.reason).toBe('CROSS_TENANT_ACCESS_DENIED')
+
+    // organizationId specified but user context organizationId is unresolved
+    const orgResult = await checker.checkPermission({
+      permission: 'documents:read',
+      organizationId: 'org-xyz',
+    })
+    expect(orgResult.allowed).toBe(false)
+    expect(orgResult.reason).toBe('CROSS_TENANT_ACCESS_DENIED')
+  })
+
+  it('requires real permission records and does not synthesize resource:* for bare tenant admin role', async () => {
+    const bareTenantAdminContext: UserPermissionsContext = {
+      userId: 55,
+      tenantId: 'tenant-alpha',
+      organizationId: 'tenant-alpha',
+      role: 'tenant_admin',
+      permissions: [],
+      isAuthenticated: true,
+    }
+
+    const checker = new PermissionCheckerService(() => bareTenantAdminContext)
+
+    // Arbitrary resource action should NOT be automatically granted via synthesized resource:*
+    const arbitraryResourceResult = await checker.checkPermission({
+      resource: 'billing',
+      action: 'delete',
+      tenantId: 'tenant-alpha',
+    })
+    expect(arbitraryResourceResult.allowed).toBe(false)
+    expect(arbitraryResourceResult.reason).toContain('denied for current role and scope')
+
+    // Standard tenant management permissions are still granted
+    expect((await checker.checkPermission({ permission: 'tenant:manage', tenantId: 'tenant-alpha' })).allowed).toBe(true)
+    expect((await checker.checkPermission({ permission: 'org:admin', tenantId: 'tenant-alpha' })).allowed).toBe(true)
+
+    // When real permission is explicitly granted, it passes
+    const adminWithExplicitPermContext: UserPermissionsContext = {
+      ...bareTenantAdminContext,
+      permissions: ['billing:read'],
+    }
+    const explicitChecker = new PermissionCheckerService(() => adminWithExplicitPermContext)
+    expect((await explicitChecker.checkPermission({ resource: 'billing', action: 'read', tenantId: 'tenant-alpha' })).allowed).toBe(true)
+    expect((await explicitChecker.checkPermission({ resource: 'billing', action: 'delete', tenantId: 'tenant-alpha' })).allowed).toBe(false)
+  })
 })
 
 describe('RbacSubscriber - Event Bus & Query Invalidation', () => {
