@@ -1,4 +1,4 @@
-import { AppPaths } from '@cap/shared-types'
+import { AppPaths } from "@cap/shared-types";
 
 export const AuthPath = {
   account: AppPaths.account,
@@ -18,9 +18,9 @@ export const AuthPath = {
   },
   login: {
     root: AppPaths.auth.login,
-    callback: '/auth/login/callback',
-    sso: '/auth/login/sso',
-    magic: '/auth/login/magic',
+    callback: "/auth/login/callback",
+    sso: "/auth/login/sso",
+    magic: "/auth/login/magic",
   },
   register: {
     root: AppPaths.auth.signup,
@@ -29,11 +29,11 @@ export const AuthPath = {
   },
   verification: {
     email: AppPaths.auth.verifyEmail,
-    phone: '/auth/verification/phone',
+    phone: "/auth/verification/phone",
   },
   admin: AppPaths.admin,
   monitoring: AppPaths.monitoring,
-}
+};
 
 export const FlatPath = {
   ...AuthPath.user,
@@ -47,6 +47,6 @@ export const FlatPath = {
   ...AuthPath.verification,
   ...AuthPath.admin,
   ...AuthPath.monitoring,
-}
+};
 
-export default AuthPath
+export default AuthPath;

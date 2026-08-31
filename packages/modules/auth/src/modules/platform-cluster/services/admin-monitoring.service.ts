@@ -129,7 +129,11 @@ export const adminMonitoringService = {
     severity?: string
     startDate?: string
     endDate?: string
-  }): Promise<FetchResponse<{ data: AuditLogItem[]; total: number; page: number; limit: number } | AuditLogItem[]>> => {
+  }): Promise<
+    FetchResponse<
+      { data: AuditLogItem[]; total: number; page: number; limit: number } | AuditLogItem[]
+    >
+  > => {
     const searchParams = new URLSearchParams()
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -140,7 +144,9 @@ export const adminMonitoringService = {
     return apiClient.get(`${ENDPOINTS.admin.auditLogs.index}${query}`)
   },
 
-  exportAuditLogs: (payload: AuditLogExportRequest): Promise<FetchResponse<AuditLogExportResponse>> => {
+  exportAuditLogs: (
+    payload: AuditLogExportRequest,
+  ): Promise<FetchResponse<AuditLogExportResponse>> => {
     return apiClient.post<AuditLogExportResponse>(ENDPOINTS.admin.auditLogs.export, payload)
   },
 
@@ -175,12 +181,20 @@ export const adminMonitoringService = {
     return apiClient.get<EmailTemplate>(ENDPOINTS.admin.email.templateById(id))
   },
 
-  previewEmailTemplate: (payload: { templateId: string; variables?: Record<string, any> }): Promise<FetchResponse<EmailPreviewResult>> => {
+  previewEmailTemplate: (payload: {
+    templateId: string
+    variables?: Record<string, any>
+  }): Promise<FetchResponse<EmailPreviewResult>> => {
     return apiClient.post<EmailPreviewResult>(ENDPOINTS.admin.email.preview, payload)
   },
 
-  sendTestEmail: (payload: SendTestEmailPayload): Promise<FetchResponse<{ message: string; messageId?: string }>> => {
-    return apiClient.post<{ message: string; messageId?: string }>(ENDPOINTS.admin.email.test, payload)
+  sendTestEmail: (
+    payload: SendTestEmailPayload,
+  ): Promise<FetchResponse<{ message: string; messageId?: string }>> => {
+    return apiClient.post<{ message: string; messageId?: string }>(
+      ENDPOINTS.admin.email.test,
+      payload,
+    )
   },
 }
 

@@ -1,5 +1,5 @@
-import type { Theme } from '@mui/material/styles'
-import { alpha } from '@mui/material/styles'
+import type { Theme } from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
 
 /**
  * Shared Theme Mixins & Utilities
@@ -13,9 +13,15 @@ import { alpha } from '@mui/material/styles'
  * @param defaultAlpha - The default alpha value to apply (default: 0.16)
  * @returns string (CSS color value)
  */
-export const getPrimaryMainOpacity = (theme: Theme, defaultAlpha: number = 0.16): string => {
-  return (theme.palette.primary as any).mainOpacity || alpha(theme.palette.primary.main, defaultAlpha)
-}
+export const getPrimaryMainOpacity = (
+  theme: Theme,
+  defaultAlpha: number = 0.16,
+): string => {
+  return (
+    (theme.palette.primary as any).mainOpacity ||
+    alpha(theme.palette.primary.main, defaultAlpha)
+  );
+};
 
 /**
  * Retrieves a custom shadow from the theme, falling back to standard MUI shadows.
@@ -24,16 +30,20 @@ export const getPrimaryMainOpacity = (theme: Theme, defaultAlpha: number = 0.16)
  * @param fallbackShadowIndex - The index for `theme.shadows` array if custom shadow is not found
  * @returns string (CSS box-shadow value)
  */
-export const getCustomShadow = (theme: Theme, customShadowKey: string, fallbackShadowIndex: number): string => {
+export const getCustomShadow = (
+  theme: Theme,
+  customShadowKey: string,
+  fallbackShadowIndex: number,
+): string => {
   // Support nested keys like 'primary.sm'
-  const keys = customShadowKey.split('.')
-  let customShadow = (theme as any).customShadows
+  const keys = customShadowKey.split(".");
+  let customShadow = (theme as any).customShadows;
   for (const key of keys) {
-    customShadow = customShadow?.[key]
+    customShadow = customShadow?.[key];
   }
 
-  return customShadow || theme.shadows[fallbackShadowIndex] || 'none'
-}
+  return customShadow || theme.shadows[fallbackShadowIndex] || "none";
+};
 
 /**
  * Generates a direction-aware linear gradient using the primary color.
@@ -43,11 +53,14 @@ export const getCustomShadow = (theme: Theme, customShadowKey: string, fallbackS
  * @param activeAlpha - Alpha value for the faded part of the gradient
  * @returns string (CSS background gradient value)
  */
-export const getDirectionalActiveGradient = (theme: Theme, activeAlpha: number): string => {
-  const mainColor = theme.palette.primary.main
-  const alphaColor = alpha(mainColor, activeAlpha)
-  
-  return theme.direction === 'ltr'
+export const getDirectionalActiveGradient = (
+  theme: Theme,
+  activeAlpha: number,
+): string => {
+  const mainColor = theme.palette.primary.main;
+  const alphaColor = alpha(mainColor, activeAlpha);
+
+  return theme.direction === "ltr"
     ? `linear-gradient(270deg, ${alphaColor} 0%, ${mainColor} 100%)`
-    : `linear-gradient(270deg, ${mainColor} 100%, ${alphaColor} 100%)`
-}
+    : `linear-gradient(270deg, ${mainColor} 100%, ${alphaColor} 100%)`;
+};

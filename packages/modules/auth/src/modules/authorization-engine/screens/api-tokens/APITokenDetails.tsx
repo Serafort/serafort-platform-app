@@ -1,18 +1,30 @@
-import React, { useMemo } from 'react';
-import { Box, Typography, Button, Card, CardContent, Grid, Chip, Skeleton, Alert, Avatar, Stack } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import GlobeIcon from '@mui/icons-material/Language';
-import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import ShieldIcon from '@mui/icons-material/Shield';
-import InfoIcon from '@mui/icons-material/Info';
-import TerminalIcon from '@mui/icons-material/Terminal';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { alpha, useTheme } from '@mui/material/styles';
-import { useUserTokens, useRevokeToken } from '@auth/user-directory/hooks/useUserQuery';
-import { Path } from '@auth/routes/path';
+import React, { useMemo } from 'react'
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
+  Skeleton,
+  Alert,
+  Avatar,
+  Stack,
+} from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import GlobeIcon from '@mui/icons-material/Language'
+import VpnKeyIcon from '@mui/icons-material/VpnKey'
+import ShieldIcon from '@mui/icons-material/Shield'
+import InfoIcon from '@mui/icons-material/Info'
+import TerminalIcon from '@mui/icons-material/Terminal'
+import { useTranslation } from 'react-i18next'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { alpha, useTheme } from '@mui/material/styles'
+import { useUserTokens, useRevokeToken } from '@auth/user-directory/hooks/useUserQuery'
+import { Path } from '@auth/routes/path'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -85,7 +97,7 @@ const APITokenDetails: React.FC = () => {
 
   const revokeTokenMutation = useRevokeToken({
     onSuccess: () => {
-      toast.success(t('api_tokens:revoke_success', 'Token revoked successfully'), {  })
+      toast.success(t('api_tokens:revoke_success', 'Token revoked successfully'), {})
       navigate(Path.apiTokens.dashboard)
     },
     onError: (error: unknown) => {
@@ -468,4 +480,3 @@ const APITokenDetails: React.FC = () => {
 }
 
 export default APITokenDetails
-

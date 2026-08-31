@@ -1,11 +1,11 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, IconButton, Tooltip, CircularProgress } from '@mui/material'
-import LogoutOutlined from '@mui/icons-material/LogoutOutlined';
+import LogoutOutlined from '@mui/icons-material/LogoutOutlined'
 import { useSignout } from '@idaas/authentication-core/hooks/useAuthQuery'
 import { useTranslation } from 'react-i18next'
 import { useAuth, StorageManager } from '@cap/platform-core'
-import { Path } from '../../../routes/path';
+import { Path } from '../../../routes/path'
 import logger from '@idaas/authentication-core/utils/logger'
 
 interface SignOutButtonProps {
@@ -100,4 +100,3 @@ export const SignOutButton: React.FC<SignOutButtonProps> = ({
 }
 
 export default SignOutButton
-

@@ -1,4 +1,10 @@
-import { useQuery, useMutation, useQueryClient, type UseQueryOptions, type UseMutationOptions } from '@tanstack/react-query'
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type UseQueryOptions,
+  type UseMutationOptions,
+} from '@tanstack/react-query'
 import type { FetchResponse, HttpError } from '@cap/platform-core'
 import jwksService from '../services/jwks.service'
 import type {
@@ -15,7 +21,7 @@ export const jwksKeys = {
 }
 
 export function useJWKSKeys(
-  options?: Omit<UseQueryOptions<FetchResponse<JWKKey[]>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<FetchResponse<JWKKey[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: jwksKeys.list(),
@@ -26,7 +32,10 @@ export function useJWKSKeys(
 
 export function useGetJWKSKeyDetail(
   kid: string | null | undefined,
-  options?: Omit<UseQueryOptions<FetchResponse<JWKSKeyDetailResponse>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<FetchResponse<JWKSKeyDetailResponse>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: jwksKeys.detail(kid || ''),
@@ -37,7 +46,7 @@ export function useGetJWKSKeyDetail(
 }
 
 export function useCreateJWKSKey(
-  options?: UseMutationOptions<FetchResponse<JWKKey>, HttpError, CreateJWKSKeyRequest, unknown>
+  options?: UseMutationOptions<FetchResponse<JWKKey>, HttpError, CreateJWKSKeyRequest, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -52,7 +61,7 @@ export function useCreateJWKSKey(
 }
 
 export function useRotateJWKSKeys(
-  options?: UseMutationOptions<FetchResponse<RotateJWKSResponse>, HttpError, void, unknown>
+  options?: UseMutationOptions<FetchResponse<RotateJWKSResponse>, HttpError, void, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -67,7 +76,7 @@ export function useRotateJWKSKeys(
 }
 
 export function useDeleteJWKSKey(
-  options?: UseMutationOptions<FetchResponse<{ message?: string }>, HttpError, string, unknown>
+  options?: UseMutationOptions<FetchResponse<{ message?: string }>, HttpError, string, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}

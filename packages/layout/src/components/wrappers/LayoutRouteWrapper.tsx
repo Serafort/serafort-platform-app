@@ -28,7 +28,9 @@ export const LayoutRouteWrapper: React.FC<LayoutRouteWrapperProps> = ({
 
   React.useEffect(() => {
     const effectiveLayout =
-      !layout || layout === RouteLayoutEnum.NONE ? RouteLayoutEnum.PUBLIC : (layout as RouteLayoutEnum)
+      !layout || layout === RouteLayoutEnum.NONE
+        ? RouteLayoutEnum.PUBLIC
+        : (layout as RouteLayoutEnum)
     updateLayoutOverride(effectiveLayout)
 
     return () => {
@@ -39,9 +41,12 @@ export const LayoutRouteWrapper: React.FC<LayoutRouteWrapperProps> = ({
   React.useEffect(() => {
     if (label) {
       const i18nInstance = (i18next as any)?.default || i18next
-      const translated = i18nInstance?.isInitialized && i18nInstance.exists?.(label)
-        ? i18nInstance.t(label)
-        : (i18nInstance?.t ? i18nInstance.t(label) : label)
+      const translated =
+        i18nInstance?.isInitialized && i18nInstance.exists?.(label)
+          ? i18nInstance.t(label)
+          : i18nInstance?.t
+            ? i18nInstance.t(label)
+            : label
       document.title = translated || label
     }
   }, [label])

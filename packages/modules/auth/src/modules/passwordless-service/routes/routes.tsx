@@ -6,13 +6,21 @@ import GuestRoute from '../../authentication-core/middlewares/GuestRoute'
 // ---------------------------------------------------------------------------
 // Passwordless screens
 // ---------------------------------------------------------------------------
-const PasswordlessInitiation   = React.lazy(() => import('../screens/PasswordlessInitiation'))
+const PasswordlessInitiation = React.lazy(() => import('../screens/PasswordlessInitiation'))
 const PasswordlessVerification = React.lazy(() => import('../screens/PasswordlessVerification'))
 
 // ---------------------------------------------------------------------------
 // Route config
 // ---------------------------------------------------------------------------
 export const passwordlessServiceRouteConfig: AuthRouteConfig[] = [
-  { path: Path.setup, element: <GuestRoute element={<PasswordlessInitiation />} />, layout: 'noLayout' },
-  { path: Path.verification, element: <GuestRoute element={<PasswordlessVerification />} />, layout: 'noLayout' },
+  {
+    path: Path.setup,
+    element: <GuestRoute element={<PasswordlessInitiation />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.verification,
+    element: <GuestRoute element={<PasswordlessVerification />} />,
+    layout: 'noLayout',
+  },
 ]

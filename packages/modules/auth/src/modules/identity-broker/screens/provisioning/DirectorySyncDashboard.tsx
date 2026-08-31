@@ -31,30 +31,30 @@ import {
   TableRow,
   CircularProgress,
 } from '@mui/material'
-import Add from '@mui/icons-material/Add';
-import Sync from '@mui/icons-material/Sync';
-import History from '@mui/icons-material/History';
-import CheckCircle from '@mui/icons-material/CheckCircle';
-import ErrorIcon from '@mui/icons-material/Error';
-import CloudDone from '@mui/icons-material/CloudDone';
-import Security from '@mui/icons-material/Security';
-import Settings from '@mui/icons-material/Settings';
-import ArrowForward from '@mui/icons-material/ArrowForward';
-import CloudQueue from '@mui/icons-material/CloudQueue';
-import Close from '@mui/icons-material/Close';
-import Hub from '@mui/icons-material/Hub';
+import Add from '@mui/icons-material/Add'
+import Sync from '@mui/icons-material/Sync'
+import History from '@mui/icons-material/History'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import ErrorIcon from '@mui/icons-material/Error'
+import CloudDone from '@mui/icons-material/CloudDone'
+import Security from '@mui/icons-material/Security'
+import Settings from '@mui/icons-material/Settings'
+import ArrowForward from '@mui/icons-material/ArrowForward'
+import CloudQueue from '@mui/icons-material/CloudQueue'
+import Close from '@mui/icons-material/Close'
+import Hub from '@mui/icons-material/Hub'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'
 import {
   useProvisioningConnectors,
   useSyncProvisioningConnector,
   useCreateProvisioningConnector,
   useProvisioningConnectorLogs,
-} from "@auth/authorization-engine/hooks/useAdminQuery"
-import type { Connector, ConnectorLog } from "@auth/authorization-engine/services/adminService"
+} from '@auth/authorization-engine/hooks/useAdminQuery'
+import type { Connector, ConnectorLog } from '@auth/authorization-engine/services/adminService'
 import logger from '@idaas/authentication-core/utils/logger'
-import { Path } from "@cap/module-auth/routes/path"
+import { Path } from '@cap/module-auth/routes/path'
 
 // â”€â”€â”€ Skeleton Loader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ConnectorSkeleton() {
@@ -815,8 +815,8 @@ export default function DirectorySyncDashboard() {
                           {conn.status === 'active'
                             ? t('admin.provisioning.dashboard.connector_card.healthy')
                             : conn.error_message ||
-                            t('admin.provisioning.dashboard.connector_card.standby') ||
-                            'STANDBY'}
+                              t('admin.provisioning.dashboard.connector_card.standby') ||
+                              'STANDBY'}
                         </Typography>
                       </Box>
                       <Button
@@ -905,6 +905,3 @@ export default function DirectorySyncDashboard() {
     </Box>
   )
 }
-
-
-

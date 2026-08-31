@@ -1,15 +1,31 @@
-import React from 'react';
-import { Box, Typography, Button, Stack, alpha, useTheme, type SxProps, type Theme } from '@mui/material';
-import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
-import emptyIllustration from '../../assets/images/empty.png';
+import React from "react";
+import {
+  Box,
+  Typography,
+  Button,
+  Stack,
+  alpha,
+  useTheme,
+  type SxProps,
+  type Theme,
+} from "@mui/material";
+import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
+import emptyIllustration from "../../assets/images/empty.png";
 
 export interface EmptyActionConfig {
   label: string;
   onClick?: () => void;
   href?: string;
   icon?: React.ReactNode;
-  variant?: 'contained' | 'outlined' | 'text';
-  color?: 'primary' | 'secondary' | 'inherit' | 'error' | 'info' | 'success' | 'warning';
+  variant?: "contained" | "outlined" | "text";
+  color?:
+    | "primary"
+    | "secondary"
+    | "inherit"
+    | "error"
+    | "info"
+    | "success"
+    | "warning";
 }
 
 export interface EmptyProps {
@@ -66,24 +82,30 @@ export default function Empty({
   action,
   actionNode,
   imageSrc,
-  text = 'No data found',
+  text = "No data found",
   showText,
-  width = '100%',
-  height = '100%',
+  width = "100%",
+  height = "100%",
   sx,
 }: EmptyProps) {
   const theme = useTheme();
 
   // Backward compatibility: If showText is explicitly false and no title/desc/action provided, show legacy illustration image
-  const isLegacyImageOnly = showText === false && !title && !description && !action && !actionNode && !icon;
+  const isLegacyImageOnly =
+    showText === false &&
+    !title &&
+    !description &&
+    !action &&
+    !actionNode &&
+    !icon;
 
   if (isLegacyImageOnly) {
     return (
       <Box
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           backgroundColor: theme.palette.background.paper,
           width,
           height,
@@ -94,37 +116,43 @@ export default function Empty({
           src={imageSrc || emptyIllustration}
           alt="No data"
           style={{
-            maxWidth: '100%',
-            maxHeight: '100%',
-            objectFit: 'contain',
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "contain",
           }}
         />
       </Box>
     );
   }
 
-  const resolvedTitle = title || (showText ? text : text !== 'No data found' ? text : 'No data found');
+  const resolvedTitle =
+    title ||
+    (showText ? text : text !== "No data found" ? text : "No data found");
 
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         p: { xs: 3, sm: 5 },
-        textAlign: 'center',
+        textAlign: "center",
         width,
-        minHeight: height === '100%' ? 260 : height,
+        minHeight: height === "100%" ? 260 : height,
         borderRadius: 3,
         border: `1px dashed ${alpha(theme.palette.divider, 0.6)}`,
         bgcolor: alpha(theme.palette.background.paper, 0.4),
-        backdropFilter: 'blur(8px)',
-        transition: 'all 0.2s ease-in-out',
+        backdropFilter: "blur(8px)",
+        transition: "all 0.2s ease-in-out",
         ...sx,
       }}
     >
-      <Stack spacing={2} alignItems="center" sx={{ maxWidth: 440, width: '100%' }}>
+      <Stack
+        spacing={2}
+        alignItems="center"
+        sx={{ maxWidth: 440, width: "100%" }}
+      >
         {/* Icon / Graphic Container */}
         {icon !== undefined ? (
           icon && (
@@ -132,12 +160,12 @@ export default function Empty({
               sx={{
                 width: 64,
                 height: 64,
-                borderRadius: '50%',
+                borderRadius: "50%",
                 bgcolor: alpha(theme.palette.primary.main, 0.08),
                 color: theme.palette.primary.main,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 mb: 0.5,
               }}
             >
@@ -149,12 +177,12 @@ export default function Empty({
             sx={{
               width: 64,
               height: 64,
-              borderRadius: '50%',
+              borderRadius: "50%",
               bgcolor: alpha(theme.palette.primary.main, 0.08),
               color: theme.palette.primary.main,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               mb: 0.5,
             }}
           >
@@ -163,14 +191,14 @@ export default function Empty({
         )}
 
         {/* Title & Description */}
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ width: "100%" }}>
           {resolvedTitle && (
             <Typography
               variant="h6"
               sx={{
                 fontWeight: 700,
                 color: theme.palette.text.primary,
-                letterSpacing: '-0.01em',
+                letterSpacing: "-0.01em",
                 mb: description ? 0.5 : 0,
               }}
             >
@@ -194,8 +222,8 @@ export default function Empty({
         {/* Standardized Primary CTA / Action Node */}
         {action && (
           <Button
-            variant={action.variant || 'contained'}
-            color={action.color || 'primary'}
+            variant={action.variant || "contained"}
+            color={action.color || "primary"}
             startIcon={action.icon}
             onClick={action.onClick}
             href={action.href}
@@ -205,8 +233,8 @@ export default function Empty({
               py: 1,
               borderRadius: 2,
               fontWeight: 600,
-              textTransform: 'none',
-              boxShadow: action.variant === 'contained' ? 1 : 'none',
+              textTransform: "none",
+              boxShadow: action.variant === "contained" ? 1 : "none",
             }}
           >
             {action.label}

@@ -45,10 +45,10 @@ import {
   useCreatePermission,
   useUpdatePermission,
   useDeletePermission,
-} from "@auth/authorization-engine/hooks/useAdminQuery"
-import { Permission } from "@auth/authorization-engine/services/adminService"
+} from '@auth/authorization-engine/hooks/useAdminQuery'
+import { Permission } from '@auth/authorization-engine/services/adminService'
 import ConfirmationDialog from '@auth/modules/authentication-core/components/shared/Modals/ConfirmationDialog'
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'
 
 const CATEGORY_ICON: Record<string, React.ReactNode> = {
   user: <GroupIcon />,
@@ -80,8 +80,7 @@ export default function PermissionRegistry() {
       toast.success(t('auth.admin.permissionCreated'))
       setDialogOpen(false)
     },
-    onError: (err: any) =>
-      toast.error(err.message || t('auth.admin.errorCreatePermission')),
+    onError: (err: any) => toast.error(err.message || t('auth.admin.errorCreatePermission')),
   })
 
   const updatePermission = useUpdatePermission({
@@ -89,8 +88,7 @@ export default function PermissionRegistry() {
       toast.success(t('auth.admin.permissionUpdated'))
       setDialogOpen(false)
     },
-    onError: (err: any) =>
-      toast.error(err.message || t('auth.admin.errorUpdatePermission')),
+    onError: (err: any) => toast.error(err.message || t('auth.admin.errorUpdatePermission')),
   })
 
   const deletePermission = useDeletePermission({
@@ -98,8 +96,7 @@ export default function PermissionRegistry() {
       toast.success(t('auth.admin.permissionDeleted'))
       setConfirmDeleteOpen(false)
     },
-    onError: (err: any) =>
-      toast.error(err.message || t('auth.admin.errorDeletePermission')),
+    onError: (err: any) => toast.error(err.message || t('auth.admin.errorDeletePermission')),
   })
 
   const [search, setSearch] = useState('')

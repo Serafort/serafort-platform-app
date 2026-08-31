@@ -1,7 +1,21 @@
-import { adminService, Role, Permission } from '../../services/adminService';
-import { useAppStore } from '@cap/platform-store';
-import type { IRoleReader, IRoleWriter, IRolePermissionManager, IPermissionReader, IPermissionWriter, IPermissionChecker, IUserRoleManager, IAuthorizationFacade } from '../ports';
-import type { RoleDto, PermissionDto, CheckPermissionRequest, CheckPermissionResponse } from '../dtos/authorization.dto';
+import { adminService, Role, Permission } from '../../services/adminService'
+import { useAppStore } from '@cap/platform-store'
+import type {
+  IRoleReader,
+  IRoleWriter,
+  IRolePermissionManager,
+  IPermissionReader,
+  IPermissionWriter,
+  IPermissionChecker,
+  IUserRoleManager,
+  IAuthorizationFacade,
+} from '../ports'
+import type {
+  RoleDto,
+  PermissionDto,
+  CheckPermissionRequest,
+  CheckPermissionResponse,
+} from '../dtos/authorization.dto'
 
 const mapRoleToDto = (role: Role): RoleDto => ({
   id: role.id,
@@ -136,7 +150,9 @@ export class PermissionCheckerService implements IPermissionChecker {
 
     const permissionTarget =
       request.permission ||
-      (request.resource && request.action ? `${request.resource}.${request.action}` : request.resource)
+      (request.resource && request.action
+        ? `${request.resource}.${request.action}`
+        : request.resource)
 
     if (!permissionTarget) {
       return { allowed: false, reason: 'Missing permission or resource/action target in request' }
@@ -151,7 +167,11 @@ export class PermissionCheckerService implements IPermissionChecker {
         const storeState = useAppStore.getState()
         if (storeState && storeState.isAuthenticated && storeState.user) {
           const u = (storeState.user as any).user || storeState.user
-          const activeTenantId = (storeState as any).activeTenantId || (storeState as any).tenantId || u.tenantId || u.activeTenantId
+          const activeTenantId =
+            (storeState as any).activeTenantId ||
+            (storeState as any).tenantId ||
+            u.tenantId ||
+            u.activeTenantId
           userContext = {
             userId: u.id || u.userId || u.sub,
             tenantId: activeTenantId,
@@ -181,7 +201,10 @@ export class PermissionCheckerService implements IPermissionChecker {
       return { allowed: false, reason: 'Request userId does not match authenticated user context' }
     }
 
-    const userRoleStr = (userContext.role || userContext.roleObject?.name || '').toString().toLowerCase().trim()
+    const userRoleStr = (userContext.role || userContext.roleObject?.name || '')
+      .toString()
+      .toLowerCase()
+      .trim()
 
     // Platform Super-admin role has global authority
     const isSuperAdmin =
@@ -194,23 +217,25 @@ export class PermissionCheckerService implements IPermissionChecker {
     if (!isSuperAdmin) {
       if (
         request.targetTenantId != null &&
-        (userContext.tenantId == null || String(request.targetTenantId) !== String(userContext.tenantId))
+        (userContext.tenantId == null ||
+          String(request.targetTenantId) !== String(userContext.tenantId))
       ) {
-        return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' };
+        return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' }
       }
 
       if (
         request.tenantId != null &&
         (userContext.tenantId == null || String(request.tenantId) !== String(userContext.tenantId))
       ) {
-        return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' };
+        return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' }
       }
 
       if (
         request.organizationId != null &&
-        (userContext.organizationId == null || String(request.organizationId) !== String(userContext.organizationId))
+        (userContext.organizationId == null ||
+          String(request.organizationId) !== String(userContext.organizationId))
       ) {
-        return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' };
+        return { allowed: false, reason: 'CROSS_TENANT_ACCESS_DENIED' }
       }
     }
 
@@ -224,7 +249,9 @@ export class PermissionCheckerService implements IPermissionChecker {
 
     const rawPermissions = [
       ...(Array.isArray(userContext.permissions) ? userContext.permissions : []),
-      ...(Array.isArray(userContext.roleObject?.permissions) ? userContext.roleObject!.permissions! : []),
+      ...(Array.isArray(userContext.roleObject?.permissions)
+        ? userContext.roleObject!.permissions!
+        : []),
       ...(isTenantAdmin ? ['tenant:manage', 'org:admin'] : []),
     ]
 
@@ -235,17 +262,22 @@ export class PermissionCheckerService implements IPermissionChecker {
     const isAllowed = userPermissions.some((perm) => {
       if (perm === '*' || perm === permissionTarget) return true
       if (request.resource && request.action) {
-        if (perm === `${request.resource}.${request.action}` || perm === `${request.resource}:${request.action}`)
+        if (
+          perm === `${request.resource}.${request.action}` ||
+          perm === `${request.resource}:${request.action}`
+        )
           return true
-        if (perm === `${request.resource}.*` || perm === `${request.resource}:*`)
-          return true
+        if (perm === `${request.resource}.*` || perm === `${request.resource}:*`) return true
       }
       return false
     })
 
     if (isAllowed) return { allowed: true }
 
-    return { allowed: false, reason: `Permission '${permissionTarget}' denied for current role and scope` }
+    return {
+      allowed: false,
+      reason: `Permission '${permissionTarget}' denied for current role and scope`,
+    }
   }
 }
 
@@ -280,4 +312,3 @@ export class AuthorizationService implements IAuthorizationFacade {
 }
 
 export const authorizationService = new AuthorizationService()
-

@@ -1,8 +1,16 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom'
 import {
-  Box, Button, Typography, Alert, Avatar, CircularProgress,
-  Link as MuiLink, alpha, useTheme, Stack,
+  Box,
+  Button,
+  Typography,
+  Alert,
+  Avatar,
+  CircularProgress,
+  Link as MuiLink,
+  alpha,
+  useTheme,
+  Stack,
 } from '@mui/material'
 import Verified from '@mui/icons-material/Verified'
 import ErrorOutline from '@mui/icons-material/ErrorOutline'
@@ -72,7 +80,9 @@ export default function EmailVerificationScreen() {
           setAlreadyVerified(data?.alreadyVerified || false)
         } else {
           setSuccess(false)
-          setErrorMsg(t('email.failedGeneric', 'Email verification failed. The link may have expired.'))
+          setErrorMsg(
+            t('email.failedGeneric', 'Email verification failed. The link may have expired.'),
+          )
         }
       } catch (err: any) {
         if (!isMounted) return
@@ -97,9 +107,18 @@ export default function EmailVerificationScreen() {
   if (verifying) {
     return (
       <AuthPageLayout maxWidth={480}>
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 8 }}>
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            py: 8,
+          }}
+        >
           <CircularProgress size={48} sx={{ mb: 3 }} />
-          <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+          <Typography variant='h6' sx={{ fontWeight: 600, color: 'text.secondary' }}>
             {t('email.verifyingTitle', 'Verifying your email...')}
           </Typography>
         </Box>
@@ -111,7 +130,7 @@ export default function EmailVerificationScreen() {
     return (
       <AuthPageLayout maxWidth={480}>
         <Box sx={{ width: '100%' }}>
-          <RegistrationSuccess userName={verifiedUserName} redirectPath="/dashboard" />
+          <RegistrationSuccess userName={verifiedUserName} redirectPath='/dashboard' />
         </Box>
       </AuthPageLayout>
     )
@@ -120,9 +139,9 @@ export default function EmailVerificationScreen() {
   return (
     <AuthPageLayout maxWidth={480}>
       <Box sx={{ width: '100%' }}>
-        <LiquidGlassCard blur="24px" opacity={0.85} padding="0px" borderRadius="24px">
+        <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
           <Box
-            className="animate-scale-in"
+            className='animate-scale-in'
             component={motion.div}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -131,7 +150,7 @@ export default function EmailVerificationScreen() {
           >
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
               <Avatar
-                variant="circular"
+                variant='circular'
                 sx={{
                   width: 64,
                   height: 64,
@@ -146,23 +165,39 @@ export default function EmailVerificationScreen() {
               </Avatar>
             </Box>
 
-            <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+            <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
               {t('email.failedHeading', 'Verification failed')}
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500, mb: 4, lineHeight: 1.6 }}>
-              {errorMsg || t('email.failedDescription', "We couldn't verify your email. The link may be invalid or expired.")}
+            <Typography
+              variant='body1'
+              color='text.secondary'
+              sx={{ fontWeight: 500, mb: 4, lineHeight: 1.6 }}
+            >
+              {errorMsg ||
+                t(
+                  'email.failedDescription',
+                  "We couldn't verify your email. The link may be invalid or expired.",
+                )}
             </Typography>
 
             {errorMsg && (
-              <Alert severity="error" sx={{ mb: 4, borderRadius: 2, textAlign: 'left', '& .MuiAlert-message': { fontWeight: 600 } }}>
+              <Alert
+                severity='error'
+                sx={{
+                  mb: 4,
+                  borderRadius: 2,
+                  textAlign: 'left',
+                  '& .MuiAlert-message': { fontWeight: 600 },
+                }}
+              >
                 {errorMsg}
               </Alert>
             )}
 
             <Stack spacing={2}>
               <Button
-                variant="contained"
-                size="large"
+                variant='contained'
+                size='large'
                 fullWidth
                 component={Link}
                 to={Path.auth.forgotPassword}
@@ -182,7 +217,13 @@ export default function EmailVerificationScreen() {
               <MuiLink
                 component={Link}
                 to={Path.auth.signin}
-                sx={{ color: 'text.secondary', fontSize: '0.9rem', fontWeight: 600, textDecoration: 'none', '&:hover': { color: 'primary.main' } }}
+                sx={{
+                  color: 'text.secondary',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  '&:hover': { color: 'primary.main' },
+                }}
               >
                 {t('common.backToLogin', 'Back to log in')}
               </MuiLink>

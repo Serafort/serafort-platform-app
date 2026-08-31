@@ -50,11 +50,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useNotifications, API_CONFIG, ENDPOINTS } from '@cap/platform-core'
-import {
-  useLinkedAccounts,
-  useUnlinkAccount,
-  useGetUser,
-} from '../../hooks/useUserQuery'
+import { useLinkedAccounts, useUnlinkAccount, useGetUser } from '../../hooks/useUserQuery'
 import { LinkedAccountDTO } from '@idaas/authentication-core/types/api.types'
 
 const BRAND_COLORS = {
@@ -67,11 +63,11 @@ const BRAND_COLORS = {
 // Custom Microsoft SVG Icon
 function MicrosoftIconSvg(props: any) {
   return (
-    <svg width="20" height="20" viewBox="0 0 21 21" fill="none" {...props}>
-      <rect x="1" y="1" width="9" height="9" fill="#F25022" />
-      <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
-      <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
-      <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
+    <svg width='20' height='20' viewBox='0 0 21 21' fill='none' {...props}>
+      <rect x='1' y='1' width='9' height='9' fill='#F25022' />
+      <rect x='11' y='1' width='9' height='9' fill='#7FBA00' />
+      <rect x='1' y='11' width='9' height='9' fill='#00A4EF' />
+      <rect x='11' y='11' width='9' height='9' fill='#FFB900' />
     </svg>
   )
 }
@@ -120,9 +116,7 @@ export default function LinkedAccountsDashboard() {
     },
     onError: (err: any) => {
       const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Failed to disconnect account.'
+        err?.response?.data?.message || err?.message || 'Failed to disconnect account.'
       addNotification?.({
         type: 'error',
         title: 'Unlink Failed',
@@ -203,13 +197,12 @@ export default function LinkedAccountsDashboard() {
     ]
   }, [accounts, theme.palette.mode])
 
-  const selectedProvider =
-    providers.find((p) => p.id === selectedProviderId) || providers[0]
+  const selectedProvider = providers.find((p) => p.id === selectedProviderId) || providers[0]
   const isSelectedConnected = Boolean(selectedProvider?.account)
 
   // Safeguard: Check if user has a password or other accounts
   const hasLocalPassword = Boolean(
-    (currentUser as any)?.hasPassword !== false && (currentUser as any)?.password !== ''
+    (currentUser as any)?.hasPassword !== false && (currentUser as any)?.password !== '',
   )
   const isOnlyLoginMethod = !hasLocalPassword && accounts.length <= 1
 
@@ -231,11 +224,11 @@ export default function LinkedAccountsDashboard() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 2.5, md: 4 } }}>
+    <Container maxWidth='lg' sx={{ py: { xs: 2.5, md: 4 } }}>
       {/* Navigation Header */}
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
-        justifyContent="space-between"
+        justifyContent='space-between'
         alignItems={{ xs: 'flex-start', sm: 'center' }}
         spacing={2}
         mb={3.5}
@@ -256,30 +249,30 @@ export default function LinkedAccountsDashboard() {
           >
             Back to Profile
           </Button>
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Typography variant="h4" fontWeight={800} letterSpacing="-0.02em">
+          <Stack direction='row' spacing={1.5} alignItems='center'>
+            <Typography variant='h4' fontWeight={800} letterSpacing='-0.02em'>
               Linked Accounts
             </Typography>
             {isAccountsFetching && !isAccountsLoading && (
               <CircularProgress size={16} sx={{ color: 'text.secondary' }} />
             )}
           </Stack>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant='body2' color='text.secondary'>
             Connect third-party identity providers to enable frictionless single sign-on (SSO).
           </Typography>
         </Box>
 
-        <Tooltip title="Refresh Connected Accounts">
+        <Tooltip title='Refresh Connected Accounts'>
           <IconButton
             onClick={() => refetchAccounts()}
-            size="small"
+            size='small'
             sx={{
               border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
               borderRadius: 2,
               p: 1,
             }}
           >
-            <RefreshIcon fontSize="small" />
+            <RefreshIcon fontSize='small' />
           </IconButton>
         </Tooltip>
       </Stack>
@@ -287,10 +280,10 @@ export default function LinkedAccountsDashboard() {
       {/* Error Alert */}
       {isAccountsError && (
         <Alert
-          severity="error"
+          severity='error'
           sx={{ mb: 3 }}
           action={
-            <Button color="inherit" size="small" onClick={() => refetchAccounts()}>
+            <Button color='inherit' size='small' onClick={() => refetchAccounts()}>
               Retry
             </Button>
           }
@@ -313,10 +306,10 @@ export default function LinkedAccountsDashboard() {
             }}
           >
             <Box sx={{ p: 2.5, pb: 1.5 }}>
-              <Typography variant="subtitle2" fontWeight={700}>
+              <Typography variant='subtitle2' fontWeight={700}>
                 Identity Providers
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant='caption' color='text.secondary'>
                 Select a provider to view status & permissions
               </Typography>
             </Box>
@@ -328,11 +321,11 @@ export default function LinkedAccountsDashboard() {
                 ? Array.from({ length: 4 }).map((_, idx) => (
                     <ListItem key={idx} sx={{ p: 2 }}>
                       <ListItemIcon>
-                        <Skeleton variant="circular" width={36} height={36} />
+                        <Skeleton variant='circular' width={36} height={36} />
                       </ListItemIcon>
                       <ListItemText
-                        primary={<Skeleton variant="text" width={80} />}
-                        secondary={<Skeleton variant="text" width={110} />}
+                        primary={<Skeleton variant='text' width={80} />}
+                        secondary={<Skeleton variant='text' width={110} />}
                       />
                     </ListItem>
                   ))
@@ -373,22 +366,27 @@ export default function LinkedAccountsDashboard() {
                           </ListItemIcon>
                           <ListItemText
                             primary={
-                              <Stack direction="row" spacing={1} alignItems="center">
-                                <Typography variant="body2" fontWeight={700}>
+                              <Stack direction='row' spacing={1} alignItems='center'>
+                                <Typography variant='body2' fontWeight={700}>
                                   {provider.name}
                                 </Typography>
                                 {isConnected && (
                                   <Chip
-                                    label="Connected"
-                                    size="small"
-                                    color="success"
+                                    label='Connected'
+                                    size='small'
+                                    color='success'
                                     sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700 }}
                                   />
                                 )}
                               </Stack>
                             }
                             secondary={
-                              <Typography variant="caption" color="text.secondary" noWrap display="block">
+                              <Typography
+                                variant='caption'
+                                color='text.secondary'
+                                noWrap
+                                display='block'
+                              >
                                 {isConnected
                                   ? provider.account?.email || 'Linked Account'
                                   : 'Not connected'}
@@ -396,7 +394,7 @@ export default function LinkedAccountsDashboard() {
                             }
                           />
                           <ChevronRightIcon
-                            fontSize="small"
+                            fontSize='small'
                             sx={{
                               color: isSelected ? 'primary.main' : 'text.disabled',
                               transition: 'transform 0.15s',
@@ -416,7 +414,7 @@ export default function LinkedAccountsDashboard() {
         <Grid size={{ xs: 12, md: 8 }}>
           {isAccountsLoading ? (
             <Card sx={{ p: 4, borderRadius: 3 }}>
-              <Skeleton variant="rectangular" height={280} sx={{ borderRadius: 2 }} />
+              <Skeleton variant='rectangular' height={280} sx={{ borderRadius: 2 }} />
             </Card>
           ) : selectedProvider ? (
             <Card
@@ -434,10 +432,10 @@ export default function LinkedAccountsDashboard() {
                   direction={{ xs: 'column', sm: 'row' }}
                   spacing={2.5}
                   alignItems={{ xs: 'flex-start', sm: 'center' }}
-                  justifyContent="space-between"
+                  justifyContent='space-between'
                   mb={3}
                 >
-                  <Stack direction="row" spacing={2} alignItems="center">
+                  <Stack direction='row' spacing={2} alignItems='center'>
                     <Avatar
                       sx={{
                         width: 52,
@@ -450,28 +448,28 @@ export default function LinkedAccountsDashboard() {
                       {selectedProvider.icon}
                     </Avatar>
                     <Box>
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <Typography variant="h6" fontWeight={800}>
+                      <Stack direction='row' spacing={1} alignItems='center'>
+                        <Typography variant='h6' fontWeight={800}>
                           {selectedProvider.name}
                         </Typography>
                         {isSelectedConnected ? (
                           <Chip
                             icon={<CheckCircleIcon sx={{ fontSize: '14px !important' }} />}
-                            label="Connected"
-                            color="success"
-                            size="small"
+                            label='Connected'
+                            color='success'
+                            size='small'
                             sx={{ fontWeight: 700, fontSize: '0.75rem' }}
                           />
                         ) : (
                           <Chip
-                            label="Not Connected"
-                            size="small"
-                            variant="outlined"
+                            label='Not Connected'
+                            size='small'
+                            variant='outlined'
                             sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                           />
                         )}
                       </Stack>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant='body2' color='text.secondary'>
                         {selectedProvider.description}
                       </Typography>
                     </Box>
@@ -480,8 +478,8 @@ export default function LinkedAccountsDashboard() {
                   {/* Top Action Button */}
                   {isSelectedConnected ? (
                     <Button
-                      variant="outlined"
-                      color="error"
+                      variant='outlined'
+                      color='error'
                       startIcon={<LinkOffIcon />}
                       onClick={handleOpenUnlinkDialog}
                       disabled={unlinkMutation.isPending}
@@ -496,7 +494,7 @@ export default function LinkedAccountsDashboard() {
                     </Button>
                   ) : (
                     <Button
-                      variant="contained"
+                      variant='contained'
                       startIcon={<LinkIcon />}
                       onClick={() => handleConnect(selectedProvider.id)}
                       sx={{
@@ -516,11 +514,11 @@ export default function LinkedAccountsDashboard() {
                 {/* Connected Account Metadata */}
                 {isSelectedConnected && selectedProvider.account && (
                   <Box mb={3.5}>
-                    <Typography variant="subtitle2" fontWeight={700} mb={1.5}>
+                    <Typography variant='subtitle2' fontWeight={700} mb={1.5}>
                       Linked Account Details
                     </Typography>
                     <Paper
-                      variant="outlined"
+                      variant='outlined'
                       sx={{
                         p: 2.5,
                         borderRadius: 2,
@@ -530,25 +528,25 @@ export default function LinkedAccountsDashboard() {
                     >
                       <Grid container spacing={2}>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                          <Typography variant="caption" color="text.secondary" display="block">
+                          <Typography variant='caption' color='text.secondary' display='block'>
                             Connected Identity Email
                           </Typography>
-                          <Typography variant="body2" fontWeight={600}>
+                          <Typography variant='body2' fontWeight={600}>
                             {selectedProvider.account.email || 'Primary Account Email'}
                           </Typography>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                          <Typography variant="caption" color="text.secondary" display="block">
+                          <Typography variant='caption' color='text.secondary' display='block'>
                             Connected On
                           </Typography>
-                          <Typography variant="body2" fontWeight={600}>
+                          <Typography variant='body2' fontWeight={600}>
                             {(selectedProvider.account as any)?.linkedAt ||
                             (selectedProvider.account as any)?.created_at ||
                             (selectedProvider.account as any)?.createdAt
                               ? new Date(
                                   (selectedProvider.account as any)?.linkedAt ||
                                     (selectedProvider.account as any)?.created_at ||
-                                    (selectedProvider.account as any)?.createdAt
+                                    (selectedProvider.account as any)?.createdAt,
                                 ).toLocaleDateString(undefined, {
                                   month: 'short',
                                   day: 'numeric',
@@ -564,28 +562,30 @@ export default function LinkedAccountsDashboard() {
 
                 {/* Granted Permissions Scopes */}
                 <Box mb={3.5}>
-                  <Stack direction="row" spacing={1} alignItems="center" mb={1.5}>
-                    <SecurityIcon fontSize="small" color="action" />
-                    <Typography variant="subtitle2" fontWeight={700}>
+                  <Stack direction='row' spacing={1} alignItems='center' mb={1.5}>
+                    <SecurityIcon fontSize='small' color='action' />
+                    <Typography variant='subtitle2' fontWeight={700}>
                       Permissions & Scopes
                     </Typography>
                   </Stack>
-                  <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
+                  <Typography variant='caption' color='text.secondary' display='block' mb={1.5}>
                     {isSelectedConnected
                       ? 'The following OAuth permissions have been authorized for this service:'
                       : 'Connecting this account will request authorization for the following scopes:'}
                   </Typography>
-                  <Stack direction="row" flexWrap="wrap" gap={1}>
+                  <Stack direction='row' flexWrap='wrap' gap={1}>
                     {selectedProvider.permissions.map((perm, idx) => (
                       <Chip
                         key={idx}
                         icon={
                           isSelectedConnected ? (
-                            <CheckCircleIcon sx={{ fontSize: '14px !important', color: 'success.main' }} />
+                            <CheckCircleIcon
+                              sx={{ fontSize: '14px !important', color: 'success.main' }}
+                            />
                           ) : undefined
                         }
                         label={perm}
-                        size="small"
+                        size='small'
                         variant={isSelectedConnected ? 'filled' : 'outlined'}
                         sx={{
                           fontWeight: 600,
@@ -604,17 +604,17 @@ export default function LinkedAccountsDashboard() {
                 {/* Activity & History */}
                 {isSelectedConnected && (
                   <Box mb={3.5}>
-                    <Stack direction="row" spacing={1} alignItems="center" mb={1.5}>
-                      <HistoryIcon fontSize="small" color="action" />
-                      <Typography variant="subtitle2" fontWeight={700}>
+                    <Stack direction='row' spacing={1} alignItems='center' mb={1.5}>
+                      <HistoryIcon fontSize='small' color='action' />
+                      <Typography variant='subtitle2' fontWeight={700}>
                         Authentication Activity
                       </Typography>
                     </Stack>
                     <List dense sx={{ p: 0 }}>
                       <ListItem disableGutters>
                         <ListItemText
-                          primary="Last Authorized Session"
-                          secondary="Active token valid for Single Sign-On"
+                          primary='Last Authorized Session'
+                          secondary='Active token valid for Single Sign-On'
                           primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
                           secondaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
                         />
@@ -633,18 +633,25 @@ export default function LinkedAccountsDashboard() {
                       border: `1px solid ${alpha(theme.palette.error.main, 0.15)}`,
                     }}
                   >
-                    <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                      <WarningAmberIcon color="error" sx={{ mt: 0.25 }} />
+                    <Stack direction='row' spacing={1.5} alignItems='flex-start'>
+                      <WarningAmberIcon color='error' sx={{ mt: 0.25 }} />
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="subtitle2" fontWeight={700} color="error.main" gutterBottom>
+                        <Typography
+                          variant='subtitle2'
+                          fontWeight={700}
+                          color='error.main'
+                          gutterBottom
+                        >
                           Disconnect {selectedProvider.name} Account
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" mb={2}>
-                          Disconnecting will remove {selectedProvider.name} as a single sign-on method. You will need to use your password or another connected provider to log in.
+                        <Typography variant='body2' color='text.secondary' mb={2}>
+                          Disconnecting will remove {selectedProvider.name} as a single sign-on
+                          method. You will need to use your password or another connected provider
+                          to log in.
                         </Typography>
                         <Button
-                          variant="contained"
-                          color="error"
+                          variant='contained'
+                          color='error'
                           onClick={handleOpenUnlinkDialog}
                           disabled={unlinkMutation.isPending}
                           sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
@@ -663,17 +670,23 @@ export default function LinkedAccountsDashboard() {
                       border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
                     }}
                   >
-                    <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                      <LinkIcon color="primary" sx={{ mt: 0.25 }} />
+                    <Stack direction='row' spacing={1.5} alignItems='flex-start'>
+                      <LinkIcon color='primary' sx={{ mt: 0.25 }} />
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="subtitle2" fontWeight={700} color="primary.main" gutterBottom>
+                        <Typography
+                          variant='subtitle2'
+                          fontWeight={700}
+                          color='primary.main'
+                          gutterBottom
+                        >
                           Enable 1-Click Login with {selectedProvider.name}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" mb={2}>
-                          Link your {selectedProvider.name} account to securely log in with a single click without having to enter your password each time.
+                        <Typography variant='body2' color='text.secondary' mb={2}>
+                          Link your {selectedProvider.name} account to securely log in with a single
+                          click without having to enter your password each time.
                         </Typography>
                         <Button
-                          variant="contained"
+                          variant='contained'
                           onClick={() => handleConnect(selectedProvider.id)}
                           sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
                         >
@@ -693,7 +706,7 @@ export default function LinkedAccountsDashboard() {
       <Dialog
         open={isUnlinkDialogOpen}
         onClose={unlinkMutation.isPending ? undefined : () => setIsUnlinkDialogOpen(false)}
-        maxWidth="xs"
+        maxWidth='xs'
         fullWidth
         PaperProps={{
           sx: {
@@ -712,7 +725,7 @@ export default function LinkedAccountsDashboard() {
             justifyContent: 'space-between',
           }}
         >
-          <Stack direction="row" spacing={1.5} alignItems="center">
+          <Stack direction='row' spacing={1.5} alignItems='center'>
             <Box
               sx={{
                 p: 1,
@@ -725,32 +738,35 @@ export default function LinkedAccountsDashboard() {
               <LinkOffIcon />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={700}>
+              <Typography variant='h6' fontWeight={700}>
                 Disconnect Account
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant='caption' color='text.secondary'>
                 {selectedProvider?.name} Identity Link
               </Typography>
             </Box>
           </Stack>
           <IconButton
             onClick={() => setIsUnlinkDialogOpen(false)}
-            size="small"
+            size='small'
             disabled={unlinkMutation.isPending}
           >
-            <CloseIcon fontSize="small" />
+            <CloseIcon fontSize='small' />
           </IconButton>
         </DialogTitle>
 
         <DialogContent sx={{ p: 3, pt: 1 }}>
           <Stack spacing={2}>
             {isOnlyLoginMethod ? (
-              <Alert severity="error">
-                <strong>Lockout Prevention Warning:</strong> This is currently your only connected login method and you do not have a local password configured. Disconnecting this account will lock you out of your profile. Please set a password first.
+              <Alert severity='error'>
+                <strong>Lockout Prevention Warning:</strong> This is currently your only connected
+                login method and you do not have a local password configured. Disconnecting this
+                account will lock you out of your profile. Please set a password first.
               </Alert>
             ) : (
-              <Typography variant="body2" color="text.secondary">
-                Are you sure you want to disconnect your <strong>{selectedProvider?.name}</strong> account ({selectedProvider?.account?.email})? You can reconnect it at any time.
+              <Typography variant='body2' color='text.secondary'>
+                Are you sure you want to disconnect your <strong>{selectedProvider?.name}</strong>{' '}
+                account ({selectedProvider?.account?.email})? You can reconnect it at any time.
               </Typography>
             )}
           </Stack>
@@ -766,7 +782,7 @@ export default function LinkedAccountsDashboard() {
         >
           <Button
             onClick={() => setIsUnlinkDialogOpen(false)}
-            color="inherit"
+            color='inherit'
             sx={{ textTransform: 'none', fontWeight: 600 }}
           >
             Cancel
@@ -774,7 +790,7 @@ export default function LinkedAccountsDashboard() {
 
           {isOnlyLoginMethod ? (
             <Button
-              variant="contained"
+              variant='contained'
               startIcon={<VpnKeyIcon />}
               onClick={() => {
                 setIsUnlinkDialogOpen(false)
@@ -787,13 +803,13 @@ export default function LinkedAccountsDashboard() {
           ) : (
             <Button
               onClick={handleConfirmUnlink}
-              variant="contained"
-              color="error"
+              variant='contained'
+              color='error'
               disabled={unlinkMutation.isPending}
               sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2, minWidth: 120 }}
             >
               {unlinkMutation.isPending ? (
-                <CircularProgress size={20} color="inherit" />
+                <CircularProgress size={20} color='inherit' />
               ) : (
                 'Disconnect'
               )}

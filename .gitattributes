@@ -1,0 +1,17 @@
+# Auto detect text files and ensure LF line endings for code.
+* text=auto eol=lf
+
+# Explicitly set binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary
+
+# Lock files should preserve their format
+pnpm-lock.yaml -diff

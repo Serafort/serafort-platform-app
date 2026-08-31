@@ -28,7 +28,7 @@ export const LockedStep: React.FC<LockedStepProps> = ({
       }}
     >
       <MAlert
-        severity="error"
+        severity='error'
         sx={{
           textAlign: 'left',
           borderRadius: '12px',
@@ -36,16 +36,20 @@ export const LockedStep: React.FC<LockedStepProps> = ({
           color: 'error.main',
         }}
       >
-        {t('auth.lockout.message', 'Account temporarily locked. Try again in {{minutes}} minutes.', {
-          minutes,
-        })}
+        {t(
+          'auth.lockout.message',
+          'Account temporarily locked. Try again in {{minutes}} minutes.',
+          {
+            minutes,
+          },
+        )}
         <br />
-        <Box component="span" sx={{ fontWeight: 600 }}>
+        <Box component='span' sx={{ fontWeight: 600 }}>
           {t('auth.lockout.countdown', 'Countdown')}: {countdownDisplay}
         </Box>
       </MAlert>
       <Button
-        variant="text"
+        variant='text'
         onClick={onBackToLogin}
         sx={{ borderRadius: '12px', textTransform: 'none', fontWeight: 700 }}
       >
@@ -54,4 +58,3 @@ export const LockedStep: React.FC<LockedStepProps> = ({
     </Box>
   )
 }
-

@@ -45,7 +45,9 @@ export default function PasskeySetupAuto({
       await registerPasskey({ friendlyName })
       onSuccess?.()
     } catch (err: any) {
-      onError?.(err.message || t('passkey.errorSetupFailed', 'Passkey registration cancelled or failed'))
+      onError?.(
+        err.message || t('passkey.errorSetupFailed', 'Passkey registration cancelled or failed'),
+      )
     } finally {
       setWaitingForConfirmation(false)
     }
@@ -63,11 +65,17 @@ export default function PasskeySetupAuto({
   }
 
   return (
-    <Dialog open={open} onClose={handleCancel} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 2 } }}>
+    <Dialog
+      open={open}
+      onClose={handleCancel}
+      maxWidth='xs'
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 3, p: 2 } }}
+    >
       <DialogContent sx={{ px: 4, py: 5, textAlign: 'center' }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
           <Avatar
-            variant="square"
+            variant='square'
             sx={{
               width: 56,
               height: 56,
@@ -82,15 +90,22 @@ export default function PasskeySetupAuto({
           </Avatar>
         </Box>
 
-        <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+        <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
           {t('passkey.setupTitle', 'Set up a passkey')}
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 4, lineHeight: 1.6, maxWidth: 340, mx: 'auto' }}>
-          {t('passkey.setupDesc', 'Use your device biometrics or security key to sign in without a password.')}
+        <Typography
+          variant='body2'
+          color='text.secondary'
+          sx={{ mb: 4, lineHeight: 1.6, maxWidth: 340, mx: 'auto' }}
+        >
+          {t(
+            'passkey.setupDesc',
+            'Use your device biometrics or security key to sign in without a password.',
+          )}
         </Typography>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 3, borderRadius: 2, textAlign: 'left' }}>
+          <Alert severity='error' sx={{ mb: 3, borderRadius: 2, textAlign: 'left' }}>
             {error}
           </Alert>
         )}
@@ -110,13 +125,13 @@ export default function PasskeySetupAuto({
             }}
           >
             <CircularProgress size={20} thickness={4} />
-            <Typography variant="body2" color="text.secondary" fontWeight={500}>
+            <Typography variant='body2' color='text.secondary' fontWeight={500}>
               {t('passkey.waitingConfirmation', 'Waiting for confirmation...')}
             </Typography>
           </Box>
         )}
         {(waitingForConfirmation || autoStart) && (
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
+          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 3 }}>
             {t('passkey.checkBrowser', 'Check your browser or device for the prompt.')}
           </Typography>
         )}
@@ -124,7 +139,7 @@ export default function PasskeySetupAuto({
         {!waitingForConfirmation && (
           <Button
             fullWidth
-            variant="contained"
+            variant='contained'
             startIcon={<Security />}
             onClick={handleSetupPasskey}
             disabled={isLoading}
@@ -139,15 +154,17 @@ export default function PasskeySetupAuto({
               '&:hover': { bgcolor: 'info.dark', transform: 'translateY(-1px)' },
             }}
           >
-            {isLoading ? t('passkey.settingUp', 'Setting up...') : t('passkey.useSecurityKey', 'Use Security Key')}
+            {isLoading
+              ? t('passkey.settingUp', 'Setting up...')
+              : t('passkey.useSecurityKey', 'Use Security Key')}
           </Button>
         )}
 
         <Link
-          component="button"
-          variant="body2"
+          component='button'
+          variant='body2'
           onClick={handleCancel}
-          underline="none"
+          underline='none'
           disabled={isLoading}
           sx={{
             display: 'block',
@@ -161,9 +178,11 @@ export default function PasskeySetupAuto({
           {t('common.cancel', 'Cancel')}
         </Link>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 4 }}>
+        <Box
+          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 4 }}
+        >
           <Security sx={{ fontSize: 14, color: 'text.disabled' }} />
-          <Typography variant="caption" color="text.disabled" fontWeight={500}>
+          <Typography variant='caption' color='text.disabled' fontWeight={500}>
             {t('passkey.securedByWebauthn', 'Secured by WebAuthn')}
           </Typography>
         </Box>

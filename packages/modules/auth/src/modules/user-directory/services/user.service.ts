@@ -3,10 +3,18 @@
 // User Service - User Profile & Account Management
 // ============================================================================
 
-import { apiClient, FetchResponse } from '@cap/platform-core';
+import { apiClient, FetchResponse } from '@cap/platform-core'
 
-import { UpdateEmailRequest, UpdatePhotoRequest, ChangePasswordRequest, UpdatePreferencesRequest, UpdateMeRequest, SecurityStatusResponse, AuditLog } from '@idaas/authentication-core/types/api.types';
-import { ENDPOINTS } from '@cap/platform-core';
+import {
+  UpdateEmailRequest,
+  UpdatePhotoRequest,
+  ChangePasswordRequest,
+  UpdatePreferencesRequest,
+  UpdateMeRequest,
+  SecurityStatusResponse,
+  AuditLog,
+} from '@idaas/authentication-core/types/api.types'
+import { ENDPOINTS } from '@cap/platform-core'
 
 const userService = {
   getMe: (): Promise<FetchResponse> => {
@@ -24,7 +32,9 @@ const userService = {
   },
 
   updateProfile: (data: any): Promise<FetchResponse> => {
-    return apiClient.put('/api/user/profile', data).catch(() => apiClient.patch(ENDPOINTS.user.update, data))
+    return apiClient
+      .put('/api/user/profile', data)
+      .catch(() => apiClient.patch(ENDPOINTS.user.update, data))
   },
 
   update: (data: UpdateMeRequest): Promise<FetchResponse> => {
@@ -35,27 +45,38 @@ const userService = {
   },
 
   updatePhoto: (data: UpdatePhotoRequest): Promise<FetchResponse> => {
-    return apiClient.uploadFormData('/api/user/profile/avatar', { avatar: data.photo }, 'post')
+    return apiClient
+      .uploadFormData('/api/user/profile/avatar', { avatar: data.photo }, 'post')
       .catch(() => apiClient.uploadFormData(ENDPOINTS.user.avatar, { avatar: data.photo }, 'post'))
   },
 
   uploadAvatar: (file: File): Promise<FetchResponse<{ avatarUrl: string }>> => {
-    return apiClient.uploadFormData<{ avatarUrl: string }>('/api/user/profile/avatar', { avatar: file }, 'post')
-      .catch(() => apiClient.uploadFormData<{ avatarUrl: string }>(ENDPOINTS.user.avatar, { avatar: file }, 'post'))
+    return apiClient
+      .uploadFormData<{ avatarUrl: string }>('/api/user/profile/avatar', { avatar: file }, 'post')
+      .catch(() =>
+        apiClient.uploadFormData<{ avatarUrl: string }>(
+          ENDPOINTS.user.avatar,
+          { avatar: file },
+          'post',
+        ),
+      )
   },
 
   deleteAvatar: (): Promise<FetchResponse<{ success: boolean; message: string }>> => {
-    return apiClient.delete<{ success: boolean; message: string }>('/api/user/profile/avatar')
+    return apiClient
+      .delete<{ success: boolean; message: string }>('/api/user/profile/avatar')
       .catch(() => apiClient.delete<{ success: boolean; message: string }>(ENDPOINTS.user.avatar))
   },
 
   requestEmailChange: (data: { newEmail: string }): Promise<FetchResponse> => {
-    return apiClient.post('/api/user/request-email-change', data)
+    return apiClient
+      .post('/api/user/request-email-change', data)
       .catch(() => apiClient.post(ENDPOINTS.user.changeEmail, { email: data.newEmail }))
   },
 
   resendVerification: (data?: { email?: string }): Promise<FetchResponse> => {
-    return apiClient.post('/api/user/resend-verification', data || {})
+    return apiClient
+      .post('/api/user/resend-verification', data || {})
       .catch(() => apiClient.post(ENDPOINTS.auth.resendVerification, data || {}))
   },
 
@@ -72,7 +93,9 @@ const userService = {
   },
 
   changePassword: (
-    data: ChangePasswordRequest | { currentPassword: string; newPassword: string; confirmPassword: string },
+    data:
+      | ChangePasswordRequest
+      | { currentPassword: string; newPassword: string; confirmPassword: string },
   ): Promise<FetchResponse> => {
     const payload = {
       currentPassword: data.currentPassword,
@@ -80,7 +103,8 @@ const userService = {
       newPassword: (data as any).newPassword || (data as any).password,
       confirmPassword: data.confirmPassword,
     }
-    return apiClient.post('/api/user/change-password', payload)
+    return apiClient
+      .post('/api/user/change-password', payload)
       .catch(() => apiClient.post(ENDPOINTS.user.changePassword, payload))
   },
 
@@ -137,15 +161,21 @@ const userService = {
     email?: string
     metadata?: any
   }): Promise<FetchResponse> => {
-    return apiClient.post('/api/user/linked-accounts', data).catch(() => apiClient.post(ENDPOINTS.user.linkAccount, data))
+    return apiClient
+      .post('/api/user/linked-accounts', data)
+      .catch(() => apiClient.post(ENDPOINTS.user.linkAccount, data))
   },
 
   getLinkedAccounts: (): Promise<FetchResponse> => {
-    return apiClient.get('/api/user/linked-accounts').catch(() => apiClient.get(ENDPOINTS.user.linkedAccounts))
+    return apiClient
+      .get('/api/user/linked-accounts')
+      .catch(() => apiClient.get(ENDPOINTS.user.linkedAccounts))
   },
 
   unlinkAccount: (id: string | number): Promise<FetchResponse> => {
-    return apiClient.delete(`/api/user/linked-accounts/${id}`).catch(() => apiClient.delete(ENDPOINTS.user.unlinkAccount(id)))
+    return apiClient
+      .delete(`/api/user/linked-accounts/${id}`)
+      .catch(() => apiClient.delete(ENDPOINTS.user.unlinkAccount(id)))
   },
 
   tokens: {
@@ -198,4 +228,3 @@ const userService = {
 }
 
 export default userService
-

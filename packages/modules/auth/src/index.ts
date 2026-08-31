@@ -247,7 +247,11 @@ export * from './modules/identity-broker/screens'
 export * from './modules/passwordless-service'
 export * from './modules/developer-console'
 export { apiExplorerService } from './modules/platform-cluster'
-export type { SandboxExecutionResult, OpenAPISpec, OpenAPIPathItem } from './modules/platform-cluster'
+export type {
+  SandboxExecutionResult,
+  OpenAPISpec,
+  OpenAPIPathItem,
+} from './modules/platform-cluster'
 export type { AccessPolicy, AccessPolicyRule } from '@cap/shared-types'
 export type { AuthAccessPolicy } from './domain-kernel/src/types/authorization'
 

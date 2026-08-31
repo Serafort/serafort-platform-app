@@ -7,4 +7,8 @@ export {
   UserDirectory,
   DataExport,
 } from './users'
-export { OrganizationInvitationDashboard, OrganizationListDashboard, OrganizationProfile } from './organizations'
+export {
+  OrganizationInvitationDashboard,
+  OrganizationListDashboard,
+  OrganizationProfile,
+} from './organizations'

@@ -12,19 +12,14 @@ import {
   ssfKeys,
 } from './useSSFQuery'
 
-const {
-  mockGetConfig,
-  mockUpdateConfig,
-  mockTestStream,
-  mockBroadcastEvent,
-  mockGetHistory,
-} = vi.hoisted(() => ({
-  mockGetConfig: vi.fn(),
-  mockUpdateConfig: vi.fn(),
-  mockTestStream: vi.fn(),
-  mockBroadcastEvent: vi.fn(),
-  mockGetHistory: vi.fn(),
-}))
+const { mockGetConfig, mockUpdateConfig, mockTestStream, mockBroadcastEvent, mockGetHistory } =
+  vi.hoisted(() => ({
+    mockGetConfig: vi.fn(),
+    mockUpdateConfig: vi.fn(),
+    mockTestStream: vi.fn(),
+    mockBroadcastEvent: vi.fn(),
+    mockGetHistory: vi.fn(),
+  }))
 
 vi.mock('../services/ssf.service', () => ({
   default: {
@@ -85,11 +80,16 @@ describe('useSSFQuery hooks', () => {
     const { result } = renderHook(() => useBroadcastSSFEvent(), { wrapper: makeWrapper() })
     result.current.mutate({ event_type: 'session-revoked', subject: 'user-1' })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(mockBroadcastEvent).toHaveBeenCalledWith({ event_type: 'session-revoked', subject: 'user-1' })
+    expect(mockBroadcastEvent).toHaveBeenCalledWith({
+      event_type: 'session-revoked',
+      subject: 'user-1',
+    })
   })
 
   it('useSSFHistory fetches SSF stream history', async () => {
-    mockGetHistory.mockResolvedValue({ data: [{ action: 'SSF_SIGNAL_BROADCAST', created_at: '2026-01-01' }] })
+    mockGetHistory.mockResolvedValue({
+      data: [{ action: 'SSF_SIGNAL_BROADCAST', created_at: '2026-01-01' }],
+    })
     const { result } = renderHook(() => useSSFHistory(), { wrapper: makeWrapper() })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(result.current.data?.data).toHaveLength(1)

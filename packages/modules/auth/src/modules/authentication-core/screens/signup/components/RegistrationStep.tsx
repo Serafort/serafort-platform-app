@@ -31,7 +31,9 @@ import { Path } from '@cap/module-auth/routes/path'
 interface RegistrationStepProps {
   t: any
   control: Control<SignUpFormSchemaType>
-  handleSubmit: (onValid: (data: SignUpFormSchemaType) => void) => (e?: React.BaseSyntheticEvent) => Promise<void>
+  handleSubmit: (
+    onValid: (data: SignUpFormSchemaType) => void,
+  ) => (e?: React.BaseSyntheticEvent) => Promise<void>
   onSubmit: (data: SignUpFormSchemaType) => void
   passwordStrength: PasswordStrength
   showPassword: boolean
@@ -261,12 +263,31 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
 
             {/* Password Strength Progress Bar & Breakdown */}
             {control._formValues.password && (
-              <Box sx={{ mt: 1.5, p: 1.5, borderRadius: '12px', bgcolor: (theme) => alpha(theme.palette.background.default, 0.5), border: '1px solid', borderColor: 'divider' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.8 }}>
+              <Box
+                sx={{
+                  mt: 1.5,
+                  p: 1.5,
+                  borderRadius: '12px',
+                  bgcolor: (theme) => alpha(theme.palette.background.default, 0.5),
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 0.8,
+                  }}
+                >
                   <Typography variant='caption' sx={{ fontWeight: 700, color: 'text.secondary' }}>
                     {t('signUp.passwordStrength', 'Password Strength')}:
                   </Typography>
-                  <Typography variant='caption' sx={{ fontWeight: 800, color: `${passwordStrength.color}.main` }}>
+                  <Typography
+                    variant='caption'
+                    sx={{ fontWeight: 800, color: `${passwordStrength.color}.main` }}
+                  >
                     {passwordStrength.label}
                   </Typography>
                 </Box>
@@ -278,11 +299,26 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                 />
                 <Stack spacing={0.6}>
                   {[
-                    { label: t('signUp.reqLength', 'At least 8 characters'), met: passwordStrength.criteria.minLength },
-                    { label: t('signUp.reqUppercase', 'At least one uppercase letter (A-Z)'), met: passwordStrength.criteria.hasUppercase },
-                    { label: t('signUp.reqLowercase', 'At least one lowercase letter (a-z)'), met: passwordStrength.criteria.hasLowercase },
-                    { label: t('signUp.reqNumber', 'At least one number (0-9)'), met: passwordStrength.criteria.hasNumber },
-                    { label: t('signUp.reqSpecial', 'At least one special character (!@#$)'), met: passwordStrength.criteria.hasSpecial },
+                    {
+                      label: t('signUp.reqLength', 'At least 8 characters'),
+                      met: passwordStrength.criteria.minLength,
+                    },
+                    {
+                      label: t('signUp.reqUppercase', 'At least one uppercase letter (A-Z)'),
+                      met: passwordStrength.criteria.hasUppercase,
+                    },
+                    {
+                      label: t('signUp.reqLowercase', 'At least one lowercase letter (a-z)'),
+                      met: passwordStrength.criteria.hasLowercase,
+                    },
+                    {
+                      label: t('signUp.reqNumber', 'At least one number (0-9)'),
+                      met: passwordStrength.criteria.hasNumber,
+                    },
+                    {
+                      label: t('signUp.reqSpecial', 'At least one special character (!@#$)'),
+                      met: passwordStrength.criteria.hasSpecial,
+                    },
                   ].map((req, i) => (
                     <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
                       {req.met ? (
@@ -366,12 +402,21 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                       />
                     }
                     label={
-                      <Typography variant='body2' color='text.secondary' sx={{ fontSize: '0.85rem' }}>
+                      <Typography
+                        variant='body2'
+                        color='text.secondary'
+                        sx={{ fontSize: '0.85rem' }}
+                      >
                         {t('signUp.iAgreeTo', 'I agree to the')}{' '}
                         <MuiLink
                           component={Link}
                           to='/terms'
-                          sx={{ color: 'primary.main', fontWeight: 600, textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                          sx={{
+                            color: 'primary.main',
+                            fontWeight: 600,
+                            textDecoration: 'none',
+                            '&:hover': { textDecoration: 'underline' },
+                          }}
                         >
                           {t('signUp.termsOfService', 'Terms of Service')}
                         </MuiLink>{' '}
@@ -379,7 +424,12 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                         <MuiLink
                           component={Link}
                           to='/privacy'
-                          sx={{ color: 'primary.main', fontWeight: 600, textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                          sx={{
+                            color: 'primary.main',
+                            fontWeight: 600,
+                            textDecoration: 'none',
+                            '&:hover': { textDecoration: 'underline' },
+                          }}
                         >
                           {t('signUp.privacyPolicy', 'Privacy Policy')}
                         </MuiLink>

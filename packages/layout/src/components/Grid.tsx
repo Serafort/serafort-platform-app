@@ -6,4 +6,3 @@ const Grid: React.FC<GridProps> = (props) => {
 }
 
 export default Grid
-

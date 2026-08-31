@@ -31,7 +31,12 @@ export function formatWebAuthnError(err: any): string {
   if (err.name === 'NotSupportedError') {
     return 'Passkeys / WebAuthn are not supported on this browser or platform.'
   }
-  return err.response?.data?.message || err.response?.data?.error || err.message || 'Passkey operation failed'
+  return (
+    err.response?.data?.message ||
+    err.response?.data?.error ||
+    err.message ||
+    'Passkey operation failed'
+  )
 }
 
 export interface RegisterPasskeyOptions {

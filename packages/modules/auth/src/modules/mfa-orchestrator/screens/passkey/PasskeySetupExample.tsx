@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Box, Button, Typography, Container, Alert } from '@mui/material'
-import Fingerprint from '@mui/icons-material/Fingerprint';
+import Fingerprint from '@mui/icons-material/Fingerprint'
 import { useTranslation } from 'react-i18next'
 import PasskeySetupAuto from './PasskeySetupAuto'
 

@@ -33,10 +33,12 @@ import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Path, useSsoDiscovery } from "@auth"
-import { toast } from 'react-toastify';
-import { SsoIdentifierSchema, type SsoIdentifierSchemaType } from '@auth/modules/authentication-core/utils/schema';
-
+import { Path, useSsoDiscovery } from '@auth'
+import { toast } from 'react-toastify'
+import {
+  SsoIdentifierSchema,
+  type SsoIdentifierSchemaType,
+} from '@auth/modules/authentication-core/utils/schema'
 
 // ── Debounce utility ──
 function useDebounce<T>(value: T, delay: number): T {
@@ -55,7 +57,11 @@ const PROVIDER_CONFIG: Record<string, { label: string; color: string; icon: Reac
   google: { label: 'Google', color: '#EA4335', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
   github: { label: 'GitHub', color: '#333', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
   microsoft: { label: 'Microsoft', color: '#00A4EF', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
-  password: { label: 'Standard Login', color: '#FF9800', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
+  password: {
+    label: 'Standard Login',
+    color: '#FF9800',
+    icon: <LoginIcon sx={{ fontSize: 16 }} />,
+  },
 }
 
 const SAMLSSOInitiation = () => {
@@ -107,7 +113,7 @@ const SAMLSSOInitiation = () => {
 
     if (!discoveryData || !providerType) {
       toast.warning(
-        t('auth.sso.no_provider_found', 'No SSO configuration found for this identifier.')
+        t('auth.sso.no_provider_found', 'No SSO configuration found for this identifier.'),
       )
       return
     }
@@ -145,9 +151,7 @@ const SAMLSSOInitiation = () => {
         case 'github':
         case 'microsoft': {
           // Social providers → redirect to provider selection or directly to social auth
-          toast.info(
-            t('auth.sso.social_redirect', `Redirecting to ${providerType} login...`)
-          )
+          toast.info(t('auth.sso.social_redirect', `Redirecting to ${providerType} login...`))
           navigate(`${Path.identity.providerSelection}?provider=${providerType}`)
           break
         }
@@ -159,7 +163,7 @@ const SAMLSSOInitiation = () => {
             t(
               'auth.sso.no_enterprise_sso',
               'No enterprise SSO found for this domain. Redirecting to standard login.',
-            )
+            ),
           )
           navigate(Path.auth.signin)
           break
@@ -168,11 +172,9 @@ const SAMLSSOInitiation = () => {
     } catch (err: unknown) {
       // Error already surfaced via snackbar below
       setIsRedirecting(false)
-      toast.error(
-        t('auth.sso.initiation_error', 'Failed to initiate SSO. Please try again.')
-      )
+      toast.error(t('auth.sso.initiation_error', 'Failed to initiate SSO. Please try again.'))
     }
-  }, [discoveryData, providerType, debouncedIdentifier, navigate,  t])
+  }, [discoveryData, providerType, debouncedIdentifier, navigate, t])
 
   // Show discovery errors
   useEffect(() => {
@@ -285,7 +287,10 @@ const SAMLSSOInitiation = () => {
                     autoComplete='email'
                     autoFocus
                     {...register('sso_identifier', {
-                      required: t('auth.sso.domain_required', 'Organization identifier is required'),
+                      required: t(
+                        'auth.sso.domain_required',
+                        'Organization identifier is required',
+                      ),
                       minLength: {
                         value: 2,
                         message: t('auth.sso.min_length', 'Enter at least 2 characters'),
@@ -371,7 +376,10 @@ const SAMLSSOInitiation = () => {
                             label={
                               providerType !== 'password'
                                 ? t('auth.sso.provider_found', `${providerInfo.label} detected`)
-                                : t('auth.sso.no_enterprise', 'No enterprise SSO â€” standard login')
+                                : t(
+                                    'auth.sso.no_enterprise',
+                                    'No enterprise SSO â€” standard login',
+                                  )
                             }
                             size='small'
                             sx={{
@@ -503,8 +511,3 @@ const SAMLSSOInitiation = () => {
 }
 
 export default SAMLSSOInitiation
-
-
-
-
-

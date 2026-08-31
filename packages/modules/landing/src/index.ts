@@ -54,11 +54,42 @@ export {
 registerDictionary(landingDictionaries as any)
 
 export const landingNavItems: NavItemConfig[] = [
-  { id: 'nav-home', label: 'landing.home', path: LandingPath.home, variant: ['public'], guestOnly: true, order: 10 },
-  { id: 'guest-features', label: 'landing.features', path: LandingPath.features, variant: ['public'], order: 20 },
-  { id: 'guest-pricing', label: 'landing.pricing', path: LandingPath.pricing, variant: ['public'], order: 30 },
-  { id: 'guest-about', label: 'landing.about', path: LandingPath.about, variant: ['public'], order: 40 },
-  { id: 'guest-contact', label: 'landing.contact', path: LandingPath.contact, variant: ['public'], order: 50 },
+  {
+    id: 'nav-home',
+    label: 'landing.home',
+    path: LandingPath.home,
+    variant: ['public'],
+    guestOnly: true,
+    order: 10,
+  },
+  {
+    id: 'guest-features',
+    label: 'landing.features',
+    path: LandingPath.features,
+    variant: ['public'],
+    order: 20,
+  },
+  {
+    id: 'guest-pricing',
+    label: 'landing.pricing',
+    path: LandingPath.pricing,
+    variant: ['public'],
+    order: 30,
+  },
+  {
+    id: 'guest-about',
+    label: 'landing.about',
+    path: LandingPath.about,
+    variant: ['public'],
+    order: 40,
+  },
+  {
+    id: 'guest-contact',
+    label: 'landing.contact',
+    path: LandingPath.contact,
+    variant: ['public'],
+    order: 50,
+  },
 ]
 
 export const LandingModule: CAPModule = {

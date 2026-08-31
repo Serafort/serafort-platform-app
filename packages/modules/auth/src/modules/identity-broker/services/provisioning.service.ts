@@ -20,8 +20,14 @@ export const provisioningService = {
     return apiClient.post<DirectoryConnector>(ENDPOINTS.admin.provisioning.store, data)
   },
 
-  updateConnector: async (id: number | string, data: UpdateConnectorDTO): Promise<FetchResponse<DirectoryConnector>> => {
-    return apiClient.patch<DirectoryConnector>(ENDPOINTS.admin.provisioning.update(Number(id)), data)
+  updateConnector: async (
+    id: number | string,
+    data: UpdateConnectorDTO,
+  ): Promise<FetchResponse<DirectoryConnector>> => {
+    return apiClient.patch<DirectoryConnector>(
+      ENDPOINTS.admin.provisioning.update(Number(id)),
+      data,
+    )
   },
 
   deleteConnector: async (id: number | string): Promise<FetchResponse<{ message?: string }>> => {

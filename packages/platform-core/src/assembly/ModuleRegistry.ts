@@ -1,5 +1,10 @@
 import i18next from 'i18next'
-import type { CAPModule, SearchItemConfig, NavItemConfig, ModuleRouteConfig } from '@cap/shared-types'
+import type {
+  CAPModule,
+  SearchItemConfig,
+  NavItemConfig,
+  ModuleRouteConfig,
+} from '@cap/shared-types'
 import { registerDictionary } from '../i18n/registry'
 
 export type AuthRouteConfig = ModuleRouteConfig & {

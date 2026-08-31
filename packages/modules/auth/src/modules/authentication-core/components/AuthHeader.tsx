@@ -1,6 +1,6 @@
 import { Box, Typography, Button, useTheme } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import VerifiedUser from '@mui/icons-material/VerifiedUser';
+import VerifiedUser from '@mui/icons-material/VerifiedUser'
 import { useTranslation } from 'react-i18next'
 
 const AuthHeader = () => {

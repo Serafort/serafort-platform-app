@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Box, Grid, TextField } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 // import { FormLayout } from 'src/components/form'
-import FormLayout from "@auth/authentication-core/components/form/FormLayout"
+import FormLayout from '@auth/authentication-core/components/form/FormLayout'
 
 export default function UpdateSocialLinks() {
   const { t } = useTranslation()
@@ -25,7 +25,7 @@ export default function UpdateSocialLinks() {
       twitterUrl: '',
     },
   })
-  const onSubmit = () => { }
+  const onSubmit = () => {}
   return (
     <FormLayout
       title={t('auth.account.update_social_links')}
@@ -111,5 +111,3 @@ export default function UpdateSocialLinks() {
     </FormLayout>
   )
 }
-
-

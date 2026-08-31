@@ -1,6 +1,6 @@
 /**
  * Tenant Types - Re-exported from @cap/shared-types
- * 
+ *
  * This file maintains backward compatibility while centralizing types in shared-types.
  * For new code, import directly from @cap/shared-types.
  */
@@ -21,16 +21,16 @@ export type {
   UserPreferences,
   TenantModule,
   TenantModuleStatus,
-  
+
   // Type aliases
   LayoutType,
   ContentWidth,
   NavbarType,
   ToastPosition,
-  
+
   // Constants
   CURRENT_TENANT_CONFIG_VERSION,
-  
+
   // Type guards
   isTenantConfig,
   isTenantTheme,
@@ -110,10 +110,10 @@ export function normalizeTenantConfig(raw: unknown): TenantConfig {
   if (!raw || typeof raw !== 'object') {
     return DEFAULT_TENANT_CONFIG
   }
-  
+
   const config = raw as any
   const version = (config._version ?? config.version ?? 1) as number
-  
+
   if (version === 1) {
     const v1 = config as TenantConfig
     return {
@@ -134,7 +134,7 @@ export function normalizeTenantConfig(raw: unknown): TenantConfig {
       version: CURRENT_TENANT_CONFIG_VERSION,
     }
   }
-  
+
   return config as TenantConfig
 }
 

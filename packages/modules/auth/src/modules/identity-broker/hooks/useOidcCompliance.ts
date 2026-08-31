@@ -1,4 +1,10 @@
-import { useQuery, useMutation, useQueryClient, type UseQueryOptions, type UseMutationOptions } from '@tanstack/react-query'
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type UseQueryOptions,
+  type UseMutationOptions,
+} from '@tanstack/react-query'
 import type { FetchResponse, HttpError } from '@cap/platform-core'
 import oidcService from '../services/oidc.service'
 import type {
@@ -37,7 +43,7 @@ export const oidcComplianceKeys = oidcKeys
 // ============================================================================
 
 export function useOIDCClients(
-  options?: Omit<UseQueryOptions<FetchResponse<OIDCClient[]>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<FetchResponse<OIDCClient[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: oidcKeys.clients(),
@@ -48,7 +54,7 @@ export function useOIDCClients(
 
 export function useOIDCClient(
   id: string | null | undefined,
-  options?: Omit<UseQueryOptions<FetchResponse<OIDCClient>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<FetchResponse<OIDCClient>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: oidcKeys.client(id || ''),
@@ -59,7 +65,7 @@ export function useOIDCClient(
 }
 
 export function useCreateOIDCClient(
-  options?: UseMutationOptions<FetchResponse<OIDCClient>, HttpError, CreateOIDCClientDTO, unknown>
+  options?: UseMutationOptions<FetchResponse<OIDCClient>, HttpError, CreateOIDCClientDTO, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -75,14 +81,20 @@ export function useCreateOIDCClient(
 
 export function useUpdateOIDCClient(
   id?: string,
-  options?: UseMutationOptions<FetchResponse<OIDCClient>, HttpError, { id?: string; data: UpdateOIDCClientDTO } | UpdateOIDCClientDTO, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<OIDCClient>,
+    HttpError,
+    { id?: string; data: UpdateOIDCClientDTO } | UpdateOIDCClientDTO,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
   return useMutation({
     mutationFn: (payload) => {
-      const targetId = ('id' in payload && payload.id) ? payload.id : id
-      const targetData = ('data' in payload && payload.data) ? payload.data : (payload as UpdateOIDCClientDTO)
+      const targetId = 'id' in payload && payload.id ? payload.id : id
+      const targetData =
+        'data' in payload && payload.data ? payload.data : (payload as UpdateOIDCClientDTO)
       if (!targetId) throw new Error('Client ID is required for update')
       return oidcService.updateClient(targetId, targetData)
     },
@@ -98,7 +110,12 @@ export function useUpdateOIDCClient(
 }
 
 export function useDeleteOIDCClient(
-  options?: UseMutationOptions<FetchResponse<{ message?: string }>, HttpError, string | number, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<{ message?: string }>,
+    HttpError,
+    string | number,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -113,7 +130,7 @@ export function useDeleteOIDCClient(
 }
 
 export function useRotateClientSecret(
-  options?: UseMutationOptions<FetchResponse<RotateClientSecretResult>, HttpError, string, unknown>
+  options?: UseMutationOptions<FetchResponse<RotateClientSecretResult>, HttpError, string, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -132,7 +149,10 @@ export function useRotateClientSecret(
 
 export function useClientBranding(
   id: string | null | undefined,
-  options?: Omit<UseQueryOptions<FetchResponse<OIDCClientBranding>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<FetchResponse<OIDCClientBranding>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: oidcKeys.clientBranding(id || ''),
@@ -144,7 +164,12 @@ export function useClientBranding(
 
 export function useUpdateClientBranding(
   id: string,
-  options?: UseMutationOptions<FetchResponse<OIDCClientBranding>, HttpError, OIDCClientBranding, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<OIDCClientBranding>,
+    HttpError,
+    OIDCClientBranding,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -165,7 +190,10 @@ export function useUpdateClientBranding(
 
 export function useOidcInteraction(
   uid: string | null | undefined,
-  options?: Omit<UseQueryOptions<FetchResponse<OIDCInteractionDetails>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<FetchResponse<OIDCInteractionDetails>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: oidcKeys.interaction(uid || ''),
@@ -178,7 +206,12 @@ export function useOidcInteraction(
 
 export function useOidcLogin(
   uid: string | null | undefined,
-  options?: UseMutationOptions<FetchResponse<OIDCLoginResponse>, HttpError, OIDCLoginCredentials, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<OIDCLoginResponse>,
+    HttpError,
+    OIDCLoginCredentials,
+    unknown
+  >,
 ) {
   return useMutation({
     mutationFn: (credentials: OIDCLoginCredentials) => {
@@ -192,7 +225,12 @@ export function useOidcLogin(
 
 export function useOidcVerifyMfa(
   uid: string | null | undefined,
-  options?: UseMutationOptions<FetchResponse<OIDCRedirectResult>, HttpError, OIDCMfaVerifyDTO, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<OIDCRedirectResult>,
+    HttpError,
+    OIDCMfaVerifyDTO,
+    unknown
+  >,
 ) {
   return useMutation({
     mutationFn: (data: OIDCMfaVerifyDTO) => {
@@ -205,7 +243,10 @@ export function useOidcVerifyMfa(
 
 export function useOidcConsent(
   uid: string | null | undefined,
-  options?: Omit<UseQueryOptions<FetchResponse<OIDCInteractionDetails>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<FetchResponse<OIDCInteractionDetails>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: oidcKeys.consent(uid || ''),
@@ -218,17 +259,23 @@ export function useOidcConsent(
 
 export function useConfirmOidcInteraction(
   uid: string | null | undefined,
-  options?: UseMutationOptions<FetchResponse<OIDCRedirectResult>, HttpError, OIDCConsentDTO | void, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<OIDCRedirectResult>,
+    HttpError,
+    OIDCConsentDTO | void,
+    unknown
+  >,
 ) {
   return useMutation({
-    mutationFn: (data?: OIDCConsentDTO | void) => oidcService.confirmInteraction(uid || '', data || undefined),
+    mutationFn: (data?: OIDCConsentDTO | void) =>
+      oidcService.confirmInteraction(uid || '', data || undefined),
     ...options,
   })
 }
 
 export function useAbortOidcInteraction(
   uid: string | null | undefined,
-  options?: UseMutationOptions<FetchResponse<OIDCRedirectResult>, HttpError, void, unknown>
+  options?: UseMutationOptions<FetchResponse<OIDCRedirectResult>, HttpError, void, unknown>,
 ) {
   return useMutation({
     mutationFn: () => oidcService.abortInteraction(uid || ''),
@@ -241,7 +288,10 @@ export function useAbortOidcInteraction(
 // ============================================================================
 
 export function useOidcUserInfo(
-  options?: Omit<UseQueryOptions<FetchResponse<Record<string, any>>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<FetchResponse<Record<string, any>>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: oidcKeys.userinfo(),
@@ -252,7 +302,7 @@ export function useOidcUserInfo(
 }
 
 export function useOidcInfoIntrospect(
-  options?: UseMutationOptions<FetchResponse<Record<string, any>>, HttpError, string, unknown>
+  options?: UseMutationOptions<FetchResponse<Record<string, any>>, HttpError, string, unknown>,
 ) {
   return useMutation({
     mutationFn: (token: string) => oidcService.introspectToken(token),
@@ -261,7 +311,7 @@ export function useOidcInfoIntrospect(
 }
 
 export function useOidcTokenRevocation(
-  options?: UseMutationOptions<FetchResponse<{ message?: string }>, HttpError, string, unknown>
+  options?: UseMutationOptions<FetchResponse<{ message?: string }>, HttpError, string, unknown>,
 ) {
   return useMutation({
     mutationFn: (token: string) => oidcService.revokeToken(token),
@@ -270,7 +320,7 @@ export function useOidcTokenRevocation(
 }
 
 export function useOidcEndSession(
-  options?: UseMutationOptions<FetchResponse<{ message?: string }>, HttpError, void, unknown>
+  options?: UseMutationOptions<FetchResponse<{ message?: string }>, HttpError, void, unknown>,
 ) {
   return useMutation({
     mutationFn: () => oidcService.endSession(),
@@ -279,7 +329,7 @@ export function useOidcEndSession(
 }
 
 export function useVerifyDeviceCode(
-  options?: UseMutationOptions<FetchResponse<OIDCDeviceVerifyResult>, HttpError, string, unknown>
+  options?: UseMutationOptions<FetchResponse<OIDCDeviceVerifyResult>, HttpError, string, unknown>,
 ) {
   return useMutation({
     mutationFn: (userCode: string) => oidcService.verifyDeviceCode(userCode),

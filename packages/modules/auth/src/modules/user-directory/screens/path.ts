@@ -1,12 +1,12 @@
 const Path = {
-  admin:{
+  admin: {
     organizations: {
       domain_verification: '/organizations/domain-verification',
       list: '/organizations',
       organizationProfile: '/organizations/:id',
       invitations: '/organizations/:id/invitations',
     },
-    users:{
+    users: {
       user_profile: '/admin/user/:id',
       ban_management: '/admin/user/:id/ban',
       user_create: '/admin/user',

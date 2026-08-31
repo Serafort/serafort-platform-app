@@ -33,7 +33,9 @@ const NavbarContent = () => {
       const rawSection = item.section || ''
       const cleanSectionKey = rawSection.replace(/^navigation\./, '')
       const translatedSection = rawSection
-        ? t(rawSection, { defaultValue: t(`navigation.${cleanSectionKey}`, { defaultValue: rawSection }) })
+        ? t(rawSection, {
+            defaultValue: t(`navigation.${cleanSectionKey}`, { defaultValue: rawSection }),
+          })
         : ''
 
       return {

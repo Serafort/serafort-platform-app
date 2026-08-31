@@ -29,7 +29,13 @@ import Close from '@mui/icons-material/Close'
 import BarChart from '@mui/icons-material/BarChart'
 import Email from '@mui/icons-material/Email'
 import { useSettings } from '@cap/platform-store'
-import { themeConfig, zIndexScale, dropdownTokens, getNotificationBadgeShadow, getTenantThemeEffects } from '@cap/theme'
+import {
+  themeConfig,
+  zIndexScale,
+  dropdownTokens,
+  getNotificationBadgeShadow,
+  getTenantThemeEffects,
+} from '@cap/theme'
 import { buildLayoutSurfaceEffect } from '../../utils/buildLayoutSurfaceEffect'
 import type { ThemeColor } from '@cap/shared-types'
 import { useTranslation } from 'react-i18next'
@@ -44,32 +50,36 @@ export type NotificationsType = {
   time: string
   read: boolean
 } & (
-    | {
+  | {
       avatarImage?: string
       avatarIcon?: never
       avatarText?: never
       avatarColor?: never
       avatarSkin?: never
     }
-    | {
+  | {
       avatarIcon?: ReactNode | string
       avatarColor?: ThemeColor
       avatarSkin?: string
       avatarImage?: never
       avatarText?: never
     }
-    | {
+  | {
       avatarText?: string
       avatarColor?: ThemeColor
       avatarSkin?: string
       avatarImage?: never
       avatarIcon?: never
     }
-  )
+)
 
 const ScrollWrapper = ({ children, hidden }: { children: ReactNode; hidden: boolean }) => {
   if (hidden) {
-    return <Box sx={{ overflowX: 'hidden', maxBlockSize: dropdownTokens.notifications.maxBlockSize }}>{children}</Box>
+    return (
+      <Box sx={{ overflowX: 'hidden', maxBlockSize: dropdownTokens.notifications.maxBlockSize }}>
+        {children}
+      </Box>
+    )
   } else {
     return (
       <PerfectScrollbar
@@ -102,9 +112,7 @@ const getAvatar = (
     }
 
     return (
-      <Avatar sx={{ bgcolor: avatarColor ? `${avatarColor}.main` : 'primary.main' }}>
-        {icon}
-      </Avatar>
+      <Avatar sx={{ bgcolor: avatarColor ? `${avatarColor}.main` : 'primary.main' }}>{icon}</Avatar>
     )
   } else {
     return (
@@ -176,7 +184,11 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
 
   return (
     <>
-      <IconButton onClick={handleToggle} aria-label='Open notifications' sx={{ color: 'text.primary' }}>
+      <IconButton
+        onClick={handleToggle}
+        aria-label='Open notifications'
+        sx={{ color: 'text.primary' }}
+      >
         <Badge
           color='error'
           variant='dot'
@@ -251,7 +263,11 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
                       {t('navigation.notifications')}
                     </Typography>
                     {notificationCount > 0 && (
-                      <Chip size='small' color='primary' label={`${notificationCount} ${t('navigation.new')}`} />
+                      <Chip
+                        size='small'
+                        color='primary'
+                        label={`${notificationCount} ${t('navigation.new')}`}
+                      />
                     )}
                     <Tooltip
                       title={readAll ? t('navigation.markAllUnread') : t('navigation.markAllRead')}
@@ -334,7 +350,9 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
                               avatarColor,
                               avatarSkin,
                             })}
-                            <Box sx={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto' }}>
+                            <Box
+                              sx={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto' }}
+                            >
                               <Typography
                                 variant='body2'
                                 sx={{ fontWeight: 500, marginBlockEnd: 1 }}

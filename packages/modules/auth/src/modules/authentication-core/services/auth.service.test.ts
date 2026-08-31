@@ -20,7 +20,6 @@ vi.mock('@cap/platform-core', async (importOriginal) => {
   }
 })
 
-
 describe('authService EventBus Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -32,9 +31,15 @@ describe('authService EventBus Integration', () => {
     const userAuthenticated: any[] = []
     const sessionCreated: any[] = []
     const tokenIssued: any[] = []
-    eventBus.subscribe('UserAuthenticated', (evt) => { userAuthenticated.push(evt) })
-    eventBus.subscribe('SessionCreated', (evt) => { sessionCreated.push(evt) })
-    eventBus.subscribe('TokenIssued', (evt) => { tokenIssued.push(evt) })
+    eventBus.subscribe('UserAuthenticated', (evt) => {
+      userAuthenticated.push(evt)
+    })
+    eventBus.subscribe('SessionCreated', (evt) => {
+      sessionCreated.push(evt)
+    })
+    eventBus.subscribe('TokenIssued', (evt) => {
+      tokenIssued.push(evt)
+    })
 
     vi.mocked(apiClient.post).mockResolvedValueOnce({
       status: 200,
@@ -80,7 +85,7 @@ describe('authService EventBus Integration', () => {
     vi.mocked(apiClient.post).mockRejectedValueOnce(new Error('Invalid credentials'))
 
     await expect(
-      authService.signin({ email: 'wrong@example.com', password: 'wrong' })
+      authService.signin({ email: 'wrong@example.com', password: 'wrong' }),
     ).rejects.toThrow('Invalid credentials')
 
     expect(publishedEvents.length).toBe(1)
@@ -92,8 +97,13 @@ describe('authService EventBus Integration', () => {
 
   it('publishes SessionRevoked event on signout', async () => {
     const sessionRevoked: any[] = []
-    eventBus.subscribe('SessionRevoked', (evt) => { sessionRevoked.push(evt) })
-    vi.mocked(apiClient.post).mockResolvedValueOnce({ status: 200, data: { message: 'Success' } } as any)
+    eventBus.subscribe('SessionRevoked', (evt) => {
+      sessionRevoked.push(evt)
+    })
+    vi.mocked(apiClient.post).mockResolvedValueOnce({
+      status: 200,
+      data: { message: 'Success' },
+    } as any)
 
     await authService.signout()
 
@@ -107,8 +117,13 @@ describe('authService EventBus Integration', () => {
 
   it('publishes SessionRevoked event when revokeSession is called', async () => {
     const sessionRevoked: any[] = []
-    eventBus.subscribe('SessionRevoked', (evt) => { sessionRevoked.push(evt) })
-    vi.mocked(apiClient.delete).mockResolvedValueOnce({ status: 200, data: { message: 'Success' } } as any)
+    eventBus.subscribe('SessionRevoked', (evt) => {
+      sessionRevoked.push(evt)
+    })
+    vi.mocked(apiClient.delete).mockResolvedValueOnce({
+      status: 200,
+      data: { message: 'Success' },
+    } as any)
 
     await authService.revokeSession('sess-999')
 

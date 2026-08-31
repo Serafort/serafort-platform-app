@@ -23,8 +23,9 @@ const StyledBoxForShadow = styled('div')(({ theme }) => ({
   width: 'calc(100% + 15px)',
   height: theme.mixins.toolbar.minHeight,
   transition: 'opacity .15s ease-in-out',
-  background: `linear-gradient( ${theme.direction === 'rtl' ? '95%' : '5%'
-    }, ${alpha('#5B30E8', 0.85)} 30%, ${alpha('#5B30E8', 0.5)} 65%, ${alpha('#5B30E8', 0.3)} 75%, transparent)`,
+  background: `linear-gradient( ${
+    theme.direction === 'rtl' ? '95%' : '5%'
+  }, ${alpha('#5B30E8', 0.85)} 30%, ${alpha('#5B30E8', 0.5)} 65%, ${alpha('#5B30E8', 0.3)} 75%, transparent)`,
   '&.scrolled': {
     opacity: 1,
   },
@@ -79,16 +80,15 @@ const Navigation: React.FC<{
     // Sidebar Vertical Menu
     <VerticalNav
       customStyles={navigationCustomStyles(verticalNavOptions, theme)}
-      breakpoint="md"
+      breakpoint='md'
       collapsedWidth={71}
       backgroundColor={theme.palette.background.paper}
-
       // The following condition adds the data-mui-color-scheme='dark' attribute to the VerticalNav component
       // when semiDark is enabled and the mode or systemMode is light
       {...(isSemiDark &&
         !isDark && {
-        'data-mui-color-scheme': 'dark',
-      })}
+          'data-mui-color-scheme': 'dark',
+        })}
     >
       {/* Nav Header including Logo & nav toggle icons  */}
       <NavHeader>
@@ -101,7 +101,7 @@ const Navigation: React.FC<{
                   fontSize: '1.25rem',
                   lineHeight: '1.75rem',
                 }}
-              // className='text-xl'
+                // className='text-xl'
               />
             }
             unlockedIcon={
@@ -110,7 +110,7 @@ const Navigation: React.FC<{
                   fontSize: '1.25rem',
                   lineHeight: '1.75rem',
                 }}
-              // className='text-xl'
+                // className='text-xl'
               />
             }
             closeIcon={
@@ -119,7 +119,7 @@ const Navigation: React.FC<{
                   fontSize: '1.25rem',
                   lineHeight: '1.75rem',
                 }}
-              // className='text-xl'
+                // className='text-xl'
               />
             }
             onClick={() =>

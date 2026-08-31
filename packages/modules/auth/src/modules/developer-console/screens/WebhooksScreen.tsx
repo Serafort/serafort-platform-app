@@ -59,18 +59,8 @@ export const WEBHOOK_EVENT_CATEGORIES = {
     'user.banned',
     'user.unlocked',
   ],
-  'Authorization & RBAC': [
-    'role.assigned',
-    'role.revoked',
-    'policy.created',
-    'policy.updated',
-  ],
-  'Security & SSF': [
-    'security.anomaly',
-    'threat.detected',
-    'ssf.caep_event',
-    'session.revoked',
-  ],
+  'Authorization & RBAC': ['role.assigned', 'role.revoked', 'policy.created', 'policy.updated'],
+  'Security & SSF': ['security.anomaly', 'threat.detected', 'ssf.caep_event', 'session.revoked'],
 }
 
 export const WebhooksScreen: React.FC = () => {
@@ -128,7 +118,7 @@ export const WebhooksScreen: React.FC = () => {
 
   const toggleEvent = (event: string) => {
     setSelectedEvents((prev) =>
-      prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event]
+      prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event],
     )
   }
 
@@ -248,12 +238,24 @@ export const WebhooksScreen: React.FC = () => {
     <>
       {[1, 2, 3].map((i) => (
         <TableRow key={i}>
-          <TableCell><Skeleton variant="text" width="70%" /></TableCell>
-          <TableCell><Skeleton variant="rounded" width={60} height={24} /></TableCell>
-          <TableCell><Skeleton variant="text" width="60%" /></TableCell>
-          <TableCell><Skeleton variant="text" width="40%" /></TableCell>
-          <TableCell><Skeleton variant="text" width="40%" /></TableCell>
-          <TableCell align="right"><Skeleton variant="rounded" width={100} height={28} /></TableCell>
+          <TableCell>
+            <Skeleton variant='text' width='70%' />
+          </TableCell>
+          <TableCell>
+            <Skeleton variant='rounded' width={60} height={24} />
+          </TableCell>
+          <TableCell>
+            <Skeleton variant='text' width='60%' />
+          </TableCell>
+          <TableCell>
+            <Skeleton variant='text' width='40%' />
+          </TableCell>
+          <TableCell>
+            <Skeleton variant='text' width='40%' />
+          </TableCell>
+          <TableCell align='right'>
+            <Skeleton variant='rounded' width={100} height={28} />
+          </TableCell>
         </TableRow>
       ))}
     </>
@@ -261,16 +263,16 @@ export const WebhooksScreen: React.FC = () => {
 
   const renderEmptyState = () => (
     <TableRow>
-      <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+      <TableCell colSpan={6} align='center' sx={{ py: 8 }}>
         <WebhookIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-        <Typography variant="body1" fontWeight={600}>
+        <Typography variant='body1' fontWeight={600}>
           No Webhook Endpoints configured.
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+        <Typography variant='body2' color='text.secondary' sx={{ mt: 0.5, mb: 2 }}>
           Add an HTTPS webhook endpoint to receive real-time authentication and security signals.
         </Typography>
         <Button
-          variant="contained"
+          variant='contained'
           startIcon={<AddIcon />}
           onClick={handleOpenCreate}
           sx={{ borderRadius: 2 }}
@@ -285,15 +287,21 @@ export const WebhooksScreen: React.FC = () => {
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
-          <Typography variant="h4" component="h1" fontWeight={700} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <WebhookIcon color="primary" fontSize="large" /> Webhooks & Event Streams
+          <Typography
+            variant='h4'
+            component='h1'
+            fontWeight={700}
+            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+          >
+            <WebhookIcon color='primary' fontSize='large' /> Webhooks & Event Streams
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Subscribe your external infrastructure and SIEM systems to real-time Identity & Security events.
+          <Typography variant='body2' color='text.secondary'>
+            Subscribe your external infrastructure and SIEM systems to real-time Identity & Security
+            events.
           </Typography>
         </Box>
         <Button
-          variant="contained"
+          variant='contained'
           startIcon={<AddIcon />}
           onClick={handleOpenCreate}
           sx={{ borderRadius: 2 }}
@@ -305,10 +313,15 @@ export const WebhooksScreen: React.FC = () => {
       {/* Error Banner */}
       {isError && (
         <Alert
-          severity="error"
+          severity='error'
           sx={{ mb: 3 }}
           action={
-            <Button color="inherit" size="small" startIcon={<RefreshIcon />} onClick={() => refetch()}>
+            <Button
+              color='inherit'
+              size='small'
+              startIcon={<RefreshIcon />}
+              onClick={() => refetch()}
+            >
               Retry
             </Button>
           }
@@ -319,22 +332,30 @@ export const WebhooksScreen: React.FC = () => {
 
       {/* Mutation error feedback */}
       {createMutation.isError && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => createMutation.reset()}>
-          {createMutation.error instanceof Error ? createMutation.error.message : 'Failed to create webhook.'}
+        <Alert severity='error' sx={{ mb: 3 }} onClose={() => createMutation.reset()}>
+          {createMutation.error instanceof Error
+            ? createMutation.error.message
+            : 'Failed to create webhook.'}
         </Alert>
       )}
       {updateMutation.isError && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => updateMutation.reset()}>
-          {updateMutation.error instanceof Error ? updateMutation.error.message : 'Failed to update webhook.'}
+        <Alert severity='error' sx={{ mb: 3 }} onClose={() => updateMutation.reset()}>
+          {updateMutation.error instanceof Error
+            ? updateMutation.error.message
+            : 'Failed to update webhook.'}
         </Alert>
       )}
       {deleteMutation.isError && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => deleteMutation.reset()}>
-          {deleteMutation.error instanceof Error ? deleteMutation.error.message : 'Failed to delete webhook.'}
+        <Alert severity='error' sx={{ mb: 3 }} onClose={() => deleteMutation.reset()}>
+          {deleteMutation.error instanceof Error
+            ? deleteMutation.error.message
+            : 'Failed to delete webhook.'}
         </Alert>
       )}
 
-      <Paper sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
+      <Paper
+        sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}
+      >
         <Table>
           <TableHead sx={{ bgcolor: 'action.hover' }}>
             <TableRow>
@@ -343,140 +364,188 @@ export const WebhooksScreen: React.FC = () => {
               <TableCell sx={{ fontWeight: 600 }}>Subscribed Events</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Failures</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Last Triggered</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 600 }}>Actions</TableCell>
+              <TableCell align='right' sx={{ fontWeight: 600 }}>
+                Actions
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {isLoading ? (
-              renderTableSkeleton()
-            ) : webhooks.length === 0 ? (
-              renderEmptyState()
-            ) : (
-              webhooks.map((wh: any) => {
-                const events = Array.isArray(wh.eventTypes) ? wh.eventTypes : (wh.event_types || [])
-                const isActiveStatus = wh.isActive ?? wh.is_active ?? true
-                const isDisabled = wh.isDisabled ?? false
-                const failureCount = wh.failureCount ?? wh.failure_count ?? 0
-                const maxRetries = wh.maxRetries ?? wh.max_retries ?? 0
-                const lastTriggeredAt = wh.lastTriggeredAt ?? wh.last_triggered_at
-                return (
-                  <TableRow key={wh.id} hover>
-                    <TableCell>
-                      <Typography variant="subtitle2" fontWeight={600} sx={{ fontFamily: 'monospace' }}>
-                        {wh.url}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={isDisabled ? 'Disabled' : isActiveStatus ? 'Active' : 'Paused'}
-                        size="small"
-                        color={isDisabled ? 'error' : isActiveStatus ? 'success' : 'default'}
-                        variant="filled"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ maxWidth: 350 }}>
-                        {events.slice(0, 3).map((event: string) => (
-                          <Chip key={event} label={event} size="small" variant="outlined" />
-                        ))}
-                        {events.length > 3 && (
-                          <Chip label={`+${events.length - 3} more`} size="small" variant="outlined" />
-                        )}
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                        color={failureCount > 0 ? 'error.main' : 'text.secondary'}
-                        fontWeight={failureCount > 0 ? 600 : 400}
-                      >
-                        {failureCount} / {maxRetries}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" color="text.secondary">
-                        {lastTriggeredAt ? new Date(lastTriggeredAt).toLocaleString() : 'Never'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Stack direction="row" spacing={1} justifyContent="flex-end">
-                        <Tooltip title="Send Test Ping">
-                          <IconButton size="small" color="primary" onClick={() => handleSendTestPing(wh.id)}>
-                            <SendIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Edit Webhook">
-                          <IconButton size="small" onClick={() => handleOpenEdit(wh)}>
-                            <EditOutlinedIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete Webhook">
-                          <IconButton size="small" color="error" onClick={() => setDeleteTarget({ id: wh.id, url: wh.url })}>
-                            <DeleteOutlineIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                )
-              })
-            )}
+            {isLoading
+              ? renderTableSkeleton()
+              : webhooks.length === 0
+                ? renderEmptyState()
+                : webhooks.map((wh: any) => {
+                    const events = Array.isArray(wh.eventTypes)
+                      ? wh.eventTypes
+                      : wh.event_types || []
+                    const isActiveStatus = wh.isActive ?? wh.is_active ?? true
+                    const isDisabled = wh.isDisabled ?? false
+                    const failureCount = wh.failureCount ?? wh.failure_count ?? 0
+                    const maxRetries = wh.maxRetries ?? wh.max_retries ?? 0
+                    const lastTriggeredAt = wh.lastTriggeredAt ?? wh.last_triggered_at
+                    return (
+                      <TableRow key={wh.id} hover>
+                        <TableCell>
+                          <Typography
+                            variant='subtitle2'
+                            fontWeight={600}
+                            sx={{ fontFamily: 'monospace' }}
+                          >
+                            {wh.url}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={isDisabled ? 'Disabled' : isActiveStatus ? 'Active' : 'Paused'}
+                            size='small'
+                            color={isDisabled ? 'error' : isActiveStatus ? 'success' : 'default'}
+                            variant='filled'
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Stack
+                            direction='row'
+                            spacing={0.5}
+                            flexWrap='wrap'
+                            useFlexGap
+                            sx={{ maxWidth: 350 }}
+                          >
+                            {events.slice(0, 3).map((event: string) => (
+                              <Chip key={event} label={event} size='small' variant='outlined' />
+                            ))}
+                            {events.length > 3 && (
+                              <Chip
+                                label={`+${events.length - 3} more`}
+                                size='small'
+                                variant='outlined'
+                              />
+                            )}
+                          </Stack>
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            variant='body2'
+                            color={failureCount > 0 ? 'error.main' : 'text.secondary'}
+                            fontWeight={failureCount > 0 ? 600 : 400}
+                          >
+                            {failureCount} / {maxRetries}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant='body2' color='text.secondary'>
+                            {lastTriggeredAt ? new Date(lastTriggeredAt).toLocaleString() : 'Never'}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align='right'>
+                          <Stack direction='row' spacing={1} justifyContent='flex-end'>
+                            <Tooltip title='Send Test Ping'>
+                              <IconButton
+                                size='small'
+                                color='primary'
+                                onClick={() => handleSendTestPing(wh.id)}
+                              >
+                                <SendIcon fontSize='small' />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title='Edit Webhook'>
+                              <IconButton size='small' onClick={() => handleOpenEdit(wh)}>
+                                <EditOutlinedIcon fontSize='small' />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title='Delete Webhook'>
+                              <IconButton
+                                size='small'
+                                color='error'
+                                onClick={() => setDeleteTarget({ id: wh.id, url: wh.url })}
+                              >
+                                <DeleteOutlineIcon fontSize='small' />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
           </TableBody>
         </Table>
       </Paper>
 
       {/* Create / Edit Modal */}
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth="md" fullWidth>
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth='md' fullWidth>
         <DialogTitle fontWeight={600}>
           {editingId ? 'Edit Webhook Subscription' : 'Add Webhook Subscription'}
         </DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
             <TextField
-              label="HTTPS Endpoint URL"
+              label='HTTPS Endpoint URL'
               fullWidth
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://api.yourdomain.com/webhooks/auth"
-              helperText="Must be a valid HTTPS URL capable of receiving POST payloads."
+              placeholder='https://api.yourdomain.com/webhooks/auth'
+              helperText='Must be a valid HTTPS URL capable of receiving POST payloads.'
             />
 
             <FormControlLabel
               control={
-                <Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} color="primary" />
+                <Switch
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                  color='primary'
+                />
               }
-              label="Enable endpoint delivery"
+              label='Enable endpoint delivery'
             />
 
             <Divider />
 
             <Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                <Typography variant="subtitle2" fontWeight={600}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 1.5,
+                }}
+              >
+                <Typography variant='subtitle2' fontWeight={600}>
                   Subscribed Event Types ({selectedEvents.length} selected)
                 </Typography>
-                <Stack direction="row" spacing={1}>
-                  <Button size="small" onClick={() => applyPreset('all')}>All Events</Button>
-                  <Button size="small" onClick={() => applyPreset('auth')}>Auth Only</Button>
-                  <Button size="small" onClick={() => applyPreset('security')}>Security Only</Button>
-                  <Button size="small" color="secondary" onClick={() => applyPreset('clear')}>Clear</Button>
+                <Stack direction='row' spacing={1}>
+                  <Button size='small' onClick={() => applyPreset('all')}>
+                    All Events
+                  </Button>
+                  <Button size='small' onClick={() => applyPreset('auth')}>
+                    Auth Only
+                  </Button>
+                  <Button size='small' onClick={() => applyPreset('security')}>
+                    Security Only
+                  </Button>
+                  <Button size='small' color='secondary' onClick={() => applyPreset('clear')}>
+                    Clear
+                  </Button>
                 </Stack>
               </Box>
 
               <Stack spacing={2}>
                 {Object.entries(WEBHOOK_EVENT_CATEGORIES).map(([category, events]) => (
                   <Box key={category} sx={{ p: 1.5, borderRadius: 1.5, bgcolor: 'action.hover' }}>
-                    <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase', mb: 1, display: 'block' }}>
+                    <Typography
+                      variant='caption'
+                      fontWeight={700}
+                      color='text.secondary'
+                      sx={{ textTransform: 'uppercase', mb: 1, display: 'block' }}
+                    >
                       {category}
                     </Typography>
-                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                    <Stack direction='row' spacing={1} flexWrap='wrap' useFlexGap>
                       {events.map((event) => {
                         const isSelected = selectedEvents.includes(event)
                         return (
                           <Chip
                             key={event}
                             label={event}
-                            size="small"
+                            size='small'
                             onClick={() => toggleEvent(event)}
                             color={isSelected ? 'primary' : 'default'}
                             variant={isSelected ? 'filled' : 'outlined'}
@@ -494,7 +563,7 @@ export const WebhooksScreen: React.FC = () => {
         <DialogActions sx={{ p: 2.5 }}>
           <Button onClick={() => setModalOpen(false)}>Cancel</Button>
           <Button
-            variant="contained"
+            variant='contained'
             onClick={handleSave}
             disabled={!url.trim() || selectedEvents.length === 0 || isSaving}
           >
@@ -504,18 +573,19 @@ export const WebhooksScreen: React.FC = () => {
       </Dialog>
 
       {/* One-Time Signing Secret Reveal Modal */}
-      <Dialog open={secretRevealOpen} onClose={handleCloseSecretReveal} maxWidth="sm" fullWidth>
+      <Dialog open={secretRevealOpen} onClose={handleCloseSecretReveal} maxWidth='sm' fullWidth>
         <DialogTitle fontWeight={700} sx={{ color: 'warning.main' }}>
           Save Your Webhook Signing Secret
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
-            <Alert severity="warning">
-              Copy or download your signing secret now. For security purposes, it will <strong>never be shown again</strong>.
-              Use this secret to verify webhook payload signatures (HMAC-SHA256).
+            <Alert severity='warning'>
+              Copy or download your signing secret now. For security purposes, it will{' '}
+              <strong>never be shown again</strong>. Use this secret to verify webhook payload
+              signatures (HMAC-SHA256).
             </Alert>
             <Paper
-              variant="outlined"
+              variant='outlined'
               sx={{
                 p: 2,
                 display: 'flex',
@@ -526,17 +596,21 @@ export const WebhooksScreen: React.FC = () => {
                 wordBreak: 'break-all',
               }}
             >
-              <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
+              <Typography variant='body2' sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
                 {createdWebhookSecret}
               </Typography>
-              <Stack direction="row" spacing={0.5} sx={{ ml: 1, flexShrink: 0 }}>
+              <Stack direction='row' spacing={0.5} sx={{ ml: 1, flexShrink: 0 }}>
                 <Tooltip title={secretCopied ? 'Copied!' : 'Copy to Clipboard'}>
-                  <IconButton onClick={handleCopySecret} color={secretCopied ? 'success' : 'primary'} size="small">
+                  <IconButton
+                    onClick={handleCopySecret}
+                    color={secretCopied ? 'success' : 'primary'}
+                    size='small'
+                  >
                     {secretCopied ? <CheckCircleOutlineIcon /> : <ContentCopyIcon />}
                   </IconButton>
                 </Tooltip>
-                <Tooltip title="Download as .txt file">
-                  <IconButton onClick={handleDownloadSecret} color="primary" size="small">
+                <Tooltip title='Download as .txt file'>
+                  <IconButton onClick={handleDownloadSecret} color='primary' size='small'>
                     <DownloadOutlinedIcon />
                   </IconButton>
                 </Tooltip>
@@ -545,7 +619,7 @@ export const WebhooksScreen: React.FC = () => {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button variant="contained" onClick={handleCloseSecretReveal}>
+          <Button variant='contained' onClick={handleCloseSecretReveal}>
             I have saved my secret securely
           </Button>
         </DialogActions>
@@ -555,44 +629,60 @@ export const WebhooksScreen: React.FC = () => {
       <Dialog
         open={testResult.open}
         onClose={() => setTestResult({ open: false, loading: false })}
-        maxWidth="sm"
+        maxWidth='sm'
         fullWidth
       >
         <DialogTitle fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SendIcon color="primary" /> Webhook Test Ping
+          <SendIcon color='primary' /> Webhook Test Ping
         </DialogTitle>
         <DialogContent>
           {testResult.loading ? (
             <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Skeleton variant="circular" width={40} height={40} sx={{ mx: 'auto', mb: 2 }} />
-              <Typography variant="body2" color="text.secondary">
+              <Skeleton variant='circular' width={40} height={40} sx={{ mx: 'auto', mb: 2 }} />
+              <Typography variant='body2' color='text.secondary'>
                 Dispatching test ping event...
               </Typography>
             </Box>
           ) : testResult.success ? (
             <Stack spacing={2} sx={{ mt: 1 }}>
-              <Alert severity="success" icon={<CheckCircleIcon />}>
+              <Alert severity='success' icon={<CheckCircleIcon />}>
                 Test ping payload successfully created and scheduled for dispatch!
               </Alert>
-              <Paper variant="outlined" sx={{ p: 2, bgcolor: 'background.default' }}>
-                <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+              <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
+                <Typography
+                  variant='caption'
+                  fontWeight={700}
+                  color='text.secondary'
+                  sx={{ mb: 1, display: 'block' }}
+                >
                   Dispatched Payload
                 </Typography>
-                <pre style={{ margin: 0, fontSize: '0.8rem', fontFamily: 'monospace', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                <pre
+                  style={{
+                    margin: 0,
+                    fontSize: '0.8rem',
+                    fontFamily: 'monospace',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-all',
+                  }}
+                >
                   {JSON.stringify(testResult.payload, null, 2)}
                 </pre>
               </Paper>
             </Stack>
           ) : (
             <Stack spacing={2} sx={{ mt: 1 }}>
-              <Alert severity="error" icon={<ErrorOutlineIcon />}>
+              <Alert severity='error' icon={<ErrorOutlineIcon />}>
                 Test ping failed: {testResult.error || 'Unknown error'}
               </Alert>
             </Stack>
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button variant="contained" onClick={() => setTestResult({ open: false, loading: false })}>
+          <Button
+            variant='contained'
+            onClick={() => setTestResult({ open: false, loading: false })}
+          >
             Close
           </Button>
         </DialogActions>
@@ -603,9 +693,9 @@ export const WebhooksScreen: React.FC = () => {
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleConfirmDelete}
-        title="Delete Webhook Endpoint"
+        title='Delete Webhook Endpoint'
         message={`Are you sure you want to delete the webhook endpoint "${deleteTarget?.url}"? All event subscriptions will be removed and delivery to this URL will stop immediately.`}
-        confirmLabel="Delete Webhook"
+        confirmLabel='Delete Webhook'
         isSubmitting={deleteMutation.isPending}
       />
     </Box>

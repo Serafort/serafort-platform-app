@@ -1,23 +1,37 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, Button, Container, IconButton, InputAdornment, TextField, Typography, Card, CardContent, CssBaseline, Alert, CircularProgress, Link } from '@mui/material';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import VpnKey from '@mui/icons-material/VpnKey';
-import LockReset from '@mui/icons-material/LockReset';
-import Mail from '@mui/icons-material/Mail';
-import AlternateEmail from '@mui/icons-material/AlternateEmail';
-import Info from '@mui/icons-material/Info';
-import CheckCircle from '@mui/icons-material/CheckCircle';
-import { useTranslation } from 'react-i18next';
-import { themeConfig, useNotifications } from '@cap/platform-core';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Path } from '@cap/module-auth/routes/path';
-import { useCurrentUserQuery, useChangeEmail } from '../../hooks/useUserQuery';
-import { buildLayoutSurfaceEffect } from '@cap/layout';
-import { getTenantThemeEffects } from '@cap/theme';
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  Box,
+  Button,
+  Container,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography,
+  Card,
+  CardContent,
+  CssBaseline,
+  Alert,
+  CircularProgress,
+  Link,
+} from '@mui/material'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import VpnKey from '@mui/icons-material/VpnKey'
+import LockReset from '@mui/icons-material/LockReset'
+import Mail from '@mui/icons-material/Mail'
+import AlternateEmail from '@mui/icons-material/AlternateEmail'
+import Info from '@mui/icons-material/Info'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import { useTranslation } from 'react-i18next'
+import { themeConfig, useNotifications } from '@cap/platform-core'
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { Path } from '@cap/module-auth/routes/path'
+import { useCurrentUserQuery, useChangeEmail } from '../../hooks/useUserQuery'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 
 const changeEmailRequestSchema = z.object({
   CurrentEmail: z.string().optional(),
@@ -518,4 +532,3 @@ function ChangeEmail() {
 }
 
 export default ChangeEmail
-

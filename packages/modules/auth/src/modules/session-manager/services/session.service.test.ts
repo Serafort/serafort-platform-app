@@ -40,7 +40,8 @@ describe('sessionService', () => {
       const raw = {
         id: 101,
         ipAddress: '192.168.1.50',
-        userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1',
+        userAgent:
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1',
         city: 'San Francisco',
         country: 'United States',
         loginAt: '2026-08-28T12:00:00Z',
@@ -60,7 +61,8 @@ describe('sessionService', () => {
       const raw = {
         id: 'sess-abc',
         ip_address: '10.0.0.1',
-        user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+        user_agent:
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
         city: 'New York',
         country: 'USA',
         current: false,
@@ -142,9 +144,7 @@ describe('sessionService', () => {
     it('fetches activity timeline', async () => {
       vi.mocked(apiClient.get).mockResolvedValueOnce({
         status: 200,
-        data: [
-          { id: 1, action: 'user_login', created_at: '2026-08-28T12:00:00Z' },
-        ],
+        data: [{ id: 1, action: 'user_login', created_at: '2026-08-28T12:00:00Z' }],
       } as any)
 
       const result = await sessionService.getActivityTimeline()

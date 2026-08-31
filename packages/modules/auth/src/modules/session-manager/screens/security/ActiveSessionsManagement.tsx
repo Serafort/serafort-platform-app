@@ -38,11 +38,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Path } from '../../../../routes/path'
-import {
-  useSessions,
-  useRevokeSession,
-  useRevokeAllSessions,
-} from '../../hooks/useSessionQuery'
+import { useSessions, useRevokeSession, useRevokeAllSessions } from '../../hooks/useSessionQuery'
 import type { UserSession } from '../../types/session.types'
 import ConfirmationDialog from '../../../authentication-core/components/shared/Modals/ConfirmationDialog'
 
@@ -91,7 +87,9 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
       setConfirmDialog({ open: false, type: 'all' })
     },
     onError: (err: any) => {
-      toast.error(err?.message || t('auth.account.revoke_all_failed', 'Failed to revoke all sessions'))
+      toast.error(
+        err?.message || t('auth.account.revoke_all_failed', 'Failed to revoke all sessions'),
+      )
     },
   })
 
@@ -143,7 +141,9 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
 
   return (
     <Container maxWidth='lg' sx={{ py: adminView ? 0 : 4 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <Box
+        sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
+      >
         <Box>
           <Typography variant='h4' fontWeight='bold' gutterBottom>
             {adminView
@@ -155,11 +155,11 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
               ? t(
                   'auth.admin.investigateDesc',
                   'Detailed technical breakdown of all active security contexts for user {{name}}.',
-                  { name: userName || userId }
+                  { name: userName || userId },
                 )
               : t(
                   'auth.account.active_sessions_desc',
-                  "View and manage the devices where you're currently signed in. If you see a device you don't recognize, revoke access immediately."
+                  "View and manage the devices where you're currently signed in. If you see a device you don't recognize, revoke access immediately.",
                 )}
           </Typography>
         </Box>
@@ -179,7 +179,8 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
           sx={{ mb: 4, borderRadius: 2 }}
         >
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          {error?.message || t('auth.account.error_loading_sessions', 'Failed to load active sessions.')}
+          {error?.message ||
+            t('auth.account.error_loading_sessions', 'Failed to load active sessions.')}
         </Alert>
       )}
 
@@ -291,7 +292,10 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                         primary={
                           <Stack direction='row' spacing={1} alignItems='center'>
                             <Typography variant='subtitle2' fontWeight={700}>
-                              {session.device_name || session.deviceName || session.browser || 'Device'}
+                              {session.device_name ||
+                                session.deviceName ||
+                                session.browser ||
+                                'Device'}
                             </Typography>
                           </Stack>
                         }
@@ -309,8 +313,9 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                             >
                               <LocationOn sx={{ fontSize: 14, mr: 0.5, color: 'text.secondary' }} />
                               <Typography variant='caption' color='text.secondary'>
-                                {session.location || t('common.unknown_location', 'Unknown Location')} • IP:{' '}
-                                {session.ip_address || session.ipAddress}
+                                {session.location ||
+                                  t('common.unknown_location', 'Unknown Location')}{' '}
+                                • IP: {session.ip_address || session.ipAddress}
                               </Typography>
                             </Box>
                           </Box>
@@ -333,7 +338,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                     }
                     secondary={t(
                       'auth.account.no_other_sessions_desc',
-                      'Your account is not currently in use on any other devices.'
+                      'Your account is not currently in use on any other devices.',
                     )}
                     secondaryTypographyProps={{ align: 'center', sx: { mt: 1 } }}
                   />
@@ -376,7 +381,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
               <Typography variant='body2' sx={{ mb: 2 }}>
                 {t(
                   'auth.account.security_tip_desc',
-                  "Did you find a session you don't recognize? Revoke it and change your password to secure your account."
+                  "Did you find a session you don't recognize? Revoke it and change your password to secure your account.",
                 )}
               </Typography>
               <Button
@@ -410,11 +415,11 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
             ? t(
                 'auth.account.confirm_revoke_msg',
                 'Are you sure you want to terminate this session ({{name}})? The device will be signed out immediately.',
-                { name: confirmDialog.sessionName }
+                { name: confirmDialog.sessionName },
               )
             : t(
                 'auth.account.confirm_revoke_all_msg',
-                'Are you sure you want to terminate all other active sessions? All other logged-in devices will need to sign in again.'
+                'Are you sure you want to terminate all other active sessions? All other logged-in devices will need to sign in again.',
               )
         }
         confirmLabel={

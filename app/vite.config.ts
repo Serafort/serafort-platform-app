@@ -41,7 +41,9 @@ const authExists = fs.existsSync(authModulePath)
 const authShimPath = path.resolve(workspaceRoot, 'packages/platform-core/src/stubs/auth-shim.tsx')
 
 if (!authExists) {
-  console.info(`[vite.config] @cap/module-auth not found at ${authModulePath}. Using shim fallback.`)
+  console.info(
+    `[vite.config] @cap/module-auth not found at ${authModulePath}. Using shim fallback.`,
+  )
 }
 
 // https://vite.dev/config/
@@ -88,32 +90,111 @@ export default defineConfig({
   resolve: {
     alias: [
       // ── Auth Module Catch-all ──
-      { find: '@cap/module-auth', replacement: authExists ? path.resolve(workspaceRoot, 'packages/modules/auth/src') : authShimPath },
-      { find: /^@cap\/module-auth\/(.*)$/, replacement: authExists ? path.resolve(workspaceRoot, 'packages/modules/auth/src/$1') : authShimPath },
+      {
+        find: '@cap/module-auth',
+        replacement: authExists
+          ? path.resolve(workspaceRoot, 'packages/modules/auth/src')
+          : authShimPath,
+      },
+      {
+        find: /^@cap\/module-auth\/(.*)$/,
+        replacement: authExists
+          ? path.resolve(workspaceRoot, 'packages/modules/auth/src/$1')
+          : authShimPath,
+      },
       // ── Internal Auth Aliases ──
-      { find: /^@auth\/(authentication-core|authorization-engine|developer-console|identity-broker|mfa-orchestrator|passwordless-service|platform-cluster|session-manager|user-directory)(\/.*)?$/, replacement: authExists ? path.resolve(workspaceRoot, 'packages/modules/auth/src/modules/$1$2') : authShimPath },
-      { find: /^@auth\/(.*)$/, replacement: authExists ? path.resolve(workspaceRoot, 'packages/modules/auth/src/$1') : authShimPath },
-      { find: '@auth', replacement: authExists ? path.resolve(workspaceRoot, 'packages/modules/auth/src') : authShimPath },
-      { find: /^@idaas\/(.*)$/, replacement: authExists ? path.resolve(workspaceRoot, 'packages/modules/auth/src/modules/$1') : authShimPath },
-      { find: '@idaas', replacement: authExists ? path.resolve(workspaceRoot, 'packages/modules/auth/src/modules') : authShimPath },
-      { find: /^@\/routes\/(.*)$/, replacement: authExists ? path.resolve(workspaceRoot, 'packages/modules/auth/src/routes/$1') : authShimPath },
-      { find: '@\/routes', replacement: authExists ? path.resolve(workspaceRoot, 'packages/modules/auth/src/routes') : authShimPath },
-      { find: /^@\/modules\/(.*)$/, replacement: authExists ? path.resolve(workspaceRoot, 'packages/modules/auth/src/modules/$1') : authShimPath },
-      { find: '@\/modules', replacement: authExists ? path.resolve(workspaceRoot, 'packages/modules/auth/src/modules') : authShimPath },
+      {
+        find: /^@auth\/(authentication-core|authorization-engine|developer-console|identity-broker|mfa-orchestrator|passwordless-service|platform-cluster|session-manager|user-directory)(\/.*)?$/,
+        replacement: authExists
+          ? path.resolve(workspaceRoot, 'packages/modules/auth/src/modules/$1$2')
+          : authShimPath,
+      },
+      {
+        find: /^@auth\/(.*)$/,
+        replacement: authExists
+          ? path.resolve(workspaceRoot, 'packages/modules/auth/src/$1')
+          : authShimPath,
+      },
+      {
+        find: '@auth',
+        replacement: authExists
+          ? path.resolve(workspaceRoot, 'packages/modules/auth/src')
+          : authShimPath,
+      },
+      {
+        find: /^@idaas\/(.*)$/,
+        replacement: authExists
+          ? path.resolve(workspaceRoot, 'packages/modules/auth/src/modules/$1')
+          : authShimPath,
+      },
+      {
+        find: '@idaas',
+        replacement: authExists
+          ? path.resolve(workspaceRoot, 'packages/modules/auth/src/modules')
+          : authShimPath,
+      },
+      {
+        find: /^@\/routes\/(.*)$/,
+        replacement: authExists
+          ? path.resolve(workspaceRoot, 'packages/modules/auth/src/routes/$1')
+          : authShimPath,
+      },
+      {
+        find: '@\/routes',
+        replacement: authExists
+          ? path.resolve(workspaceRoot, 'packages/modules/auth/src/routes')
+          : authShimPath,
+      },
+      {
+        find: /^@\/modules\/(.*)$/,
+        replacement: authExists
+          ? path.resolve(workspaceRoot, 'packages/modules/auth/src/modules/$1')
+          : authShimPath,
+      },
+      {
+        find: '@\/modules',
+        replacement: authExists
+          ? path.resolve(workspaceRoot, 'packages/modules/auth/src/modules')
+          : authShimPath,
+      },
 
       // ── Workspace source package aliases ─────────────────────────────────────
-      { find: '@cap/layout',          replacement: path.resolve(workspaceRoot, 'packages/layout/src') },
-      { find: '@cap/authorization',   replacement: path.resolve(workspaceRoot, 'packages/authorization/src') },
-      { find: '@cap/theme',           replacement: path.resolve(workspaceRoot, 'packages/theme/src') },
-      { find: '@cap/api-contracts',   replacement: path.resolve(workspaceRoot, 'packages/api-contracts/src') },
-      { find: '@cap/auth-contracts',  replacement: path.resolve(workspaceRoot, 'packages/auth-contracts/src') },
-      { find: '@cap/shared-types',    replacement: path.resolve(workspaceRoot, 'packages/shared-types/src') },
-      { find: '@cap/platform-core',   replacement: path.resolve(workspaceRoot, 'packages/platform-core/src') },
-      { find: '@cap/platform-store',  replacement: path.resolve(workspaceRoot, 'packages/platform-store/src') },
-      
+      { find: '@cap/layout', replacement: path.resolve(workspaceRoot, 'packages/layout/src') },
+      {
+        find: '@cap/authorization',
+        replacement: path.resolve(workspaceRoot, 'packages/authorization/src'),
+      },
+      { find: '@cap/theme', replacement: path.resolve(workspaceRoot, 'packages/theme/src') },
+      {
+        find: '@cap/api-contracts',
+        replacement: path.resolve(workspaceRoot, 'packages/api-contracts/src'),
+      },
+      {
+        find: '@cap/auth-contracts',
+        replacement: path.resolve(workspaceRoot, 'packages/auth-contracts/src'),
+      },
+      {
+        find: '@cap/shared-types',
+        replacement: path.resolve(workspaceRoot, 'packages/shared-types/src'),
+      },
+      {
+        find: '@cap/platform-core',
+        replacement: path.resolve(workspaceRoot, 'packages/platform-core/src'),
+      },
+      {
+        find: '@cap/platform-store',
+        replacement: path.resolve(workspaceRoot, 'packages/platform-store/src'),
+      },
+
       // ── Feature Modules (Dynamic for existing modules) ──────────────────────
-      { find: '@cap/module-landing',  replacement: path.resolve(workspaceRoot, 'packages/modules/landing/src') },
-      { find: /^@cap\/module-([a-z0-9-]+)$/, replacement: path.resolve(workspaceRoot, 'packages/modules/$1/src') },
+      {
+        find: '@cap/module-landing',
+        replacement: path.resolve(workspaceRoot, 'packages/modules/landing/src'),
+      },
+      {
+        find: /^@cap\/module-([a-z0-9-]+)$/,
+        replacement: path.resolve(workspaceRoot, 'packages/modules/$1/src'),
+      },
 
       // ── App-local catch-alls (LAST — least specific) ──────────────────────────
       { find: '@', replacement: path.resolve(__dirname, './src') },
@@ -139,11 +220,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     force: true, // Force Vite to clear its cache and re-bundle @mui/system
-    include: [
-      '@tanstack/react-query',
-      'react-toastify',
-      'recharts',
-    ],
+    include: ['@tanstack/react-query', 'react-toastify', 'recharts'],
     // Exclude workspace source packages — they are TypeScript source-linked
     exclude: [
       '@cap/layout',
@@ -215,10 +292,16 @@ export default defineConfig({
           if (id.includes('@mui/icons-material')) return 'vendor-mui-icons'
           if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts'
           if (id.includes('framer-motion')) return 'vendor-motion'
-          if (id.includes('@mui/material') || id.includes('@mui/system') || id.includes('@mui/base')) return 'vendor-mui'
+          if (
+            id.includes('@mui/material') ||
+            id.includes('@mui/system') ||
+            id.includes('@mui/base')
+          )
+            return 'vendor-mui'
           if (id.includes('@floating-ui')) return 'vendor-floating-ui'
           if (id.includes('react-router') || id.includes('react-router-dom')) return 'vendor-router'
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) return 'vendor-react'
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/'))
+            return 'vendor-react'
           if (id.includes('@tanstack/')) return 'vendor-tanstack'
           if (id.includes('zustand')) return 'vendor-zustand'
           if (id.includes('comlink')) return 'vendor-comlink'
@@ -229,13 +312,21 @@ export default defineConfig({
             if (id.includes('user-directory')) return 'module-auth-user-directory'
             if (id.includes('identity-broker')) return 'module-auth-identity-broker'
             if (id.includes('platform-cluster')) return 'module-auth-platform-cluster'
-            if (id.includes('mfa-orchestrator') || id.includes('passwordless-service')) return 'module-auth-mfa'
+            if (id.includes('mfa-orchestrator') || id.includes('passwordless-service'))
+              return 'module-auth-mfa'
             return 'module-auth-core'
           }
-          if (id.includes('packages/modules/dashboard') || id.includes('@cap/module-dashboard')) return 'module-dashboard'
-          if (id.includes('packages/modules/landing') || id.includes('@cap/module-landing')) return 'module-landing'
-          if (id.includes('packages/modules/widget-studio') || id.includes('@cap/module-widget-studio')) return 'module-widget-studio'
-          if (id.includes('packages/modules/theme') || id.includes('@cap/module-theme')) return 'module-theme'
+          if (id.includes('packages/modules/dashboard') || id.includes('@cap/module-dashboard'))
+            return 'module-dashboard'
+          if (id.includes('packages/modules/landing') || id.includes('@cap/module-landing'))
+            return 'module-landing'
+          if (
+            id.includes('packages/modules/widget-studio') ||
+            id.includes('@cap/module-widget-studio')
+          )
+            return 'module-widget-studio'
+          if (id.includes('packages/modules/theme') || id.includes('@cap/module-theme'))
+            return 'module-theme'
           if (id.includes('packages/layout') || id.includes('@cap/layout')) return 'module-layout'
         },
       },

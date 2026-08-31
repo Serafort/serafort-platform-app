@@ -113,7 +113,9 @@ describe('useMfaQuery Hooks', () => {
     vi.mocked(mfaService.sms.confirm).mockResolvedValue({
       data: { message: 'SMS verified', mfaSmsEnabled: true },
     } as any)
-    vi.mocked(mfaService.sms.disable).mockResolvedValue({ data: { message: 'SMS disabled' } } as any)
+    vi.mocked(mfaService.sms.disable).mockResolvedValue({
+      data: { message: 'SMS disabled' },
+    } as any)
 
     const wrapper = createWrapper()
     const { result: sendResult } = renderHook(() => useSmsSendCodeMutation(), { wrapper })

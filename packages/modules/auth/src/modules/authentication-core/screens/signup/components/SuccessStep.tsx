@@ -67,12 +67,7 @@ export const SuccessStep: React.FC<SuccessStepProps> = ({ t, onContinue }) => {
       </Box>
 
       {onContinue && (
-        <AuthActionButton
-          fullWidth
-          onClick={onContinue}
-          endIcon={<ArrowForward />}
-          sx={{ mt: 1 }}
-        >
+        <AuthActionButton fullWidth onClick={onContinue} endIcon={<ArrowForward />} sx={{ mt: 1 }}>
           {t('signUp.continueNow', 'Continue to Workspace')}
         </AuthActionButton>
       )}

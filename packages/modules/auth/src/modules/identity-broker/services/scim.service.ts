@@ -13,7 +13,9 @@ export const scimService = {
     return apiClient.get<SCIMConfig>(ENDPOINTS.admin.scim.config)
   },
 
-  updateConfig: async (data: UpdateSCIMConfigDTO): Promise<FetchResponse<{ message: string; config?: SCIMConfig }>> => {
+  updateConfig: async (
+    data: UpdateSCIMConfigDTO,
+  ): Promise<FetchResponse<{ message: string; config?: SCIMConfig }>> => {
     return apiClient.patch(ENDPOINTS.admin.scim.config, data)
   },
 
@@ -21,7 +23,9 @@ export const scimService = {
     return apiClient.get<SCIMToken[]>(ENDPOINTS.admin.scim.tokens.index)
   },
 
-  createToken: async (data: CreateSCIMTokenDTO): Promise<FetchResponse<CreateSCIMTokenResponse>> => {
+  createToken: async (
+    data: CreateSCIMTokenDTO,
+  ): Promise<FetchResponse<CreateSCIMTokenResponse>> => {
     return apiClient.post<CreateSCIMTokenResponse>(ENDPOINTS.admin.scim.tokens.store, data)
   },
 

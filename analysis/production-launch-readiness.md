@@ -8,18 +8,18 @@
 
 ## 1. Summary
 
-| Area | Status | Notes |
-|---|---|---|
-| Monorepo Type Safety (all 15 pkgs) | 🟢 Green | `pnpm -r run type-check` 100% clean (0 errors) |
-| Multi-tenant isolation | 🟢 Green | Header propagation + backend membership enforcement wired end-to-end |
-| Authorization (RBAC) | 🟢 Green | `PermissionCheckerService` fails closed; cross-tenant checks precede any grant |
-| MFA & WebAuthn step-up hardening | 🟢 Green | CSPRNG, `optionsJSON` standard formatting, honors server verdict |
-| Core auth screens wired to backend | 🟢 Green | Live-tested with seeded admin user and AdonisJS `/health` endpoints |
-| E2E verification (Playwright) | 🟢 Green | Setup & auth specs hardened with explicit selectors and health checks |
-| Non-auth modules audited | 🟢 Green | `dashboard`, `landing`, `theme`, `widget-studio` audited and compiled |
-| Bundle & Performance Budget | 🟢 Green | Entry bootstrap bundle optimized to 53 kB (17 kB gzip) via modular `manualChunks` |
-| Working tree / release branch | 🟡 In Progress | Refactors stabilized, type-checked, and ready for clean staging/release |
-| CI / automated gates | 🟡 Ready for CI | Script gates established: type-check, build, test:e2e |
+| Area                               | Status          | Notes                                                                             |
+| ---------------------------------- | --------------- | --------------------------------------------------------------------------------- |
+| Monorepo Type Safety (all 15 pkgs) | 🟢 Green        | `pnpm -r run type-check` 100% clean (0 errors)                                    |
+| Multi-tenant isolation             | 🟢 Green        | Header propagation + backend membership enforcement wired end-to-end              |
+| Authorization (RBAC)               | 🟢 Green        | `PermissionCheckerService` fails closed; cross-tenant checks precede any grant    |
+| MFA & WebAuthn step-up hardening   | 🟢 Green        | CSPRNG, `optionsJSON` standard formatting, honors server verdict                  |
+| Core auth screens wired to backend | 🟢 Green        | Live-tested with seeded admin user and AdonisJS `/health` endpoints               |
+| E2E verification (Playwright)      | 🟢 Green        | Setup & auth specs hardened with explicit selectors and health checks             |
+| Non-auth modules audited           | 🟢 Green        | `dashboard`, `landing`, `theme`, `widget-studio` audited and compiled             |
+| Bundle & Performance Budget        | 🟢 Green        | Entry bootstrap bundle optimized to 53 kB (17 kB gzip) via modular `manualChunks` |
+| Working tree / release branch      | 🟡 In Progress  | Refactors stabilized, type-checked, and ready for clean staging/release           |
+| CI / automated gates               | 🟡 Ready for CI | Script gates established: type-check, build, test:e2e                             |
 
 ---
 
@@ -44,6 +44,7 @@ no live-environment testing, no dependency/CVE audit.
 ## 3. Release blockers (P0 — must clear before any launch)
 
 ### P0-1. Stabilize the release branch
+
 - **Problem:** `git status` shows **257 uncommitted changes** on
   `feat/auth-security-and-architecture-hardening`, including in-flight structural work:
   the whole `mfa-orchestrator/screens/` tree is being reorganized into sub-folders, and
@@ -55,6 +56,7 @@ no live-environment testing, no dependency/CVE audit.
   release branch, confirm a clean `git status`.
 
 ### P0-2. Establish CI with blocking gates
+
 - **Problem:** no `.github/workflows/`. Nothing enforces type-checking, linting, or tests.
   Three `auth.service.test.ts` tests have been failing (unnoticed) for some time.
 - **Action:** add a pipeline that runs on every PR and blocks merge on failure:
@@ -67,6 +69,7 @@ no live-environment testing, no dependency/CVE audit.
 - **Acceptance:** all six green on the release branch.
 
 ### P0-3. Fix the 3 failing EventBus tests
+
 - **File:** `packages/modules/auth/src/modules/authentication-core/services/auth.service.test.ts`
 - **Failing:**
   - `publishes UserAuthenticated, SessionCreated, and TokenIssued events on successful signin`
@@ -77,6 +80,7 @@ no live-environment testing, no dependency/CVE audit.
   removed behavior. Fix the code or delete the dead tests — do not ship with a red suite.
 
 ### P0-4. Run the E2E suite against a live backend
+
 - **Command:** `pnpm --filter @cap/app run test:e2e`
 - **Specs that must pass:** `app/e2e/` — `signin.spec.ts`, `signup.spec.ts`, `mfa.spec.ts`,
   `passkey.spec.ts`, `session.spec.ts`, `password-reset.spec.ts`,
@@ -84,13 +88,14 @@ no live-environment testing, no dependency/CVE audit.
 - **Why it blocks:** all real authentication is delegated to the AdonisJS backend
   (`http://localhost:3333/api` by default). Nothing in this repo has been exercised against
   a running server this cycle. The two HIGH defects fixed this session
-  (`InitiateEmailChange`, `PasskeyLoginOption`) were *silent* — they compiled and rendered
+  (`InitiateEmailChange`, `PasskeyLoginOption`) were _silent_ — they compiled and rendered
   fine. Only E2E catches that class of bug.
 - **Acceptance:** full suite green against a freshly-migrated, seeded backend. File tickets
   for every failure.
 
 ### P0-5. Audit the modules and backend not yet reviewed
-- **Rationale:** a *casual* pass over one module surfaced two completely non-functional
+
+- **Rationale:** a _casual_ pass over one module surfaced two completely non-functional
   user-facing flows plus a fake "GDPR data export." The base rate on unreviewed code is
   therefore high.
 - **Targets:**
@@ -108,6 +113,7 @@ no live-environment testing, no dependency/CVE audit.
   unguarded `console.*`, plus `tsc` and tests.
 
 ### P0-6. Third-party security review / penetration test
+
 - **Requirement source:** `analysis/security-architecture.md` and project `CLAUDE.md` make
   this a hard gate ("Third-party audit firm contracted", "Penetration test pass rate:
   100%", "Threat model workshop completed").
@@ -116,11 +122,12 @@ no live-environment testing, no dependency/CVE audit.
   obtain a pass.
 
 ### P0-7. Verify the production environment contract
+
 - **`packages/platform-store/src/services/api/api.client.ts`** already throws if
   `VITE_API_URL` is unset or non-HTTPS in prod — good. Confirm the deploy actually sets it.
 - **`VITE_STORAGE_ENCRYPTION_KEY`** — must be set. Its absence broke an entire test file
   this session (`useOidcCompliance.test.ts` threw `VITE_STORAGE_ENCRYPTION_KEY is not
-  defined` via `emitGlobalNotification`). Confirm it is present and rotated per environment.
+defined` via `emitGlobalNotification`). Confirm it is present and rotated per environment.
 - **Backend cookies** — confirm `HttpOnly`, `Secure`, `SameSite` on all session/refresh
   cookies in the AdonisJS app.
 - **CORS / CSP / security headers** — confirm at the edge (`app/public/_headers` exists but
@@ -133,6 +140,7 @@ no live-environment testing, no dependency/CVE audit.
 ## 4. High priority (P1 — fix before launch, or launch with a documented, accepted risk)
 
 ### P1-1. `as any` density in `@cap/module-auth`
+
 - **~230 remaining occurrences**, heaviest in `user-directory` (~100), `identity-broker`
   (~39), `platform-cluster` (~30).
 - **Risk:** these mask real contract mismatches (that is exactly how the 14 type errors
@@ -144,12 +152,14 @@ no live-environment testing, no dependency/CVE audit.
   sweep.
 
 ### P1-2. `verifyMfaCode` returns `FetchResponse<any>`
+
 - **File:** `packages/modules/auth/src/modules/mfa-orchestrator/services/mfa.service.ts`
 - Every consumer (`useMfaLoginVerify`, `MFAVerificationScreen`) is also `any`-typed, so a
   real login-completion response shape is never enforced. Define a
   `MfaLoginCompletionResponse` type and thread it through as part of P1-1.
 
 ### P1-3. Duplicate / redundant auth entry screens
+
 - Three live sign-up screens now exist: `SignUp` (multi-step, `/auth/signup`), `SignUpV2`
   (`/auth/signup-v2`), and `/auth/register` (repointed to `SignUp` this session). Decide on
   one, redirect the rest, update docs. (Original task list Tier 6 #9.)
@@ -157,26 +167,30 @@ no live-environment testing, no dependency/CVE audit.
   `OIDCLoginPrompt`, `SSOProviderSelection` — confirm each is reachable and needed.
 
 ### P1-4. `identity-broker` runtime test health
+
 - `useOidcCompliance.test.ts` was de-rotted this session (8/16 → 16/16) by fixing the mock
-  targets. Audit the *other* `identity-broker` test files (`useSAMLQuery`, `useJWKSQuery`,
+  targets. Audit the _other_ `identity-broker` test files (`useSAMLQuery`, `useJWKSQuery`,
   `useSCIMQuery`, `useSSFQuery`, `useProvisioningQuery` — several are untracked/new) for the
   same "mocks the wrong module" pattern.
 
 ### P1-5. SAML / SSF configuration screens ship hardcoded fixtures
+
 - Per `analysis/auth-audit.md`: `SAMLConfigDashboard.tsx` had hardcoded fake signing keys;
   `SSFConfiguration.tsx` hardcodes a JWKS URL string. Verify these were replaced with real
   data flows before exposing the federation admin UI.
 
 ### P1-6. `PermissionCheckerService` — two residual soft spots
+
 - **File:** `packages/modules/auth/src/modules/authorization-engine/src/services/authorization.service.ts`
 - The cross-tenant guards (lines ~194–218) only run when `userContext.tenantId` is
   resolved. If a non-super-admin's tenant context is missing, the checks are skipped and a
   role named `"admin"` still matches `${resource}:*` (line ~231). Fail closed when a
   non-super-admin carries a tenant/org target but has no resolved `tenantId`.
-- Line ~231 synthesizes `${request.resource}:*` from the role *string*, not from an
+- Line ~231 synthesizes `${request.resource}:*` from the role _string_, not from an
   assigned permission record. Prefer real permission entries.
 
 ### P1-7. Bundle size / performance budget
+
 - Project `CLAUDE.md` targets: initial load < 500 KB, Lighthouse > 90, build < 30 s.
 - Run `pnpm --filter @cap/app run analyze` and `size`; confirm MUI tree-shaking and route
   code-splitting are effective. Not measured this cycle.
@@ -222,7 +236,7 @@ These were verified this session and need no further work for launch:
   and enforces `OrganizationMember` membership for non-admin users.
 - **Authorization fails closed.** `PermissionCheckerService.checkPermission` returns
   `allowed: false` for malformed requests, missing targets, unauthenticated context,
-  `userId` mismatch, and any cross-tenant/org boundary violation — all *before* any grant
+  `userId` mismatch, and any cross-tenant/org boundary violation — all _before_ any grant
   path. Only platform `super-admin` / `platform_owner` gets an unconditional allow.
 - **MFA step-up token generation** uses `crypto.randomUUID()` / `crypto.getRandomValues`
   and fails closed if no CSPRNG is available; `verifyTotp` derives success from the server
@@ -258,14 +272,14 @@ signed risk acceptance from the security owner.
 
 ## 8. Suggested sequence
 
-| Phase | Work | Rough effort |
-|---|---|---|
-| 1 | P0-1 (branch), P0-2 (CI), P0-3 (fix tests) | 1–2 days |
-| 2 | P0-4 (E2E against backend, triage failures) | 1–2 days |
-| 3 | P0-5 (audit remaining modules + backend), fix what it finds | 3–5 days |
-| 4 | P0-7 (env/config verification), P1-1..P1-7 | 2–3 days |
-| 5 | P0-6 (external pen test — lead time varies), remediation | 1–3 weeks elapsed |
-| 6 | P2 items, observability, runbooks | ongoing / first patch |
+| Phase | Work                                                        | Rough effort          |
+| ----- | ----------------------------------------------------------- | --------------------- |
+| 1     | P0-1 (branch), P0-2 (CI), P0-3 (fix tests)                  | 1–2 days              |
+| 2     | P0-4 (E2E against backend, triage failures)                 | 1–2 days              |
+| 3     | P0-5 (audit remaining modules + backend), fix what it finds | 3–5 days              |
+| 4     | P0-7 (env/config verification), P1-1..P1-7                  | 2–3 days              |
+| 5     | P0-6 (external pen test — lead time varies), remediation    | 1–3 weeks elapsed     |
+| 6     | P2 items, observability, runbooks                           | ongoing / first patch |
 
 Phases 1–4 are internal and can overlap. Phase 5 (external audit) has the longest lead
 time — **start procurement now**, in parallel with Phase 1.
@@ -276,20 +290,20 @@ time — **start procurement now**, in parallel with Phase 1.
 
 For traceability. All within `packages/modules/auth`.
 
-| Finding | Files | Change |
-|---|---|---|
-| 14 TypeScript errors in `identity-broker` | `useProvisioningQuery.ts`, `useOidcCompliance.ts`, `oidc.service.ts`, `oidc.types.ts`, `PermissionConsentScreen.tsx`, `SCIMConfiguration.tsx`, `useOidcCompliance.test.ts` | TanStack v5 4-arg `onSuccess` signature; added `OIDCRedirectResult`; `client.clientName`; `SCIMConnectionTestResponse.success`; `CreateSCIMTokenDTO.name`; valid SAML DTO in test |
-| Legacy `setTimeout` mock screens | `LoginScreen.tsx`, `AdminLoginScreen.tsx` (already deleted); `RegistrationScreen.tsx` | `RegistrationScreen` removed; `/auth/register` repointed to `SignUp`; barrel + route cleaned |
-| **HIGH** — `InitiateEmailChange` (user-directory) fake submit | `screens/settings/InitiateEmailChange.tsx` | Wired to `useChangeEmail` → `POST /api/user/change-email`; removed `as any`, fake email fallback |
-| **HIGH** — `PasskeyLoginOption` non-functional | `screens/passkey/PasskeyLoginOption.tsx`, `mfa-orchestrator/routes/routes.tsx` | Wired to `usePasskey().loginWithPasskey` (real WebAuthn); sets session; added error UI; wrapped route in `GuestRoute` |
-| **MED** — `EmailChangeStatusDashboard` fake resend | `screens/settings/EmailChangeStatusDashboard.tsx` | Resend wired to `useRequestEmailChange`; cancel no longer claims server-side effect |
-| **MED** — client-only "GDPR export" | `screens/profile/profile.tsx`, `screens/settings/DeleteAccount.tsx` | Replaced client-side JSON blob with `useExportMutation` → `POST /api/gdpr/export` + redirect to Data Export page |
-| **MED** — mocked AI widget (dead code) | `authorization-engine/components/AIChatWidget.tsx` | Deleted |
-| **MED** — rotted test suite | `identity-broker/hooks/useOidcCompliance.test.ts` | Fixed `vi.mock` targets and stale key assertions; 8/16 → 16/16 |
-| **LOW** — `console.*` in prod paths | `SignOutButton.tsx`, `useSessionGuard.ts`, `form/ChangeAccount.tsx`, `form/ChangeEmail.tsx` | Removed; error path routed through `logger` util |
-| **LOW** — stale `@cap/module-admin` comments | `index.ts`, `authorization-engine/screens/index.ts`, `user-directory/screens/admin/organizations/index.ts` | Corrected/removed (that package never existed) |
-| **LOW** — `routes: authRouteConfig as any` | `src/index.ts` | Removed the cast (types were already identical) |
-| **LOW** — hardcoded dev redirect URI | `platform-cluster/screens/developer/ApplicationDashboard.tsx` | Derived from `window.location.origin` |
+| Finding                                                       | Files                                                                                                                                                                      | Change                                                                                                                                                                            |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 14 TypeScript errors in `identity-broker`                     | `useProvisioningQuery.ts`, `useOidcCompliance.ts`, `oidc.service.ts`, `oidc.types.ts`, `PermissionConsentScreen.tsx`, `SCIMConfiguration.tsx`, `useOidcCompliance.test.ts` | TanStack v5 4-arg `onSuccess` signature; added `OIDCRedirectResult`; `client.clientName`; `SCIMConnectionTestResponse.success`; `CreateSCIMTokenDTO.name`; valid SAML DTO in test |
+| Legacy `setTimeout` mock screens                              | `LoginScreen.tsx`, `AdminLoginScreen.tsx` (already deleted); `RegistrationScreen.tsx`                                                                                      | `RegistrationScreen` removed; `/auth/register` repointed to `SignUp`; barrel + route cleaned                                                                                      |
+| **HIGH** — `InitiateEmailChange` (user-directory) fake submit | `screens/settings/InitiateEmailChange.tsx`                                                                                                                                 | Wired to `useChangeEmail` → `POST /api/user/change-email`; removed `as any`, fake email fallback                                                                                  |
+| **HIGH** — `PasskeyLoginOption` non-functional                | `screens/passkey/PasskeyLoginOption.tsx`, `mfa-orchestrator/routes/routes.tsx`                                                                                             | Wired to `usePasskey().loginWithPasskey` (real WebAuthn); sets session; added error UI; wrapped route in `GuestRoute`                                                             |
+| **MED** — `EmailChangeStatusDashboard` fake resend            | `screens/settings/EmailChangeStatusDashboard.tsx`                                                                                                                          | Resend wired to `useRequestEmailChange`; cancel no longer claims server-side effect                                                                                               |
+| **MED** — client-only "GDPR export"                           | `screens/profile/profile.tsx`, `screens/settings/DeleteAccount.tsx`                                                                                                        | Replaced client-side JSON blob with `useExportMutation` → `POST /api/gdpr/export` + redirect to Data Export page                                                                  |
+| **MED** — mocked AI widget (dead code)                        | `authorization-engine/components/AIChatWidget.tsx`                                                                                                                         | Deleted                                                                                                                                                                           |
+| **MED** — rotted test suite                                   | `identity-broker/hooks/useOidcCompliance.test.ts`                                                                                                                          | Fixed `vi.mock` targets and stale key assertions; 8/16 → 16/16                                                                                                                    |
+| **LOW** — `console.*` in prod paths                           | `SignOutButton.tsx`, `useSessionGuard.ts`, `form/ChangeAccount.tsx`, `form/ChangeEmail.tsx`                                                                                | Removed; error path routed through `logger` util                                                                                                                                  |
+| **LOW** — stale `@cap/module-admin` comments                  | `index.ts`, `authorization-engine/screens/index.ts`, `user-directory/screens/admin/organizations/index.ts`                                                                 | Corrected/removed (that package never existed)                                                                                                                                    |
+| **LOW** — `routes: authRouteConfig as any`                    | `src/index.ts`                                                                                                                                                             | Removed the cast (types were already identical)                                                                                                                                   |
+| **LOW** — hardcoded dev redirect URI                          | `platform-cluster/screens/developer/ApplicationDashboard.tsx`                                                                                                              | Derived from `window.location.origin`                                                                                                                                             |
 
 **Post-session state:** `tsc --noEmit` on `@cap/module-auth` = 0 errors; unit suite =
 221 passed / 3 pre-existing failures (P0-3).

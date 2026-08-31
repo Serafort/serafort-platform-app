@@ -7,32 +7,35 @@
  * This module provides imperative helpers that can be called from non-hook contexts
  * (e.g. event handlers that already have access to the mutation functions).
  */
-import type { WidgetDefinition, WidgetAuditEntry } from '@cap/shared-types'
-import { useAppStore } from '@cap/platform-store'
-import { apiClient } from '@cap/platform-core'
-import { connectPipelineStream, disconnectStream } from '../services/widgetAgentClient'
-import type { GenerateWidgetResponse } from '../hooks/useWidgetStudioQuery'
+import type { WidgetDefinition, WidgetAuditEntry } from "@cap/shared-types";
+import { useAppStore } from "@cap/platform-store";
+import { apiClient } from "@cap/platform-core";
+import {
+  connectPipelineStream,
+  disconnectStream,
+} from "../services/widgetAgentClient";
+import type { GenerateWidgetResponse } from "../hooks/useWidgetStudioQuery";
 
 export interface OrchestratorOptions {
   /** Draft ID in the Zustand store to update */
-  draftId: string
+  draftId: string;
   /** Raw user prompt */
-  prompt: string
+  prompt: string;
   /** Override the AI provider type */
-  providerType?: string
+  providerType?: string;
   /** Override the AI model */
-  model?: string
+  model?: string;
   /** Whether to auto-publish after successful validation */
-  autoPublish?: boolean
+  autoPublish?: boolean;
   /** Target dashboard page */
-  pageId?: string
+  pageId?: string;
 }
 
 export interface OrchestratorResult {
-  success: boolean
-  runId?: number
-  dsl?: WidgetDefinition
-  error?: string
+  success: boolean;
+  runId?: number;
+  dsl?: WidgetDefinition;
+  error?: string;
 }
 
 /**
@@ -44,31 +47,44 @@ export interface OrchestratorResult {
 export async function runAgentPipeline(
   options: OrchestratorOptions,
 ): Promise<OrchestratorResult> {
-  const { draftId, prompt, autoPublish = false, pageId = 'dashboard' } = options
-  const store = useAppStore.getState()
+  const {
+    draftId,
+    prompt,
+    autoPublish = false,
+    pageId = "dashboard",
+  } = options;
+  const store = useAppStore.getState();
 
   // Set UI state
-  store.setWidgetStudioRunning(true)
-  store.setWidgetLifecycle(draftId, 'draft')
+  store.setWidgetStudioRunning(true);
+  store.setWidgetLifecycle(draftId, "draft");
 
   try {
-    const response = await apiClient.post<GenerateWidgetResponse>('/api/v1/widgets/generate', {
-      draftId,
-      prompt,
-      userId: 1, // Resolved server-side from auth token
-      providerType: options.providerType || store.selectedProvider || 'gemini',
-      model: options.model || store.selectedModel,
-      autoPublish,
-      pageId,
-      runAsync: true,
-    })
+    const response = await apiClient.post<GenerateWidgetResponse>(
+      "/api/v1/widgets/generate",
+      {
+        draftId,
+        prompt,
+        userId: 1, // Resolved server-side from auth token
+        providerType:
+          options.providerType || store.selectedProvider || "gemini",
+        model: options.model || store.selectedModel,
+        autoPublish,
+        pageId,
+        runAsync: true,
+      },
+    );
 
-    const data = response.data
+    const data = response.data;
     if (!data?.success || !data.runId) {
-      const errorMsg = data?.error || 'Failed to initialize agent pipeline run on server'
-      store.updateWidgetAgent(draftId, 'requirement', { status: 'error', error: errorMsg })
-      store.setWidgetStudioRunning(false)
-      return { success: false, error: errorMsg }
+      const errorMsg =
+        data?.error || "Failed to initialize agent pipeline run on server";
+      store.updateWidgetAgent(draftId, "requirement", {
+        status: "error",
+        error: errorMsg,
+      });
+      store.setWidgetStudioRunning(false);
+      return { success: false, error: errorMsg };
     }
 
     // Connect SSE stream for live updates
@@ -77,14 +93,17 @@ export async function runAgentPipeline(
       draftId,
       prompt,
       autoPublish,
-    })
+    });
 
-    return { success: true, runId: data.runId }
+    return { success: true, runId: data.runId };
   } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : String(err)
-    store.updateWidgetAgent(draftId, 'requirement', { status: 'error', error: errorMsg })
-    store.setWidgetStudioRunning(false)
-    return { success: false, error: errorMsg }
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    store.updateWidgetAgent(draftId, "requirement", {
+      status: "error",
+      error: errorMsg,
+    });
+    store.setWidgetStudioRunning(false);
+    return { success: false, error: errorMsg };
   }
 }
 
@@ -95,70 +114,81 @@ export async function runAgentPipeline(
  */
 export async function publishDraft(
   draftId: string,
-  pageId = 'dashboard',
+  pageId = "dashboard",
 ): Promise<boolean> {
-  const store = useAppStore.getState()
-  const draft = store.widgetDrafts.find((d) => d.id === draftId)
+  const store = useAppStore.getState();
+  const draft = store.widgetDrafts.find((d) => d.id === draftId);
 
   if (!draft?.dsl) {
-    console.error('[AgentOrchestrator] No DSL found for draft:', draftId)
-    return false
+    console.error("[AgentOrchestrator] No DSL found for draft:", draftId);
+    return false;
   }
 
-  store.updateWidgetAgent(draftId, 'publish', {
-    status: 'running',
+  store.updateWidgetAgent(draftId, "publish", {
+    status: "running",
     startedAt: new Date().toISOString(),
-  })
+  });
 
   try {
-    const response = await apiClient.post<{ success: boolean; error?: string }>('/api/v1/widgets/publish', {
-      draftId,
-      dsl: draft.dsl,
-      pageId,
-    })
+    const response = await apiClient.post<{ success: boolean; error?: string }>(
+      "/api/v1/widgets/publish",
+      {
+        draftId,
+        dsl: draft.dsl,
+        pageId,
+      },
+    );
 
     if (response.data?.success) {
-      store.setWidgetLifecycle(draftId, 'published')
-      store.updateWidgetAgent(draftId, 'publish', {
-        status: 'done',
+      store.setWidgetLifecycle(draftId, "published");
+      store.updateWidgetAgent(draftId, "publish", {
+        status: "done",
         completedAt: new Date().toISOString(),
-      })
+      });
 
       // Add to local layout store for instant feedback
-      const currentLayout = store.layouts?.[pageId]
+      const currentLayout = store.layouts?.[pageId];
       if (currentLayout) {
-        const newSlotId = `${pageId}-ai-slot-${Date.now()}`
-        store.addSlot(pageId, newSlotId, {
-          widgetId: draft.dsl.component,
-          config: draft.dsl.props,
-        } as any, {
-          span: draft.dsl.layout.width as 4 | 8 | 12,
-          height: draft.dsl.layout.height as 200 | 280 | 340 | 400,
-        })
+        const newSlotId = `${pageId}-ai-slot-${Date.now()}`;
+        store.addSlot(
+          pageId,
+          newSlotId,
+          {
+            widgetId: draft.dsl.component,
+            config: draft.dsl.props,
+          } as any,
+          {
+            span: draft.dsl.layout.width as 4 | 8 | 12,
+            height: draft.dsl.layout.height as 200 | 280 | 340 | 400,
+          },
+        );
       }
 
       const auditEntry: WidgetAuditEntry = {
         widgetId: draft.dsl.id,
-        createdBy: 'current-user',
+        createdBy: "current-user",
         generatedAt: new Date().toISOString(),
-        model: store.selectedModel || 'gemini-2.0-flash',
+        model: store.selectedModel || "gemini-2.0-flash",
         version: draft.dsl.version,
-        action: 'published',
-      }
-      store.appendAuditEntry(draftId, auditEntry)
+        action: "published",
+      };
+      store.appendAuditEntry(draftId, auditEntry);
 
-      return true
+      return true;
     }
 
-    store.updateWidgetAgent(draftId, 'publish', {
-      status: 'error',
-      error: response.data?.error || 'Publish failed',
-    })
-    return false
+    store.updateWidgetAgent(draftId, "publish", {
+      status: "error",
+      error: response.data?.error || "Publish failed",
+    });
+    return false;
   } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : String(err)
-    store.updateWidgetAgent(draftId, 'publish', { status: 'error', error: errorMsg })
-    return false
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    store.updateWidgetAgent(draftId, "publish", {
+      status: "error",
+      error: errorMsg,
+    });
+    return false;
   }
 }
 
@@ -166,11 +196,14 @@ export async function publishDraft(
  * Cancel an active pipeline run.
  */
 export async function cancelPipelineRun(runId: number): Promise<boolean> {
-  disconnectStream(runId)
+  disconnectStream(runId);
   try {
-    const response = await apiClient.post<{ success: boolean }>(`/api/v1/widgets/runs/${runId}/cancel`, {})
-    return response.data?.success ?? false
+    const response = await apiClient.post<{ success: boolean }>(
+      `/api/v1/widgets/runs/${runId}/cancel`,
+      {},
+    );
+    return response.data?.success ?? false;
   } catch {
-    return false
+    return false;
   }
 }

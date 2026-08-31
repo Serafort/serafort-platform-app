@@ -1,8 +1,20 @@
-import React from 'react';
-import { Box, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, Tab, Tabs, TextField } from '@mui/material';
-import type { IFilter, IHandleChange, ITabsHeader } from './types';
-// 
-// 
+import React from "react";
+import {
+  Box,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+} from "@mui/material";
+import type { IFilter, IHandleChange, ITabsHeader } from "./types";
+//
+//
 
 // interface ToolbarProps {
 //     button: any
@@ -20,12 +32,12 @@ export default function Toolbar({
   hideSearchbar = false,
   setHandleChange,
 }: {
-  button?: React.JSX.Element
-  tabs?: Array<ITabsHeader>
-  hideAddMode?: boolean
-  hideTab?: boolean
-  hideSearchbar?: boolean
-  setHandleChange?: React.Dispatch<React.SetStateAction<IHandleChange>>
+  button?: React.JSX.Element;
+  tabs?: Array<ITabsHeader>;
+  hideAddMode?: boolean;
+  hideTab?: boolean;
+  hideSearchbar?: boolean;
+  setHandleChange?: React.Dispatch<React.SetStateAction<IHandleChange>>;
 }) {
   // const { t } = useTranslation('common')
   // const button = props?.button ?? null
@@ -43,7 +55,7 @@ export default function Toolbar({
   // ? props.setHandleChange
   // : () => {}
   //   const rest = props.rest ? props.rest : {}
-  const [value, _] = React.useState<number>(0)
+  const [value, _] = React.useState<number>(0);
   const onChange = (
     event:
       | object
@@ -52,12 +64,13 @@ export default function Toolbar({
       | SelectChangeEvent,
     newValue: string | number,
   ) => {
-    if (setHandleChange === undefined) return
+    if (setHandleChange === undefined) return;
 
     // if (newValue === undefined)
     //   setHandleChange({ event, value: event?.target?.value })
     // else {
-    if (typeof newValue === 'string') setHandleChange({ event, value: newValue })
+    if (typeof newValue === "string")
+      setHandleChange({ event, value: newValue });
 
     // if (typeof newValue === 'number') {
     //   setValue(newValue)
@@ -67,17 +80,20 @@ export default function Toolbar({
     //   setHandleChange({ event, values: newValue })
     // }
     // }
-  }
+  };
   const filters: Array<IFilter> = [
-    { key: 'name', label: 'Nom', values: [{ key: 'baba', label: 'BABA' }] },
-  ]
+    { key: "name", label: "Nom", values: [{ key: "baba", label: "BABA" }] },
+  ];
 
   return (
-    <Stack direction='column'>
+    <Stack direction="column">
       <Box>
-        <Grid container spacing={3} my='30px'>
+        <Grid container spacing={3} my="30px">
           {filters.map((filter) => (
-            <Grid key={filter.key} size={{ xs: 12, sm: Math.round(12 / filters.length) }}>
+            <Grid
+              key={filter.key}
+              size={{ xs: 12, sm: Math.round(12 / filters.length) }}
+            >
               <FormControl fullWidth>
                 <InputLabel>{filter.label}</InputLabel>
                 <Select
@@ -114,15 +130,17 @@ export default function Toolbar({
           />
         )} */}
         {!hideSearchbar && (
-          <Stack direction='row'>
+          <Stack direction="row">
             <TextField
               // placeholder={t('App.search')}
-              placeholder='search'
-              type='search'
+              placeholder="search"
+              type="search"
               fullWidth
-              onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-                onChange(event, event.target?.value)
-              }
+              onChange={(
+                event: React.ChangeEvent<
+                  HTMLInputElement | HTMLTextAreaElement
+                >,
+              ) => onChange(event, event.target?.value)}
 
               // InputProps={{
               //   startAdornment: (
@@ -143,14 +161,14 @@ export default function Toolbar({
           </Stack>
         )}
       </Box>
-      <Stack direction='row' spacing={0}>
+      <Stack direction="row" spacing={0}>
         {!hideTab && (
           <Tabs
             value={value}
             onChange={onChange}
-            variant='scrollable'
+            variant="scrollable"
             scrollButtons={false}
-            aria-label='scrollable filter'
+            aria-label="scrollable filter"
           >
             {tabs.map((tab: ITabsHeader) => (
               <Tab key={tab.key} label={tab.label} />
@@ -158,9 +176,11 @@ export default function Toolbar({
           </Tabs>
         )}
         {!hideAddMode && (
-          <Box sx={{ ml: 'auto ! important', padding: '12px 16px', pr: 0 }}>{button}</Box>
+          <Box sx={{ ml: "auto ! important", padding: "12px 16px", pr: 0 }}>
+            {button}
+          </Box>
         )}
       </Stack>
     </Stack>
-  )
+  );
 }

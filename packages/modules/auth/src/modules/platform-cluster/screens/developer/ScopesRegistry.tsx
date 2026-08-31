@@ -1,15 +1,45 @@
-import { useState, useMemo } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Button, TextField, InputAdornment, alpha, useTheme, Stack, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress, Skeleton } from '@mui/material';
-import Search from '@mui/icons-material/Search';
-import Add from '@mui/icons-material/Add';
-import Delete from '@mui/icons-material/Delete';
-import Layers from '@mui/icons-material/Layers';
-import Edit from '@mui/icons-material/Edit';
-import VpnKey from '@mui/icons-material/VpnKey';
-import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
-import { AuthScope } from '@auth/modules/authorization-engine/services/adminService';
-import { useScopes, useCreateScope, useUpdateScope, useDeleteScope } from '@idaas/authentication-core/hooks/useAdminQuery';
+import { useState, useMemo } from 'react'
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  IconButton,
+  Button,
+  TextField,
+  InputAdornment,
+  alpha,
+  useTheme,
+  Stack,
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+  Skeleton,
+} from '@mui/material'
+import Search from '@mui/icons-material/Search'
+import Add from '@mui/icons-material/Add'
+import Delete from '@mui/icons-material/Delete'
+import Layers from '@mui/icons-material/Layers'
+import Edit from '@mui/icons-material/Edit'
+import VpnKey from '@mui/icons-material/VpnKey'
+import { useTranslation } from 'react-i18next'
+import { toast } from 'react-toastify'
+import { AuthScope } from '@auth/modules/authorization-engine/services/adminService'
+import {
+  useScopes,
+  useCreateScope,
+  useUpdateScope,
+  useDeleteScope,
+} from '@idaas/authentication-core/hooks/useAdminQuery'
 
 export default function ScopesRegistry() {
   const theme = useTheme()
@@ -56,7 +86,7 @@ export default function ScopesRegistry() {
 
   const handleFormSubmit = () => {
     if (!formData.name) {
-      toast.error(t('auth.developer.nameRequired', 'Scope name is required.'), {  })
+      toast.error(t('auth.developer.nameRequired', 'Scope name is required.'), {})
       return
     }
 
@@ -65,22 +95,22 @@ export default function ScopesRegistry() {
         { id: Number(editingScope.id), data: formData },
         {
           onSuccess: () => {
-            toast.success(t('auth.developer.scopeUpdated', 'Scope updated successfully.'), {  })
+            toast.success(t('auth.developer.scopeUpdated', 'Scope updated successfully.'), {})
             closeForm()
           },
           onError: () => {
-            toast.error(t('auth.developer.scopeUpdateFailed', 'Failed to update scope.'), {  })
+            toast.error(t('auth.developer.scopeUpdateFailed', 'Failed to update scope.'), {})
           },
         },
       )
     } else {
       createScope.mutate(formData, {
         onSuccess: () => {
-          toast.success(t('auth.developer.scopeCreated', 'Scope created successfully.'), {  })
+          toast.success(t('auth.developer.scopeCreated', 'Scope created successfully.'), {})
           closeForm()
         },
         onError: () => {
-          toast.error(t('auth.developer.scopeCreateFailed', 'Failed to create scope.'), {  })
+          toast.error(t('auth.developer.scopeCreateFailed', 'Failed to create scope.'), {})
         },
       })
     }
@@ -90,11 +120,11 @@ export default function ScopesRegistry() {
     if (deleteConfirmationId !== null) {
       deleteScope.mutate(deleteConfirmationId, {
         onSuccess: () => {
-          toast.success(t('auth.developer.scopeDeleted', 'Scope deleted successfully.'), {  })
+          toast.success(t('auth.developer.scopeDeleted', 'Scope deleted successfully.'), {})
           setDeleteConfirmationId(null)
         },
         onError: () => {
-          toast.error(t('auth.developer.scopeDeleteFailed', 'Failed to delete scope.'), {  })
+          toast.error(t('auth.developer.scopeDeleteFailed', 'Failed to delete scope.'), {})
         },
       })
     }
@@ -492,4 +522,3 @@ export default function ScopesRegistry() {
     </Box>
   )
 }
-

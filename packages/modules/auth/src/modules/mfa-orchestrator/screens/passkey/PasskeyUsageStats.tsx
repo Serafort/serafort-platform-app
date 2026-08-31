@@ -13,16 +13,16 @@ import {
   Chip,
   alpha,
 } from '@mui/material'
-import Analytics from '@mui/icons-material/Analytics';
-import Fingerprint from '@mui/icons-material/Fingerprint';
-import CheckCircle from '@mui/icons-material/CheckCircle';
-import Timer from '@mui/icons-material/Timer';
-import Devices from '@mui/icons-material/Devices';
-import TrendingUp from '@mui/icons-material/TrendingUp';
-import Apple from '@mui/icons-material/Apple';
-import Android from '@mui/icons-material/Android';
-import DesktopWindows from '@mui/icons-material/DesktopWindows';
-import Schedule from '@mui/icons-material/Schedule';
+import Analytics from '@mui/icons-material/Analytics'
+import Fingerprint from '@mui/icons-material/Fingerprint'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import Timer from '@mui/icons-material/Timer'
+import Devices from '@mui/icons-material/Devices'
+import TrendingUp from '@mui/icons-material/TrendingUp'
+import Apple from '@mui/icons-material/Apple'
+import Android from '@mui/icons-material/Android'
+import DesktopWindows from '@mui/icons-material/DesktopWindows'
+import Schedule from '@mui/icons-material/Schedule'
 import { useTranslation } from 'react-i18next'
 
 interface StatCard {

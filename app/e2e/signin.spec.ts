@@ -18,8 +18,14 @@ test.describe('Sign In Flow', () => {
   })
 
   test('should show error for invalid credentials', async ({ page }) => {
-    await page.locator('input[name="email"], input[type="email"], #email').first().fill('nonexistent@example.com')
-    await page.locator('input[name="password"], input[type="password"], #password').first().fill('WrongPassword123!')
+    await page
+      .locator('input[name="email"], input[type="email"], #email')
+      .first()
+      .fill('nonexistent@example.com')
+    await page
+      .locator('input[name="password"], input[type="password"], #password')
+      .first()
+      .fill('WrongPassword123!')
     await page.locator('button[type="submit"]').click()
 
     // Wait for error message
@@ -46,7 +52,10 @@ test.describe('Sign In Flow', () => {
     await page.goto('/auth/sign-in')
 
     await page.locator('input[name="email"], input[type="email"], #email').first().fill(email)
-    await page.locator('input[name="password"], input[type="password"], #password').first().fill(password)
+    await page
+      .locator('input[name="password"], input[type="password"], #password')
+      .first()
+      .fill(password)
     await page.locator('button[type="submit"]').click()
 
     // Should redirect to dashboard or home
@@ -88,7 +97,10 @@ test.describe('Sign Out Flow', () => {
     // Sign in
     await page.goto('/auth/sign-in')
     await page.locator('input[name="email"], input[type="email"], #email').first().fill(email)
-    await page.locator('input[name="password"], input[type="password"], #password').first().fill(password)
+    await page
+      .locator('input[name="password"], input[type="password"], #password')
+      .first()
+      .fill(password)
     await page.locator('button[type="submit"]').click()
 
     // Wait for redirect

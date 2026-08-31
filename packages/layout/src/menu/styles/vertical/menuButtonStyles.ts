@@ -29,12 +29,19 @@ export const menuButtonStyles = (props: MenuButtonStylesProps) => {
     color: 'inherit',
     boxSizing: 'border-box',
     cursor: 'pointer',
-    paddingInlineEnd: isCollapsed && level === 0 ? menuTokens.vertical.button.collapsedPaddingInline : menuTokens.vertical.button.paddingInlineEnd,
-    paddingInlineStart: isCollapsed && level === 0
-      ? menuTokens.vertical.button.collapsedPaddingInline
-      : `${
-          level === 0 ? menuTokens.vertical.button.basePaddingInlineStart : (isPopoutWhenCollapsed && isCollapsed ? level : level + 1) * menuTokens.vertical.button.basePaddingInlineStart
-        }px`,
+    paddingInlineEnd:
+      isCollapsed && level === 0
+        ? menuTokens.vertical.button.collapsedPaddingInline
+        : menuTokens.vertical.button.paddingInlineEnd,
+    paddingInlineStart:
+      isCollapsed && level === 0
+        ? menuTokens.vertical.button.collapsedPaddingInline
+        : `${
+            level === 0
+              ? menuTokens.vertical.button.basePaddingInlineStart
+              : (isPopoutWhenCollapsed && isCollapsed ? level : level + 1) *
+                menuTokens.vertical.button.basePaddingInlineStart
+          }px`,
 
     '&:hover, &[aria-expanded="true"]': {
       backgroundColor: hoverBg,

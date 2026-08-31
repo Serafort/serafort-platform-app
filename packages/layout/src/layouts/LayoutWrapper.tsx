@@ -1,11 +1,6 @@
 import type { ReactElement } from 'react'
 import { RouteLayoutEnum, LayoutModeEnum, type SystemMode } from '@cap/shared-types'
-import {
-  useSettings,
-  useAppStore,
-  useStateHydration,
-  type AppStore,
-} from '@cap/platform-store'
+import { useSettings, useAppStore, useStateHydration, type AppStore } from '@cap/platform-store'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useTheme } from '@mui/material/styles'
@@ -43,7 +38,11 @@ const LayoutWrapper = ({
   const isHorizontalLayout = layoutOverride === RouteLayoutEnum.HORIZONTAL
 
   const renderDashboardShell = (forcedLayout?: LayoutModeEnum) => {
-    const activeLayout = forcedLayout || (settings.layout === LayoutModeEnum.HORIZONTAL ? LayoutModeEnum.HORIZONTAL : LayoutModeEnum.VERTICAL)
+    const activeLayout =
+      forcedLayout ||
+      (settings.layout === LayoutModeEnum.HORIZONTAL
+        ? LayoutModeEnum.HORIZONTAL
+        : LayoutModeEnum.VERTICAL)
     return (
       <Box
         sx={{

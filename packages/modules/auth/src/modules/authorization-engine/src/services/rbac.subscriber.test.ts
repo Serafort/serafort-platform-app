@@ -36,7 +36,9 @@ describe('RbacSubscriber - Domain Event Bus Invalidation', () => {
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'rbac'] })
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'users'] })
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['auth', 'me'] })
-    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['user', 'permissions'] })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['user', 'permissions'],
+    })
   })
 
   it('invalidates session and me caches on SESSION_CREATED', async () => {
@@ -53,7 +55,9 @@ describe('RbacSubscriber - Domain Event Bus Invalidation', () => {
       },
     })
 
-    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'sessions'] })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['admin', 'sessions'],
+    })
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['auth', 'me'] })
   })
 
@@ -72,10 +76,14 @@ describe('RbacSubscriber - Domain Event Bus Invalidation', () => {
       },
     })
 
-    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'sessions'] })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['admin', 'sessions'],
+    })
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'rbac'] })
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['auth', 'me'] })
-    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['user', 'permissions'] })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['user', 'permissions'],
+    })
   })
 
   it('invalidates developer tokens and api keys on TOKEN_ISSUED', async () => {
@@ -94,9 +102,15 @@ describe('RbacSubscriber - Domain Event Bus Invalidation', () => {
       },
     })
 
-    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'developer', 'apiKeys'] })
-    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'developer-api-keys'] })
-    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['admin', 'scim', 'tokens'] })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['admin', 'developer', 'apiKeys'],
+    })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['admin', 'developer-api-keys'],
+    })
+    expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['admin', 'scim', 'tokens'],
+    })
   })
 
   it('allows dynamic updating of queryClient and config', async () => {

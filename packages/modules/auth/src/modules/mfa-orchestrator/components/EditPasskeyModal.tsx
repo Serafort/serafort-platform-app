@@ -184,12 +184,17 @@ export default function EditPasskeyModal({
                     color='text.disabled'
                     sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}
                   >
-                    <Schedule sx={{ fontSize: 11 }} /> Created {new Date(passkey.createdAt).toLocaleDateString()}
+                    <Schedule sx={{ fontSize: 11 }} /> Created{' '}
+                    {new Date(passkey.createdAt).toLocaleDateString()}
                   </Typography>
                 )}
                 {(passkey.lastUsed || passkey.lastUsedAt) && (
                   <Typography variant='caption' color='text.disabled'>
-                    Last used {passkey.lastUsed || (passkey.lastUsedAt ? new Date(passkey.lastUsedAt).toLocaleDateString() : 'Never')}
+                    Last used{' '}
+                    {passkey.lastUsed ||
+                      (passkey.lastUsedAt
+                        ? new Date(passkey.lastUsedAt).toLocaleDateString()
+                        : 'Never')}
                   </Typography>
                 )}
               </Box>
@@ -269,10 +274,14 @@ export default function EditPasskeyModal({
             variant='contained'
             onClick={handleSave}
             disabled={!name.trim() || updateMutation.isPending}
-            startIcon={updateMutation.isPending ? <CircularProgress size={16} color='inherit' /> : null}
+            startIcon={
+              updateMutation.isPending ? <CircularProgress size={16} color='inherit' /> : null
+            }
             sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
           >
-            {updateMutation.isPending ? t('common.saving', 'Saving...') : t('common.save', 'Save Changes')}
+            {updateMutation.isPending
+              ? t('common.saving', 'Saving...')
+              : t('common.save', 'Save Changes')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -309,10 +318,14 @@ export default function EditPasskeyModal({
             variant='contained'
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
-            startIcon={deleteMutation.isPending ? <CircularProgress size={16} color='inherit' /> : null}
+            startIcon={
+              deleteMutation.isPending ? <CircularProgress size={16} color='inherit' /> : null
+            }
             sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
           >
-            {deleteMutation.isPending ? t('common.removing', 'Removing...') : t('passkey.confirm_remove_btn', 'Yes, Remove')}
+            {deleteMutation.isPending
+              ? t('common.removing', 'Removing...')
+              : t('passkey.confirm_remove_btn', 'Yes, Remove')}
           </Button>
         </DialogActions>
       </Dialog>

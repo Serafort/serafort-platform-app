@@ -132,22 +132,22 @@ export default function AdminUserProfile() {
   if (isUserLoading) {
     return (
       <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-        <Skeleton variant="text" width={120} height={32} sx={{ mb: 2 }} />
+        <Skeleton variant='text' width={120} height={32} sx={{ mb: 2 }} />
         <Card sx={{ p: 4, borderRadius: 3, mb: 3 }}>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems="center">
-            <Skeleton variant="circular" width={80} height={80} />
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems='center'>
+            <Skeleton variant='circular' width={80} height={80} />
             <Box sx={{ flex: 1 }}>
-              <Skeleton variant="text" width={220} height={36} />
-              <Skeleton variant="text" width={300} height={24} />
+              <Skeleton variant='text' width={220} height={36} />
+              <Skeleton variant='text' width={300} height={24} />
             </Box>
           </Stack>
         </Card>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Skeleton variant="rectangular" height={260} sx={{ borderRadius: 3 }} />
+            <Skeleton variant='rectangular' height={260} sx={{ borderRadius: 3 }} />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
-            <Skeleton variant="rectangular" height={260} sx={{ borderRadius: 3 }} />
+            <Skeleton variant='rectangular' height={260} sx={{ borderRadius: 3 }} />
           </Grid>
         </Grid>
       </Box>
@@ -158,9 +158,9 @@ export default function AdminUserProfile() {
     return (
       <Box sx={{ p: 4, maxWidth: 800, mx: 'auto' }}>
         <Alert
-          severity="error"
+          severity='error'
           action={
-            <Button color="inherit" size="small" onClick={() => refetchUser()}>
+            <Button color='inherit' size='small' onClick={() => refetchUser()}>
               Retry
             </Button>
           }
@@ -211,10 +211,10 @@ export default function AdminUserProfile() {
           direction={{ xs: 'column', md: 'row' }}
           spacing={3}
           alignItems={{ xs: 'flex-start', md: 'center' }}
-          justifyContent="space-between"
+          justifyContent='space-between'
         >
           {/* User Info Avatar & Name */}
-          <Stack direction="row" spacing={2.5} alignItems="center">
+          <Stack direction='row' spacing={2.5} alignItems='center'>
             <Avatar
               src={user.avatarUrl || undefined}
               sx={{
@@ -230,71 +230,71 @@ export default function AdminUserProfile() {
             </Avatar>
 
             <Box>
-              <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" mb={0.5}>
-                <Typography variant="h5" fontWeight={800} letterSpacing="-0.02em">
+              <Stack direction='row' spacing={1} alignItems='center' flexWrap='wrap' mb={0.5}>
+                <Typography variant='h5' fontWeight={800} letterSpacing='-0.02em'>
                   {user.fullName || `${user.firstName} ${user.lastName}`}
                 </Typography>
 
                 {user.status === 'ACTIVE' ? (
                   <Chip
-                    size="small"
-                    label="Active"
-                    color="success"
+                    size='small'
+                    label='Active'
+                    color='success'
                     icon={<CheckCircleIcon sx={{ fontSize: '14px !important' }} />}
                     sx={{ fontWeight: 700 }}
                   />
                 ) : user.status === 'SUSPENDED' ? (
                   <Chip
-                    size="small"
-                    label="Suspended"
-                    color="warning"
+                    size='small'
+                    label='Suspended'
+                    color='warning'
                     icon={<BlockIcon sx={{ fontSize: '14px !important' }} />}
                     sx={{ fontWeight: 700 }}
                   />
                 ) : (
-                  <Chip size="small" label={user.status} sx={{ fontWeight: 600 }} />
+                  <Chip size='small' label={user.status} sx={{ fontWeight: 600 }} />
                 )}
 
                 {user.isEmailVerified && (
                   <Chip
-                    size="small"
-                    label="Verified"
-                    color="info"
-                    variant="outlined"
+                    size='small'
+                    label='Verified'
+                    color='info'
+                    variant='outlined'
                     icon={<VerifiedUserIcon sx={{ fontSize: '14px !important' }} />}
                     sx={{ fontWeight: 600 }}
                   />
                 )}
               </Stack>
 
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant='body2' color='text.secondary'>
                 {user.email} {user.jobTitle ? `• ${user.jobTitle}` : ''}{' '}
                 {user.department ? `(${user.department})` : ''}
               </Typography>
 
-              <Stack direction="row" spacing={1} mt={1} flexWrap="wrap">
+              <Stack direction='row' spacing={1} mt={1} flexWrap='wrap'>
                 {user.roles && user.roles.length > 0 ? (
                   user.roles.map((r, idx) => (
                     <Chip
                       key={idx}
                       label={typeof r === 'object' ? r.name : r}
-                      size="small"
-                      variant="outlined"
-                      color="primary"
+                      size='small'
+                      variant='outlined'
+                      color='primary'
                       sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                     />
                   ))
                 ) : (
-                  <Chip label="User" size="small" variant="outlined" />
+                  <Chip label='User' size='small' variant='outlined' />
                 )}
               </Stack>
             </Box>
           </Stack>
 
           {/* Action Buttons */}
-          <Stack direction="row" spacing={1.5} flexWrap="wrap" sx={{ mt: { xs: 2, md: 0 } }}>
+          <Stack direction='row' spacing={1.5} flexWrap='wrap' sx={{ mt: { xs: 2, md: 0 } }}>
             <Button
-              variant="outlined"
+              variant='outlined'
               startIcon={<EditIcon />}
               onClick={() => setIsEditDrawerOpen(true)}
               sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
@@ -302,7 +302,7 @@ export default function AdminUserProfile() {
               Edit Profile
             </Button>
             <Button
-              variant="outlined"
+              variant='outlined'
               startIcon={<AdminPanelSettingsIcon />}
               onClick={() => setIsAssignRolesOpen(true)}
               sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
@@ -310,7 +310,7 @@ export default function AdminUserProfile() {
               Assign Roles
             </Button>
             <Button
-              variant="contained"
+              variant='contained'
               color={user.status === 'ACTIVE' ? 'warning' : 'success'}
               startIcon={user.status === 'ACTIVE' ? <BlockIcon /> : <CheckCircleIcon />}
               onClick={handleToggleStatus}
@@ -320,14 +320,14 @@ export default function AdminUserProfile() {
               {user.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
             </Button>
             <IconButton
-              color="error"
+              color='error'
               onClick={() => setIsDeleteDialogOpen(true)}
               sx={{
                 border: `1px solid ${alpha(theme.palette.error.main, 0.3)}`,
                 borderRadius: 2,
               }}
             >
-              <DeleteIcon fontSize="small" />
+              <DeleteIcon fontSize='small' />
             </IconButton>
           </Stack>
         </Stack>
@@ -345,7 +345,7 @@ export default function AdminUserProfile() {
               bgcolor: alpha(theme.palette.background.paper, 0.8),
             }}
           >
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack direction='row' spacing={1.5} alignItems='center'>
               <Box
                 sx={{
                   p: 1,
@@ -354,13 +354,13 @@ export default function AdminUserProfile() {
                   color: 'primary.main',
                 }}
               >
-                <DevicesIcon fontSize="small" />
+                <DevicesIcon fontSize='small' />
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                <Typography variant='caption' color='text.secondary' fontWeight={600}>
                   Active Sessions
                 </Typography>
-                <Typography variant="h6" fontWeight={700}>
+                <Typography variant='h6' fontWeight={700}>
                   {user.securitySummary?.activeSessionsCount || sessions.length || 1}
                 </Typography>
               </Box>
@@ -378,7 +378,7 @@ export default function AdminUserProfile() {
               bgcolor: alpha(theme.palette.background.paper, 0.8),
             }}
           >
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack direction='row' spacing={1.5} alignItems='center'>
               <Box
                 sx={{
                   p: 1,
@@ -387,13 +387,13 @@ export default function AdminUserProfile() {
                   color: 'success.main',
                 }}
               >
-                <FingerprintIcon fontSize="small" />
+                <FingerprintIcon fontSize='small' />
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                <Typography variant='caption' color='text.secondary' fontWeight={600}>
                   Passkeys Configured
                 </Typography>
-                <Typography variant="h6" fontWeight={700}>
+                <Typography variant='h6' fontWeight={700}>
                   {user.securitySummary?.passkeysCount || 0}
                 </Typography>
               </Box>
@@ -411,7 +411,7 @@ export default function AdminUserProfile() {
               bgcolor: alpha(theme.palette.background.paper, 0.8),
             }}
           >
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack direction='row' spacing={1.5} alignItems='center'>
               <Box
                 sx={{
                   p: 1,
@@ -420,13 +420,13 @@ export default function AdminUserProfile() {
                   color: 'info.main',
                 }}
               >
-                <ShieldOutlinedIcon fontSize="small" />
+                <ShieldOutlinedIcon fontSize='small' />
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                <Typography variant='caption' color='text.secondary' fontWeight={600}>
                   Two-Factor (MFA)
                 </Typography>
-                <Typography variant="h6" fontWeight={700}>
+                <Typography variant='h6' fontWeight={700}>
                   {user.mfaEnabled ? 'Enrolled' : 'Disabled'}
                 </Typography>
               </Box>
@@ -444,7 +444,7 @@ export default function AdminUserProfile() {
               bgcolor: alpha(theme.palette.background.paper, 0.8),
             }}
           >
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack direction='row' spacing={1.5} alignItems='center'>
               <Box
                 sx={{
                   p: 1,
@@ -453,13 +453,13 @@ export default function AdminUserProfile() {
                   color: 'warning.main',
                 }}
               >
-                <AccessTimeIcon fontSize="small" />
+                <AccessTimeIcon fontSize='small' />
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                <Typography variant='caption' color='text.secondary' fontWeight={600}>
                   Last Login
                 </Typography>
-                <Typography variant="body2" fontWeight={700} noWrap>
+                <Typography variant='body2' fontWeight={700} noWrap>
                   {user.lastLoginAt
                     ? new Date(user.lastLoginAt).toLocaleDateString(undefined, {
                         month: 'short',
@@ -496,15 +496,27 @@ export default function AdminUserProfile() {
               },
             }}
           >
-            <Tab icon={<PersonIcon fontSize="small" />} iconPosition="start" label="Overview" />
+            <Tab icon={<PersonIcon fontSize='small' />} iconPosition='start' label='Overview' />
             <Tab
-              icon={<AdminPanelSettingsIcon fontSize="small" />}
-              iconPosition="start"
-              label="Roles & Permissions"
+              icon={<AdminPanelSettingsIcon fontSize='small' />}
+              iconPosition='start'
+              label='Roles & Permissions'
             />
-            <Tab icon={<DevicesIcon fontSize="small" />} iconPosition="start" label="Active Sessions" />
-            <Tab icon={<HistoryIcon fontSize="small" />} iconPosition="start" label="Activity Log" />
-            <Tab icon={<SecurityIcon fontSize="small" />} iconPosition="start" label="Security Actions" />
+            <Tab
+              icon={<DevicesIcon fontSize='small' />}
+              iconPosition='start'
+              label='Active Sessions'
+            />
+            <Tab
+              icon={<HistoryIcon fontSize='small' />}
+              iconPosition='start'
+              label='Activity Log'
+            />
+            <Tab
+              icon={<SecurityIcon fontSize='small' />}
+              iconPosition='start'
+              label='Security Actions'
+            />
           </Tabs>
         </Box>
 
@@ -513,11 +525,11 @@ export default function AdminUserProfile() {
           {activeTab === 0 && (
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: 6 }}>
-                <Typography variant="subtitle2" fontWeight={700} mb={2}>
+                <Typography variant='subtitle2' fontWeight={700} mb={2}>
                   Personal & Contact Information
                 </Typography>
                 <Paper
-                  variant="outlined"
+                  variant='outlined'
                   sx={{
                     p: 2.5,
                     borderRadius: 2,
@@ -525,49 +537,49 @@ export default function AdminUserProfile() {
                   }}
                 >
                   <Stack spacing={2}>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <PersonIcon fontSize="small" color="action" />
+                    <Stack direction='row' spacing={1.5} alignItems='center'>
+                      <PersonIcon fontSize='small' color='action' />
                       <Box>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant='caption' color='text.secondary'>
                           Full Name
                         </Typography>
-                        <Typography variant="body2" fontWeight={600}>
+                        <Typography variant='body2' fontWeight={600}>
                           {user.fullName || `${user.firstName} ${user.lastName}`}
                         </Typography>
                       </Box>
                     </Stack>
 
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <EmailIcon fontSize="small" color="action" />
+                    <Stack direction='row' spacing={1.5} alignItems='center'>
+                      <EmailIcon fontSize='small' color='action' />
                       <Box>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant='caption' color='text.secondary'>
                           Email Address
                         </Typography>
-                        <Typography variant="body2" fontWeight={600}>
+                        <Typography variant='body2' fontWeight={600}>
                           {user.email}
                         </Typography>
                       </Box>
                     </Stack>
 
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <PhoneIcon fontSize="small" color="action" />
+                    <Stack direction='row' spacing={1.5} alignItems='center'>
+                      <PhoneIcon fontSize='small' color='action' />
                       <Box>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant='caption' color='text.secondary'>
                           Phone Number
                         </Typography>
-                        <Typography variant="body2" fontWeight={600}>
+                        <Typography variant='body2' fontWeight={600}>
                           {user.phoneNumber || 'Not provided'}
                         </Typography>
                       </Box>
                     </Stack>
 
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <LocationOnIcon fontSize="small" color="action" />
+                    <Stack direction='row' spacing={1.5} alignItems='center'>
+                      <LocationOnIcon fontSize='small' color='action' />
                       <Box>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant='caption' color='text.secondary'>
                           Location
                         </Typography>
-                        <Typography variant="body2" fontWeight={600}>
+                        <Typography variant='body2' fontWeight={600}>
                           {user.location || 'Not provided'}
                         </Typography>
                       </Box>
@@ -577,11 +589,11 @@ export default function AdminUserProfile() {
               </Grid>
 
               <Grid size={{ xs: 12, md: 6 }}>
-                <Typography variant="subtitle2" fontWeight={700} mb={2}>
+                <Typography variant='subtitle2' fontWeight={700} mb={2}>
                   Organization & Localization
                 </Typography>
                 <Paper
-                  variant="outlined"
+                  variant='outlined'
                   sx={{
                     p: 2.5,
                     borderRadius: 2,
@@ -589,50 +601,49 @@ export default function AdminUserProfile() {
                   }}
                 >
                   <Stack spacing={2}>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <BusinessIcon fontSize="small" color="action" />
+                    <Stack direction='row' spacing={1.5} alignItems='center'>
+                      <BusinessIcon fontSize='small' color='action' />
                       <Box>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant='caption' color='text.secondary'>
                           Department & Company
                         </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                          {user.department || 'General'}{' '}
-                          {user.company ? `• ${user.company}` : ''}
+                        <Typography variant='body2' fontWeight={600}>
+                          {user.department || 'General'} {user.company ? `• ${user.company}` : ''}
                         </Typography>
                       </Box>
                     </Stack>
 
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <WorkIcon fontSize="small" color="action" />
+                    <Stack direction='row' spacing={1.5} alignItems='center'>
+                      <WorkIcon fontSize='small' color='action' />
                       <Box>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant='caption' color='text.secondary'>
                           Job Title
                         </Typography>
-                        <Typography variant="body2" fontWeight={600}>
+                        <Typography variant='body2' fontWeight={600}>
                           {user.jobTitle || 'Team Member'}
                         </Typography>
                       </Box>
                     </Stack>
 
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <LanguageIcon fontSize="small" color="action" />
+                    <Stack direction='row' spacing={1.5} alignItems='center'>
+                      <LanguageIcon fontSize='small' color='action' />
                       <Box>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant='caption' color='text.secondary'>
                           Locale & Language
                         </Typography>
-                        <Typography variant="body2" fontWeight={600}>
+                        <Typography variant='body2' fontWeight={600}>
                           {user.locale || 'en-us'}
                         </Typography>
                       </Box>
                     </Stack>
 
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <AccessTimeIcon fontSize="small" color="action" />
+                    <Stack direction='row' spacing={1.5} alignItems='center'>
+                      <AccessTimeIcon fontSize='small' color='action' />
                       <Box>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant='caption' color='text.secondary'>
                           Timezone
                         </Typography>
-                        <Typography variant="body2" fontWeight={600}>
+                        <Typography variant='body2' fontWeight={600}>
                           {user.timezone || 'UTC'}
                         </Typography>
                       </Box>
@@ -643,14 +654,18 @@ export default function AdminUserProfile() {
 
               {user.bio && (
                 <Grid size={{ xs: 12 }}>
-                  <Typography variant="subtitle2" fontWeight={700} mb={1}>
+                  <Typography variant='subtitle2' fontWeight={700} mb={1}>
                     Biography / Notes
                   </Typography>
                   <Paper
-                    variant="outlined"
-                    sx={{ p: 2.5, borderRadius: 2, bgcolor: alpha(theme.palette.background.default, 0.4) }}
+                    variant='outlined'
+                    sx={{
+                      p: 2.5,
+                      borderRadius: 2,
+                      bgcolor: alpha(theme.palette.background.default, 0.4),
+                    }}
                   >
-                    <Typography variant="body2">{user.bio}</Typography>
+                    <Typography variant='body2'>{user.bio}</Typography>
                   </Paper>
                 </Grid>
               )}
@@ -660,18 +675,18 @@ export default function AdminUserProfile() {
           {/* Tab 1: Roles & Permissions */}
           {activeTab === 1 && (
             <Stack spacing={3}>
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Stack direction='row' justifyContent='space-between' alignItems='center'>
                 <Box>
-                  <Typography variant="subtitle2" fontWeight={700}>
+                  <Typography variant='subtitle2' fontWeight={700}>
                     Assigned Tenant Roles
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant='caption' color='text.secondary'>
                     Roles determine effective authorization rules across resources
                   </Typography>
                 </Box>
                 <Button
-                  size="small"
-                  variant="outlined"
+                  size='small'
+                  variant='outlined'
                   startIcon={<AdminPanelSettingsIcon />}
                   onClick={() => setIsAssignRolesOpen(true)}
                   sx={{ textTransform: 'none', fontWeight: 600 }}
@@ -685,7 +700,7 @@ export default function AdminUserProfile() {
                   user.roles.map((role: any) => (
                     <Grid key={role.id || role} size={{ xs: 12, sm: 6 }}>
                       <Paper
-                        variant="outlined"
+                        variant='outlined'
                         sx={{
                           p: 2.5,
                           borderRadius: 2,
@@ -693,13 +708,13 @@ export default function AdminUserProfile() {
                           bgcolor: alpha(theme.palette.primary.main, 0.02),
                         }}
                       >
-                        <Stack direction="row" spacing={1.5} alignItems="center" mb={1}>
-                          <SecurityIcon color="primary" fontSize="small" />
-                          <Typography variant="subtitle2" fontWeight={700}>
+                        <Stack direction='row' spacing={1.5} alignItems='center' mb={1}>
+                          <SecurityIcon color='primary' fontSize='small' />
+                          <Typography variant='subtitle2' fontWeight={700}>
                             {role.name || role}
                           </Typography>
                         </Stack>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant='caption' color='text.secondary'>
                           {role.description || 'Assigned tenant security role'}
                         </Typography>
                       </Paper>
@@ -707,30 +722,32 @@ export default function AdminUserProfile() {
                   ))
                 ) : (
                   <Grid size={{ xs: 12 }}>
-                    <Alert severity="info">No custom roles assigned. User has default tenant access.</Alert>
+                    <Alert severity='info'>
+                      No custom roles assigned. User has default tenant access.
+                    </Alert>
                   </Grid>
                 )}
               </Grid>
 
               {/* Effective Permissions Tags */}
               <Box mt={2}>
-                <Typography variant="subtitle2" fontWeight={700} mb={1.5}>
+                <Typography variant='subtitle2' fontWeight={700} mb={1.5}>
                   Effective Granted Permissions:
                 </Typography>
-                <Stack direction="row" flexWrap="wrap" gap={1}>
+                <Stack direction='row' flexWrap='wrap' gap={1}>
                   {(user.permissions || ['users:view', 'profile:read', 'sessions:manage']).map(
                     (perm, idx) => (
                       <Chip
                         key={idx}
                         label={perm}
-                        size="small"
+                        size='small'
                         sx={{
                           fontFamily: 'monospace',
                           fontSize: '0.75rem',
                           bgcolor: alpha(theme.palette.text.primary, 0.06),
                         }}
                       />
-                    )
+                    ),
                   )}
                 </Stack>
               </Box>
@@ -740,7 +757,7 @@ export default function AdminUserProfile() {
           {/* Tab 2: Active Sessions */}
           {activeTab === 2 && (
             <Stack spacing={2.5}>
-              <Typography variant="subtitle2" fontWeight={700}>
+              <Typography variant='subtitle2' fontWeight={700}>
                 Connected Devices & Sessions
               </Typography>
 
@@ -749,28 +766,34 @@ export default function AdminUserProfile() {
                   <CircularProgress size={28} />
                 </Box>
               ) : sessions.length === 0 ? (
-                <Alert severity="info">No active sessions found for this user.</Alert>
+                <Alert severity='info'>No active sessions found for this user.</Alert>
               ) : (
                 <List sx={{ p: 0 }}>
                   {sessions.map((sess, idx) => (
                     <Paper
                       key={sess.id || idx}
-                      variant="outlined"
+                      variant='outlined'
                       sx={{ p: 2, mb: 1.5, borderRadius: 2 }}
                     >
-                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Stack direction="row" spacing={2} alignItems="center">
-                          <DevicesIcon color="action" />
+                      <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                        <Stack direction='row' spacing={2} alignItems='center'>
+                          <DevicesIcon color='action' />
                           <Box>
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <Typography variant="body2" fontWeight={700}>
-                                {sess.device || sess.browser || 'Web Browser'} • {sess.os || 'Desktop'}
+                            <Stack direction='row' spacing={1} alignItems='center'>
+                              <Typography variant='body2' fontWeight={700}>
+                                {sess.device || sess.browser || 'Web Browser'} •{' '}
+                                {sess.os || 'Desktop'}
                               </Typography>
                               {sess.isCurrent && (
-                                <Chip label="Current Session" size="small" color="success" sx={{ height: 20 }} />
+                                <Chip
+                                  label='Current Session'
+                                  size='small'
+                                  color='success'
+                                  sx={{ height: 20 }}
+                                />
                               )}
                             </Stack>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography variant='caption' color='text.secondary'>
                               IP: {sess.ipAddress || '127.0.0.1'} • Last active:{' '}
                               {new Date(sess.lastActiveAt || sess.createdAt).toLocaleString()}
                             </Typography>
@@ -787,7 +810,7 @@ export default function AdminUserProfile() {
           {/* Tab 3: Activity Log */}
           {activeTab === 3 && (
             <Stack spacing={2.5}>
-              <Typography variant="subtitle2" fontWeight={700}>
+              <Typography variant='subtitle2' fontWeight={700}>
                 Audit & Activity Timeline
               </Typography>
 
@@ -796,26 +819,26 @@ export default function AdminUserProfile() {
                   <CircularProgress size={28} />
                 </Box>
               ) : activityLogs.length === 0 ? (
-                <Alert severity="info">No recent activity logs recorded for this account.</Alert>
+                <Alert severity='info'>No recent activity logs recorded for this account.</Alert>
               ) : (
                 <List sx={{ p: 0 }}>
                   {activityLogs.map((log, idx) => (
                     <Paper
                       key={log.id || idx}
-                      variant="outlined"
+                      variant='outlined'
                       sx={{ p: 2, mb: 1.5, borderRadius: 2 }}
                     >
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <HistoryIcon color="action" fontSize="small" />
+                      <Stack direction='row' spacing={2} alignItems='center'>
+                        <HistoryIcon color='action' fontSize='small' />
                         <Box sx={{ flex: 1 }}>
-                          <Typography variant="body2" fontWeight={600}>
+                          <Typography variant='body2' fontWeight={600}>
                             {log.action}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography variant='caption' color='text.secondary'>
                             {log.description}
                           </Typography>
                         </Box>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant='caption' color='text.secondary'>
                           {new Date(log.createdAt).toLocaleString()}
                         </Typography>
                       </Stack>
@@ -829,21 +852,22 @@ export default function AdminUserProfile() {
           {/* Tab 4: Security Actions */}
           {activeTab === 4 && (
             <Stack spacing={3}>
-              <Typography variant="subtitle2" fontWeight={700}>
+              <Typography variant='subtitle2' fontWeight={700}>
                 Administrative Security Overrides
               </Typography>
 
               <Grid container spacing={2.5}>
                 <Grid size={{ xs: 12, md: 6 }}>
-                  <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={700} gutterBottom>
+                  <Paper variant='outlined' sx={{ p: 2.5, borderRadius: 2 }}>
+                    <Typography variant='subtitle2' fontWeight={700} gutterBottom>
                       Trigger Password Reset
                     </Typography>
-                    <Typography variant="caption" color="text.secondary" display="block" mb={2}>
-                      Dispatches an email containing a secure token for the user to set a new password.
+                    <Typography variant='caption' color='text.secondary' display='block' mb={2}>
+                      Dispatches an email containing a secure token for the user to set a new
+                      password.
                     </Typography>
                     <Button
-                      variant="outlined"
+                      variant='outlined'
                       startIcon={<LockResetIcon />}
                       onClick={handleSendResetPassword}
                       disabled={sendPasswordResetMutation.isPending}
@@ -855,16 +879,17 @@ export default function AdminUserProfile() {
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 6 }}>
-                  <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
-                    <Typography variant="subtitle2" fontWeight={700} gutterBottom>
+                  <Paper variant='outlined' sx={{ p: 2.5, borderRadius: 2 }}>
+                    <Typography variant='subtitle2' fontWeight={700} gutterBottom>
                       Reset MFA Enrollment
                     </Typography>
-                    <Typography variant="caption" color="text.secondary" display="block" mb={2}>
-                      Clears authenticator apps and passkeys, requiring the user to re-enroll next login.
+                    <Typography variant='caption' color='text.secondary' display='block' mb={2}>
+                      Clears authenticator apps and passkeys, requiring the user to re-enroll next
+                      login.
                     </Typography>
                     <Button
-                      variant="outlined"
-                      color="warning"
+                      variant='outlined'
+                      color='warning'
                       startIcon={<VpnKeyIcon />}
                       onClick={handleResetMfa}
                       disabled={resetMfaMutation.isPending}

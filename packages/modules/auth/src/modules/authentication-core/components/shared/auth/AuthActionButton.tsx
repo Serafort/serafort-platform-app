@@ -57,13 +57,18 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
   return (
     <Button
       fullWidth
-      variant="contained"
-      size="large"
+      variant='contained'
+      size='large'
       disabled={isDisabled}
       onClick={resolvedOnClick}
       endIcon={
         isBusyLoading ? (
-          <CircularProgress size={18} thickness={5} color="inherit" sx={{ display: 'inline-flex' }} />
+          <CircularProgress
+            size={18}
+            thickness={5}
+            color='inherit'
+            sx={{ display: 'inline-flex' }}
+          />
         ) : (
           endIcon
         )
@@ -106,4 +111,3 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
 }
 
 export default AuthActionButton
-

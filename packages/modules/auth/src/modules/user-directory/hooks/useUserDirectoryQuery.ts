@@ -36,7 +36,7 @@ export function useUsersQuery(
   options?: Omit<
     UseQueryOptions<FetchResponse<PaginatedUsersResponseDTO>, HttpError>,
     'queryKey' | 'queryFn'
-  >
+  >,
 ) {
   return useQuery({
     queryKey: userDirectoryKeys.list(filters),
@@ -52,7 +52,7 @@ export function useUsersQuery(
  */
 export function useUserDetailQuery(
   id?: string | number | null,
-  options?: Omit<UseQueryOptions<FetchResponse<UserDetailDTO>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<FetchResponse<UserDetailDTO>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: userDirectoryKeys.detail(id || 0),
@@ -67,7 +67,7 @@ export function useUserDetailQuery(
  * Query hook for available roles list
  */
 export function useRolesQuery(
-  options?: Omit<UseQueryOptions<FetchResponse<RoleDTO[]>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<FetchResponse<RoleDTO[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: userDirectoryKeys.roles(),
@@ -85,7 +85,7 @@ export function useUserSessionsQuery(
   options?: Omit<
     UseQueryOptions<FetchResponse<UserSessionDTO[]>, HttpError>,
     'queryKey' | 'queryFn'
-  >
+  >,
 ) {
   return useQuery({
     queryKey: userDirectoryKeys.sessions(id || 0),
@@ -105,7 +105,7 @@ export function useUserActivityQuery(
   options?: Omit<
     UseQueryOptions<FetchResponse<UserActivityLogDTO[]>, HttpError>,
     'queryKey' | 'queryFn'
-  >
+  >,
 ) {
   return useQuery({
     queryKey: userDirectoryKeys.activity(id || 0),

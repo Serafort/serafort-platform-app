@@ -46,10 +46,10 @@ export const useNavigationMenu = (variant: NavVariant) => {
     // Recursively filter children as well
     const filterRecursive = (items: NavItemConfig[]): NavItemConfig[] => {
       return items
-        .filter(item => checkAccess(item))
-        .map(item => ({
+        .filter((item) => checkAccess(item))
+        .map((item) => ({
           ...item,
-          children: item.children ? filterRecursive(item.children) : undefined
+          children: item.children ? filterRecursive(item.children) : undefined,
         }))
     }
 

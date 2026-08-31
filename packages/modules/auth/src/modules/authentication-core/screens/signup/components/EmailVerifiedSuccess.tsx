@@ -16,9 +16,9 @@ export default function EmailVerifiedSuccess() {
   return (
     <AuthPageLayout maxWidth={480}>
       <Box sx={{ width: '100%' }}>
-        <LiquidGlassCard blur="24px" opacity={0.85} padding="0px" borderRadius="24px">
+        <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
           <Box
-            className="animate-scale-in"
+            className='animate-scale-in'
             component={motion.div}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -27,7 +27,7 @@ export default function EmailVerifiedSuccess() {
           >
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
               <Avatar
-                variant="square"
+                variant='square'
                 sx={{
                   width: 56,
                   height: 56,
@@ -42,18 +42,25 @@ export default function EmailVerifiedSuccess() {
               </Avatar>
             </Box>
 
-            <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+            <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
               {t('verify.verifiedHeading', "You're Verified!")}
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500, mb: 5, lineHeight: 1.7 }}>
-              {t('verify.verifiedDescription', 'Your email has been confirmed. You now have full access to all features.')}
+            <Typography
+              variant='body1'
+              color='text.secondary'
+              sx={{ fontWeight: 500, mb: 5, lineHeight: 1.7 }}
+            >
+              {t(
+                'verify.verifiedDescription',
+                'Your email has been confirmed. You now have full access to all features.',
+              )}
             </Typography>
 
             <Stack spacing={2}>
               <Button
                 fullWidth
-                variant="contained"
-                size="large"
+                variant='contained'
+                size='large'
                 onClick={() => navigate('/dashboard')}
                 endIcon={<ArrowForward />}
                 sx={{
@@ -75,8 +82,8 @@ export default function EmailVerifiedSuccess() {
               </Button>
               <Button
                 fullWidth
-                variant="text"
-                size="large"
+                variant='text'
+                size='large'
                 onClick={() => navigate(Path.account.overview)}
                 sx={{
                   py: 1.2,
@@ -96,4 +103,3 @@ export default function EmailVerifiedSuccess() {
     </AuthPageLayout>
   )
 }
-

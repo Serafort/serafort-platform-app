@@ -864,5 +864,3 @@ export default function OrganizationListDashboard() {
     </Box>
   )
 }
-
-

@@ -25,11 +25,7 @@ import Laptop from '@mui/icons-material/Laptop'
 import Tablet from '@mui/icons-material/Tablet'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
-import {
-  useSessions,
-  useRevokeSession,
-  useRevokeAllSessions,
-} from '../hooks/useSessionQuery'
+import { useSessions, useRevokeSession, useRevokeAllSessions } from '../hooks/useSessionQuery'
 import type { UserSession } from '../types/session.types'
 import ConfirmationDialog from '../../authentication-core/components/shared/Modals/ConfirmationDialog'
 
@@ -77,21 +73,34 @@ export function ActiveSessions() {
     if (confirmDialog.type === 'single' && confirmDialog.sessionId) {
       revokeSessionMutation.mutate(confirmDialog.sessionId, {
         onSuccess: () => {
-          toast.success(t('auth.active_sessions.success_end_session', 'The session has been terminated.'))
+          toast.success(
+            t('auth.active_sessions.success_end_session', 'The session has been terminated.'),
+          )
           handleCloseDialog()
         },
         onError: (err: any) => {
-          toast.error(err?.message || t('auth.active_sessions.error_end_session', 'Failed to terminate session.'))
+          toast.error(
+            err?.message ||
+              t('auth.active_sessions.error_end_session', 'Failed to terminate session.'),
+          )
         },
       })
     } else if (confirmDialog.type === 'all') {
       revokeAllMutation.mutate(undefined, {
         onSuccess: () => {
-          toast.success(t('auth.active_sessions.success_end_all', 'All other active sessions have been terminated.'))
+          toast.success(
+            t(
+              'auth.active_sessions.success_end_all',
+              'All other active sessions have been terminated.',
+            ),
+          )
           handleCloseDialog()
         },
         onError: (err: any) => {
-          toast.error(err?.message || t('auth.active_sessions.error_end_all', 'Failed to terminate all sessions.'))
+          toast.error(
+            err?.message ||
+              t('auth.active_sessions.error_end_all', 'Failed to terminate all sessions.'),
+          )
         },
       })
     }
@@ -151,7 +160,8 @@ export function ActiveSessions() {
               }
               sx={{ mb: 3, borderRadius: 2 }}
             >
-              {error?.message || t('auth.account.error_loading_sessions', 'Failed to load sessions.')}
+              {error?.message ||
+                t('auth.account.error_loading_sessions', 'Failed to load sessions.')}
             </Alert>
           )}
 
@@ -172,7 +182,8 @@ export function ActiveSessions() {
             <List disablePadding>
               {sessions.map((session, index) => {
                 const isCurrent = session.current || session.isCurrentSession
-                const lastActivityDate = session.last_activity || session.lastActivity || session.created_at
+                const lastActivityDate =
+                  session.last_activity || session.lastActivity || session.created_at
                 const formattedDate = lastActivityDate
                   ? new Date(lastActivityDate).toLocaleString()
                   : ''
@@ -216,7 +227,10 @@ export function ActiveSessions() {
                       primary={
                         <Box display='flex' alignItems='center' gap={1}>
                           <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                            {session.device_name || session.deviceName || session.browser || 'Device'}
+                            {session.device_name ||
+                              session.deviceName ||
+                              session.browser ||
+                              'Device'}
                           </Typography>
                           {isCurrent && (
                             <Chip
@@ -232,7 +246,9 @@ export function ActiveSessions() {
                         <Typography variant='body2' color='text.secondary' sx={{ mt: 0.5 }}>
                           {session.ip_address || session.ipAddress}
                           {session.location ? ` • ${session.location}` : ''}
-                          {formattedDate ? ` • ${t('auth.active_sessions.last_active', { date: formattedDate, defaultValue: `Last active: ${formattedDate}` })}` : ''}
+                          {formattedDate
+                            ? ` • ${t('auth.active_sessions.last_active', { date: formattedDate, defaultValue: `Last active: ${formattedDate}` })}`
+                            : ''}
                         </Typography>
                       }
                     />
@@ -259,12 +275,12 @@ export function ActiveSessions() {
           confirmDialog.type === 'all'
             ? t(
                 'auth.active_sessions.dialog_desc_all',
-                'This will sign out your account from all other browsers and mobile devices. You will remain signed in on this device.'
+                'This will sign out your account from all other browsers and mobile devices. You will remain signed in on this device.',
               )
             : t(
                 'auth.active_sessions.dialog_desc_single',
                 'Are you sure you want to terminate this session ({{name}})? The device will immediately lose access and must sign in again.',
-                { name: confirmDialog.sessionName }
+                { name: confirmDialog.sessionName },
               )
         }
         confirmLabel={

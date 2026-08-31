@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Box, Button, Container, Typography, Card, CardContent, Chip, alpha } from '@mui/material'
-import ArrowBack from '@mui/icons-material/ArrowBack';
-import Fingerprint from '@mui/icons-material/Fingerprint';
-import UsbOutlined from '@mui/icons-material/UsbOutlined';
-import PhoneIphone from '@mui/icons-material/PhoneIphone';
-import ArrowForward from '@mui/icons-material/ArrowForward';
-import CheckCircle from '@mui/icons-material/CheckCircle';
-import Hub from '@mui/icons-material/Hub';
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import Fingerprint from '@mui/icons-material/Fingerprint'
+import UsbOutlined from '@mui/icons-material/UsbOutlined'
+import PhoneIphone from '@mui/icons-material/PhoneIphone'
+import ArrowForward from '@mui/icons-material/ArrowForward'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import Hub from '@mui/icons-material/Hub'
 import { useTranslation } from 'react-i18next'
 
 interface CreationOption {

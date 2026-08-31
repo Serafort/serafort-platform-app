@@ -7,50 +7,53 @@
  * elements so widget stylesheets can use var(--container-width) without any JS in the widget.
  */
 
-export type ResizeBoxSizing = 'content-box' | 'border-box' | 'device-pixel-content-box'
+export type ResizeBoxSizing =
+  | "content-box"
+  | "border-box"
+  | "device-pixel-content-box";
 
 export interface ObserveOptions {
   /** Which box model to observe. Defaults to 'content-box'. */
-  box?: ResizeBoxSizing
+  box?: ResizeBoxSizing;
   /** Whether to inject --container-width / --container-height CSS custom properties onto the element. Defaults to true. */
-  injectCssVars?: boolean
+  injectCssVars?: boolean;
 }
 
-type ResizeCallback = (entry: ResizeObserverEntry) => void
+type ResizeCallback = (entry: ResizeObserverEntry) => void;
 
 interface ObserverState {
-  callback: ResizeCallback
-  options: Required<ObserveOptions>
+  callback: ResizeCallback;
+  options: Required<ObserveOptions>;
 }
 
-const registry = new WeakMap<Element, ObserverState>()
-let observerInstance: ResizeObserver | null = null
+const registry = new WeakMap<Element, ObserverState>();
+let observerInstance: ResizeObserver | null = null;
 
 function getObserver(): ResizeObserver | null {
-  if (typeof window === 'undefined' || typeof ResizeObserver === 'undefined') {
-    return null
+  if (typeof window === "undefined" || typeof ResizeObserver === "undefined") {
+    return null;
   }
 
   if (!observerInstance) {
     observerInstance = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        const state = registry.get(entry.target)
-        if (!state) continue
+        const state = registry.get(entry.target);
+        if (!state) continue;
 
-        const { callback, options } = state
+        const { callback, options } = state;
 
         if (options.injectCssVars && entry.target instanceof HTMLElement) {
-          const { width, height } = entry.contentRect
-          entry.target.style.setProperty('--container-width', `${width}px`)
-          entry.target.style.setProperty('--container-height', `${height}px`)
+          const { width, height } = entry.contentRect;
+          entry.target.style.setProperty("--container-width", `${width}px`);
+          entry.target.style.setProperty("--container-height", `${height}px`);
         }
 
-        callback(entry)
+        callback(entry);
       }
-    })
+    });
   }
 
-  return observerInstance
+  return observerInstance;
 }
 
 /**
@@ -63,24 +66,24 @@ function getObserver(): ResizeObserver | null {
 export function observeElement(
   element: Element,
   callback: ResizeCallback,
-  options: ObserveOptions = {}
+  options: ObserveOptions = {},
 ): () => void {
-  const observer = getObserver()
+  const observer = getObserver();
   if (!observer || !element) {
-    return () => {}
+    return () => {};
   }
 
   const resolvedOptions: Required<ObserveOptions> = {
-    box: options.box ?? 'content-box',
+    box: options.box ?? "content-box",
     injectCssVars: options.injectCssVars ?? true,
-  }
+  };
 
-  registry.set(element, { callback, options: resolvedOptions })
-  observer.observe(element, { box: resolvedOptions.box })
+  registry.set(element, { callback, options: resolvedOptions });
+  observer.observe(element, { box: resolvedOptions.box });
 
   return () => {
-    unobserveElement(element)
-  }
+    unobserveElement(element);
+  };
 }
 
 /**
@@ -88,20 +91,19 @@ export function observeElement(
  * @param element The target Element to stop observing.
  */
 export function unobserveElement(element: Element): void {
-  const observer = getObserver()
-  const state = registry.get(element)
+  const observer = getObserver();
+  const state = registry.get(element);
 
   if (state?.options.injectCssVars && element instanceof HTMLElement) {
-    element.style.removeProperty('--container-width')
-    element.style.removeProperty('--container-height')
+    element.style.removeProperty("--container-width");
+    element.style.removeProperty("--container-height");
   }
 
   if (registry.has(element)) {
-    registry.delete(element)
+    registry.delete(element);
   }
 
   if (observer && element) {
-    observer.unobserve(element)
+    observer.unobserve(element);
   }
 }
-

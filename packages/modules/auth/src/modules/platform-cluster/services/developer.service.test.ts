@@ -40,7 +40,9 @@ describe('developerService', () => {
   })
 
   it('rotateClientSecret triggers secret rotation', async () => {
-    vi.mocked(apiClient.post).mockResolvedValueOnce(createMockResponse({ clientSecret: 'sec_new_12345' }))
+    vi.mocked(apiClient.post).mockResolvedValueOnce(
+      createMockResponse({ clientSecret: 'sec_new_12345' }),
+    )
 
     const res = await developerService.rotateClientSecret('app_1')
     expect(apiClient.post).toHaveBeenCalledWith('/api/admin/clients/app_1/rotate-secret')
@@ -48,7 +50,10 @@ describe('developerService', () => {
   })
 
   it('getScopes fetches permission scopes', async () => {
-    const mockScopes = [{ id: 1, name: 'openid' }, { id: 2, name: 'profile' }]
+    const mockScopes = [
+      { id: 1, name: 'openid' },
+      { id: 2, name: 'profile' },
+    ]
     vi.mocked(apiClient.get).mockResolvedValueOnce(createMockResponse(mockScopes))
 
     const res = await developerService.getScopes()

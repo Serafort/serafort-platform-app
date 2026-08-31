@@ -1,13 +1,13 @@
 const Path = {
   developer: {
     dashboard: '/admin/developer',
-    application:'/admin/developer/application',
-    application_detail_view:'/admin/developer/application-detail-view',
+    application: '/admin/developer/application',
+    application_detail_view: '/admin/developer/application-detail-view',
     module_management: '/admin/developer/module-management',
     scopes_registry: '/admin/developer/scopes-registry',
     webhooks: '/admin/developer/webhooks',
   },
-  monitor:{
+  monitor: {
     dashboard: '/admin/monitoring',
     events: '/admin/monitoring/events',
     emailTemplatePreview: '/admin/monitoring/email-preview/:id',
@@ -19,7 +19,7 @@ const Path = {
     health: '/admin/monitoring/health',
     security_health: '/admin/monitoring/security-health',
   },
-  system:{
+  system: {
     browserNotSupported: '/system/browser-not-supported',
     csrfError: '/system/csrf-error',
     maintenance: '/system/maintenance',

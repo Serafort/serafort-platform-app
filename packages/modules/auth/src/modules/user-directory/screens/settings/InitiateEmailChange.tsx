@@ -75,7 +75,9 @@ export default function InitiateEmailChange() {
       addNotification?.({
         type: 'error',
         title: t('auth.account.request_failed', 'Request Failed'),
-        message: err?.message || t('auth.account.email_change_failed', 'Unable to initiate email change request.'),
+        message:
+          err?.message ||
+          t('auth.account.email_change_failed', 'Unable to initiate email change request.'),
       })
     },
   })
@@ -94,7 +96,10 @@ export default function InitiateEmailChange() {
 
   const currentEmail = currentUser?.email ?? '—'
   const memberSince = currentUser?.createdAt
-    ? new Date(currentUser.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
+    ? new Date(currentUser.createdAt).toLocaleDateString(undefined, {
+        month: 'short',
+        year: 'numeric',
+      })
     : t('auth.account.active_member', 'Active Member')
 
   const onSubmit = (data: InitiateFormData) => {
@@ -102,7 +107,7 @@ export default function InitiateEmailChange() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }}>
+    <Container maxWidth='md' sx={{ py: { xs: 3, md: 5 } }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Button
@@ -120,13 +125,13 @@ export default function InitiateEmailChange() {
         >
           {t('common.backToProfile', 'Back to Profile')}
         </Button>
-        <Typography variant="h4" fontWeight={800} letterSpacing="-0.025em" gutterBottom>
+        <Typography variant='h4' fontWeight={800} letterSpacing='-0.025em' gutterBottom>
           {t('auth.account.initiate_email_change_title', 'Initiate Email Change')}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant='body2' color='text.secondary'>
           {t(
             'auth.account.initiate_email_change_desc',
-            'Update your primary contact email for login and security notifications. This action requires re-verification.'
+            'Update your primary contact email for login and security notifications. This action requires re-verification.',
           )}
         </Typography>
       </Box>
@@ -145,7 +150,7 @@ export default function InitiateEmailChange() {
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2 }}>
+                  <Typography variant='subtitle2' fontWeight={700} sx={{ mb: 2 }}>
                     {t('auth.account.current_account_status', 'Current Account Status')}
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -161,13 +166,22 @@ export default function InitiateEmailChange() {
                       <Mail />
                     </Avatar>
                     <Box>
-                      <Typography variant="body2" fontWeight={700}>
+                      <Typography variant='body2' fontWeight={700}>
                         {currentEmail}
                       </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary', mt: 0.25 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          color: 'text.secondary',
+                          mt: 0.25,
+                        }}
+                      >
                         <CalendarToday sx={{ fontSize: 13, mr: 0.5 }} />
-                        <Typography variant="caption">
-                          {t('auth.account.member_since', 'Member since {{date}}', { date: memberSince })}
+                        <Typography variant='caption'>
+                          {t('auth.account.member_since', 'Member since {{date}}', {
+                            date: memberSince,
+                          })}
                         </Typography>
                       </Box>
                     </Box>
@@ -186,7 +200,7 @@ export default function InitiateEmailChange() {
               >
                 <CardContent sx={{ p: 3 }}>
                   <Typography
-                    variant="subtitle2"
+                    variant='subtitle2'
                     fontWeight={700}
                     sx={{ mb: 2, display: 'flex', alignItems: 'center' }}
                   >
@@ -196,20 +210,23 @@ export default function InitiateEmailChange() {
 
                   <Stack spacing={2.5}>
                     <Controller
-                      name="newEmail"
+                      name='newEmail'
                       control={control}
                       render={({ field }) => (
                         <TextField
                           {...field}
                           fullWidth
                           label={t('auth.account.new_email_address', 'New Email Address')}
-                          placeholder={t('auth.account.new_email_placeholder', 'e.g. name@work.com')}
+                          placeholder={t(
+                            'auth.account.new_email_placeholder',
+                            'e.g. name@work.com',
+                          )}
                           error={Boolean(errors.newEmail)}
                           helperText={errors.newEmail?.message}
                           InputProps={{
                             startAdornment: (
-                              <InputAdornment position="start">
-                                <Mail color="action" />
+                              <InputAdornment position='start'>
+                                <Mail color='action' />
                               </InputAdornment>
                             ),
                             sx: { borderRadius: 2 },
@@ -219,7 +236,7 @@ export default function InitiateEmailChange() {
                     />
 
                     <Controller
-                      name="currentPassword"
+                      name='currentPassword'
                       control={control}
                       render={({ field }) => (
                         <TextField
@@ -227,19 +244,22 @@ export default function InitiateEmailChange() {
                           fullWidth
                           type={showPassword ? 'text' : 'password'}
                           label={t('auth.account.current_password', 'Current Password')}
-                          placeholder={t('auth.account.confirm_password_placeholder', 'Confirm your password')}
+                          placeholder={t(
+                            'auth.account.confirm_password_placeholder',
+                            'Confirm your password',
+                          )}
                           error={Boolean(errors.currentPassword)}
                           helperText={errors.currentPassword?.message}
                           InputProps={{
                             startAdornment: (
-                              <InputAdornment position="start">
-                                <Lock color="action" />
+                              <InputAdornment position='start'>
+                                <Lock color='action' />
                               </InputAdornment>
                             ),
                             endAdornment: (
-                              <InputAdornment position="end">
+                              <InputAdornment position='end'>
                                 <IconButton
-                                  size="small"
+                                  size='small'
                                   onClick={() => setShowPassword(!showPassword)}
                                 >
                                   {showPassword ? <VisibilityOff /> : <Visibility />}
@@ -257,17 +277,13 @@ export default function InitiateEmailChange() {
 
               {/* Submit CTA */}
               <Button
-                type="submit"
-                variant="contained"
+                type='submit'
+                variant='contained'
                 fullWidth
-                size="large"
+                size='large'
                 disabled={isSubmitting}
                 endIcon={
-                  isSubmitting ? (
-                    <CircularProgress size={18} color="inherit" />
-                  ) : (
-                    <ArrowForward />
-                  )
+                  isSubmitting ? <CircularProgress size={18} color='inherit' /> : <ArrowForward />
                 }
                 sx={{
                   py: 1.5,
@@ -288,8 +304,8 @@ export default function InitiateEmailChange() {
           <Grid size={{ xs: 12, md: 5 }}>
             <Stack spacing={2.5}>
               <Alert
-                severity="warning"
-                icon={<Warning fontSize="inherit" />}
+                severity='warning'
+                icon={<Warning fontSize='inherit' />}
                 sx={{
                   borderRadius: 2.5,
                   bgcolor: alpha(theme.palette.warning.main, 0.08),
@@ -299,10 +315,10 @@ export default function InitiateEmailChange() {
                 <AlertTitle sx={{ fontWeight: 700 }}>
                   {t('auth.account.session_termination_warning', 'Security Notice')}
                 </AlertTitle>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant='body2' color='text.secondary'>
                   {t(
                     'auth.account.session_termination_desc',
-                    'Changing your primary email address will require immediate re-verification. All other active sessions will be invalidated for security.'
+                    'Changing your primary email address will require immediate re-verification. All other active sessions will be invalidated for security.',
                   )}
                 </Typography>
               </Alert>
@@ -315,10 +331,15 @@ export default function InitiateEmailChange() {
                   border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                 }}
               >
-                <Typography variant="caption" color="text.secondary" display="block" textAlign="center">
+                <Typography
+                  variant='caption'
+                  color='text.secondary'
+                  display='block'
+                  textAlign='center'
+                >
                   {t(
                     'auth.account.security_footer',
-                    'Protected by end-to-end multi-factor validation and enterprise audit logging.'
+                    'Protected by end-to-end multi-factor validation and enterprise audit logging.',
                   )}
                 </Typography>
               </Box>

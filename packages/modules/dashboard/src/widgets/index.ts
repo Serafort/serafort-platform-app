@@ -1,16 +1,16 @@
-import type { GridLayout } from '@cap/shared-types'
+import type { GridLayout } from "@cap/shared-types";
 
-export { default as RecentOrders } from './RecentOrders'
-export { default as RevenueChart } from './RevenueChart'
-export { default as Weather } from './Weather'
-export { default as SplitPaneWidget } from './SplitPaneWidget'
-export { default as TabbedCanvasWidget } from './TabbedCanvasWidget'
-export { default as AiChat } from './AiChat'
-export { default as StatCard } from './StatCard'
-export { WidgetFallback, WidgetSkeleton } from './WidgetFallback'
+export { default as RecentOrders } from "./RecentOrders";
+export { default as RevenueChart } from "./RevenueChart";
+export { default as Weather } from "./Weather";
+export { default as SplitPaneWidget } from "./SplitPaneWidget";
+export { default as TabbedCanvasWidget } from "./TabbedCanvasWidget";
+export { default as AiChat } from "./AiChat";
+export { default as StatCard } from "./StatCard";
+export { WidgetFallback, WidgetSkeleton } from "./WidgetFallback";
 
-import { DASHBOARD_WIDGET_IDS } from './widgetIds'
-export { DASHBOARD_WIDGET_IDS, type DashboardWidgetId } from './widgetIds'
+import { DASHBOARD_WIDGET_IDS } from "./widgetIds";
+export { DASHBOARD_WIDGET_IDS, type DashboardWidgetId } from "./widgetIds";
 
 export const DEFAULT_DASHBOARD_GRID_LAYOUT: GridLayout = {
   slots: [],
@@ -48,5 +48,4 @@ export const DEFAULT_DASHBOARD_GRID_LAYOUT: GridLayout = {
   //   'slot-4': { span: 12, height: 340 },
   //   'slot-5': { span: 12, height: 340 },
   // },
-}
-
+};

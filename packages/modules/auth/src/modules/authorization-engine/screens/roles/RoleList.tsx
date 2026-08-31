@@ -45,11 +45,16 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useDebounce } from 'use-debounce'
-import { toast } from 'react-toastify';
-import Path from "../../screens/path"
+import { toast } from 'react-toastify'
+import Path from '../../screens/path'
 
-import { useRoles, useDeleteRole, useDuplicateRole, useRoleStats } from "@auth/authorization-engine/hooks/useAdminQuery"
-import { Role } from "@auth/authorization-engine/services/adminService"
+import {
+  useRoles,
+  useDeleteRole,
+  useDuplicateRole,
+  useRoleStats,
+} from '@auth/authorization-engine/hooks/useAdminQuery'
+import { Role } from '@auth/authorization-engine/services/adminService'
 
 export default function RoleList() {
   const { t } = useTranslation('common')
@@ -418,9 +423,7 @@ export default function RoleList() {
                   >
                     {/* Role Name + Description */}
                     <TableCell
-                      onClick={() =>
-                        navigate(Path.roleDetail.replace(':id', role.id.toString()))
-                      }
+                      onClick={() => navigate(Path.roleDetail.replace(':id', role.id.toString()))}
                       sx={{ cursor: 'pointer', py: 2 }}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -513,10 +516,10 @@ export default function RoleList() {
                       <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.secondary' }}>
                         {role.updated_at
                           ? new Date(role.updated_at).toLocaleDateString(undefined, {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })
                           : null}
                       </Typography>
                     </TableCell>
@@ -657,7 +660,3 @@ export default function RoleList() {
     </Box>
   )
 }
-
-
-
-

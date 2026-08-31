@@ -1,28 +1,32 @@
-import type { StateCreator } from 'zustand'
-import type { AppStore } from '../../types'
-import type { NavItemConfig } from '@cap/shared-types/module'
+import type { StateCreator } from "zustand";
+import type { AppStore } from "../../types";
+import type { NavItemConfig } from "@cap/shared-types/module";
 
-import { VerticalNavState, HorizontalNavState } from '@cap/shared-types'
+import { VerticalNavState, HorizontalNavState } from "@cap/shared-types";
 
 export interface NavigationSlice {
-  verticalNav: VerticalNavState
-  updateVerticalNavState: (values: Partial<VerticalNavState>) => void
-  collapseVerticalNav: (value?: boolean) => void
-  hoverVerticalNav: (value?: boolean) => void
-  toggleVerticalNav: (value?: boolean) => void
+  verticalNav: VerticalNavState;
+  updateVerticalNavState: (values: Partial<VerticalNavState>) => void;
+  collapseVerticalNav: (value?: boolean) => void;
+  hoverVerticalNav: (value?: boolean) => void;
+  toggleVerticalNav: (value?: boolean) => void;
 
-  horizontalNav: HorizontalNavState
-  updateIsBreakpointReached: (isBreakpointReached: boolean) => void
+  horizontalNav: HorizontalNavState;
+  updateIsBreakpointReached: (isBreakpointReached: boolean) => void;
 
-  navItems: NavItemConfig[]
-  setNavigationItems: (items: NavItemConfig[]) => void
-  registerModuleNavigation: (items: NavItemConfig[]) => void
-  clearNavigation: () => void
+  navItems: NavItemConfig[];
+  setNavigationItems: (items: NavItemConfig[]) => void;
+  registerModuleNavigation: (items: NavItemConfig[]) => void;
+  clearNavigation: () => void;
 }
 
 export const createNavigationSlice: StateCreator<
   AppStore,
-  [['zustand/immer', never], ['zustand/devtools', never], ['zustand/persist', unknown]],
+  [
+    ["zustand/immer", never],
+    ["zustand/devtools", never],
+    ["zustand/persist", unknown],
+  ],
   [],
   NavigationSlice
 > = (set) => ({
@@ -36,7 +40,7 @@ export const createNavigationSlice: StateCreator<
         collapsing: values.isCollapsed === true,
         expanding: values.isCollapsed === false,
       },
-    }))
+    }));
   },
 
   collapseVerticalNav: (value?: boolean) => {
@@ -44,29 +48,32 @@ export const createNavigationSlice: StateCreator<
       verticalNav: {
         ...state.verticalNav,
         isHovered: value !== undefined && false,
-        isCollapsed: value !== undefined ? Boolean(value) : !state.verticalNav.isCollapsed,
+        isCollapsed:
+          value !== undefined ? Boolean(value) : !state.verticalNav.isCollapsed,
         collapsing: value === true,
         expanding: value !== true,
       },
-    }))
+    }));
   },
 
   hoverVerticalNav: (value?: boolean) => {
     set((state) => ({
       verticalNav: {
         ...state.verticalNav,
-        isHovered: value !== undefined ? Boolean(value) : !state.verticalNav.isHovered,
+        isHovered:
+          value !== undefined ? Boolean(value) : !state.verticalNav.isHovered,
       },
-    }))
+    }));
   },
 
   toggleVerticalNav: (value?: boolean) => {
     set((state) => ({
       verticalNav: {
         ...state.verticalNav,
-        isToggled: value !== undefined ? Boolean(value) : !state.verticalNav.isToggled,
+        isToggled:
+          value !== undefined ? Boolean(value) : !state.verticalNav.isToggled,
       },
-    }))
+    }));
   },
 
   horizontalNav: {
@@ -79,32 +86,37 @@ export const createNavigationSlice: StateCreator<
         ...state.horizontalNav,
         isBreakpointReached,
       },
-    }))
+    }));
   },
 
   navItems: [],
   setNavigationItems: (items: NavItemConfig[]) => {
     set((state) => {
-      state.navItems = items
-    })
+      state.navItems = items;
+    });
   },
   registerModuleNavigation: (items: NavItemConfig[]) => {
     set((state) => {
       items.forEach((item) => {
         const existingIndex = state.navItems.findIndex(
-          (existing) => (item.id && existing.id === item.id) || (item.path && existing.path === item.path)
-        )
+          (existing) =>
+            (item.id && existing.id === item.id) ||
+            (item.path && existing.path === item.path),
+        );
         if (existingIndex >= 0) {
-          state.navItems[existingIndex] = { ...state.navItems[existingIndex], ...item }
+          state.navItems[existingIndex] = {
+            ...state.navItems[existingIndex],
+            ...item,
+          };
         } else {
-          state.navItems.push(item)
+          state.navItems.push(item);
         }
-      })
-    })
+      });
+    });
   },
   clearNavigation: () => {
     set((state) => {
-      state.navItems = []
-    })
+      state.navItems = [];
+    });
   },
-})
+});

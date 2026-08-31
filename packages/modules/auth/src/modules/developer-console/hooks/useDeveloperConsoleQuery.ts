@@ -31,8 +31,7 @@ export function useApiKeysQuery() {
       const raw = response?.data
       if (Array.isArray(raw)) return raw as DeveloperApiKeyItem[]
       // Handle wrapped responses (e.g. { data: [...] }, { keys: [...] })
-      const inner =
-        (raw as any)?.keys ?? (raw as any)?.items ?? (raw as any)?.data
+      const inner = (raw as any)?.keys ?? (raw as any)?.items ?? (raw as any)?.data
       return Array.isArray(inner) ? (inner as DeveloperApiKeyItem[]) : []
     },
     staleTime: 30_000,
@@ -85,8 +84,7 @@ export function useWebhooksQuery() {
       const response = await developerService.listWebhooks()
       const raw = response?.data
       if (Array.isArray(raw)) return raw as WebhookItem[]
-      const inner =
-        (raw as any)?.webhooks ?? (raw as any)?.items ?? (raw as any)?.data
+      const inner = (raw as any)?.webhooks ?? (raw as any)?.items ?? (raw as any)?.data
       return Array.isArray(inner) ? (inner as WebhookItem[]) : []
     },
     staleTime: 30_000,
@@ -100,11 +98,7 @@ export function useWebhooksQuery() {
 export function useCreateWebhookMutation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (data: {
-      url: string
-      eventTypes: string[]
-      isActive?: boolean
-    }) => {
+    mutationFn: async (data: { url: string; eventTypes: string[]; isActive?: boolean }) => {
       const response = await developerService.createWebhook(data)
       return response.data as WebhookItem
     },

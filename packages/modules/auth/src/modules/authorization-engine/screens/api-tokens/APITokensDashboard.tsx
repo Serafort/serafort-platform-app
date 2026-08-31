@@ -1,19 +1,45 @@
-import React, { useState } from 'react';
-import { Box, Typography, Button, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Chip, TextField, InputAdornment, Breadcrumbs, Link, Tooltip, useTheme, Grid, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import SearchIcon from '@mui/icons-material/Search';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import ViewIcon from '@mui/icons-material/Visibility';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import KeyIcon from '@mui/icons-material/VpnKey';
-import SecurityIcon from '@mui/icons-material/Security';
-import TimerIcon from '@mui/icons-material/Timer';
-import TerminalIcon from '@mui/icons-material/Terminal';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useUserTokens, useRevokeToken } from '@auth/user-directory/hooks/useUserQuery';
-import { Path } from '@auth/routes/path';
+import React, { useState } from 'react'
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Chip,
+  TextField,
+  InputAdornment,
+  Breadcrumbs,
+  Link,
+  Tooltip,
+  useTheme,
+  Grid,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import SearchIcon from '@mui/icons-material/Search'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import ViewIcon from '@mui/icons-material/Visibility'
+import NavigateNextIcon from '@mui/icons-material/NavigateNext'
+import KeyIcon from '@mui/icons-material/VpnKey'
+import SecurityIcon from '@mui/icons-material/Security'
+import TimerIcon from '@mui/icons-material/Timer'
+import TerminalIcon from '@mui/icons-material/Terminal'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { useUserTokens, useRevokeToken } from '@auth/user-directory/hooks/useUserQuery'
+import { Path } from '@auth/routes/path'
 
 interface APIToken {
   id: string | number
@@ -36,12 +62,12 @@ const APITokensDashboard: React.FC = () => {
   const { data: tokensResponse, isLoading, refetch } = useUserTokens()
   const revokeTokenMutation = useRevokeToken({
     onSuccess: () => {
-      toast.success(t('api_tokens:revoked_success', 'Token revoked successfully'), {  })
+      toast.success(t('api_tokens:revoked_success', 'Token revoked successfully'), {})
       refetch()
       handleMenuClose()
     },
     onError: (error: any) => {
-      toast.error(error.message || t('api_tokens:revoked_error', 'Failed to revoke token'), {  })
+      toast.error(error.message || t('api_tokens:revoked_error', 'Failed to revoke token'), {})
     },
   })
 
@@ -80,7 +106,9 @@ const APITokensDashboard: React.FC = () => {
   const filteredTokens = (Array.isArray(tokens) ? tokens : []).filter((token) => {
     if (!token) return false
     const tokenName = token.name || (token as any).token || (token as any).type || ''
-    return String(tokenName).toLowerCase().includes((searchQuery || '').toLowerCase())
+    return String(tokenName)
+      .toLowerCase()
+      .includes((searchQuery || '').toLowerCase())
   })
 
   return (
@@ -372,4 +400,3 @@ const APITokensDashboard: React.FC = () => {
 }
 
 export default APITokensDashboard
-

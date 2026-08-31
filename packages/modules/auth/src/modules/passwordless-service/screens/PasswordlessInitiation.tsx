@@ -80,7 +80,10 @@ export default function PasswordlessInitiation() {
       setServerError(
         err.response?.data?.message ||
           err.response?.data?.error ||
-          t('auth.passwordless.send_failed', 'Failed to send the magic link. Please check your email and try again.'),
+          t(
+            'auth.passwordless.send_failed',
+            'Failed to send the magic link. Please check your email and try again.',
+          ),
       )
     },
   })
@@ -97,7 +100,7 @@ export default function PasswordlessInitiation() {
 
   return (
     <Box
-      className="animate-scale-in"
+      className='animate-scale-in'
       component={motion.div}
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
@@ -138,10 +141,14 @@ export default function PasswordlessInitiation() {
                 <AutoAwesome sx={{ fontSize: 32 }} />
               </Avatar>
             </Box>
-            <Typography variant="h5" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em' }}>
+            <Typography variant='h5' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em' }}>
               {t('auth.passwordless.heading', 'Sign in with Magic Link')}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, lineHeight: 1.6 }}>
+            <Typography
+              variant='body2'
+              color='text.secondary'
+              sx={{ fontWeight: 500, lineHeight: 1.6 }}
+            >
               {t(
                 'auth.passwordless.subheading',
                 'Enter your email address and we will send you a secure sign-in link—no password needed.',
@@ -150,7 +157,10 @@ export default function PasswordlessInitiation() {
           </Box>
 
           {serverError && (
-            <Alert severity="error" sx={{ mb: 3, borderRadius: 2.5, '& .MuiAlert-message': { fontWeight: 600 } }}>
+            <Alert
+              severity='error'
+              sx={{ mb: 3, borderRadius: 2.5, '& .MuiAlert-message': { fontWeight: 600 } }}
+            >
               {serverError}
             </Alert>
           )}
@@ -159,7 +169,7 @@ export default function PasswordlessInitiation() {
             <Stack spacing={2.5}>
               <Box>
                 <Typography
-                  variant="caption"
+                  variant='caption'
                   sx={{
                     fontWeight: 700,
                     textTransform: 'uppercase',
@@ -173,22 +183,26 @@ export default function PasswordlessInitiation() {
                   {t('auth.passwordless.email_address', 'Email Address')}
                 </Typography>
                 <Controller
-                  name="email"
+                  name='email'
                   control={control}
                   render={({ field }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      placeholder="name@company.com"
+                      placeholder='name@company.com'
                       error={Boolean(errors.email)}
-                      helperText={errors.email?.message ? t(errors.email.message, errors.email.message) : undefined}
+                      helperText={
+                        errors.email?.message
+                          ? t(errors.email.message, errors.email.message)
+                          : undefined
+                      }
                       disabled={isLoading}
-                      autoComplete="email"
+                      autoComplete='email'
                       autoFocus
                       slotProps={{
                         input: {
                           startAdornment: (
-                            <InputAdornment position="start">
+                            <InputAdornment position='start'>
                               <Email sx={{ color: 'text.secondary', fontSize: 20 }} />
                             </InputAdornment>
                           ),
@@ -204,11 +218,13 @@ export default function PasswordlessInitiation() {
               </Box>
 
               <Button
-                type="submit"
+                type='submit'
                 fullWidth
-                variant="contained"
+                variant='contained'
                 disabled={isLoading}
-                endIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <ArrowForward />}
+                endIcon={
+                  isLoading ? <CircularProgress size={20} color='inherit' /> : <ArrowForward />
+                }
                 sx={{
                   py: 1.5,
                   mt: 1,
@@ -233,14 +249,14 @@ export default function PasswordlessInitiation() {
           </form>
 
           <Divider sx={{ my: 3.5, opacity: 0.6 }}>
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, px: 1 }}>
+            <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 600, px: 1 }}>
               {t('common.or', 'OR')}
             </Typography>
           </Divider>
 
           <Stack spacing={1.5} sx={{ textAlign: 'center' }}>
             <Button
-              variant="outlined"
+              variant='outlined'
               fullWidth
               onClick={() => navigate(AuthPath.auth.signin)}
               startIcon={<LockOutlined />}
@@ -265,12 +281,10 @@ export default function PasswordlessInitiation() {
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 3 }}>
         <ShieldOutlined sx={{ fontSize: 16, color: 'text.disabled' }} />
-        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+        <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 600 }}>
           {t('auth.passwordless.encrypted_notice', 'Encrypted & Single-Use Authentication')}
         </Typography>
       </Box>
     </Box>
   )
 }
-
-

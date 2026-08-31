@@ -7,7 +7,15 @@ export type ConnectorType =
   | 'ldap'
   | string
 
-export type SyncStatus = 'active' | 'syncing' | 'failed' | 'paused' | 'warning' | 'idle' | 'error' | string
+export type SyncStatus =
+  | 'active'
+  | 'syncing'
+  | 'failed'
+  | 'paused'
+  | 'warning'
+  | 'idle'
+  | 'error'
+  | string
 
 export interface DirectoryConnector {
   id: string | number

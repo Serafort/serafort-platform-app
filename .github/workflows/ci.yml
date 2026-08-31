@@ -45,7 +45,6 @@ jobs:
   type-check:
     name: type-check (all packages)
     runs-on: ubuntu-latest
-    continue-on-error: true # PROMOTE: plan A5 + A5/B3
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node-pnpm
@@ -54,16 +53,16 @@ jobs:
   lint:
     name: lint (all packages)
     runs-on: ubuntu-latest
-    continue-on-error: true # PROMOTE: plan A4 / A5 + repo EOL normalisation
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node-pnpm
-      - run: pnpm -r run lint
+      - name: Run lint
+        continue-on-error: true # PROMOTE: plan A4 / A5 + repo EOL normalisation
+        run: pnpm -r run lint
 
   build:
     name: build (@cap/app)
     runs-on: ubuntu-latest
-    continue-on-error: true # PROMOTE: plan A5 + B3
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node-pnpm
@@ -72,7 +71,6 @@ jobs:
   unit:
     name: unit tests (all packages)
     runs-on: ubuntu-latest
-    continue-on-error: true # PROMOTE: plan A2, then triage the remainder
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node-pnpm
@@ -92,7 +90,6 @@ jobs:
   e2e:
     name: e2e (Playwright + live backend)
     runs-on: ubuntu-latest
-    continue-on-error: true # PROMOTE: plan B2
     # SCAFFOLD: this wires the service containers and the backend checkout, but
     # the run is not green yet. B2 owns aligning the backend env with
     # Authentication/.env.test and fixing the playwright webServer paths
@@ -135,22 +132,24 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check out auth backend
+        continue-on-error: true # Needs secrets.AUTH_SERVICE_REPO_TOKEN
         uses: actions/checkout@v4
         with:
           repository: Serafort/serafort-auth-service
-          # Private repo: needs a read-scoped PAT / deploy key in
-          # secrets.AUTH_SERVICE_REPO_TOKEN. Until it exists this step fails,
-          # which is fine while the job is continue-on-error.
           token: ${{ secrets.AUTH_SERVICE_REPO_TOKEN }}
           path: Authentication
 
       - uses: ./.github/actions/setup-node-pnpm
 
       - name: Install backend dependencies
+        continue-on-error: true
+        if: hashFiles('Authentication/package.json') != ''
         working-directory: Authentication
         run: npm ci
 
       - name: Backend migrate + seed
+        continue-on-error: true
+        if: hashFiles('Authentication/package.json') != ''
         working-directory: Authentication
         run: |
           cp .env.test .env
@@ -158,9 +157,11 @@ jobs:
           node ace db:seed
 
       - name: Install Playwright browsers
+        continue-on-error: true
         run: pnpm --filter @cap/app exec playwright install --with-deps chromium
 
       - name: Run E2E suite
+        continue-on-error: true # PROMOTE: plan B2
         run: pnpm --filter @cap/app run test:e2e
 
       - name: Upload Playwright report

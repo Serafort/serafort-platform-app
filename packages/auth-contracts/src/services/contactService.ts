@@ -1,25 +1,25 @@
-import { apiClient, type FetchResponse } from '@cap/platform-store'
-import { ENDPOINTS } from '@cap/api-contracts'
+import { apiClient, type FetchResponse } from "@cap/platform-store";
+import { ENDPOINTS } from "@cap/api-contracts";
 
 export interface ContactMessageItem {
-  id: number
-  fullName: string
-  email: string
-  subject: string
-  message: string
-  status: 'unread' | 'in_progress' | 'resolved'
-  ipAddress?: string | null
-  userAgent?: string | null
-  organizationId?: number | null
-  createdAt: string
-  updatedAt?: string
+  id: number;
+  fullName: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: "unread" | "in_progress" | "resolved";
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  organizationId?: number | null;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface SubmitContactMessageRequest {
-  fullName: string
-  email: string
-  subject: string
-  message: string
+  fullName: string;
+  email: string;
+  subject: string;
+  message: string;
 }
 
 export class ContactService {
@@ -28,28 +28,28 @@ export class ContactService {
    */
   async submitContactMessage(
     data: SubmitContactMessageRequest,
-    orgId?: string | number
+    orgId?: string | number,
   ): Promise<FetchResponse<{ success: boolean; message: string; id: number }>> {
-    const headers = orgId ? { 'x-organization-id': String(orgId) } : undefined
+    const headers = orgId ? { "x-organization-id": String(orgId) } : undefined;
     return apiClient.post<{ success: boolean; message: string; id: number }>(
       ENDPOINTS.contact.submit,
       data,
-      { headers }
-    )
+      { headers },
+    );
   }
 
   /**
    * List contact messages with status filter (admin only)
    */
   async listContactMessages(params?: {
-    status?: string
-    page?: number
-    limit?: number
+    status?: string;
+    page?: number;
+    limit?: number;
   }): Promise<FetchResponse<{ data: ContactMessageItem[]; meta: unknown }>> {
     return apiClient.get<{ data: ContactMessageItem[]; meta: unknown }>(
       ENDPOINTS.contact.messages,
-      { params }
-    )
+      { params },
+    );
   }
 
   /**
@@ -57,14 +57,15 @@ export class ContactService {
    */
   async updateContactMessageStatus(
     id: number | string,
-    status: 'unread' | 'in_progress' | 'resolved'
-  ): Promise<FetchResponse<{ success: boolean; contactMessage: ContactMessageItem }>> {
-    return apiClient.patch<{ success: boolean; contactMessage: ContactMessageItem }>(
-      ENDPOINTS.contact.updateMessageStatus(id),
-      { status }
-    )
+    status: "unread" | "in_progress" | "resolved",
+  ): Promise<
+    FetchResponse<{ success: boolean; contactMessage: ContactMessageItem }>
+  > {
+    return apiClient.patch<{
+      success: boolean;
+      contactMessage: ContactMessageItem;
+    }>(ENDPOINTS.contact.updateMessageStatus(id), { status });
   }
 }
 
-export const contactService = new ContactService()
-
+export const contactService = new ContactService();

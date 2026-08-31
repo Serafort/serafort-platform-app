@@ -220,4 +220,3 @@ export {
 }
 
 export default Path
-

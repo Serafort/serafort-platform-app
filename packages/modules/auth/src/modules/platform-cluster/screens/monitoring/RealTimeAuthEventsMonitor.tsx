@@ -135,7 +135,9 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
   const [bufferedCount, setBufferedCount] = useState(0)
 
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedFilter, setSelectedFilter] = useState<'all' | 'success' | 'failed' | 'mfa' | 'refresh' | 'logout'>('all')
+  const [selectedFilter, setSelectedFilter] = useState<
+    'all' | 'success' | 'failed' | 'mfa' | 'refresh' | 'logout'
+  >('all')
   const [selectedEventId, setSelectedEventId] = useState<string>(INITIAL_EVENTS[0].id)
   const [isLiveConnected, setIsLiveConnected] = useState(true)
 
@@ -163,15 +165,25 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
       const mockEvent: AuthEvent = {
         id: randomId,
         time: timeStr,
-        email: mockType === 'failed' ? `bad_actor_${Math.floor(Math.random() * 1000)}@botnet.org` : `user_${Math.floor(Math.random() * 50)}@enterprise.com`,
-        userName: mockType === 'failed' ? 'Unauthorized Client' : `Enterprise User #${Math.floor(Math.random() * 50)}`,
+        email:
+          mockType === 'failed'
+            ? `bad_actor_${Math.floor(Math.random() * 1000)}@botnet.org`
+            : `user_${Math.floor(Math.random() * 50)}@enterprise.com`,
+        userName:
+          mockType === 'failed'
+            ? 'Unauthorized Client'
+            : `Enterprise User #${Math.floor(Math.random() * 50)}`,
         initials: mockType === 'failed' ? 'UC' : 'EU',
         role: mockType === 'failed' ? 'Untrusted' : 'Staff Member',
         orgId: `org_${Math.floor(Math.random() * 100)}`,
-        device: ['Mac OS / Chrome 124', 'Windows 11 / Chrome', 'iOS / Safari', 'Linux / Firefox'][Math.floor(Math.random() * 4)],
+        device: ['Mac OS / Chrome 124', 'Windows 11 / Chrome', 'iOS / Safari', 'Linux / Firefox'][
+          Math.floor(Math.random() * 4)
+        ],
         type: mockType,
         ip: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
-        city: ['San Francisco, US', 'London, UK', 'Tokyo, JP', 'Berlin, DE', 'Toronto, CA'][Math.floor(Math.random() * 5)],
+        city: ['San Francisco, US', 'London, UK', 'Tokyo, JP', 'Berlin, DE', 'Toronto, CA'][
+          Math.floor(Math.random() * 5)
+        ],
         latency: `${Math.floor(Math.random() * 90) + 15}ms`,
       }
 
@@ -263,7 +275,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
         },
       },
       null,
-      2
+      2,
     )
   }, [selectedEvent])
 
@@ -286,7 +298,19 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
       return
     }
 
-    const headers = ['Event ID', 'Timestamp', 'User Name', 'Email', 'Role', 'Org ID', 'Type', 'IP Address', 'City', 'Device', 'Latency']
+    const headers = [
+      'Event ID',
+      'Timestamp',
+      'User Name',
+      'Email',
+      'Role',
+      'Org ID',
+      'Type',
+      'IP Address',
+      'City',
+      'Device',
+      'Latency',
+    ]
     const rows = filteredEvents.map((e) => [
       e.id,
       e.time,
@@ -306,7 +330,10 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', `auth_stream_events_${new Date().toISOString().split('T')[0]}.csv`)
+    link.setAttribute(
+      'download',
+      `auth_stream_events_${new Date().toISOString().split('T')[0]}.csv`,
+    )
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -323,7 +350,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
   const totalEvents = events.length
   const failedEvents = events.filter((e) => e.type === 'failed').length
   const avgLatencyVal = Math.round(
-    events.reduce((acc, curr) => acc + parseInt(curr.latency, 10), 0) / (totalEvents || 1)
+    events.reduce((acc, curr) => acc + parseInt(curr.latency, 10), 0) / (totalEvents || 1),
   )
 
   const stats = [
@@ -404,7 +431,8 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                 Real-time Auth Events Monitor
               </Typography>
               <Typography color='text.secondary'>
-                Live stream of authentication activities, security verification, and token lifecycle events.
+                Live stream of authentication activities, security verification, and token lifecycle
+                events.
               </Typography>
             </Box>
             <Button
@@ -686,12 +714,18 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                         py: 2,
                         borderBottom: 1,
                         borderColor: 'divider',
-                        bgcolor: isSelected ? alpha(theme.palette.primary.main, 0.08) : 'transparent',
+                        bgcolor: isSelected
+                          ? alpha(theme.palette.primary.main, 0.08)
+                          : 'transparent',
                         borderLeft: isSelected ? 4 : 0,
                         borderLeftColor: 'primary.main',
                         cursor: 'pointer',
                         transition: 'background-color 0.15s ease',
-                        '&:hover': { bgcolor: isSelected ? alpha(theme.palette.primary.main, 0.12) : 'action.hover' },
+                        '&:hover': {
+                          bgcolor: isSelected
+                            ? alpha(theme.palette.primary.main, 0.12)
+                            : 'action.hover',
+                        },
                       }}
                     >
                       <Typography variant='body2' fontFamily='monospace' color='text.secondary'>
@@ -839,7 +873,13 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
               >
                 {/* User Context */}
                 <Box>
-                  <Typography variant='caption' fontWeight={700} color='text.secondary' mb={1.5} component='div'>
+                  <Typography
+                    variant='caption'
+                    fontWeight={700}
+                    color='text.secondary'
+                    mb={1.5}
+                    component='div'
+                  >
                     USER CONTEXT
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
@@ -883,7 +923,13 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
 
                 {/* Location & Network Data */}
                 <Box>
-                  <Typography variant='caption' fontWeight={700} color='text.secondary' mb={1.5} component='div'>
+                  <Typography
+                    variant='caption'
+                    fontWeight={700}
+                    color='text.secondary'
+                    mb={1.5}
+                    component='div'
+                  >
                     LOCATION & DEVICE
                   </Typography>
                   <Box
@@ -934,10 +980,18 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                       IP Address
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Typography variant='caption' fontWeight={600} fontFamily='monospace' color='text.primary'>
+                      <Typography
+                        variant='caption'
+                        fontWeight={600}
+                        fontFamily='monospace'
+                        color='text.primary'
+                      >
                         {selectedEvent.ip}
                       </Typography>
-                      <IconButton size='small' onClick={() => handleCopy(selectedEvent.ip, 'IP Address')}>
+                      <IconButton
+                        size='small'
+                        onClick={() => handleCopy(selectedEvent.ip, 'IP Address')}
+                      >
                         <ContentCopy sx={{ fontSize: 12 }} />
                       </IconButton>
                     </Box>
@@ -962,7 +1016,14 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
 
                 {/* Raw JSON Payload */}
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      mb: 1,
+                    }}
+                  >
                     <Typography variant='caption' fontWeight={700} color='text.secondary'>
                       STRUCTURED EVENT PAYLOAD
                     </Typography>

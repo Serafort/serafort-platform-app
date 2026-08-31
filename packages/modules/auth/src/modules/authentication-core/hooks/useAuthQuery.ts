@@ -322,12 +322,7 @@ export function useValidateUser(
  * Send magic link for passwordless login
  */
 export function usePasswordlessSend(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    string | { email: string },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, string | { email: string }, unknown>,
 ) {
   return useMutation({
     mutationFn: (param) => {
@@ -599,4 +594,3 @@ export function useNotificationsStream() {
     user_id: number
   }>(url)
 }
-

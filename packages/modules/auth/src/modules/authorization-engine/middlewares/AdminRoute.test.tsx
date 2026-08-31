@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
-import React from 'react';
-import AdminRoute from './AdminRoute';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, cleanup } from '@testing-library/react'
+import React from 'react'
+import AdminRoute from './AdminRoute'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 

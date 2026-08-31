@@ -20,18 +20,25 @@ type StyledHeaderProps = {
   compactContentWidth: number
 }
 
-const StyledHeader = styled('header')<StyledHeaderProps>(({ theme, layoutPadding, compactContentWidth, overrideStyles }: any) => {
+const StyledHeader = styled('header')<StyledHeaderProps>(({
+  theme,
+  layoutPadding,
+  compactContentWidth,
+  overrideStyles,
+}: any) => {
   return {
     minBlockSize: headerTokens?.layout?.minBlockSize || '64px',
 
     [`&.${verticalLayoutClasses.headerContentCompact}`]: {
-      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}`]: {
-        marginInline: headerTokens?.layout?.compactMarginInline || 'auto',
-      },
+      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}`]:
+        {
+          marginInline: headerTokens?.layout?.compactMarginInline || 'auto',
+        },
 
-      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]: {
-        maxInlineSize: getCompactFloatingMaxInlineSize(compactContentWidth, layoutPadding),
-      },
+      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+        {
+          maxInlineSize: getCompactFloatingMaxInlineSize(compactContentWidth, layoutPadding),
+        },
 
       [`.${verticalLayoutClasses.navbar}`]: {
         maxInlineSize: `${compactContentWidth}px`,
@@ -43,9 +50,10 @@ const StyledHeader = styled('header')<StyledHeaderProps>(({ theme, layoutPadding
       insetBlockStart: headerTokens?.positioning?.insetBlockStart || '0px',
       zIndex: theme?.zIndex?.appBar || 1100,
 
-      [`&:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerAttached}, &:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]: {
-        backgroundColor: theme?.palette?.background?.paper || '#fff',
-      },
+      [`&:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerAttached}, &:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+        {
+          backgroundColor: theme?.palette?.background?.paper || '#fff',
+        },
 
       [`&.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]: {
         boxShadow: getHeaderElevationShadow(theme),
@@ -68,10 +76,14 @@ const StyledHeader = styled('header')<StyledHeaderProps>(({ theme, layoutPadding
       },
 
       [`&.${verticalLayoutClasses.headerBlur}`]: {
-        [`&.${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}`]: {
-          backdropFilter: headerTokens?.glassmorphism?.backdropFilter || 'blur(8px)',
-          backgroundColor: alpha(theme?.palette?.background?.paper || '#ffffff', headerTokens?.glassmorphism?.paperOpacity || 0.85),
-        },
+        [`&.${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}`]:
+          {
+            backdropFilter: headerTokens?.glassmorphism?.backdropFilter || 'blur(8px)',
+            backgroundColor: alpha(
+              theme?.palette?.background?.paper || '#ffffff',
+              headerTokens?.glassmorphism?.paperOpacity || 0.85,
+            ),
+          },
 
         [`&.${verticalLayoutClasses.headerFloating}`]: {
           '&:before': {
@@ -102,18 +114,21 @@ const StyledHeader = styled('header')<StyledHeaderProps>(({ theme, layoutPadding
         },
       },
 
-      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]: {
-        transition: theme?.transitions?.create?.([
-          'box-shadow',
-          'border-width',
-          'padding-inline',
-          'backdrop-filter',
-        ]) || 'all 0.2s ease',
-      },
+      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+        {
+          transition:
+            theme?.transitions?.create?.([
+              'box-shadow',
+              'border-width',
+              'padding-inline',
+              'backdrop-filter',
+            ]) || 'all 0.2s ease',
+        },
 
-      [`&:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerDetached}.scrolled .${verticalLayoutClasses.navbar}`]: {
-        paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
-      },
+      [`&:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerDetached}.scrolled .${verticalLayoutClasses.navbar}`]:
+        {
+          paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
+        },
     },
 
     [`&.${verticalLayoutClasses.headerFloating}`]: {
@@ -132,13 +147,15 @@ const StyledHeader = styled('header')<StyledHeaderProps>(({ theme, layoutPadding
       },
     },
 
-    [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]: {
-      inlineSize: getFloatingNavbarInlineSize(layoutPadding),
-    },
+    [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+      {
+        inlineSize: getFloatingNavbarInlineSize(layoutPadding),
+      },
 
-    [`&:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerStatic} .${verticalLayoutClasses.navbar}`]: {
-      paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
-    },
+    [`&:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerStatic} .${verticalLayoutClasses.navbar}`]:
+      {
+        paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
+      },
 
     [`.${verticalLayoutClasses.navbar}`]: {
       position: headerTokens?.positioning?.navbarPosition || 'relative',

@@ -1,6 +1,10 @@
 import { apiClient, FetchResponse } from '@cap/platform-core'
 
-import { UpdateNamesRequest, UpdateEmailRequest, UpdatePhotoRequest } from "@auth/authentication-core/types/api.types"
+import {
+  UpdateNamesRequest,
+  UpdateEmailRequest,
+  UpdatePhotoRequest,
+} from '@auth/authentication-core/types/api.types'
 import { ENDPOINTS } from '@cap/platform-core'
 
 /**
@@ -62,6 +66,3 @@ export const profileService = {
 }
 
 export default profileService
-
-
-

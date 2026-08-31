@@ -108,7 +108,15 @@ const PasswordlessVerification = () => {
     }, 1200)
 
     return () => clearTimeout(timer)
-  }, [verifyQuery.isSuccess, verifyQuery.data, navigate, setUser, setAuthenticated, setAuthStep, redirectUrl])
+  }, [
+    verifyQuery.isSuccess,
+    verifyQuery.data,
+    navigate,
+    setUser,
+    setAuthenticated,
+    setAuthStep,
+    redirectUrl,
+  ])
 
   const handleResend = () => {
     if (email && resendCooldown === 0) {
@@ -149,7 +157,7 @@ const PasswordlessVerification = () => {
 
   return (
     <Box
-      className="animate-scale-in"
+      className='animate-scale-in'
       component={motion.div}
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
@@ -193,7 +201,7 @@ const PasswordlessVerification = () => {
 
           {state === 'awaiting' && (
             <>
-              <Typography variant="h5" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em' }}>
+              <Typography variant='h5' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em' }}>
                 {t('auth.passwordless.magic_link_sent', 'Check Your Email')}
               </Typography>
 
@@ -201,7 +209,7 @@ const PasswordlessVerification = () => {
                 <Box sx={{ mb: 2 }}>
                   <Chip
                     label={email}
-                    variant="outlined"
+                    variant='outlined'
                     sx={{
                       fontWeight: 600,
                       borderRadius: 2,
@@ -212,7 +220,11 @@ const PasswordlessVerification = () => {
                 </Box>
               )}
 
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, mb: 3.5, lineHeight: 1.6 }}>
+              <Typography
+                variant='body2'
+                color='text.secondary'
+                sx={{ fontWeight: 500, mb: 3.5, lineHeight: 1.6 }}
+              >
                 {t(
                   'auth.passwordless.awaiting_desc',
                   'We sent a secure sign-in link to your email. Click the link in your inbox to sign in instantly.',
@@ -220,7 +232,11 @@ const PasswordlessVerification = () => {
               </Typography>
 
               {resendSuccess && (
-                <Typography variant="caption" color="success.main" sx={{ fontWeight: 700, display: 'block', mb: 2 }}>
+                <Typography
+                  variant='caption'
+                  color='success.main'
+                  sx={{ fontWeight: 700, display: 'block', mb: 2 }}
+                >
                   {t('auth.passwordless.magic_link_sent', 'A new magic link has been sent!')}
                 </Typography>
               )}
@@ -228,10 +244,16 @@ const PasswordlessVerification = () => {
               <Stack spacing={1.5}>
                 <Button
                   fullWidth
-                  variant="contained"
+                  variant='contained'
                   disabled={resendMutation.isPending || resendCooldown > 0}
                   onClick={handleResend}
-                  startIcon={resendMutation.isPending ? <CircularProgress size={18} color="inherit" /> : <Refresh />}
+                  startIcon={
+                    resendMutation.isPending ? (
+                      <CircularProgress size={18} color='inherit' />
+                    ) : (
+                      <Refresh />
+                    )
+                  }
                   sx={{
                     py: 1.4,
                     borderRadius: 3,
@@ -255,7 +277,7 @@ const PasswordlessVerification = () => {
 
                 <Button
                   fullWidth
-                  variant="text"
+                  variant='text'
                   onClick={() => navigate(AuthPath.auth.signin)}
                   sx={{
                     py: 1.2,
@@ -273,10 +295,14 @@ const PasswordlessVerification = () => {
 
           {state === 'verifying' && (
             <>
-              <Typography variant="h5" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em' }}>
+              <Typography variant='h5' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em' }}>
                 {t('auth.passwordless.verifying_title', 'Verifying Connection...')}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, mb: 3.5, lineHeight: 1.6 }}>
+              <Typography
+                variant='body2'
+                color='text.secondary'
+                sx={{ fontWeight: 500, mb: 3.5, lineHeight: 1.6 }}
+              >
                 {t(
                   'auth.passwordless.verifying_desc',
                   'Please wait while we authenticate your session. This will only take a moment.',
@@ -290,24 +316,41 @@ const PasswordlessVerification = () => {
 
           {state === 'success' && (
             <>
-              <Typography variant="h5" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em', color: 'success.main' }}>
+              <Typography
+                variant='h5'
+                sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em', color: 'success.main' }}
+              >
                 {t('auth.passwordless.success_title', 'Authenticated Successfully')}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, mb: 3, lineHeight: 1.6 }}>
-                {t('auth.passwordless.success_desc', 'Your identity has been confirmed. Redirecting to your dashboard...')}
+              <Typography
+                variant='body2'
+                color='text.secondary'
+                sx={{ fontWeight: 500, mb: 3, lineHeight: 1.6 }}
+              >
+                {t(
+                  'auth.passwordless.success_desc',
+                  'Your identity has been confirmed. Redirecting to your dashboard...',
+                )}
               </Typography>
               <Box sx={{ width: '60%', mx: 'auto', mb: 1 }}>
-                <LinearProgress color="success" sx={{ borderRadius: 2, height: 6 }} />
+                <LinearProgress color='success' sx={{ borderRadius: 2, height: 6 }} />
               </Box>
             </>
           )}
 
           {state === 'error' && (
             <>
-              <Typography variant="h5" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em', color: 'error.main' }}>
+              <Typography
+                variant='h5'
+                sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em', color: 'error.main' }}
+              >
                 {t('auth.passwordless.link_expired', 'Link Expired or Invalid')}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, mb: 3.5, lineHeight: 1.6 }}>
+              <Typography
+                variant='body2'
+                color='text.secondary'
+                sx={{ fontWeight: 500, mb: 3.5, lineHeight: 1.6 }}
+              >
                 {t(
                   'auth.passwordless.link_expired_desc',
                   'This magic link has expired or has already been used. For your security, links can only be used once.',
@@ -317,7 +360,7 @@ const PasswordlessVerification = () => {
               <Stack spacing={1.5}>
                 <Button
                   fullWidth
-                  variant="contained"
+                  variant='contained'
                   disabled={resendMutation.isPending || resendCooldown > 0}
                   onClick={handleResend}
                   endIcon={<ArrowForward />}
@@ -341,7 +384,7 @@ const PasswordlessVerification = () => {
 
                 <Button
                   fullWidth
-                  variant="text"
+                  variant='text'
                   onClick={() => navigate(AuthPath.auth.signin)}
                   sx={{
                     py: 1.2,
@@ -360,7 +403,7 @@ const PasswordlessVerification = () => {
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 3 }}>
         <ShieldOutlined sx={{ fontSize: 16, color: 'text.disabled' }} />
-        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+        <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 600 }}>
           {t('auth.passwordless.encrypted_notice', 'Encrypted & Single-Use Authentication')}
         </Typography>
       </Box>
@@ -369,5 +412,3 @@ const PasswordlessVerification = () => {
 }
 
 export default PasswordlessVerification
-
-

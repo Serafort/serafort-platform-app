@@ -1,5 +1,14 @@
 import { useState, useEffect } from 'react'
-import { Box, Typography, LinearProgress, Button, Avatar, Stack, alpha, useTheme } from '@mui/material'
+import {
+  Box,
+  Typography,
+  LinearProgress,
+  Button,
+  Avatar,
+  Stack,
+  alpha,
+  useTheme,
+} from '@mui/material'
 import Speed from '@mui/icons-material/Speed'
 import Refresh from '@mui/icons-material/Refresh'
 import SupportAgent from '@mui/icons-material/SupportAgent'
@@ -57,7 +66,13 @@ export default function Page429TooManyRequests() {
 
       <Typography
         variant='overline'
-        sx={{ fontWeight: 800, color: 'warning.main', letterSpacing: '0.1em', display: 'block', mb: 1 }}
+        sx={{
+          fontWeight: 800,
+          color: 'warning.main',
+          letterSpacing: '0.1em',
+          display: 'block',
+          mb: 1,
+        }}
       >
         429 {t('system.limitReached', 'Rate Limit Reached')}
       </Typography>

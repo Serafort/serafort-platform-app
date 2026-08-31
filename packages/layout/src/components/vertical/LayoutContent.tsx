@@ -16,9 +16,9 @@ const LayoutContent = ({ children }: ChildrenType) => {
 
   return (
     <StyledMain
-      id="main-content"
+      id='main-content'
       tabIndex={-1}
-      role="main"
+      role='main'
       isContentCompact={contentCompact}
       layoutPadding={layoutPadding}
       compactContentWidth={compactContentWidth}
@@ -36,9 +36,7 @@ const LayoutContent = ({ children }: ChildrenType) => {
         outline: 'none',
       }}
     >
-      <ErrorBoundary>
-        {children}
-      </ErrorBoundary>
+      <ErrorBoundary>{children}</ErrorBoundary>
     </StyledMain>
   )
 }

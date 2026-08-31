@@ -36,9 +36,11 @@ const Captcha: React.FC<CaptchaProps> = ({ onError }) => {
         <Typography variant='caption' component='div'>
           Integrate a provider before relying on this control:
           <br />
-          1. Install a provider SDK (e.g. <code>react-google-recaptcha</code> or Cloudflare Turnstile).
+          1. Install a provider SDK (e.g. <code>react-google-recaptcha</code> or Cloudflare
+          Turnstile).
           <br />
-          2. Add the site key via a build-time env var (site keys are public; secret keys stay on the backend).
+          2. Add the site key via a build-time env var (site keys are public; secret keys stay on
+          the backend).
           <br />
           3. Replace this component so the provider calls <code>onVerify(token)</code>.
           <br />

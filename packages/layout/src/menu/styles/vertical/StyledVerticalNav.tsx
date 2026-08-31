@@ -6,7 +6,7 @@ import { horizontalNavClasses, menuClasses, verticalNavClasses } from '../../uti
 type StyledVerticalNavProps = VerticalNavProps &
   Pick<VerticalNavState, 'isBreakpointReached' | 'collapsing' | 'expanding' | 'transitionDuration'>
 
-const StyledVerticalNav = styled('aside') <StyledVerticalNavProps>`
+const StyledVerticalNav = styled('aside')<StyledVerticalNavProps>`
   ${({ scrollWithContent }: StyledVerticalNavProps) =>
     !scrollWithContent &&
     `
@@ -18,7 +18,8 @@ const StyledVerticalNav = styled('aside') <StyledVerticalNavProps>`
 
   /* Transition */
   transition-property: inline-size, min-inline-size, margin-inline-start, inset-inline-start;
-  transition-duration: ${({ transitionDuration }: StyledVerticalNavProps) => `${transitionDuration}ms`};
+  transition-duration: ${({ transitionDuration }: StyledVerticalNavProps) =>
+    `${transitionDuration}ms`};
   transition-timing-function: ease-in-out;
 
   /* Width & Min Width & Margin */
@@ -39,7 +40,8 @@ const StyledVerticalNav = styled('aside') <StyledVerticalNavProps>`
     block-size: 100%;
     inset-block-start: 0;
     inset-inline-start: ${({ width }: StyledVerticalNavProps) => `-${width}px`};
-    z-index: ${({ theme }: { theme?: any }) => (theme?.zIndex?.drawer ? theme.zIndex.drawer + 5 : 1205)};
+    z-index: ${({ theme }: { theme?: any }) =>
+      theme?.zIndex?.drawer ? theme.zIndex.drawer + 5 : 1205};
     margin: 0;
     &.${verticalNavClasses.collapsed} {
       inset-inline-start: -${({ collapsedWidth }: StyledVerticalNavProps) => `${collapsedWidth}px`};

@@ -87,7 +87,7 @@ export default function DomainVerification() {
   const steps = ['Enter Hostname', 'Configure DNS Records', 'Verify & Enable']
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }}>
+    <Container maxWidth='md' sx={{ py: { xs: 3, md: 5 } }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Button
@@ -105,21 +105,22 @@ export default function DomainVerification() {
         >
           Back to Organizations
         </Button>
-        <Stack direction="row" spacing={1.5} alignItems="center" mb={0.5}>
-          <Typography variant="h4" fontWeight={800} letterSpacing="-0.025em">
+        <Stack direction='row' spacing={1.5} alignItems='center' mb={0.5}>
+          <Typography variant='h4' fontWeight={800} letterSpacing='-0.025em'>
             Domain Verification
           </Typography>
           <Chip
             icon={<Lock sx={{ fontSize: '14px !important' }} />}
-            label="SSL Auto-Provision"
-            size="small"
-            color="primary"
-            variant="outlined"
+            label='SSL Auto-Provision'
+            size='small'
+            color='primary'
+            variant='outlined'
             sx={{ fontWeight: 700 }}
           />
         </Stack>
-        <Typography variant="body2" color="text.secondary">
-          Configure and verify custom white-labeled domains for your organization&apos;s authentication portal.
+        <Typography variant='body2' color='text.secondary'>
+          Configure and verify custom white-labeled domains for your organization&apos;s
+          authentication portal.
         </Typography>
       </Box>
 
@@ -135,7 +136,7 @@ export default function DomainVerification() {
                 },
               }}
             >
-              <Typography variant="body2" fontWeight={index === step ? 700 : 500}>
+              <Typography variant='body2' fontWeight={index === step ? 700 : 500}>
                 {label}
               </Typography>
             </StepLabel>
@@ -158,29 +159,29 @@ export default function DomainVerification() {
           {step === 0 && (
             <Stack spacing={3}>
               <Box>
-                <Typography variant="subtitle2" fontWeight={700} mb={1}>
+                <Typography variant='subtitle2' fontWeight={700} mb={1}>
                   Custom Hostname
                 </Typography>
                 <TextField
                   fullWidth
-                  placeholder="e.g. login.acme.com"
+                  placeholder='e.g. login.acme.com'
                   value={domain}
                   onChange={(e) => setDomain(e.target.value.trim())}
                   InputProps={{
                     startAdornment: (
-                      <InputAdornment position="start">
-                        <Domain color="action" />
+                      <InputAdornment position='start'>
+                        <Domain color='action' />
                       </InputAdornment>
                     ),
                     sx: { borderRadius: 2 },
                   }}
-                  helperText="Enter the fully qualified domain name (FQDN) you want to use for SSO."
+                  helperText='Enter the fully qualified domain name (FQDN) you want to use for SSO.'
                 />
               </Box>
 
               <Button
-                variant="contained"
-                size="large"
+                variant='contained'
+                size='large'
                 disabled={!domain || !domain.includes('.')}
                 onClick={() => setStep(1)}
                 sx={{
@@ -198,12 +199,14 @@ export default function DomainVerification() {
           {/* STEP 1: Configure DNS */}
           {step === 1 && (
             <Stack spacing={3.5}>
-              <Alert icon={<Info fontSize="inherit" />} severity="info" sx={{ borderRadius: 2 }}>
-                To verify domain ownership and provision your managed TLS certificate, add the following DNS records with your registrar or DNS provider (Cloudflare, Route53, Google Cloud DNS, etc.).
+              <Alert icon={<Info fontSize='inherit' />} severity='info' sx={{ borderRadius: 2 }}>
+                To verify domain ownership and provision your managed TLS certificate, add the
+                following DNS records with your registrar or DNS provider (Cloudflare, Route53,
+                Google Cloud DNS, etc.).
               </Alert>
 
               <Paper
-                variant="outlined"
+                variant='outlined'
                 sx={{
                   p: 2.5,
                   borderRadius: 2.5,
@@ -214,17 +217,17 @@ export default function DomainVerification() {
                 <Grid container spacing={2}>
                   {/* Table Header */}
                   <Grid size={{ xs: 2 }}>
-                    <Typography variant="caption" fontWeight={700} color="text.secondary">
+                    <Typography variant='caption' fontWeight={700} color='text.secondary'>
                       TYPE
                     </Typography>
                   </Grid>
                   <Grid size={{ xs: 3 }}>
-                    <Typography variant="caption" fontWeight={700} color="text.secondary">
+                    <Typography variant='caption' fontWeight={700} color='text.secondary'>
                       HOST / NAME
                     </Typography>
                   </Grid>
                   <Grid size={{ xs: 7 }}>
-                    <Typography variant="caption" fontWeight={700} color="text.secondary">
+                    <Typography variant='caption' fontWeight={700} color='text.secondary'>
                       VALUE / TARGET
                     </Typography>
                   </Grid>
@@ -235,24 +238,29 @@ export default function DomainVerification() {
 
                   {/* TXT Record */}
                   <Grid size={{ xs: 2 }}>
-                    <Chip label="TXT" size="small" sx={{ fontWeight: 700, height: 22 }} />
+                    <Chip label='TXT' size='small' sx={{ fontWeight: 700, height: 22 }} />
                   </Grid>
                   <Grid size={{ xs: 3 }}>
-                    <Typography variant="body2" fontFamily="monospace" fontWeight={600}>
+                    <Typography variant='body2' fontFamily='monospace' fontWeight={600}>
                       _oneauth-challenge
                     </Typography>
                   </Grid>
                   <Grid size={{ xs: 7 }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-                      <Typography variant="body2" fontFamily="monospace" noWrap>
+                    <Stack
+                      direction='row'
+                      alignItems='center'
+                      justifyContent='space-between'
+                      spacing={1}
+                    >
+                      <Typography variant='body2' fontFamily='monospace' noWrap>
                         oneauth-verify-8f921b7c3d04
                       </Typography>
                       <Tooltip title={copiedKey === 'TXT' ? 'Copied!' : 'Copy Value'}>
                         <IconButton
-                          size="small"
+                          size='small'
                           onClick={() => handleCopy('oneauth-verify-8f921b7c3d04', 'TXT')}
                         >
-                          <ContentCopy fontSize="small" />
+                          <ContentCopy fontSize='small' />
                         </IconButton>
                       </Tooltip>
                     </Stack>
@@ -264,24 +272,35 @@ export default function DomainVerification() {
 
                   {/* CNAME Record */}
                   <Grid size={{ xs: 2 }}>
-                    <Chip label="CNAME" size="small" color="primary" variant="outlined" sx={{ fontWeight: 700, height: 22 }} />
+                    <Chip
+                      label='CNAME'
+                      size='small'
+                      color='primary'
+                      variant='outlined'
+                      sx={{ fontWeight: 700, height: 22 }}
+                    />
                   </Grid>
                   <Grid size={{ xs: 3 }}>
-                    <Typography variant="body2" fontFamily="monospace" fontWeight={600}>
+                    <Typography variant='body2' fontFamily='monospace' fontWeight={600}>
                       {domain.split('.')[0] || 'auth'}
                     </Typography>
                   </Grid>
                   <Grid size={{ xs: 7 }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-                      <Typography variant="body2" fontFamily="monospace" noWrap>
+                    <Stack
+                      direction='row'
+                      alignItems='center'
+                      justifyContent='space-between'
+                      spacing={1}
+                    >
+                      <Typography variant='body2' fontFamily='monospace' noWrap>
                         cname.oneauth.network
                       </Typography>
                       <Tooltip title={copiedKey === 'CNAME' ? 'Copied!' : 'Copy Value'}>
                         <IconButton
-                          size="small"
+                          size='small'
                           onClick={() => handleCopy('cname.oneauth.network', 'CNAME')}
                         >
-                          <ContentCopy fontSize="small" />
+                          <ContentCopy fontSize='small' />
                         </IconButton>
                       </Tooltip>
                     </Stack>
@@ -292,7 +311,7 @@ export default function DomainVerification() {
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                 <Button
                   fullWidth
-                  variant="outlined"
+                  variant='outlined'
                   onClick={() => setStep(0)}
                   disabled={verifyDomainMutation.isPending}
                   sx={{ borderRadius: 2, py: 1.3, fontWeight: 600, textTransform: 'none' }}
@@ -301,19 +320,21 @@ export default function DomainVerification() {
                 </Button>
                 <Button
                   fullWidth
-                  variant="contained"
+                  variant='contained'
                   onClick={handleVerifyDns}
                   disabled={verifyDomainMutation.isPending}
                   startIcon={
                     verifyDomainMutation.isPending ? (
-                      <CircularProgress size={18} color="inherit" />
+                      <CircularProgress size={18} color='inherit' />
                     ) : (
                       <Dns />
                     )
                   }
                   sx={{ borderRadius: 2, py: 1.3, fontWeight: 700, textTransform: 'none' }}
                 >
-                  {verifyDomainMutation.isPending ? 'Verifying DNS Records...' : 'Verify DNS Records'}
+                  {verifyDomainMutation.isPending
+                    ? 'Verifying DNS Records...'
+                    : 'Verify DNS Records'}
                 </Button>
               </Stack>
             </Stack>
@@ -338,15 +359,20 @@ export default function DomainVerification() {
               >
                 <Verified sx={{ fontSize: 44 }} />
               </Box>
-              <Typography variant="h5" fontWeight={800} gutterBottom>
+              <Typography variant='h5' fontWeight={800} gutterBottom>
                 Domain Verified & Active
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 4, maxWidth: 500, mx: 'auto' }}>
-                Your custom domain <strong>{domain}</strong> is now verified, TLS encrypted, and ready to route authentication traffic for your tenant.
+              <Typography
+                variant='body2'
+                color='text.secondary'
+                sx={{ mb: 4, maxWidth: 500, mx: 'auto' }}
+              >
+                Your custom domain <strong>{domain}</strong> is now verified, TLS encrypted, and
+                ready to route authentication traffic for your tenant.
               </Typography>
               <Button
-                variant="contained"
-                size="large"
+                variant='contained'
+                size='large'
                 onClick={() => navigate('/admin/organizations')}
                 sx={{ borderRadius: 2, px: 5, py: 1.3, fontWeight: 700, textTransform: 'none' }}
               >

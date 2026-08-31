@@ -59,8 +59,10 @@ export function normalizeUserSession(raw: any): UserSession {
   return {
     id: raw.id ? String(raw.id) : String(raw.token || Math.random()),
     userId: raw.userId || raw.user_id,
-    deviceName: raw.deviceName || raw.device_name || raw.deviceInfo || `${browser} on ${deviceType}`,
-    device_name: raw.device_name || raw.deviceName || raw.deviceInfo || `${browser} on ${deviceType}`,
+    deviceName:
+      raw.deviceName || raw.device_name || raw.deviceInfo || `${browser} on ${deviceType}`,
+    device_name:
+      raw.device_name || raw.deviceName || raw.deviceInfo || `${browser} on ${deviceType}`,
     deviceType,
     device_type: deviceType,
     browser: browser || 'Unknown',
@@ -131,17 +133,21 @@ export const sessionService = {
   /**
    * Terminate a single active session by ID
    */
-  revokeSession: async (sessionId: string | number): Promise<FetchResponse<{ message: string }>> => {
+  revokeSession: async (
+    sessionId: string | number,
+  ): Promise<FetchResponse<{ message: string }>> => {
     const idStr = String(sessionId)
-    const response = await apiClient.delete<{ message: string }>(ENDPOINTS.auth.revokeSession(idStr))
-    
+    const response = await apiClient.delete<{ message: string }>(
+      ENDPOINTS.auth.revokeSession(idStr),
+    )
+
     await eventBus.publish(
       createSessionRevokedEvent({
         sessionId: idStr,
         userId: 'current-user',
         reason: 'admin_revoked',
         revokedAt: new Date().toISOString(),
-      })
+      }),
     )
 
     return response
@@ -159,7 +165,7 @@ export const sessionService = {
         userId: 'current-user',
         reason: 'admin_revoked',
         revokedAt: new Date().toISOString(),
-      })
+      }),
     )
 
     return response
@@ -183,7 +189,7 @@ export const sessionService = {
    * Update account password
    */
   changePassword: async (
-    payload: ChangePasswordRequest
+    payload: ChangePasswordRequest,
   ): Promise<FetchResponse<ChangePasswordResponse>> => {
     return apiClient.post<ChangePasswordResponse>(ENDPOINTS.user.changePassword, {
       currentPassword: payload.currentPassword || payload.oldPassword,
@@ -195,13 +201,19 @@ export const sessionService = {
    * Deactivate current user account
    */
   deactivateAccount: async (
-    payload?: DeactivateAccountRequest
+    payload?: DeactivateAccountRequest,
   ): Promise<FetchResponse<DeactivateAccountResponse>> => {
     let response: FetchResponse<DeactivateAccountResponse>
     try {
-      response = await apiClient.post<DeactivateAccountResponse>('/api/user/deactivate', payload || {})
+      response = await apiClient.post<DeactivateAccountResponse>(
+        '/api/user/deactivate',
+        payload || {},
+      )
     } catch {
-      response = await apiClient.patch<DeactivateAccountResponse>('/api/user/deactivate', payload || {})
+      response = await apiClient.patch<DeactivateAccountResponse>(
+        '/api/user/deactivate',
+        payload || {},
+      )
     }
 
     await eventBus.publish(
@@ -210,7 +222,7 @@ export const sessionService = {
         userId: 'current-user',
         reason: 'user_logout',
         revokedAt: new Date().toISOString(),
-      })
+      }),
     )
 
     return response

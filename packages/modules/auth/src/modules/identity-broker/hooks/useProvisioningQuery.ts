@@ -1,4 +1,10 @@
-import { useQuery, useMutation, useQueryClient, type UseQueryOptions, type UseMutationOptions } from '@tanstack/react-query'
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type UseQueryOptions,
+  type UseMutationOptions,
+} from '@tanstack/react-query'
 import type { FetchResponse, HttpError } from '@cap/platform-core'
 import provisioningService from '../services/provisioning.service'
 import type {
@@ -17,7 +23,10 @@ export const provisioningKeys = {
 }
 
 export function useProvisioningConnectors(
-  options?: Omit<UseQueryOptions<FetchResponse<DirectoryConnector[]>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<FetchResponse<DirectoryConnector[]>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: provisioningKeys.connectors(),
@@ -28,7 +37,10 @@ export function useProvisioningConnectors(
 
 export function useProvisioningConnector(
   id: string | number | null | undefined,
-  options?: Omit<UseQueryOptions<FetchResponse<DirectoryConnector>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<FetchResponse<DirectoryConnector>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: provisioningKeys.connector(id || ''),
@@ -39,7 +51,12 @@ export function useProvisioningConnector(
 }
 
 export function useCreateProvisioningConnector(
-  options?: UseMutationOptions<FetchResponse<DirectoryConnector>, HttpError, CreateConnectorDTO, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<DirectoryConnector>,
+    HttpError,
+    CreateConnectorDTO,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -55,14 +72,20 @@ export function useCreateProvisioningConnector(
 
 export function useUpdateProvisioningConnector(
   id?: string | number,
-  options?: UseMutationOptions<FetchResponse<DirectoryConnector>, HttpError, { id?: string | number; data: UpdateConnectorDTO } | UpdateConnectorDTO, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<DirectoryConnector>,
+    HttpError,
+    { id?: string | number; data: UpdateConnectorDTO } | UpdateConnectorDTO,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
   return useMutation({
     mutationFn: (payload) => {
-      const targetId = ('id' in payload && payload.id) ? payload.id : id
-      const targetData = ('data' in payload && payload.data) ? payload.data : (payload as UpdateConnectorDTO)
+      const targetId = 'id' in payload && payload.id ? payload.id : id
+      const targetData =
+        'data' in payload && payload.data ? payload.data : (payload as UpdateConnectorDTO)
       if (!targetId) throw new Error('Connector ID is required for update')
       return provisioningService.updateConnector(targetId, targetData)
     },
@@ -78,7 +101,12 @@ export function useUpdateProvisioningConnector(
 }
 
 export function useDeleteProvisioningConnector(
-  options?: UseMutationOptions<FetchResponse<{ message?: string }>, HttpError, string | number, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<{ message?: string }>,
+    HttpError,
+    string | number,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -93,7 +121,12 @@ export function useDeleteProvisioningConnector(
 }
 
 export function useSyncProvisioningConnector(
-  options?: UseMutationOptions<FetchResponse<ConnectorSyncResult>, HttpError, string | number, unknown>
+  options?: UseMutationOptions<
+    FetchResponse<ConnectorSyncResult>,
+    HttpError,
+    string | number,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -112,7 +145,7 @@ export function useSyncProvisioningConnector(
 
 export function useProvisioningConnectorLogs(
   id: string | number | null | undefined,
-  options?: Omit<UseQueryOptions<FetchResponse<SyncLog[]>, HttpError>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<FetchResponse<SyncLog[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: provisioningKeys.logs(id || ''),

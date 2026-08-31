@@ -71,7 +71,7 @@ export interface LiquidGlassConfig {
   refraction?: number; // 0-100
 }
 
-import type { UIEffect } from '@cap/shared-types';
+import type { UIEffect } from "@cap/shared-types";
 
 export type EffectType = UIEffect;
 
@@ -88,8 +88,8 @@ export interface EffectConfig {
 
 export const DEFAULT_GLASSMORPHISM: GlassmorphismConfig = {
   enabled: false,
-  blur: '16px',
-  borderWidth: '1px',
+  blur: "16px",
+  borderWidth: "1px",
   opacity: 0.8,
 };
 
@@ -98,48 +98,48 @@ export const DEFAULT_NEUMORPHISM: NeumorphismConfig = {
   intensity: 0.15,
   distance: 5,
   altitude: 10,
-  borderRadius: '12px',
+  borderRadius: "12px",
 };
 
 export const DEFAULT_BRUTALISM: BrutalismConfig = {
   enabled: false,
-  borderWidth: '2px',
-  shadowOffset: '4px',
+  borderWidth: "2px",
+  shadowOffset: "4px",
 };
 
 export const DEFAULT_BENTO: BentoConfig = {
   enabled: false,
-  borderRadius: '24px',
-  spacing: '1.5rem',
-  borderWidth: '1px',
+  borderRadius: "24px",
+  spacing: "1.5rem",
+  borderWidth: "1px",
 };
 
 export const DEFAULT_ORGANIC: OrganicConfig = {
   enabled: false,
   curvature: 80,
   fluidity: 50,
-  borderWidth: '0px',
+  borderWidth: "0px",
 };
 
 export const DEFAULT_IMMERSIVE: ImmersiveConfig = {
   enabled: false,
   layers: 3,
   depth: 20,
-  perspective: '1000px',
-  rotationX: '0deg',
-  rotationY: '0deg',
+  perspective: "1000px",
+  rotationX: "0deg",
+  rotationY: "0deg",
 };
 
 export const DEFAULT_LIQUID_GLASS: LiquidGlassConfig = {
   enabled: false,
-  blur: '24px',
+  blur: "24px",
   opacity: 0.85,
-  borderWidth: '1px',
+  borderWidth: "1px",
   refraction: 40,
 };
 
 export const DEFAULT_EFFECT_CONFIG: EffectConfig = {
-  globalType: 'standard',
+  globalType: "standard",
   glassmorphism: DEFAULT_GLASSMORPHISM,
   neumorphism: DEFAULT_NEUMORPHISM,
   brutalism: DEFAULT_BRUTALISM,

@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import authService from "@auth/modules/authentication-core/services/auth.service"
+import authService from '@auth/modules/authentication-core/services/auth.service'
 import { AuthActionButton } from '../shared/auth/AuthActionButton'
 
 const resetPasswordFormSchema = z.object({
@@ -140,4 +140,3 @@ export default function ResetPasswordForm({
     </Container>
   )
 }
-

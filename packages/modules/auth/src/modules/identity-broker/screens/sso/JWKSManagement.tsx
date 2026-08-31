@@ -3,26 +3,54 @@
 // FIXES: Containerâ†’Box, motion entry, card variants, empty state, audit card
 // AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
 
-import React from 'react';
-import { Box, Button, Typography, Card, CardContent, IconButton, alpha, useTheme, Grid, Chip, Alert, Tooltip, LinearProgress, Avatar, Stack, Divider, Skeleton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, CircularProgress } from '@mui/material';
-import Key from '@mui/icons-material/Key';
-import Add from '@mui/icons-material/Add';
-import Delete from '@mui/icons-material/Delete';
-import ContentCopy from '@mui/icons-material/ContentCopy';
-import Refresh from '@mui/icons-material/Refresh';
-import History from '@mui/icons-material/History';
-import Security from '@mui/icons-material/Security';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
-import ArrowBack from '@mui/icons-material/ArrowBack';
-import CloseIcon from '@mui/icons-material/Close';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useJWKSKeys, useRotateJWKSKeys, useDeleteJWKSKey, useCreateJWKSKey, useGetJWKSKeyDetail, CreateJWKSKeyRequest } from '@auth';
-
-
-
-
+import React from 'react'
+import {
+  Box,
+  Button,
+  Typography,
+  Card,
+  CardContent,
+  IconButton,
+  alpha,
+  useTheme,
+  Grid,
+  Chip,
+  Alert,
+  Tooltip,
+  LinearProgress,
+  Avatar,
+  Stack,
+  Divider,
+  Skeleton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  CircularProgress,
+} from '@mui/material'
+import Key from '@mui/icons-material/Key'
+import Add from '@mui/icons-material/Add'
+import Delete from '@mui/icons-material/Delete'
+import ContentCopy from '@mui/icons-material/ContentCopy'
+import Refresh from '@mui/icons-material/Refresh'
+import History from '@mui/icons-material/History'
+import Security from '@mui/icons-material/Security'
+import InfoOutlined from '@mui/icons-material/InfoOutlined'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import CloseIcon from '@mui/icons-material/Close'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import {
+  useJWKSKeys,
+  useRotateJWKSKeys,
+  useDeleteJWKSKey,
+  useCreateJWKSKey,
+  useGetJWKSKeyDetail,
+  CreateJWKSKeyRequest,
+} from '@auth'
 
 export default function JWKSManagement() {
   const { t } = useTranslation()
@@ -53,7 +81,7 @@ export default function JWKSManagement() {
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to rotate keys')
-    }
+    },
   })
 
   const deleteMutation = useDeleteJWKSKey({
@@ -62,7 +90,7 @@ export default function JWKSManagement() {
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to delete key')
-    }
+    },
   })
 
   const createMutation = useCreateJWKSKey({
@@ -81,7 +109,7 @@ export default function JWKSManagement() {
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to create key')
-    }
+    },
   })
 
   const onRotate = () => rotateMutation.mutate()
@@ -100,10 +128,7 @@ export default function JWKSManagement() {
   }
 
   return (
-    <Box
-      sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}
-      className='animate-scale-in'
-    >
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }} className='animate-scale-in'>
       {/* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Box
         sx={{
@@ -130,10 +155,15 @@ export default function JWKSManagement() {
             </Avatar>
             <Box
               sx={{
-                position: 'absolute', bottom: -4, right: -4,
-                width: 24, height: 24,
-                bgcolor: 'success.main', borderRadius: '50%',
-                border: '4px solid', borderColor: 'background.paper',
+                position: 'absolute',
+                bottom: -4,
+                right: -4,
+                width: 24,
+                height: 24,
+                bgcolor: 'success.main',
+                borderRadius: '50%',
+                border: '4px solid',
+                borderColor: 'background.paper',
               }}
             />
           </Box>
@@ -142,7 +172,9 @@ export default function JWKSManagement() {
               <Button
                 onClick={() => navigate(-1)}
                 sx={{
-                  p: 0, minWidth: 'auto', color: 'text.secondary',
+                  p: 0,
+                  minWidth: 'auto',
+                  color: 'text.secondary',
                   '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
                 }}
               >
@@ -184,8 +216,10 @@ export default function JWKSManagement() {
             startIcon={<Refresh />}
             onClick={onRotate}
             sx={{
-              height: 44, borderRadius: '12px',
-              textTransform: 'none', fontWeight: 700,
+              height: 44,
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontWeight: 700,
               flex: { xs: 1, sm: 'none' },
             }}
           >
@@ -196,12 +230,16 @@ export default function JWKSManagement() {
             startIcon={<Add />}
             onClick={onAddKey}
             sx={{
-              bgcolor: 'info.main', color: 'white',
+              bgcolor: 'info.main',
+              color: 'white',
               boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
               '&:hover': { bgcolor: 'info.dark' },
-              textTransform: 'none', fontWeight: 700,
+              textTransform: 'none',
+              fontWeight: 700,
               flex: { xs: 1, sm: 'none' },
-              height: 44, borderRadius: '12px', px: 3,
+              height: 44,
+              borderRadius: '12px',
+              px: 3,
             }}
           >
             {t('auth.sso.manual_key', 'Add Key')}
@@ -214,7 +252,8 @@ export default function JWKSManagement() {
         severity='warning'
         icon={<Security />}
         sx={{
-          borderRadius: 4, mb: 4,
+          borderRadius: 4,
+          mb: 4,
           border: '1px solid',
           borderColor: alpha(theme.palette.warning.main, 0.2),
           bgcolor: alpha(theme.palette.warning.main, 0.02),
@@ -249,24 +288,50 @@ export default function JWKSManagement() {
             overflow: 'hidden',
           }}
         >
-          <Box sx={{ position: 'absolute', top: -30, right: -30, width: 150, height: 150, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: -30,
+              right: -30,
+              width: 150,
+              height: 150,
+              bgcolor: alpha(theme.palette.primary.main, 0.05),
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <Key sx={{ fontSize: 80, opacity: 0.1 }} />
           </Box>
           <Avatar
             sx={{
-              width: 80, height: 80,
+              width: 80,
+              height: 80,
               bgcolor: alpha(theme.palette.primary.main, 0.08),
-              color: 'primary.main', mb: 3, mx: 'auto',
-              borderRadius: '20px'
+              color: 'primary.main',
+              mb: 3,
+              mx: 'auto',
+              borderRadius: '20px',
             }}
           >
             <Key sx={{ fontSize: 40 }} />
           </Avatar>
-          <Typography variant='h5' sx={{ fontWeight: 900, mb: 1.5, fontFamily: 'Outfit, sans-serif' }}>
+          <Typography
+            variant='h5'
+            sx={{ fontWeight: 900, mb: 1.5, fontFamily: 'Outfit, sans-serif' }}
+          >
             {t('auth.sso.no_keys', 'No Keys Configured')}
           </Typography>
-          <Typography variant='body1' color='text.secondary' sx={{ mb: 4, maxWidth: 450, mx: 'auto', fontWeight: 500 }}>
-            {t('auth.sso.no_keys_desc', 'Secure your OIDC provider by generating or importing cryptographic keys for digital signatures.')}
+          <Typography
+            variant='body1'
+            color='text.secondary'
+            sx={{ mb: 4, maxWidth: 450, mx: 'auto', fontWeight: 500 }}
+          >
+            {t(
+              'auth.sso.no_keys_desc',
+              'Secure your OIDC provider by generating or importing cryptographic keys for digital signatures.',
+            )}
           </Typography>
           <Button
             variant='contained'
@@ -279,8 +344,11 @@ export default function JWKSManagement() {
                 bgcolor: 'info.dark',
                 boxShadow: `0 12px 40px 0 ${alpha(theme.palette.info.main, 0.45)}`,
               },
-              textTransform: 'none', fontWeight: 800,
-              height: 48, borderRadius: '14px', px: 4,
+              textTransform: 'none',
+              fontWeight: 800,
+              height: 48,
+              borderRadius: '14px',
+              px: 4,
             }}
           >
             {t('auth.sso.manual_key', 'Initialize Key Set')}
@@ -315,9 +383,11 @@ export default function JWKSManagement() {
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Avatar
                           sx={{
-                            width: 48, height: 48,
+                            width: 48,
+                            height: 48,
                             backgroundColor: alpha(theme.palette.primary.main, 0.08),
-                            color: 'primary.main', borderRadius: '14px',
+                            color: 'primary.main',
+                            borderRadius: '14px',
                           }}
                         >
                           <Key />
@@ -331,27 +401,42 @@ export default function JWKSManagement() {
                               label={(key.status || 'unknown').toUpperCase()}
                               size='small'
                               sx={{
-                                height: 20, fontSize: '0.65rem', fontWeight: 900, borderRadius: '6px',
+                                height: 20,
+                                fontSize: '0.65rem',
+                                fontWeight: 900,
+                                borderRadius: '6px',
                                 bgcolor: alpha(
-                                  key.status === 'active' ? theme.palette.success.main :
-                                    key.status === 'revoked' ? theme.palette.error.main :
-                                      theme.palette.info.main,
-                                  0.15
+                                  key.status === 'active'
+                                    ? theme.palette.success.main
+                                    : key.status === 'revoked'
+                                      ? theme.palette.error.main
+                                      : theme.palette.info.main,
+                                  0.15,
                                 ),
-                                color: key.status === 'active' ? 'success.main' :
-                                  key.status === 'revoked' ? 'error.main' : 'info.main',
+                                color:
+                                  key.status === 'active'
+                                    ? 'success.main'
+                                    : key.status === 'revoked'
+                                      ? 'error.main'
+                                      : 'info.main',
                                 border: '1px solid',
                                 borderColor: alpha(
-                                  key.status === 'active' ? theme.palette.success.main :
-                                    key.status === 'revoked' ? theme.palette.error.main :
-                                      theme.palette.info.main,
-                                  0.2
+                                  key.status === 'active'
+                                    ? theme.palette.success.main
+                                    : key.status === 'revoked'
+                                      ? theme.palette.error.main
+                                      : theme.palette.info.main,
+                                  0.2,
                                 ),
                               }}
                             />
                             <Typography
                               variant='caption'
-                              sx={{ fontWeight: 700, color: 'text.secondary', letterSpacing: '0.05em' }}
+                              sx={{
+                                fontWeight: 700,
+                                color: 'text.secondary',
+                                letterSpacing: '0.05em',
+                              }}
                             >
                               {key.alg}
                             </Typography>
@@ -365,9 +450,12 @@ export default function JWKSManagement() {
                       <Typography
                         variant='caption'
                         sx={{
-                          fontWeight: 700, textTransform: 'uppercase',
-                          letterSpacing: '0.075em', color: 'text.secondary',
-                          display: 'block', mb: 1,
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.075em',
+                          color: 'text.secondary',
+                          display: 'block',
+                          mb: 1,
                         }}
                       >
                         {t('auth.sso.key_health', 'Certificate Health')}
@@ -377,20 +465,31 @@ export default function JWKSManagement() {
                           variant='determinate'
                           value={key.health ?? 100}
                           sx={{
-                            flexGrow: 1, height: 6, borderRadius: 3,
+                            flexGrow: 1,
+                            height: 6,
+                            borderRadius: 3,
                             bgcolor: alpha(theme.palette.divider, 0.1),
                             '& .MuiLinearProgress-bar': {
                               borderRadius: 3,
-                              background: (key.health ?? 100) > 90
-                                ? `linear-gradient(90deg, ${theme.palette.success.main} 0%, ${alpha(theme.palette.success.main, 0.7)} 100%)`
-                                : `linear-gradient(90deg, ${theme.palette.warning.main} 0%, ${alpha(theme.palette.warning.main, 0.7)} 100%)`,
-                              boxShadow: (key.health ?? 100) > 90
-                                ? `0 0 10px ${alpha(theme.palette.success.main, 0.5)}`
-                                : `0 0 10px ${alpha(theme.palette.warning.main, 0.5)}`,
-                            }
+                              background:
+                                (key.health ?? 100) > 90
+                                  ? `linear-gradient(90deg, ${theme.palette.success.main} 0%, ${alpha(theme.palette.success.main, 0.7)} 100%)`
+                                  : `linear-gradient(90deg, ${theme.palette.warning.main} 0%, ${alpha(theme.palette.warning.main, 0.7)} 100%)`,
+                              boxShadow:
+                                (key.health ?? 100) > 90
+                                  ? `0 0 10px ${alpha(theme.palette.success.main, 0.5)}`
+                                  : `0 0 10px ${alpha(theme.palette.warning.main, 0.5)}`,
+                            },
                           }}
                         />
-                        <Typography variant='body2' sx={{ fontWeight: 900, minWidth: 40, color: (key.health ?? 100) > 90 ? 'success.main' : 'warning.main' }}>
+                        <Typography
+                          variant='body2'
+                          sx={{
+                            fontWeight: 900,
+                            minWidth: 40,
+                            color: (key.health ?? 100) > 90 ? 'success.main' : 'warning.main',
+                          }}
+                        >
                           {key.health ?? 100}%
                         </Typography>
                       </Box>
@@ -407,9 +506,12 @@ export default function JWKSManagement() {
                             <Typography
                               variant='caption'
                               sx={{
-                                fontWeight: 700, textTransform: 'uppercase',
-                                letterSpacing: '0.075em', color: 'text.secondary',
-                                display: 'block', mb: 0.5,
+                                fontWeight: 700,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.075em',
+                                color: 'text.secondary',
+                                display: 'block',
+                                mb: 0.5,
                               }}
                             >
                               {label}
@@ -424,7 +526,13 @@ export default function JWKSManagement() {
 
                     {/* Actions */}
                     <Grid size={{ xs: 12, sm: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' }, gap: 1 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: { xs: 'flex-start', sm: 'flex-end' },
+                          gap: 1,
+                        }}
+                      >
                         <Tooltip title={t('auth.sso.copy_kid', 'Copy KID')}>
                           <IconButton
                             size='small'
@@ -450,7 +558,10 @@ export default function JWKSManagement() {
                             size='small'
                             color='error'
                             onClick={() => onDeleteKey?.(key.kid)}
-                            sx={{ border: '1px solid', borderColor: alpha(theme.palette.error.main, 0.2) }}
+                            sx={{
+                              border: '1px solid',
+                              borderColor: alpha(theme.palette.error.main, 0.2),
+                            }}
                             aria-label={t('common.delete', 'Delete')}
                           >
                             <Delete fontSize='small' />
@@ -498,9 +609,13 @@ export default function JWKSManagement() {
               startIcon={<History />}
               onClick={onViewHistory}
               sx={{
-                fontWeight: 700, color: 'text.secondary',
+                fontWeight: 700,
+                color: 'text.secondary',
                 textTransform: 'none',
-                '&:hover': { color: 'primary.main', bgcolor: alpha(theme.palette.primary.main, 0.04) },
+                '&:hover': {
+                  color: 'primary.main',
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                },
               }}
             >
               {t('auth.sso.view_key_history', 'View Full History')}
@@ -523,15 +638,31 @@ export default function JWKSManagement() {
             border: '1px solid',
             borderColor: (t) => alpha(t.palette.divider, 0.1),
             boxShadow: (t) => t.shadows[24],
-          }
+          },
         }}
       >
         <form onSubmit={handleCreateSubmit}>
-          <DialogTitle sx={{ p: 3, pb: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6" component="div" sx={{ fontWeight: 900, fontFamily: 'Outfit, sans-serif' }}>
+          <DialogTitle
+            sx={{
+              p: 3,
+              pb: 0,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Typography
+              variant='h6'
+              component='div'
+              sx={{ fontWeight: 900, fontFamily: 'Outfit, sans-serif' }}
+            >
               {t('auth.sso.add_manual_key', 'Add Manual OIDC Key')}
             </Typography>
-            <IconButton onClick={() => setIsAddModalOpen(false)} size="small" sx={{ color: 'text.secondary' }}>
+            <IconButton
+              onClick={() => setIsAddModalOpen(false)}
+              size='small'
+              sx={{ color: 'text.secondary' }}
+            >
               <CloseIcon />
             </IconButton>
           </DialogTitle>
@@ -548,7 +679,7 @@ export default function JWKSManagement() {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '12px',
                     bgcolor: alpha('#000', 0.3),
-                  }
+                  },
                 }}
               />
               <Grid container spacing={2}>
@@ -563,7 +694,7 @@ export default function JWKSManagement() {
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '12px',
                         bgcolor: alpha('#000', 0.3),
-                      }
+                      },
                     }}
                   >
                     <MenuItem value='RS256'>RS256</MenuItem>
@@ -583,7 +714,7 @@ export default function JWKSManagement() {
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '12px',
                         bgcolor: alpha('#000', 0.3),
-                      }
+                      },
                     }}
                   >
                     <MenuItem value='active'>Active</MenuItem>
@@ -604,7 +735,7 @@ export default function JWKSManagement() {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '12px',
                     bgcolor: alpha('#000', 0.3),
-                  }
+                  },
                 }}
               />
               <TextField
@@ -620,7 +751,7 @@ export default function JWKSManagement() {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '12px',
                     bgcolor: alpha('#000', 0.3),
-                  }
+                  },
                 }}
               />
               <TextField
@@ -634,13 +765,16 @@ export default function JWKSManagement() {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '12px',
                     bgcolor: alpha('#000', 0.3),
-                  }
+                  },
                 }}
               />
             </Stack>
           </DialogContent>
           <DialogActions sx={{ p: 3, pt: 0 }}>
-            <Button onClick={() => setIsAddModalOpen(false)} sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}>
+            <Button
+              onClick={() => setIsAddModalOpen(false)}
+              sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}
+            >
               {t('common.cancel', 'Cancel')}
             </Button>
             <Button
@@ -656,7 +790,9 @@ export default function JWKSManagement() {
                 '&:hover': { bgcolor: 'info.dark' },
               }}
             >
-              {createMutation.isPending ? t('common.creating', 'Creating...') : t('common.create', 'Create Key')}
+              {createMutation.isPending
+                ? t('common.creating', 'Creating...')
+                : t('common.create', 'Create Key')}
             </Button>
           </DialogActions>
         </form>
@@ -676,22 +812,36 @@ export default function JWKSManagement() {
             border: '1px solid',
             borderColor: (t) => alpha(t.palette.divider, 0.1),
             boxShadow: (t) => t.shadows[24],
-          }
+          },
         }}
       >
-        <DialogTitle sx={{ p: 3, pb: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <DialogTitle
+          sx={{
+            p: 3,
+            pb: 0,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Avatar
               sx={{
-                width: 40, height: 40,
+                width: 40,
+                height: 40,
                 bgcolor: alpha(theme.palette.info.main, 0.1),
-                color: 'info.main', borderRadius: '12px'
+                color: 'info.main',
+                borderRadius: '12px',
               }}
             >
               <Key sx={{ fontSize: 22 }} />
             </Avatar>
             <Box>
-              <Typography variant='h6' component='div' sx={{ fontWeight: 900, fontFamily: 'Outfit, sans-serif' }}>
+              <Typography
+                variant='h6'
+                component='div'
+                sx={{ fontWeight: 900, fontFamily: 'Outfit, sans-serif' }}
+              >
                 {t('auth.sso.key_details', 'Key Details')}
               </Typography>
               <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 600 }}>
@@ -699,15 +849,36 @@ export default function JWKSManagement() {
               </Typography>
             </Box>
           </Box>
-          <IconButton onClick={() => setDetailKid(null)} size='small' sx={{ color: 'text.secondary' }}>
+          <IconButton
+            onClick={() => setDetailKid(null)}
+            size='small'
+            sx={{ color: 'text.secondary' }}
+          >
             <CloseIcon />
           </IconButton>
         </DialogTitle>
         <DialogContent sx={{ p: 3, pt: 3 }}>
           {isDetailLoading ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 6, gap: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                py: 6,
+                gap: 2,
+              }}
+            >
               <CircularProgress size={32} thickness={5} />
-              <Typography variant='caption' sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.075em', color: 'text.secondary' }}>
+              <Typography
+                variant='caption'
+                sx={{
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.075em',
+                  color: 'text.secondary',
+                }}
+              >
                 {t('common.loading', 'Loading...')}
               </Typography>
             </Box>
@@ -716,12 +887,42 @@ export default function JWKSManagement() {
               {/* Status & Algorithm Row */}
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 {[
-                  { label: t('common.status', 'Status'), value: keyDetail.status?.toUpperCase(), color: keyDetail.status === 'active' ? 'success' : keyDetail.status === 'revoked' ? 'error' : 'info' },
+                  {
+                    label: t('common.status', 'Status'),
+                    value: keyDetail.status?.toUpperCase(),
+                    color:
+                      keyDetail.status === 'active'
+                        ? 'success'
+                        : keyDetail.status === 'revoked'
+                          ? 'error'
+                          : 'info',
+                  },
                   { label: t('auth.sso.algorithm', 'Algorithm'), value: keyDetail.alg },
                   { label: t('auth.sso.usage', 'Usage'), value: keyDetail.use?.toUpperCase() },
                 ].map(({ label, value, color }) => (
-                  <Box key={label} sx={{ flex: 1, minWidth: 120, p: 2, borderRadius: '14px', bgcolor: alpha('#000', 0.3), border: '1px solid', borderColor: alpha(theme.palette.divider, 0.08) }}>
-                    <Typography variant='caption' sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.075em', color: 'text.secondary', display: 'block', mb: 0.5 }}>
+                  <Box
+                    key={label}
+                    sx={{
+                      flex: 1,
+                      minWidth: 120,
+                      p: 2,
+                      borderRadius: '14px',
+                      bgcolor: alpha('#000', 0.3),
+                      border: '1px solid',
+                      borderColor: alpha(theme.palette.divider, 0.08),
+                    }}
+                  >
+                    <Typography
+                      variant='caption'
+                      sx={{
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.075em',
+                        color: 'text.secondary',
+                        display: 'block',
+                        mb: 0.5,
+                      }}
+                    >
                       {label}
                     </Typography>
                     {color ? (
@@ -743,12 +944,44 @@ export default function JWKSManagement() {
               {/* Dates */}
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 {[
-                  { label: t('common.created', 'Created'), value: keyDetail.created ? new Date(keyDetail.created).toLocaleString() : 'N/A' },
-                  { label: t('common.updated', 'Updated'), value: keyDetail.updated ? new Date(keyDetail.updated).toLocaleString() : 'N/A' },
-                  { label: t('common.expires', 'Expires'), value: keyDetail.expires ? new Date(keyDetail.expires).toLocaleString() : 'Never' },
+                  {
+                    label: t('common.created', 'Created'),
+                    value: keyDetail.created ? new Date(keyDetail.created).toLocaleString() : 'N/A',
+                  },
+                  {
+                    label: t('common.updated', 'Updated'),
+                    value: keyDetail.updated ? new Date(keyDetail.updated).toLocaleString() : 'N/A',
+                  },
+                  {
+                    label: t('common.expires', 'Expires'),
+                    value: keyDetail.expires
+                      ? new Date(keyDetail.expires).toLocaleString()
+                      : 'Never',
+                  },
                 ].map(({ label, value }) => (
-                  <Box key={label} sx={{ flex: 1, minWidth: 120, p: 2, borderRadius: '14px', bgcolor: alpha('#000', 0.3), border: '1px solid', borderColor: alpha(theme.palette.divider, 0.08) }}>
-                    <Typography variant='caption' sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.075em', color: 'text.secondary', display: 'block', mb: 0.5 }}>
+                  <Box
+                    key={label}
+                    sx={{
+                      flex: 1,
+                      minWidth: 120,
+                      p: 2,
+                      borderRadius: '14px',
+                      bgcolor: alpha('#000', 0.3),
+                      border: '1px solid',
+                      borderColor: alpha(theme.palette.divider, 0.08),
+                    }}
+                  >
+                    <Typography
+                      variant='caption'
+                      sx={{
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.075em',
+                        color: 'text.secondary',
+                        display: 'block',
+                        mb: 0.5,
+                      }}
+                    >
                       {label}
                     </Typography>
                     <Typography variant='body2' sx={{ fontWeight: 700 }}>
@@ -760,8 +993,23 @@ export default function JWKSManagement() {
 
               {/* Public JWK */}
               <Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                  <Typography variant='caption' sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.075em', color: 'text.secondary' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 1,
+                  }}
+                >
+                  <Typography
+                    variant='caption'
+                    sx={{
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.075em',
+                      color: 'text.secondary',
+                    }}
+                  >
                     {t('auth.sso.public_jwk', 'Public JWK')}
                   </Typography>
                   <Tooltip title={t('common.copy', 'Copy')}>
@@ -777,14 +1025,19 @@ export default function JWKSManagement() {
                 <Box
                   component='pre'
                   sx={{
-                    p: 2, borderRadius: '14px',
+                    p: 2,
+                    borderRadius: '14px',
                     bgcolor: alpha('#000', 0.4),
                     border: '1px solid',
                     borderColor: alpha(theme.palette.divider, 0.08),
-                    fontSize: '0.75rem', fontFamily: 'monospace',
-                    overflow: 'auto', maxHeight: 250,
+                    fontSize: '0.75rem',
+                    fontFamily: 'monospace',
+                    overflow: 'auto',
+                    maxHeight: 250,
                     color: alpha('#fff', 0.85),
-                    m: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
+                    m: 0,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-all',
                   }}
                 >
                   {JSON.stringify(keyDetail.publicJwk, null, 2)}
@@ -817,4 +1070,3 @@ export default function JWKSManagement() {
     </Box>
   )
 }
-

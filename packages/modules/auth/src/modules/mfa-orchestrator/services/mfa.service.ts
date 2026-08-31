@@ -115,7 +115,10 @@ export const mfaService = {
       userId: payload.userId || payload.user_id,
       code: payload.code,
     }
-    return apiClient.post<MfaLoginCompletionResponse>(ENDPOINTS.auth.mfa.verifyLogin, formattedPayload)
+    return apiClient.post<MfaLoginCompletionResponse>(
+      ENDPOINTS.auth.mfa.verifyLogin,
+      formattedPayload,
+    )
   },
 
   recoveryVerify: async (payload: {
@@ -129,7 +132,10 @@ export const mfaService = {
       email: payload.email,
       code: payload.code,
     }
-    return apiClient.post<MfaLoginCompletionResponse>(ENDPOINTS.auth.mfa.recoveryVerify, formattedPayload)
+    return apiClient.post<MfaLoginCompletionResponse>(
+      ENDPOINTS.auth.mfa.recoveryVerify,
+      formattedPayload,
+    )
   },
 
   disableMfa: async (): Promise<FetchResponse<{ message: string }>> => {
@@ -144,7 +150,7 @@ export const mfaService = {
     FetchResponse<{ message: string; recoveryCodes: string[] }>
   > => {
     return apiClient.post<{ message: string; recoveryCodes: string[] }>(
-      ENDPOINTS.auth.mfa.regenerateBackupCodes
+      ENDPOINTS.auth.mfa.regenerateBackupCodes,
     )
   },
 
@@ -156,20 +162,22 @@ export const mfaService = {
   sms: {
     sendCode: async (): Promise<FetchResponse<{ message: string }>> => {
       return apiClient.post<{ message: string }>(
-        (ENDPOINTS.auth.mfa as any).sms?.sendCode || '/api/auth/mfa/sms/send-code'
+        (ENDPOINTS.auth.mfa as any).sms?.sendCode || '/api/auth/mfa/sms/send-code',
       )
     },
 
-    confirm: async (code: string): Promise<FetchResponse<{ message: string; mfaSmsEnabled: boolean }>> => {
+    confirm: async (
+      code: string,
+    ): Promise<FetchResponse<{ message: string; mfaSmsEnabled: boolean }>> => {
       return apiClient.post<{ message: string; mfaSmsEnabled: boolean }>(
         (ENDPOINTS.auth.mfa as any).sms?.verify || '/api/auth/mfa/sms/verify',
-        { code }
+        { code },
       )
     },
 
     disable: async (): Promise<FetchResponse<{ message: string }>> => {
       return apiClient.post<{ message: string }>(
-        (ENDPOINTS.auth.mfa as any).sms?.disable || '/api/auth/mfa/sms/disable'
+        (ENDPOINTS.auth.mfa as any).sms?.disable || '/api/auth/mfa/sms/disable',
       )
     },
 
@@ -179,7 +187,7 @@ export const mfaService = {
     }): Promise<FetchResponse<MfaLoginCompletionResponse>> => {
       return apiClient.post<MfaLoginCompletionResponse>(
         (ENDPOINTS.auth.mfa as any).sms?.verifyLogin || '/api/auth/mfa/sms/verify-login',
-        payload
+        payload,
       )
     },
   },
@@ -187,37 +195,35 @@ export const mfaService = {
   // --- Passkeys (WebAuthn) ---
   passkeys: {
     getRegistrationOptions: async (
-      email?: string
+      email?: string,
     ): Promise<FetchResponse<PublicKeyCredentialCreationOptionsJSON>> => {
       return apiClient.post<PublicKeyCredentialCreationOptionsJSON>(
         ENDPOINTS.auth.passkey.registerStart,
-        email ? { email } : {}
+        email ? { email } : {},
       )
     },
 
     verifyRegistration: async (
-      data: RegistrationResponseJSON & { friendlyName?: string }
+      data: RegistrationResponseJSON & { friendlyName?: string },
     ): Promise<FetchResponse<{ verified: boolean; message?: string }>> => {
       return apiClient.post<{ verified: boolean; message?: string }>(
         ENDPOINTS.auth.passkey.registerFinish,
-        data
+        data,
       )
     },
 
     getLoginOptions: async (
-      email?: string
+      email?: string,
     ): Promise<FetchResponse<PublicKeyCredentialRequestOptionsJSON>> => {
       return apiClient.post<PublicKeyCredentialRequestOptionsJSON>(
         ENDPOINTS.auth.passkey.loginStart,
-        email ? { email } : {}
+        email ? { email } : {},
       )
     },
 
     verifyLogin: async (
-      data: AuthenticationResponseJSON
-    ): Promise<
-      FetchResponse<MfaLoginCompletionResponse>
-    > => {
+      data: AuthenticationResponseJSON,
+    ): Promise<FetchResponse<MfaLoginCompletionResponse>> => {
       return apiClient.post<MfaLoginCompletionResponse>(ENDPOINTS.auth.passkey.loginFinish, data)
     },
 
@@ -227,20 +233,24 @@ export const mfaService = {
 
     update: async (
       id: string | number,
-      name: string
+      name: string,
     ): Promise<FetchResponse<{ message: string }>> => {
       return apiClient.put<{ message: string }>(ENDPOINTS.user.passkeys.update(id), { name })
     },
 
-    delete: async (
-      id: string | number
-    ): Promise<FetchResponse<{ message: string }>> => {
+    delete: async (id: string | number): Promise<FetchResponse<{ message: string }>> => {
       return apiClient.delete<{ message: string }>(ENDPOINTS.user.passkeys.destroy(id))
     },
   },
 
-  verifyMfaCode: async (userId: number | string, code: string): Promise<FetchResponse<MfaLoginCompletionResponse>> => {
-    return apiClient.post<MfaLoginCompletionResponse>(ENDPOINTS.auth.mfa.verifyLogin, { userId, code })
+  verifyMfaCode: async (
+    userId: number | string,
+    code: string,
+  ): Promise<FetchResponse<MfaLoginCompletionResponse>> => {
+    return apiClient.post<MfaLoginCompletionResponse>(ENDPOINTS.auth.mfa.verifyLogin, {
+      userId,
+      code,
+    })
   },
 
   // --- Step-Up Authentication ---
@@ -257,16 +267,14 @@ export const mfaService = {
     },
 
     verifyBiometric: async (
-      assertionResponse: AuthenticationResponseJSON
+      assertionResponse: AuthenticationResponseJSON,
     ): Promise<FetchResponse<StepUpVerificationResult>> => {
       const res = await apiClient.post<any>(ENDPOINTS.auth.passkey.loginFinish, assertionResponse)
       const serverToken: string | undefined = res.data?.token
       const success = Boolean(res.data?.verified || serverToken)
       const token = serverToken || synthesizeElevationToken('passkey')
       const expiresAt =
-        typeof res.data?.expiresAt === 'number'
-          ? res.data.expiresAt
-          : Date.now() + ELEVATION_TTL_MS
+        typeof res.data?.expiresAt === 'number' ? res.data.expiresAt : Date.now() + ELEVATION_TTL_MS
       return {
         ...res,
         data: {
@@ -287,9 +295,7 @@ export const mfaService = {
       const serverToken: string | undefined = res.data?.elevationToken || res.data?.token
       const token = serverToken || synthesizeElevationToken('totp')
       const expiresAt =
-        typeof res.data?.expiresAt === 'number'
-          ? res.data.expiresAt
-          : Date.now() + ELEVATION_TTL_MS
+        typeof res.data?.expiresAt === 'number' ? res.data.expiresAt : Date.now() + ELEVATION_TTL_MS
       return {
         ...res,
         data: {

@@ -25,28 +25,28 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import Save from '@mui/icons-material/Save';
-import ArrowBack from '@mui/icons-material/ArrowBack';
-import Security from '@mui/icons-material/Security';
-import ContentCopy from '@mui/icons-material/ContentCopy';
-import Refresh from '@mui/icons-material/Refresh';
-import Info from '@mui/icons-material/Info';
-import Code from '@mui/icons-material/Code';
-import Web from '@mui/icons-material/Web';
-import Smartphone from '@mui/icons-material/Smartphone';
-import Router from '@mui/icons-material/Router';
-import Settings from '@mui/icons-material/Settings';
-import VpnKey from '@mui/icons-material/VpnKey';
-import Tune from '@mui/icons-material/Tune';
+import Save from '@mui/icons-material/Save'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import Security from '@mui/icons-material/Security'
+import ContentCopy from '@mui/icons-material/ContentCopy'
+import Refresh from '@mui/icons-material/Refresh'
+import Info from '@mui/icons-material/Info'
+import Code from '@mui/icons-material/Code'
+import Web from '@mui/icons-material/Web'
+import Smartphone from '@mui/icons-material/Smartphone'
+import Router from '@mui/icons-material/Router'
+import Settings from '@mui/icons-material/Settings'
+import VpnKey from '@mui/icons-material/VpnKey'
+import Tune from '@mui/icons-material/Tune'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'
 import {
   useOIDCClient,
   useUpdateOIDCClient,
   useRotateClientSecret,
-} from "@idaas/authentication-core/hooks/useAdminQuery"
-import { Path } from "@cap/module-auth/routes/path"
+} from '@idaas/authentication-core/hooks/useAdminQuery'
+import { Path } from '@cap/module-auth/routes/path'
 import ConfirmationDialog from '@idaas/authentication-core/components/shared/Modals/ConfirmationDialog'
 
 interface TabPanelProps {
@@ -147,7 +147,9 @@ export default function ApplicationDetailView() {
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      toast.success(`${label} ${t('auth.admin.copied') || 'copied to clipboard'}`, { autoClose: 2000, })
+      toast.success(`${label} ${t('auth.admin.copied') || 'copied to clipboard'}`, {
+        autoClose: 2000,
+      })
     })
   }
 
@@ -160,15 +162,20 @@ export default function ApplicationDetailView() {
     if (!id) return
     rotateSecretMutation.mutate(id as any, {
       onSuccess: () => {
-        toast.success(t('auth.admin.successRotateSecret') || 'Client secret rotated successfully', { },
+        toast.success(
+          t('auth.admin.successRotateSecret') || 'Client secret rotated successfully',
+          {},
         )
         setShowRotateConfirm(false)
       },
       onError: (error: any) => {
-        toast.error(error.message || t('auth.admin.errorRotateSecret') || 'Failed to rotate client secret', { },
+        toast.error(
+          error.message || t('auth.admin.errorRotateSecret') || 'Failed to rotate client secret',
+          {},
         )
         setShowRotateConfirm(false)
-      }, })
+      },
+    })
   }
 
   return (
@@ -578,7 +585,9 @@ export default function ApplicationDetailView() {
                     {t('auth.admin.fapi2Implications')}:
                   </Typography>
                   <Stack spacing={1}>
-                    <Typography variant='body2'>â€¢ {t('auth.admin.fapi2MandatoryPkce')}</Typography>
+                    <Typography variant='body2'>
+                      â€¢ {t('auth.admin.fapi2MandatoryPkce')}
+                    </Typography>
                     <Typography variant='body2'>â€¢ {t('auth.admin.fapi2DpopRequired')}</Typography>
                     <Typography variant='body2'>â€¢ {t('auth.admin.fapi2ParRequired')}</Typography>
                   </Stack>
@@ -950,6 +959,3 @@ export default function ApplicationDetailView() {
     </Box>
   )
 }
-
-
-

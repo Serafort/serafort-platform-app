@@ -88,7 +88,7 @@ export default function SignInV2() {
 
         <Box sx={{ width: '100%' }}>
           {isLockedMode ? (
-            <LiquidGlassCard blur="24px" opacity={0.85} padding="0px" borderRadius="24px">
+            <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
               <LockedStep
                 timeLeft={timeLeft}
                 countdownDisplay={countdownDisplay}
@@ -96,7 +96,7 @@ export default function SignInV2() {
               />
             </LiquidGlassCard>
           ) : isMfaMode ? (
-            <LiquidGlassCard blur="24px" opacity={0.85} padding="0px" borderRadius="24px">
+            <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
               <MfaStep
                 t={t}
                 pendingMfaUser={pendingMfaUser}
@@ -113,7 +113,7 @@ export default function SignInV2() {
               />
             </LiquidGlassCard>
           ) : (
-            <LiquidGlassCard blur="24px" opacity={0.85} padding="0px" borderRadius="24px">
+            <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
               <CredentialsStep
                 t={t}
                 control={control}

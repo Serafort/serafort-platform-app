@@ -13,17 +13,16 @@ export const StyledVerticalNavExpandIconWrapper = styled('span')<RootStylesType>
   ${({ rootStyles }: RootStylesType) => rootStyles}
 `
 
-export const StyledVerticalNavExpandIcon = styled('span')<
-StyledVerticalNavExpandIconProps>`
+export const StyledVerticalNavExpandIcon = styled('span')<StyledVerticalNavExpandIconProps>`
   display: flex;
 
   & > i,
   & > svg {
     transition: ${({ transitionDuration }: StyledVerticalNavExpandIconProps) =>
-    `transform ${transitionDuration}ms ease-in-out`};
-  ${({ open }: StyledVerticalNavExpandIconProps) =>
-    open &&
-    `
+      `transform ${transitionDuration}ms ease-in-out`};
+    ${({ open }: StyledVerticalNavExpandIconProps) =>
+      open &&
+      `
     transform: rotate(90deg);
   `}
   }

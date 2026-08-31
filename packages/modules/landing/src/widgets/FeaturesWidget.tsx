@@ -1,12 +1,5 @@
 import React from 'react'
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  alpha,
-  useTheme,
-} from '@mui/material'
+import { Box, Card, CardContent, Typography, alpha, useTheme } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { useNavigate } from 'react-router-dom'
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline'

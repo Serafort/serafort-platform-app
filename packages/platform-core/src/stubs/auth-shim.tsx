@@ -1,40 +1,40 @@
-import React from 'react';
-import { Avatar } from '@mui/material';
-import { AppPaths } from '@cap/shared-types';
+import React from 'react'
+import { Avatar } from '@mui/material'
+import { AppPaths } from '@cap/shared-types'
 
 /**
  * @cap/module-auth Shim
- * 
- * Provides fallback implementations for Auth features when the real 
+ *
+ * Provides fallback implementations for Auth features when the real
  * @cap/module-auth package is not present in the workspace.
  */
 
 // 1. Specific Components & Types
 export interface CustomAvatarProps {
-  skin?: 'light' | 'light-static' | 'filled';
-  color?: any;
-  size?: number;
-  sx?: any;
-  children?: React.ReactNode;
+  skin?: 'light' | 'light-static' | 'filled'
+  color?: any
+  size?: number
+  sx?: any
+  children?: React.ReactNode
 }
 
 export const CustomAvatar = (props: CustomAvatarProps) => {
-  const { skin, color, size, sx, children, ...rest } = props;
+  const { skin, color, size, sx, children, ...rest } = props
   return (
-    <Avatar 
-      sx={{ 
-        width: size, 
-        height: size, 
-        ...(sx || {}) 
-      }} 
+    <Avatar
+      sx={{
+        width: size,
+        height: size,
+        ...(sx || {}),
+      }}
       {...rest}
     >
       {children}
     </Avatar>
-  );
-};
+  )
+}
 
-export const RoleIndicator = (props: { showLabel?: boolean, size?: string }) => null;
+export const RoleIndicator = (props: { showLabel?: boolean; size?: string }) => null
 
 // 2. Constants & Data Structures
 export const Path = {
@@ -50,33 +50,33 @@ export const Path = {
     overview: AppPaths.account.overview,
     edit: AppPaths.account.edit,
   },
-};
+}
 
 // 3. Hooks
 export const useSignOut = (options?: { onSuccess?: () => void }) => {
-  const [isSigningOut, setIsSigningOut] = React.useState(false);
+  const [isSigningOut, setIsSigningOut] = React.useState(false)
   const signOut = () => {
-    setIsSigningOut(true);
+    setIsSigningOut(true)
     setTimeout(() => {
-      setIsSigningOut(false);
-      options?.onSuccess?.();
-    }, 500);
-  };
-  return { signOut, isSigningOut };
-};
+      setIsSigningOut(false)
+      options?.onSuccess?.()
+    }, 500)
+  }
+  return { signOut, isSigningOut }
+}
 
 // 4. Plugins & Modules
 export const initAuthPlugins = (plugins: any[]) => {
-  console.info('[AuthShim] initAuthPlugins called (no-op)');
-};
+  console.info('[AuthShim] initAuthPlugins called (no-op)')
+}
 
-export const MFATOTPPlugin = { id: 'mfa-totp-shim' };
+export const MFATOTPPlugin = { id: 'mfa-totp-shim' }
 
 export const AuthModule = {
   id: 'auth-shim',
   name: 'Authentication Shim (Inactive)',
   version: '1.0.0',
-};
+}
 
 // ── Default Export (Robust Fallback) ─────────────────────────────────────────
 
@@ -86,16 +86,16 @@ export const AuthModule = {
  * If accessed for properties (e.g. Auth.Path), it provides them.
  */
 const AuthShimBase: any = ({ children }: { children?: React.ReactNode }) => {
-  return <>{children}</>;
-};
+  return <>{children}</>
+}
 
 // Attach properties for property-access style (e.g. Auth.Path)
-AuthShimBase.Path = Path;
-AuthShimBase.RoleIndicator = RoleIndicator;
-AuthShimBase.useSignOut = useSignOut;
-AuthShimBase.AuthModule = AuthModule;
-AuthShimBase.CustomAvatar = CustomAvatar;
-AuthShimBase.initAuthPlugins = initAuthPlugins;
-AuthShimBase.MFATOTPPlugin = MFATOTPPlugin;
+AuthShimBase.Path = Path
+AuthShimBase.RoleIndicator = RoleIndicator
+AuthShimBase.useSignOut = useSignOut
+AuthShimBase.AuthModule = AuthModule
+AuthShimBase.CustomAvatar = CustomAvatar
+AuthShimBase.initAuthPlugins = initAuthPlugins
+AuthShimBase.MFATOTPPlugin = MFATOTPPlugin
 
-export default AuthShimBase;
+export default AuthShimBase

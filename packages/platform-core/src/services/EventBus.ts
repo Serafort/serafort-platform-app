@@ -32,7 +32,9 @@ export interface PlatformEventMap {
 }
 
 type EventName = keyof PlatformEventMap | (string & {})
-type PayloadFor<E extends EventName> = E extends keyof PlatformEventMap ? PlatformEventMap[E] : unknown
+type PayloadFor<E extends EventName> = E extends keyof PlatformEventMap
+  ? PlatformEventMap[E]
+  : unknown
 
 class EventBusImpl {
   private listeners = new Map<string, Set<EventHandler<any>>>()

@@ -17,17 +17,17 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import Check from '@mui/icons-material/Check';
-import Storage from '@mui/icons-material/Storage';
-import Layers from '@mui/icons-material/Layers';
-import VerifiedUser from '@mui/icons-material/VerifiedUser';
-import Mail from '@mui/icons-material/Mail';
-import ChevronRight from '@mui/icons-material/ChevronRight';
-import CheckCircle from '@mui/icons-material/CheckCircle';
-import Warning from '@mui/icons-material/Warning';
-import ErrorIcon from '@mui/icons-material/Error';
-import Info from '@mui/icons-material/Info';
-import Dns from '@mui/icons-material/Dns';
+import Check from '@mui/icons-material/Check'
+import Storage from '@mui/icons-material/Storage'
+import Layers from '@mui/icons-material/Layers'
+import VerifiedUser from '@mui/icons-material/VerifiedUser'
+import Mail from '@mui/icons-material/Mail'
+import ChevronRight from '@mui/icons-material/ChevronRight'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import Warning from '@mui/icons-material/Warning'
+import ErrorIcon from '@mui/icons-material/Error'
+import Info from '@mui/icons-material/Info'
+import Dns from '@mui/icons-material/Dns'
 import { alpha, useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import { useDetailedHealth } from '../../hooks/useHealthQuery'
@@ -641,5 +641,3 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
 }
 
 export default SystemHealthDashboard
-
-

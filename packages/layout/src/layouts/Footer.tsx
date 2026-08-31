@@ -152,7 +152,10 @@ export default function Footer() {
             color: 'text.secondary',
           }}
         >
-          {t('footer.copyright', `© ${new Date().getFullYear()} ${themeConfig.templateName}. All rights reserved.`)}
+          {t(
+            'footer.copyright',
+            `© ${new Date().getFullYear()} ${themeConfig.templateName}. All rights reserved.`,
+          )}
         </Typography>
       </Container>
     </Box>

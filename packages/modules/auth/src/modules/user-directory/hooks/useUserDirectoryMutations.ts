@@ -19,7 +19,7 @@ import { BulkInviteUserFormData } from '../schemas/userDirectory.schema'
  * Mutation hook for inviting single user
  */
 export function useInviteUserMutation(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, InviteUserRequestDTO>
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, InviteUserRequestDTO>,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()
@@ -60,7 +60,7 @@ export function useInviteUserMutation(
  * Mutation hook for bulk inviting users
  */
 export function useBulkInviteUsersMutation(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, BulkInviteUserFormData>
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, BulkInviteUserFormData>,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()
@@ -112,7 +112,7 @@ export function useUpdateUserMutation(
     FetchResponse<any>,
     HttpError,
     { id: string | number; data: UpdateUserRequestDTO }
-  >
+  >,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()
@@ -154,7 +154,7 @@ export function useUpdateUserStatusMutation(
     FetchResponse<any>,
     HttpError,
     { id: string | number; data: UpdateUserStatusRequestDTO }
-  >
+  >,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()
@@ -196,7 +196,7 @@ export function useDeleteUserMutation(
     FetchResponse<any>,
     HttpError,
     { id: string | number; reason?: string }
-  >
+  >,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()
@@ -238,15 +238,14 @@ export function useAssignRolesMutation(
     FetchResponse<any>,
     HttpError,
     { id: string | number; data: AssignRolesRequestDTO }
-  >
+  >,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
 
   return useMutation({
-    mutationFn: ({ id, data }) =>
-      userDirectoryService.syncUserRoles(id, data.roleIds, data.reason),
+    mutationFn: ({ id, data }) => userDirectoryService.syncUserRoles(id, data.roleIds, data.reason),
     onSuccess: (res, vars, context) => {
       queryClient.invalidateQueries({ queryKey: userDirectoryKeys.lists() })
       queryClient.invalidateQueries({ queryKey: userDirectoryKeys.detail(vars.id) })
@@ -277,7 +276,7 @@ export function useAssignRolesMutation(
  * Mutation hook for bulk operations (status, delete)
  */
 export function useBulkActionMutation(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, BulkUserActionRequestDTO>
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, BulkUserActionRequestDTO>,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()
@@ -291,13 +290,13 @@ export function useBulkActionMutation(
         return userDirectoryService.bulkUpdateStatus(
           payload.userIds,
           payload.status,
-          payload.reason
+          payload.reason,
         )
       } else {
         return userDirectoryService.bulkUpdateStatus(
           payload.userIds,
           payload.action,
-          payload.reason
+          payload.reason,
         )
       }
     },
@@ -330,7 +329,7 @@ export function useBulkActionMutation(
  * Mutation hook for sending admin password reset
  */
 export function useSendPasswordResetMutation(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, string | number>
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, string | number>,
 ) {
   const { addNotification } = useNotifications()
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
@@ -365,7 +364,7 @@ export function useSendPasswordResetMutation(
  * Mutation hook for resetting user MFA
  */
 export function useResetMfaMutation(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, string | number>
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, string | number>,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()

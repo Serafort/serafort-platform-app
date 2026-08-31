@@ -5,12 +5,7 @@ import {
   UseQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import {
-  FetchResponse,
-  HttpError,
-  useAppStore,
-  secureTokenManager,
-} from '@cap/platform-core'
+import { FetchResponse, HttpError, useAppStore, secureTokenManager } from '@cap/platform-core'
 import sessionService from '../services/session.service'
 import type {
   SessionsResponse,
@@ -35,7 +30,7 @@ export function useSessions(
   options?: Omit<
     UseQueryOptions<FetchResponse<SessionsResponse>, HttpError>,
     'queryKey' | 'queryFn'
-  >
+  >,
 ) {
   return useQuery({
     queryKey: SESSION_QUERY_KEYS.sessions,
@@ -54,7 +49,7 @@ export function useRevokeSession(
     HttpError,
     string | number,
     unknown
-  >
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
@@ -70,7 +65,7 @@ export function useRevokeSession(
 
       // Check if current session was revoked
       const cachedSessions = queryClient.getQueryData<FetchResponse<SessionsResponse>>(
-        SESSION_QUERY_KEYS.sessions
+        SESSION_QUERY_KEYS.sessions,
       )
       const currentSessionId = cachedSessions?.data?.current_session_id
       if (currentSessionId && String(variables) === String(currentSessionId)) {
@@ -96,7 +91,7 @@ export function useRevokeAllSessions(
     HttpError,
     void | undefined,
     unknown
-  >
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
@@ -121,10 +116,7 @@ export function useRevokeAllSessions(
  * Retrieve user activity timeline / audit log
  */
 export function useActivityTimeline(
-  options?: Omit<
-    UseQueryOptions<FetchResponse<AuditLogItem[]>, HttpError>,
-    'queryKey' | 'queryFn'
-  >
+  options?: Omit<UseQueryOptions<FetchResponse<AuditLogItem[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: SESSION_QUERY_KEYS.activityTimeline,
@@ -141,7 +133,7 @@ export function useSecurityStatus(
   options?: Omit<
     UseQueryOptions<FetchResponse<SecurityStatusResponse>, HttpError>,
     'queryKey' | 'queryFn'
-  >
+  >,
 ) {
   return useQuery({
     queryKey: SESSION_QUERY_KEYS.securityStatus,
@@ -160,7 +152,7 @@ export function useChangePasswordMutation(
     HttpError,
     ChangePasswordRequest,
     unknown
-  >
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
@@ -190,7 +182,7 @@ export function useDeactivateAccountMutation(
     HttpError,
     DeactivateAccountRequest | void,
     unknown
-  >
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
@@ -214,4 +206,3 @@ export function useDeactivateAccountMutation(
 
 export const useChangePassword = useChangePasswordMutation
 export const useDeactivateAccount = useDeactivateAccountMutation
-

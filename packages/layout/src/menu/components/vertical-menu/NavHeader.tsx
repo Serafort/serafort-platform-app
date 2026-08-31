@@ -14,14 +14,17 @@ type StyledNavHeaderProps = {
 
 const StyledNavHeader = styled.div<StyledNavHeaderProps>`
   padding: ${({ theme }: any) => menuTokens?.vertical?.header?.paddingDefault || '15px'};
-  padding-inline-start: ${({ theme }: any) => menuTokens?.vertical?.header?.paddingInlineStart || '20px'};
+  padding-inline-start: ${({ theme }: any) =>
+    menuTokens?.vertical?.header?.paddingInlineStart || '20px'};
   display: flex;
   align-items: center;
   justify-content: space-between;
   transition: ${({ transitionDuration }) => `padding-inline ${transitionDuration}ms ease-in-out`};
 
   ${({ isHovered, isCollapsed, collapsedWidth }) =>
-    isCollapsed && !isHovered && `padding-inline: ${getNavHeaderCollapsedPaddingInline(collapsedWidth)};`}
+    isCollapsed &&
+    !isHovered &&
+    `padding-inline: ${getNavHeaderCollapsedPaddingInline(collapsedWidth)};`}
 `
 
 const NavHeader = ({ children }: ChildrenType) => {

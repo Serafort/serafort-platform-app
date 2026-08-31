@@ -12,19 +12,15 @@ import {
   jwksKeys,
 } from './useJWKSQuery'
 
-const {
-  mockListKeys,
-  mockGetKeyDetail,
-  mockCreateKey,
-  mockRotateKeys,
-  mockDeleteKey,
-} = vi.hoisted(() => ({
-  mockListKeys: vi.fn(),
-  mockGetKeyDetail: vi.fn(),
-  mockCreateKey: vi.fn(),
-  mockRotateKeys: vi.fn(),
-  mockDeleteKey: vi.fn(),
-}))
+const { mockListKeys, mockGetKeyDetail, mockCreateKey, mockRotateKeys, mockDeleteKey } = vi.hoisted(
+  () => ({
+    mockListKeys: vi.fn(),
+    mockGetKeyDetail: vi.fn(),
+    mockCreateKey: vi.fn(),
+    mockRotateKeys: vi.fn(),
+    mockDeleteKey: vi.fn(),
+  }),
+)
 
 vi.mock('../services/jwks.service', () => ({
   default: {

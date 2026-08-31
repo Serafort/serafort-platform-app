@@ -3,8 +3,14 @@
 // React Query Hooks for User Service
 // ============================================================================
 
-import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
-import { FetchResponse, HttpError } from '@cap/platform-core';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  UseQueryOptions,
+  UseMutationOptions,
+} from '@tanstack/react-query'
+import { FetchResponse, HttpError } from '@cap/platform-core'
 
 import {
   UpdateEmailRequest,
@@ -18,11 +24,11 @@ import {
   LinkedAccountDTO,
   PersonalAccessTokenDTO,
   CreateTokenResponse,
-} from '@idaas/authentication-core/types/api.types';
+} from '@idaas/authentication-core/types/api.types'
 
-import userService from '../services/user.service';
+import userService from '../services/user.service'
 
-import { useAppStore } from '@cap/platform-store';
+import { useAppStore } from '@cap/platform-store'
 
 // ============================================================================
 // Query Keys
@@ -50,7 +56,10 @@ export const USER_KEYS = {
  * Get security status
  */
 export function useSecurityStatus(
-  options?: Omit<UseQueryOptions<FetchResponse<SecurityStatusResponse>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<
+    UseQueryOptions<FetchResponse<SecurityStatusResponse>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: USER_KEYS.securityStatus,
@@ -110,7 +119,7 @@ export function useUpdateMe(
         // Safe fallback
       }
       if (customOnSuccess) {
-        (customOnSuccess as any)(response, variables, context)
+        ;(customOnSuccess as any)(response, variables, context)
       }
     },
     ...restOptions,
@@ -131,7 +140,7 @@ export function useUpdateUser(
       queryClient.invalidateQueries({ queryKey: USER_KEYS.profile })
       queryClient.invalidateQueries({ queryKey: USER_KEYS.me })
       if (customOnSuccess) {
-        (customOnSuccess as any)(response, variables, context)
+        ;(customOnSuccess as any)(response, variables, context)
       }
     },
     ...restOptions,
@@ -153,7 +162,7 @@ export function useUpdatePhoto(
       queryClient.invalidateQueries({ queryKey: USER_KEYS.profile })
       queryClient.invalidateQueries({ queryKey: USER_KEYS.me })
       if (customOnSuccess) {
-        (customOnSuccess as any)(response, variables, context)
+        ;(customOnSuccess as any)(response, variables, context)
       }
     },
     ...restOptions,
@@ -183,7 +192,7 @@ export function useUploadAvatar(
         }
       }
       if (customOnSuccess) {
-        (customOnSuccess as any)(response, variables, context)
+        ;(customOnSuccess as any)(response, variables, context)
       }
     },
     ...restOptions,
@@ -194,7 +203,12 @@ export function useUploadAvatar(
  * Delete Avatar
  */
 export function useDeleteAvatar(
-  options?: UseMutationOptions<FetchResponse<{ success: boolean; message: string }>, HttpError, void, unknown>,
+  options?: UseMutationOptions<
+    FetchResponse<{ success: boolean; message: string }>,
+    HttpError,
+    void,
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -210,7 +224,7 @@ export function useDeleteAvatar(
         // ignore
       }
       if (customOnSuccess) {
-        (customOnSuccess as any)(response, variables, context)
+        ;(customOnSuccess as any)(response, variables, context)
       }
     },
     ...restOptions,
@@ -232,7 +246,7 @@ export function useRequestEmailChange(
       queryClient.invalidateQueries({ queryKey: USER_KEYS.profile })
       queryClient.invalidateQueries({ queryKey: USER_KEYS.me })
       if (customOnSuccess) {
-        (customOnSuccess as any)(response, variables, context)
+        ;(customOnSuccess as any)(response, variables, context)
       }
     },
     ...restOptions,
@@ -248,10 +262,11 @@ export function useResendVerification(
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
 
   return useMutation({
-    mutationFn: (data?: { email?: string } | void) => userService.resendVerification(data || undefined),
+    mutationFn: (data?: { email?: string } | void) =>
+      userService.resendVerification(data || undefined),
     onSuccess: (response, variables, context) => {
       if (customOnSuccess) {
-        (customOnSuccess as any)(response, variables, context)
+        ;(customOnSuccess as any)(response, variables, context)
       }
     },
     ...restOptions,
@@ -273,7 +288,7 @@ export function useChangeEmail(
       queryClient.invalidateQueries({ queryKey: USER_KEYS.profile })
       queryClient.invalidateQueries({ queryKey: USER_KEYS.me })
       if (customOnSuccess) {
-        (customOnSuccess as any)(response, variables, context)
+        ;(customOnSuccess as any)(response, variables, context)
       }
     },
     ...restOptions,
@@ -287,15 +302,19 @@ export function useChangePassword(
   options?: UseMutationOptions<
     FetchResponse<any>,
     HttpError,
-    ChangePasswordRequest | { currentPassword: string; newPassword: string; confirmPassword: string },
+    | ChangePasswordRequest
+    | { currentPassword: string; newPassword: string; confirmPassword: string },
     unknown
   >,
 ) {
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
 
   return useMutation({
-    mutationFn: (data: ChangePasswordRequest | { currentPassword: string; newPassword: string; confirmPassword: string }) =>
-      userService.changePassword(data),
+    mutationFn: (
+      data:
+        | ChangePasswordRequest
+        | { currentPassword: string; newPassword: string; confirmPassword: string },
+    ) => userService.changePassword(data),
     onSuccess: (...args) => {
       customOnSuccess?.(...args)
     },
@@ -466,7 +485,10 @@ export function useLinkAccount(
  * Get linked accounts
  */
 export function useLinkedAccounts(
-  options?: Omit<UseQueryOptions<FetchResponse<LinkedAccountDTO[]>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<
+    UseQueryOptions<FetchResponse<LinkedAccountDTO[]>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: USER_KEYS.linkedAccounts,
@@ -496,7 +518,10 @@ export function useUnlinkAccount(
 }
 
 export function useUserTokens(
-  options?: Omit<UseQueryOptions<FetchResponse<PersonalAccessTokenDTO[]>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<
+    UseQueryOptions<FetchResponse<PersonalAccessTokenDTO[]>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: USER_KEYS.tokens,
@@ -521,7 +546,8 @@ export function useCreateToken(
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
 
   return useMutation({
-    mutationFn: (data) => userService.tokens.create(data) as Promise<FetchResponse<CreateTokenResponse>>,
+    mutationFn: (data) =>
+      userService.tokens.create(data) as Promise<FetchResponse<CreateTokenResponse>>,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({ queryKey: USER_KEYS.tokens })
       customOnSuccess?.(...args)
@@ -570,7 +596,12 @@ export function useExportMutation(
 }
 
 export function useErasureMutation(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, { password: string; hardDelete?: boolean }, unknown>,
+  options?: UseMutationOptions<
+    FetchResponse<any>,
+    HttpError,
+    { password: string; hardDelete?: boolean },
+    unknown
+  >,
 ) {
   return useMutation({
     mutationFn: (data) => userService.compliance.erasure(data),
@@ -618,6 +649,3 @@ export function useEmailChanges(
     ...options,
   })
 }
-
-
-

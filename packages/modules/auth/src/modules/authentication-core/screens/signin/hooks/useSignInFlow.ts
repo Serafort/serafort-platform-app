@@ -6,7 +6,12 @@ import { useTranslation } from 'react-i18next'
 import { startAuthentication } from '@simplewebauthn/browser'
 import { IStatus, Roles, useAppStore, API_CONFIG, ENDPOINTS } from '@cap/platform-core'
 import { useSignin, useSsoDiscovery } from '../../../hooks/useAuthQuery'
-import { usePasskeyLogin, usePasskeyGetLoginOptions, useMfaLoginVerify, usePasskeyAutofill } from '../../../../mfa-orchestrator/hooks'
+import {
+  usePasskeyLogin,
+  usePasskeyGetLoginOptions,
+  useMfaLoginVerify,
+  usePasskeyAutofill,
+} from '../../../../mfa-orchestrator/hooks'
 import { useInterval } from '../../../hooks/useInterval'
 import { LoginRequest } from '../../../types/api.types'
 import { LoginSchema } from '../../../utils/schema'
@@ -228,7 +233,9 @@ export function useSignInFlow() {
         open: true,
         type: 'error',
         state: 'error',
-        msg: error.response?.data?.message || t('auth.login.passkey_login_failed', 'Passkey authentication failed'),
+        msg:
+          error.response?.data?.message ||
+          t('auth.login.passkey_login_failed', 'Passkey authentication failed'),
       })
     },
   })
@@ -267,7 +274,9 @@ export function useSignInFlow() {
           open: true,
           type: 'error',
           state: 'error',
-          msg: error.message || t('auth.login.login_failed', 'Login failed. Please check your credentials.'),
+          msg:
+            error.message ||
+            t('auth.login.login_failed', 'Login failed. Please check your credentials.'),
         })
       }
     }

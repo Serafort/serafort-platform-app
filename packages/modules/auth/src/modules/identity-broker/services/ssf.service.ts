@@ -14,15 +14,21 @@ export const ssfService = {
     return apiClient.get<SSFConfig>(ENDPOINTS.admin.ssf.config)
   },
 
-  updateConfig: async (data: UpdateSSFConfigDTO): Promise<FetchResponse<{ message: string; config?: SSFConfig }>> => {
+  updateConfig: async (
+    data: UpdateSSFConfigDTO,
+  ): Promise<FetchResponse<{ message: string; config?: SSFConfig }>> => {
     return apiClient.put(ENDPOINTS.admin.ssf.updateConfig, data)
   },
 
-  testStream: async (data: SSFTestStreamRequest = {}): Promise<FetchResponse<SSFTestStreamResponse>> => {
+  testStream: async (
+    data: SSFTestStreamRequest = {},
+  ): Promise<FetchResponse<SSFTestStreamResponse>> => {
     return apiClient.post<SSFTestStreamResponse>(ENDPOINTS.admin.ssf.test, data)
   },
 
-  broadcastEvent: async (data: SSFBroadcastEventDTO): Promise<FetchResponse<SSFBroadcastEventResponse>> => {
+  broadcastEvent: async (
+    data: SSFBroadcastEventDTO,
+  ): Promise<FetchResponse<SSFBroadcastEventResponse>> => {
     return apiClient.post<SSFBroadcastEventResponse>(ENDPOINTS.admin.ssf.broadcast, data)
   },
 

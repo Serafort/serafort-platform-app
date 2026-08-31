@@ -67,7 +67,7 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
         <Dialog
           open={open}
           onClose={onClose}
-          maxWidth="sm"
+          maxWidth='sm'
           fullWidth
           PaperComponent={(props) => (
             <motion.div
@@ -81,18 +81,33 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
             </motion.div>
           )}
         >
-          <DialogTitle sx={{ fontWeight: 800, color: 'error.main', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <DialogTitle
+            sx={{
+              fontWeight: 800,
+              color: 'error.main',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+            }}
+          >
             {t('auth.admin.issueNewBan', 'Issue Account Suspension / Ban')}
           </DialogTitle>
           <DialogContent dividers>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}>
-              <Alert severity="warning" sx={{ borderRadius: 2 }}>
-                {t('auth.admin.banWarning', 'Suspending an account revokes all active sessions, API keys, and access tokens.')}
+              <Alert severity='warning' sx={{ borderRadius: 2 }}>
+                {t(
+                  'auth.admin.banWarning',
+                  'Suspending an account revokes all active sessions, API keys, and access tokens.',
+                )}
               </Alert>
 
               <Autocomplete
                 options={userData?.data?.data || []}
-                getOptionLabel={(option: { firstName?: string; lastName?: string; email: string }) => `${option.firstName ?? ''} ${option.lastName ?? ''} (${option.email})`}
+                getOptionLabel={(option: {
+                  firstName?: string
+                  lastName?: string
+                  email: string
+                }) => `${option.firstName ?? ''} ${option.lastName ?? ''} (${option.email})`}
                 loading={isUsersLoading}
                 onInputChange={(_, value) => setSearchTerm(value)}
                 onChange={(_, value) => setSelectedUser(value)}
@@ -101,13 +116,13 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
                     {...params}
                     label={t('auth.admin.selectUser', 'Select User')}
                     placeholder={t('auth.admin.searchUserToBan', 'Search user by name or email')}
-                    variant="outlined"
+                    variant='outlined'
                     slotProps={{
                       input: {
                         ...params.InputProps,
                         endAdornment: (
                           <React.Fragment>
-                            {isUsersLoading ? <CircularProgress color="error" size={20} /> : null}
+                            {isUsersLoading ? <CircularProgress color='error' size={20} /> : null}
                             {params.InputProps.endAdornment}
                           </React.Fragment>
                         ),
@@ -119,7 +134,9 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
 
               {selectedUser && selectedUser.status === 'SUSPENDED' && (
                 <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-                  <Alert severity="error">{t('auth.admin.userAlreadyBanned', 'This user is already banned.')}</Alert>
+                  <Alert severity='error'>
+                    {t('auth.admin.userAlreadyBanned', 'This user is already banned.')}
+                  </Alert>
                 </motion.div>
               )}
 
@@ -128,7 +145,10 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
                 multiline
                 rows={3}
                 label={t('auth.admin.banReason', 'Ban / Suspension Reason')}
-                placeholder={t('auth.admin.banReason_placeholder', 'Enter the security or compliance reason for the ban')}
+                placeholder={t(
+                  'auth.admin.banReason_placeholder',
+                  'Enter the security or compliance reason for the ban',
+                )}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 required
@@ -138,16 +158,21 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
           <DialogActions sx={{ p: 3, gap: 1 }}>
             <Button
               onClick={onClose}
-              color="inherit"
+              color='inherit'
               sx={{ textTransform: 'none', fontWeight: 600, px: 2 }}
             >
               {t('auth.common.cancel', 'Cancel')}
             </Button>
             <Button
               onClick={handleIssueBan}
-              variant="contained"
-              color="error"
-              disabled={!selectedUser || !reason.trim() || banMutation.isPending || selectedUser.status === 'SUSPENDED'}
+              variant='contained'
+              color='error'
+              disabled={
+                !selectedUser ||
+                !reason.trim() ||
+                banMutation.isPending ||
+                selectedUser.status === 'SUSPENDED'
+              }
               sx={{
                 textTransform: 'none',
                 fontWeight: 800,
@@ -159,7 +184,7 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
               }}
             >
               {banMutation.isPending ? (
-                <CircularProgress size={24} color="inherit" />
+                <CircularProgress size={24} color='inherit' />
               ) : (
                 t('auth.admin.issueBan', 'Confirm Ban & Revoke Access')
               )}
@@ -170,5 +195,3 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
     </AnimatePresence>
   )
 }
-
-

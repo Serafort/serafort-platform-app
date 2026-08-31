@@ -1,6 +1,6 @@
 /**
  * @cap/platform-core/types
- * 
+ *
  * Clean entry point for importing types without triggering heavy runtime dependencies
  * (MUI, Zustand, TanStack Query, etc.). Use this for type-only imports in feature modules.
  */
