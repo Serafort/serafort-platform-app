@@ -2,6 +2,19 @@ import { Component, ErrorInfo, ReactNode } from "react";
 import { Box, Typography, Button, Alert, Chip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
+declare global {
+  interface Window {
+    /**
+     * Error-monitoring bridge installed by the host app (see
+     * `app/src/lib/sentry.ts`). Undefined when monitoring is not configured.
+     */
+    __SENTRY_CAPTURE__?: (
+      error: unknown,
+      context?: Record<string, unknown>,
+    ) => void;
+  }
+}
+
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
@@ -35,7 +48,15 @@ class ErrorBoundary extends Component<Props, State> {
     if (import.meta.env.DEV) {
       console.error("ErrorBoundary caught an error:", error, errorInfo);
     }
-    // Future: forward to error monitoring (e.g. Sentry) here
+    // Forward to error monitoring. React error boundaries swallow render errors,
+    // so the app installs this bridge (see app/src/lib/sentry.ts) to make sure
+    // they still reach Sentry. No-op when monitoring is not configured.
+    if (typeof window !== "undefined") {
+      window.__SENTRY_CAPTURE__?.(error, {
+        componentStack: errorInfo.componentStack,
+        errorId: this.state.errorId,
+      });
+    }
   }
 
   handleRetry = () => {
