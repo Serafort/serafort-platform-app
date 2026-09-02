@@ -2,7 +2,17 @@
 import React from 'react'
 import { useTheme } from '@mui/material/styles'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+// Dev-only: lazily loaded so the devtools bundle is fully tree-shaken from
+// production builds (import.meta.env.DEV is statically replaced with `false`).
+type DevtoolsProps = { initialIsOpen?: boolean }
+const ReactQueryDevtools: React.ComponentType<DevtoolsProps> = import.meta.env.DEV
+  ? React.lazy(() =>
+      import('@tanstack/react-query-devtools').then((m) => ({
+        default: m.ReactQueryDevtools,
+      })),
+    )
+  : () => null
 import { I18nextProvider } from 'react-i18next'
 import i18next from 'i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
@@ -188,7 +198,11 @@ const Providers: React.FC<ChildrenType> = ({ children }) => {
               <WidgetInspectorDrawer />
             </BrowserRouter>
             <AppReactToastify position={themeConfig.toastPosition} hideProgressBar />
-            <ReactQueryDevtools initialIsOpen={false} />
+            {import.meta.env.DEV && (
+              <React.Suspense fallback={null}>
+                <ReactQueryDevtools initialIsOpen={false} />
+              </React.Suspense>
+            )}
           </ThemeBridge>
         </TenantProvider>
       </I18nextProvider>
