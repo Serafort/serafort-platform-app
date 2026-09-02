@@ -167,12 +167,8 @@ export function sanitizeErrorMessage(
 
   // If string matches DB/ORM traces or raw SQL leak, return sanitized server error
   const isDbLeak = DB_ERROR_PATTERNS.some((pattern) => pattern.test(str));
-  if (
-    isDbLeak ||
-    (status &&
-      status >= 500 &&
-      (!str || str.toLowerCase().includes("internal server error")))
-  ) {
+
+  if (isDbLeak || (status && status >= 500)) {
     return {
       message: "A server error occurred. Please try again later.",
       i18nKey: "errors.server_error",
