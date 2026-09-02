@@ -14,8 +14,9 @@ interface UseSignOutReturn {
 }
 
 /**
- * Hook for signing out the current user
- * TODO: Implement full sign-out logic when Auth service is ready
+ * Hook for signing out the current user. Delegates to the auth store's
+ * `signOut` (revokes the server session + clears local auth state) and then
+ * redirects to the sign-in route.
  */
 export const useSignOut = (options?: UseSignOutOptions): UseSignOutReturn => {
   const [isSigningOut, setIsSigningOut] = useState(false)

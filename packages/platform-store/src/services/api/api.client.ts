@@ -602,7 +602,7 @@ export class FetchClient {
   }) {
     this.baseURL = config.baseURL;
     this.defaultHeaders = config.headers || {};
-    this.timeout = config.timeout || 51730;
+    this.timeout = config.timeout || 15000;
     this.withCredentials = config.withCredentials || false;
   }
 
