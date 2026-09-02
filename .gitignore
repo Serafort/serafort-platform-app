@@ -93,6 +93,7 @@ packages/modules/billing-reports/temp/*
 .env
 .env.*
 !.env.example
+!.env.production.example
 
 # Editor directories and files
 .vscode/*

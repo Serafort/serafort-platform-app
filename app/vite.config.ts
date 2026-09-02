@@ -289,7 +289,6 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           // ── Vendor splits — keeps the main entry chunk slim ───────────────────────
-          if (id.includes('@mui/icons-material')) return 'vendor-mui-icons'
           if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts'
           if (id.includes('framer-motion')) return 'vendor-motion'
           if (

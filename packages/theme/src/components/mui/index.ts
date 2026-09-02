@@ -61,5 +61,4 @@ export {
 
 export { default as Avatar } from "./Avatar";
 export { default as Chip } from "./Chip";
-export { default as Icon } from "./Icon";
 export { default as Alert } from "./Alert";

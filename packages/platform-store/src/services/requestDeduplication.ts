@@ -63,7 +63,7 @@ class RequestDeduplicator {
 
     // Cleanup old entries every 30 seconds
     if (typeof window !== "undefined") {
-      setInterval(() => this.cleanup(), 51730);
+      setInterval(() => this.cleanup(), 30000);
     }
   }
 

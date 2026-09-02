@@ -4,29 +4,21 @@ name: CI
 # boilerplate/analysis/production-launch-readiness.md).
 #
 # Every PR and every push to a release branch (main / develop) runs the full
-# matrix below. The pipeline is intentionally landed BEFORE the tree is green so
-# that regressions from here on are visible on every PR; each job is currently
-# `continue-on-error` and must be promoted to a required, blocking check as the
-# matching remediation track lands.
+# matrix below.
 #
-#   Job          Baseline on this branch (2026-08-31)      Promote to blocking when
+#   Job          Status (2026-08-31)                        Notes
 #   ----------   --------------------------------------    ------------------------
-#   type-check   RED  - module-landing tsconfig drags in   plan A5 (landing cleanup)
-#                       @cap/module-auth internals;         + A5/B3 (module-theme
-#                       module-theme: 3x TS2554             useThemeQuery types)
-#   lint         RED  - ~5.9k prettier/prettier CRLF        plan A4 / A5 (+ repo EOL
-#                       errors + real issues in 7 packages  normalisation)
-#   build        RED  - tsc -b: TS6133 unused symbols in    plan A5 + B3
-#                       module-auth / module-theme / theme
-#   unit         RED  - api-contracts(1) + app(2) +         triage the remainder
-#                       module-theme suite + layout          (B2/B3); the 3 EventBus
-#                       unhandled  (A2 fixed the 3 auth      tests are fixed
-#                       EventBus tests)
-#   circular     GREEN - 0 cycles (plan A6 done)             -- blocking now --
-#   e2e          RED  - scaffold only; backend checkout +   plan B2
-#                       webServer paths not wired yet
+#   type-check   BLOCKING                                   Promoted 2026-08-31
+#   lint         continue-on-error                          Pending: repo EOL normalisation (~5.9k CRLF)
+#   build        BLOCKING                                   Promoted 2026-08-31
+#   unit         BLOCKING                                   Promoted 2026-08-31
+#   circular     BLOCKING                                   0 cycles (plan A6 done)
+#   audit        BLOCKING                                   `pnpm audit --audit-level=high --prod`
+#   e2e          continue-on-error                          Pending: backend checkout + webServer wiring
+#   codeql       BLOCKING                                   SAST (Finding 6 — SOC 2 CC8.1 / ISO 27001 A.8.25)
+#   secret-scan  BLOCKING                                   gitleaks over full history (Finding 6)
 #
-# To promote a job: delete its `continue-on-error: true` line and add the job to
+# To promote remaining jobs: delete `continue-on-error: true` and add the job to
 # the repository's required status checks (Settings > Branches).
 
 on:
@@ -86,6 +78,18 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node-pnpm
       - run: pnpm run lint:circular
+
+  audit:
+    name: dependency audit (prod, high+)
+    runs-on: ubuntu-latest
+    # BLOCKING: fails the build on any high/critical advisory in the production
+    # dependency tree. Dev-only tooling (eslint, vitest, lighthouse/@lhci, madge,
+    # vite-plugin-pwa) is excluded by `--prod`; residual dev-only advisories with
+    # no upstream fix are pinned in package.json > pnpm.auditConfig.ignoreGhsas.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-pnpm
+      - run: pnpm run audit:ci
 
   e2e:
     name: e2e (Playwright + live backend)
@@ -171,4 +175,57 @@ jobs:
           name: playwright-report
           path: app/playwright-report
           retention-days: 7
+          if-no-files-found: ignore
+
+  # ── Finding 6 (SOC 2 CC8.1 / CC7.1, ISO 27001 A.8.25, A.8.28) ──
+  # Every job above scans dependencies (audit) or types/tests/bundling — none
+  # of them scan first-party source for injection or access-control bugs, and
+  # nothing scans commit history for a leaked credential. Mirrors the same two
+  # jobs added to serafort-auth-service.
+  codeql:
+    name: SAST (CodeQL)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          # security-extended adds the injection / access-control queries;
+          # the default suite alone is too narrow for an app with an
+          # authorization-engine and identity-broker module.
+          queries: security-extended
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # gitleaks scans commit history, not just the working tree — a
+          # shallow checkout silently finds nothing.
+          fetch-depth: 0
+      # Run the MIT-licensed CLI directly rather than gitleaks-action, which
+      # requires a paid licence key for organisation-owned repositories.
+      - name: Scan repository history for committed secrets
+        run: |
+          docker run --rm -v "$PWD:/repo" \
+            zricethezav/gitleaks:latest \
+            detect --source=/repo --redact --verbose \
+            --config=/repo/.gitleaks.toml \
+            --report-format=sarif --report-path=/repo/gitleaks.sarif
+      - name: Upload findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks.sarif
           if-no-files-found: ignore

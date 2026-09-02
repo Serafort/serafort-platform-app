@@ -12,7 +12,7 @@ const getBaseUrl = (): string => {
 
 export const API_CONFIG = {
   BASE_URL: getBaseUrl(),
-  TIMEOUT: 51730,
+  TIMEOUT: 15000,
   SSE_RECONNECT_INTERVAL: 33333,
   SSE_MAX_RETRIES: 5,
   // Deprecated alias for backward compatibility

@@ -14,7 +14,8 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import * as MuiIcons from "@mui/icons-material";
+import CircleIcon from "@mui/icons-material/Circle";
+import { resolveDynamicIcon } from "./dynamicIconRegistry";
 import type { WidgetRenderNode, WidgetAction } from "@cap/shared-types";
 
 export interface DynamicLayoutWidgetProps {
@@ -135,15 +136,10 @@ const DynamicLayoutWidget: React.FC<DynamicLayoutWidgetProps> = ({ nodes }) => {
         );
       case "icon": {
         const { name: iconName, ...restProps } = props;
-        const nameStr = iconName as string;
         const iconCombinedProps = { ...restProps, ...actionProps };
-        if (nameStr && nameStr in MuiIcons) {
-          const IconComponent = MuiIcons[
-            nameStr as keyof typeof MuiIcons
-          ] as React.ElementType;
-          return <IconComponent key={key} {...iconCombinedProps} />;
-        }
-        return <MuiIcons.Circle key={key} {...iconCombinedProps} />;
+        const IconComponent =
+          resolveDynamicIcon(iconName as string | undefined) ?? CircleIcon;
+        return <IconComponent key={key} {...iconCombinedProps} />;
       }
       case "image":
         return <Box key={key} component="img" {...combinedProps} />;

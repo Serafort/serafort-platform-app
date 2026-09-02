@@ -15,13 +15,13 @@
     "lint:circular:graph": "npx madge --circular --image graph.svg --extensions ts,tsx --exclude dist ./app/src ./packages/api-contracts/src ./packages/auth-contracts/src ./packages/layout/src ./packages/modules/auth/src ./packages/modules/landing/src ./packages/modules/theme/src ./packages/platform-core/src ./packages/platform-store/src ./packages/shared-types/src ./packages/theme/src",
     "test:e2e": "pnpm --filter @cap/app run test:e2e",
     "cspell": "cspell --no-progress --show-suggestions --relative --dot --gitignore \"**\"",
-    "audit:ci": "pnpm audit --audit-level=high",
+    "audit:ci": "pnpm audit --audit-level=high --prod",
     "generate:module": "plop"
   },
   "dependencies": {
     "@mui/utils": "^7.3.9",
     "@tanstack/react-query": "^5.99.0",
-    "undici": "^7.22.0"
+    "undici": "^7.29.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
@@ -37,7 +37,26 @@
     "overrides": {
       "js-cookie": "^3.0.8",
       "nanoid": "^3.3.18",
-      "postcss": "^8.5.18"
+      "postcss": "^8.5.18",
+      "undici": "^7.29.0",
+      "serialize-javascript": "^7.0.5",
+      "brace-expansion@^1": "^1.1.18",
+      "brace-expansion@^2": "^2.1.4",
+      "ws": "^8.21.0",
+      "tmp": "^0.2.6",
+      "basic-ftp": "^5.3.1",
+      "ip-address": "^10.3.1",
+      "qs": "^6.15.2",
+      "morgan": "^1.11.0",
+      "js-yaml@^4": "^4.3.1",
+      "vite": "^7.3.5",
+      "@vitest/browser": "^4.1.10"
+    },
+    "auditConfig": {
+      "//": "extract-zip: no fixed release exists (advisory 'patched: <0.0.0'); reached only through the @lhci/cli > lighthouse > puppeteer-core dev chain, never shipped. js-yaml 3.x: EOL, no 3.15.1 release; reached only through @lhci/cli (dev). The blocking `audit:ci` gate runs with --prod and does not see either path.",
+      "ignoreGhsas": [
+        "GHSA-jmr9-qjv8-65gv"
+      ]
     }
   }
 }
