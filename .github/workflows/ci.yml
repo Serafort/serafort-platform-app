@@ -4,29 +4,19 @@ name: CI
 # boilerplate/analysis/production-launch-readiness.md).
 #
 # Every PR and every push to a release branch (main / develop) runs the full
-# matrix below. The pipeline is intentionally landed BEFORE the tree is green so
-# that regressions from here on are visible on every PR; each job is currently
-# `continue-on-error` and must be promoted to a required, blocking check as the
-# matching remediation track lands.
+# matrix below.
 #
-#   Job          Baseline on this branch (2026-08-31)      Promote to blocking when
+#   Job          Status (2026-08-31)                        Notes
 #   ----------   --------------------------------------    ------------------------
-#   type-check   RED  - module-landing tsconfig drags in   plan A5 (landing cleanup)
-#                       @cap/module-auth internals;         + A5/B3 (module-theme
-#                       module-theme: 3x TS2554             useThemeQuery types)
-#   lint         RED  - ~5.9k prettier/prettier CRLF        plan A4 / A5 (+ repo EOL
-#                       errors + real issues in 7 packages  normalisation)
-#   build        RED  - tsc -b: TS6133 unused symbols in    plan A5 + B3
-#                       module-auth / module-theme / theme
-#   unit         RED  - api-contracts(1) + app(2) +         triage the remainder
-#                       module-theme suite + layout          (B2/B3); the 3 EventBus
-#                       unhandled  (A2 fixed the 3 auth      tests are fixed
-#                       EventBus tests)
-#   circular     GREEN - 0 cycles (plan A6 done)             -- blocking now --
-#   e2e          RED  - scaffold only; backend checkout +   plan B2
-#                       webServer paths not wired yet
+#   type-check   BLOCKING                                   Promoted 2026-08-31
+#   lint         continue-on-error                          Pending: repo EOL normalisation (~5.9k CRLF)
+#   build        BLOCKING                                   Promoted 2026-08-31
+#   unit         BLOCKING                                   Promoted 2026-08-31
+#   circular     BLOCKING                                   0 cycles (plan A6 done)
+#   audit        BLOCKING                                   `pnpm audit --audit-level=high --prod`
+#   e2e          continue-on-error                          Pending: backend checkout + webServer wiring
 #
-# To promote a job: delete its `continue-on-error: true` line and add the job to
+# To promote remaining jobs: delete `continue-on-error: true` and add the job to
 # the repository's required status checks (Settings > Branches).
 
 on:
@@ -86,6 +76,18 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node-pnpm
       - run: pnpm run lint:circular
+
+  audit:
+    name: dependency audit (prod, high+)
+    runs-on: ubuntu-latest
+    # BLOCKING: fails the build on any high/critical advisory in the production
+    # dependency tree. Dev-only tooling (eslint, vitest, lighthouse/@lhci, madge,
+    # vite-plugin-pwa) is excluded by `--prod`; residual dev-only advisories with
+    # no upstream fix are pinned in package.json > pnpm.auditConfig.ignoreGhsas.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-pnpm
+      - run: pnpm run audit:ci
 
   e2e:
     name: e2e (Playwright + live backend)
