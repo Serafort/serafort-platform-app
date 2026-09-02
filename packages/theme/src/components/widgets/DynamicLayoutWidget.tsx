@@ -15,6 +15,21 @@ const DynamicLayoutWidget: React.FC<DynamicLayoutWidgetProps> = ({ nodes }) => {
     return <Box p={2}>No nodes provided for custom layout.</Box>
   }
 
+  const isSafeUrl = (url: string) => {
+    try {
+      const parsed = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost')
+      return ['http:', 'https:', 'mailto:', 'tel:'].includes(parsed.protocol)
+    } catch {
+      // If URL parsing fails, it's likely a relative URL which is safe in this context,
+      // but to be absolutely safe against javascript: we should do a basic check
+      const trimmed = url.trim().toLowerCase()
+      if (trimmed.startsWith('javascript:') || trimmed.startsWith('data:') || trimmed.startsWith('vbscript:')) {
+        return false
+      }
+      return true
+    }
+  }
+
   const handleAction = (action?: WidgetAction) => {
     if (!action) return
     const message = typeof action.payload === 'string' 
@@ -24,9 +39,17 @@ const DynamicLayoutWidget: React.FC<DynamicLayoutWidgetProps> = ({ nodes }) => {
         : `Action triggered: ${action.type}`
 
     if (action.type === 'OPEN_LINK' && typeof action.payload === 'string') {
-      window.open(action.payload, '_blank')
+      if (isSafeUrl(action.payload)) {
+        window.open(action.payload, '_blank', 'noopener,noreferrer')
+      } else {
+        console.warn('Blocked unsafe URL in OPEN_LINK action')
+      }
     } else if (action.type === 'NAVIGATE' && typeof action.payload === 'string') {
-      window.location.href = action.payload
+      if (isSafeUrl(action.payload)) {
+        window.location.href = action.payload
+      } else {
+        console.warn('Blocked unsafe URL in NAVIGATE action')
+      }
     } else {
       setFeedback(message)
     }
