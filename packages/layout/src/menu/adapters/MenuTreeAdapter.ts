@@ -14,6 +14,13 @@ export interface ProcessedMenuSection {
   items: ProcessedNavItem[]
 }
 
+export interface MenuTreeOptions {
+  maxItemsPerSection?: number
+  enableProgressiveDisclosure?: boolean
+}
+
+export const DEFAULT_MAX_ITEMS_PER_SECTION = 7
+
 export class MenuTreeAdapter {
   /**
    * Translates a navigation label key against module dictionaries or i18next fallback.
@@ -21,11 +28,12 @@ export class MenuTreeAdapter {
   public static translateKey(
     key?: string,
     dictionary?: Dictionary,
-    t?: (key: string, options?: { defaultValue?: string }) => string
+    t?: (key: string, options?: { defaultValue?: string }) => string,
   ): string {
     if (!key) return ''
     const cleanKey = key.replace(/^navigation\./, '')
-    const dictValue = dictionary?.['navigation']?.[cleanKey] || dictionary?.[key] || dictionary?.[cleanKey]
+    const dictValue =
+      dictionary?.['navigation']?.[cleanKey] || dictionary?.[key] || dictionary?.[cleanKey]
     if (dictValue && typeof dictValue === 'string') return dictValue
 
     if (t) {
@@ -35,7 +43,38 @@ export class MenuTreeAdapter {
       if (tClean && tClean !== `navigation.${cleanKey}`) return tClean
     }
 
+    if (cleanKey.toLowerCase() === 'more') return 'More'
+
     return cleanKey
+  }
+
+  /**
+   * Applies Miller's Law (7 ± 2) chunking via progressive disclosure.
+   * If a section has more than maxItems items, items beyond maxItems - 1
+   * are grouped into a collapsible "More" SubMenu.
+   */
+  private static applyProgressiveDisclosure(
+    items: ProcessedNavItem[],
+    maxItems: number,
+    sectionKey: string,
+    dictionary?: Dictionary,
+    t?: (key: string, options?: { defaultValue?: string }) => string,
+  ): ProcessedNavItem[] {
+    if (items.length <= maxItems) return items
+
+    const visibleItems = items.slice(0, maxItems - 1)
+    const overflowItems = items.slice(maxItems - 1)
+
+    const moreLabel = MenuTreeAdapter.translateKey('navigation.more', dictionary, t) || 'More'
+
+    visibleItems.push({
+      id: `${sectionKey}_more`,
+      label: moreLabel,
+      icon: 'tabler-dots',
+      children: overflowItems,
+    })
+
+    return visibleItems
   }
 
   /**
@@ -45,18 +84,23 @@ export class MenuTreeAdapter {
     items: NavItemConfig[],
     dictionary?: Dictionary,
     t?: (key: string, options?: { defaultValue?: string }) => string,
-    filterFn?: (item: NavItemConfig) => boolean
+    filterFn?: (item: NavItemConfig) => boolean,
+    options?: MenuTreeOptions,
   ): ProcessedMenuSection[] {
+    const maxItems = options?.maxItemsPerSection ?? DEFAULT_MAX_ITEMS_PER_SECTION
+    const enableProgressiveDisclosure = options?.enableProgressiveDisclosure ?? true
+
     const processItem = (item: NavItemConfig): ProcessedNavItem | null => {
       if (filterFn && !filterFn(item)) return null
 
       const label = MenuTreeAdapter.translateKey(item.label, dictionary, t)
-      const sortedChildren = item.children && item.children.length > 0
-        ? [...item.children]
-            .sort((a, b) => (a.order || 0) - (b.order || 0))
-            .map(processItem)
-            .filter((child): child is ProcessedNavItem => child !== null)
-        : undefined
+      const sortedChildren =
+        item.children && item.children.length > 0
+          ? [...item.children]
+              .sort((a, b) => (a.order || 0) - (b.order || 0))
+              .map(processItem)
+              .filter((child): child is ProcessedNavItem => child !== null)
+          : undefined
 
       return {
         id: item.id,
@@ -73,6 +117,17 @@ export class MenuTreeAdapter {
 
     const flush = () => {
       if (currentItems.length > 0) {
+        const sectionKey = currentSectionId || `section_${sections.length}`
+        const finalItems = enableProgressiveDisclosure
+          ? MenuTreeAdapter.applyProgressiveDisclosure(
+              currentItems,
+              maxItems,
+              sectionKey,
+              dictionary,
+              t,
+            )
+          : currentItems
+
         if (currentSectionId) {
           const sectionItem = items.find((i) => i.id === currentSectionId)
           const rawSection = sectionItem?.label || sectionItem?.section || 'Section'
@@ -80,10 +135,10 @@ export class MenuTreeAdapter {
           sections.push({
             id: currentSectionId,
             label: sectionLabel,
-            items: currentItems,
+            items: finalItems,
           })
         } else {
-          sections.push({ items: currentItems })
+          sections.push({ items: finalItems })
         }
         currentItems = []
       }

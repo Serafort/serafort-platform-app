@@ -17,7 +17,6 @@ export const useSessionGuard = () => {
     const checkSession = async () => {
       // Wait for hydration to complete first
       if (!hasHydrated) {
-        console.log('[SessionGuard] Waiting for hydration...')
         return
       }
 
@@ -27,29 +26,19 @@ export const useSessionGuard = () => {
       }
       hasCheckedRef.current = true
 
-      console.log(
-        '[SessionGuard] Hydration complete. isAuthenticated:',
-        isAuthenticated,
-        'user:',
-        !!user,
-      )
-
       try {
         // If user is already authenticated from persisted state, skip refreshAuth
         // This prevents unnecessary API calls and potential logouts
         if (isAuthenticated && user) {
-          console.log('[SessionGuard] User already authenticated from persisted state')
           if (isMountedRef.current) setIsLoading(false)
           return
         }
 
         // Only call refreshAuth if we're not authenticated
-        console.log('[SessionGuard] Not authenticated, calling refreshAuth...')
         if (typeof refreshAuth === 'function') {
           await refreshAuth()
         }
-      } catch (error) {
-        console.error('[SessionGuard] Check failed:', error)
+      } catch {
         if (isMountedRef.current) setSessionError('Your session has expired. Please log in again.')
       } finally {
         if (isMountedRef.current) setIsLoading(false)

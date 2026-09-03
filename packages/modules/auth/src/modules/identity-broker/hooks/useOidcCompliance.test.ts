@@ -7,10 +7,9 @@ import {
   useOidcInfoIntrospect,
   useOidcTokenRevocation,
   useOidcEndSession,
-  useInitiateSamlSso,
   oidcComplianceKeys,
 } from '@cap/module-auth/modules/identity-broker/hooks/useOidcCompliance'
-
+import { useInitiateSamlSso } from './useSAMLQuery'
 
 const { mockUserinfo, mockIntrospect, mockRevoke, mockEndSession, mockSso } = vi.hoisted(() => ({
   mockUserinfo: vi.fn(),
@@ -20,18 +19,23 @@ const { mockUserinfo, mockIntrospect, mockRevoke, mockEndSession, mockSso } = vi
   mockSso: vi.fn(),
 }))
 
-vi.mock('../../authentication-core/services/auth.service', () => ({
+// The hooks under test call the identity-broker service modules directly
+// (`oidcService` / `samlService`), which in turn call `apiClient`. Mock those
+// service modules so no real network/store code runs.
+vi.mock('../services/oidc.service', () => ({
   default: {
-    oidc: {
-      userinfo: mockUserinfo,
-      introspect: mockIntrospect,
-      revoke: mockRevoke,
-      endSession: mockEndSession,
-    },
-    saml: { sso: mockSso },
+    getUserInfo: mockUserinfo,
+    introspectToken: mockIntrospect,
+    revokeToken: mockRevoke,
+    endSession: mockEndSession,
   },
 }))
 
+vi.mock('../services/saml.service', () => ({
+  default: {
+    initiateSso: mockSso,
+  },
+}))
 
 function makeWrapper() {
   const client = new QueryClient({
@@ -42,14 +46,13 @@ function makeWrapper() {
   return Wrapper
 }
 
-
 describe('oidcComplianceKeys', () => {
   it('all key is a stable tuple', () => {
-    expect(oidcComplianceKeys.all).toEqual(['oidc-compliance'])
+    expect(oidcComplianceKeys.all).toEqual(['oidc'])
   })
 
   it('userinfo() key includes the parent key', () => {
-    expect(oidcComplianceKeys.userinfo()).toEqual(['oidc-compliance', 'userinfo'])
+    expect(oidcComplianceKeys.userinfo()).toEqual(['oidc', 'userinfo'])
   })
 
   it('userinfo() returns a new array on each call (not same reference)', () => {
@@ -185,7 +188,7 @@ describe('useInitiateSamlSso', () => {
 
   it('calls saml.sso with the provided payload', async () => {
     mockSso.mockResolvedValue({ data: { redirect_url: 'https://idp.example.com' } })
-    const payload = { provider: 'okta', RelayState: 'xyz' }
+    const payload = { domain: 'okta.com', relayState: 'xyz' }
 
     const { result } = renderHook(() => useInitiateSamlSso(), { wrapper: makeWrapper() })
     result.current.mutate(payload)

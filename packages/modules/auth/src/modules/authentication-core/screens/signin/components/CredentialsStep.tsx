@@ -11,19 +11,21 @@ import {
   Link as MuiLink,
   alpha,
 } from '@mui/material'
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import Fingerprint from '@mui/icons-material/Fingerprint';
-import VerifiedUser from '@mui/icons-material/VerifiedUser';
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import Fingerprint from '@mui/icons-material/Fingerprint'
+import VerifiedUser from '@mui/icons-material/VerifiedUser'
 import { Controller, Control } from 'react-hook-form'
-import { AuthScreenIcon, AuthInputLabel, AuthActionButton } from '../../../components/shared/auth'
+import { AuthScreenIcon, AuthActionButton } from '../../../components/shared/auth'
 import { LoginRequest } from '../../../types/api.types'
 import { Path } from '@cap/module-auth/routes/path'
 
 interface CredentialsStepProps {
   t: any
   control: Control<LoginRequest>
-  handleSubmit: (onValid: (data: LoginRequest) => void) => (e?: React.BaseSyntheticEvent) => Promise<void>
+  handleSubmit: (
+    onValid: (data: LoginRequest) => void,
+  ) => (e?: React.BaseSyntheticEvent) => Promise<void>
   onSubmit: (data: LoginRequest) => void
   showPasswordField: boolean
   showPassword: boolean
@@ -32,6 +34,9 @@ interface CredentialsStepProps {
   isDiscovering: boolean
   isLoginPending: boolean
   isPasskeyPending: boolean
+  isSubmitting?: boolean
+  isValidating?: boolean
+  isLocked?: boolean
   onShowPassword: () => void
   onPasskeyLogin: () => void
   onSocialLogin: (provider: string) => void
@@ -49,47 +54,60 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
   isDiscovering,
   isLoginPending,
   isPasskeyPending,
+  isSubmitting = false,
+  isValidating = false,
+  isLocked = false,
   onShowPassword,
   onPasskeyLogin,
   onSocialLogin,
 }) => {
+  const isBusy =
+    isLoginPending || isDiscovering || isPasskeyPending || isSubmitting || isValidating || isLocked
+
   return (
     <>
       {/* Header Section */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-        <AuthScreenIcon icon={<VerifiedUser sx={{ fontSize: 32 }} />} />
+      <Box sx={{ pt: { xs: 3, sm: 4 }, px: { xs: 3, sm: 4 }, textAlign: 'center' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2.5 }}>
+          <AuthScreenIcon icon={<VerifiedUser sx={{ fontSize: 32 }} />} />
+        </Box>
+        <Typography
+          variant='h4'
+          sx={{
+            fontWeight: 800,
+            mb: 1,
+            letterSpacing: '-0.025em',
+            textAlign: 'center',
+            fontSize: { xs: '1.5rem', sm: '1.75rem' },
+          }}
+        >
+          {t('signIn.title', 'Welcome back')}
+        </Typography>
+        <Typography
+          variant='body2'
+          color='text.secondary'
+          sx={{ fontWeight: 400, textAlign: 'center', maxWidth: 360, mx: 'auto', mb: 1 }}
+        >
+          {t('signIn.subtitle', 'Please enter your details to sign in')}
+        </Typography>
       </Box>
-      <Typography
-        variant='h4'
-        sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em', textAlign: 'center' }}
-      >
-        {t('signIn.title', 'Welcome back')}
-      </Typography>
-      <Typography
-        variant='body1'
-        color='text.secondary'
-        sx={{ fontWeight: 500, mb: 4, textAlign: 'center' }}
-      >
-        {t('signIn.subtitle', 'Please enter your details to sign in')}
-      </Typography>
 
       {/* Form Section */}
       <Box
         sx={{
           px: { xs: 3, sm: 4 },
-          pt: 3,
-          pb: 4,
+          pt: 2,
+          pb: { xs: 3, sm: 4 },
         }}
       >
         <Box
           component='form'
           onSubmit={handleSubmit(onSubmit)}
           noValidate
-          sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}
+          sx={{ display: 'flex', flexDirection: 'column', gap: 2.25 }}
         >
           {/* Email Field */}
           <Box>
-            <AuthInputLabel>{t('signIn.emailLabel', 'EMAIL ADDRESS')}</AuthInputLabel>
             <Controller
               name='email'
               control={control}
@@ -103,10 +121,13 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
               render={({ field, fieldState }) => (
                 <TextField
                   {...field}
+                  id='email'
                   type='email'
                   fullWidth
                   autoComplete='username webauthn'
+                  label={t('signIn.emailLabel', 'EMAIL ADDRESS')}
                   placeholder='name@example.com'
+                  disabled={isBusy}
                   InputProps={{
                     endAdornment: isPasskeyAutofillAvailable && (
                       <InputAdornment position='end'>
@@ -124,11 +145,16 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                   helperText={fieldState.error?.message}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      height: 48,
-                      borderRadius: '8px',
-                      bgcolor: 'background.paper',
+                      minHeight: 48,
+                      borderRadius: '12px',
+                      bgcolor: (theme) =>
+                        theme.palette.mode === 'dark'
+                          ? alpha(theme.palette.background.paper, 0.6)
+                          : 'background.paper',
+                      transition: 'all 0.2s ease-in-out',
                       '& fieldset': {
                         borderColor: 'divider',
+                        transition: 'all 0.2s ease-in-out',
                       },
                       '&:hover fieldset': {
                         borderColor: 'primary.main',
@@ -137,10 +163,20 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                         borderColor: 'primary.main',
                         borderWidth: '1px',
                       },
+                      '&.Mui-focused': {
+                        boxShadow: (theme) =>
+                          `0 0 0 3px ${alpha(theme.palette.primary.main, 0.18)}`,
+                      },
                     },
                     '& input::placeholder': {
                       color: 'text.secondary',
                       opacity: 0.7,
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: 'text.secondary',
+                      fontWeight: 600,
+                      fontSize: '0.8125rem',
+                      letterSpacing: '0.04em',
                     },
                   }}
                 />
@@ -151,7 +187,6 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
           {/* Password Field */}
           {showPasswordField && (
             <Box>
-              <AuthInputLabel>{t('signIn.passwordLabel', 'PASSWORD')}</AuthInputLabel>
               <Controller
                 name='password'
                 control={control}
@@ -161,22 +196,32 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                 render={({ field, fieldState }) => (
                   <TextField
                     {...field}
+                    id='password'
                     type={showPassword ? 'text' : 'password'}
                     fullWidth
                     autoComplete='current-password'
-                    placeholder={t('auth.common.passwordPlaceholder')}
+                    label={t('signIn.passwordLabel', 'PASSWORD')}
+                    placeholder={t('auth.common.passwordPlaceholder', '••••••••')}
+                    disabled={isBusy}
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position='end'>
-                          <IconButton onClick={onShowPassword} edge='end' size='small'>
+                          <IconButton
+                            onClick={onShowPassword}
+                            edge='end'
+                            size='small'
+                            disabled={isBusy}
+                            aria-label={t(
+                              'auth.login.toggle_password',
+                              'toggle password visibility',
+                            )}
+                          >
                             {showPassword ? (
                               <Visibility sx={{ fontSize: 20, color: 'text.secondary' }} />
                             ) : (
-                              <VisibilityOff
-                                sx={{ fontSize: 20, color: 'text.secondary' }}
-                              />
+                              <VisibilityOff sx={{ fontSize: 20, color: 'text.secondary' }} />
                             )}
                           </IconButton>
                         </InputAdornment>
@@ -184,11 +229,16 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        height: 48,
-                        borderRadius: '8px',
-                        bgcolor: 'background.paper',
+                        minHeight: 48,
+                        borderRadius: '12px',
+                        bgcolor: (theme) =>
+                          theme.palette.mode === 'dark'
+                            ? alpha(theme.palette.background.paper, 0.6)
+                            : 'background.paper',
+                        transition: 'all 0.2s ease-in-out',
                         '& fieldset': {
                           borderColor: 'divider',
+                          transition: 'all 0.2s ease-in-out',
                         },
                         '&:hover fieldset': {
                           borderColor: 'primary.main',
@@ -197,10 +247,20 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                           borderColor: 'primary.main',
                           borderWidth: '1px',
                         },
+                        '&.Mui-focused': {
+                          boxShadow: (theme) =>
+                            `0 0 0 3px ${alpha(theme.palette.primary.main, 0.18)}`,
+                        },
                       },
                       '& input::placeholder': {
                         color: 'text.secondary',
                         opacity: 0.7,
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: 'text.secondary',
+                        fontWeight: 600,
+                        fontSize: '0.8125rem',
+                        letterSpacing: '0.04em',
                       },
                     }}
                   />
@@ -211,16 +271,17 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
 
           {/* Forgot Password Link - Only show if not SSO */}
           {showPasswordField && (
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -0.5 }}>
               <MuiLink
                 component={Link}
                 to={Path.auth.forgotPassword}
                 sx={{
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
                   color: 'primary.main',
                   textDecoration: 'none',
                   fontFamily: 'inherit',
+                  transition: 'color 0.15s ease',
                   '&:hover': {
                     color: 'primary.dark',
                     textDecoration: 'underline',
@@ -233,12 +294,15 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
           )}
 
           {/* Primary Actions */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 0.5 }}>
             <AuthActionButton
               type='submit'
-              isLoading={isLoginPending || isDiscovering}
+              isLoading={isLoginPending || isDiscovering || isSubmitting}
+              isSubmitting={isSubmitting}
+              isValidating={isValidating}
+              isLocked={isLocked}
               label={
-                isLoginPending || isDiscovering
+                isLoginPending || isDiscovering || isSubmitting
                   ? isDiscovering
                     ? t('signIn.checking', 'Checking...')
                     : t('signIn.submitting', 'Signing In...')
@@ -253,23 +317,23 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
               variant='outlined'
               startIcon={<Fingerprint sx={{ fontSize: 20 }} />}
               onClick={onPasskeyLogin}
-              disabled={isLoginPending || isPasskeyPending}
+              disabled={isBusy}
               sx={{
                 height: 48,
-                borderRadius: '8px',
+                borderRadius: '12px',
                 textTransform: 'none',
                 fontWeight: 700,
                 fontSize: '0.875rem',
                 borderColor: 'divider',
                 color: 'text.primary',
                 fontFamily: 'inherit',
+                transition: 'all 0.2s ease-in-out',
                 '&:hover': {
-                  bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04),
-                  borderColor: 'divider',
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, 0.06),
+                  borderColor: 'primary.main',
                 },
                 '&:focus': {
-                  boxShadow: (theme) =>
-                    `0 0 0 4px ${alpha(theme.palette.action.hover, 0.05)}`,
+                  boxShadow: (theme) => `0 0 0 3px ${alpha(theme.palette.primary.main, 0.18)}`,
                 },
                 '& .MuiButton-startIcon': {
                   color: 'primary.main',
@@ -277,8 +341,8 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
               }}
             >
               {isPasskeyPending
-                ? t('auth.passkey.authenticating')
-                : t('auth.passkey.sign_in_with_passkey')}
+                ? t('auth.passkey.authenticating', 'Authenticating...')
+                : t('auth.passkey.sign_in_with_passkey', 'Sign in with Passkey')}
             </Button>
           </Box>
         </Box>
@@ -313,26 +377,35 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                 bgcolor: 'background.paper',
                 px: 1.5,
                 fontSize: '0.75rem',
+                fontWeight: 600,
                 color: 'text.secondary',
                 fontFamily: 'inherit',
                 textTransform: 'uppercase',
+                letterSpacing: '0.05em',
               }}
             >
-              {t('auth.login.or_continue_with')}
+              {t('auth.login.or_continue_with', 'OR CONTINUE WITH')}
             </Typography>
           </Box>
         </Box>
 
         {/* Social Login */}
-        <Grid container spacing={1.5}>
+        <Grid container spacing={1.5} sx={{ justifyContent: 'center', alignItems: 'center' }}>
           <Grid size={{ xs: 6 }}>
             <Button
               fullWidth
               variant='outlined'
+              disabled={isBusy}
               startIcon={
                 <Box
                   component='svg'
-                  sx={{ height: 20, width: 20 }}
+                  sx={{
+                    height: 20,
+                    width: 20,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                   viewBox='0 0 24 24'
                   xmlns='http://www.w3.org/2000/svg'
                 >
@@ -357,30 +430,51 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
               onClick={() => onSocialLogin('google')}
               sx={{
                 height: 48,
-                borderRadius: '8px',
+                borderRadius: '12px',
                 textTransform: 'none',
                 fontWeight: 700,
                 fontSize: '0.875rem',
                 borderColor: 'divider',
                 color: 'text.primary',
                 fontFamily: 'inherit',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease-in-out',
+                '& .MuiButton-startIcon': {
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  m: 0,
+                  mr: 1,
+                },
                 '&:hover': {
-                  bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04),
-                  borderColor: 'divider',
+                  bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05),
+                  borderColor: 'text.secondary',
+                },
+                '&:focus': {
+                  boxShadow: (theme) => `0 0 0 3px ${alpha(theme.palette.primary.main, 0.18)}`,
                 },
               }}
             >
-              {t('auth.login.google')}
+              {t('auth.login.google', 'Google')}
             </Button>
           </Grid>
           <Grid size={{ xs: 6 }}>
             <Button
               fullWidth
               variant='outlined'
+              disabled={isBusy}
               startIcon={
                 <Box
                   component='svg'
-                  sx={{ height: 20, width: 20 }}
+                  sx={{
+                    height: 20,
+                    width: 20,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                   fill='currentColor'
                   viewBox='0 0 24 24'
                   xmlns='http://www.w3.org/2000/svg'
@@ -391,26 +485,40 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
               onClick={() => onSocialLogin('github')}
               sx={{
                 height: 48,
-                borderRadius: '8px',
+                borderRadius: '12px',
                 textTransform: 'none',
                 fontWeight: 700,
                 fontSize: '0.875rem',
                 borderColor: 'divider',
                 color: 'text.primary',
                 fontFamily: 'inherit',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease-in-out',
+                '& .MuiButton-startIcon': {
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  m: 0,
+                  mr: 1,
+                },
                 '&:hover': {
-                  bgcolor: (theme) => alpha(theme.palette.action.hover, 0.04),
-                  borderColor: 'divider',
+                  bgcolor: (theme) => alpha(theme.palette.action.hover, 0.05),
+                  borderColor: 'text.secondary',
+                },
+                '&:focus': {
+                  boxShadow: (theme) => `0 0 0 3px ${alpha(theme.palette.primary.main, 0.18)}`,
                 },
               }}
             >
-              {t('signIn.github', 'GitHub')}
+              {t('auth.login.github', 'GitHub')}
             </Button>
           </Grid>
         </Grid>
 
         {/* Sign Up Link */}
-        <Box sx={{ mt: 4, textAlign: 'center' }}>
+        <Box sx={{ mt: 3.5, textAlign: 'center' }}>
           <Typography
             variant='body2'
             component='span'
@@ -431,6 +539,7 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
               color: 'primary.main',
               textDecoration: 'none',
               fontFamily: 'inherit',
+              transition: 'color 0.15s ease',
               '&:hover': {
                 color: 'primary.dark',
                 textDecoration: 'underline',

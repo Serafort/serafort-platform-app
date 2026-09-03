@@ -1,9 +1,9 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
-import styled from '@emotion/styled';
+import React from "react";
+import { Box, Typography } from "@mui/material";
+import styled from "@emotion/styled";
 
 interface PreviewInputProps {
-  effectStyle?: 'standard' | 'glass' | 'neu';
+  effectStyle?: "standard" | "glass" | "neu";
 }
 
 const StandardInput = styled.input`
@@ -58,7 +58,9 @@ const NeuInput = styled.input`
   border: none;
   border-radius: 8px;
   color: #374151;
-  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+  box-shadow:
+    inset 4px 4px 8px rgba(0, 0, 0, 0.1),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.8);
   transition: all 0.2s ease;
 
   &::placeholder {
@@ -67,21 +69,33 @@ const NeuInput = styled.input`
 
   &:focus {
     outline: none;
-    box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+    box-shadow:
+      inset 2px 2px 4px rgba(0, 0, 0, 0.1),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.8);
   }
 `;
 
 export const PreviewInput: React.FC<PreviewInputProps> = ({
-  effectStyle = 'standard',
+  effectStyle = "standard",
 }) => {
-  const InputComponent = effectStyle === 'glass' ? GlassInput : effectStyle === 'neu' ? NeuInput : StandardInput;
+  const InputComponent =
+    effectStyle === "glass"
+      ? GlassInput
+      : effectStyle === "neu"
+        ? NeuInput
+        : StandardInput;
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Typography variant="caption" color="text.secondary">
-        {effectStyle === 'glass' ? 'Glass' : effectStyle === 'neu' ? 'Neumorphic' : 'Standard'} Input
+        {effectStyle === "glass"
+          ? "Glass"
+          : effectStyle === "neu"
+            ? "Neumorphic"
+            : "Standard"}{" "}
+        Input
       </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
         <InputComponent placeholder="Default input placeholder" />
         <InputComponent defaultValue="Filled input" />
       </Box>

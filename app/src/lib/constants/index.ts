@@ -13,7 +13,7 @@ export { default as departementState } from '../../utils/departement_state.json'
 // - size:
 
 // Application constants
-export const API_TIMEOUT = 51730
+export const API_TIMEOUT = 15000
 export const MAX_RETRIES = 3
 export const CACHE_TTL = 5000
 export const MAX_PENDING_REQUESTS = 100

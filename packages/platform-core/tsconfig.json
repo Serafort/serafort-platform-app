@@ -2,11 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -23,14 +19,8 @@
     "paths": {
       "@cap/platform-core": ["./src"],
       "@cap/platform-core/*": ["./src/*"],
-      "@cap/module-auth": [
-        "../modules/auth/src",
-        "../platform-core/src/stubs/auth-shim.tsx"
-      ],
-      "@cap/module-auth/*": [
-        "../modules/auth/src/*",
-        "../platform-core/src/stubs/auth-shim.tsx"
-      ],
+      "@cap/module-auth": ["../modules/auth/src", "../platform-core/src/stubs/auth-shim.tsx"],
+      "@cap/module-auth/*": ["../modules/auth/src/*", "../platform-core/src/stubs/auth-shim.tsx"],
       "@cap/layout": ["../layout/src"],
       "@cap/layout/*": ["../layout/src/*"],
       "@cap/authorization": ["../authorization/src"],
@@ -65,18 +55,7 @@
       "@auth/domain-kernel/*": ["../modules/auth/src/domain-kernel/*"],
       "@idaas/*": ["../modules/auth/src/modules/*"]
     },
-    "types": [
-      "react",
-      "node",
-      "vite/client"
-    ]
+    "types": ["react", "node", "vite/client"]
   },
-  "include": [
-    "src/**/*",
-    "vite-env.d.ts"
-  ],
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/**/*.test.tsx"
-  ]
+  "include": ["src/**/*", "vite-env.d.ts"]
 }

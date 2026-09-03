@@ -12,8 +12,7 @@ This document defines the official architectural standard, conventions, and cont
 4. **Code-Splitting Mandatory**: All screen components must be imported lazily via `React.lazy(() => import(...))` to ensure Vite creates isolated chunk bundles.
 5. **Layout Intent (`RouteLayout`)**: Every route explicitly declares its layout intent (`public`, `vertical`, `horizontal`, `noLayout`, `admin`). The framework's `LayoutRouteWrapper` dynamically applies the requested shell layout.
 
-> **Runtime gap (verified 2026-08 — `analysis/architecture-report.md` §4):** only `'noLayout'` and `'admin'` actually switch the shell in `LayoutWrapper` today; `'vertical'`, `'horizontal'`, and `'public'` fall through to the default public path (for public marketing routes this is fine — public *is* the default; for dashboard screens it is not). An undeclared `layout` silently inherits the previous route's `layoutOverride` (`'none'` is a no-op). Always declare `layout` explicitly, and use `'admin'` for authenticated dashboard-style routes.
-6. **i18n & Module Scope Discipline**: Never call React hooks (such as `useTranslation()`) at module scope outside component functions. Route `label`s must store translation keys (e.g., `'landing.home'`) or lazy getters.
+> **Runtime gap (verified 2026-08 — `analysis/architecture-report.md` §4):** only `'noLayout'` and `'admin'` actually switch the shell in `LayoutWrapper` today; `'vertical'`, `'horizontal'`, and `'public'` fall through to the default public path (for public marketing routes this is fine — public _is_ the default; for dashboard screens it is not). An undeclared `layout` silently inherits the previous route's `layoutOverride` (`'none'` is a no-op). Always declare `layout` explicitly, and use `'admin'` for authenticated dashboard-style routes. 6. **i18n & Module Scope Discipline**: Never call React hooks (such as `useTranslation()`) at module scope outside component functions. Route `label`s must store translation keys (e.g., `'landing.home'`) or lazy getters.
 
 ---
 
@@ -67,14 +66,14 @@ Centralize all path constants to ensure type safety and eliminate magic strings 
 ```ts
 // packages/modules/landing/src/routes/path.ts
 export const LandingPath = {
-  home: '/',
-  features: '/features',
-  pricing: '/pricing',
-  contact: '/contact',
-} as const
+  home: "/",
+  features: "/features",
+  pricing: "/pricing",
+  contact: "/contact",
+} as const;
 
-export const Path = LandingPath
-export default LandingPath
+export const Path = LandingPath;
+export default LandingPath;
 ```
 
 ### B. Route Configuration & Component (`routes.tsx`)
@@ -83,43 +82,43 @@ Define route configurations with `React.lazy()` imports and export a standalone 
 
 ```tsx
 // packages/modules/landing/src/routes/routes.tsx
-import React from 'react'
-import { Route, type RoutesProps } from 'react-router-dom'
-import type { ModuleRouteConfig } from '@cap/shared-types'
-import { LayoutRouteWrapper } from '@cap/layout'
-import { LandingPath } from './path'
+import React from "react";
+import { Route, type RoutesProps } from "react-router-dom";
+import type { ModuleRouteConfig } from "@cap/shared-types";
+import { LayoutRouteWrapper } from "@cap/layout";
+import { LandingPath } from "./path";
 
-const HomeScreen = React.lazy(() => import('../screens/Home'))
-const FeaturesScreen = React.lazy(() => import('../screens/FeatureComparison'))
-const PricingScreen = React.lazy(() => import('../screens/Pricing'))
+const HomeScreen = React.lazy(() => import("../screens/Home"));
+const FeaturesScreen = React.lazy(() => import("../screens/FeatureComparison"));
+const PricingScreen = React.lazy(() => import("../screens/Pricing"));
 
 export const landingRouteConfig: ModuleRouteConfig[] = [
   {
     path: LandingPath.home,
-    id: 'nav-home',
+    id: "nav-home",
     element: <HomeScreen />,
-    label: 'landing.home',
-    layout: 'public',
-    variant: ['public'],
+    label: "landing.home",
+    layout: "public",
+    variant: ["public"],
     guestOnly: true,
   },
   {
     path: LandingPath.features,
-    id: 'guest-features',
+    id: "guest-features",
     element: <FeaturesScreen />,
-    label: 'landing.features',
-    layout: 'public',
-    variant: ['public'],
+    label: "landing.features",
+    layout: "public",
+    variant: ["public"],
   },
   {
     path: LandingPath.pricing,
-    id: 'guest-pricing',
+    id: "guest-pricing",
     element: <PricingScreen />,
-    label: 'landing.pricing',
-    layout: 'public',
-    variant: ['public'],
+    label: "landing.pricing",
+    layout: "public",
+    variant: ["public"],
   },
-]
+];
 
 /**
  * Route component for standalone or test rendering.
@@ -131,17 +130,17 @@ export const landingRoutes: React.FC<RoutesProps> = () => (
         key={route.path}
         path={route.path}
         element={
-          <LayoutRouteWrapper layout={route.layout || 'public'}>
+          <LayoutRouteWrapper layout={route.layout || "public"}>
             {route.element}
           </LayoutRouteWrapper>
         }
       />
     ))}
   </>
-)
+);
 
-export const LandingRoutes = landingRoutes
-export default landingRoutes
+export const LandingRoutes = landingRoutes;
+export default landingRoutes;
 ```
 
 ### C. Barrel Export (`index.ts`)
@@ -155,8 +154,8 @@ export {
   landingRoutes,
   LandingRoutes,
   default,
-} from './routes'
-export { LandingPath, Path } from './path'
+} from "./routes";
+export { LandingPath, Path } from "./path";
 ```
 
 ### D. Re-exporting from Module Root (`src/index.ts`)
@@ -165,18 +164,23 @@ Export routes and paths from the package root and attach them to the `CAPModule`
 
 ```ts
 // packages/modules/landing/src/index.ts
-import type { CAPModule } from '@cap/shared-types'
-import { landingRouteConfig } from './routes'
-import { landingDictionaries } from './i18n/registry'
+import type { CAPModule } from "@cap/shared-types";
+import { landingRouteConfig } from "./routes";
+import { landingDictionaries } from "./i18n/registry";
 
-export { landingRouteConfig, landingRoutes, LandingRoutes, LandingPath } from './routes'
+export {
+  landingRouteConfig,
+  landingRoutes,
+  LandingRoutes,
+  LandingPath,
+} from "./routes";
 
 export const LandingModule: CAPModule = {
-  id: 'landing-module',
-  version: '1.0.0',
+  id: "landing-module",
+  version: "1.0.0",
   routes: landingRouteConfig,
   i18n: landingDictionaries,
-}
+};
 ```
 
 ---
@@ -187,11 +191,11 @@ For complex authentication or authorization workflows (such as in `@cap/module-a
 
 ```tsx
 // packages/modules/auth/src/routes/routeHelpers.tsx
-import React from 'react'
-import type { ModuleRouteConfig, RouteLayout } from '@cap/shared-types'
-import { Roles } from '@cap/platform-core'
-import AdminRoute from '../modules/authorization-engine/middlewares/AdminRoute'
-import AuthRoute from '../modules/authentication-core/middlewares/AuthRoute'
+import React from "react";
+import type { ModuleRouteConfig, RouteLayout } from "@cap/shared-types";
+import { Roles } from "@cap/platform-core";
+import AdminRoute from "../modules/authorization-engine/middlewares/AdminRoute";
+import AuthRoute from "../modules/authentication-core/middlewares/AuthRoute";
 
 export const createAdminRoute = (
   path: string,
@@ -200,20 +204,26 @@ export const createAdminRoute = (
 ): ModuleRouteConfig => ({
   path,
   label,
-  layout: 'admin',
+  layout: "admin",
   get element() {
-    return <AdminRoute element={element} minimumRole={Roles.ADMIN} layout='admin' />
+    return (
+      <AdminRoute element={element} minimumRole={Roles.ADMIN} layout="admin" />
+    );
   },
-})
+});
 
 export const createAuthRoute = (
   path: string,
   element: React.ReactNode,
-  options: { requiresVerification?: boolean; layout?: RouteLayout; label?: string } = {},
+  options: {
+    requiresVerification?: boolean;
+    layout?: RouteLayout;
+    label?: string;
+  } = {},
 ): ModuleRouteConfig => ({
   path,
   label: options.label,
-  layout: options.layout || 'admin',
+  layout: options.layout || "admin",
   element: (
     <AuthRoute
       element={element}
@@ -221,9 +231,9 @@ export const createAuthRoute = (
       layout={options.layout}
     />
   ),
-})
+});
 
-export { LayoutRouteWrapper } from '@cap/layout'
+export { LayoutRouteWrapper } from "@cap/layout";
 ```
 
 ---
@@ -231,6 +241,7 @@ export { LayoutRouteWrapper } from '@cap/layout'
 ## 6. Framework Assembly Integration
 
 When `assembleApp()` initializes at shell startup:
+
 1. It collects `routes` from all registered `CAPModule` instances.
 2. Route objects containing `variant` or `roles` are promoted automatically into navigation items in `useAppStore`.
 3. All route elements are compiled into a unified React Router `<Routes>` tree wrapped in `<LayoutRouteWrapper layout={route.layout}>`.

@@ -5,6 +5,7 @@ This module is responsible for **assembling multiple CAP modules into a single a
 ## Purpose
 
 The `assembleApp()` function takes an array of `CAPModule` definitions and:
+
 1. **Registers i18n resources** from each module isolated strictly by module namespace into `i18next` (preventing cross-module translation collisions).
 2. **Merges navigation items** into the reactive global navigation store.
 3. **Collects routes** from all modules into a single `<Routes>` component, preserving layout metadata via `LayoutRouteWrapper`.
@@ -19,7 +20,7 @@ import { AuthModule } from '@cap/module-auth'
 import { LandingModule } from '@cap/module-landing'
 
 const App = assembleApp({
-  modules: [LandingModule, AuthModule]
+  modules: [LandingModule, AuthModule],
 })
 
 // App is a React component with all routes merged and wrapped in layout handlers

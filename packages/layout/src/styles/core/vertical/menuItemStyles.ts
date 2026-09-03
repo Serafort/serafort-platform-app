@@ -46,7 +46,10 @@ const menuItemStyles = (
       [`&:not(.${menuClasses.subMenuRoot}) > .${menuClasses.button}.${menuClasses.active}`]: {
         ...(popoutCollapsed && level > 0
           ? {
-              backgroundColor: alpha(theme.palette.primary.main, menuTokens.vertical.item.activeSubmenuAlpha),
+              backgroundColor: alpha(
+                theme.palette.primary.main,
+                menuTokens.vertical.item.activeSubmenuAlpha,
+              ),
               color: theme.palette.primary.main,
               [`& .${menuClasses.icon}`]: {
                 color: theme.palette.primary.main,
@@ -63,9 +66,20 @@ const menuItemStyles = (
       },
     }),
     button: ({ level, active }: MenuItemStylesParams) => ({
-      paddingBlock: menuTokens.vertical.item.paddingBlock,
-      paddingInline: menuTokens.vertical.item.paddingInline,
+      paddingBlock:
+        collapsedNotHovered && level === 0
+          ? menuTokens.vertical.item.collapsedPaddingBlock
+          : menuTokens.vertical.item.paddingBlock,
+      paddingInline:
+        collapsedNotHovered && level === 0
+          ? menuTokens.vertical.item.collapsedPaddingInline
+          : menuTokens.vertical.item.paddingInline,
       borderRadius: theme.shape.borderRadius,
+      ...(collapsedNotHovered &&
+        level === 0 && {
+          justifyContent: 'center',
+          inlineSize: '100%',
+        }),
       ...(!(isCollapsed && !isHovered) && {
         '&:has(.MuiChip-root)': {
           paddingBlock: theme.spacing(menuTokens.horizontal.item.paddingBlockChipSpacing),
@@ -74,7 +88,7 @@ const menuItemStyles = (
 
       ...((!isPopoutWhenCollapsed || popoutExpanded || (popoutCollapsed && level === 0)) && {
         borderRadius: theme.shape.borderRadius,
-        transition: `padding-inline-start ${transitionDuration}ms ease-in-out`,
+        transition: `padding-inline-start ${transitionDuration}ms ease-in-out, padding-inline ${transitionDuration}ms ease-in-out`,
       }),
       ...(!active && {
         '&:hover, &:focus-visible': {
@@ -86,7 +100,7 @@ const menuItemStyles = (
       }),
     }),
     icon: ({ level }: MenuItemStylesParams) => ({
-      transition: `margin-inline-end ${transitionDuration}ms ease-in-out`,
+      transition: `margin-inline-end ${transitionDuration}ms ease-in-out, margin-inline-start ${transitionDuration}ms ease-in-out`,
       ...(level === 0 && {
         fontSize: menuTokens.vertical.item.iconSizePrimary,
       }),
@@ -109,6 +123,10 @@ const menuItemStyles = (
       }),
       ...(collapsedNotHovered && {
         marginInlineEnd: 0,
+        marginInlineStart: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }),
       ...(popoutCollapsed &&
         level > 0 && {
@@ -120,21 +138,30 @@ const menuItemStyles = (
     }),
     prefix: {
       marginInlineEnd: theme.spacing(menuTokens.vertical.item.prefixMarginEnd),
+      ...(collapsedNotHovered && {
+        display: 'none',
+      }),
     },
     label: ({ level }: MenuItemStylesParams) => ({
       ...((!isPopoutWhenCollapsed || popoutExpanded || (popoutCollapsed && level === 0)) && {
         transition: `opacity ${transitionDuration}ms ease-in-out`,
         ...(collapsedNotHovered && {
           opacity: 0,
+          display: 'none',
         }),
       }),
     }),
     suffix: {
       marginInlineStart: theme.spacing(menuTokens.vertical.item.suffixMarginStart),
+      ...(collapsedNotHovered && {
+        display: 'none',
+      }),
     },
     subMenuExpandIcon: {
       fontSize: menuTokens.vertical.item.expandIconSize,
-      marginInlineStart: theme.spacing(menuTokens.horizontal.item.expandIconMarginInlineStartSpacing),
+      marginInlineStart: theme.spacing(
+        menuTokens.horizontal.item.expandIconMarginInlineStartSpacing,
+      ),
       '& i, & svg': {
         fontSize: 'inherit',
       },

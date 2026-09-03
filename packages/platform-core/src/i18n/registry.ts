@@ -9,7 +9,10 @@ export function registerDictionary(dict: DictionaryMap): void {
 }
 
 export function getMergedDictionary(locale: Locale): Record<string, unknown> {
-  return _modules.reduce((acc, mod) => deepMerge(acc, mod[locale] ?? {}), {} as Record<string, unknown>)
+  return _modules.reduce(
+    (acc, mod) => deepMerge(acc, mod[locale] ?? {}),
+    {} as Record<string, unknown>,
+  )
 }
 
 export function getAvailableLocales(): Locale[] {
@@ -24,12 +27,7 @@ function deepMerge(
   for (const key in source) {
     if (Object.prototype.hasOwnProperty.call(source, key)) {
       const val = source[key]
-      if (
-        val &&
-        typeof val === 'object' &&
-        !Array.isArray(val) &&
-        !isDate(val)
-      ) {
+      if (val && typeof val === 'object' && !Array.isArray(val) && !isDate(val)) {
         result[key] = deepMerge(
           (result[key] as Record<string, unknown>) ?? {},
           val as Record<string, unknown>,
@@ -43,8 +41,10 @@ function deepMerge(
 }
 
 function isDate(value: unknown): boolean {
-  return value instanceof Date ||
+  return (
+    value instanceof Date ||
     (typeof value === 'object' &&
-     value !== null &&
-     Object.prototype.toString.call(value) === '[object Date]')
+      value !== null &&
+      Object.prototype.toString.call(value) === '[object Date]')
+  )
 }

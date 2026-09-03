@@ -5,6 +5,7 @@ The CAP Platform Plugin System allows modules to register components, routes, se
 ## Overview
 
 Plugins are modular units of functionality that can be:
+
 - **Component Plugins** - Provide React components for UI injection
 - **Route Plugins** - Provide application routes
 - **Service Plugins** - Provide business logic services (API clients, utilities, etc.)
@@ -17,66 +18,66 @@ All plugins must implement the `BasePlugin` interface:
 
 ```typescript
 interface BasePlugin extends PluginMetadata {
-  id: string              // Unique identifier
-  name: string            // Human-readable name
-  version: string         // Semver version
-  pluginType: string      // Type of plugin
-  category?: string       // For organization
-  dependencies?: string[] // Other plugin IDs this depends on
+  id: string; // Unique identifier
+  name: string; // Human-readable name
+  version: string; // Semver version
+  pluginType: string; // Type of plugin
+  category?: string; // For organization
+  dependencies?: string[]; // Other plugin IDs this depends on
 
-  install: (context: PluginInstallContext) => void | Promise<void>
-  uninstall?: (context: PluginUninstallContext) => void | Promise<void>
+  install: (context: PluginInstallContext) => void | Promise<void>;
+  uninstall?: (context: PluginUninstallContext) => void | Promise<void>;
 }
 ```
 
 ## Creating a Service Plugin
 
 ```typescript
-import type { ServicePlugin } from '@cap/shared-types'
+import type { ServicePlugin } from "@cap/shared-types";
 
 export const MyServicePlugin: ServicePlugin = {
-  id: 'my-service',
-  name: 'My Service Plugin',
-  version: '1.0.0',
-  pluginType: 'service',
-  category: 'service',
+  id: "my-service",
+  name: "My Service Plugin",
+  version: "1.0.0",
+  pluginType: "service",
+  category: "service",
 
   services: {
-    myService: new MyService()
+    myService: new MyService(),
   },
 
   install: async (context) => {
-    console.log('Installing my service plugin')
+    console.log("Installing my service plugin");
   },
 
   uninstall: async (context) => {
-    console.log('Uninstalling my service plugin')
-  }
-}
+    console.log("Uninstalling my service plugin");
+  },
+};
 ```
 
 ## Creating a Component Plugin
 
 ```typescript
-import type { ComponentPlugin } from '@cap/shared-types'
-import { MyWidget } from './components/MyWidget'
+import type { ComponentPlugin } from "@cap/shared-types";
+import { MyWidget } from "./components/MyWidget";
 
 export const MyComponentPlugin: ComponentPlugin = {
-  id: 'my-components',
-  name: 'My Components',
-  version: '1.0.0',
-  pluginType: 'component',
-  category: 'ui',
+  id: "my-components",
+  name: "My Components",
+  version: "1.0.0",
+  pluginType: "component",
+  category: "ui",
 
   components: {
     MyWidget,
-    MySidebar
+    MySidebar,
   },
 
   install: async (context) => {
-    console.log('Installing component plugin')
-  }
-}
+    console.log("Installing component plugin");
+  },
+};
 ```
 
 ## Using the Plugin Registry
@@ -84,19 +85,19 @@ export const MyComponentPlugin: ComponentPlugin = {
 ### Global Registry
 
 ```typescript
-import { globalPluginRegistry } from '@cap/platform-core'
+import { globalPluginRegistry } from "@cap/platform-core";
 
 // Register a plugin
-await globalPluginRegistry.register(myPlugin)
+await globalPluginRegistry.register(myPlugin);
 
 // Get a plugin
-const plugin = globalPluginRegistry.getPlugin('my-plugin')
+const plugin = globalPluginRegistry.getPlugin("my-plugin");
 
 // Get all plugins of a type
-const services = globalPluginRegistry.getPluginsByType('service')
+const services = globalPluginRegistry.getPluginsByType("service");
 
 // Get a registered service
-const myService = globalPluginRegistry.getService<MyService>('myService')
+const myService = globalPluginRegistry.getService<MyService>("myService");
 ```
 
 ### Module Plugins
@@ -105,11 +106,11 @@ Modules can declare plugins in their definition:
 
 ```typescript
 export const MyModule: CAPModule = {
-  id: 'my-module',
-  version: '1.0.0',
+  id: "my-module",
+  version: "1.0.0",
   plugins: [MyServicePlugin, MyComponentPlugin],
   // ... other module config
-}
+};
 ```
 
 ## Plugin Lifecycle
@@ -126,10 +127,10 @@ Plugins can declare dependencies on other plugins:
 
 ```typescript
 export const MyDependentPlugin: ServicePlugin = {
-  id: 'my-dependent-plugin',
-  dependencies: ['my-service', 'my-components'],
+  id: "my-dependent-plugin",
+  dependencies: ["my-service", "my-components"],
   // ...
-}
+};
 ```
 
 The registry will throw an error if dependencies are not met.

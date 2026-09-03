@@ -1,3 +1,1 @@
-export { default as AdminLoginScreen } from './AdminLoginScreen'
-export { default as LoginScreen } from './LoginScreen'
-export { default as SignInV2 } from './SignInV2'
+export { default as SignInV2 } from './SignIn'

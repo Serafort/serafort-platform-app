@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -7,9 +7,9 @@ import {
   FormControlLabel,
   Radio,
   Chip,
-} from '@mui/material';
-import type { ComponentStyles, ComponentEffectStyle } from '@cap/theme';
-import type { EffectType } from '@cap/theme';
+} from "@mui/material";
+import type { ComponentStyles, ComponentEffectStyle } from "@cap/theme";
+import type { EffectType } from "@cap/theme";
 
 interface ComponentStyleSelectorProps {
   components: ComponentStyles;
@@ -19,24 +19,36 @@ interface ComponentStyleSelectorProps {
 }
 
 const componentLabels: Record<keyof ComponentStyles, string> = {
-  button: 'Buttons',
-  card: 'Cards',
-  input: 'Input Fields',
-  navbar: 'Navigation Bar',
-  footer: 'Footer',
-  modal: 'Modals',
-  drawer: 'Drawers',
-  stepper: 'Steppers',
-  table: 'Tables',
-  tabs: 'Tabs',
-  nav: 'Navigation Sidebars',
+  button: "Buttons",
+  card: "Cards",
+  input: "Input Fields",
+  navbar: "Navigation Bar",
+  footer: "Footer",
+  modal: "Modals",
+  drawer: "Drawers",
+  stepper: "Steppers",
+  table: "Tables",
+  tabs: "Tabs",
+  nav: "Navigation Sidebars",
 };
 
-const effectOptions: { value: ComponentEffectStyle; label: string; description: string }[] = [
-  { value: 'global', label: 'Use Global', description: 'Inherits global effect setting' },
-  { value: 'glass', label: 'Glass', description: 'Glassmorphism effect' },
-  { value: 'neu', label: 'Neumorphic', description: 'Soft 3D shadow effect' },
-  { value: 'standard', label: 'Standard', description: 'Traditional flat design' },
+const effectOptions: {
+  value: ComponentEffectStyle;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: "global",
+    label: "Use Global",
+    description: "Inherits global effect setting",
+  },
+  { value: "glass", label: "Glass", description: "Glassmorphism effect" },
+  { value: "neu", label: "Neumorphic", description: "Soft 3D shadow effect" },
+  {
+    value: "standard",
+    label: "Standard",
+    description: "Traditional flat design",
+  },
 ];
 
 export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
@@ -45,7 +57,10 @@ export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
   onChange,
   onGlobalChange,
 }) => {
-  const handleComponentChange = (key: keyof ComponentStyles, style: ComponentEffectStyle) => {
+  const handleComponentChange = (
+    key: keyof ComponentStyles,
+    style: ComponentEffectStyle,
+  ) => {
     onChange({
       ...components,
       [key]: {
@@ -61,22 +76,29 @@ export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
         Component Styles
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Override the global effect for individual components or use global setting
+        Override the global effect for individual components or use global
+        setting
       </Typography>
 
       <Box sx={{ mb: 4 }}>
         <Typography variant="subtitle2" sx={{ mb: 2 }}>
           Global Effect Type
         </Typography>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          {(['standard', 'glass', 'neu'] as EffectType[]).map((type) => (
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+          {(["standard", "glass", "neu"] as EffectType[]).map((type) => (
             <Chip
               key={type}
-              label={type === 'standard' ? 'Standard' : type === 'glass' ? 'Glassmorphism' : 'Neumorphism'}
+              label={
+                type === "standard"
+                  ? "Standard"
+                  : type === "glass"
+                    ? "Glassmorphism"
+                    : "Neumorphism"
+              }
               onClick={() => onGlobalChange(type)}
-              variant={globalEffectType === type ? 'filled' : 'outlined'}
-              color={globalEffectType === type ? 'primary' : 'default'}
-              sx={{ textTransform: 'capitalize' }}
+              variant={globalEffectType === type ? "filled" : "outlined"}
+              color={globalEffectType === type ? "primary" : "default"}
+              sx={{ textTransform: "capitalize" }}
             />
           ))}
         </Box>
@@ -86,40 +108,47 @@ export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
         Per-Component Overrides
       </Typography>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {(Object.keys(components) as Array<keyof ComponentStyles>).map((key) => (
-          <Box
-            key={key}
-            sx={{
-              p: 2,
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 2,
-            }}
-          >
-            <Typography variant="body2" sx={{ mb: 1.5, fontWeight: 500 }}>
-              {componentLabels[key]}
-            </Typography>
-            <RadioGroup
-              row
-              value={components[key].style}
-              onChange={(e) => handleComponentChange(key, e.target.value as ComponentEffectStyle)}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {(Object.keys(components) as Array<keyof ComponentStyles>).map(
+          (key) => (
+            <Box
+              key={key}
+              sx={{
+                p: 2,
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 2,
+              }}
             >
-              {effectOptions.map((option) => (
-                <FormControlLabel
-                  key={option.value}
-                  value={option.value}
-                  control={<Radio size="small" />}
-                  label={
-                    <Box>
-                      <Typography variant="body2">{option.label}</Typography>
-                    </Box>
-                  }
-                />
-              ))}
-            </RadioGroup>
-          </Box>
-        ))}
+              <Typography variant="body2" sx={{ mb: 1.5, fontWeight: 500 }}>
+                {componentLabels[key]}
+              </Typography>
+              <RadioGroup
+                row
+                value={components[key].style}
+                onChange={(e) =>
+                  handleComponentChange(
+                    key,
+                    e.target.value as ComponentEffectStyle,
+                  )
+                }
+              >
+                {effectOptions.map((option) => (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio size="small" />}
+                    label={
+                      <Box>
+                        <Typography variant="body2">{option.label}</Typography>
+                      </Box>
+                    }
+                  />
+                ))}
+              </RadioGroup>
+            </Box>
+          ),
+        )}
       </Box>
     </Paper>
   );

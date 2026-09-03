@@ -56,6 +56,30 @@ export interface User {
   sexe?: string
 }
 
+export interface UserDTO {
+  id: number
+  email: string
+  firstName?: string
+  lastName?: string
+  firstname?: string
+  lastname?: string
+  name?: string
+  avatarUrl?: string | null
+  avatar?: string | null
+  phone?: string | null
+  phoneNumber?: string | null
+  status?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'BANNED' | string
+  role?: string | number
+  roles?: string[]
+  permissions?: string[]
+  tenantId?: number | null
+  mfaEnabled?: boolean
+  emailVerified?: boolean | string
+  createdAt?: string
+  updatedAt?: string
+  lastLogin?: string
+}
+
 export interface Scope {
   id: number
   name: string
@@ -134,7 +158,7 @@ export interface UpdateEmailRequest {
 }
 
 export interface UpdatePhotoRequest {
-  id: number
+  id?: number
   photo: File
 }
 
@@ -402,21 +426,68 @@ export interface UpdateOIDCClientRequest {
 export interface SecurityStatusResponse {
   mfaEnabled: boolean
   emailVerified: boolean
-  passwordLastChangedAt: string
+  passwordLastChangedAt: string | null
   activeSessions: number
   passkeys: number
 }
 
+export type SecurityStatusDTO = SecurityStatusResponse
+
 export interface AuditLog {
   id: number
-  actor_id: number
-  user_id: number
+  actor_id?: number
+  user_id?: number
   action: string
   resource_type: string
-  resource_id: number
+  resource_id?: number
+  ip_address?: string | null
+  user_agent?: string | null
+  ipAddress?: string | null
+  userAgent?: string | null
   metadata: any
   travel_logs?: any[]
   created_at: string
+  createdAt?: string
+}
+
+export type AuditLogDTO = AuditLog
+
+export interface LinkedAccountDTO {
+  id: number
+  provider: 'google' | 'github' | 'facebook' | 'microsoft' | string
+  providerId?: string
+  provider_id?: string
+  email?: string | null
+  metadata?: Record<string, any> | null
+  linkedAt?: string
+  linked_at?: string
+  created_at?: string
+}
+
+export interface PersonalAccessTokenDTO {
+  id: number | string
+  name: string
+  abilities: string[]
+  lastUsedAt: string | null
+  last_used_at?: string | null
+  createdAt: string
+  created_at?: string
+  expiresAt: string | null
+  expires_at?: string | null
+  ipAddress?: string | null
+  ip_address?: string | null
+  ipRestrictions?: string[]
+  whitelist_ips?: string[]
+  location?: string
+  userAgent?: string | null
+  status: 'active' | 'expired'
+}
+
+export interface CreateTokenResponse {
+  message: string
+  token: string
+  id: number | string
+  name: string
 }
 
 export interface ActivityTimelineResponse {

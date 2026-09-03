@@ -18,9 +18,9 @@ import {
   Stack,
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import AccountCircle from '@mui/icons-material/AccountCircle';
+import AccountCircle from '@mui/icons-material/AccountCircle'
 // import { FormLayout } from 'src/components/form'
-import FormLayout from "@auth/authentication-core/components/form/FormLayout"
+import FormLayout from '@auth/authentication-core/components/form/FormLayout'
 
 export default function UpdateAboutYou() {
   const { t } = useTranslation()

@@ -1,8 +1,9 @@
-
-import { describe, it, expect } from 'vitest';
-import i18next from 'i18next';
-import { assembleApp } from '../index';
-import { CAPModule } from '../../types';
+import { describe, it, expect } from 'vitest'
+import i18next from 'i18next'
+import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
+import { assembleApp } from '../index'
+import { CAPModule } from '../../types'
 
 describe('assembleApp layout association', () => {
   it('compiles app with routes wrapped in LayoutRouteWrapper', () => {
@@ -61,14 +62,11 @@ describe('assembleApp i18n namespace isolation', () => {
 
 describe('assembleApp catch-all route', () => {
   it('renders NotFound component for unmatched URLs', () => {
-    const { MemoryRouter } = require('react-router-dom')
-    const { render, screen } = require('@testing-library/react')
-
     const App = assembleApp({ modules: [] })
     render(
       <MemoryRouter initialEntries={['/non-existent-route']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     )
 
     expect(screen.getByText('404')).toBeInTheDocument()

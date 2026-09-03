@@ -1,5 +1,10 @@
 import i18next from 'i18next'
-import type { CAPModule, SearchItemConfig, NavItemConfig, ModuleRouteConfig } from '@cap/shared-types'
+import type {
+  CAPModule,
+  SearchItemConfig,
+  NavItemConfig,
+  ModuleRouteConfig,
+} from '@cap/shared-types'
 import { registerDictionary } from '../i18n/registry'
 
 export type AuthRouteConfig = ModuleRouteConfig & {
@@ -17,9 +22,7 @@ export class ModuleRegistry {
   private seenSearchIds = new Set<string>()
 
   public static getInstance(): ModuleRegistry {
-    if (!ModuleRegistry.instance) {
-      ModuleRegistry.instance = new ModuleRegistry()
-    }
+    if (!ModuleRegistry.instance) ModuleRegistry.instance = new ModuleRegistry()
     return ModuleRegistry.instance
   }
 
@@ -37,10 +40,7 @@ export class ModuleRegistry {
    */
   public registerModule(module: CAPModule): void {
     const key = module.id || (module as any).name || `module_${this.modulesMap.size}`
-    if (this.modulesMap.has(key)) {
-      return // Avoid redundant re-registration
-    }
-
+    if (this.modulesMap.has(key)) return // Avoid redundant re-registration
     this.modulesMap.set(key, module)
 
     // Register i18n dictionary
@@ -104,9 +104,7 @@ export class ModuleRegistry {
     const navItemsToRegister: NavItemConfig[][] = []
 
     modules.forEach((module) => {
-      if (module.navItems) {
-        navItemsToRegister.push(module.navItems)
-      }
+      if (module.navItems) navItemsToRegister.push(module.navItems)
 
       const routesToRegister = module.routes || module.authRouteConfig
       if (routesToRegister) {

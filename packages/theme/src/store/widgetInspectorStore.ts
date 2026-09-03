@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from "react";
 
 export interface InspectorWidgetRef {
   pageId: string;
@@ -66,14 +66,16 @@ export const widgetInspectorStore = {
 };
 
 export function useWidgetInspectorStore(): WidgetInspectorState;
-export function useWidgetInspectorStore<T>(selector: (state: WidgetInspectorState) => T): T;
 export function useWidgetInspectorStore<T>(
-  selector?: (state: WidgetInspectorState) => T
+  selector: (state: WidgetInspectorState) => T,
+): T;
+export function useWidgetInspectorStore<T>(
+  selector?: (state: WidgetInspectorState) => T,
 ): T | WidgetInspectorState {
   const current = useSyncExternalStore(
     widgetInspectorStore.subscribe,
     widgetInspectorStore.getState,
-    widgetInspectorStore.getState
+    widgetInspectorStore.getState,
   );
 
   return selector ? selector(current) : current;

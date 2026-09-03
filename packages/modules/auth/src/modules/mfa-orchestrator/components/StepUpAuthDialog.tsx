@@ -107,7 +107,9 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
         },
       }}
     >
-      <DialogTitle sx={{ p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <DialogTitle
+        sx={{ p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{
@@ -152,7 +154,10 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
         </Typography>
 
         {error && (
-          <Alert severity='error' sx={{ mb: 2.5, borderRadius: 2, textAlign: 'left', fontWeight: 600 }}>
+          <Alert
+            severity='error'
+            sx={{ mb: 2.5, borderRadius: 2, textAlign: 'left', fontWeight: 600 }}
+          >
             {error}
           </Alert>
         )}
@@ -174,8 +179,18 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
             },
           }}
         >
-          <Tab icon={<Fingerprint fontSize='small' />} iconPosition='start' label={t('mfa.biometricPasskey', 'Passkey / Biometric')} value='biometric' />
-          <Tab icon={<VpnKey fontSize='small' />} iconPosition='start' label={t('mfa.totpCode', 'Authenticator Code')} value='totp' />
+          <Tab
+            icon={<Fingerprint fontSize='small' />}
+            iconPosition='start'
+            label={t('mfa.biometricPasskey', 'Passkey / Biometric')}
+            value='biometric'
+          />
+          <Tab
+            icon={<VpnKey fontSize='small' />}
+            iconPosition='start'
+            label={t('mfa.totpCode', 'Authenticator Code')}
+            value='totp'
+          />
         </Tabs>
 
         {tab === 'biometric' ? (
@@ -191,7 +206,9 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
                   ? alpha(theme.palette.primary.main, 0.15)
                   : alpha(theme.palette.primary.main, 0.06),
                 border: '2px solid',
-                borderColor: isBiometricPromptActive ? 'primary.main' : alpha(theme.palette.primary.main, 0.2),
+                borderColor: isBiometricPromptActive
+                  ? 'primary.main'
+                  : alpha(theme.palette.primary.main, 0.2),
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -227,7 +244,10 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
                 : t('mfa.touchBiometric', 'Use Touch ID, Face ID, or Windows Hello')}
             </Typography>
             <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 3 }}>
-              {t('mfa.biometricHint', 'Touch your fingerprint sensor or security key when prompted.')}
+              {t(
+                'mfa.biometricHint',
+                'Touch your fingerprint sensor or security key when prompted.',
+              )}
             </Typography>
 
             <Button
@@ -247,12 +267,25 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
                 '&:hover': { bgcolor: 'info.dark' },
               }}
             >
-              {isVerifying ? t('mfa.verifying', 'Verifying...') : t('mfa.authenticateNow', 'Authenticate with Biometrics')}
+              {isVerifying
+                ? t('mfa.verifying', 'Verifying...')
+                : t('mfa.authenticateNow', 'Authenticate with Biometrics')}
             </Button>
           </Box>
         ) : (
           <Box component='form' onSubmit={handleTotpSubmit} sx={{ py: 1 }}>
-            <Typography variant='caption' sx={{ fontWeight: 800, textTransform: 'uppercase', ml: 0.5, mb: 1, display: 'block', color: 'text.secondary', textAlign: 'left' }}>
+            <Typography
+              variant='caption'
+              sx={{
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                ml: 0.5,
+                mb: 1,
+                display: 'block',
+                color: 'text.secondary',
+                textAlign: 'left',
+              }}
+            >
               {t('mfa.enterTotp', '6-Digit Authenticator Code')}
             </Typography>
             <TextField
@@ -264,12 +297,21 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
               onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               disabled={isVerifying}
               inputProps={{
-                style: { textAlign: 'center', fontSize: '1.5rem', letterSpacing: '8px', fontWeight: 800 },
+                style: {
+                  textAlign: 'center',
+                  fontSize: '1.5rem',
+                  letterSpacing: '8px',
+                  fontWeight: 800,
+                },
                 maxLength: 6,
               }}
               slotProps={{
                 input: {
-                  sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6), mb: 3 },
+                  sx: {
+                    borderRadius: 3,
+                    bgcolor: alpha(theme.palette.background.paper, 0.6),
+                    mb: 3,
+                  },
                 },
               }}
             />
@@ -291,7 +333,9 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
                 '&:hover': { bgcolor: 'info.dark' },
               }}
             >
-              {isVerifying ? t('mfa.verifying', 'Verifying...') : t('mfa.verifyCodeButton', 'Verify & Elevate Session')}
+              {isVerifying
+                ? t('mfa.verifying', 'Verifying...')
+                : t('mfa.verifyCodeButton', 'Verify & Elevate Session')}
             </Button>
           </Box>
         )}

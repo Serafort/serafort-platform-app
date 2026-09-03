@@ -1,5 +1,5 @@
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -8,10 +8,10 @@ import {
   TableContainer,
   TablePagination,
   Box,
-} from '@mui/material'
-import PerfectScrollbar from 'react-perfect-scrollbar'
-import type { ITableData } from './types'
-import TableComponent from './TableComponent'
+} from "@mui/material";
+import PerfectScrollbar from "react-perfect-scrollbar";
+import type { ITableData } from "./types";
+import TableComponent from "./TableComponent";
 
 export default React.forwardRef<any, { loading: boolean; data: ITableData }>(
   (
@@ -24,14 +24,16 @@ export default React.forwardRef<any, { loading: boolean; data: ITableData }>(
     },
     ref,
   ) => {
-    const { t } = useTranslation()
-    const [rowsPerPage, setRowsPerPage] = React.useState<number>(5)
-    const [page, setPage] = React.useState<number>(0)
-    const handlePageChange = (_: unknown, newPagE: number) => setPage(newPagE)
-    const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setRowsPerPage(event.target.value as unknown as number)
-      setPage(0)
-    }
+    const { t } = useTranslation();
+    const [rowsPerPage, setRowsPerPage] = React.useState<number>(5);
+    const [page, setPage] = React.useState<number>(0);
+    const handlePageChange = (_: unknown, newPagE: number) => setPage(newPagE);
+    const handleRowsPerPageChange = (
+      event: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+      setRowsPerPage(event.target.value as unknown as number);
+      setPage(0);
+    };
 
     return (
       <>
@@ -53,7 +55,7 @@ export default React.forwardRef<any, { loading: boolean; data: ITableData }>(
           <CardActions>
             <TablePagination
               component={Box}
-              labelRowsPerPage={t('table.rowsPerPage', 'Rows per page')}
+              labelRowsPerPage={t("table.rowsPerPage", "Rows per page")}
               count={data.rows.length}
               onPageChange={handlePageChange}
               onRowsPerPageChange={handleRowsPerPageChange}
@@ -64,6 +66,6 @@ export default React.forwardRef<any, { loading: boolean; data: ITableData }>(
           </CardActions>
         </Card>
       </>
-    )
+    );
   },
-)
+);

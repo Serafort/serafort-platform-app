@@ -7,15 +7,10 @@ import {
   getHorizontalMenuButtonHoverBg,
   getLayoutMenuButtonActiveBg,
 } from '@cap/theme'
-import {
-  HorizontalNav,
-  Menu
-} from '../horizontal-menu'
+import { HorizontalNav, Menu } from '../horizontal-menu'
 import { useVerticalNav } from '../contexts/verticalNavContext'
 import NavbarContent from './HorizontalNavbarContent'
-import type {
-  VerticalMenuContextProps
-} from '../components/vertical-menu/Menu'
+import type { VerticalMenuContextProps } from '../components/vertical-menu/Menu'
 import StyledHorizontalNavExpandIcon from '../styles/horizontal/StyledHorizontalNavExpandIcon'
 import StyledVerticalNavExpandIcon from '../styles/vertical/StyledVerticalNavExpandIcon'
 import menuItemStyles from '../../styles/core/horizontal/menuItemStyles'
@@ -64,9 +59,7 @@ const HorizontalMenu = ({ dictionary }: { dictionary: Dictionary }) => {
       verticalNavProps={{
         customStyles: verticalNavigationCustomStyles(verticalNavOptions, theme),
         backgroundColor:
-          skin === 'bordered'
-            ? theme.palette.background.paper
-            : theme.palette.background.default,
+          skin === 'bordered' ? theme.palette.background.paper : theme.palette.background.default,
       }}
     >
       <Menu
@@ -104,7 +97,9 @@ const HorizontalMenu = ({ dictionary }: { dictionary: Dictionary }) => {
               }),
           }),
         }}
-        renderExpandedMenuItemIcon={{ icon: <i className={layoutMenuTokens.horizontalMenu.expandedMenuItemIconClass} /> }}
+        renderExpandedMenuItemIcon={{
+          icon: <i className={layoutMenuTokens.horizontalMenu.expandedMenuItemIconClass} />,
+        }}
         popoutMenuOffset={{
           mainAxis: ({ level }: { level?: number }) => getHorizontalMenuPopoutOffset(level),
           alignmentAxis: 0,
@@ -128,7 +123,9 @@ const HorizontalMenu = ({ dictionary }: { dictionary: Dictionary }) => {
           renderExpandIcon: ({ open }: { open?: boolean }) => (
             <RenderVerticalExpandIcon open={open} transitionDuration={transitionDuration} />
           ),
-          renderExpandedMenuItemIcon: { icon: <i className={layoutMenuTokens.verticalMenu.expandedMenuItemIconClass} /> },
+          renderExpandedMenuItemIcon: {
+            icon: <i className={layoutMenuTokens.verticalMenu.expandedMenuItemIconClass} />,
+          },
           menuSectionStyles: verticalMenuSectionStyles(verticalNavOptions, theme),
         }}
       >

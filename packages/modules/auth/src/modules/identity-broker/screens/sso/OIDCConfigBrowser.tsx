@@ -44,9 +44,9 @@ import ChevronRight from '@mui/icons-material/ChevronRight'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Link as RouterLink } from 'react-router-dom'
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'
 import CircularProgress from '@mui/material/CircularProgress'
-import { useOIDCClients, useDeleteOIDCClient, Path } from "@auth"
+import { useOIDCClients, useDeleteOIDCClient, Path } from '@auth'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 
@@ -62,9 +62,10 @@ export default function OIDCConfigBrowser() {
 
   const clientsList = clientsData?.data || []
 
-  const filteredClients = clientsList.filter((client: any) =>
-    (client.client_name || client.name || '').toLowerCase().includes(search.toLowerCase()) ||
-    (client.client_id || client.clientId || '').toLowerCase().includes(search.toLowerCase())
+  const filteredClients = clientsList.filter(
+    (client: any) =>
+      (client.client_name || client.name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (client.client_id || client.clientId || '').toLowerCase().includes(search.toLowerCase()),
   )
 
   const handleDelete = (id: string | number) => {
@@ -238,9 +239,7 @@ export default function OIDCConfigBrowser() {
         <TableContainer>
           <Table sx={{ minWidth: 800 }}>
             <TableHead>
-              <TableRow
-                sx={{ backgroundColor: alpha(theme.palette.action.hover, 0.04) }}
-              >
+              <TableRow sx={{ backgroundColor: alpha(theme.palette.action.hover, 0.04) }}>
                 <TableCell
                   sx={{
                     fontWeight: 800,
@@ -308,14 +307,14 @@ export default function OIDCConfigBrowser() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                  <TableCell colSpan={6} align='center' sx={{ py: 6 }}>
                     <CircularProgress />
                   </TableCell>
                 </TableRow>
               ) : filteredClients.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
-                    <Typography variant="body2" color="text.secondary">
+                  <TableCell colSpan={6} align='center' sx={{ py: 6 }}>
+                    <Typography variant='body2' color='text.secondary'>
                       {t('auth.sso.no_clients_found', 'No OIDC clients found.')}
                     </Typography>
                   </TableCell>
@@ -380,7 +379,13 @@ export default function OIDCConfigBrowser() {
                     </TableCell>
                     <TableCell>
                       <Chip
-                        label={(client.grant_types || client.grantTypes || []).includes('authorization_code') ? 'CONFIDENTIAL' : 'PUBLIC'}
+                        label={
+                          (client.grant_types || client.grantTypes || []).includes(
+                            'authorization_code',
+                          )
+                            ? 'CONFIDENTIAL'
+                            : 'PUBLIC'
+                        }
                         size='small'
                         variant='outlined'
                         sx={{ borderRadius: '6px', fontWeight: 800, fontSize: '0.65rem' }}
@@ -396,7 +401,9 @@ export default function OIDCConfigBrowser() {
                     </TableCell>
                     <TableCell>
                       <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-                        {(client.updated_at || client.updatedAt) ? new Date(client.updated_at || client.updatedAt).toLocaleDateString() : '-'}
+                        {client.updated_at || client.updatedAt
+                          ? new Date(client.updated_at || client.updatedAt).toLocaleDateString()
+                          : '-'}
                       </Typography>
                     </TableCell>
                     <TableCell align='right'>
@@ -479,15 +486,26 @@ export default function OIDCConfigBrowser() {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {t('common.confirm_delete_desc', 'Are you sure you want to delete this OIDC client? This action cannot be undone and any applications depending on it will lose access immediately.')}
+            {t(
+              'common.confirm_delete_desc',
+              'Are you sure you want to delete this OIDC client? This action cannot be undone and any applications depending on it will lose access immediately.',
+            )}
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={() => setDeleteDialogOpen(false)} color='inherit'>
             {t('common.cancel', 'Cancel')}
           </Button>
-          <Button onClick={confirmDelete} color='error' variant='contained' disabled={deleteMutation.isPending} autoFocus>
-            {deleteMutation.isPending ? t('common.deleting', 'Deleting...') : t('common.delete', 'Delete')}
+          <Button
+            onClick={confirmDelete}
+            color='error'
+            variant='contained'
+            disabled={deleteMutation.isPending}
+            autoFocus
+          >
+            {deleteMutation.isPending
+              ? t('common.deleting', 'Deleting...')
+              : t('common.delete', 'Delete')}
           </Button>
         </DialogActions>
       </Dialog>

@@ -35,23 +35,23 @@ import {
   Stack,
   LinearProgress,
 } from '@mui/material'
-import Webhook from '@mui/icons-material/Webhook';
-import Add from '@mui/icons-material/Add';
-import ArrowBack from '@mui/icons-material/ArrowBack';
-import Delete from '@mui/icons-material/Delete';
-import PlayArrow from '@mui/icons-material/PlayArrow';
-import CheckCircle from '@mui/icons-material/CheckCircle';
-import ErrorIcon from '@mui/icons-material/Error';
-import ContentCopy from '@mui/icons-material/ContentCopy';
-import Info from '@mui/icons-material/Info';
-import Link from '@mui/icons-material/Link';
-import Settings from '@mui/icons-material/Settings';
-import NotificationsActive from '@mui/icons-material/NotificationsActive';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Webhook from '@mui/icons-material/Webhook'
+import Add from '@mui/icons-material/Add'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import Delete from '@mui/icons-material/Delete'
+import PlayArrow from '@mui/icons-material/PlayArrow'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import ErrorIcon from '@mui/icons-material/Error'
+import ContentCopy from '@mui/icons-material/ContentCopy'
+import Info from '@mui/icons-material/Info'
+import Link from '@mui/icons-material/Link'
+import Settings from '@mui/icons-material/Settings'
+import NotificationsActive from '@mui/icons-material/NotificationsActive'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'
 import logger from '@idaas/authentication-core/utils/logger'
 import {
   useWebhooks,
@@ -183,8 +183,7 @@ const WebhookManagement: React.FC = () => {
 
   const handleTest = (id: string | number) => {
     testWebhook.mutate(id, {
-      onSuccess: () =>
-        toast.success(t('admin.developer.webhooks.messages.test_success')),
+      onSuccess: () => toast.success(t('admin.developer.webhooks.messages.test_success')),
       onError: (err) => {
         logger.error('Failed to test webhook', { error: err })
         toast.error(t('admin.developer.webhooks.messages.test_error'))

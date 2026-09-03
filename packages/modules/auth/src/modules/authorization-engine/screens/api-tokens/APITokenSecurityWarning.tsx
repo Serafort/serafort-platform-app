@@ -11,17 +11,17 @@ import {
   Stack,
   Paper,
 } from '@mui/material'
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SecurityIcon from '@mui/icons-material/Security';
-import WarningIcon from '@mui/icons-material/Warning';
-import VerifiedIcon from '@mui/icons-material/VerifiedUser';
-import LockIcon from '@mui/icons-material/Lock';
-import InfoIcon from '@mui/icons-material/Info';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import SecurityIcon from '@mui/icons-material/Security'
+import WarningIcon from '@mui/icons-material/Warning'
+import VerifiedIcon from '@mui/icons-material/VerifiedUser'
+import LockIcon from '@mui/icons-material/Lock'
+import InfoIcon from '@mui/icons-material/Info'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Path } from "@auth/routes/path"
+import { Path } from '@auth/routes/path'
 
 const APITokenSecurityWarning: React.FC = () => {
   const { t } = useTranslation()

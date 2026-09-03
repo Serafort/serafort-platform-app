@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { Backdrop, CircularProgress } from '@mui/material'
 import { isObjectEmpty, useAppStore, type LayoutOverride } from '@cap/platform-core'
 import { useSessionGuard } from '../../session-manager/middlewares/useSessionGuard'
+import { resolveRedirectPathForUser } from '../utils/resolveRedirect'
 
 interface GuestRouteProps {
   element: ReactNode
@@ -10,7 +11,7 @@ interface GuestRouteProps {
   layout?: LayoutOverride
 }
 
-const GuestRoute = ({ element, redirectTo = '/dashboard', layout = 'none' }: GuestRouteProps) => {
+const GuestRoute = ({ element, redirectTo, layout = 'none' }: GuestRouteProps) => {
   const { isLoading, isAuthenticated, user } = useSessionGuard()
   const location = useLocation()
   const updateLayoutOverride = useAppStore((state) => state.updateLayoutOverride)
@@ -31,7 +32,9 @@ const GuestRoute = ({ element, redirectTo = '/dashboard', layout = 'none' }: Gue
   }
 
   if (isAuthenticated && user && !isObjectEmpty(user)) {
-    const from = (location.state as any)?.from?.pathname || redirectTo
+    const userRole = (user as any)?.role || (user as any)?.roleId || (user as any)?.user?.role
+    const fallbackRedirect = redirectTo || resolveRedirectPathForUser(userRole)
+    const from = (location.state as any)?.from?.pathname || fallbackRedirect
     return <Navigate to={from} replace state={{ from: location }} />
   }
 

@@ -47,8 +47,8 @@ export {
   useMediaQuery,
   type GridProps,
   type SvgIconProps,
-  useColorScheme
-} from '@mui/material';
+  useColorScheme,
+} from "@mui/material";
 
 export {
   useTheme,
@@ -56,10 +56,9 @@ export {
   alpha,
   darken,
   lighten,
-  keyframes
-} from '@mui/material/styles';
+  keyframes,
+} from "@mui/material/styles";
 
-export { default as Avatar } from './Avatar';
-export { default as Chip } from './Chip';
-export { default as Icon } from './Icon';
-export { default as Alert } from './Alert';
+export { default as Avatar } from "./Avatar";
+export { default as Chip } from "./Chip";
+export { default as Alert } from "./Alert";

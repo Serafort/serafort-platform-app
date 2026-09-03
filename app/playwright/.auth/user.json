@@ -9,6 +9,16 @@
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
+    },
+    {
+      "name": "Authentication",
+      "value": "s%3AeyJtZXNzYWdlIjoiYmYwOWE3ZDEtMTM3NS00NTJhLTk0MDMtZmJjMGQ0NmUyMjJlIiwicHVycG9zZSI6IkF1dGhlbnRpY2F0aW9uIn0.wpez9V3Xt3qoRk6rTOnOskGiATh69d5kATcn5rmFeyQ",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1788162025.908325,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
     }
   ],
   "origins": [
@@ -20,8 +30,12 @@
           "value": "en"
         },
         {
-          "name": "god-lion-seeker-optimizer-storage",
-          "value": "cef22f926fd2f0c6af8fc573d1aeccb4440e87277c52da41b85e4fed04d5f9fa44060db5069d2b5cd2abbdf1affdfc8606d5933b7cd8e7307b4615592f0e56092423a843b2280e84fa9d6ed54b6ec199eec476d5b7c85fa208f929015bba102c0facbe7baf58b1d961bfa95429054150061a0ac47285a8c653950728269c44df1fd16c58050e30606650c551e61f696206ce51003df43ec0a1d09a74f9ab6ec0bcb91d958d4bce8b596ead53b427cb6794e1eec5a4ebac3fdb1ecd4b92d735bf98417e89057cb1453eede4bff51d7d641fee01bcc0c9f42e219934e76d50282425871953c9ba444fdc660a9ec0f31d38b7cf5af43416196002fcb3acba7b6a0a535231d79a0ba88249b839826ccbe90f1d66b60e03df5c2aaf4bfe49e1c78a5354a5867ac2cfb4fe979f2739ebc6cf9c3f82bb2bb0a685f9b503fff9da1ab02760febe885f26da066000b0e557b9f758e9c2dea5fcd33e9f3674105e5db2c22ff932782bad319c066cef5868c4b36fb16c584d456e351d70524175c9c7b040dead109f91e15e0d6e8d38efe0a96e561eeab3ba8d3ac551b1ce5d2b396beefa4cb3c0e8e9be06619e380b3e7b0e1e719cca8257c49f2a23e962ebeae50636ecf45842935ae05e62c1bb2d0b63ba8f743adc19081cdc9418631b574e1ef1037d7d0e15837cf83c4f96616b886d47c87c13f59f077fa0edd42fa55795be596d0d5a21ab4d76345e4d2861c69c7e8c91a4f6afa2f00cbd4f07a3f07dad75c4cfc1f574bf733c88098607bdab3754330011daa500ff6deff31a07808a25b38b54e841a03baca6c4777a2c3aa6eb0fb5849d975812a51e7a9eae484316accb5250be6a6f4a75aa9e1c1726b5374a85adc2e16cb7ad86f31bf290d55f9cecfdd20e2fa0c4cd7a9138299833e9a9726d5d55e91e7cc578b5e8ee264ab8213fde28e3eb1c4ffccea55c79eae6239472d03f38f7ab7b8c4d3726929c4a6360e9ab1da44bdc4f025610375e993ebfabcd76420b06f13281f856fd22d33b9959b4a1c0d40d1e1826111b3ffca1c023156fe5974925bb4f83d399c1778cd501ba3ae66bf02273ff213e17d881f10d14203625"
+          "name": "cap-platform-storage",
+          "value": "7105dffb19d061eb6e5b0d90bac0948d278e2f274f4f06f5540efa0a8bd51f2ca918cc4b1e8dd2a7b4bbda252f1403bbdc7ae6a59a264ee7396bea4cd13ad1d0ab5aa8925707bb59c53896129acdce17b68bcc9bb56f597608c7ae0c4b0b58fb678facd06b261431c2ac923a8c4f1334c2d1974f732a35296def193f3c2ae50882efb0c3a5beb5aec8027c76cb9f77e0d20e27d6ff9dde68222b345488e2e27209809f876dddf85dd79561e71c4fb5e49687f0dffb883a191d51e599c968877b285855faadf86cf9f59c1537d03a725a84682614f1f672742576fe04e6daad853c8a648182ca6ac9fa051ecb09bb44338464f845d979107149aa75548552ca0f10f18a93d93ee629309c4b4530b70b60967f0ecf8b6dfd9f17a9b09e04f2bc4bfbc93f3f6b78832ad0e358d5eb1d0543e8f84448276ca33c13cab0cc4994acecdddc0dc748f45b59a9f2938f818d64089680b5cf4b9990375e07636d0606c17803501b9a8e14e678c694bc193469d8d9dfa25d8930a51a9f444d55bef08b65c167c31079c8e65c3955de17b35ca169e9760d0281ec063c52a36e47c2ac5b8962b35baa55de2cedd8148cf5830f049dcfa5086d9986f0762754783ee735fc03e5956efaf127c6f43bf4fbab51774f20fd7738f50d2a715625da68cae338cb6f45f8223162e7acf5001b5e4369059d4a17c49a141aff0f952605c2eabc283a84ca188f7181a9d4828a76ac78df931c115597392e9eb3d2397a7f1ec6e85457aa6ac3607f1dd4396494424e10ff607782a55319a2b68e66d6ba11c8f66c82809d0691f2bf01f6641c966928b2771f1c4c47ee400b24daf229d64a7e1beb7bdf5e9256e7c2c6e4fb084149a88ba9d92f18b83037715490a8afd76e2b76908fd043deede4b25707b19b6af6990684204dcabc38ec6916330fc03169acfec88cdd865830c3e01e721c8bdfa7eca7421e17108cf03713c78dfdded7d089a89be0662ce87708106ed7ecda46c33bcbca9164a7017864890165c7530aa207fb08edcbca04a21a72b34feb32f491c7fb226f77"
+        },
+        {
+          "name": "tenant-config-cache",
+          "value": "{\"localhost\":{\"config\":{\"_version\":1,\"id\":\"1\",\"slug\":\"tenant1\",\"domain\":\"tenant1.localhost\",\"name\":\"Acme Blue Corp\",\"theme\":{\"logoUrl\":\"/assets/logos/acme-blue.png\",\"primaryColor\":\"#1976d2\"},\"layout\":{\"navType\":\"vertical\"},\"branding\":{\"appName\":\"Acme Blue Corp\",\"companyName\":\"Acme Blue Corp\",\"welcomeText\":\"Welcome to Acme Blue Corp\"},\"features\":{\"darkMode\":true,\"rtl\":false,\"notifications\":true,\"chat\":true},\"version\":1},\"timestamp\":1788154822401,\"domain\":\"localhost\"}}"
         }
       ]
     }

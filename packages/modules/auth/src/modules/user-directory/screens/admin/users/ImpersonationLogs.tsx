@@ -1,37 +1,69 @@
 // FILE: packages/modules/auth/src/screens/admin/ImpersonationLogs.tsx
 // STYLE AUDIT: Aligned to OrganizationProfile.tsx design system
 // FIXES: [CRITICAL] Modernized InputProps to slotProps.input, applied info.main to CTAs [HIGH] Added animate-scale-in [MEDIUM] Added divider opacity and avatar 24px radius [LOW] Added aria-labels and i18n fallbacks
-import React, { useState, useMemo } from 'react';
-import { Box, Typography, Card, CardContent, Button, IconButton, Chip, alpha, useTheme, Stack, Divider, Paper, Tooltip, Avatar, TextField, InputAdornment, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Menu, MenuItem, CircularProgress } from '@mui/material';
-import Search from '@mui/icons-material/Search';
-import FilterList from '@mui/icons-material/FilterList';
-import Download from '@mui/icons-material/Download';
-import Security from '@mui/icons-material/Security';
-import History from '@mui/icons-material/History';
-import Person from '@mui/icons-material/Person';
-import CheckCircle from '@mui/icons-material/CheckCircle';
-import MoreVert from '@mui/icons-material/MoreVert';
-import Block from '@mui/icons-material/Block';
-import AssignmentTurnedIn from '@mui/icons-material/AssignmentTurnedIn';
-import Refresh from '@mui/icons-material/Refresh';
-import { useTranslation } from 'react-i18next';
-;
-import { ImpersonationRecord } from '@cap/shared-types';
-import { useImpersonationLogs } from '../../../../authentication-core';
-import { format, formatDistanceToNow } from 'date-fns';
-import { buildLayoutSurfaceEffect } from '@cap/layout';
-import { getTenantThemeEffects } from '@cap/theme';
+import React, { useState, useMemo } from 'react'
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  IconButton,
+  Chip,
+  alpha,
+  useTheme,
+  Stack,
+  Divider,
+  Paper,
+  Tooltip,
+  Avatar,
+  TextField,
+  InputAdornment,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Menu,
+  MenuItem,
+  CircularProgress,
+} from '@mui/material'
+import Search from '@mui/icons-material/Search'
+import FilterList from '@mui/icons-material/FilterList'
+import Download from '@mui/icons-material/Download'
+import Security from '@mui/icons-material/Security'
+import History from '@mui/icons-material/History'
+import Person from '@mui/icons-material/Person'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import MoreVert from '@mui/icons-material/MoreVert'
+import Block from '@mui/icons-material/Block'
+import AssignmentTurnedIn from '@mui/icons-material/AssignmentTurnedIn'
+import Refresh from '@mui/icons-material/Refresh'
+import { useTranslation } from 'react-i18next'
+import { ImpersonationRecord } from '@cap/shared-types'
+import { useImpersonationLogs } from '../../../../authentication-core'
+import { format, formatDistanceToNow } from 'date-fns'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 
 export default function ImpersonationLogs() {
   const { t } = useTranslation('common')
   const theme = useTheme()
 
-
-
-  const { data: logsResponse, isLoading: isFetching, refetch } = useImpersonationLogs({ page: 1, limit: 100 })
+  const {
+    data: logsResponse,
+    isLoading: isFetching,
+    refetch,
+  } = useImpersonationLogs({ page: 1, limit: 100 })
   const logs = useMemo(() => {
     // Backend returns a paginator object { meta, data: [] }
-    if (logsResponse?.data && 'data' in (logsResponse.data as any) && Array.isArray((logsResponse.data as any).data)) {
+    if (
+      logsResponse?.data &&
+      'data' in (logsResponse.data as any) &&
+      Array.isArray((logsResponse.data as any).data)
+    ) {
       return (logsResponse.data as any).data as ImpersonationRecord[]
     }
     // Fallback if it's already an array or empty
@@ -97,7 +129,7 @@ export default function ImpersonationLogs() {
 
   // â”€â”€ SYSTEM PATTERN: Entry animation (OrganizationProfile L60) â”€â”€
   return (
-    <Box className="animate-scale-in" sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
+    <Box className='animate-scale-in' sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       {/* Header */}
       <Box
         sx={{
@@ -119,7 +151,7 @@ export default function ImpersonationLogs() {
         </Box>
         <Stack direction='row' spacing={2}>
           <Tooltip title='Refresh Logs'>
-            <IconButton onClick={() => refetch()} disabled={isFetching} aria-label="Refresh logs">
+            <IconButton onClick={() => refetch()} disabled={isFetching} aria-label='Refresh logs'>
               <Refresh color={isFetching ? 'disabled' : 'inherit'} />
             </IconButton>
           </Tooltip>
@@ -177,9 +209,21 @@ export default function ImpersonationLogs() {
               >
                 {t('auth.admin.activeSessions', 'Active Sessions')}
               </Typography>
-              <Typography variant='h5' sx={{ fontWeight: 900, color: 'success.main', display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography
+                variant='h5'
+                sx={{
+                  fontWeight: 900,
+                  color: 'success.main',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
                 {logs.filter((l: ImpersonationRecord) => l.status === 'active').length}
-                <span className="pulse-dot bg-success-main" style={{ width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} />
+                <span
+                  className='pulse-dot bg-success-main'
+                  style={{ width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }}
+                />
               </Typography>
             </Box>
             <Box>
@@ -275,11 +319,61 @@ export default function ImpersonationLogs() {
           <Table sx={{ minWidth: 800 }}>
             <TableHead>
               <TableRow sx={{ bgcolor: alpha(theme.palette.action.hover, 0.5) }}>
-                <TableCell sx={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', color: 'text.secondary' }}>Date & Time</TableCell>
-                <TableCell sx={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', color: 'text.secondary' }}>Administrator (Actor)</TableCell>
-                <TableCell sx={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', color: 'text.secondary' }}>Target User</TableCell>
-                <TableCell sx={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', color: 'text.secondary' }}>Reason</TableCell>
-                <TableCell sx={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', color: 'text.secondary' }}>Status</TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.05em',
+                    color: 'text.secondary',
+                  }}
+                >
+                  Date & Time
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.05em',
+                    color: 'text.secondary',
+                  }}
+                >
+                  Administrator (Actor)
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.05em',
+                    color: 'text.secondary',
+                  }}
+                >
+                  Target User
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.05em',
+                    color: 'text.secondary',
+                  }}
+                >
+                  Reason
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.05em',
+                    color: 'text.secondary',
+                  }}
+                >
+                  Status
+                </TableCell>
                 <TableCell align='right'></TableCell>
               </TableRow>
             </TableHead>
@@ -293,10 +387,43 @@ export default function ImpersonationLogs() {
               ) : paginatedLogs.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} align='center' sx={{ py: 8 }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 0.6 }}>
-                      <History sx={{ fontSize: 48, mb: 2, color: 'text.disabled' }} />
-                      <Typography variant='h6' sx={{ fontWeight: 800 }}>No logs found</Typography>
-                      <Typography variant='body2'>Try adjusting your search or filters.</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <Avatar
+                        sx={{
+                          width: 56,
+                          height: 56,
+                          mb: 2,
+                          bgcolor: alpha(theme.palette.primary.main, 0.08),
+                        }}
+                      >
+                        <History sx={{ fontSize: 32, color: 'primary.main' }} />
+                      </Avatar>
+                      <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
+                        {t('auth.admin.noLogsFound', 'No logs found')}
+                      </Typography>
+                      <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+                        {t(
+                          'auth.admin.noLogsHint',
+                          'Try adjusting your search or resetting filters.',
+                        )}
+                      </Typography>
+                      <Button
+                        variant='outlined'
+                        color='primary'
+                        startIcon={<Refresh />}
+                        onClick={() => {
+                          setSearchTerm('')
+                          refetch()
+                        }}
+                        sx={{
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          fontWeight: 600,
+                          px: 2.5,
+                        }}
+                      >
+                        {t('auth.admin.resetAndRefresh', 'Reset Filters & Refresh')}
+                      </Button>
                     </Box>
                   </TableCell>
                 </TableRow>
@@ -312,14 +439,22 @@ export default function ImpersonationLogs() {
                         {format(new Date(log.startedAt), 'MMM dd, yyyy')}
                       </Typography>
                       <Typography variant='caption' color='text.secondary'>
-                        {format(new Date(log.startedAt), 'HH:mm:ss')} â€¢ {formatDistanceToNow(new Date(log.startedAt))} ago
+                        {format(new Date(log.startedAt), 'HH:mm:ss')} â€¢{' '}
+                        {formatDistanceToNow(new Date(log.startedAt))} ago
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Stack direction='row' spacing={2} alignItems='center'>
                         <Avatar
                           src={log.actorAvatar}
-                          sx={{ width: 32, height: 32, borderRadius: '24px', bgcolor: 'primary.main', fontSize: '0.875rem', fontWeight: 700 }}
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '24px',
+                            bgcolor: 'primary.main',
+                            fontSize: '0.875rem',
+                            fontWeight: 700,
+                          }}
                         >
                           {log.actorName?.charAt(0) || <Person />}
                         </Avatar>
@@ -338,7 +473,14 @@ export default function ImpersonationLogs() {
                         <Box sx={{ position: 'relative' }}>
                           <Avatar
                             src={log.targetAvatar}
-                            sx={{ width: 32, height: 32, borderRadius: '24px', bgcolor: 'secondary.main', fontSize: '0.875rem', fontWeight: 700 }}
+                            sx={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: '24px',
+                              bgcolor: 'secondary.main',
+                              fontSize: '0.875rem',
+                              fontWeight: 700,
+                            }}
                           >
                             {log.targetName?.charAt(0) || <Person />}
                           </Avatar>
@@ -408,7 +550,7 @@ export default function ImpersonationLogs() {
                           setSelectedLog(log)
                           setActionAnchorEl(e.currentTarget)
                         }}
-                        aria-label="More actions"
+                        aria-label='More actions'
                       >
                         <MoreVert fontSize='small' />
                       </IconButton>
@@ -459,13 +601,15 @@ export default function ImpersonationLogs() {
           sx={{ py: 1.5 }}
         >
           <History fontSize='small' sx={{ mr: 2, color: 'text.secondary' }} />
-          <Typography variant='body2' sx={{ fontWeight: 600 }}>View Session Details</Typography>
+          <Typography variant='body2' sx={{ fontWeight: 600 }}>
+            View Session Details
+          </Typography>
         </MenuItem>
 
         {selectedLog?.status === 'active' && [
-          <Divider key="div1" sx={{ my: 1, opacity: 0.1 }} />,
+          <Divider key='div1' sx={{ my: 1, opacity: 0.1 }} />,
           <MenuItem
-            key="revoke"
+            key='revoke'
             onClick={() => {
               setActionAnchorEl(null)
               // handle revoke
@@ -473,8 +617,10 @@ export default function ImpersonationLogs() {
             sx={{ py: 1.5, color: 'error.main' }}
           >
             <Block fontSize='small' sx={{ mr: 2, color: 'inherit' }} />
-            <Typography variant='body2' sx={{ fontWeight: 600 }}>Force Terminate Session</Typography>
-          </MenuItem>
+            <Typography variant='body2' sx={{ fontWeight: 600 }}>
+              Force Terminate Session
+            </Typography>
+          </MenuItem>,
         ]}
       </Menu>
     </Box>

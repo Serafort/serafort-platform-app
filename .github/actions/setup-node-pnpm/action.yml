@@ -1,0 +1,33 @@
+name: Setup Node + pnpm
+description: >-
+  Installs pnpm and Node.js (with a pnpm store cache) and runs a frozen-lockfile
+  install for the cap monorepo. Assumes the repository is already checked out.
+  pnpm's version comes from the root package.json "packageManager" field.
+
+inputs:
+  node-version:
+    description: Node.js version to install
+    required: false
+    default: "24"
+  install:
+    description: Whether to run `pnpm install --frozen-lockfile`
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      # version is read from package.json "packageManager"
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: pnpm
+
+    - name: Install dependencies
+      if: inputs.install == 'true'
+      shell: bash
+      run: pnpm install --frozen-lockfile

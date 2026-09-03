@@ -1,4 +1,5 @@
-import { styled, getTenantThemeEffects } from '@cap/theme'
+import { styled } from '@mui/material/styles'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   headerTokens,
   getHeaderElevationShadow,
@@ -15,7 +16,12 @@ type StyledHeaderProps = {
   compactContentWidth: number
 }
 
-const StyledHeader = styled('header')<StyledHeaderProps>(({ theme, layoutPadding, compactContentWidth, overrideStyles }) => {
+const StyledHeader = styled('header')<StyledHeaderProps>(({
+  theme,
+  layoutPadding,
+  compactContentWidth,
+  overrideStyles,
+}) => {
   const surfaceEffect = SurfaceEffectFactory.create(getTenantThemeEffects(theme), theme)
 
   return {

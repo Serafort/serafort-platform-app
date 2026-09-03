@@ -11,6 +11,8 @@ import Close from '@mui/icons-material/Close'
 import RadioButtonChecked from '@mui/icons-material/RadioButtonChecked'
 import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked'
 
+import useMediaQuery from '@mui/material/useMediaQuery'
+
 const StyledBoxForShadow = styled('div')(({ theme }) => ({
   top: 60,
   left: -8,
@@ -21,8 +23,9 @@ const StyledBoxForShadow = styled('div')(({ theme }) => ({
   width: 'calc(100% + 15px)',
   height: theme.mixins.toolbar.minHeight,
   transition: 'opacity .15s ease-in-out',
-  background: `linear-gradient( ${theme.direction === 'rtl' ? '95%' : '5%'
-    }, ${alpha('#5B30E8', 0.85)} 30%, ${alpha('#5B30E8', 0.5)} 65%, ${alpha('#5B30E8', 0.3)} 75%, transparent)`,
+  background: `linear-gradient( ${
+    theme.direction === 'rtl' ? '95%' : '5%'
+  }, ${alpha('#5B30E8', 0.85)} 30%, ${alpha('#5B30E8', 0.5)} 65%, ${alpha('#5B30E8', 0.3)} 75%, transparent)`,
   '&.scrolled': {
     opacity: 1,
   },
@@ -42,6 +45,7 @@ const Navigation: React.FC<{
   const { updateSettings, settings } = useSettings()
   const { isCollapsed, isHovered, collapseVerticalNav, isBreakpointReached } = verticalNavOptions
   const isSemiDark = settings.semiDark
+  const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'))
   let isDark
 
   const isServer = typeof window === 'undefined'
@@ -64,23 +68,27 @@ const Navigation: React.FC<{
   )
 
   React.useEffect(() => {
-    if (settings.layout === 'collapsed') collapseVerticalNav(true)
-    else collapseVerticalNav(false)
-  }, [settings.layout, collapseVerticalNav])
+    if (isTablet) {
+      collapseVerticalNav(true)
+    } else {
+      if (settings.layout === 'collapsed') collapseVerticalNav(true)
+      else collapseVerticalNav(false)
+    }
+  }, [isTablet, settings.layout, collapseVerticalNav])
 
   return (
     // Sidebar Vertical Menu
     <VerticalNav
       customStyles={navigationCustomStyles(verticalNavOptions, theme)}
+      breakpoint='md'
       collapsedWidth={71}
       backgroundColor={theme.palette.background.paper}
-
       // The following condition adds the data-mui-color-scheme='dark' attribute to the VerticalNav component
       // when semiDark is enabled and the mode or systemMode is light
       {...(isSemiDark &&
         !isDark && {
-        'data-mui-color-scheme': 'dark',
-      })}
+          'data-mui-color-scheme': 'dark',
+        })}
     >
       {/* Nav Header including Logo & nav toggle icons  */}
       <NavHeader>
@@ -93,7 +101,7 @@ const Navigation: React.FC<{
                   fontSize: '1.25rem',
                   lineHeight: '1.75rem',
                 }}
-              // className='text-xl'
+                // className='text-xl'
               />
             }
             unlockedIcon={
@@ -102,7 +110,7 @@ const Navigation: React.FC<{
                   fontSize: '1.25rem',
                   lineHeight: '1.75rem',
                 }}
-              // className='text-xl'
+                // className='text-xl'
               />
             }
             closeIcon={
@@ -111,7 +119,7 @@ const Navigation: React.FC<{
                   fontSize: '1.25rem',
                   lineHeight: '1.75rem',
                 }}
-              // className='text-xl'
+                // className='text-xl'
               />
             }
             onClick={() =>

@@ -43,11 +43,7 @@ export const SkipLink: React.FC<SkipLinkProps> = ({
   }
 
   return (
-    <StyledSkipLink
-      href={`#${targetId}`}
-      onClick={handleClick}
-      aria-label={label}
-    >
+    <StyledSkipLink href={`#${targetId}`} onClick={handleClick} aria-label={label}>
       {label}
     </StyledSkipLink>
   )

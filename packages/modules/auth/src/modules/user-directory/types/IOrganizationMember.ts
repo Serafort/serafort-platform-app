@@ -1,6 +1,6 @@
 import type IUser from './IUser'
 import type IOrganization from './IOrganization'
-import type IRole from "@auth/modules/authorization-engine/types/IRole"
+import type IRole from '@auth/modules/authorization-engine/types/IRole'
 
 export default interface IOrganizationMember {
   id: number

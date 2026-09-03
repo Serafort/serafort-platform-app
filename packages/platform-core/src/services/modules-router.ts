@@ -1,9 +1,5 @@
 import { modulePipelineService } from './module-pipeline.service'
-import type {
-  ModulePipelineJob,
-  ModuleUploadResponse,
-  ModuleStatusInfo,
-} from '@cap/shared-types'
+import type { ModulePipelineJob, ModuleUploadResponse, ModuleStatusInfo } from '@cap/shared-types'
 
 /**
  * Module Management Service API layer connecting React UI components

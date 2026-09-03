@@ -33,7 +33,9 @@ const NavbarContent = () => {
       const rawSection = item.section || ''
       const cleanSectionKey = rawSection.replace(/^navigation\./, '')
       const translatedSection = rawSection
-        ? t(rawSection, { defaultValue: t(`navigation.${cleanSectionKey}`, { defaultValue: rawSection }) })
+        ? t(rawSection, {
+            defaultValue: t(`navigation.${cleanSectionKey}`, { defaultValue: rawSection }),
+          })
         : ''
 
       return {
@@ -66,6 +68,7 @@ const NavbarContent = () => {
         <HorizontalNavToggle />
         {/* Hide Logo on Smaller screens */}
         {!isBreakpointReached && <Logo />}
+        <NavSearch />
       </Box>
 
       <Box
@@ -75,7 +78,6 @@ const NavbarContent = () => {
           gap: layoutMenuTokens.navbarContent.actionsGap,
         }}
       >
-        <NavSearch />
         <RoleIndicator showLabel={true} size='small' />
         <Box
           sx={{

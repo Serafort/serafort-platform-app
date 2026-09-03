@@ -1,23 +1,41 @@
-import React, { useState, useMemo } from 'react';
-import { Box, Typography, Button, Card, CardContent, Alert, AlertTitle, Paper, IconButton, Tooltip, Stepper, Step, StepLabel, Divider, Grid, Chip, Skeleton } from '@mui/material';
-import CopyIcon from '@mui/icons-material/ContentCopy';
-import CheckIcon from '@mui/icons-material/Check';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SecurityIcon from '@mui/icons-material/Security';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import TerminalIcon from '@mui/icons-material/Terminal';
-import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import ShieldIcon from '@mui/icons-material/Shield';
-import InfoIcon from '@mui/icons-material/Info';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { alpha, useTheme } from '@mui/material/styles';
-import { useUserTokens } from '@auth/user-directory/hooks/useUserQuery';
-import { Path } from '@auth/routes/path';
+import React, { useState, useMemo } from 'react'
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Alert,
+  AlertTitle,
+  Paper,
+  IconButton,
+  Tooltip,
+  Stepper,
+  Step,
+  StepLabel,
+  Divider,
+  Grid,
+  Chip,
+  Skeleton,
+} from '@mui/material'
+import CopyIcon from '@mui/icons-material/ContentCopy'
+import CheckIcon from '@mui/icons-material/Check'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import SecurityIcon from '@mui/icons-material/Security'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import TerminalIcon from '@mui/icons-material/Terminal'
+import VpnKeyIcon from '@mui/icons-material/VpnKey'
+import ShieldIcon from '@mui/icons-material/Shield'
+import InfoIcon from '@mui/icons-material/Info'
+import { useTranslation } from 'react-i18next'
+import { useNavigate, useLocation, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { alpha, useTheme } from '@mui/material/styles'
+import { useUserTokens } from '@auth/user-directory/hooks/useUserQuery'
+import { Path } from '@auth/routes/path'
 
 interface DisplayState {
   token: string
@@ -71,7 +89,7 @@ const APITokenDisplayUsage: React.FC = () => {
     try {
       await navigator.clipboard.writeText(generatedToken)
       setCopied(true)
-      toast.success(t('api_tokens:token_copied', 'Token copied to clipboard!'), {  })
+      toast.success(t('api_tokens:token_copied', 'Token copied to clipboard!'), {})
       setTimeout(() => setCopied(false), 5173)
     } catch (err: unknown) {
       const message =
