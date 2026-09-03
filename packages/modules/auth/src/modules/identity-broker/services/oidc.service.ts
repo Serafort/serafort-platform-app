@@ -70,7 +70,7 @@ export const oidcService = {
     uid: string,
     data: OIDCMfaVerifyDTO,
   ): Promise<FetchResponse<OIDCRedirectResult>> => {
-    return apiClient.post<OIDCRedirectResult>(`/api/auth/oidc/interaction/${uid}/mfa`, data)
+    return apiClient.post<OIDCRedirectResult>(ENDPOINTS.auth.oidcInteraction.mfa(uid), data)
   },
 
   getConsent: async (uid: string): Promise<FetchResponse<OIDCInteractionDetails>> => {

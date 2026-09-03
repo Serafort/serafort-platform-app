@@ -383,6 +383,7 @@ export function useSignInFlow() {
     t,
     control,
     handleSubmit,
+    getValues,
     errors,
     isSubmitting,
     isValidating,

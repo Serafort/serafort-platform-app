@@ -68,6 +68,9 @@ export const API_ENDPOINTS = {
      * reason as the email verification route above (backend finding H-9).
      */
     validateUser: "/api/auth/validate",
+    appealBan: "/api/auth/appeal-ban",
+    device: "/api/auth/device",
+    verifyResetToken: "/api/auth/reset-password/verify-token",
     invitationDetails: "/api/auth/invitation-details",
     acceptInvitation: "/api/auth/accept-invitation",
     declineInvitation: "/api/auth/decline-invitation",
@@ -83,12 +86,13 @@ export const API_ENDPOINTS = {
       verify: "/api/auth/passwordless/verify",
     },
     oidcDevice: {
-      authorize: "/api/auth/oidc/device",
+      authorize: "/api/auth/device",
       verifyAction: "/api/auth/device/verify",
     },
     oidcInteraction: {
       get: (uid: string) => `/api/auth/oidc/interaction/${uid}`,
       login: (uid: string) => `/api/auth/oidc/interaction/${uid}/login`,
+      mfa: (uid: string) => `/api/auth/oidc/interaction/${uid}/mfa`,
       consent: (uid: string) => `/api/auth/oidc/interaction/${uid}/consent`,
       confirm: (uid: string) => `/api/auth/oidc/interaction/${uid}/confirm`,
       abort: (uid: string) => `/api/auth/oidc/interaction/${uid}/abort`,
@@ -96,6 +100,7 @@ export const API_ENDPOINTS = {
     social: {
       redirect: (provider: string) => `/api/auth/social/${provider}/redirect`,
       callback: (provider: string) => `/api/auth/social/${provider}/callback`,
+      exchange: "/api/auth/social/exchange",
     },
     oidc: {
       auth: "/api/auth/oidc/auth",
@@ -154,7 +159,9 @@ export const API_ENDPOINTS = {
     preferences: "/api/user/preferences",
     verifyEmailChange: "/api/user/change-email/verify",
     activate: (id: string | number) => `/api/user/activate/${id}`,
-    deactivate: (id: string | number) => `/api/user/deactivate/${id}`,
+    deactivateSelf: "/api/user/deactivate",
+    deactivate: (id?: string | number) =>
+      id ? `/api/user/deactivate/${id}` : "/api/user/deactivate",
     suspend: (id: string | number) => `/api/user/suspend/${id}`,
     unsuspend: (id: string | number) => `/api/user/unsuspend/${id}`,
     linkedAccounts: "/api/user/linked-accounts",
@@ -172,7 +179,7 @@ export const API_ENDPOINTS = {
       destroy: (id: string | number) => `/api/user/passkeys/${id}`,
     },
     mfa: {
-      methods: "/api/user/mfa-methods",
+      methods: "/api/user/mfa/methods",
     },
     compliance: {
       export: "/api/user/compliance/export",

@@ -64,6 +64,8 @@ const SUPERSEDED_BY_V1 = new Set([
   "api.auth.passkey.login.start",
   "api.auth.passkey.register.finish",
   "api.auth.passkey.register.start",
+  "api.auth.oidc.deviceVerifyAlias",
+  "api.user.mfaMethods.alias",
 ]);
 
 /**
@@ -72,18 +74,11 @@ const SUPERSEDED_BY_V1 = new Set([
  * point, so this list should only ever shrink.
  */
 const KNOWN_UNWIRED = new Set([
-  "api.auth.appealBan",
   "api.auth.login.view",
   "api.auth.mfa.totp.recovery",
   "api.auth.mfa.totp.recoveryVerify",
   "api.auth.mfa.totp.verify",
   "api.auth.mfa.totp.verifyLogin",
-  "api.auth.oidc.deviceVerify",
-  "api.auth.oidc.mfa",
-  "api.auth.password.reset.verify_token",
-  "api.auth.social.exchange",
-  "api.user.deactivate.post",
-  "api.user.mfa.methods",
   "api.v1.auth.me",
   "api.v1.auth.mfa.totpSetup",
   "api.v1.auth.mfa.totpVerify",

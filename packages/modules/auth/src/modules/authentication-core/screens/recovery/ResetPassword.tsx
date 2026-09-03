@@ -92,10 +92,9 @@ export default function ResetPassword() {
 
       try {
         if (isMounted) setLoading(true)
-        const response: FetchResponse<any> = await authService.verifyResetPassword(
-          decodedEmail,
-          signature || tokenParam || '',
-        )
+        const response: FetchResponse<any> = tokenParam
+          ? await authService.verifyResetToken(decodedEmail, tokenParam)
+          : await authService.verifyResetPassword(decodedEmail, signature || '')
 
         if (!isMounted) return
         setLoading(false)

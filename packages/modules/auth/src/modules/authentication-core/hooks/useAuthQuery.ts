@@ -271,6 +271,48 @@ export function useVerifyResetPassword(
     ...options,
   })
 }
+
+export function useVerifyResetToken(
+  email: string,
+  token: string,
+  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery({
+    queryKey: ['auth', 'verify-reset-token', email, token],
+    queryFn: () => authService.verifyResetToken(email, token),
+    enabled: !!email && !!token,
+    retry: false,
+    ...options,
+  })
+}
+
+export function useAppealBan(
+  options?: UseMutationOptions<
+    FetchResponse<any>,
+    HttpError,
+    { email: string; reason: string },
+    unknown
+  >,
+) {
+  return useMutation({
+    mutationFn: ({ email, reason }) => authService.appealBan(email, reason),
+    ...options,
+  })
+}
+
+export function useSocialExchange(
+  options?: UseMutationOptions<
+    FetchResponse<any>,
+    HttpError,
+    { code: string },
+    unknown
+  >,
+) {
+  return useMutation({
+    mutationFn: ({ code }) => authService.social.exchange(code),
+    ...options,
+  })
+}
 /**
  * Verify email mutation
  */

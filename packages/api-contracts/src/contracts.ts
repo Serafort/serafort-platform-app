@@ -450,6 +450,98 @@ export const API_CONTRACTS = {
         response: contractType<ApiResponse<{ valid: boolean }>>(),
       }),
     },
+    appealBan: defineEndpoint({
+      id: "auth.appealBan",
+      method: "POST",
+      resolve: () => ENDPOINTS.auth.appealBan,
+      request: contractType<{ email: string; reason: string }>(),
+      response: contractType<MessageResponse>(),
+    }),
+    device: defineEndpoint({
+      id: "auth.device",
+      method: "GET",
+      resolve: () => ENDPOINTS.auth.device,
+      response: contractType<unknown>(),
+    }),
+    verifyResetToken: defineEndpoint({
+      id: "auth.verifyResetToken",
+      method: "POST",
+      resolve: () => ENDPOINTS.auth.verifyResetToken,
+      request: contractType<{ email: string; token: string }>(),
+      response:
+        contractType<ApiResponse<{ valid: boolean; email: string }>>(),
+    }),
+    oidcInteraction: {
+      get: defineEndpoint({
+        id: "auth.oidcInteraction.get",
+        method: "GET",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.get(uid),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      login: defineEndpoint({
+        id: "auth.oidcInteraction.login",
+        method: "POST",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.login(uid),
+        request: contractType<{ email: string; password?: string }>(),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      mfa: defineEndpoint({
+        id: "auth.oidcInteraction.mfa",
+        method: "POST",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.mfa(uid),
+        request: contractType<{ code: string }>(),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      consent: defineEndpoint({
+        id: "auth.oidcInteraction.consent",
+        method: "GET",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.consent(uid),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      confirm: defineEndpoint({
+        id: "auth.oidcInteraction.confirm",
+        method: "POST",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.confirm(uid),
+        request: contractType<unknown>(),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      abort: defineEndpoint({
+        id: "auth.oidcInteraction.abort",
+        method: "GET",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.abort(uid),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+    },
+    social: {
+      redirect: defineEndpoint({
+        id: "auth.social.redirect",
+        method: "GET",
+        resolve: (provider: string) =>
+          ENDPOINTS.auth.social.redirect(provider),
+        response: contractType<unknown>(),
+      }),
+      callback: defineEndpoint({
+        id: "auth.social.callback",
+        method: "GET",
+        resolve: (provider: string) =>
+          ENDPOINTS.auth.social.callback(provider),
+        response: contractType<unknown>(),
+      }),
+      exchange: defineEndpoint({
+        id: "auth.social.exchange",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.social.exchange,
+        request: contractType<{ code: string }>(),
+        response: contractType<
+          ApiResponse<{
+            message: string;
+            token: string;
+            refresh_token: string;
+            user: unknown;
+          }>
+        >(),
+      }),
+    },
     passkey: {
       registerStart: defineEndpoint({
         id: "auth.passkey.registerStart",
@@ -513,6 +605,12 @@ export const API_CONTRACTS = {
       id: "user.destroy",
       method: "DELETE",
       resolve: () => ENDPOINTS.user.destroy,
+      response: contractType<MessageResponse>(),
+    }),
+    deactivateSelf: defineEndpoint({
+      id: "user.deactivateSelf",
+      method: "POST",
+      resolve: () => ENDPOINTS.user.deactivateSelf,
       response: contractType<MessageResponse>(),
     }),
     deactivate: defineEndpoint({

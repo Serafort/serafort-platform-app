@@ -273,6 +273,22 @@ export function useConfirmOidcInteraction(
   })
 }
 
+export function useVerifyMfaInteraction(
+  uid: string | null | undefined,
+  options?: UseMutationOptions<
+    FetchResponse<OIDCRedirectResult>,
+    HttpError,
+    OIDCMfaVerifyDTO,
+    unknown
+  >,
+) {
+  return useMutation({
+    mutationFn: (data: OIDCMfaVerifyDTO) =>
+      oidcService.verifyMfaInteraction(uid || '', data),
+    ...options,
+  })
+}
+
 export function useAbortOidcInteraction(
   uid: string | null | undefined,
   options?: UseMutationOptions<FetchResponse<OIDCRedirectResult>, HttpError, void, unknown>,

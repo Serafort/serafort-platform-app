@@ -184,6 +184,14 @@ const authService = {
     return apiClient.get(ENDPOINTS.auth.verifyResetPassword(email, signature))
   },
 
+  verifyResetToken: (email: string, token: string): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.auth.verifyResetToken, { email, token })
+  },
+
+  appealBan: (email: string, reason: string): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.auth.appealBan, { email, reason })
+  },
+
   /**
    * Verify an email address from a mailed link.
    *
@@ -373,6 +381,15 @@ const authService = {
   },
 
   // ========================================================================
+  // Social Auth
+  // ========================================================================
+  social: {
+    exchange: (code: string): Promise<FetchResponse<any>> => {
+      return apiClient.post(ENDPOINTS.auth.social.exchange, { code })
+    },
+  },
+
+  // ========================================================================
   // OIDC Compliance & SAML SSO
   // ========================================================================
   oidc: {
@@ -400,8 +417,17 @@ const authService = {
     get: (uid: string): Promise<FetchResponse<any>> => {
       return apiClient.get(ENDPOINTS.auth.oidcInteraction.get(uid))
     },
-    confirm: (uid: string): Promise<FetchResponse<any>> => {
-      return apiClient.post(ENDPOINTS.auth.oidcInteraction.confirm(uid))
+    login: (uid: string, credentials: any): Promise<FetchResponse<any>> => {
+      return apiClient.post(ENDPOINTS.auth.oidcInteraction.login(uid), credentials)
+    },
+    mfa: (uid: string, data: any): Promise<FetchResponse<any>> => {
+      return apiClient.post(ENDPOINTS.auth.oidcInteraction.mfa(uid), data)
+    },
+    consent: (uid: string): Promise<FetchResponse<any>> => {
+      return apiClient.get(ENDPOINTS.auth.oidcInteraction.consent(uid))
+    },
+    confirm: (uid: string, data?: any): Promise<FetchResponse<any>> => {
+      return apiClient.post(ENDPOINTS.auth.oidcInteraction.confirm(uid), data || {})
     },
     abort: (uid: string): Promise<FetchResponse<any>> => {
       return apiClient.get(ENDPOINTS.auth.oidcInteraction.abort(uid))
