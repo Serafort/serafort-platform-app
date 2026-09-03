@@ -54,7 +54,17 @@ const NOT_BROWSER_CALLABLE = new Set([
  * @cap/api-contracts and CAP Boilerplate frontend specs" — so the legacy twin
  * staying uncovered is the intended end state, not a gap.
  */
-const SUPERSEDED_BY_V1 = new Set(["api.auth.logout"]);
+const SUPERSEDED_BY_V1 = new Set([
+  "api.auth.logout",
+  "api.auth.signin",
+  "api.auth.register",
+  "api.auth.register.alias",
+  "api.auth.refresh",
+  "api.auth.passkey.login.finish",
+  "api.auth.passkey.login.start",
+  "api.auth.passkey.register.finish",
+  "api.auth.passkey.register.start",
+]);
 
 /**
  * Backend auth routes the frontend does not reach yet. Every entry here is a
@@ -71,21 +81,12 @@ const KNOWN_UNWIRED = new Set([
   "api.auth.oidc.deviceVerify",
   "api.auth.oidc.mfa",
   "api.auth.password.reset.verify_token",
-  "api.auth.register",
   "api.auth.social.exchange",
   "api.user.deactivate.post",
   "api.user.mfa.methods",
-  "api.v1.auth.checkPermission",
-  "api.v1.auth.login",
   "api.v1.auth.me",
   "api.v1.auth.mfa.totpSetup",
   "api.v1.auth.mfa.totpVerify",
-  "api.v1.auth.passkey.authOptions",
-  "api.v1.auth.passkey.authVerify",
-  "api.v1.auth.passkey.registerOptions",
-  "api.v1.auth.passkey.registerVerify",
-  "api.v1.auth.refresh",
-  "api.v1.auth.register",
   "api.v1.auth.verifyEmail",
   "api.v1.auth.verifyResetPassword",
 ]);

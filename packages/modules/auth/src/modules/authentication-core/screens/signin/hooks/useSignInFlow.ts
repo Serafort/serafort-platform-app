@@ -117,8 +117,14 @@ export function useSignInFlow() {
 
   const loginMutation = useSignin({
     onSuccess: (response: any) => {
-      if (response?.data?.mfa_required) {
-        setPendingMfaUser({ userId: response.data.userId, email: getValues('email') })
+      // /api/v1/auth/login reports the challenge as mfaRequired and puts the id
+      // on the user; the legacy route used mfa_required with a sibling userId.
+      const body = response?.data
+      if (body?.mfaRequired ?? body?.mfa_required) {
+        setPendingMfaUser({
+          userId: body.userId ?? body.user?.id,
+          email: getValues('email'),
+        })
         setMode('mfa')
         setMfaCode('')
         setTimeLeft(60)

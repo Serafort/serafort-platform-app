@@ -77,23 +77,29 @@ export function useSignin(
     onSuccess: (...args) => {
       const [response] = args
 
-      if (response.data.mfa_required) {
+      // Login moved to /api/v1/auth/login, which names these fields differently
+      // from the legacy route: accessToken over token, mfaRequired over
+      // mfa_required. Both spellings are read so the hook does not depend on
+      // which tree served the request — the same tolerance authSlice already
+      // applies.
+      const body: any = response.data
+      const mfaRequired = body.mfaRequired ?? body.mfa_required
+      const accessToken = body.accessToken ?? body.token
+
+      if (mfaRequired) {
         setMfaRequired(true)
         setAuthStep('mfa')
-        if (response.data.userId) {
-          // Store userId or sessionId if needed for second factor
-        }
-      } else if (response.data.token) {
-        const expiresIn = response.data.expires_in || 3600
+      } else if (accessToken) {
+        const expiresIn = body.expires_in || 3600
         const expiresAt = Date.now() + expiresIn * 1000
 
         secureTokenManager.setTokens({
-          accessToken: response.data.token,
+          accessToken,
           expiresAt,
         })
 
         // Extract user data - backend might return user data directly or in a 'user' field
-        const userData = response.data.user || response.data
+        const userData = body.user || body
 
         // Normalize user role if it's an object for compatibility with layout role checks
         if (userData && typeof userData.role === 'object' && userData.role !== null) {
@@ -114,13 +120,15 @@ export function useSignin(
         // Synchronize with global AppStore atomically
         useAppStore.getState().setUser(userData as any)
 
-        // sessionId handled if present in response
-        if (response.data.userId) {
-          setSessionId(response.data.userId.toString())
+        // sessionId handled if present in response. v1 carries the id on the
+        // user rather than alongside it, so both placements are checked.
+        const userId = body.userId ?? body.user?.id
+        if (userId) {
+          setSessionId(String(userId))
         }
 
         try {
-          sessionStorageManager.set('user', response.data.user)
+          sessionStorageManager.set('user', body.user)
         } catch (err) {
           // Session write failure is non-critical during login flow
           console.error('Failed to write session data:', err)

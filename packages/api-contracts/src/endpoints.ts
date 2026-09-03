@@ -24,14 +24,20 @@ export const API_ENDPOINTS = {
   },
 
   auth: {
-    register: "/api/auth/register",
-    signup: "/api/auth/register",
-    login: "/api/auth/login",
+    register: "/api/v1/auth/register",
+    signup: "/api/v1/auth/register",
+    login: "/api/v1/auth/login",
     logout: "/api/v1/auth/logout",
     forgotPassword: "/api/auth/forgot-password",
     resetPassword: "/api/auth/reset-password",
-    refresh: "/api/auth/refresh",
+    refresh: "/api/v1/auth/refresh",
+    /**
+     * Current session, not the current user. Stays on the legacy tree: the
+     * nearest v1 route, `/api/v1/auth/me`, returns the user and is served by a
+     * different controller, so it is not a twin of this.
+     */
     session: "/api/auth/session",
+    checkPermission: "/api/v1/auth/check-permission",
     csrfToken: "/api/auth/csrf-token",
     /**
      * Verify an email address. POST — the old `GET /verification/email/:email`
@@ -105,10 +111,12 @@ export const API_ENDPOINTS = {
       list: "/api/auth/passkey",
       update: (id: string | number) => `/api/auth/passkey/${id}`,
       delete: (id: string | number) => `/api/auth/passkey/${id}`,
-      registerStart: "/api/auth/passkey/register/start",
-      registerFinish: "/api/auth/passkey/register/finish",
-      loginStart: "/api/auth/passkey/login/start",
-      loginFinish: "/api/auth/passkey/login/finish",
+      // The v1 routes delegate to the same controller methods the legacy ones
+      // call, so these are true aliases rather than a reimplementation.
+      registerStart: "/api/v1/auth/passkey/register/options",
+      registerFinish: "/api/v1/auth/passkey/register/verify",
+      loginStart: "/api/v1/auth/passkey/authenticate/options",
+      loginFinish: "/api/v1/auth/passkey/authenticate/verify",
     },
     mfa: {
       setup: "/api/auth/mfa/setup",
