@@ -5,19 +5,19 @@
  * i18n functions from @cap/platform-core.
  */
 
-import { registerDictionary } from "@cap/platform-core";
-import en from "../data/dictionaries/en.json";
-import fr from "../data/dictionaries/fr.json";
-import ar from "../data/dictionaries/ar.json";
+import { registerDictionary } from '@cap/platform-core'
+import en from '../data/dictionaries/en.json'
+import fr from '../data/dictionaries/fr.json'
+import ar from '../data/dictionaries/ar.json'
 
 export const dashboardDictionaries = {
   en,
   fr,
   ar,
-};
+}
 
 // Register dashboard dictionaries in the framework-wide i18n registry
-registerDictionary(dashboardDictionaries as any);
+registerDictionary(dashboardDictionaries as any)
 
 export {
   registerDictionary,
@@ -26,4 +26,4 @@ export {
   type DictionaryMap,
   i18n,
   type Locale,
-} from "@cap/platform-core";
+} from '@cap/platform-core'

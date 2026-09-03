@@ -1,5 +1,5 @@
-// Organization admin screens. Consumed by the admin route config in
-// `@cap/module-auth`; re-exported here for direct import by sibling screens.
+// Note: These screens have been moved to @cap/module-admin
+// The exports are kept for backward compatibility but should be imported from module-admin
 export { default as OrganizationInvitationDashboard } from './OrganizationInvitationDashboard'
 export { default as OrganizationListDashboard } from './OrganizationListDashboard'
 export { default as OrganizationProfile } from './OrganizationProfile'

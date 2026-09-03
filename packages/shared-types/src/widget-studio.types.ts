@@ -12,72 +12,32 @@
 // Widget DSL — The canonical AI-produced definition
 // ============================================
 
-export type ProviderType = "openrouter" | "gemini";
+export type ProviderType = 'openrouter' | 'gemini'
 
 export interface LLMModelOption {
-  id: string;
-  name: string;
-  provider: ProviderType;
-  description?: string;
+  id: string
+  name: string
+  provider: ProviderType
+  description?: string
 }
 
 export const AVAILABLE_LLM_MODELS: LLMModelOption[] = [
   // OpenRouter models
-  {
-    id: "openai/gpt-4o-mini",
-    name: "GPT-4o Mini",
-    provider: "openrouter",
-    description: "Fast, balanced & lightweight",
-  },
-  {
-    id: "openai/gpt-4o",
-    name: "GPT-4o",
-    provider: "openrouter",
-    description: "High reasoning & intelligence",
-  },
-  {
-    id: "anthropic/claude-3.5-sonnet",
-    name: "Claude 3.5 Sonnet",
-    provider: "openrouter",
-    description: "Exceptional coding & design",
-  },
-  {
-    id: "meta-llama/llama-3.3-70b-instruct",
-    name: "Llama 3.3 70B",
-    provider: "openrouter",
-    description: "Open-source state of the art",
-  },
-  {
-    id: "google/gemini-2.0-flash-001",
-    name: "Gemini 2.0 Flash (OR)",
-    provider: "openrouter",
-    description: "Ultra-fast multimodal model",
-  },
+  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openrouter', description: 'Fast, balanced & lightweight' },
+  { id: 'openai/gpt-4o', name: 'GPT-4o', provider: 'openrouter', description: 'High reasoning & intelligence' },
+  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', provider: 'openrouter', description: 'Exceptional coding & design' },
+  { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Llama 3.3 70B', provider: 'openrouter', description: 'Open-source state of the art' },
+  { id: 'google/gemini-2.0-flash-001', name: 'Gemini 2.0 Flash (OR)', provider: 'openrouter', description: 'Ultra-fast multimodal model' },
 
   // Gemini Native models
-  {
-    id: "gemini-3.6-flash",
-    name: "Gemini 3.6 Flash",
-    provider: "gemini",
-    description: "Native Google DeepMind Flash",
-  },
-  {
-    id: "gemini-2.5-flash",
-    name: "Gemini 2.5 Flash",
-    provider: "gemini",
-    description: "Fast low-latency generation",
-  },
-  {
-    id: "gemini-1.5-flash",
-    name: "Gemini 1.5 Flash",
-    provider: "gemini",
-    description: "Stable Google multimodal",
-  },
-];
+  { id: 'gemini-3.6-flash', name: 'Gemini 3.6 Flash', provider: 'gemini', description: 'Native Google DeepMind Flash' },
+  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'gemini', description: 'Fast low-latency generation' },
+  { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', provider: 'gemini', description: 'Stable Google multimodal' },
+]
 
 export interface WidgetAction {
-  type: "NAVIGATE" | "TOGGLE_STATE" | "NOTIFY" | "OPEN_LINK";
-  payload?: Record<string, unknown> | string;
+  type: 'NAVIGATE' | 'TOGGLE_STATE' | 'NOTIFY' | 'OPEN_LINK'
+  payload?: Record<string, unknown> | string
 }
 
 /**
@@ -86,25 +46,13 @@ export interface WidgetAction {
  */
 export interface WidgetRenderNode {
   /** The generic MUI element or HTML equivalent to render */
-  type:
-    | "box"
-    | "typography"
-    | "icon"
-    | "stack"
-    | "paper"
-    | "divider"
-    | "button"
-    | "image"
-    | "avatar"
-    | "chip"
-    | "card"
-    | "grid";
+  type: 'box' | 'typography' | 'icon' | 'stack' | 'paper' | 'divider' | 'button' | 'image' | 'avatar' | 'chip' | 'card' | 'grid'
   /** Props applied to the component (e.g. sx, variant, color) */
-  props?: Record<string, unknown>;
+  props?: Record<string, unknown>
   /** Optional interactive action triggered when clicked */
-  action?: WidgetAction;
+  action?: WidgetAction
   /** Nested child nodes or text */
-  children?: WidgetRenderNode[] | string;
+  children?: WidgetRenderNode[] | string
 }
 
 /**
@@ -114,37 +62,37 @@ export interface WidgetRenderNode {
  */
 export interface WidgetDefinition {
   /** Unique widget instance identifier (UUID) */
-  id: string;
+  id: string
   /** Human-readable display name */
-  name: string;
+  name: string
   /** SemVer string — e.g. "1.0.0" */
-  version: string;
+  version: string
   /**
    * Registered component key. Must exist in globalWidgetRegistry.
    * Examples: "dashboard-widget-weather", "dashboard-widget-statCard"
    */
-  component: string;
+  component: string
   /** Static props passed to the registered component */
-  props?: Record<string, unknown>;
+  props?: Record<string, unknown>
   /** Grid layout dimensions */
   layout: {
     /** Column span — 4 (1/3), 8 (2/3), or 12 (full width) */
-    width: 4 | 8 | 12;
+    width: 4 | 8 | 12
     /** Row height in pixels */
-    height: 200 | 280 | 340 | 400;
-  };
+    height: 200 | 280 | 340 | 400
+  }
   /** Optional data source configuration */
   dataSource?: {
-    provider: string;
-    config?: Record<string, unknown>;
-  };
+    provider: string
+    config?: Record<string, unknown>
+  }
   /** Runtime behavior configuration */
   behavior?: {
-    autoRefresh?: boolean;
-    refreshInterval?: number;
-  };
+    autoRefresh?: boolean
+    refreshInterval?: number
+  }
   /** Per-tenant overrides (color, branding, etc.) */
-  tenantOverrides?: Record<string, unknown>;
+  tenantOverrides?: Record<string, unknown>
 }
 
 // ============================================
@@ -153,30 +101,30 @@ export interface WidgetDefinition {
 
 /** Identifiers for the 6-agent pipeline stages */
 export type AgentId =
-  | "requirement"
-  | "design"
-  | "component"
-  | "validation"
-  | "preview"
-  | "publish";
+  | 'requirement'
+  | 'design'
+  | 'component'
+  | 'validation'
+  | 'preview'
+  | 'publish'
 
 /** Current status of a single agent run */
-export type AgentStatus = "idle" | "running" | "done" | "error";
+export type AgentStatus = 'idle' | 'running' | 'done' | 'error'
 
 /** State of a single agent within the pipeline */
 export interface AgentState {
-  id: AgentId;
-  status: AgentStatus;
+  id: AgentId
+  status: AgentStatus
   /** Structured output produced by this agent (JSON) */
-  output?: unknown;
+  output?: unknown
   /** Error message if status === 'error' */
-  error?: string;
+  error?: string
   /** Accumulated streamed text from Gemini (typewriter effect) */
-  streamedText?: string;
+  streamedText?: string
   /** Timestamp when the agent started (ISO string) */
-  startedAt?: string;
+  startedAt?: string
   /** Timestamp when the agent completed (ISO string) */
-  completedAt?: string;
+  completedAt?: string
 }
 
 // ============================================
@@ -185,14 +133,14 @@ export interface AgentState {
 
 /** Ordered lifecycle states of an AI-generated widget */
 export type WidgetLifecycle =
-  | "draft"
-  | "generated"
-  | "validated"
-  | "previewed"
-  | "approved"
-  | "published"
-  | "deprecated"
-  | "archived";
+  | 'draft'
+  | 'generated'
+  | 'validated'
+  | 'previewed'
+  | 'approved'
+  | 'published'
+  | 'deprecated'
+  | 'archived'
 
 // ============================================
 // Widget Studio Draft
@@ -201,19 +149,19 @@ export type WidgetLifecycle =
 /** A single widget generation session/draft managed by the Widget Studio */
 export interface WidgetStudioDraft {
   /** UUID for this draft session */
-  id: string;
+  id: string
   /** Original user prompt text */
-  prompt: string;
+  prompt: string
   /** State of each agent in the pipeline */
-  agents: AgentState[];
+  agents: AgentState[]
   /** The produced Widget DSL — undefined until component agent completes */
-  dsl?: WidgetDefinition;
+  dsl?: WidgetDefinition
   /** Current lifecycle stage */
-  lifecycle: WidgetLifecycle;
+  lifecycle: WidgetLifecycle
   /** ISO timestamp when draft was created */
-  createdAt: string;
+  createdAt: string
   /** Ordered audit trail for this widget */
-  auditTrail: WidgetAuditEntry[];
+  auditTrail: WidgetAuditEntry[]
 }
 
 // ============================================
@@ -222,17 +170,17 @@ export interface WidgetStudioDraft {
 
 /** A single audit log entry for a widget lifecycle event */
 export interface WidgetAuditEntry {
-  widgetId: string;
+  widgetId: string
   /** User identifier who triggered this action */
-  createdBy: string;
+  createdBy: string
   /** ISO timestamp */
-  generatedAt: string;
+  generatedAt: string
   /** AI model used (e.g. "gemini-2.0-flash") */
-  model: string;
+  model: string
   /** Widget DSL version at time of this action */
-  version: string;
+  version: string
   /** Lifecycle action taken */
-  action: WidgetLifecycle;
+  action: WidgetLifecycle
 }
 
 // ============================================
@@ -240,10 +188,10 @@ export interface WidgetAuditEntry {
 // ============================================
 
 export interface RequirementOutput {
-  type: string;
-  features: string[];
-  constraints?: string[];
-  scope?: string;
+  type: string
+  features: string[]
+  constraints?: string[]
+  scope?: string
 }
 
 // ============================================
@@ -251,11 +199,11 @@ export interface RequirementOutput {
 // ============================================
 
 export interface DesignOutput {
-  layout: "card" | "list" | "grid" | "chart" | "stat" | "chat";
-  size: "small" | "medium" | "large" | "full";
-  responsive: boolean;
-  sections: string[];
-  accessibility?: string[];
+  layout: 'card' | 'list' | 'grid' | 'chart' | 'stat' | 'chat'
+  size: 'small' | 'medium' | 'large' | 'full'
+  responsive: boolean
+  sections: string[]
+  accessibility?: string[]
 }
 
 // ============================================
@@ -264,11 +212,11 @@ export interface DesignOutput {
 
 export interface ComponentOutput {
   /** Resolved widget registry ID */
-  widgetId: string;
+  widgetId: string
   /** Rationale for component selection */
-  rationale: string;
+  rationale: string
   /** Suggested static props */
-  suggestedProps?: Record<string, unknown>;
+  suggestedProps?: Record<string, unknown>
 }
 
 // ============================================
@@ -276,11 +224,11 @@ export interface ComponentOutput {
 // ============================================
 
 export interface ValidationOutput {
-  isValid: boolean;
-  schemaErrors: string[];
-  securityErrors: string[];
-  tenantErrors: string[];
-  componentErrors: string[];
+  isValid: boolean
+  schemaErrors: string[]
+  securityErrors: string[]
+  tenantErrors: string[]
+  componentErrors: string[]
 }
 
 // ============================================
@@ -288,10 +236,10 @@ export interface ValidationOutput {
 // ============================================
 
 export interface PreviewOutput {
-  previewUrl?: string;
-  componentTree: string[];
-  themeCompatible: boolean;
-  testResults: { name: string; passed: boolean }[];
+  previewUrl?: string
+  componentTree: string[]
+  themeCompatible: boolean
+  testResults: { name: string; passed: boolean }[]
 }
 
 // ============================================
@@ -299,8 +247,8 @@ export interface PreviewOutput {
 // ============================================
 
 export interface PublishOutput {
-  published: boolean;
-  widgetId: string;
-  version: string;
-  deployedAt: string;
+  published: boolean
+  widgetId: string
+  version: string
+  deployedAt: string
 }

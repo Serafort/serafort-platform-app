@@ -1,49 +1,49 @@
-import { styled } from "@mui/material/styles";
+import { styled } from '@mui/material/styles'
 
-const AppRecharts = styled("div")(({ theme }) => ({
-  "& .recharts-cartesian-grid-vertical, & .recharts-cartesian-grid-horizontal, & .recharts-polar-grid-angle, & .recharts-polar-radius-axis, & .recharts-cartesian-axis":
+const AppRecharts = styled('div')(({ theme }) => ({
+  '& .recharts-cartesian-grid-vertical, & .recharts-cartesian-grid-horizontal, & .recharts-polar-grid-angle, & .recharts-polar-radius-axis, & .recharts-cartesian-axis':
     {
-      "& line": {
+      '& line': {
         stroke: theme.palette.divider,
       },
     },
-  "& .recharts-polar-grid-concentric-polygon": {
+  '& .recharts-polar-grid-concentric-polygon': {
     stroke: theme.palette.divider,
   },
-  "& .recharts-tooltip-wrapper": {
-    outline: "none",
+  '& .recharts-tooltip-wrapper': {
+    outline: 'none',
   },
-  "& .recharts-default-tooltip": {
-    border: "none !important",
+  '& .recharts-default-tooltip': {
+    border: 'none !important',
     borderRadius: theme.shape.borderRadius,
     backgroundColor: ` !important`,
   },
-  "& .recharts-custom-tooltip": {
+  '& .recharts-custom-tooltip': {
     padding: theme.spacing(2.5),
     borderRadius: theme.shape.borderRadius,
     backgroundColor: theme.palette.background.paper,
   },
-  "& .recharts-tooltip-cursor": {
+  '& .recharts-tooltip-cursor': {
     fill: theme.palette.action.hover,
   },
-  "& .recharts-yAxis .recharts-cartesian-axis-ticks .recharts-cartesian-axis-tick .recharts-cartesian-axis-tick-value":
+  '& .recharts-yAxis .recharts-cartesian-axis-ticks .recharts-cartesian-axis-tick .recharts-cartesian-axis-tick-value':
     {
-      textAnchor: theme.direction === "rtl" ? "end" : undefined,
+      textAnchor: theme.direction === 'rtl' ? 'end' : undefined,
     },
-  "& .recharts-active-dot .recharts-dot": {
+  '& .recharts-active-dot .recharts-dot': {
     fill: theme.palette.secondary.main,
   },
-  "& .recharts-tooltip-item": {
-    fontSize: "0.875rem",
+  '& .recharts-tooltip-item': {
+    fontSize: '0.875rem',
     color: ` !important`,
   },
-  "& .recharts-text": {
-    fontSize: "0.8125rem",
+  '& .recharts-text': {
+    fontSize: '0.8125rem',
     fill: theme.palette.text.disabled,
   },
-  "& .recharts-pie .recharts-sector, & .recharts-layer": {
-    outline: "none !important",
+  '& .recharts-pie .recharts-sector, & .recharts-layer': {
+    outline: 'none !important',
   },
-}));
+}))
 
-export default AppRecharts;
+export default AppRecharts

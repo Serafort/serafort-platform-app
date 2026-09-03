@@ -28,10 +28,8 @@ const LayoutHeader = (props: Props) => {
 
   // Vars
   const { navbarContentWidth } = settings
-  const activeNavbarType =
-    propNavbarType || (settings as any).navbarType || themeConfig.navbar?.type || 'fixed'
-  const activeNavbarBlur =
-    propBlur ?? (settings as any).navbarBlur ?? themeConfig.navbar?.blur ?? true
+  const activeNavbarType = propNavbarType || (settings as any).navbarType || themeConfig.navbar?.type || 'fixed'
+  const activeNavbarBlur = propBlur ?? (settings as any).navbarBlur ?? themeConfig.navbar?.blur ?? true
 
   const headerFixed = activeNavbarType === 'fixed'
   const headerStatic = activeNavbarType === 'static'
@@ -68,20 +66,17 @@ const LayoutHeader = (props: Props) => {
   )
 }
 
-const Header = ({
-  navigation,
-  navbarContent,
-}: {
-  navigation?: React.ReactNode
-  navbarContent?: React.ReactNode
-}) => {
+
+const Header = ({ navigation, navbarContent }: { navigation?: React.ReactNode; navbarContent?: React.ReactNode }) => {
   // Hooks
   const { isBreakpointReached } = useHorizontalNav()
 
   return (
     <>
       <LayoutHeader>
-        <Navbar>{navbarContent}</Navbar>
+        <Navbar>
+          {navbarContent}
+        </Navbar>
         {!isBreakpointReached && navigation}
       </LayoutHeader>
       {isBreakpointReached && navigation}

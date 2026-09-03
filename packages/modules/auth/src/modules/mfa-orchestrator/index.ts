@@ -8,7 +8,3 @@ export type { StepUpAuthDialogProps } from './components/StepUpAuthDialog'
 export { useStepUpAuth } from './hooks/useStepUpAuth'
 export type { StepUpActionMetadata, StepUpAuthState } from './hooks/useStepUpAuth'
 export { useStepUpBiometricVerify, useStepUpTotpVerify } from './hooks'
-
-import { mfaOrchestratorDictionaries, registerDictionary } from './i18n/registry'
-
-registerDictionary(mfaOrchestratorDictionaries as any)

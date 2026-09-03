@@ -9,8 +9,7 @@
  * No React dependencies - pure TypeScript only.
  */
 
-export * from "./endpoints";
-export * from "./contracts";
-export * from "./dtos";
-export * from "./types/endpoint-contract";
-export * from "./types/module-contract";
+export * from './endpoints'
+export * from './contracts'
+export * from './types/endpoint-contract'
+export * from './types/module-contract'

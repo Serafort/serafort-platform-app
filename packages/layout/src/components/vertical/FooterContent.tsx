@@ -15,7 +15,9 @@ const FooterContent = () => {
   const { t } = useTranslation()
 
   const isBreakpointReached =
-    settings.layout === 'vertical' ? isVerticalBreakpointReached : isHorizontalBreakpointReached
+    settings.layout === 'vertical'
+      ? isVerticalBreakpointReached
+      : isHorizontalBreakpointReached
 
   return (
     <Box

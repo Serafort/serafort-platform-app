@@ -1,4 +1,11 @@
-import React from "react";
+/**
+ * Feature Locked Modal Component
+ *
+ * Modal that appears when a guest user tries to access a feature
+ * that requires authentication. Encourages sign up with feature benefits.
+ */
+
+import React from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -15,134 +22,92 @@ import {
   IconButton,
   Stack,
   Chip,
-  useTheme,
-  alpha,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import LockIcon from "@mui/icons-material/Lock";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import UpgradeIcon from "@mui/icons-material/RocketLaunch";
+} from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import LockIcon from '@mui/icons-material/Lock'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+
 
 export interface FeatureLockedModalProps {
-  open: boolean;
-  onClose: () => void;
-  onSignIn?: () => void;
-  onSignUp?: () => void;
-  onUpgrade?: () => void;
-  upgradeLabel?: string;
-  featureName: string;
-  featureDescription?: string;
-  benefits?: string[];
+  open: boolean
+  onClose: () => void
+  onSignIn: () => void
+  onSignUp: () => void
+  featureName: string
+  featureDescription?: string
+  benefits?: string[]
 }
 
 /**
  * Feature Locked Modal
  *
- * Appears when accessing tier-restricted or authentication-required features.
- * Highlights key enterprise benefits and isolates the upgrade/sign-up call-to-action (Von Restorff Effect).
+ * Shows when a guest tries to access a restricted feature.
+ * Displays the benefits of signing up and provides direct links to auth pages.
  */
 export const FeatureLockedModal: React.FC<FeatureLockedModalProps> = ({
   open,
   onClose,
   onSignIn,
   onSignUp,
-  onUpgrade,
-  upgradeLabel,
   featureName,
   featureDescription,
   benefits,
 }) => {
-  const theme = useTheme();
 
   const defaultBenefits = [
-    "Role-Based Access Control (RBAC) and granular permission sets",
-    "Enterprise Single Sign-On (SSO) with SAML and OIDC integration",
-    "Comprehensive audit logging and real-time security telemetry",
-    "Automated machine identity and API token management",
-    "Zero-trust policy enforcement and session controls",
-  ];
+    'Save your progress and resume',
+    'Get personalized job recommendations',
+    'Track your applications',
+    'Access advanced analytics',
+    'Automate job applications',
+    'Export your data anytime',
+  ]
 
-  const displayBenefits = benefits || defaultBenefits;
+  const displayBenefits = benefits || defaultBenefits
 
-  const handlePrimaryAction = () => {
-    onClose();
-    if (onUpgrade) {
-      onUpgrade();
-    } else if (onSignUp) {
-      onSignUp();
-    }
-  };
+  const handleSignUp = () => {
+    onClose()
+    onSignUp()
+  }
 
-  const handleSecondaryAction = () => {
-    onClose();
-    if (onSignIn) {
-      onSignIn();
-    }
-  };
+  const handleSignIn = () => {
+    onClose()
+    onSignIn()
+  }
 
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
+      maxWidth='sm'
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
-          maxHeight: "90vh",
-          border: "1px solid",
-          borderColor: "divider",
-          boxShadow: `0 24px 48px ${alpha("#000000", 0.2)}`,
+          borderRadius: 2,
+          maxHeight: '90vh',
         },
       }}
     >
-      <DialogTitle sx={{ pb: 1.5, px: 3, pt: 3 }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <Box
-              sx={{
-                p: 1,
-                borderRadius: 2,
-                bgcolor: alpha(theme.palette.warning.main, 0.12),
-                color: theme.palette.warning.main,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <LockIcon />
-            </Box>
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>
-              Feature Access Restricted
-            </Typography>
+      <DialogTitle sx={{ pb: 1 }}>
+        <Stack direction='row' alignItems='center' justifyContent='space-between'>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <LockIcon color='warning' />
+            <Typography variant='h6'>Feature Locked</Typography>
           </Box>
-          <IconButton size="small" onClick={onClose} aria-label="close">
+          <IconButton size='small' onClick={onClose} aria-label='close'>
             <CloseIcon />
           </IconButton>
         </Stack>
       </DialogTitle>
 
-      <DialogContent sx={{ px: 3, py: 2 }}>
-        <Stack spacing={2.5}>
+      <DialogContent>
+        <Stack spacing={3}>
           {/* Feature Info */}
           <Box>
-            <Chip
-              label={featureName}
-              color="primary"
-              size="small"
-              sx={{ mb: 1.5, fontWeight: 700, borderRadius: "50px" }}
-            />
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              sx={{ lineHeight: 1.6 }}
-            >
+            <Chip label={featureName} color='primary' sx={{ mb: 2 }} />
+            <Typography variant='body1' color='text.secondary'>
               {featureDescription ||
-                `The ${featureName} capability requires an upgraded tenant plan or elevated organization privileges.`}
+                `The ${featureName} feature requires an account. Sign up for free to unlock this and many other features!`}
             </Typography>
           </Box>
 
@@ -150,23 +115,19 @@ export const FeatureLockedModal: React.FC<FeatureLockedModalProps> = ({
 
           {/* Benefits List */}
           <Box>
-            <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
-              What This Feature Includes:
+            <Typography variant='subtitle1' fontWeight='bold' gutterBottom>
+              What You'll Get:
             </Typography>
-            <List dense disablePadding>
+            <List dense>
               {displayBenefits.map((benefit, index) => (
-                <ListItem key={index} disableGutters sx={{ py: 0.5 }}>
-                  <ListItemIcon sx={{ minWidth: 28 }}>
-                    <CheckCircleIcon
-                      color="success"
-                      sx={{ fontSize: "1.1rem" }}
-                    />
+                <ListItem key={index} disableGutters>
+                  <ListItemIcon sx={{ minWidth: 36 }}>
+                    <CheckCircleIcon color='success' fontSize='small' />
                   </ListItemIcon>
                   <ListItemText
                     primary={benefit}
                     primaryTypographyProps={{
-                      variant: "body2",
-                      color: "text.primary",
+                      variant: 'body2',
                     }}
                   />
                 </ListItem>
@@ -174,67 +135,35 @@ export const FeatureLockedModal: React.FC<FeatureLockedModalProps> = ({
             </List>
           </Box>
 
-          {/* Call to Action Highlight */}
+          {/* Call to Action */}
           <Box
             sx={{
-              bgcolor: alpha(theme.palette.primary.main, 0.08),
-              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+              bgcolor: 'primary.50',
               p: 2,
-              borderRadius: 2,
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
+              borderRadius: 1,
+              textAlign: 'center',
             }}
           >
-            <UpgradeIcon sx={{ color: "primary.main", fontSize: "1.5rem" }} />
-            <Typography
-              variant="body2"
-              sx={{ fontWeight: 600, color: "primary.main" }}
-            >
-              Upgrade your workspace or contact your tenant administrator for
-              access.
+            <Typography variant='subtitle2' color='primary.main' gutterBottom>
+              🎉 Sign up is free and takes less than 30 seconds!
             </Typography>
           </Box>
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, pb: 3, pt: 1, gap: 1.5 }}>
-        <Button
-          onClick={onClose}
-          variant="text"
-          color="inherit"
-          sx={{ fontWeight: 700, textTransform: "none" }}
-        >
-          Dismiss
+      <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+        <Button onClick={onClose} variant='text' color='inherit'>
+          Maybe Later
         </Button>
-        {onSignIn && (
-          <Button
-            onClick={handleSecondaryAction}
-            variant="outlined"
-            color="inherit"
-            sx={{ fontWeight: 700, textTransform: "none" }}
-          >
-            Sign In
-          </Button>
-        )}
-        <Button
-          onClick={handlePrimaryAction}
-          variant="contained"
-          color="primary"
-          startIcon={<UpgradeIcon />}
-          sx={{
-            fontWeight: 800,
-            textTransform: "none",
-            px: 3,
-            borderRadius: 2,
-            boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.35)}`,
-          }}
-        >
-          {upgradeLabel || (onUpgrade ? "Upgrade Plan" : "Get Started")}
+        <Button onClick={handleSignIn} variant='outlined' color='primary'>
+          Sign In
+        </Button>
+        <Button onClick={handleSignUp} variant='contained' color='primary'>
+          Sign Up Free
         </Button>
       </DialogActions>
     </Dialog>
-  );
-};
+  )
+}
 
-export default FeatureLockedModal;
+export default FeatureLockedModal

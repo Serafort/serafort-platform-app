@@ -1,11 +1,9 @@
 # Project Overview — CAP Monorepo (`cap-monorepo`)
 
 ## What This Is
-
 A pnpm workspaces monorepo for a modular web platform (package scope `@cap/*`). The commented-out module imports in `AppAssembly.tsx` (Civil Registry, Digital ID, KYC, Blockchain IDaaS, Monitoring & Alerts, Admin, User) suggest this is a **civil/digital-identity and access-management platform** ("CAP"), currently shipping the Landing, Auth, and Theme modules, with the rest scaffolded for future activation.
 
 ## Repository Layout
-
 ```
 boilerplate/
 ├── app/                      # @cap/app — Vite + React 19 SPA (the shell/host)
@@ -28,7 +26,6 @@ boilerplate/
 **Note:** The monorepo uses **pnpm** workspaces (configured in `pnpm-workspace.yaml`). `app/package.json` depends on several modules not present in `packages/modules` (`module-admin`, `module-user`, `module-civil-registry`, `module-digital-id`, `module-kyc`, `module-monitoring-alerts`, `module-blockchain-idaas`), consistent with the commented-out imports — these are future/external modules not yet vendored into this repo copy.
 
 ## Tech Stack
-
 - **Frontend framework:** React 19 + TypeScript, built with Vite 7
 - **Routing:** React Router 7 (`react-router-dom`)
 - **State/data:** TanStack React Query 5 (server state), Zustand 5 (client state), Immer
@@ -40,18 +37,14 @@ boilerplate/
 - **Tooling:** pnpm (package manager), ESLint 9 (flat config) + typescript-eslint, Prettier, Husky + lint-staged, cspell, branch-name validation, and `pnpm audit` for vulnerability checks
 
 ## Entry Point Flow
-
 `app/src/main.tsx` → wraps the app in `Providers` → `Layout` → `AppAssembly` (`App`).
-
 - `Providers.tsx` sets up React Query, i18next (merging module dictionaries), tenant context, theming, routing (`BrowserRouter`), a product tour (`@reactour/tour`), and global toast (`react-toastify`) / z-index styling.
 - `AppAssembly.tsx` auto-discovers modules via Vite `import.meta.glob` (`../../packages/modules/*/src/index.ts`, eager) plus the runtime `registerDynamicModule()` API, then calls `assembleApp({ modules })` from `@cap/platform-core` and initializes auth plugins (e.g. `MFATOTPPlugin`). Today the glob resolves `LandingModule`, `AuthModule`, and `ThemeModule`.
 
 ## Multi-Tenancy & Theming
-
 `useTenant()` / `TenantProvider` drive a per-tenant theme (`DesignSystemProvider`) that supports async loading, error/refetch states, and live theme updates/saves — this is a white-label / multi-tenant SaaS pattern, not a single fixed brand.
 
 ## Next Steps (Phase 2 candidates)
-
 - Deep dive into the module-assembly pattern (`@cap/platform-core/assembly`) — dedupe rules, route/nav/search merging
 - Deep dive into `@cap/module-auth` (domain-kernel, idaas-facade, plugins, registry) — appears to be a hexagonal/DDD-structured auth domain with a pluggable MFA system
 - Review `@cap/theme` for the design-system implementation

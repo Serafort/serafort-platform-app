@@ -30,17 +30,13 @@ import KeyIcon from '@mui/icons-material/Key'
 import LoginIcon from '@mui/icons-material/Login'
 import { useTranslation } from 'react-i18next'
 import { useForm, useWatch } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Path, useSsoDiscovery } from '@auth'
-import { toast } from 'react-toastify'
-import {
-  SsoIdentifierSchema,
-  type SsoIdentifierSchemaType,
-} from '@auth/modules/authentication-core/utils/schema'
+import { Path, useSsoDiscovery } from "@auth"
+import { toast } from 'react-toastify';
 
-// ── Debounce utility ──
+
+// â”€â”€ Debounce utility â”€â”€
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value)
   useEffect(() => {
@@ -50,18 +46,14 @@ function useDebounce<T>(value: T, delay: number): T {
   return debounced
 }
 
-// ── Provider display config ──
+// â”€â”€ Provider display config â”€â”€
 const PROVIDER_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   saml: { label: 'SAML SSO', color: '#4CAF50', icon: <SecurityIcon sx={{ fontSize: 16 }} /> },
   oidc: { label: 'OpenID Connect', color: '#2196F3', icon: <KeyIcon sx={{ fontSize: 16 }} /> },
   google: { label: 'Google', color: '#EA4335', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
   github: { label: 'GitHub', color: '#333', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
   microsoft: { label: 'Microsoft', color: '#00A4EF', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
-  password: {
-    label: 'Standard Login',
-    color: '#FF9800',
-    icon: <LoginIcon sx={{ fontSize: 16 }} />,
-  },
+  password: { label: 'Standard Login', color: '#FF9800', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
 }
 
 const SAMLSSOInitiation = () => {
@@ -76,8 +68,7 @@ const SAMLSSOInitiation = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SsoIdentifierSchemaType>({
-    resolver: zodResolver(SsoIdentifierSchema),
+  } = useForm({
     defaultValues: {
       sso_identifier: '',
     },
@@ -113,7 +104,7 @@ const SAMLSSOInitiation = () => {
 
     if (!discoveryData || !providerType) {
       toast.warning(
-        t('auth.sso.no_provider_found', 'No SSO configuration found for this identifier.'),
+        t('auth.sso.no_provider_found', 'No SSO configuration found for this identifier.')
       )
       return
     }
@@ -129,7 +120,7 @@ const SAMLSSOInitiation = () => {
           } else {
             // Navigate to the SAML wait screen with the org identifier
             navigate(
-              `${Path.identity.samlWait}?org=${discoveryData.organizationId ?? debouncedIdentifier}`,
+              `${Path.auth.samlWait}?org=${discoveryData.organizationId ?? debouncedIdentifier}`,
             )
           }
           break
@@ -141,7 +132,7 @@ const SAMLSSOInitiation = () => {
           } else {
             // Navigate to OIDC wait with clientId
             navigate(
-              `${Path.identity.oidcWait}?client_id=${discoveryData.clientId ?? ''}&domain=${debouncedIdentifier}`,
+              `${Path.auth.oidcWait}?client_id=${discoveryData.clientId ?? ''}&domain=${debouncedIdentifier}`,
             )
           }
           break
@@ -150,9 +141,11 @@ const SAMLSSOInitiation = () => {
         case 'google':
         case 'github':
         case 'microsoft': {
-          // Social providers → redirect to provider selection or directly to social auth
-          toast.info(t('auth.sso.social_redirect', `Redirecting to ${providerType} login...`))
-          navigate(`${Path.identity.providerSelection}?provider=${providerType}`)
+          // Social providers â†’ redirect to provider selection or directly to social auth
+          toast.info(
+            t('auth.sso.social_redirect', `Redirecting to ${providerType} login...`)
+          )
+          navigate(`${Path.auth.providerSelection}?provider=${providerType}`)
           break
         }
 
@@ -163,7 +156,7 @@ const SAMLSSOInitiation = () => {
             t(
               'auth.sso.no_enterprise_sso',
               'No enterprise SSO found for this domain. Redirecting to standard login.',
-            ),
+            )
           )
           navigate(Path.auth.signin)
           break
@@ -172,9 +165,11 @@ const SAMLSSOInitiation = () => {
     } catch (err: unknown) {
       // Error already surfaced via snackbar below
       setIsRedirecting(false)
-      toast.error(t('auth.sso.initiation_error', 'Failed to initiate SSO. Please try again.'))
+      toast.error(
+        t('auth.sso.initiation_error', 'Failed to initiate SSO. Please try again.')
+      )
     }
-  }, [discoveryData, providerType, debouncedIdentifier, navigate, t])
+  }, [discoveryData, providerType, debouncedIdentifier, navigate,  t])
 
   // Show discovery errors
   useEffect(() => {
@@ -287,10 +282,7 @@ const SAMLSSOInitiation = () => {
                     autoComplete='email'
                     autoFocus
                     {...register('sso_identifier', {
-                      required: t(
-                        'auth.sso.domain_required',
-                        'Organization identifier is required',
-                      ),
+                      required: t('auth.sso.domain_required', 'Organization identifier is required'),
                       minLength: {
                         value: 2,
                         message: t('auth.sso.min_length', 'Enter at least 2 characters'),
@@ -376,10 +368,7 @@ const SAMLSSOInitiation = () => {
                             label={
                               providerType !== 'password'
                                 ? t('auth.sso.provider_found', `${providerInfo.label} detected`)
-                                : t(
-                                    'auth.sso.no_enterprise',
-                                    'No enterprise SSO â€” standard login',
-                                  )
+                                : t('auth.sso.no_enterprise', 'No enterprise SSO â€” standard login')
                             }
                             size='small'
                             sx={{

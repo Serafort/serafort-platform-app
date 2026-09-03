@@ -1,209 +1,116 @@
 /**
  * Agent Orchestrator — Frontend coordinator for the Widget Studio pipeline.
  *
- * Delegates all pipeline execution to the backend via TanStack Query mutations.
- * The SSE stream tracker in `widgetAgentClient.ts` handles real-time UI updates.
- *
- * This module provides imperative helpers that can be called from non-hook contexts
- * (e.g. event handlers that already have access to the mutation functions).
+ * Delegates pipeline execution directly to the backend multi-agent SSE pipeline,
+ * while updating the Zustand widgetStudioSlice in real time for live UI feedback.
  */
-import type { WidgetDefinition, WidgetAuditEntry } from "@cap/shared-types";
-import { useAppStore } from "@cap/platform-store";
-import { apiClient } from "@cap/platform-core";
-import {
-  connectPipelineStream,
-  disconnectStream,
-} from "../services/widgetAgentClient";
-import type { GenerateWidgetResponse } from "../hooks/useWidgetStudioQuery";
+import type { AIProvider } from './AIProvider.interface'
+import type { WidgetDefinition, AgentId, WidgetAuditEntry } from '@cap/shared-types'
+import { runPublishAgent } from './PublishAgent'
+import { executeBackendAgentPipeline } from '../services/widgetAgentClient'
+import { useAppStore } from '@cap/platform-store'
 
 export interface OrchestratorOptions {
   /** Draft ID in the Zustand store to update */
-  draftId: string;
-  /** Raw user prompt */
-  prompt: string;
-  /** Override the AI provider type */
-  providerType?: string;
-  /** Override the AI model */
-  model?: string;
+  draftId: string
+  /** Raw user prompt (will be sanitized) */
+  prompt: string
+  /** Current authenticated user ID */
+  userId?: string
+  /** Override the AI provider (useful for testing) */
+  provider?: AIProvider
   /** Whether to auto-publish after successful validation */
-  autoPublish?: boolean;
-  /** Target dashboard page */
-  pageId?: string;
+  autoPublish?: boolean
 }
 
 export interface OrchestratorResult {
-  success: boolean;
-  runId?: number;
-  dsl?: WidgetDefinition;
-  error?: string;
+  success: boolean
+  dsl?: WidgetDefinition
+  error?: string
 }
 
 /**
- * Run the full widget generation pipeline via the backend.
- *
- * This is an imperative wrapper for contexts where React hooks are not available.
- * In React components, prefer using `useGenerateWidget()` directly.
+ * Helper to update a specific agent's state in the store
+ */
+function updateAgent(
+  draftId: string,
+  agentId: AgentId,
+  status: 'idle' | 'running' | 'done' | 'error',
+  extras: { output?: unknown; error?: string } = {},
+) {
+  const store = useAppStore.getState()
+  store.updateWidgetAgent(draftId, agentId, {
+    status,
+    startedAt: status === 'running' ? new Date().toISOString() : undefined,
+    completedAt: ['done', 'error'].includes(status) ? new Date().toISOString() : undefined,
+    ...extras,
+  })
+}
+
+/**
+ * Helper to append a stream chunk to an agent's streamed text
+ */
+function appendStream(draftId: string, agentId: AgentId, text: string) {
+  useAppStore.getState().appendAgentStream(draftId, agentId, text)
+}
+
+/**
+ * Run the full 6-agent widget generation pipeline via the backend.
  */
 export async function runAgentPipeline(
   options: OrchestratorOptions,
 ): Promise<OrchestratorResult> {
-  const {
+  const { draftId, prompt, userId = 'anonymous', autoPublish = false } = options
+
+  // Delegate directly to the backend multi-agent SSE pipeline
+  return executeBackendAgentPipeline({
     draftId,
     prompt,
-    autoPublish = false,
-    pageId = "dashboard",
-  } = options;
-  const store = useAppStore.getState();
-
-  // Set UI state
-  store.setWidgetStudioRunning(true);
-  store.setWidgetLifecycle(draftId, "draft");
-
-  try {
-    const response = await apiClient.post<GenerateWidgetResponse>(
-      "/api/v1/widgets/generate",
-      {
-        draftId,
-        prompt,
-        userId: 1, // Resolved server-side from auth token
-        providerType:
-          options.providerType || store.selectedProvider || "gemini",
-        model: options.model || store.selectedModel,
-        autoPublish,
-        pageId,
-        runAsync: true,
-      },
-    );
-
-    const data = response.data;
-    if (!data?.success || !data.runId) {
-      const errorMsg =
-        data?.error || "Failed to initialize agent pipeline run on server";
-      store.updateWidgetAgent(draftId, "requirement", {
-        status: "error",
-        error: errorMsg,
-      });
-      store.setWidgetStudioRunning(false);
-      return { success: false, error: errorMsg };
-    }
-
-    // Connect SSE stream for live updates
-    connectPipelineStream({
-      runId: data.runId,
-      draftId,
-      prompt,
-      autoPublish,
-    });
-
-    return { success: true, runId: data.runId };
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    store.updateWidgetAgent(draftId, "requirement", {
-      status: "error",
-      error: errorMsg,
-    });
-    store.setWidgetStudioRunning(false);
-    return { success: false, error: errorMsg };
-  }
+    userId,
+    autoPublish,
+  })
 }
 
 /**
- * Publish a validated widget DSL to the dashboard via the backend API.
- *
- * Imperative wrapper for non-hook contexts. Prefer `usePublishWidget()` in components.
+ * Publish an already-validated draft (called from UI when user clicks "Publish")
  */
 export async function publishDraft(
   draftId: string,
-  pageId = "dashboard",
+  userId = 'anonymous',
 ): Promise<boolean> {
-  const store = useAppStore.getState();
-  const draft = store.widgetDrafts.find((d) => d.id === draftId);
+  const store = useAppStore.getState()
+  const draft = store.widgetDrafts.find((d) => d.id === draftId)
 
   if (!draft?.dsl) {
-    console.error("[AgentOrchestrator] No DSL found for draft:", draftId);
-    return false;
+    console.error('[AgentOrchestrator] No DSL found for draft:', draftId)
+    return false
   }
 
-  store.updateWidgetAgent(draftId, "publish", {
-    status: "running",
-    startedAt: new Date().toISOString(),
-  });
+  updateAgent(draftId, 'publish', 'running')
 
-  try {
-    const response = await apiClient.post<{ success: boolean; error?: string }>(
-      "/api/v1/widgets/publish",
-      {
-        draftId,
-        dsl: draft.dsl,
-        pageId,
-      },
-    );
+  const publish = runPublishAgent(draft.dsl, {
+    userId,
+    model: (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env
+      .VITE_GEMINI_MODEL ?? 'gemini-2.0-flash',
+    onProgress: (msg) => appendStream(draftId, 'publish', msg + '\n'),
+  })
 
-    if (response.data?.success) {
-      store.setWidgetLifecycle(draftId, "published");
-      store.updateWidgetAgent(draftId, "publish", {
-        status: "done",
-        completedAt: new Date().toISOString(),
-      });
-
-      // Add to local layout store for instant feedback
-      const currentLayout = store.layouts?.[pageId];
-      if (currentLayout) {
-        const newSlotId = `${pageId}-ai-slot-${Date.now()}`;
-        store.addSlot(
-          pageId,
-          newSlotId,
-          {
-            widgetId: draft.dsl.component,
-            config: draft.dsl.props,
-          } as any,
-          {
-            span: draft.dsl.layout.width as 4 | 8 | 12,
-            height: draft.dsl.layout.height as 200 | 280 | 340 | 400,
-          },
-        );
-      }
-
-      const auditEntry: WidgetAuditEntry = {
-        widgetId: draft.dsl.id,
-        createdBy: "current-user",
-        generatedAt: new Date().toISOString(),
-        model: store.selectedModel || "gemini-2.0-flash",
-        version: draft.dsl.version,
-        action: "published",
-      };
-      store.appendAuditEntry(draftId, auditEntry);
-
-      return true;
+  if (publish.published) {
+    const auditEntry: WidgetAuditEntry = {
+      widgetId: draft.dsl.id,
+      createdBy: userId,
+      generatedAt: publish.deployedAt,
+      model: (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env
+        .VITE_GEMINI_MODEL ?? 'gemini-2.0-flash',
+      version: draft.dsl.version,
+      action: 'published',
     }
-
-    store.updateWidgetAgent(draftId, "publish", {
-      status: "error",
-      error: response.data?.error || "Publish failed",
-    });
-    return false;
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    store.updateWidgetAgent(draftId, "publish", {
-      status: "error",
-      error: errorMsg,
-    });
-    return false;
+    store.appendAuditEntry(draftId, auditEntry)
+    store.setWidgetLifecycle(draftId, 'published')
+    updateAgent(draftId, 'publish', 'done', { output: publish })
+    return true
   }
-}
 
-/**
- * Cancel an active pipeline run.
- */
-export async function cancelPipelineRun(runId: number): Promise<boolean> {
-  disconnectStream(runId);
-  try {
-    const response = await apiClient.post<{ success: boolean }>(
-      `/api/v1/widgets/runs/${runId}/cancel`,
-      {},
-    );
-    return response.data?.success ?? false;
-  } catch {
-    return false;
-  }
+  updateAgent(draftId, 'publish', 'error', { error: 'Publish failed' })
+  return false
 }

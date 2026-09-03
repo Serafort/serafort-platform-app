@@ -29,7 +29,7 @@ export interface UserAuthenticatedPayload {
   userId: string
   email: string
   factors: string[]
-  method: 'password' | 'mfa' | 'passkey' | 'sso' | 'magic_link' | 'passwordless'
+  method: 'password' | 'mfa' | 'passkey' | 'sso'
   sessionId: string
   ipAddress?: string
   userAgent?: string
@@ -148,15 +148,13 @@ export interface UserAuthenticatedInit {
   causationId?: string
   email?: string
   factors?: string[]
-  method?: 'password' | 'mfa' | 'passkey' | 'sso' | 'magic_link' | 'passwordless'
+  method?: 'password' | 'mfa' | 'passkey' | 'sso'
   sessionId?: string
   ipAddress?: string
   userAgent?: string
 }
 
-export class UserAuthenticated implements DomainEvent<
-  UserAuthenticatedPayload & { role?: string }
-> {
+export class UserAuthenticated implements DomainEvent<UserAuthenticatedPayload & { role?: string }> {
   id: string
   type: string = AuthEventTypes.USER_AUTHENTICATED
   version: string = EventVersions.V1

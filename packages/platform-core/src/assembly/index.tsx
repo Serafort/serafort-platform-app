@@ -67,19 +67,17 @@ export const assembleApp = ({ modules, layoutWrapper }: AssembleAppProps) => {
   const { allRouteConfigs, routeNavItems, navItemsToRegister } = registry.extractRoutesAndNav()
   const Wrapper = layoutWrapper ?? PassthroughRouteElementWrapper
 
-  // Populate navigation items in store inside useEffect to prevent setState during render
+  // Synchronously populate navigation in the store to avoid first-frame empty menu rendering
   const populateNavigation = () => {
-    const combinedNav: typeof routeNavItems = []
+    useAppStore.getState().clearNavigation()
     navItemsToRegister.forEach((items) => {
-      if (items && Array.isArray(items)) {
-        combinedNav.push(...items)
-      }
+      if (items) useAppStore.getState().registerModuleNavigation(items)
     })
     if (routeNavItems.length > 0) {
-      combinedNav.push(...routeNavItems)
+      useAppStore.getState().registerModuleNavigation(routeNavItems)
     }
-    useAppStore.getState().setNavigationItems(combinedNav)
   }
+  populateNavigation()
 
   // Return the App component with a SINGLE Routes component matching.
   const App = () => {
@@ -94,15 +92,14 @@ export const assembleApp = ({ modules, layoutWrapper }: AssembleAppProps) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              minHeight: 'calc(100vh - 120px)',
+              minHeight: '60vh',
               width: '100%',
-              boxSizing: 'border-box',
             }}
           >
             <div
               style={{
-                width: '36px',
-                height: '36px',
+                width: '32px',
+                height: '32px',
                 border: '3px solid rgba(0,0,0,0.1)',
                 borderTopColor: 'var(--color-primary, #635bff)',
                 borderRadius: '50%',

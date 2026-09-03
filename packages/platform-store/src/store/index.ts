@@ -1,169 +1,105 @@
-import { create } from "zustand";
-import { persist, createJSONStorage, devtools } from "zustand/middleware";
-import { immer } from "zustand/middleware/immer";
-import { useEffect, useState } from "react";
-import encryption from "../services/encryption";
+import { create } from 'zustand'
+import { persist, createJSONStorage, devtools } from 'zustand/middleware'
+import { immer } from 'zustand/middleware/immer'
+import { useEffect, useState } from 'react'
+import encryption from '../services/encryption'
 
-import { createAuthSlice, type AuthSlice } from "./slices/authSlice";
-import {
-  onTerminalError,
-  setGlobalNotificationHandler,
-} from "../services/api/api.client";
-import { createGuestSlice, type GuestSlice } from "./slices/guestSlice";
-import { createProfileSlice, type ProfileSlice } from "./slices/profileSlice";
-import {
-  createNotificationSlice,
-  type NotificationSlice,
-} from "./slices/notificationSlice";
-import {
-  createPreferencesSlice,
-  type PreferencesSlice,
-} from "./slices/preferences/preferences";
-import {
-  createSettingsSlice,
-  type SettingsSlice,
-  LayoutOverride,
-} from "./slices/settingsSlice";
-import {
-  createNavigationSlice,
-  type NavigationSlice,
-} from "./slices/navigationSlice";
-import { createNetworkSlice, type NetworkSlice } from "./slices/networkSlice";
-import {
-  createOfflineQueueSlice,
-  type OfflineQueueSlice,
-} from "./slices/offlineQueueSlice";
-import {
-  createLayoutEngineSlice,
-  type LayoutEngineSlice,
-  DEFAULT_SLOT_SIZE,
-} from "./slices/layoutEngineSlice";
-import {
-  createWidgetStudioSlice,
-  type WidgetStudioSlice,
-} from "./slices/widgetStudioSlice";
-import type { AppStore } from "../types";
-export type {
-  LayoutOverride,
-  AppStore,
-  AuthSlice,
-  GuestSlice,
-  ProfileSlice,
-  NotificationSlice,
-  PreferencesSlice,
-  SettingsSlice,
-  NavigationSlice,
-  NetworkSlice,
-  OfflineQueueSlice,
-  LayoutEngineSlice,
-  WidgetStudioSlice,
-};
-export { DEFAULT_SLOT_SIZE };
+import { createAuthSlice, type AuthSlice } from './slices/authSlice'
+import { onTerminalError } from '../services/api/api.client'
+import { createGuestSlice, type GuestSlice } from './slices/guestSlice'
+import { createProfileSlice, type ProfileSlice } from './slices/profileSlice'
+import { createNotificationSlice, type NotificationSlice } from './slices/notificationSlice'
+import { createPreferencesSlice, type PreferencesSlice } from './slices/preferences/preferences'
+import { createSettingsSlice, type SettingsSlice, LayoutOverride } from './slices/settingsSlice'
+import { createNavigationSlice, type NavigationSlice } from './slices/navigationSlice'
+import { createNetworkSlice, type NetworkSlice } from './slices/networkSlice'
+import { createOfflineQueueSlice, type OfflineQueueSlice } from './slices/offlineQueueSlice'
+import { createLayoutEngineSlice, type LayoutEngineSlice, DEFAULT_SLOT_SIZE } from './slices/layoutEngineSlice'
+import { createWidgetStudioSlice, type WidgetStudioSlice } from './slices/widgetStudioSlice'
+import type { AppStore } from '../types'
+export type { LayoutOverride, AppStore, AuthSlice, GuestSlice, ProfileSlice, NotificationSlice, PreferencesSlice, SettingsSlice, NavigationSlice, NetworkSlice, OfflineQueueSlice, LayoutEngineSlice, WidgetStudioSlice }
+export { DEFAULT_SLOT_SIZE }
+
 
 // Hydration tracking
-let hasHydrated = false;
-const hydrationListeners: Set<() => void> = new Set();
+let hasHydrated = false
+const hydrationListeners: Set<() => void> = new Set()
 
-export const getHasHydrated = () => hasHydrated;
+export const getHasHydrated = () => hasHydrated
 
 export const onHydrationComplete = (callback: () => void) => {
   if (hasHydrated) {
-    callback();
-    return () => {};
+    callback()
+    return () => {}
   }
-  hydrationListeners.add(callback);
-  return () => hydrationListeners.delete(callback);
-};
+  hydrationListeners.add(callback)
+  return () => hydrationListeners.delete(callback)
+}
 
 const setHydrated = () => {
-  hasHydrated = true;
-  hydrationListeners.forEach((cb) => cb());
-  hydrationListeners.clear();
-};
+  hasHydrated = true
+  hydrationListeners.forEach((cb) => cb())
+  hydrationListeners.clear()
+}
 
 /**
  * Hook to check if Zustand store has been hydrated from async storage
  * Use this to wait before checking auth state
  */
 export const useHasHydrated = () => {
-  const [isHydrated, setHasHydratedState] = useState(hasHydrated);
+  const [isHydrated, setHasHydratedState] = useState(hasHydrated)
 
   useEffect(() => {
     if (hasHydrated) {
-      setHasHydratedState(true);
-      return;
+      setHasHydratedState(true)
+      return
     }
-    const unsubscribe = onHydrationComplete(() => setHasHydratedState(true));
-    return unsubscribe;
-  }, []);
+    const unsubscribe = onHydrationComplete(() => setHasHydratedState(true))
+    return unsubscribe
+  }, [])
 
-  return isHydrated;
-};
+  return isHydrated
+}
 
 /**
  * Custom Secure Storage for Zustand
  */
 const secureStorage = {
   getItem: async (name: string): Promise<string | null> => {
-    if (typeof localStorage === "undefined") return null;
-    const value = localStorage.getItem(name);
-    if (!value) return null;
+    const value = localStorage.getItem(name)
+    if (!value) return null
 
-    const storageKey =
-      (import.meta as any).env?.VITE_STORAGE_KEY ||
-      (typeof process !== "undefined" ? process.env?.VITE_STORAGE_KEY : undefined) ||
-      "cap-platform-storage";
+    const storageKey = (import.meta as any).env?.VITE_STORAGE_KEY || 'cap-platform-storage'
     if (name === storageKey) {
       try {
-        const masterKey =
-          (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY ||
-          (typeof process !== "undefined"
-            ? process.env?.VITE_STORAGE_ENCRYPTION_KEY
-            : undefined);
+        const masterKey = (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY
         if (!masterKey) {
-          throw new Error("VITE_STORAGE_ENCRYPTION_KEY is not defined");
+          throw new Error('VITE_STORAGE_ENCRYPTION_KEY is not defined')
         }
-        return await encryption.decryptData(value, masterKey);
+        return await encryption.decryptData(value, masterKey)
       } catch (e) {
-        if (import.meta.env?.DEV) {
-          console.warn(
-            "[secureStorage] Decryption failed, falling back to raw value",
-            e,
-          );
+        if (import.meta.env.DEV) {
+          console.warn('[secureStorage] Decryption failed, falling back to raw value', e)
         }
-        return value;
+        return value
       }
     }
-    return value;
+    return value
   },
   setItem: async (name: string, value: string): Promise<void> => {
-    if (typeof localStorage === "undefined") return;
-    const storageKey =
-      (import.meta as any).env?.VITE_STORAGE_KEY ||
-      (typeof process !== "undefined" ? process.env?.VITE_STORAGE_KEY : undefined) ||
-      "cap-platform-storage";
+    const storageKey = (import.meta as any).env?.VITE_STORAGE_KEY || 'cap-platform-storage'
     if (name === storageKey) {
-      // Fail closed: never fall back to a hardcoded key. A predictable key gives
-      // zero at-rest protection for the persisted store and must not ship.
-      const masterKey =
-        (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY ||
-        (typeof process !== "undefined"
-          ? process.env?.VITE_STORAGE_ENCRYPTION_KEY
-          : undefined);
-      if (!masterKey) {
-        throw new Error("VITE_STORAGE_ENCRYPTION_KEY is not defined");
-      }
-      const encrypted = await encryption.encryptData(value, masterKey);
-      localStorage.setItem(name, encrypted);
+      const masterKey = (import.meta as any).env?.VITE_STORAGE_ENCRYPTION_KEY || 'default-cap-storage-encryption-key-32-chars'
+      const encrypted = await encryption.encryptData(value, masterKey)
+      localStorage.setItem(name, encrypted)
     } else {
-      localStorage.setItem(name, value);
+      localStorage.setItem(name, value)
     }
   },
   removeItem: (name: string): void => {
-    if (typeof localStorage === "undefined") return;
-    localStorage.removeItem(name);
+    localStorage.removeItem(name)
   },
-};
+}
 
 /**
  * Main Application Store
@@ -192,40 +128,33 @@ export const useAppStore = create<AppStore>()(
         ...createWidgetStudioSlice(...(args as [any, any, any])),
       })),
       {
-        name:
-          (import.meta as any).env?.VITE_STORAGE_KEY || "cap-platform-storage",
+        name: (import.meta as any).env?.VITE_STORAGE_KEY || 'cap-platform-storage',
         storage: createJSONStorage(() => secureStorage as any),
         onRehydrateStorage: (_state) => {
-          if (import.meta.env.DEV)
-            console.log("[useAppStore] hydration started");
+          if (import.meta.env.DEV) console.log('[useAppStore] hydration started')
           return (state, error) => {
             if (error) {
-              console.error("[useAppStore] hydration failed:", error);
+              console.error('[useAppStore] hydration failed:', error)
               // Mark hydration complete even on failure so app doesn't hang
-              setHydrated();
+              setHydrated()
             } else {
               if (import.meta.env.DEV) {
-                console.log("[useAppStore] hydration finished");
-                console.log(
-                  "[useAppStore] Hydrated Auth State:",
-                  state?.isAuthenticated,
-                );
+                console.log('[useAppStore] hydration finished')
+                console.log('[useAppStore] Hydrated Auth State:', state?.isAuthenticated)
               }
               // Use queueMicrotask to ensure state is fully applied before marking hydration complete
               // This prevents race conditions where components check auth state before it's updated
               queueMicrotask(() => {
                 if (import.meta.env.DEV)
-                  console.log(
-                    "[useAppStore] setHydrated called (after microtask)",
-                  );
-                setHydrated();
-              });
+                  console.log('[useAppStore] setHydrated called (after microtask)')
+                setHydrated()
+              })
             }
-          };
+          }
         },
         merge: (persistedState: any, currentState) => {
           if (!persistedState) {
-            return currentState;
+            return currentState
           }
 
           // Deep merge for nested objects if needed, or simple shallow merge if structure matches
@@ -249,12 +178,10 @@ export const useAppStore = create<AppStore>()(
               ...(persistedState.preferences || {}),
             },
             settings,
-            mode:
-              settings.mode || persistedState.theme?.mode || currentState.mode,
-            offlineQueue:
-              persistedState.offlineQueue || currentState.offlineQueue,
+            mode: settings.mode || persistedState.theme?.mode || currentState.mode,
+            offlineQueue: persistedState.offlineQueue || currentState.offlineQueue,
             layouts: persistedState.layouts || currentState.layouts,
-          };
+          }
         },
         partialize: (state) => ({
           auth: {
@@ -271,49 +198,38 @@ export const useAppStore = create<AppStore>()(
       },
     ),
     {
-      name: (import.meta as any).env?.VITE_APP_NAME || "cap-platform-store",
+      name: (import.meta as any).env?.VITE_APP_NAME || 'cap-platform-store',
       enabled: import.meta.env.DEV,
-      anonymousActionType: "zustand/action",
+      anonymousActionType: 'zustand/action',
       serialize: { options: true },
     },
   ),
 ) as unknown as {
-  <T>(selector: (state: AppStore) => T): T;
-  getState(): AppStore;
-  setState(
-    state: Partial<AppStore> | ((state: AppStore) => Partial<AppStore>),
-  ): void;
-  subscribe(
-    listener: (state: AppStore, prevState: AppStore) => void,
-  ): () => void;
-};
+  <T>(selector: (state: AppStore) => T): T
+  getState(): AppStore
+  setState(state: Partial<AppStore> | ((state: AppStore) => Partial<AppStore>)): void
+  subscribe(listener: (state: AppStore, prevState: AppStore) => void): () => void
+}
 
 // --- Subscribe to Terminal Auth Errors ---
 // When a terminal authentication failure occurs (e.g. 400 on refresh),
 // we MUST clear the in-memory state to match the cleared storage
 // to prevent infinite refresh loops in React components.
 onTerminalError(() => {
-  const state = useAppStore.getState();
+  const state = useAppStore.getState()
   if (state.isAuthenticated) {
-    console.warn(
-      "[AppStore] Received terminal auth error, forcing state reset",
-    );
+    console.warn('[AppStore] Received terminal auth error, forcing state reset')
     // Resetting state directly via store.setState to ensuring UI reactive updates
     useAppStore.setState(() => ({
       user: null,
       isAuthenticated: false,
       isAdmin: false,
       tokens: null,
-    }));
+    }))
   }
-});
+})
 
-// Wire global notification handler from API client to store
-setGlobalNotificationHandler((notification) => {
-  useAppStore.getState().addNotification(notification);
-});
-
-import { useShallow } from "zustand/shallow";
+import { useShallow } from 'zustand/shallow'
 
 export const useAuthStore = () =>
   useAppStore(
@@ -332,8 +248,8 @@ export const useAuthStore = () =>
       setUser: state.setUser,
       setTokens: state.setTokens,
       clearError: state.clearError,
-    })),
-  );
+    }))
+  )
 
 export const useGuest = () =>
   useAppStore(
@@ -346,8 +262,9 @@ export const useGuest = () =>
       getGuestData: state.getGuestData,
       incrementAnalysisCount: state.incrementAnalysisCount,
       analysisCounts: state.getAnalysisCount(),
-    })),
-  );
+    }))
+  )
+
 
 export const useProfile = () =>
   useAppStore(
@@ -358,8 +275,8 @@ export const useProfile = () =>
       updateProfile: state.updateProfile,
       deleteProfile: state.deleteProfile,
       setActiveProfile: state.setActiveProfile,
-    })),
-  );
+    }))
+  )
 
 export const useNotifications = () =>
   useAppStore(
@@ -371,8 +288,8 @@ export const useNotifications = () =>
       markAllAsRead: state.markAllAsRead,
       deleteNotification: state.deleteNotification,
       clearNotifications: state.clearNotifications,
-    })),
-  );
+    }))
+  )
 
 export const usePreferences = () =>
   useAppStore(
@@ -380,8 +297,8 @@ export const usePreferences = () =>
       preferences: state.preferences,
       updatePreferences: state.updatePreferences,
       resetPreferences: state.resetPreferences,
-    })),
-  );
+    }))
+  )
 
 export const useSettings = () =>
   useAppStore(
@@ -391,8 +308,8 @@ export const useSettings = () =>
       updateSettings: state.updateSettings,
       resetSettings: state.resetSettings,
       updatePageSettings: state.updatePageSettings,
-    })),
-  );
+    }))
+  )
 
 /** @deprecated Use useVerticalNav from @cap/layout */
 export const useVerticalNavStore = () =>
@@ -403,8 +320,8 @@ export const useVerticalNavStore = () =>
       collapseVerticalNav: state.collapseVerticalNav,
       hoverVerticalNav: state.hoverVerticalNav,
       toggleVerticalNav: state.toggleVerticalNav,
-    })),
-  );
+    }))
+  )
 
 /** @deprecated Use useHorizontalNav from @cap/layout */
 export const useHorizontalNavStore = () =>
@@ -412,8 +329,8 @@ export const useHorizontalNavStore = () =>
     useShallow((state: AppStore) => ({
       ...state.horizontalNav,
       updateIsBreakpointReached: state.updateIsBreakpointReached,
-    })),
-  );
+    }))
+  )
 
 export const useTheme = () =>
   useAppStore(
@@ -421,8 +338,8 @@ export const useTheme = () =>
       mode: state.settings.mode,
       toggleColorMode: state.toggleColorMode,
       setMode: state.setMode,
-    })),
-  );
+    }))
+  )
 
 export const useNetwork = () =>
   useAppStore(
@@ -430,8 +347,8 @@ export const useNetwork = () =>
       isOnline: state.isOnline,
       setOnline: state.setOnline,
       setOffline: state.setOffline,
-    })),
-  );
+    }))
+  )
 
 export const useOfflineQueue = () =>
   useAppStore(
@@ -441,8 +358,8 @@ export const useOfflineQueue = () =>
       removeFromOfflineQueue: state.removeFromOfflineQueue,
       incrementOfflineRetry: state.incrementOfflineRetry,
       clearOfflineQueue: state.clearOfflineQueue,
-    })),
-  );
+    }))
+  )
 
 export const useWidgetStudio = () =>
   useAppStore(
@@ -468,5 +385,5 @@ export const useWidgetStudio = () =>
       setWidgetDsl: state.setWidgetDsl,
       setWidgetLifecycle: state.setWidgetLifecycle,
       appendAuditEntry: state.appendAuditEntry,
-    })),
-  );
+    }))
+  )

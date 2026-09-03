@@ -34,6 +34,9 @@ const Banner: React.FC = () => {
         borderRadius: 2,
       }}
     >
+      {/* Preload background image for better performance */}
+      <img style={{ display: 'none' }} src={bannerContent.image} alt={bannerContent.imageText} />
+
       {/* Dark overlay for better text readability */}
       <Box
         sx={{

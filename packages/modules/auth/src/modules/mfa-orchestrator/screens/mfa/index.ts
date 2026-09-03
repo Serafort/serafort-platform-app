@@ -1,3 +1,2 @@
-export { default as MFASetupScreen } from './MFASetupScreen'
-export { default as MFAManagement } from './MFAManagement'
-export { default as MFAVerificationScreen } from './MFAVerificationScreen'
+// MFA screens are currently loaded from @cap/module-mfa
+export {}

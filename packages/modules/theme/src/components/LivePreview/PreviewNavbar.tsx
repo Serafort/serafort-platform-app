@@ -1,9 +1,9 @@
-import React from "react";
-import { Box, Typography, Avatar } from "@mui/material";
-import styled from "@emotion/styled";
+import React from 'react';
+import { Box, Typography, Avatar } from '@mui/material';
+import styled from '@emotion/styled';
 
 interface PreviewNavbarProps {
-  effectStyle?: "standard" | "glass" | "neu";
+  effectStyle?: 'standard' | 'glass' | 'neu';
 }
 
 const StandardNavbar = styled.nav`
@@ -46,7 +46,7 @@ const NavLink = styled.span<{ active?: boolean }>`
   border-radius: 4px;
   transition: all 0.2s ease;
   color: inherit;
-  opacity: ${({ active }) => (active ? 1 : 0.7)};
+  opacity: ${({ active }) => active ? 1 : 0.7};
 
   &:hover {
     opacity: 1;
@@ -55,42 +55,26 @@ const NavLink = styled.span<{ active?: boolean }>`
 `;
 
 export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
-  effectStyle = "standard",
+  effectStyle = 'standard',
 }) => {
-  const NavbarComponent =
-    effectStyle === "glass"
-      ? GlassNavbar
-      : effectStyle === "neu"
-        ? NeuNavbar
-        : StandardNavbar;
+  const NavbarComponent = effectStyle === 'glass' ? GlassNavbar : effectStyle === 'neu' ? NeuNavbar : StandardNavbar;
 
   return (
     <Box>
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        sx={{ mb: 1, display: "block" }}
-      >
-        {effectStyle === "glass"
-          ? "Glass"
-          : effectStyle === "neu"
-            ? "Neumorphic"
-            : "Standard"}{" "}
-        Navbar
+      <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+        {effectStyle === 'glass' ? 'Glass' : effectStyle === 'neu' ? 'Neumorphic' : 'Standard'} Navbar
       </Typography>
       <NavbarComponent>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-          <Box sx={{ fontWeight: 600, fontSize: "1.125rem" }}>Logo</Box>
-          <Box sx={{ display: "flex", gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Box sx={{ fontWeight: 600, fontSize: '1.125rem' }}>Logo</Box>
+          <Box sx={{ display: 'flex', gap: 1 }}>
             <NavLink active>Home</NavLink>
             <NavLink>About</NavLink>
             <NavLink>Services</NavLink>
           </Box>
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Avatar sx={{ width: 32, height: 32, fontSize: "0.875rem" }}>
-            JD
-          </Avatar>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Avatar sx={{ width: 32, height: 32, fontSize: '0.875rem' }}>JD</Avatar>
         </Box>
       </NavbarComponent>
     </Box>

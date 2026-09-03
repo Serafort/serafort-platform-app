@@ -1,5 +1,5 @@
-import { useSyncExternalStore } from "react";
-import type { TenantThemeConfig } from "../types";
+import { useSyncExternalStore } from 'react';
+import type { TenantThemeConfig } from '../types';
 
 export interface ThemeEditorState {
   isEditing: boolean;
@@ -14,33 +14,16 @@ let state: ThemeEditorState = {
 const listeners = new Set<() => void>();
 
 function syncDOMVariables(draftConfig: TenantThemeConfig | null) {
-  if (typeof document === "undefined" || !draftConfig?.tokens?.colors) return;
+  if (typeof document === 'undefined' || !draftConfig?.tokens?.colors) return;
   const colors = draftConfig.tokens.colors;
   const root = document.documentElement;
-  if (colors.primary?.value)
-    root.style.setProperty("--mui-palette-primary-main", colors.primary.value);
-  if (colors.secondary?.value)
-    root.style.setProperty(
-      "--mui-palette-secondary-main",
-      colors.secondary.value,
-    );
-  if (colors.background?.value)
-    root.style.setProperty(
-      "--mui-palette-background-default",
-      colors.background.value,
-    );
-  if (colors.surface?.value)
-    root.style.setProperty(
-      "--mui-palette-background-paper",
-      colors.surface.value,
-    );
-  if (colors.border?.value)
-    root.style.setProperty("--border-color", colors.border.value);
+  if (colors.primary?.value) root.style.setProperty('--mui-palette-primary-main', colors.primary.value);
+  if (colors.secondary?.value) root.style.setProperty('--mui-palette-secondary-main', colors.secondary.value);
+  if (colors.background?.value) root.style.setProperty('--mui-palette-background-default', colors.background.value);
+  if (colors.surface?.value) root.style.setProperty('--mui-palette-background-paper', colors.surface.value);
+  if (colors.border?.value) root.style.setProperty('--border-color', colors.border.value);
   if (draftConfig.tokens.borderRadius?.md) {
-    root.style.setProperty(
-      "--border-radius",
-      `${draftConfig.tokens.borderRadius.md}px`,
-    );
+    root.style.setProperty('--border-radius', `${draftConfig.tokens.borderRadius.md}px`);
   }
 }
 
@@ -68,12 +51,9 @@ export const themeEditorStore = {
   },
 
   setDraftConfig(
-    updater:
-      | TenantThemeConfig
-      | ((prev: TenantThemeConfig | null) => TenantThemeConfig | null),
+    updater: TenantThemeConfig | ((prev: TenantThemeConfig | null) => TenantThemeConfig | null)
   ) {
-    const nextConfig =
-      typeof updater === "function" ? updater(state.draftConfig) : updater;
+    const nextConfig = typeof updater === 'function' ? updater(state.draftConfig) : updater;
     state = {
       ...state,
       draftConfig: nextConfig,
@@ -92,16 +72,12 @@ export const themeEditorStore = {
 };
 
 export function useThemeEditorStore(): ThemeEditorState;
-export function useThemeEditorStore<T>(
-  selector: (state: ThemeEditorState) => T,
-): T;
-export function useThemeEditorStore<T>(
-  selector?: (state: ThemeEditorState) => T,
-): T | ThemeEditorState {
+export function useThemeEditorStore<T>(selector: (state: ThemeEditorState) => T): T;
+export function useThemeEditorStore<T>(selector?: (state: ThemeEditorState) => T): T | ThemeEditorState {
   const current = useSyncExternalStore(
     themeEditorStore.subscribe,
     themeEditorStore.getState,
-    themeEditorStore.getState,
+    themeEditorStore.getState
   );
 
   return selector ? selector(current) : current;

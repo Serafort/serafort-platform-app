@@ -1,6 +1,10 @@
-export * from './useOidcCompliance'
-export * from './useSAMLQuery'
-export * from './useSSFQuery'
-export * from './useJWKSQuery'
-export * from './useSCIMQuery'
-export * from './useProvisioningQuery'
+export {
+  useOidcInteraction,
+  useConfirmOidcInteraction,
+  useAbortOidcInteraction,
+  useOidcUserInfo,
+  useOidcInfoIntrospect,
+  useOidcTokenRevocation,
+  useOidcEndSession,
+  useInitiateSamlSso,
+} from './useOidcCompliance'

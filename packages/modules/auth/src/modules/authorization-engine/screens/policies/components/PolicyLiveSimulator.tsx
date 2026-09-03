@@ -125,15 +125,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
 
       {/* Input controls */}
       <Box sx={{ p: 2, overflowY: 'auto', flex: 1 }}>
-        <Typography
-          variant='caption'
-          sx={{
-            fontWeight: 800,
-            color: 'text.secondary',
-            textTransform: 'uppercase',
-            letterSpacing: 0.5,
-          }}
-        >
+        <Typography variant='caption' sx={{ fontWeight: 800, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.5 }}>
           1. Test Scenario Context
         </Typography>
 
@@ -226,15 +218,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
         {simulationResult && (
           <Box sx={{ mt: 3 }}>
             <Divider sx={{ mb: 2 }} />
-            <Typography
-              variant='caption'
-              sx={{
-                fontWeight: 800,
-                color: 'text.secondary',
-                textTransform: 'uppercase',
-                letterSpacing: 0.5,
-              }}
-            >
+            <Typography variant='caption' sx={{ fontWeight: 800, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.5 }}>
               2. Evaluation Outcome
             </Typography>
 
@@ -253,18 +237,11 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                   simulationResult.effect === 'allow'
                     ? theme.palette.success.main
                     : theme.palette.error.main,
-                  0.08,
+                  0.08
                 ),
               }}
             >
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  mb: 1,
-                }}
-              >
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                 <Chip
                   icon={simulationResult.effect === 'allow' ? <CheckCircleIcon /> : <CancelIcon />}
                   label={simulationResult.effect.toUpperCase()}
@@ -285,17 +262,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
             </Paper>
 
             {/* Trace log */}
-            <Typography
-              variant='caption'
-              sx={{
-                fontWeight: 800,
-                color: 'text.secondary',
-                textTransform: 'uppercase',
-                letterSpacing: 0.5,
-                mt: 2,
-                display: 'block',
-              }}
-            >
+            <Typography variant='caption' sx={{ fontWeight: 800, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.5, mt: 2, display: 'block' }}>
               3. Traversal Step Traces ({simulationResult.stepTraces.length})
             </Typography>
 
@@ -308,10 +275,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                     borderRadius: 1.5,
                     border: '1px solid',
                     borderColor: 'divider',
-                    bgcolor:
-                      trace.status === 'pass'
-                        ? alpha(theme.palette.success.main, 0.05)
-                        : alpha(theme.palette.error.main, 0.05),
+                    bgcolor: trace.status === 'pass' ? alpha(theme.palette.success.main, 0.05) : alpha(theme.palette.error.main, 0.05),
                     display: 'flex',
                     alignItems: 'flex-start',
                     gap: 1,
@@ -324,16 +288,10 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                     sx={{ height: 20, fontSize: 10, fontWeight: 800 }}
                   />
                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography
-                      variant='caption'
-                      sx={{ fontWeight: 700, color: 'text.primary', display: 'block' }}
-                    >
+                    <Typography variant='caption' sx={{ fontWeight: 700, color: 'text.primary', display: 'block' }}>
                       {trace.nodeType.toUpperCase()} ({trace.nodeId})
                     </Typography>
-                    <Typography
-                      variant='caption'
-                      sx={{ color: 'text.secondary', display: 'block', wordBreak: 'break-word' }}
-                    >
+                    <Typography variant='caption' sx={{ color: 'text.secondary', display: 'block', wordBreak: 'break-word' }}>
                       {trace.message}
                     </Typography>
                   </Box>

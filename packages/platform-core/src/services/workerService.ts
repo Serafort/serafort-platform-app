@@ -5,16 +5,14 @@ export const workerService = {
   init: (onNeedRefresh?: () => void, onOfflineReady?: () => void) => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       // Listener setup for PWA updates
-      navigator.serviceWorker.ready
-        .then(() => {
-          onNeedRefresh?.()
-          onOfflineReady?.()
-        })
-        .catch((err) => {
-          if (import.meta.env.DEV) {
-            console.debug('[WorkerService] SW ready notice:', err)
-          }
-        })
+      navigator.serviceWorker.ready.then(() => {
+        onNeedRefresh?.()
+        onOfflineReady?.()
+      }).catch((err) => {
+        if (import.meta.env.DEV) {
+          console.debug('[WorkerService] SW ready notice:', err)
+        }
+      })
     }
   },
 

@@ -11,46 +11,41 @@
 /**
  * Plugin lifecycle states
  */
-export type PluginLifecycleState =
-  | "pending"
-  | "installing"
-  | "active"
-  | "error"
-  | "uninstalled";
+export type PluginLifecycleState = 'pending' | 'installing' | 'active' | 'error' | 'uninstalled'
 
 /**
  * Generic component type placeholder
  * Use React.ComponentType<any> in consumer code
  */
-export type ComponentType = any;
+export type ComponentType = any
 
 /**
  * Plugin metadata for identification and discovery
  */
 export interface PluginMetadata {
   /** Unique identifier for the plugin (e.g., 'admin-dashboard', 'mfa-totp') */
-  id: string;
+  id: string
 
   /** Human-readable name */
-  name: string;
+  name: string
 
   /** Plugin version (semver) */
-  version: string;
+  version: string
 
   /** Plugin description */
-  description?: string;
+  description?: string
 
   /** Plugin author */
-  author?: string;
+  author?: string
 
   /** Plugin category for organization */
-  category?: "auth" | "ui" | "service" | "integration" | "analytics" | "custom";
+  category?: 'auth' | 'ui' | 'service' | 'integration' | 'analytics' | 'custom'
 
   /** Dependencies on other plugins (plugin IDs) */
-  dependencies?: string[];
+  dependencies?: string[]
 
   /** Plugins that this plugin extends (if any) */
-  extends?: string[];
+  extends?: string[]
 }
 
 /**
@@ -58,17 +53,17 @@ export interface PluginMetadata {
  */
 export interface PluginInstallContext {
   /** The module ID that owns this plugin */
-  moduleId: string;
+  moduleId: string
 
   /** Registry instance for registering components/routes/services */
-  registry: PluginRegistry;
+  registry: PluginRegistry
 
   /** Shared configuration passed to the plugin */
-  config?: Record<string, unknown>;
+  config?: Record<string, unknown>
 
   /** Helper to get other installed plugins */
   // eslint-disable-next-line no-use-before-define
-  getPlugin: <T extends CAPPlugin = CAPPlugin>(id: string) => T | undefined;
+  getPlugin: <T extends CAPPlugin = CAPPlugin>(id: string) => T | undefined
 }
 
 /**
@@ -76,10 +71,10 @@ export interface PluginInstallContext {
  */
 export interface PluginUninstallContext {
   /** The module ID that owns this plugin */
-  moduleId: string;
+  moduleId: string
 
   /** Registry for cleanup */
-  registry: PluginRegistry;
+  registry: PluginRegistry
 }
 
 /**
@@ -90,18 +85,18 @@ export interface BasePlugin extends PluginMetadata {
    * Install the plugin. Called when the plugin is registered.
    * Use this to initialize resources, register components, routes, etc.
    */
-  install: (context: PluginInstallContext) => void | Promise<void>;
+  install: (context: PluginInstallContext) => void | Promise<void>
 
   /**
    * Uninstall the plugin. Called when the plugin is removed.
    * Use this to cleanup resources.
    */
-  uninstall?: (context: PluginUninstallContext) => void | Promise<void>;
+  uninstall?: (context: PluginUninstallContext) => void | Promise<void>
 
   /**
    * Called when the plugin lifecycle state changes
    */
-  onStateChange?: (state: PluginLifecycleState, error?: Error) => void;
+  onStateChange?: (state: PluginLifecycleState, error?: Error) => void
 }
 
 /**
@@ -109,13 +104,13 @@ export interface BasePlugin extends PluginMetadata {
  * @deprecated Not currently implemented. Use ServicePlugin for extending functionality.
  */
 export interface ComponentPlugin extends BasePlugin {
-  pluginType: "component";
+  pluginType: 'component'
 
   /** Components this plugin provides */
-  components: Record<string, ComponentType>;
+  components: Record<string, ComponentType>
 
   /** Optional component registration hooks */
-  onComponentRegister?: (name: string, component: ComponentType) => void;
+  onComponentRegister?: (name: string, component: ComponentType) => void
 }
 
 /**
@@ -123,13 +118,13 @@ export interface ComponentPlugin extends BasePlugin {
  * @deprecated Not currently implemented. Use ServicePlugin for extending functionality.
  */
 export interface RoutePlugin extends BasePlugin {
-  pluginType: "route";
+  pluginType: 'route'
 
   /** Routes this plugin provides */
-  routes: RouteRegistration[];
+  routes: RouteRegistration[]
 
   /** Route prefix for this plugin */
-  routePrefix?: string;
+  routePrefix?: string
 }
 
 /**
@@ -137,32 +132,32 @@ export interface RoutePlugin extends BasePlugin {
  */
 export interface RouteRegistration {
   /** Route path (e.g., '/dashboard') */
-  path: string;
+  path: string
 
   /** Component to render (React component or lazy-loaded component) */
-  component: ComponentType;
+  component: ComponentType
 
   /** Route metadata */
   meta?: {
-    title?: string;
-    icon?: string;
-    roles?: string[];
-    permissions?: string[];
-    hidden?: boolean;
-  };
+    title?: string
+    icon?: string
+    roles?: string[]
+    permissions?: string[]
+    hidden?: boolean
+  }
 }
 
 /**
  * Plugin that provides services (business logic, API clients, etc.)
  */
 export interface ServicePlugin extends BasePlugin {
-  pluginType: "service";
+  pluginType: 'service'
 
   /** Services this plugin provides */
-  services: Record<string, unknown>;
+  services: Record<string, unknown>
 
   /** Optional initialization order (lower = earlier) */
-  initOrder?: number;
+  initOrder?: number
 }
 
 /**
@@ -170,10 +165,10 @@ export interface ServicePlugin extends BasePlugin {
  * @deprecated Not currently implemented. Use ServicePlugin for extending functionality.
  */
 export interface I18nPlugin extends BasePlugin {
-  pluginType: "i18n";
+  pluginType: 'i18n'
 
   /** Dictionary entries keyed by locale */
-  dictionaries: Record<string, Record<string, string>>;
+  dictionaries: Record<string, Record<string, string>>
 }
 
 /**
@@ -181,33 +176,28 @@ export interface I18nPlugin extends BasePlugin {
  * @deprecated Not currently implemented. Use ServicePlugin for extending functionality.
  */
 export interface HybridPlugin extends BasePlugin {
-  pluginType: "hybrid";
+  pluginType: 'hybrid'
 
   /** Optional components */
-  components?: Record<string, ComponentType>;
+  components?: Record<string, ComponentType>
 
   /** Optional routes */
-  routes?: RouteRegistration[];
+  routes?: RouteRegistration[]
 
   /** Route prefix for this plugin */
-  routePrefix?: string;
+  routePrefix?: string
 
   /** Optional services */
-  services?: Record<string, unknown>;
+  services?: Record<string, unknown>
 
   /** Optional dictionaries */
-  dictionaries?: Record<string, Record<string, string>>;
+  dictionaries?: Record<string, Record<string, string>>
 }
 
 /**
  * Union type of all plugin types
  */
-export type CAPPlugin =
-  | ComponentPlugin
-  | RoutePlugin
-  | ServicePlugin
-  | I18nPlugin
-  | HybridPlugin;
+export type CAPPlugin = ComponentPlugin | RoutePlugin | ServicePlugin | I18nPlugin | HybridPlugin
 
 /**
  * Plugin registry interface for managing plugins
@@ -217,26 +207,24 @@ export type CAPPlugin =
  * but not implemented.
  */
 export interface PluginRegistry {
-  register: (plugin: CAPPlugin) => Promise<void>;
-  unregister: (id: string) => Promise<void>;
-  getPlugin: <T extends CAPPlugin = CAPPlugin>(id: string) => T | undefined;
-  getAllPlugins: () => CAPPlugin[];
-  getPluginsByType: <T extends CAPPlugin["pluginType"]>(
-    type: T,
-  ) => Extract<CAPPlugin, { pluginType: T }>[];
-  getPluginsByCategory: (category: PluginMetadata["category"]) => CAPPlugin[];
-  hasPlugin: (id: string) => boolean;
-  getPluginState: (id: string) => PluginLifecycleState | undefined;
-  getServices: () => Record<string, unknown>;
-  getService: <T = unknown>(name: string) => T | undefined;
+  register: (plugin: CAPPlugin) => Promise<void>
+  unregister: (id: string) => Promise<void>
+  getPlugin: <T extends CAPPlugin = CAPPlugin>(id: string) => T | undefined
+  getAllPlugins: () => CAPPlugin[]
+  getPluginsByType: <T extends CAPPlugin['pluginType']>(type: T) => Extract<CAPPlugin, { pluginType: T }>[]
+  getPluginsByCategory: (category: PluginMetadata['category']) => CAPPlugin[]
+  hasPlugin: (id: string) => boolean
+  getPluginState: (id: string) => PluginLifecycleState | undefined
+  getServices: () => Record<string, unknown>
+  getService: <T = unknown>(name: string) => T | undefined
 
   // Component Management
-  getComponents: () => Record<string, ComponentType>;
-  getComponent: <T = ComponentType>(name: string) => T | undefined;
-  registerComponent: (name: string, component: ComponentType) => void;
+  getComponents: () => Record<string, ComponentType>
+  getComponent: <T = ComponentType>(name: string) => T | undefined
+  registerComponent: (name: string, component: ComponentType) => void
 
   // Route Management
-  getRoutes: () => RouteRegistration[];
+  getRoutes: () => RouteRegistration[]
 }
 
 /**
@@ -244,11 +232,11 @@ export interface PluginRegistry {
  */
 export interface ModulePluginConfig {
   /** Plugins to install */
-  plugins: CAPPlugin[];
+  plugins: CAPPlugin[]
 
   /** Whether to auto-install plugins on module load */
-  autoInstall?: boolean;
+  autoInstall?: boolean
 
   /** Shared config passed to all plugins */
-  sharedConfig?: Record<string, unknown>;
+  sharedConfig?: Record<string, unknown>
 }

@@ -14,85 +14,36 @@ import {
   useTheme,
   alpha,
   Tooltip,
-  CircularProgress,
 } from '@mui/material'
-import Smartphone from '@mui/icons-material/Smartphone'
-import Laptop from '@mui/icons-material/Laptop'
-import Visibility from '@mui/icons-material/Visibility'
-import History from '@mui/icons-material/History'
-import Edit from '@mui/icons-material/Edit'
-import Code from '@mui/icons-material/Code'
+import Smartphone from '@mui/icons-material/Smartphone';
+import Laptop from '@mui/icons-material/Laptop';
+import Visibility from '@mui/icons-material/Visibility';
+import History from '@mui/icons-material/History';
+import Edit from '@mui/icons-material/Edit';
+import Code from '@mui/icons-material/Code';
 import { useTranslation } from 'react-i18next'
-import { useEmailTemplatesQuery } from '../../hooks/useAdminMonitoringQuery'
 
 export default function EmailTemplatePreview() {
   const { t } = useTranslation('common')
   const theme = useTheme()
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
   const [view, setView] = useState<'preview' | 'code'>('preview')
-  const [selectedId, setSelectedId] = useState('welcome')
 
-  const { data: apiTemplates, isLoading } = useEmailTemplatesQuery()
-
-  const defaultTemplates = [
-    {
-      id: 'welcome',
-      name: 'Welcome Onboarding',
-      version: 'v2.4',
-      lastEdited: '2 days ago',
-      html: `
-        <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <h1 style="color: #0f172a; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Welcome to CAP Platform!</h1>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">Hello {{name}},</p>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">Your multi-tenant account is ready. Click below to verify your email and access your dashboard.</p>
-          <div style="text-align: center; margin: 32px 0;">
-            <a href="{{verification_url}}" style="background: #2563eb; color: #ffffff; padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; display: inline-block;">Verify Account</a>
-          </div>
-          <p style="color: #94a3b8; font-size: 13px;">If you did not request this, please ignore this message.</p>
-        </div>
-      `,
-    },
+  const templates = [
+    { id: 'welcome', name: 'Welcome Onboarding', version: 'v2.4', lastEdited: '2 days ago' },
     {
       id: 'password_reset',
       name: 'Security: Password Reset',
       version: 'v1.8',
       lastEdited: '1 week ago',
-      html: `
-        <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <h1 style="color: #0f172a; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Password Reset Request</h1>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">A request was made to reset your password. Use the link below to set a new password:</p>
-          <div style="text-align: center; margin: 32px 0;">
-            <a href="{{reset_url}}" style="background: #dc2626; color: #ffffff; padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; display: inline-block;">Reset Password</a>
-          </div>
-          <p style="color: #94a3b8; font-size: 13px;">Link expires in 15 minutes.</p>
-        </div>
-      `,
     },
     {
       id: 'mfa_code',
       name: 'Security: MFA Verification',
       version: 'v3.1',
       lastEdited: '5 hours ago',
-      html: `
-        <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <h1 style="color: #0f172a; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Two-Factor Authentication Code</h1>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">Your one-time security code is:</p>
-          <div style="text-align: center; margin: 24px 0;">
-            <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; background: #f1f5f9; padding: 12px 24px; border-radius: 8px; color: #0f172a;">849 201</span>
-          </div>
-          <p style="color: #94a3b8; font-size: 13px;">Do not share this code with anyone.</p>
-        </div>
-      `,
     },
   ]
-
-  const templates = apiTemplates && apiTemplates.length > 0 ? apiTemplates : defaultTemplates
-  const activeTemplate =
-    templates.find((t) => t.id === selectedId) ||
-    defaultTemplates.find((t) => t.id === selectedId) ||
-    defaultTemplates[0]
-
-  const templateHtml = (activeTemplate as any).html || defaultTemplates[0].html
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
@@ -100,13 +51,10 @@ export default function EmailTemplatePreview() {
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant='h4' sx={{ fontWeight: 900, mb: 1 }}>
-            {t('auth.admin.emailPreviewTitle', 'Email Template Preview')}
+            {t('auth.admin.emailPreviewTitle')}
           </Typography>
           <Typography variant='body1' color='text.secondary'>
-            {t(
-              'auth.admin.emailPreviewSubtitle',
-              'Inspect dynamic transactional email templates across desktop and mobile form factors.',
-            )}
+            {t('auth.admin.emailPreviewSubtitle')}
           </Typography>
         </Box>
         <Stack direction='row' spacing={2}>
@@ -115,14 +63,14 @@ export default function EmailTemplatePreview() {
             startIcon={<History />}
             sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
           >
-            {t('auth.admin.versionHistory', 'Version History')}
+            {t('auth.admin.versionHistory')}
           </Button>
           <Button
             variant='contained'
             startIcon={<Edit />}
             sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 2, boxShadow: 'none' }}
           >
-            {t('auth.admin.editTemplate', 'Edit Template')}
+            {t('auth.admin.editTemplate')}
           </Button>
         </Stack>
       </Box>
@@ -131,47 +79,39 @@ export default function EmailTemplatePreview() {
         {/* Left Sidebar: Template List */}
         <Grid size={{ xs: 12, md: 3 }}>
           <Stack spacing={2}>
-            {isLoading ? (
-              <Box sx={{ p: 4, textAlign: 'center' }}>
-                <CircularProgress size={24} />
-              </Box>
-            ) : (
-              templates.map((template) => (
-                <Card
-                  key={template.id}
-                  onClick={() => setSelectedId(template.id)}
-                  sx={{
-                    cursor: 'pointer',
-                    border: '1px solid',
-                    borderColor: template.id === selectedId ? 'primary.main' : 'divider',
-                    boxShadow: 'none',
-                    borderRadius: 3,
-                    bgcolor:
-                      template.id === selectedId
-                        ? alpha(theme.palette.primary.main, 0.05)
-                        : 'background.paper',
-                    transition: '0.2s',
-                    '&:hover': { borderColor: 'primary.main' },
-                  }}
-                >
-                  <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                    <Typography variant='subtitle2' sx={{ fontWeight: 800 }}>
-                      {template.name}
+            {templates.map((template) => (
+              <Card
+                key={template.id}
+                sx={{
+                  cursor: 'pointer',
+                  border: '1px solid',
+                  borderColor: template.id === 'mfa_code' ? 'primary.main' : 'divider',
+                  boxShadow: 'none',
+                  bgcolor:
+                    template.id === 'mfa_code'
+                      ? alpha(theme.palette.primary.main, 0.05)
+                      : 'background.paper',
+                  transition: '0.2s',
+                  '&:hover': { borderColor: 'primary.main' },
+                }}
+              >
+                <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                  <Typography variant='subtitle2' sx={{ fontWeight: 800 }}>
+                    {template.name}
+                  </Typography>
+                  <Stack direction='row' spacing={1} sx={{ mt: 1 }}>
+                    <Chip
+                      label={template.version}
+                      size='small'
+                      sx={{ height: 16, fontSize: '0.6rem', fontWeight: 700 }}
+                    />
+                    <Typography variant='caption' color='text.secondary'>
+                      {template.lastEdited}
                     </Typography>
-                    <Stack direction='row' spacing={1} sx={{ mt: 1 }}>
-                      <Chip
-                        label={(template as any).version || 'v1.0'}
-                        size='small'
-                        sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700 }}
-                      />
-                      <Typography variant='caption' color='text.secondary'>
-                        {(template as any).lastEdited || 'Active'}
-                      </Typography>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              ))
-            )}
+                  </Stack>
+                </CardContent>
+              </Card>
+            ))}
           </Stack>
         </Grid>
 
@@ -182,7 +122,6 @@ export default function EmailTemplatePreview() {
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
-              borderRadius: 3,
               minHeight: 600,
               display: 'flex',
               flexDirection: 'column',
@@ -212,7 +151,7 @@ export default function EmailTemplatePreview() {
                     boxShadow: 'none',
                   }}
                 >
-                  {t('auth.admin.preview', 'Preview')}
+                  {t('auth.admin.preview')}
                 </Button>
                 <Button
                   size='small'
@@ -226,7 +165,7 @@ export default function EmailTemplatePreview() {
                     boxShadow: 'none',
                   }}
                 >
-                  {t('auth.admin.source', 'Source HTML')}
+                  {t('auth.admin.source')}
                 </Button>
               </Stack>
 
@@ -235,7 +174,7 @@ export default function EmailTemplatePreview() {
                 spacing={1}
                 sx={{ bgcolor: 'action.hover', p: 0.5, borderRadius: 2 }}
               >
-                <Tooltip title={t('auth.admin.desktopView', 'Desktop View (600px)')}>
+                <Tooltip title={t('auth.admin.desktopView')}>
                   <IconButton
                     size='small'
                     color={device === 'desktop' ? 'primary' : 'default'}
@@ -244,7 +183,7 @@ export default function EmailTemplatePreview() {
                     <Laptop fontSize='small' />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title={t('auth.admin.mobileView', 'Mobile View (360px)')}>
+                <Tooltip title={t('auth.admin.mobileView')}>
                   <IconButton
                     size='small'
                     color={device === 'mobile' ? 'primary' : 'default'}
@@ -259,57 +198,62 @@ export default function EmailTemplatePreview() {
             {/* Preview Area */}
             <Box
               sx={{
+                flexGrow: 1,
+                bgcolor: alpha(theme.palette.action.hover, 0.2),
                 p: 4,
-                flex: 1,
-                bgcolor: 'action.hover',
                 display: 'flex',
                 justifyContent: 'center',
-                alignItems: 'flex-start',
-                overflow: 'auto',
               }}
             >
               <Paper
-                elevation={1}
+                elevation={4}
                 sx={{
-                  width: device === 'desktop' ? 600 : 360,
-                  minHeight: 450,
-                  p: 3,
-                  bgcolor: '#ffffff',
-                  borderRadius: 3,
-                  transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+                  width: device === 'mobile' ? 375 : '100%',
+                  maxWidth: 800,
+                  height: 'fit-content',
+                  minHeight: 500,
+                  bgcolor: 'white',
+                  borderRadius: device === 'mobile' ? 6 : 1,
+                  border: device === 'mobile' ? '12px solid #1a1a1a' : 'none',
+                  overflow: 'hidden',
+                  transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
-                {view === 'preview' ? (
-                  // Render server-supplied template HTML inside a fully sandboxed,
-                  // same-origin-isolated iframe. `sandbox=""` blocks scripts, forms,
-                  // popups and top-navigation, so untrusted markup cannot run in the
-                  // admin's origin (defends against stored XSS via template content
-                  // or interpolated variables).
-                  <iframe
-                    title='email-template-preview'
-                    sandbox=''
-                    srcDoc={templateHtml}
-                    style={{
-                      width: '100%',
-                      minHeight: 420,
-                      border: 0,
-                      background: '#ffffff',
-                    }}
-                  />
-                ) : (
-                  <pre
-                    style={{
-                      fontFamily: 'monospace',
-                      fontSize: '12px',
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-all',
-                      color: '#0f172a',
-                    }}
+                {/* Mock Email Content */}
+                <Box sx={{ p: 4, color: '#1a1a1a', fontFamily: 'Inter, sans-serif' }}>
+                  <Box sx={{ textAlign: 'center', mb: 4 }}>
+                    <Typography variant='h5' sx={{ fontWeight: 900, color: 'primary.main' }}>
+                      ACME CORP
+                    </Typography>
+                  </Box>
+                  <Typography variant='h6' sx={{ mb: 2, fontWeight: 800 }}>
+                    MFA Verification Code
+                  </Typography>
+                  <Typography variant='body2' sx={{ mb: 4, color: '#666', lineHeight: 1.6 }}>
+                    A sign-in attempt was made from a new device. Please use the following code to
+                    verify your identity. If this wasn&rsquo;t you, secure your account immediately.
+                  </Typography>
+                  <Box
+                    sx={{ p: 3, bgcolor: '#f4f7f9', borderRadius: 2, textAlign: 'center', mb: 4 }}
                   >
-                    {templateHtml}
-                  </pre>
-                )}
+                    <Typography
+                      variant='h3'
+                      sx={{ letterSpacing: 8, fontWeight: 900, color: 'primary.main' }}
+                    >
+                      829 104
+                    </Typography>
+                    <Typography variant='caption' sx={{ mt: 1, display: 'block', color: '#999' }}>
+                      Code expires in 10 minutes
+                    </Typography>
+                  </Box>
+                  <Divider sx={{ my: 4 }} />
+                  <Typography
+                    variant='caption'
+                    sx={{ display: 'block', color: '#999', textAlign: 'center' }}
+                  >
+                    © 2023 Acme Corp Security Team • 123 Tech Lane, Silicon Valley
+                  </Typography>
+                </Box>
               </Paper>
             </Box>
           </Card>

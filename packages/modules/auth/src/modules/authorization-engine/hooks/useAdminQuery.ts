@@ -81,62 +81,15 @@ export const adminKeys = {
     all: ['admin', 'statistics'] as const,
     summary: () => [...adminKeys.statistics.all, 'summary'] as const,
   },
-  developerApiKeys: {
-    all: ['admin', 'developer', 'apiKeys'] as const,
-    list: (orgId?: number) => [...adminKeys.developerApiKeys.all, orgId] as const,
-  },
 
   systemHealth: () => ['admin', 'systemHealth'] as const,
   systemMetrics: () => ['admin', 'systemMetrics'] as const,
 }
 // ============================================================================
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  UseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/react-query'
-import { FetchResponse, HttpError, PaginatedResponse } from '@cap/platform-core'
-import { adminService } from '../services/adminService'
-import type {
-  OIDCClient,
-  CreateOIDCClientRequest,
-  UpdateOIDCClientRequest,
-  AdminUser,
-  CreateUserRequest,
-  UpdateUserRequest,
-  SSFConfig,
-  MessageResponse,
-  Role,
-  Permission,
-  AccessPolicy,
-  Organization,
-  CreateOrganizationRequest,
-  OrganizationMember,
-  Connector,
-  ConnectorLog,
-  SCIMToken,
-  SAMLConfig,
-  EmailTemplate,
-  EmailTestRequest,
-  BroadcastSSFEventRequest,
-  BroadcastSSFEventResponse,
-  MFAStats,
-  UserStats,
-  BulkActionRequest,
-  BulkActionResult,
-  AuthScope,
-  CreateScopeRequest,
-  UpdateScopeRequest,
-  SCIMConfig,
-  DetailedHealthReport,
-  BasicMetrics,
-  JWKSKey,
-  JWKSKeyDetail,
-  CreateJWKSKeyRequest,
-  DomainVerification,
-} from '../services/adminService'
+import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
+import { FetchResponse, HttpError, PaginatedResponse } from '@cap/platform-core';
+import { adminService } from '../services/adminService';
+import type { OIDCClient, CreateOIDCClientRequest, UpdateOIDCClientRequest, AdminUser, CreateUserRequest, UpdateUserRequest, SSFConfig, MessageResponse, Role, Permission, AccessPolicy, Organization, CreateOrganizationRequest, OrganizationMember, Connector, ConnectorLog, SCIMToken, SAMLConfig, EmailTemplate, EmailTestRequest, BroadcastSSFEventRequest, BroadcastSSFEventResponse, MFAStats, UserStats, BulkActionRequest, BulkActionResult, AuthScope, CreateScopeRequest, UpdateScopeRequest, SCIMConfig, DetailedHealthReport, BasicMetrics, JWKSKey, JWKSKeyDetail, CreateJWKSKeyRequest, DomainVerification } from '../services/adminService';
 // ============================================================================
 // OIDC Client Management Hooks
 // ============================================================================
@@ -724,8 +677,7 @@ export function useVerifyDomain(
 ) {
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
   return useMutation({
-    mutationFn: ({ domain, organizationId }) =>
-      adminService.verifyDomain(organizationId ?? 0, domain),
+    mutationFn: ({ domain, organizationId }) => adminService.verifyDomain(organizationId ?? 0, domain),
     onSuccess: (...args) => {
       customOnSuccess?.(...args)
     },
@@ -739,17 +691,11 @@ export function useVerifyDomain(
  * Check domain verification status
  */
 export function useCheckDomain(
-  options?: UseMutationOptions<
-    FetchResponse<DomainVerification>,
-    HttpError,
-    { domainId: number; organizationId: number },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<DomainVerification>, HttpError, { domainId: number; organizationId: number }, unknown>,
 ) {
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
   return useMutation({
-    mutationFn: ({ domainId, organizationId }) =>
-      adminService.checkDomain(organizationId, domainId),
+    mutationFn: ({ domainId, organizationId }) => adminService.checkDomain(organizationId, domainId),
     ...options,
     onSuccess: (...args) => {
       customOnSuccess?.(...args)
@@ -1279,199 +1225,6 @@ export function useSaveAccessPolicies(
       queryClient.invalidateQueries({
         queryKey: [...adminKeys.rbac.policies(), orgId],
       })
-      options?.onSuccess?.(...args)
-    },
-  })
-}
-
-export function useSimulatePolicy(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    {
-      graph: any
-      request: {
-        subject: Record<string, any>
-        action: string
-        resource: Record<string, any>
-        environment?: Record<string, any>
-      }
-    },
-    unknown
-  >,
-) {
-  return useMutation({
-    mutationFn: (data) => adminService.simulatePolicyGraph(data),
-    ...options,
-  })
-}
-
-export function useCompilePolicy(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, { graph: any }, unknown>,
-) {
-  return useMutation({
-    mutationFn: (data) => adminService.compilePolicyGraph(data),
-    ...options,
-  })
-}
-
-export function useDecompilePolicy(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, { policySet: any }, unknown>,
-) {
-  return useMutation({
-    mutationFn: (data) => adminService.decompilePolicySet(data),
-    ...options,
-  })
-}
-
-export function useDefaultPolicySet(
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: [...adminKeys.rbac.policies(), 'default'],
-    queryFn: () => adminService.getDefaultPolicySet(),
-    staleTime: 1000 * 60 * 10,
-    ...options,
-  })
-}
-
-export function useEvaluatePolicy(
-  options?: UseMutationOptions<
-    FetchResponse<{
-      effect: 'Permit' | 'Deny' | 'NotApplicable' | 'Indeterminate'
-      reasons?: string[]
-      traces?: any[]
-    }>,
-    HttpError,
-    {
-      policySet?: any
-      request: {
-        subject: Record<string, any>
-        action: string
-        resource: Record<string, any>
-        environment?: Record<string, any>
-      }
-    },
-    unknown
-  >,
-) {
-  return useMutation({
-    mutationFn: (data) => adminService.evaluatePolicy(data),
-    ...options,
-  })
-}
-
-export function useMemberOverrides(
-  memberId: number | null | undefined,
-  orgId: number | null | undefined,
-  options?: Omit<UseQueryOptions<FetchResponse<any[]>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: ['admin', 'members', memberId, 'overrides', orgId],
-    queryFn: () => adminService.getMemberOverrides(memberId!, orgId!),
-    enabled: !!memberId && !!orgId,
-    staleTime: 1000 * 60 * 2,
-    ...options,
-  })
-}
-
-export function useAddMemberOverride(
-  options?: UseMutationOptions<
-    FetchResponse<MessageResponse>,
-    HttpError,
-    { memberId: number; orgId: number; override: { permissionId: number; grant: boolean } },
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ memberId, orgId, override }) =>
-      adminService.addMemberOverride(memberId, orgId, override),
-    ...options,
-    onSuccess: (...args) => {
-      const [, vars] = args
-      queryClient.invalidateQueries({
-        queryKey: ['admin', 'members', vars.memberId, 'overrides', vars.orgId],
-      })
-      queryClient.invalidateQueries({ queryKey: adminKeys.rbac.roles.all() })
-      options?.onSuccess?.(...args)
-    },
-  })
-}
-
-export function useRemoveMemberOverride(
-  options?: UseMutationOptions<
-    FetchResponse<MessageResponse>,
-    HttpError,
-    { memberId: number; orgId: number; permissionId: number },
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ memberId, orgId, permissionId }) =>
-      adminService.removeMemberOverride(memberId, orgId, permissionId),
-    ...options,
-    onSuccess: (...args) => {
-      const [, vars] = args
-      queryClient.invalidateQueries({
-        queryKey: ['admin', 'members', vars.memberId, 'overrides', vars.orgId],
-      })
-      queryClient.invalidateQueries({ queryKey: adminKeys.rbac.roles.all() })
-      options?.onSuccess?.(...args)
-    },
-  })
-}
-
-export function useDeveloperApiKeys(
-  orgId?: number,
-  options?: Omit<UseQueryOptions<FetchResponse<any[]>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: adminKeys.developerApiKeys.list(orgId),
-    queryFn: () => adminService.getDeveloperApiKeys(orgId || 1),
-    staleTime: 1000 * 60 * 2,
-    ...options,
-  })
-}
-
-export function useCreateDeveloperApiKey(
-  options?: UseMutationOptions<
-    FetchResponse<{ message: string; key: string; data: any }>,
-    HttpError,
-    { orgId: number; data: { name: string; expiresAt?: string } },
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ orgId, data }) => adminService.createDeveloperApiKey(orgId, data),
-    ...options,
-    onSuccess: (...args) => {
-      const [, vars] = args
-      queryClient.invalidateQueries({ queryKey: adminKeys.developerApiKeys.list(vars.orgId) })
-      queryClient.invalidateQueries({ queryKey: adminKeys.developerApiKeys.all })
-      options?.onSuccess?.(...args)
-    },
-  })
-}
-
-export function useRevokeDeveloperApiKey(
-  options?: UseMutationOptions<
-    FetchResponse<MessageResponse>,
-    HttpError,
-    { orgId: number; keyId: number },
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ orgId, keyId }) => adminService.revokeDeveloperApiKey(orgId, keyId),
-    ...options,
-    onSuccess: (...args) => {
-      const [, vars] = args
-      queryClient.invalidateQueries({ queryKey: adminKeys.developerApiKeys.list(vars.orgId) })
-      queryClient.invalidateQueries({ queryKey: adminKeys.developerApiKeys.all })
       options?.onSuccess?.(...args)
     },
   })
@@ -2226,7 +1979,11 @@ export function useSSFConfig(
 
 export function useUpdateSSFConfig(
   options?: Omit<
-    UseMutationOptions<FetchResponse<{ message: string; config: SSFConfig }>, HttpError, SSFConfig>,
+    UseMutationOptions<
+      FetchResponse<{ message: string; config: SSFConfig }>,
+      HttpError,
+      SSFConfig
+    >,
     'mutationFn'
   >,
 ) {
@@ -2346,10 +2103,7 @@ export function useDeleteJWKSKey(
  * Manually create a JWKS key
  */
 export function useCreateJWKSKey(
-  options?: Omit<
-    UseMutationOptions<FetchResponse<JWKSKey>, HttpError, CreateJWKSKeyRequest, unknown>,
-    'mutationFn'
-  >,
+  options?: Omit<UseMutationOptions<FetchResponse<JWKSKey>, HttpError, CreateJWKSKeyRequest, unknown>, 'mutationFn'>,
 ) {
   const queryClient = useQueryClient()
   return useMutation({

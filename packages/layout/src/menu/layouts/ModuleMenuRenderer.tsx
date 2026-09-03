@@ -1,8 +1,15 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { MenuItem, SubMenu, MenuSection } from '../vertical-menu'
-import type { NavVariant, Dictionary } from '@cap/shared-types'
+import {
+  MenuItem,
+  SubMenu,
+  MenuSection
+} from '../vertical-menu'
+import type {
+  NavVariant,
+  Dictionary,
+} from '@cap/shared-types'
 import { useNavigationMenu } from '@cap/platform-core'
 import { MenuTreeAdapter, ProcessedNavItem } from '../adapters/MenuTreeAdapter'
 
@@ -26,17 +33,15 @@ const ModuleMenuRenderer: React.FC<Props> = ({ variant, dictionary }) => {
     const sections = MenuTreeAdapter.buildMenuTree(sortedItems, dictionary, t)
 
     const renderProcessedItem = (item: ProcessedNavItem): React.ReactNode => {
-      const icon = item.icon ? (
-        React.isValidElement(item.icon) ? (
-          item.icon
-        ) : typeof item.icon === 'string' ? (
-          item.icon.startsWith('tabler-') ? (
-            <i className={item.icon} />
-          ) : (
-            <i className={`tabler-${item.icon}`} />
-          )
-        ) : undefined
-      ) : undefined
+      const icon = item.icon
+        ? React.isValidElement(item.icon)
+          ? item.icon
+          : typeof item.icon === 'string'
+          ? item.icon.startsWith('tabler-')
+            ? <i className={item.icon} />
+            : <i className={`tabler-${item.icon}`} />
+          : undefined
+        : undefined
 
       if (item.children && item.children.length > 0) {
         return (
@@ -47,7 +52,11 @@ const ModuleMenuRenderer: React.FC<Props> = ({ variant, dictionary }) => {
       }
 
       return (
-        <MenuItem key={item.id} component={item.path ? <Link to={item.path} /> : 'div'} icon={icon}>
+        <MenuItem
+          key={item.id}
+          component={item.path ? <Link to={item.path} /> : 'div'}
+          icon={icon}
+        >
           {item.label}
         </MenuItem>
       )

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback } from 'react';
 import {
   Box,
   Container,
@@ -11,20 +11,19 @@ import {
   Snackbar,
   Drawer,
   IconButton,
-  CircularProgress,
-} from "@mui/material";
-import SaveIcon from "@mui/icons-material/Save";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import CloseIcon from "@mui/icons-material/Close";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-import { AiThemeStudioPanel } from "../components/AiThemeStudioPanel";
-import { ColorPaletteEditor } from "../components/ColorPaletteEditor";
-import { GlassmorphismPanel } from "../components/EffectControls/GlassmorphismPanel";
-import { NeumorphismPanel } from "../components/EffectControls/NeumorphismPanel";
-import { ComponentStyleSelector } from "../components/ComponentStyleSelector";
-import { SpacingEditor } from "../components/SpacingEditor";
-import { PresetSelector } from "../components/PresetSelector";
-import { LivePreview } from "../components/LivePreview";
+} from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import CloseIcon from '@mui/icons-material/Close';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { AiThemeStudioPanel } from '../components/AiThemeStudioPanel';
+import { ColorPaletteEditor } from '../components/ColorPaletteEditor';
+import { GlassmorphismPanel } from '../components/EffectControls/GlassmorphismPanel';
+import { NeumorphismPanel } from '../components/EffectControls/NeumorphismPanel';
+import { ComponentStyleSelector } from '../components/ComponentStyleSelector';
+import { SpacingEditor } from '../components/SpacingEditor';
+import { PresetSelector } from '../components/PresetSelector';
+import { LivePreview } from '../components/LivePreview';
 import type {
   TenantThemeConfig,
   ColorToken,
@@ -32,15 +31,9 @@ import type {
   NeumorphismConfig,
   ComponentStyles,
   EffectType,
-} from "@cap/theme";
-import {
-  DEFAULT_TENANT_THEME,
-  mergeThemeWithPreset,
-  useThemeEditorStore,
-  themeEditorStore,
-} from "@cap/theme";
-import type { ThemePresetId } from "@cap/theme";
-import { useTenantTheme, useUpdateTenantTheme } from "../hooks/useThemeQuery";
+} from '@cap/theme';
+import { DEFAULT_TENANT_THEME, applyPreset, useThemeEditorStore, themeEditorStore } from '@cap/theme';
+import type { ThemePresetId } from '@cap/theme';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -65,235 +58,133 @@ export interface ThemeEditorProps {
 
 export const ThemeEditor: React.FC<ThemeEditorProps> = ({
   initialTheme,
-  organizationId = "current",
+  organizationId = 'default',
   onSave,
   asDrawer = false,
   open: customOpen,
   onClose,
 }) => {
-  const { data: serverThemeData, isLoading: isLoadingServerTheme } =
-    useTenantTheme(organizationId, {
-      enabled: !initialTheme, // Only fetch if no initialTheme provided
-    });
-
-  const updateMutation = useUpdateTenantTheme(organizationId);
-
   const { isEditing, draftConfig } = useThemeEditorStore();
 
-  const activeInitialTheme =
-    initialTheme || serverThemeData?.data?.themeConfig || DEFAULT_TENANT_THEME;
-  const rawTheme = draftConfig || activeInitialTheme;
+  const theme = draftConfig || initialTheme || DEFAULT_TENANT_THEME;
 
-  const theme: TenantThemeConfig = React.useMemo(() => {
-    return {
-      ...DEFAULT_TENANT_THEME,
-      ...rawTheme,
-      tokens: {
-        ...DEFAULT_TENANT_THEME.tokens,
-        ...(rawTheme?.tokens || {}),
-        colors: {
-          ...DEFAULT_TENANT_THEME.tokens?.colors,
-          ...(rawTheme?.tokens?.colors || {}),
-        },
-        spacing: {
-          ...DEFAULT_TENANT_THEME.tokens?.spacing,
-          ...(rawTheme?.tokens?.spacing || {}),
-        },
-        borderRadius: {
-          ...DEFAULT_TENANT_THEME.tokens?.borderRadius,
-          ...(rawTheme?.tokens?.borderRadius || {}),
-        },
-        typography: {
-          ...DEFAULT_TENANT_THEME.tokens?.typography,
-          ...(rawTheme?.tokens?.typography || {}),
-        },
-      },
-      effects: {
-        ...DEFAULT_TENANT_THEME.effects,
-        ...(rawTheme?.effects || {}),
-        glassmorphism: {
-          ...DEFAULT_TENANT_THEME.effects?.glassmorphism,
-          ...(rawTheme?.effects?.glassmorphism || {}),
-        },
-        neumorphism: {
-          ...DEFAULT_TENANT_THEME.effects?.neumorphism,
-          ...(rawTheme?.effects?.neumorphism || {}),
-        },
-      },
-      components: {
-        ...DEFAULT_TENANT_THEME.components,
-        ...(rawTheme?.components || {}),
-      },
-    };
-  }, [draftConfig, activeInitialTheme, rawTheme]);
-
-  const updateThemeState = useCallback(
-    (updater: (prev: TenantThemeConfig) => TenantThemeConfig) => {
-      if (!draftConfig) {
-        themeEditorStore.startEditing(theme);
-      }
-      themeEditorStore.setDraftConfig((prev) => updater(prev || theme));
-    },
-    [draftConfig, theme],
-  );
+  const updateThemeState = useCallback((updater: (prev: TenantThemeConfig) => TenantThemeConfig) => {
+    if (!draftConfig) {
+      themeEditorStore.startEditing(theme);
+    }
+    themeEditorStore.setDraftConfig((prev) => updater(prev || theme));
+  }, [draftConfig, theme]);
 
   const [activeTab, setActiveTab] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: "success" | "error" | "info";
-  }>({ open: false, message: "", severity: "success" });
+    severity: 'success' | 'error' | 'info';
+  }>({ open: false, message: '', severity: 'success' });
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
 
-  const handleColorsChange = useCallback(
-    (colors: Record<string, ColorToken>) => {
-      updateThemeState((prev) => ({
-        ...prev,
-        tokens: {
-          ...DEFAULT_TENANT_THEME.tokens,
-          ...prev?.tokens,
-          colors: {
-            ...DEFAULT_TENANT_THEME.tokens?.colors,
-            ...prev?.tokens?.colors,
-            ...colors,
-          } as TenantThemeConfig["tokens"]["colors"],
-        },
-      }));
-    },
-    [updateThemeState],
-  );
+  const handleColorsChange = useCallback((colors: Record<string, ColorToken>) => {
+    updateThemeState((prev) => ({
+      ...prev,
+      tokens: {
+        ...prev.tokens,
+        colors: {
+          ...prev.tokens.colors,
+          ...colors,
+        } as TenantThemeConfig['tokens']['colors'],
+      },
+    }));
+  }, [updateThemeState]);
 
-  const handleGlassmorphismChange = useCallback(
-    (glassmorphism: GlassmorphismConfig) => {
-      updateThemeState((prev) => ({
-        ...prev,
-        effects: {
-          ...DEFAULT_TENANT_THEME.effects,
-          ...prev?.effects,
-          glassmorphism,
-          globalType: glassmorphism.enabled
-            ? "glass"
-            : prev?.effects?.globalType || "none",
-        },
-      }));
-    },
-    [updateThemeState],
-  );
+  const handleGlassmorphismChange = useCallback((glassmorphism: GlassmorphismConfig) => {
+    updateThemeState((prev) => ({
+      ...prev,
+      effects: {
+        ...prev.effects,
+        glassmorphism,
+        globalType: glassmorphism.enabled ? 'glass' : prev.effects.globalType,
+      },
+    }));
+  }, [updateThemeState]);
 
-  const handleNeumorphismChange = useCallback(
-    (neumorphism: NeumorphismConfig) => {
-      updateThemeState((prev) => ({
-        ...prev,
-        effects: {
-          ...DEFAULT_TENANT_THEME.effects,
-          ...prev?.effects,
-          neumorphism,
-          globalType: neumorphism.enabled
-            ? "neu"
-            : prev?.effects?.globalType || "none",
-        },
-      }));
-    },
-    [updateThemeState],
-  );
+  const handleNeumorphismChange = useCallback((neumorphism: NeumorphismConfig) => {
+    updateThemeState((prev) => ({
+      ...prev,
+      effects: {
+        ...prev.effects,
+        neumorphism,
+        globalType: neumorphism.enabled ? 'neu' : prev.effects.globalType,
+      },
+    }));
+  }, [updateThemeState]);
 
-  const handleComponentsChange = useCallback(
-    (components: ComponentStyles) => {
-      updateThemeState((prev) => ({
-        ...prev,
-        components,
-      }));
-    },
-    [updateThemeState],
-  );
+  const handleComponentsChange = useCallback((components: ComponentStyles) => {
+    updateThemeState((prev) => ({
+      ...prev,
+      components,
+    }));
+  }, [updateThemeState]);
 
-  const handleGlobalEffectChange = useCallback(
-    (globalType: EffectType) => {
-      updateThemeState((prev) => ({
-        ...prev,
-        effects: {
-          ...DEFAULT_TENANT_THEME.effects,
-          ...prev?.effects,
-          globalType,
-        },
-      }));
-    },
-    [updateThemeState],
-  );
+  const handleGlobalEffectChange = useCallback((globalType: EffectType) => {
+    updateThemeState((prev) => ({
+      ...prev,
+      effects: {
+        ...prev.effects,
+        globalType,
+      },
+    }));
+  }, [updateThemeState]);
 
-  const handleSpacingChange = useCallback(
-    (spacing: Record<string, string>) => {
-      updateThemeState((prev) => ({
-        ...prev,
-        tokens: {
-          ...DEFAULT_TENANT_THEME.tokens,
-          ...prev?.tokens,
-          spacing,
-        },
-      }));
-    },
-    [updateThemeState],
-  );
+  const handleSpacingChange = useCallback((spacing: Record<string, string>) => {
+    updateThemeState((prev) => ({
+      ...prev,
+      tokens: {
+        ...prev.tokens,
+        spacing,
+      },
+    }));
+  }, [updateThemeState]);
 
-  const handleBorderRadiusChange = useCallback(
-    (borderRadius: Record<string, string>) => {
-      updateThemeState((prev) => ({
-        ...prev,
-        tokens: {
-          ...DEFAULT_TENANT_THEME.tokens,
-          ...prev?.tokens,
-          borderRadius,
-        },
-      }));
-    },
-    [updateThemeState],
-  );
+  const handleBorderRadiusChange = useCallback((borderRadius: Record<string, string>) => {
+    updateThemeState((prev) => ({
+      ...prev,
+      tokens: {
+        ...prev.tokens,
+        borderRadius,
+      },
+    }));
+  }, [updateThemeState]);
 
-  const handlePresetSelect = useCallback(
-    (presetId: ThemePresetId) => {
-      updateThemeState((prev) => ({
-        ...mergeThemeWithPreset(prev || DEFAULT_TENANT_THEME, presetId),
-        organizationId,
-      }));
-    },
-    [organizationId, updateThemeState],
-  );
-
-  if (isLoadingServerTheme && !initialTheme) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", p: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const handlePresetSelect = useCallback((presetId: ThemePresetId) => {
+    const presetTheme = applyPreset(presetId);
+    updateThemeState(() => ({
+      ...presetTheme,
+      organizationId,
+    }));
+  }, [organizationId, updateThemeState]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
       if (onSave) {
         await onSave(theme);
-      } else {
-        await updateMutation.mutateAsync({
-          themeConfig: theme,
-          isDark: theme.metadata?.mode === "dark",
-        });
       }
       themeEditorStore.discardDraft();
       setSnackbar({
         open: true,
-        message: "Theme saved successfully!",
-        severity: "success",
+        message: 'Theme saved successfully!',
+        severity: 'success',
       });
       if (onClose) onClose();
     } catch (error) {
       setSnackbar({
         open: true,
-        message: "Failed to save theme. Please try again.",
-        severity: "error",
+        message: 'Failed to save theme. Please try again.',
+        severity: 'error',
       });
     } finally {
       setIsSaving(false);
@@ -304,8 +195,8 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     updateThemeState(() => ({ ...DEFAULT_TENANT_THEME, organizationId }));
     setSnackbar({
       open: true,
-      message: "Theme reset to default.",
-      severity: "info",
+      message: 'Theme reset to default.',
+      severity: 'info',
     });
   };
 
@@ -314,26 +205,12 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     if (onClose) onClose();
   };
 
+
   const isOpen = customOpen !== undefined ? customOpen : isEditing;
 
   const content = (
-    <Container
-      maxWidth={asDrawer ? false : "xl"}
-      sx={{
-        py: 3,
-        px: asDrawer ? 2 : undefined,
-        width: asDrawer ? 500 : undefined,
-        maxWidth: "100%",
-      }}
-    >
-      <Box
-        sx={{
-          mb: 3,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <Container maxWidth={asDrawer ? false : 'xl'} sx={{ py: 3, px: asDrawer ? 2 : undefined, width: asDrawer ? 500 : undefined, maxWidth: '100%' }}>
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
             Theme Customization
@@ -342,7 +219,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
             Real-time multi-tenant theme builder
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <Button
             size="small"
             variant="outlined"
@@ -358,7 +235,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
             onClick={handleSave}
             disabled={isSaving}
           >
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? 'Saving...' : 'Save'}
           </Button>
           {asDrawer && (
             <IconButton onClick={handleDiscard} size="small" aria-label="close">
@@ -370,18 +247,9 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, lg: asDrawer ? 12 : 8 }}>
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <Tabs
-              value={activeTab}
-              onChange={handleTabChange}
-              variant="scrollable"
-              scrollButtons="auto"
-            >
-              <Tab
-                icon={<AutoAwesomeIcon sx={{ fontSize: 18 }} />}
-                iconPosition="start"
-                label="AI Studio"
-              />
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs value={activeTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
+              <Tab icon={<AutoAwesomeIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="AI Studio" />
               <Tab label="Presets" />
               <Tab label="Colors" />
               <Tab label="Effects" />
@@ -406,9 +274,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
 
           <TabPanel value={activeTab} index={2}>
             <ColorPaletteEditor
-              colors={
-                theme.tokens?.colors || DEFAULT_TENANT_THEME.tokens.colors
-              }
+              colors={theme.tokens.colors}
               onChange={handleColorsChange}
             />
           </TabPanel>
@@ -417,19 +283,13 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: asDrawer ? 12 : 6 }}>
                 <GlassmorphismPanel
-                  config={
-                    theme.effects?.glassmorphism ||
-                    DEFAULT_TENANT_THEME.effects.glassmorphism
-                  }
+                  config={theme.effects.glassmorphism}
                   onChange={handleGlassmorphismChange}
                 />
               </Grid>
               <Grid size={{ xs: 12, md: asDrawer ? 12 : 6 }}>
                 <NeumorphismPanel
-                  config={
-                    theme.effects?.neumorphism ||
-                    DEFAULT_TENANT_THEME.effects.neumorphism
-                  }
+                  config={theme.effects.neumorphism}
                   onChange={handleNeumorphismChange}
                 />
               </Grid>
@@ -438,8 +298,8 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
 
           <TabPanel value={activeTab} index={4}>
             <ComponentStyleSelector
-              components={theme.components || DEFAULT_TENANT_THEME.components}
-              globalEffectType={theme.effects?.globalType || "none"}
+              components={theme.components}
+              globalEffectType={theme.effects.globalType}
               onChange={handleComponentsChange}
               onGlobalChange={handleGlobalEffectChange}
             />
@@ -447,13 +307,8 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
 
           <TabPanel value={activeTab} index={5}>
             <SpacingEditor
-              spacing={
-                theme.tokens?.spacing || DEFAULT_TENANT_THEME.tokens.spacing
-              }
-              borderRadius={
-                theme.tokens?.borderRadius ||
-                DEFAULT_TENANT_THEME.tokens.borderRadius
-              }
+              spacing={theme.tokens.spacing}
+              borderRadius={theme.tokens.borderRadius}
               onSpacingChange={handleSpacingChange}
               onBorderRadiusChange={handleBorderRadiusChange}
             />
@@ -462,7 +317,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
 
         {!asDrawer && (
           <Grid size={{ xs: 12, lg: 4 }}>
-            <Box sx={{ position: "sticky", top: 16 }}>
+            <Box sx={{ position: 'sticky', top: 16 }}>
               <LivePreview theme={theme} />
             </Box>
           </Grid>
@@ -473,7 +328,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
         open={snackbar.open}
         autoHideDuration={4000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
@@ -494,9 +349,9 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
         onClose={handleDiscard}
         PaperProps={{
           sx: {
-            width: { xs: "100%", sm: 520 },
+            width: { xs: '100%', sm: 520 },
             p: 1,
-            backdropFilter: "blur(10px)",
+            backdropFilter: 'blur(10px)',
           },
         }}
       >

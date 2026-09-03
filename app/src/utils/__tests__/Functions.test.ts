@@ -92,6 +92,6 @@ describe('converTimestampToDate', () => {
   it('handles large timestamps (year 2025+)', () => {
     // 2025-01-01T00:00:00.000Z = 1735689600
     const result = converTimestampToDate({ seconds: 1_735_689_600 })
-    expect(result.getUTCFullYear()).toBe(2025)
+    expect(result.getFullYear()).toBe(2025)
   })
 })

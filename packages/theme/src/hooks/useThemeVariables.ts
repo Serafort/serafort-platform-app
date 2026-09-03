@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import type { TenantThemeConfig } from "../types";
-import { applyThemeVariables } from "../utils/applyThemeVariables";
+import { useState, useEffect, useRef } from 'react';
+import type { TenantThemeConfig } from '../types';
+import { applyThemeVariables } from '../utils/applyThemeVariables';
 
 interface UseThemeVariablesOptions {
   theme: TenantThemeConfig | null;
@@ -23,8 +23,7 @@ export const useThemeVariables = ({
   enabled = true,
 }: UseThemeVariablesOptions): UseThemeVariablesReturn => {
   const [isApplied, setIsApplied] = useState(false);
-  const [lastAppliedTheme, setLastAppliedTheme] =
-    useState<TenantThemeConfig | null>(null);
+  const [lastAppliedTheme, setLastAppliedTheme] = useState<TenantThemeConfig | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const mountedRef = useRef(true);
 
@@ -50,9 +49,7 @@ export const useThemeVariables = ({
       }
     } catch (err) {
       if (mountedRef.current) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to apply theme"),
-        );
+        setError(err instanceof Error ? err : new Error('Failed to apply theme'));
       }
     }
   }, [theme, enabled]);

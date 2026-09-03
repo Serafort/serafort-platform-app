@@ -1,94 +1,41 @@
-export { usePasskey, formatWebAuthnError } from './usePasskey'
-export type { RegisterPasskeyOptions } from './usePasskey'
+export { usePasskey } from './usePasskey'
 export { usePasskeyAutofill } from './usePasskeyAutofill'
 export { useStepUpAuth } from './useStepUpAuth'
 export type { StepUpActionMetadata, StepUpAuthState } from './useStepUpAuth'
-export {
-  MFA_QUERY_KEYS,
-  useMfaMethodsQuery,
-  useRecoveryCodesQuery,
-  useTotpSetupMutation,
-  useTotpConfirmMutation,
-  useDisableMfaMutation,
-  useRegenerateBackupCodesMutation,
-  useSmsSendCodeMutation,
-  useSmsConfirmMutation,
-  useSmsDisableMutation,
-  usePasskeysListQuery,
-  useUpdatePasskeyMutation,
-  useDeletePasskeyMutation,
-} from './useMfaQuery'
 
-import type { UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
-import type {
-  AuthenticationResponseJSON,
-  PublicKeyCredentialRequestOptionsJSON,
-} from '@simplewebauthn/browser'
-import type { FetchResponse } from '@cap/platform-core'
-import {
-  mfaService,
-  type MfaLoginCompletionResponse,
-  type StepUpVerificationResult,
-} from '../services/mfa.service'
+import { mfaService } from '../services/mfa.service'
 
-export const usePasskeyLogin = (
-  options?: UseMutationOptions<
-    FetchResponse<MfaLoginCompletionResponse>,
-    Error,
-    AuthenticationResponseJSON
-  >,
-) => {
+export const usePasskeyLogin = (options?: any) => {
   return useMutation({
-    mutationFn: (data: AuthenticationResponseJSON) => mfaService.passkeys.verifyLogin(data),
+    mutationFn: (data: any) => mfaService.passkeys.verifyLogin(data),
     ...options,
   })
 }
 
-export const usePasskeyGetLoginOptions = (
-  options?: UseMutationOptions<
-    FetchResponse<PublicKeyCredentialRequestOptionsJSON>,
-    Error,
-    string | undefined
-  >,
-) => {
+export const usePasskeyGetLoginOptions = (options?: any) => {
   return useMutation({
     mutationFn: (email?: string) => mfaService.passkeys.getLoginOptions(email),
     ...options,
-  })
+  }) as any
 }
 
-export const useMfaLoginVerify = (
-  options?: UseMutationOptions<
-    FetchResponse<MfaLoginCompletionResponse>,
-    Error,
-    { userId: number | string; code: string }
-  >,
-) => {
+export const useMfaLoginVerify = (options?: any) => {
   return useMutation({
-    mutationFn: (data: { userId: number | string; code: string }) =>
+    mutationFn: (data: { userId: number; code: string }) =>
       mfaService.verifyMfaCode(data.userId, data.code),
     ...options,
   })
 }
 
-export const useStepUpBiometricVerify = (
-  options?: UseMutationOptions<
-    FetchResponse<StepUpVerificationResult>,
-    Error,
-    AuthenticationResponseJSON
-  >,
-) => {
+export const useStepUpBiometricVerify = (options?: any) => {
   return useMutation({
-    mutationFn: (assertionResponse: AuthenticationResponseJSON) =>
-      mfaService.stepUp.verifyBiometric(assertionResponse),
+    mutationFn: (assertionResponse: any) => mfaService.stepUp.verifyBiometric(assertionResponse),
     ...options,
   })
 }
 
-export const useStepUpTotpVerify = (
-  options?: UseMutationOptions<FetchResponse<StepUpVerificationResult>, Error, string>,
-) => {
+export const useStepUpTotpVerify = (options?: any) => {
   return useMutation({
     mutationFn: (code: string) => mfaService.stepUp.verifyTotp(code),
     ...options,

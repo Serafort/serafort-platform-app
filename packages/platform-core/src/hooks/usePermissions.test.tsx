@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { renderHook } from '@testing-library/react'
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { renderHook } from '@testing-library/react';
 
-import { usePermissions } from './usePermissions'
-import { useAppStore } from '@cap/platform-store'
+import { usePermissions } from './usePermissions';
+import { useAppStore } from '@cap/platform-store';
 
 const { mockStore } = vi.hoisted(() => {
   let currentState = { user: null, isAuthenticated: false }

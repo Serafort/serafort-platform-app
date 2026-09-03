@@ -6,10 +6,10 @@
  * This file is retained only for backward compatibility with any external consumers.
  * New code should use `DEFAULT_THEME_CONFIG` or a specific `ThemePreset` instead.
  */
-import { createTheme, alpha } from "@mui/material/styles";
+import { createTheme, alpha } from '@mui/material/styles';
 
-import { primary, surface, surfaceMixed } from "./palette/index";
-import { colors as functional } from "./palette/functional";
+import { primary, surface, surfaceMixed } from './palette/index';
+import { colors as functional } from './palette/functional';
 
 const BaseTheme = createTheme({
   palette: {
@@ -42,17 +42,17 @@ const BaseTheme = createTheme({
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: { fontSize: "2.5rem", fontWeight: 600 },
-    h2: { fontSize: "2rem", fontWeight: 600 },
-    h3: { fontSize: "1.75rem", fontWeight: 600 },
-    h4: { fontSize: "1.5rem", fontWeight: 600 },
-    h5: { fontSize: "1.25rem", fontWeight: 600 },
-    h6: { fontSize: "1rem", fontWeight: 600 },
-    subtitle1: { fontSize: "1rem", fontWeight: 400 },
-    subtitle2: { fontSize: "0.875rem", fontWeight: 500 },
-    body1: { fontSize: "1rem", fontWeight: 400 },
-    body2: { fontSize: "0.875rem", fontWeight: 400 },
-    button: { textTransform: "none", fontWeight: 500 },
+    h1: { fontSize: '2.5rem', fontWeight: 600 },
+    h2: { fontSize: '2rem', fontWeight: 600 },
+    h3: { fontSize: '1.75rem', fontWeight: 600 },
+    h4: { fontSize: '1.5rem', fontWeight: 600 },
+    h5: { fontSize: '1.25rem', fontWeight: 600 },
+    h6: { fontSize: '1rem', fontWeight: 600 },
+    subtitle1: { fontSize: '1rem', fontWeight: 400 },
+    subtitle2: { fontSize: '0.875rem', fontWeight: 500 },
+    body1: { fontSize: '1rem', fontWeight: 400 },
+    body2: { fontSize: '0.875rem', fontWeight: 400 },
+    button: { textTransform: 'none', fontWeight: 500 },
   },
   shape: {
     borderRadius: 8,
@@ -65,16 +65,16 @@ const BaseTheme = createTheme({
     },
   },
   customShadows: {
-    z1: "0px 2px 10px rgba(0,0,0,0.1)",
-    z8: "0px 8px 10px rgba(0,0,0,0.1)",
-    z16: "0px 16px 10px rgba(0,0,0,0.1)",
-    z20: "0px 20px 10px rgba(0,0,0,0.1)",
-    z24: "0px 24px 10px rgba(0,0,0,0.1)",
-    xs: "0px 2px 4px rgba(0,0,0,0.05)",
-    sm: "0px 4px 8px rgba(0,0,0,0.1)",
-    md: "0px 8px 16px rgba(0,0,0,0.1)",
-    lg: "0px 16px 24px rgba(0,0,0,0.1)",
-    xl: "0px 24px 32px rgba(0,0,0,0.1)",
+    z1: '0px 2px 10px rgba(0,0,0,0.1)',
+    z8: '0px 8px 10px rgba(0,0,0,0.1)',
+    z16: '0px 16px 10px rgba(0,0,0,0.1)',
+    z20: '0px 20px 10px rgba(0,0,0,0.1)',
+    z24: '0px 24px 10px rgba(0,0,0,0.1)',
+    xs: '0px 2px 4px rgba(0,0,0,0.05)',
+    sm: '0px 4px 8px rgba(0,0,0,0.1)',
+    md: '0px 8px 16px rgba(0,0,0,0.1)',
+    lg: '0px 16px 24px rgba(0,0,0,0.1)',
+    xl: '0px 24px 32px rgba(0,0,0,0.1)',
     primary: `0px 4px 10px ${alpha(primary[500], 0.2)}`,
     secondary: `0px 4px 10px ${alpha(functional.secondary.main, 0.2)}`,
     error: `0px 4px 10px ${alpha(functional.error.main, 0.2)}`,
@@ -95,7 +95,7 @@ const BaseTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: surface[300],
-          boxShadow: "none",
+          boxShadow: 'none',
           borderBottom: `1px solid ${alpha(primary[600], 0.1)}`,
         },
       },
@@ -107,26 +107,26 @@ const BaseTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          textTransform: "none",
+          textTransform: 'none',
           fontWeight: 600,
         },
       },
       variants: [
         {
-          props: { variant: "contained" },
+          props: { variant: 'contained' },
           style: {
             backgroundColor: primary[500],
-            "&:hover": {
+            '&:hover': {
               backgroundColor: primary[600],
             },
           },
         },
         {
-          props: { variant: "tonal" },
+          props: { variant: 'tonal' },
           style: {
             backgroundColor: alpha(primary[500], 0.12),
             color: primary[500],
-            "&:hover": {
+            '&:hover': {
               backgroundColor: alpha(primary[500], 0.24),
             },
           },
@@ -137,18 +137,18 @@ const BaseTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          boxShadow: "none",
+          boxShadow: 'none',
         },
       },
       variants: [
         {
-          props: { variant: "tonal" },
+          props: { variant: 'tonal' },
           style: {
-            "& .MuiButtonGroup-grouped": {
+            '& .MuiButtonGroup-grouped': {
               backgroundColor: alpha(primary[500], 0.12),
               color: primary[500],
               borderColor: alpha(primary[500], 0.2),
-              "&:hover": {
+              '&:hover': {
                 backgroundColor: alpha(primary[500], 0.24),
               },
             },
@@ -161,8 +161,8 @@ const BaseTheme = createTheme({
         root: {
           backgroundColor: surface[200],
           borderRadius: 16,
-          boxShadow: "0px 2px 10px rgba(0,0,0,0.05)",
-          overflow: "hidden",
+          boxShadow: '0px 2px 10px rgba(0,0,0,0.05)',
+          overflow: 'hidden',
         },
       },
     },
@@ -170,7 +170,7 @@ const BaseTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: surface[200],
-          backgroundImage: "none",
+          backgroundImage: 'none',
           borderRadius: 12,
         },
       },
@@ -184,11 +184,11 @@ const BaseTheme = createTheme({
       },
       variants: [
         {
-          props: { variant: "tonal" },
+          props: { variant: 'tonal' },
           style: {
             backgroundColor: alpha(primary[500], 0.12),
             color: primary[500],
-            "&:hover": {
+            '&:hover': {
               backgroundColor: alpha(primary[500], 0.24),
             },
           },
@@ -197,15 +197,15 @@ const BaseTheme = createTheme({
     },
     MuiTextField: {
       defaultProps: {
-        variant: "outlined",
-        size: "small",
+        variant: 'outlined',
+        size: 'small',
       },
     },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
           borderRadius: 8,
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
             borderWidth: 1,
           },
         },
@@ -220,7 +220,7 @@ const BaseTheme = createTheme({
     },
     MuiSelect: {
       defaultProps: {
-        size: "small",
+        size: 'small',
       },
       styleOverrides: {
         root: {
@@ -234,26 +234,26 @@ const BaseTheme = createTheme({
           width: 42,
           height: 26,
           padding: 0,
-          "& .MuiSwitch-switchBase": {
+          '& .MuiSwitch-switchBase': {
             padding: 0,
             margin: 2,
-            transitionDuration: "300ms",
-            "&.Mui-checked": {
-              transform: "translateX(16px)",
-              color: "#fff",
-              "& + .MuiSwitch-track": {
+            transitionDuration: '300ms',
+            '&.Mui-checked': {
+              transform: 'translateX(16px)',
+              color: '#fff',
+              '& + .MuiSwitch-track': {
                 backgroundColor: primary[500],
                 opacity: 1,
                 border: 0,
               },
             },
           },
-          "& .MuiSwitch-thumb": {
-            boxSizing: "border-box",
+          '& .MuiSwitch-thumb': {
+            boxSizing: 'border-box',
             width: 22,
             height: 22,
           },
-          "& .MuiSwitch-track": {
+          '& .MuiSwitch-track': {
             borderRadius: 26 / 2,
             backgroundColor: surface[500],
             opacity: 1,
@@ -270,22 +270,22 @@ const BaseTheme = createTheme({
         standardError: {
           backgroundColor: alpha(functional.error.main, 0.1),
           color: functional.error.main,
-          "& .MuiAlert-icon": { color: functional.error.main },
+          '& .MuiAlert-icon': { color: functional.error.main },
         },
         standardWarning: {
           backgroundColor: alpha(functional.warning.main, 0.1),
           color: functional.warning.main,
-          "& .MuiAlert-icon": { color: functional.warning.main },
+          '& .MuiAlert-icon': { color: functional.warning.main },
         },
         standardInfo: {
           backgroundColor: alpha(functional.info.main, 0.1),
           color: functional.info.main,
-          "& .MuiAlert-icon": { color: functional.info.main },
+          '& .MuiAlert-icon': { color: functional.info.main },
         },
         standardSuccess: {
           backgroundColor: alpha(functional.success.main, 0.1),
           color: functional.success.main,
-          "& .MuiAlert-icon": { color: functional.success.main },
+          '& .MuiAlert-icon': { color: functional.success.main },
         },
       },
     },
@@ -296,7 +296,7 @@ const BaseTheme = createTheme({
         },
         indicator: {
           height: 3,
-          borderRadius: "3px 3px 0 0",
+          borderRadius: '3px 3px 0 0',
           backgroundColor: primary[500],
         },
       },
@@ -304,13 +304,13 @@ const BaseTheme = createTheme({
     MuiTab: {
       styleOverrides: {
         root: {
-          textTransform: "none",
+          textTransform: 'none',
           fontWeight: 600,
-          fontSize: "0.9375rem",
+          fontSize: '0.9375rem',
           minWidth: 70,
-          padding: "12px 16px",
+          padding: '12px 16px',
           color: surfaceMixed[500],
-          "&.Mui-selected": {
+          '&.Mui-selected': {
             color: primary[500],
             backgroundColor: alpha(primary[500], 0.08),
           },
@@ -330,7 +330,7 @@ const BaseTheme = createTheme({
     MuiList: {
       styleOverrides: {
         root: {
-          padding: "8px",
+          padding: '8px',
         },
       },
     },
@@ -338,14 +338,14 @@ const BaseTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          padding: "8px 12px",
-          "&.Mui-selected": {
+          padding: '8px 12px',
+          '&.Mui-selected': {
             backgroundColor: alpha(primary[500], 0.08),
             color: primary[500],
-            "&:hover": {
+            '&:hover': {
               backgroundColor: alpha(primary[500], 0.12),
             },
-            "& .MuiListItemIcon-root": {
+            '& .MuiListItemIcon-root': {
               color: primary[500],
             },
           },
@@ -371,7 +371,7 @@ const BaseTheme = createTheme({
         tooltip: {
           backgroundColor: surfaceMixed[600],
           borderRadius: 6,
-          fontSize: "0.75rem",
+          fontSize: '0.75rem',
         },
       },
     },
@@ -386,7 +386,7 @@ const BaseTheme = createTheme({
       styleOverrides: {
         paper: {
           borderRadius: 20,
-          boxShadow: "0px 24px 48px rgba(0,0,0,0.1)",
+          boxShadow: '0px 24px 48px rgba(0,0,0,0.1)',
         },
       },
     },
@@ -394,10 +394,10 @@ const BaseTheme = createTheme({
       styleOverrides: {
         paper: {
           borderRadius: 12,
-          boxShadow: "0px 8px 16px rgba(0,0,0,0.1)",
+          boxShadow: '0px 8px 16px rgba(0,0,0,0.1)',
         },
         root: {
-          "& .MuiOutlinedInput-root": {
+          '& .MuiOutlinedInput-root': {
             borderRadius: 8,
           },
         },
@@ -407,7 +407,7 @@ const BaseTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 4,
-          "&.Mui-checked": {
+          '&.Mui-checked': {
             color: primary[500],
           },
         },
@@ -416,9 +416,9 @@ const BaseTheme = createTheme({
     MuiFab: {
       styleOverrides: {
         root: {
-          boxShadow: "0px 4px 10px rgba(0,0,0,0.15)",
-          "&:hover": {
-            boxShadow: "0px 6px 14px rgba(0,0,0,0.2)",
+          boxShadow: '0px 4px 10px rgba(0,0,0,0.15)',
+          '&:hover': {
+            boxShadow: '0px 6px 14px rgba(0,0,0,0.2)',
           },
         },
       },
@@ -427,9 +427,9 @@ const BaseTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          "&:before": { display: "none" },
-          "&.Mui-expanded": { margin: "8px 0" },
-          boxShadow: "0px 2px 8px rgba(0,0,0,0.05)",
+          '&:before': { display: 'none' },
+          '&.Mui-expanded': { margin: '8px 0' },
+          boxShadow: '0px 2px 8px rgba(0,0,0,0.05)',
         },
       },
     },
@@ -445,8 +445,8 @@ const BaseTheme = createTheme({
       styleOverrides: {
         paper: {
           borderRadius: 12,
-          boxShadow: "0px 8px 24px rgba(0,0,0,0.1)",
-          padding: "4px",
+          boxShadow: '0px 8px 24px rgba(0,0,0,0.1)',
+          padding: '4px',
         },
       },
     },
@@ -472,7 +472,7 @@ const BaseTheme = createTheme({
           borderBottom: `1px solid ${alpha(primary[600], 0.1)}`,
         },
         root: {
-          padding: "16px",
+          padding: '16px',
           borderColor: alpha(primary[600], 0.05),
         },
       },
@@ -480,10 +480,10 @@ const BaseTheme = createTheme({
     MuiTableRow: {
       styleOverrides: {
         root: {
-          "&:last-child td, &:last-child th": { border: 0 },
-          "&.Mui-selected": {
+          '&:last-child td, &:last-child th': { border: 0 },
+          '&.Mui-selected': {
             backgroundColor: alpha(primary[500], 0.08),
-            "&:hover": {
+            '&:hover': {
               backgroundColor: alpha(primary[500], 0.12),
             },
           },
@@ -493,7 +493,7 @@ const BaseTheme = createTheme({
     MuiTypography: {
       styleOverrides: {
         gutterBottom: {
-          marginBottom: "0.75em",
+          marginBottom: '0.75em',
         },
       },
     },
@@ -540,9 +540,9 @@ const BaseTheme = createTheme({
           color: primary[500],
         },
         thumb: {
-          backgroundColor: "#fff",
+          backgroundColor: '#fff',
           border: `2px solid ${primary[500]}`,
-          "&:hover, &.Mui-focusVisible": {
+          '&:hover, &.Mui-focusVisible': {
             boxShadow: `0px 0px 0px 8px ${alpha(primary[500], 0.16)}`,
           },
         },
@@ -551,7 +551,7 @@ const BaseTheme = createTheme({
     MuiSnackbar: {
       styleOverrides: {
         root: {
-          "& .MuiSnackbarContent-root": {
+          '& .MuiSnackbarContent-root': {
             backgroundColor: surfaceMixed[600],
             borderRadius: 12,
           },
@@ -561,12 +561,12 @@ const BaseTheme = createTheme({
     MuiPagination: {
       styleOverrides: {
         root: {
-          "& .MuiPaginationItem-root": {
+          '& .MuiPaginationItem-root': {
             borderRadius: 8,
-            "&.Mui-selected": {
+            '&.Mui-selected': {
               backgroundColor: primary[500],
-              color: "#fff",
-              "&:hover": {
+              color: '#fff',
+              '&:hover': {
                 backgroundColor: primary[600],
               },
             },
@@ -593,7 +593,7 @@ const BaseTheme = createTheme({
       styleOverrides: {
         fab: {
           backgroundColor: primary[500],
-          "&:hover": {
+          '&:hover': {
             backgroundColor: primary[600],
           },
         },
@@ -602,7 +602,7 @@ const BaseTheme = createTheme({
     MuiStepper: {
       styleOverrides: {
         root: {
-          backgroundColor: "transparent",
+          backgroundColor: 'transparent',
         },
       },
     },
@@ -610,7 +610,7 @@ const BaseTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          overflow: "hidden",
+          overflow: 'hidden',
         },
       },
     },
@@ -618,19 +618,19 @@ const BaseTheme = createTheme({
       styleOverrides: {
         paper: {
           borderRadius: 8,
-          boxShadow: "0px 4px 20px rgba(0,0,0,0.15)",
+          boxShadow: '0px 4px 20px rgba(0,0,0,0.15)',
         },
       },
     },
     MuiModal: {
       styleOverrides: {
         root: {
-          "& .MuiBackdrop-root": {
+          '& .MuiBackdrop-root': {
             backgroundColor: alpha(surfaceMixed[600], 0.7),
           },
         },
       },
     },
   },
-});
-export default BaseTheme;
+})
+export default BaseTheme

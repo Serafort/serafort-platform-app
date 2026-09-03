@@ -140,11 +140,7 @@ const GuestNavbar = () => {
             </Box>
 
             {/* Action Buttons */}
-            <Stack
-              direction='row'
-              spacing={guestNavbarTokens.layout.actionStackSpacing}
-              alignItems='center'
-            >
+            <Stack direction='row' spacing={guestNavbarTokens.layout.actionStackSpacing} alignItems='center'>
               <Button
                 variant='outlined'
                 onClick={() => handleNavigate(Path.auth.signup)}
@@ -226,12 +222,7 @@ const GuestNavbar = () => {
           },
         }}
       >
-        <Box
-          sx={{
-            pt: guestNavbarTokens.layout.mobileDrawerPt,
-            pb: guestNavbarTokens.layout.mobileDrawerPb,
-          }}
-        >
+        <Box sx={{ pt: guestNavbarTokens.layout.mobileDrawerPt, pb: guestNavbarTokens.layout.mobileDrawerPb }}>
           <List>
             {navLinks.map((link) => (
               <ListItem key={link.id} disablePadding>
@@ -256,13 +247,7 @@ const GuestNavbar = () => {
                 </ListItemButton>
               </ListItem>
             ))}
-            <ListItem
-              disablePadding
-              sx={{
-                mt: guestNavbarTokens.layout.mobileListItemMt,
-                px: guestNavbarTokens.layout.mobileListItemButtonPx,
-              }}
-            >
+            <ListItem disablePadding sx={{ mt: guestNavbarTokens.layout.mobileListItemMt, px: guestNavbarTokens.layout.mobileListItemButtonPx }}>
               <Button
                 fullWidth
                 variant='contained'

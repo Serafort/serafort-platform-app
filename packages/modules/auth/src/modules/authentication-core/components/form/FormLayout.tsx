@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, Typography, useTheme } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 
 export default function FormLayout({
   title,
@@ -12,25 +12,20 @@ export default function FormLayout({
   warning: string
   children: React.ReactNode
 }) {
-  const theme = useTheme()
-
   return (
     <Grid
       container
       spacing={2}
       mb='28px'
       padding='10px'
-      sx={{
-        bgcolor: 'background.paper',
-        borderRadius: 2,
-      }}
+      // sx={{ backgroundColor: '#EF9A9A' }}
     >
       <Grid size={{ xs: 12, sm: 4 }}>
         <Typography
           variant='h5'
           component='h4'
           fontSize='small'
-          color='text.primary'
+          color='#FFFFFF'
           sx={{
             lineHeight: '1.5rem',
             fontWeight: 500,
@@ -43,7 +38,7 @@ export default function FormLayout({
           variant='h5'
           component='h4'
           fontSize='small'
-          color='text.secondary'
+          color='#EEEEEE'
           sx={{
             fontSize: '0.75rem',
             lineHeight: '1rem',
@@ -51,11 +46,9 @@ export default function FormLayout({
         >
           {description}
         </Typography>
-        {warning && (
-          <Typography variant='h5' component='h4' color='warning.main'>
-            {warning}
-          </Typography>
-        )}
+        <Typography variant='h5' component='h4'>
+          {warning}
+        </Typography>
       </Grid>
       <Grid size={{ xs: 12, sm: 8 }}>{children}</Grid>
     </Grid>

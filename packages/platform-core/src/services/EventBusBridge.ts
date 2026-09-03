@@ -27,9 +27,7 @@ export function initEventBusBridge(): void {
     }
 
     if (!wasAuthenticated && isNowAuthenticated) {
-      EventBus.emit('auth:signin', {
-        userId: state.user?.id || (state.user as any)?._id || 'unknown',
-      })
+      EventBus.emit('auth:signin', { userId: state.user?.id || (state.user as any)?._id || 'unknown' })
     }
 
     wasAuthenticated = isNowAuthenticated

@@ -1,60 +1,25 @@
-import React, { useState } from 'react'
-import {
-  Box,
-  Typography,
-  Button,
-  Grid,
-  Avatar,
-  Card,
-  IconButton,
-  Chip,
-  Tooltip,
-  CircularProgress,
-  Stack,
-  useTheme,
-  alpha,
-  Tabs,
-  Tab,
-  Divider,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Pagination,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from '@mui/material'
-import ArrowBack from '@mui/icons-material/ArrowBack'
-import Refresh from '@mui/icons-material/Refresh'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import ErrorIcon from '@mui/icons-material/Error'
-import Delete from '@mui/icons-material/Delete'
-import Settings from '@mui/icons-material/Settings'
-import Storage from '@mui/icons-material/Storage'
-import Info from '@mui/icons-material/Info'
-import History from '@mui/icons-material/History'
-import Hub from '@mui/icons-material/Hub'
-import CompareArrows from '@mui/icons-material/CompareArrows'
-import Security from '@mui/icons-material/Security'
-import ChevronRight from '@mui/icons-material/ChevronRight'
-import Save from '@mui/icons-material/Save'
-import { useNavigate, useParams } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { useTranslation } from 'react-i18next'
-import Path from '../path'
-import {
-  useProvisioningConnector,
-  useSyncProvisioningConnector,
-  useUpdateProvisioningConnector,
-  useDeleteProvisioningConnector,
-  useProvisioningConnectorLogs,
-} from '../../hooks/useProvisioningQuery'
-import logger from '@idaas/authentication-core/utils/logger'
+import React, { useState } from 'react';
+import { Box, Typography, Button, Grid, Avatar, Card, IconButton, Chip, Tooltip, CircularProgress, Stack, useTheme, alpha, Tabs, Tab, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Pagination, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Refresh from '@mui/icons-material/Refresh';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+import Delete from '@mui/icons-material/Delete';
+import Settings from '@mui/icons-material/Settings';
+import Storage from '@mui/icons-material/Storage';
+import Info from '@mui/icons-material/Info';
+import History from '@mui/icons-material/History';
+import Hub from '@mui/icons-material/Hub';
+import CompareArrows from '@mui/icons-material/CompareArrows';
+import Security from '@mui/icons-material/Security';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import Save from '@mui/icons-material/Save';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
+import { useProvisioningConnector, useSyncProvisioningConnector, useUpdateProvisioningConnector, useDeleteProvisioningConnector, useProvisioningConnectorLogs } from '@idaas/authentication-core/hooks/useAdminQuery';
+import Path from '../path';
+import logger from '@idaas/authentication-core/utils/logger';
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -160,12 +125,15 @@ const ConnectorDetailView: React.FC = () => {
     isLoading,
     error,
     refetch: refetchConnector,
-  } = useProvisioningConnector(connectorId)
-  const connector = connectorData?.data
+  } = (useProvisioningConnector as any)(connectorId)
+  const connector = (connectorData as any)?.data as any
 
-  const { data: logsData, isLoading: isLogsLoading } = useProvisioningConnectorLogs(connectorId)
-  const logs = Array.isArray(logsData?.data) ? logsData.data : []
-  const pagination = { total: logs.length, last_page: 1 }
+  const { data: logsData, isLoading: isLogsLoading } = (useProvisioningConnectorLogs as any)(connectorId, {
+    page,
+    limit: pageSize,
+  } as any)
+  const logs = (logsData as any)?.data?.data ?? (logsData as any)?.data ?? []
+  const pagination = (logsData as any)?.data?.meta ?? { total: 0, last_page: 1 }
 
   const syncMutation = useSyncProvisioningConnector({
     onSuccess: () => {
@@ -178,7 +146,7 @@ const ConnectorDetailView: React.FC = () => {
     },
   })
 
-  const updateMutation = useUpdateProvisioningConnector(connectorId, {
+  const updateMutation = useUpdateProvisioningConnector({
     onSuccess: () => {
       toast.success(t('admin.provisioning.connector.messages.config_saved'))
       refetchConnector()

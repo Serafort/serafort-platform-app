@@ -1,4 +1,4 @@
-import styled from '@emotion/styled'
+import { styled } from '@cap/theme'
 import type { VerticalNavState } from '../../contexts/verticalNavContext'
 import type { VerticalNavProps } from '../../components/vertical-menu/VerticalNav'
 import { horizontalNavClasses, menuClasses, verticalNavClasses } from '../../utils/menuClasses'
@@ -6,7 +6,7 @@ import { horizontalNavClasses, menuClasses, verticalNavClasses } from '../../uti
 type StyledVerticalNavProps = VerticalNavProps &
   Pick<VerticalNavState, 'isBreakpointReached' | 'collapsing' | 'expanding' | 'transitionDuration'>
 
-const StyledVerticalNav = styled('aside')<StyledVerticalNavProps>`
+const StyledVerticalNav = styled('aside') <StyledVerticalNavProps>`
   ${({ scrollWithContent }: StyledVerticalNavProps) =>
     !scrollWithContent &&
     `
@@ -14,12 +14,11 @@ const StyledVerticalNav = styled('aside')<StyledVerticalNavProps>`
     inset-block-start: 0;
     block-size: 100dvh;
   `}
-  z-index: ${({ theme }: { theme?: any }) => theme?.zIndex?.drawer || 1200};
+  z-index: ${({ theme }) => theme.zIndex.drawer};
 
   /* Transition */
   transition-property: inline-size, min-inline-size, margin-inline-start, inset-inline-start;
-  transition-duration: ${({ transitionDuration }: StyledVerticalNavProps) =>
-    `${transitionDuration}ms`};
+  transition-duration: ${({ transitionDuration }: StyledVerticalNavProps) => `${transitionDuration}ms`};
   transition-timing-function: ease-in-out;
 
   /* Width & Min Width & Margin */
@@ -40,8 +39,7 @@ const StyledVerticalNav = styled('aside')<StyledVerticalNavProps>`
     block-size: 100%;
     inset-block-start: 0;
     inset-inline-start: ${({ width }: StyledVerticalNavProps) => `-${width}px`};
-    z-index: ${({ theme }: { theme?: any }) =>
-      theme?.zIndex?.drawer ? theme.zIndex.drawer + 5 : 1205};
+    z-index: ${({ theme }) => (theme?.zIndex?.drawer ? theme.zIndex.drawer + 5 : 1205)};
     margin: 0;
     &.${verticalNavClasses.collapsed} {
       inset-inline-start: -${({ collapsedWidth }: StyledVerticalNavProps) => `${collapsedWidth}px`};

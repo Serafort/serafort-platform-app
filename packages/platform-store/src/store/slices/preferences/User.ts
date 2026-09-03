@@ -1,41 +1,41 @@
 export interface UserPreferences {
-  theme: "light" | "dark" | "system";
-  language: "en" | "fr" | "ar";
+  theme: 'light' | 'dark' | 'system'
+  language: 'en' | 'fr' | 'ar'
 
   notifications: {
-    email: boolean;
-    push: boolean;
-    jobMatches: boolean;
-    applicationUpdates: boolean;
-    scraperComplete: boolean;
-  };
+    email: boolean
+    push: boolean
+    jobMatches: boolean
+    applicationUpdates: boolean
+    scraperComplete: boolean
+  }
 
   jobPreferences: {
-    defaultSearchRadius: number;
-    preferredLocations: string[];
-    preferredJobTypes: string[];
+    defaultSearchRadius: number
+    preferredLocations: string[]
+    preferredJobTypes: string[]
     salaryExpectation: {
-      min: number;
-      max: number;
-      currency: string;
-    };
-  };
+      min: number
+      max: number
+      currency: string
+    }
+  }
 
   privacy: {
-    profileVisibility: "public" | "private";
-    shareAnalytics: boolean;
-  };
+    profileVisibility: 'public' | 'private'
+    shareAnalytics: boolean
+  }
 
   display: {
-    jobsPerPage: number;
-    showSalary: boolean;
-    showCompanyRatings: boolean;
-  };
+    jobsPerPage: number
+    showSalary: boolean
+    showCompanyRatings: boolean
+  }
 }
 
 export const defaultPreferences: UserPreferences = {
-  theme: "system",
-  language: "en",
+  theme: 'system',
+  language: 'en',
   notifications: {
     email: true,
     push: true,
@@ -50,11 +50,11 @@ export const defaultPreferences: UserPreferences = {
     salaryExpectation: {
       min: 0,
       max: 200000,
-      currency: "USD",
+      currency: 'USD',
     },
   },
   privacy: {
-    profileVisibility: "private",
+    profileVisibility: 'private',
     shareAnalytics: false,
   },
   display: {
@@ -62,4 +62,4 @@ export const defaultPreferences: UserPreferences = {
     showSalary: true,
     showCompanyRatings: true,
   },
-};
+}

@@ -13,20 +13,15 @@ test.describe('Sign In Flow', () => {
 
   test('should show validation errors for empty email', async ({ page }) => {
     await page.goto('/auth/sign-in')
-    await page.locator('button[type="submit"]').click()
-    await expect(page.getByText(/email|required/i).first()).toBeVisible()
+    await page.getByRole('button', { name: /next/i }).click()
+    await expect(page.getByText(/email|required/i)).toBeVisible()
   })
 
   test('should show error for invalid credentials', async ({ page }) => {
-    await page
-      .locator('input[name="email"], input[type="email"], #email')
-      .first()
-      .fill('nonexistent@example.com')
-    await page
-      .locator('input[name="password"], input[type="password"], #password')
-      .first()
-      .fill('WrongPassword123!')
-    await page.locator('button[type="submit"]').click()
+    await page.getByLabel(/email/i).fill('nonexistent@example.com')
+    await page.getByRole('button', { name: /next/i }).click()
+    await page.getByLabel(/password/i).fill('WrongPassword123!')
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click()
 
     // Wait for error message
     await expect(
@@ -35,13 +30,19 @@ test.describe('Sign In Flow', () => {
   })
 
   test('should navigate to forgot password', async ({ page }) => {
-    await page.getByRole('link', { name: /forgot password/i }).click()
+    // First, enter an email to get to the password step, then click forgot password
+    await page.getByLabel(/email/i).fill('test@example.com') // Any valid-looking email
+    await page.getByRole('button', { name: /next/i }).click()
+
+    await page.getByRole('link', { name: /forget|forgot|reset/i }).click()
+
     await expect(page).toHaveURL(/forgot-password/)
   })
 
   test('should navigate to sign-up from sign-in', async ({ page }) => {
     await page.goto('/auth/sign-in')
-    await page.getByRole('link', { name: /sign up/i }).click()
+    // OneAuthSignIn has a 'Create account' button
+    await page.getByRole('button', { name: /create account/i }).click()
     await expect(page).toHaveURL(/sign-up/)
   })
 
@@ -51,12 +52,13 @@ test.describe('Sign In Flow', () => {
 
     await page.goto('/auth/sign-in')
 
-    await page.locator('input[name="email"], input[type="email"], #email').first().fill(email)
-    await page
-      .locator('input[name="password"], input[type="password"], #password')
-      .first()
-      .fill(password)
-    await page.locator('button[type="submit"]').click()
+    // Step 1: Email
+    await page.getByLabel(/email/i).fill(email)
+    await page.getByRole('button', { name: /next/i }).click()
+
+    // Step 2: Password
+    await page.getByLabel(/password/i).fill(password)
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click()
 
     // Should redirect to dashboard or home
     await expect(page).toHaveURL(/\/|dashboard|home/i, { timeout: 15000 })
@@ -89,19 +91,17 @@ test.describe('Sign Out Flow', () => {
       data: {
         email,
         password,
-        firstname: 'SignOut',
-        lastname: 'Test',
+        firstName: 'SignOut',
+        lastName: 'Test',
       },
     })
 
     // Sign in
     await page.goto('/auth/sign-in')
-    await page.locator('input[name="email"], input[type="email"], #email').first().fill(email)
-    await page
-      .locator('input[name="password"], input[type="password"], #password')
-      .first()
-      .fill(password)
-    await page.locator('button[type="submit"]').click()
+    await page.getByLabel(/email/i).fill(email)
+    await page.getByRole('button', { name: /next/i }).click()
+    await page.getByLabel(/password/i).fill(password)
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click()
 
     // Wait for redirect
     await page.waitForURL(/dashboard|home|\/$/i, { timeout: 15000 })

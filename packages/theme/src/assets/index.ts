@@ -1,3 +1,3 @@
-export * from "./themes/palette";
-export * from "./themes";
-export * from "./svg";
+export * from './themes/palette'
+export * from './themes'
+export * from './svg'

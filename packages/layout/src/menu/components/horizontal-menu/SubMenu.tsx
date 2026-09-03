@@ -70,13 +70,12 @@ type StyledSubMenuProps = Pick<SubMenuProps, 'rootStyles' | 'disabled'> & {
 const StyledSubMenu = styled.li<StyledSubMenuProps>`
   ${({ level }) =>
     level === 0 && {
-      borderRadius: `${menuTokens?.horizontal?.item?.borderRadius ?? 6}px`,
+      borderRadius: `${menuTokens.horizontal.item.borderRadius}px`,
       overflow: 'hidden',
     }}
 
   &.${menuClasses.open} > .${menuClasses.button} {
-    background-color: ${({ theme }: any) =>
-      theme?.palette?.action?.hover || menuTokens?.horizontal?.button?.openBg || '#f3f3f3'};
+    background-color: ${menuTokens.horizontal.button.openBg};
   }
 
   ${({ menuItemStyles }) => menuItemStyles};
@@ -84,11 +83,11 @@ const StyledSubMenu = styled.li<StyledSubMenuProps>`
 
   > .${menuClasses.button} {
     ${({ level, disabled, children }) =>
-      menuButtonStyles({
-        level,
-        disabled,
-        children,
-      })};
+    menuButtonStyles({
+      level,
+      disabled,
+      children,
+    })};
     ${({ buttonStyles }) => buttonStyles};
   }
 `
@@ -157,8 +156,8 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
   React.useEffect(() => {
     setDirection(
       window.getComputedStyle(document.documentElement).getPropertyValue('direction') as
-        | 'ltr'
-        | 'rtl',
+      | 'ltr'
+      | 'rtl',
     )
   }, [])
 
@@ -189,16 +188,16 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
     duration: transitionDuration,
 
     initial: {
-      opacity: menuTokens?.horizontal?.popoutTransition?.initialOpacity ?? 0,
-      transform: `translateY(${menuTokens?.horizontal?.popoutTransition?.offsetY || '10px'})`,
+      opacity: menuTokens.horizontal.popoutTransition.initialOpacity,
+      transform: `translateY(${menuTokens.horizontal.popoutTransition.offsetY})`,
     },
     open: {
-      opacity: menuTokens?.horizontal?.popoutTransition?.openOpacity ?? 1,
+      opacity: menuTokens.horizontal.popoutTransition.openOpacity,
       transform: 'translateY(0px)',
     },
     close: {
-      opacity: menuTokens?.horizontal?.popoutTransition?.initialOpacity ?? 0,
-      transform: `translateY(${menuTokens?.horizontal?.popoutTransition?.offsetY || '10px'})`,
+      opacity: menuTokens.horizontal.popoutTransition.initialOpacity,
+      transform: `translateY(${menuTokens.horizontal.popoutTransition.offsetY})`,
     },
   })
 

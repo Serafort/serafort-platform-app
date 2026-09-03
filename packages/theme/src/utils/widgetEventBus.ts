@@ -1,15 +1,14 @@
 export type WidgetEventCallback<T = any> = (payload: T) => void;
 
 export const WIDGET_EVENTS = {
-  DATE_RANGE_CHANGED: "WIDGET:DATE_RANGE_CHANGED",
-  FILTER_APPLIED: "WIDGET:FILTER_APPLIED",
-  METRIC_HIGHLIGHTED: "WIDGET:METRIC_HIGHLIGHTED",
-  RELOAD_REQUESTED: "WIDGET:RELOAD_REQUESTED",
-  THEME_VARIANT_CHANGED: "WIDGET:THEME_VARIANT_CHANGED",
+  DATE_RANGE_CHANGED: 'WIDGET:DATE_RANGE_CHANGED',
+  FILTER_APPLIED: 'WIDGET:FILTER_APPLIED',
+  METRIC_HIGHLIGHTED: 'WIDGET:METRIC_HIGHLIGHTED',
+  RELOAD_REQUESTED: 'WIDGET:RELOAD_REQUESTED',
+  THEME_VARIANT_CHANGED: 'WIDGET:THEME_VARIANT_CHANGED',
 } as const;
 
-export type StandardWidgetEventType =
-  (typeof WIDGET_EVENTS)[keyof typeof WIDGET_EVENTS];
+export type StandardWidgetEventType = typeof WIDGET_EVENTS[keyof typeof WIDGET_EVENTS];
 export type WidgetEventType = StandardWidgetEventType | (string & {});
 
 export interface WidgetEventLogEntry {
@@ -24,10 +23,7 @@ export class WidgetEventBus {
   private eventLog: WidgetEventLogEntry[] = [];
   private maxLogEntries = 50;
 
-  subscribe<T = any>(
-    eventType: WidgetEventType,
-    callback: WidgetEventCallback<T>,
-  ): () => void {
+  subscribe<T = any>(eventType: WidgetEventType, callback: WidgetEventCallback<T>): () => void {
     if (!this.events.has(eventType)) {
       this.events.set(eventType, new Set());
     }
@@ -67,10 +63,7 @@ export class WidgetEventBus {
         try {
           cb(payload);
         } catch (err) {
-          console.error(
-            `[WidgetEventBus] Error handling event "${eventType}":`,
-            err,
-          );
+          console.error(`[WidgetEventBus] Error handling event "${eventType}":`, err);
         }
       });
     }

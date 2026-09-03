@@ -14,7 +14,7 @@ export const LANDING_WIDGET_IDS = {
   cta: 'landing-widget-cta',
 } as const
 
-export type LandingWidgetId = (typeof LANDING_WIDGET_IDS)[keyof typeof LANDING_WIDGET_IDS]
+export type LandingWidgetId = typeof LANDING_WIDGET_IDS[keyof typeof LANDING_WIDGET_IDS]
 
 export const DEFAULT_LANDING_GRID_LAYOUT: GridLayout = {
   slots: ['slot-1', 'slot-2', 'slot-3', 'slot-4', 'slot-5'],

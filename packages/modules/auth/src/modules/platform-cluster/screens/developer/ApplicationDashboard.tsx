@@ -1,72 +1,29 @@
-import React, { useState } from 'react'
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  Button,
-  TextField,
-  InputAdornment,
-  Avatar,
-  alpha,
-  useTheme,
-  Stack,
-  Chip,
-  IconButton,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  Paper,
-  Divider,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
-  OutlinedInput,
-  SelectChangeEvent,
-  CircularProgress,
-} from '@mui/material'
-import Search from '@mui/icons-material/Search'
-import Add from '@mui/icons-material/Add'
-import MoreVert from '@mui/icons-material/MoreVert'
-import AppRegistration from '@mui/icons-material/AppRegistration'
-import VpnKey from '@mui/icons-material/VpnKey'
-import Launch from '@mui/icons-material/Launch'
-import History from '@mui/icons-material/History'
-import Code from '@mui/icons-material/Code'
-import Web from '@mui/icons-material/Web'
-import Smartphone from '@mui/icons-material/Smartphone'
-import Router from '@mui/icons-material/Router'
-import Security from '@mui/icons-material/Security'
-import Edit from '@mui/icons-material/Edit'
-import Delete from '@mui/icons-material/Delete'
-import Refresh from '@mui/icons-material/Refresh'
-import ContentCopy from '@mui/icons-material/ContentCopy'
-import Warning from '@mui/icons-material/Warning'
-import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { useTranslation } from 'react-i18next'
-import {
-  useOIDCClients,
-  useCreateOIDCClient,
-  useUpdateOIDCClient,
-  useDeleteOIDCClient,
-  useRotateClientSecret,
-} from '@idaas/authentication-core/hooks/useAdminQuery'
-import { Path } from '@auth/routes/path'
-import { CreateOIDCClientRequest } from '@auth/modules/authentication-core/types/api.types'
-import logger from '@idaas/authentication-core/utils/logger'
-
-// Seed new OAuth clients with a redirect URI on the current origin rather than a
-// hardcoded dev port, so the suggestion is sensible in every environment.
-const DEFAULT_REDIRECT_URI =
-  typeof window !== 'undefined' && window.location?.origin
-    ? `${window.location.origin}/callback`
-    : 'http://localhost:5173/callback'
+import React, { useState } from 'react';
+import { Box, Typography, Card, CardContent, Grid, Button, TextField, InputAdornment, Avatar, alpha, useTheme, Stack, Chip, IconButton, Menu, MenuItem, ListItemIcon, Paper, Divider, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, OutlinedInput, SelectChangeEvent, CircularProgress } from '@mui/material';
+import Search from '@mui/icons-material/Search';
+import Add from '@mui/icons-material/Add';
+import MoreVert from '@mui/icons-material/MoreVert';
+import AppRegistration from '@mui/icons-material/AppRegistration';
+import VpnKey from '@mui/icons-material/VpnKey';
+import Launch from '@mui/icons-material/Launch';
+import History from '@mui/icons-material/History';
+import Code from '@mui/icons-material/Code';
+import Web from '@mui/icons-material/Web';
+import Smartphone from '@mui/icons-material/Smartphone';
+import Router from '@mui/icons-material/Router';
+import Security from '@mui/icons-material/Security';
+import Edit from '@mui/icons-material/Edit';
+import Delete from '@mui/icons-material/Delete';
+import Refresh from '@mui/icons-material/Refresh';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import Warning from '@mui/icons-material/Warning';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
+import { useOIDCClients, useCreateOIDCClient, useUpdateOIDCClient, useDeleteOIDCClient, useRotateClientSecret } from '@idaas/authentication-core/hooks/useAdminQuery';
+import { Path } from '@auth/routes/path';
+import { CreateOIDCClientRequest } from '@auth/modules/authentication-core/types/api.types';
+import logger from '@idaas/authentication-core/utils/logger';
 
 export default function ApplicationDashboard() {
   const navigate = useNavigate()
@@ -103,7 +60,7 @@ export default function ApplicationDashboard() {
 
   const [formData, setFormData] = useState<CreateOIDCClientRequest>({
     name: '',
-    redirectUris: [DEFAULT_REDIRECT_URI],
+    redirectUris: ['http://localhost:5173/callback'],
     grantTypes: ['authorization_code', 'refresh_token'],
     responseTypes: ['code'],
   })
@@ -126,7 +83,7 @@ export default function ApplicationDashboard() {
       setSelectedAppId(app.id)
       setFormData({
         name: app.name || app.client_name,
-        redirectUris: app.redirectUris || app.redirect_uris || [DEFAULT_REDIRECT_URI],
+        redirectUris: app.redirectUris || app.redirect_uris || ['http://localhost:5173/callback'],
         grantTypes: app.grantTypes || app.grant_types || ['authorization_code'],
         responseTypes: app.responseTypes || app.response_types || ['code'],
       })
@@ -135,7 +92,7 @@ export default function ApplicationDashboard() {
       setSelectedAppId(null)
       setFormData({
         name: '',
-        redirectUris: [DEFAULT_REDIRECT_URI],
+        redirectUris: ['http://localhost:5173/callback'],
         grantTypes: ['authorization_code', 'refresh_token'],
         responseTypes: ['code'],
       })
@@ -155,9 +112,7 @@ export default function ApplicationDashboard() {
           },
           onError: (err: any) => {
             logger.error('Failed to update application', { error: err })
-            toast.error(
-              err?.message || t('admin.developer.applications.messages.error_generic'),
-              {},
+            toast.error(err?.message || t('admin.developer.applications.messages.error_generic'), { },
             )
           },
         },
@@ -166,7 +121,7 @@ export default function ApplicationDashboard() {
       createMutation.mutate(formData, {
         onSuccess: (res: any) => {
           setAppDialogOpen(false)
-          toast.success(t('admin.developer.applications.messages.create_success'), {})
+          toast.success(t('admin.developer.applications.messages.create_success'), {  })
           if (res.data?.clientSecret || res.data?.client_secret) {
             setNewSecret(res.data.clientSecret || res.data.client_secret)
             setSecretDialogOpen(true)
@@ -174,9 +129,9 @@ export default function ApplicationDashboard() {
         },
         onError: (err: any) => {
           logger.error('Failed to create application', { error: err })
-          toast.error(err?.message || t('admin.developer.applications.messages.error_generic'), {})
-        },
-      })
+          toast.error(err?.message || t('admin.developer.applications.messages.error_generic'), { },
+          )
+        }, })
     }
   }
 
@@ -193,12 +148,9 @@ export default function ApplicationDashboard() {
             },
             onError: (err: any) => {
               logger.error('Failed to delete application', { error: err })
-              toast.error(
-                err?.message || t('admin.developer.applications.messages.error_generic'),
-                {},
+              toast.error(err?.message || t('admin.developer.applications.messages.error_generic'), { },
               )
-            },
-          })
+            }, })
           setConfirmDialog((prev: any) => ({ ...prev, open: false }))
         },
       })
@@ -223,12 +175,9 @@ export default function ApplicationDashboard() {
             },
             onError: (err: any) => {
               logger.error('Failed to rotate secret', { error: err })
-              toast.error(
-                err?.message || t('admin.developer.applications.messages.error_generic'),
-                {},
+              toast.error(err?.message || t('admin.developer.applications.messages.error_generic'), { },
               )
-            },
-          })
+            }, })
           setConfirmDialog((prev: any) => ({ ...prev, open: false }))
         },
       })
@@ -372,7 +321,9 @@ export default function ApplicationDashboard() {
           <Stack direction='row' spacing={1.5} sx={{ ml: { sm: 'auto' } }}>
             <Button
               startIcon={<History />}
-              onClick={() => toast.info('Audit logs feature is not enabled for this application.')}
+              onClick={() =>
+                toast.info('Audit logs feature is not enabled for this application.')
+              }
               sx={{
                 textTransform: 'none',
                 fontWeight: 700,

@@ -7,7 +7,7 @@ import {
   Box,
   Link,
 } from '@mui/material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { themeConfig } from '@cap/platform-core'
 
 const PrivacyPolicy = () => {

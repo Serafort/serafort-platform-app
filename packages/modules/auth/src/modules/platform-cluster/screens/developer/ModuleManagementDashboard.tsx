@@ -1,37 +1,19 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  Button,
-  TextField,
-  InputAdornment,
-  alpha,
-  useTheme,
-  Stack,
-  Chip,
-  Paper,
-  CircularProgress,
-  Alert,
-  Switch,
-  Divider,
-} from '@mui/material'
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Box, Typography, Card, CardContent, Grid, Button, TextField, InputAdornment, alpha, useTheme, Stack, Chip, Paper, CircularProgress, Alert, Switch, Divider } from '@mui/material';
 
-import SearchIcon from '@mui/icons-material/Search'
-import ExtensionIcon from '@mui/icons-material/Extension'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import RefreshIcon from '@mui/icons-material/Refresh'
-import RouteIcon from '@mui/icons-material/AltRoute'
-import MenuIcon from '@mui/icons-material/Menu'
-import ShieldIcon from '@mui/icons-material/Shield'
+import SearchIcon from '@mui/icons-material/Search';
+import ExtensionIcon from '@mui/icons-material/Extension';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import RouteIcon from '@mui/icons-material/AltRoute';
+import MenuIcon from '@mui/icons-material/Menu';
+import ShieldIcon from '@mui/icons-material/Shield';
 
-import { useTranslation } from 'react-i18next'
-import { modulesRouterService } from '@cap/platform-core'
-import type { ModuleStatusInfo } from '@cap/shared-types'
-import ModuleUploadModal from './components/ModuleUploadModal'
+import { useTranslation } from 'react-i18next';
+import { modulesRouterService } from '@cap/platform-core';
+import type { ModuleStatusInfo } from '@cap/shared-types';
+import ModuleUploadModal from './components/ModuleUploadModal';
 
 export default function ModuleManagementDashboard() {
   const theme = useTheme()
@@ -81,9 +63,7 @@ export default function ModuleManagementDashboard() {
     try {
       await modulesRouterService.toggleModuleStatus(id, !currentEnabled)
       setModules((prev) =>
-        prev.map((m) =>
-          m.id === id ? { ...m, status: !currentEnabled ? 'active' : 'disabled' } : m,
-        ),
+        prev.map((m) => (m.id === id ? { ...m, status: !currentEnabled ? 'active' : 'disabled' } : m)),
       )
     } catch (err: any) {
       setError(err.message || `Failed to toggle module ${id}`)
@@ -300,7 +280,9 @@ export default function ModuleManagementDashboard() {
                   sx={{
                     borderRadius: 4,
                     border: '1px solid',
-                    borderColor: isActive ? alpha(theme.palette.primary.main, 0.2) : 'divider',
+                    borderColor: isActive
+                      ? alpha(theme.palette.primary.main, 0.2)
+                      : 'divider',
                     boxShadow: 'none',
                     transition: 'all 0.2s',
                     '&:hover': {
@@ -351,10 +333,7 @@ export default function ModuleManagementDashboard() {
                               />
                             )}
                           </Stack>
-                          <Typography
-                            variant='caption'
-                            sx={{ fontFamily: 'monospace', color: 'text.secondary' }}
-                          >
+                          <Typography variant='caption' sx={{ fontFamily: 'monospace', color: 'text.secondary' }}>
                             id: {module.id} | v{module.version}
                           </Typography>
                         </Box>
@@ -368,11 +347,7 @@ export default function ModuleManagementDashboard() {
                       />
                     </Box>
 
-                    <Typography
-                      variant='body2'
-                      color='text.secondary'
-                      sx={{ mb: 2, minHeight: 40 }}
-                    >
+                    <Typography variant='body2' color='text.secondary' sx={{ mb: 2, minHeight: 40 }}>
                       {module.description}
                     </Typography>
 

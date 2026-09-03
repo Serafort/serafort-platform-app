@@ -52,17 +52,16 @@ export const ImpersonationBanner: React.FC<ImpersonationBannerProps> = ({ onExit
     <Box
       sx={{
         width: '100%',
-        bgcolor: theme.palette.warning.dark || '#ed6c02',
+        bgcolor: alpha(theme.palette.warning.dark || '#ed6c02', 0.95),
         color: '#ffffff',
         px: { xs: 2, md: 3 },
-        py: 1,
+        py: 0.75,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         gap: 1.5,
-        borderBottom: `2px solid ${alpha('#ffffff', 0.35)}`,
-        boxShadow: `0 4px 16px ${alpha('#000000', 0.25)}`,
+        boxShadow: `0 2px 10px ${alpha('#000', 0.2)}`,
         zIndex: 1400,
         position: 'relative',
       }}
@@ -73,34 +72,24 @@ export const ImpersonationBanner: React.FC<ImpersonationBannerProps> = ({ onExit
             display: 'flex',
             alignItems: 'center',
             gap: 0.75,
-            bgcolor: alpha('#000000', 0.25),
-            px: 1.25,
-            py: 0.35,
+            bgcolor: alpha('#ffffff', 0.2),
+            px: 1,
+            py: 0.25,
             borderRadius: 1.5,
-            border: `1px solid ${alpha('#ffffff', 0.25)}`,
           }}
         >
           <VisibilityIcon sx={{ fontSize: 16 }} />
-          <Typography
-            variant='caption'
-            sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.75 }}
-          >
-            Active Impersonation
+          <Typography variant='caption' sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            Support Impersonation Mode
           </Typography>
         </Box>
 
         <Typography variant='body2' sx={{ fontWeight: 600 }}>
-          Viewing workspace as:{' '}
-          <strong>
-            {impersonationSession.targetOrgName || `Org #${impersonationSession.targetOrgId}`}
-          </strong>
+          Viewing as tenant: <strong>{impersonationSession.targetOrgName || `Org #${impersonationSession.targetOrgId}`}</strong>
         </Typography>
 
         {impersonationSession.reason && (
-          <Typography
-            variant='caption'
-            sx={{ opacity: 0.9, display: { xs: 'none', sm: 'inline' } }}
-          >
+          <Typography variant='caption' sx={{ opacity: 0.9, display: { xs: 'none', sm: 'inline' } }}>
             (Reason: {impersonationSession.reason})
           </Typography>
         )}
@@ -110,8 +99,8 @@ export const ImpersonationBanner: React.FC<ImpersonationBannerProps> = ({ onExit
           label='Audit Logged'
           size='small'
           sx={{
-            height: 22,
-            fontSize: 11,
+            height: 20,
+            fontSize: 10,
             fontWeight: 700,
             bgcolor: alpha('#ffffff', 0.2),
             color: '#ffffff',
@@ -124,10 +113,10 @@ export const ImpersonationBanner: React.FC<ImpersonationBannerProps> = ({ onExit
             label={`Session expires in: ${timeLeft}`}
             size='small'
             sx={{
-              height: 22,
-              fontSize: 11,
+              height: 20,
+              fontSize: 10,
               fontWeight: 700,
-              bgcolor: alpha('#000000', 0.35),
+              bgcolor: alpha('#000000', 0.25),
               color: '#ffffff',
             }}
           />
@@ -142,16 +131,13 @@ export const ImpersonationBanner: React.FC<ImpersonationBannerProps> = ({ onExit
         sx={{
           bgcolor: '#ffffff',
           color: theme.palette.warning.dark || '#ed6c02',
-          fontWeight: 900,
+          fontWeight: 800,
           textTransform: 'none',
-          px: 2,
-          py: 0.5,
-          fontSize: 13,
-          borderRadius: 2,
-          boxShadow: `0 4px 12px ${alpha('#000000', 0.3)}`,
+          px: 1.5,
+          py: 0.25,
+          fontSize: 12,
           '&:hover': {
-            bgcolor: alpha('#ffffff', 0.92),
-            boxShadow: `0 6px 16px ${alpha('#000000', 0.4)}`,
+            bgcolor: alpha('#ffffff', 0.9),
           },
         }}
       >

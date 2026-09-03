@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@cap/platform-core'
-import { Path } from '@/routes'
 
 interface UseSignOutOptions {
   onSuccess?: () => void
@@ -14,9 +13,8 @@ interface UseSignOutReturn {
 }
 
 /**
- * Hook for signing out the current user. Delegates to the auth store's
- * `signOut` (revokes the server session + clears local auth state) and then
- * redirects to the sign-in route.
+ * Hook for signing out the current user
+ * TODO: Implement full sign-out logic when Auth service is ready
  */
 export const useSignOut = (options?: UseSignOutOptions): UseSignOutReturn => {
   const [isSigningOut, setIsSigningOut] = useState(false)
@@ -31,7 +29,7 @@ export const useSignOut = (options?: UseSignOutOptions): UseSignOutReturn => {
       await authSignOut()
 
       // Navigate to login
-      navigate(Path.auth.signin)
+      navigate('/auth/signin')
 
       // Call success callback
       options?.onSuccess?.()

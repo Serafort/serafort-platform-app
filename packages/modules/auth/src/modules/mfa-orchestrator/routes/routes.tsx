@@ -1,72 +1,63 @@
 import React from 'react'
 import { AuthRouteConfig } from '@cap/platform-core'
-import Path from '../screens/path'
+import Path from '@cap/module-auth/routes/path'
 import { createAdminRoute, createAuthRoute } from '../../../routes/routeHelpers'
-import GuestRoute from '../../authentication-core/middlewares/GuestRoute'
 
 // ---------------------------------------------------------------------------
-// MFA
+// MFA – external package (@cap/module-mfa)
 // ---------------------------------------------------------------------------
-const MFASetupScreen = React.lazy(() => import('../screens/mfa/MFASetupScreen'))
-const MFAVerificationScreen = React.lazy(() => import('../screens/mfa/MFAVerificationScreen'))
-const MFAManagement = React.lazy(() => import('../screens/mfa/MFAManagement'))
+// const MFASetupInitiation     = React.lazy(() => import('@cap/module-mfa').then((m) => ({ default: m.MFASetupInitiation })))
+// const MFAVerificationTest    = React.lazy(() => import('@cap/module-mfa').then((m) => ({ default: m.MFAVerificationTest })))
+// const MFABackupCodes         = React.lazy(() => import('@cap/module-mfa').then((m) => ({ default: m.MFABackupCodes })))
+// const MFAVerificationSuccess = React.lazy(() => import('@cap/module-mfa').then((m) => ({ default: m.MFAVerificationSuccess })))
+// const MFAManagement          = React.lazy(() => import('@cap/module-mfa').then((m) => ({ default: m.MFAManagement })))
+// const MFABackupCodeEntry     = React.lazy(() => import('@cap/module-mfa').then((m) => ({ default: m.MFABackupCodeEntry })))
+// const AddMFAMethod           = React.lazy(() => import('@cap/module-mfa').then((m) => ({ default: m.AddMFAMethod })))
+// const SecurityKeyManagement  = React.lazy(() => import('@cap/module-mfa').then((m) => ({ default: m.SecurityKeyManagement })))
+
+// ---------------------------------------------------------------------------
+// MFA – internal screens
+// ---------------------------------------------------------------------------
+const MFAVerificationScreen = React.lazy(() => import('../screens/MFAVerificationScreen'))
 
 // ---------------------------------------------------------------------------
 // Passkeys – internal screens
 // ---------------------------------------------------------------------------
-const PasskeyCreationOptions = React.lazy(() => import('../screens/passkey/PasskeyCreationOptions'))
-const PasskeyLoginOption = React.lazy(() => import('../screens/passkey/PasskeyLoginOption'))
-const PasskeyManagement = React.lazy(() => import('../screens/passkey/PasskeyManagement'))
-const PasskeyNamingConfig = React.lazy(() => import('../screens/passkey/PasskeyNamingConfig'))
-const PasskeyRecoveryOptions = React.lazy(() => import('../screens/passkey/PasskeyRecoveryOptions'))
-const PasskeyRegistrationPrompt = React.lazy(
-  () => import('../screens/passkey/PasskeyRegistrationPrompt'),
-)
-const PasskeySetup = React.lazy(() => import('../screens/passkey/PasskeySetup'))
-const PasskeySetupAuto = React.lazy(() => import('../screens/passkey/PasskeySetupAuto'))
-const PasskeyUsageStats = React.lazy(() => import('../screens/passkey/PasskeyUsageStats'))
-const PasskeySetupAutoExample = React.lazy(() => import('../screens/passkey/PasskeySetupExample'))
+const PasskeyRegistrationPrompt = React.lazy(() => import('../screens/PasskeyRegistrationPrompt'))
+const PasskeyManagement         = React.lazy(() => import('../screens/PasskeyManagement'))
+const PasskeyRecoveryOptions    = React.lazy(() => import('../screens/PasskeyRecoveryOptions'))
+const PasskeyUsageStats         = React.lazy(() => import('../screens/PasskeyUsageStats'))
+const PasskeyCreationOptions    = React.lazy(() => import('../screens/PasskeyCreationOptions'))
+const PasskeyLoginOption        = React.lazy(() => import('../screens/PasskeyLoginOption'))
+const PasskeyNamingConfig       = React.lazy(() => import('../screens/PasskeyNamingConfig'))
+const PlatformAuthLogin         = React.lazy(() => import('../screens/PlatformAuthLogin'))
+const PlatformAuthRegister      = React.lazy(() => import('../screens/PlatformAuthRegister'))
 
 // ---------------------------------------------------------------------------
-// Platform Auth
+// Route config
 // ---------------------------------------------------------------------------
-const PlatformAuthLogin = React.lazy(() => import('../screens/platform/PlatformAuthLogin'))
-const PlatformAuthRegister = React.lazy(() => import('../screens/platform/PlatformAuthRegister'))
-
 export const mfaOrchestratorRouteConfig: AuthRouteConfig[] = [
   // --- MFA flows ---
-  createAuthRoute(Path.mfa.setup, <MFASetupScreen />, { layout: 'noLayout' }),
-  { path: Path.mfa.verification, element: <MFAVerificationScreen />, layout: 'noLayout' },
-  createAuthRoute(Path.mfa.management, <MFAManagement />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.mfa.dashboard, <MFAManagement />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
+  // createAuthRoute(Path.mfa.setup,                <MFASetupInitiation />,    { layout: 'noLayout' }),
+  // createAuthRoute(Path.mfa.backup_codes,         <MFABackupCodes />),
+  // createAuthRoute(Path.mfa.verification_success, <MFAVerificationSuccess />),
+  // createAuthRoute(Path.mfa.management,           <MFAManagement />),
+  // createAuthRoute(Path.mfa.dashboard,            <MFAManagement />),
+  // createAuthRoute(Path.mfa.add_method,           <AddMFAMethod />),
+  // createAuthRoute(Path.mfa.security_keys,        <SecurityKeyManagement />),
+  createAuthRoute(Path.mfa.dashboard,            <PasskeyManagement />,        { requiresVerification: true, layout: 'admin' }),
+  createAuthRoute(Path.mfa.verification,         <MFAVerificationScreen />, { layout: 'noLayout' }),
+  // { path: Path.mfa.verification, element: <MFAVerificationTest /> },
+  // { path: Path.mfa.backup_entry, element: <MFABackupCodeEntry />, layout: 'noLayout' },
 
   // --- Passkey flows ---
-  createAuthRoute(Path.passkey.creation_options, <PasskeyCreationOptions />, {
-    layout: 'noLayout',
-  }),
-  {
-    path: Path.passkey.login,
-    element: <GuestRoute element={<PasskeyLoginOption />} />,
-    layout: 'noLayout',
-  },
-  createAuthRoute(Path.passkey.management, <PasskeyManagement />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.passkey.naming_config, <PasskeyNamingConfig />, { layout: 'noLayout' }),
-  createAuthRoute(Path.passkey.recovery, <PasskeyRecoveryOptions />, { layout: 'noLayout' }),
-  createAuthRoute(Path.passkey.prompt, <PasskeyRegistrationPrompt />, { layout: 'noLayout' }),
-  createAdminRoute(Path.passkey.setup, <PasskeySetup />),
-  createAdminRoute(Path.passkey.setup_auto, <PasskeySetupAuto />),
-  createAdminRoute(Path.passkey.usage_stats, <PasskeyUsageStats />),
-  createAdminRoute(Path.passkey.example, <PasskeySetupAutoExample />),
-
-  { path: Path.platform.login, element: <PlatformAuthLogin />, layout: 'noLayout' },
-  createAuthRoute(Path.platform.register, <PlatformAuthRegister />, { layout: 'noLayout' }),
+  createAuthRoute(Path.passkey.setup,             <PasskeyRegistrationPrompt />),
+  createAuthRoute(Path.passkey.management,        <PasskeyManagement />),
+  createAuthRoute(Path.passkey.recovery,          <PasskeyRecoveryOptions />),
+  createAuthRoute(Path.passkey.creation_options,  <PasskeyCreationOptions />),
+  createAuthRoute(Path.passkey.naming_config,     <PasskeyNamingConfig />),
+  createAuthRoute(Path.passkey.platform_register, <PlatformAuthRegister />),
+  createAdminRoute(Path.passkey.usage_stats,      <PasskeyUsageStats />),
+  { path: Path.passkey.login,          element: <PasskeyLoginOption />, layout: 'noLayout' },
+  { path: Path.passkey.platform_login, element: <PlatformAuthLogin />,  layout: 'noLayout' },
 ]

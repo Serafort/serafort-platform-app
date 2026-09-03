@@ -29,7 +29,7 @@ async function waitForCallback(callback: () => void, timeout = 1000): Promise<vo
       callback()
       return
     } catch {
-      await new Promise((resolve) => setTimeout(resolve, 10))
+      await new Promise(resolve => setTimeout(resolve, 10))
     }
   }
   callback() // Final attempt

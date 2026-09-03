@@ -71,6 +71,7 @@ export default function VisualPolicyCanvas() {
   const [nodes, setNodes, onNodesChange] = useNodesState<PolicyCanvasNode>(initialTemplate.nodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState<PolicyCanvasEdge>(initialTemplate.edges)
 
+
   const [graphMeta, setGraphMeta] = useState({
     id: initialTemplate.id,
     name: initialTemplate.name,
@@ -97,11 +98,11 @@ export default function VisualPolicyCanvas() {
             animated: true,
             style: { stroke: theme.palette.primary.main, strokeWidth: 2 },
           },
-          eds,
-        ),
+          eds
+        )
       )
     },
-    [setEdges, theme],
+    [setEdges, theme]
   )
 
   // Current graph object representation
@@ -198,8 +199,7 @@ export default function VisualPolicyCanvas() {
           data: {
             label: effect === 'deny' ? 'DENY' : 'ALLOW',
             effect: effect || 'allow',
-            reason:
-              effect === 'deny' ? 'Unauthorized access attempt' : 'Access granted by policy rule',
+            reason: effect === 'deny' ? 'Unauthorized access attempt' : 'Access granted by policy rule',
             priority: 10,
           },
         }
@@ -209,15 +209,20 @@ export default function VisualPolicyCanvas() {
     setNodes((nds) => [...nds, newNode])
     setAddNodeAnchor(null)
     toast.success(`Added ${type.toUpperCase()} node to canvas`)
+
   }
 
   // Export graph to JSON
   const handleExportJSON = () => {
     const dataStr =
-      'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(currentGraph, null, 2))
+      'data:text/json;charset=utf-8,' +
+      encodeURIComponent(JSON.stringify(currentGraph, null, 2))
     const downloadAnchor = document.createElement('a')
     downloadAnchor.setAttribute('href', dataStr)
-    downloadAnchor.setAttribute('download', `${currentGraph.id || 'policy-graph'}.json`)
+    downloadAnchor.setAttribute(
+      'download',
+      `${currentGraph.id || 'policy-graph'}.json`
+    )
     document.body.appendChild(downloadAnchor)
     downloadAnchor.click()
     downloadAnchor.remove()
@@ -255,7 +260,9 @@ export default function VisualPolicyCanvas() {
 
     const compiledPolicySet = PolicyGraphCompiler.compileGraphToPolicySet(currentGraph)
     policyEngine.setPolicySet(compiledPolicySet)
-    toast.success(`Successfully compiled and deployed PolicySet to active Authorization Engine!`)
+    toast.success(
+      `Successfully compiled and deployed PolicySet to active Authorization Engine!`
+    )
   }
 
   // Handle simulation result highlighting
@@ -369,40 +376,28 @@ export default function VisualPolicyCanvas() {
             onClose={() => setAddNodeAnchor(null)}
           >
             <MenuItem onClick={() => handleAddNode('subject')}>
-              <ListItemIcon>
-                <PersonIcon fontSize='small' color='primary' />
-              </ListItemIcon>
+              <ListItemIcon><PersonIcon fontSize='small' color='primary' /></ListItemIcon>
               <ListItemText primary='Subject Node' secondary='Roles & principal attributes' />
             </MenuItem>
             <MenuItem onClick={() => handleAddNode('action')}>
-              <ListItemIcon>
-                <TouchAppIcon fontSize='small' color='info' />
-              </ListItemIcon>
+              <ListItemIcon><TouchAppIcon fontSize='small' color='info' /></ListItemIcon>
               <ListItemText primary='Action Node' secondary='Operations (read, write, delete)' />
             </MenuItem>
             <MenuItem onClick={() => handleAddNode('resource')}>
-              <ListItemIcon>
-                <FolderIcon fontSize='small' color='secondary' />
-              </ListItemIcon>
+              <ListItemIcon><FolderIcon fontSize='small' color='secondary' /></ListItemIcon>
               <ListItemText primary='Resource Node' secondary='Entity types and attributes' />
             </MenuItem>
             <MenuItem onClick={() => handleAddNode('condition')}>
-              <ListItemIcon>
-                <RuleIcon fontSize='small' color='warning' />
-              </ListItemIcon>
+              <ListItemIcon><RuleIcon fontSize='small' color='warning' /></ListItemIcon>
               <ListItemText primary='Condition Node' secondary='ABAC predicate comparator' />
             </MenuItem>
             <Divider />
             <MenuItem onClick={() => handleAddNode('decision', 'allow')}>
-              <ListItemIcon>
-                <CheckCircleIcon fontSize='small' color='success' />
-              </ListItemIcon>
+              <ListItemIcon><CheckCircleIcon fontSize='small' color='success' /></ListItemIcon>
               <ListItemText primary='ALLOW Decision Node' secondary='Terminal allow effect' />
             </MenuItem>
             <MenuItem onClick={() => handleAddNode('decision', 'deny')}>
-              <ListItemIcon>
-                <BlockIcon fontSize='small' color='error' />
-              </ListItemIcon>
+              <ListItemIcon><BlockIcon fontSize='small' color='error' /></ListItemIcon>
               <ListItemText primary='DENY Decision Node' secondary='Terminal deny effect' />
             </MenuItem>
           </Menu>
@@ -482,7 +477,8 @@ export default function VisualPolicyCanvas() {
             snapToGrid
             snapGrid={[15, 15]}
             style={{
-              backgroundColor: theme.palette.mode === 'dark' ? '#0b0f19' : '#f8fafc',
+              backgroundColor:
+                theme.palette.mode === 'dark' ? '#0b0f19' : '#f8fafc',
             }}
           >
             <Controls

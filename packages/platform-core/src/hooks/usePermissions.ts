@@ -1,5 +1,5 @@
 import { useAppStore } from '@cap/platform-store'
-import { hasAdminRole, normalizeRole, Roles } from '@cap/shared-types/auth'
+import { hasAdminRole, normalizeRole, Roles } from '../types/app-types'
 import { useAbility } from '@cap/authorization'
 
 export const usePermissions = () => {
@@ -12,25 +12,13 @@ export const usePermissions = () => {
    * @param roles Single role enum or array of role enums
    * @param logic 'AND' (default) requires all roles, 'OR' requires at least one
    */
-  const hasRole = (
-    roles: Roles | Roles[] | string | string[],
-    logic: 'AND' | 'OR' = 'OR',
-  ): boolean => {
+  const hasRole = (roles: Roles | Roles[] | string | string[], logic: 'AND' | 'OR' = 'OR'): boolean => {
     if (!isAuthenticated || !user) return false
 
     const userData = (user as any).user || user
-    const userRole =
-      normalizeRole(userData.role) ||
-      normalizeRole(userData.roleId) ||
-      normalizeRole(userData.role_id) ||
-      normalizeRole(userData.roleObject) ||
-      normalizeRole(userData.roleName) ||
-      normalizeRole(userData.role_name)
+    const userRole = normalizeRole(userData.role) || normalizeRole(userData.roleObject) || normalizeRole(userData.roleName)
 
-    if (!userRole) {
-      if (userData.isAdmin || (user as any).isAdmin) return true
-      return false
-    }
+    if (!userRole) return false
 
     const rolesArray = (Array.isArray(roles) ? roles : [roles])
       .map((role) => normalizeRole(role))
@@ -70,16 +58,7 @@ export const usePermissions = () => {
       : []
 
     if (userPermissions.length === 0) {
-      if (
-        hasAdminRole(userData.role) ||
-        hasAdminRole(userData.roleId) ||
-        hasAdminRole(userData.role_id) ||
-        hasAdminRole(userData.roleObject) ||
-        hasAdminRole(userData.roleName) ||
-        hasAdminRole(userData.role_name) ||
-        userData.isAdmin ||
-        (user as any).isAdmin
-      )
+      if (hasAdminRole(userData.role) || hasAdminRole(userData.roleObject) || hasAdminRole(userData.roleName))
         return true
       return false
     }

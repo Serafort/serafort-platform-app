@@ -1,37 +1,19 @@
-import React, { useMemo } from 'react'
-import {
-  Box,
-  Typography,
-  Container,
-  Paper,
-  Button,
-  Alert,
-  Skeleton,
-  Stack,
-  IconButton,
-} from '@mui/material'
-import {
-  Timeline,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineConnector,
-  TimelineContent,
-  TimelineOppositeContent,
-  TimelineDot,
-} from '@mui/lab'
-import Login from '@mui/icons-material/Login'
-import VpnKey from '@mui/icons-material/VpnKey'
-import Security from '@mui/icons-material/Security'
-import Password from '@mui/icons-material/Password'
-import NotificationImportant from '@mui/icons-material/NotificationImportant'
-import History from '@mui/icons-material/History'
-import Refresh from '@mui/icons-material/Refresh'
-import EventBusy from '@mui/icons-material/EventBusy'
-import { useTranslation } from 'react-i18next'
-import { useActivityTimeline } from '../../hooks/useSessionQuery'
-import type { AuditLogItem } from '../../types/session.types'
 
-type TimelineDotColor = 'success' | 'primary' | 'info' | 'warning' | 'error' | 'grey' | 'inherit'
+import { Box, Typography, Container, Paper, Button, Alert, CircularProgress } from '@mui/material';
+import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineOppositeContent, TimelineDot } from '@mui/lab';
+import Login from '@mui/icons-material/Login';
+import VpnKey from '@mui/icons-material/VpnKey';
+import Security from '@mui/icons-material/Security';
+import Password from '@mui/icons-material/Password';
+import NotificationImportant from '@mui/icons-material/NotificationImportant';
+import History from '@mui/icons-material/History';
+import Refresh from '@mui/icons-material/Refresh';
+import { useTranslation } from 'react-i18next';
+import { useActivityTimeline } from '@auth';
+import { AuditLog } from '@idaas/authentication-core/types/api.types';
+import { useMemo } from 'react';
+
+type TimelineDotColor = 'success' | 'primary' | 'info' | 'warning' | 'error' | 'grey' | 'inherit';
 
 interface ActivityItem {
   id: string
@@ -43,106 +25,75 @@ interface ActivityItem {
   color: TimelineDotColor
 }
 
-const toActivityItems = (logs: AuditLogItem[]): ActivityItem[] =>
+const toActivityItems = (logs: AuditLog[]): ActivityItem[] =>
   logs.map((log) => {
     let icon = <History fontSize='small' />
     let color: TimelineDotColor = 'grey'
-    const actionLower = (log.action || '').toLowerCase()
 
-    if (
-      actionLower.includes('login') ||
-      actionLower.includes('signin') ||
-      actionLower.includes('auth')
-    ) {
+    if (log.action.includes('login')) {
       icon = <Login fontSize='small' />
       color = 'success'
-    } else if (actionLower.includes('password')) {
+    } else if (log.action.includes('password')) {
       icon = <Password fontSize='small' />
       color = 'warning'
-    } else if (actionLower.includes('mfa') || actionLower.includes('security')) {
+    } else if (log.action.includes('mfa')) {
       icon = <Security fontSize='small' />
       color = 'info'
-    } else if (actionLower.includes('token') || actionLower.includes('key')) {
+    } else if (log.action.includes('token')) {
       icon = <VpnKey fontSize='small' />
       color = 'primary'
-    } else if (
-      actionLower.includes('fail') ||
-      actionLower.includes('error') ||
-      actionLower.includes('revoke')
-    ) {
+    } else if (log.action.includes('fail')) {
       icon = <NotificationImportant fontSize='small' />
       color = 'error'
     }
 
-    const rawTime = log.created_at || (log as any).createdAt
-    const timestamp = rawTime ? new Date(rawTime) : new Date()
+    const timestamp = new Date(log.created_at)
 
     return {
-      id: String(log.id),
-      title: log.action
-        ? log.action.charAt(0).toUpperCase() + log.action.slice(1).replace(/[._-]/g, ' ')
-        : 'Activity Event',
-      description: `${log.resource_type || 'Account'}${log.resource_id ? ` #${log.resource_id}` : ''}${log.ip_address ? ` • IP: ${log.ip_address}` : ''}`,
-      date: Number.isNaN(timestamp.getTime()) ? String(rawTime) : timestamp.toLocaleDateString(),
+      id: log.id.toString(),
+      title: log.action.charAt(0).toUpperCase() + log.action.slice(1).replace(/_/g, ' '),
+      description: `${log.resource_type}${log.resource_id ? ` #${log.resource_id}` : ''}`,
+      date: Number.isNaN(timestamp.getTime()) ? log.created_at : timestamp.toLocaleDateString(),
       time: Number.isNaN(timestamp.getTime()) ? '' : timestamp.toLocaleTimeString(),
       icon,
       color,
     }
   })
 
-export const UserActivityTimeline: React.FC = () => {
+const UserActivityTimeline = () => {
   const { t } = useTranslation()
-  const { data, isLoading, isError, error, refetch, isFetching } = useActivityTimeline()
+  const { data, isLoading, isError, refetch, isFetching } = useActivityTimeline()
 
-  const rawLogs = useMemo(() => {
-    if (Array.isArray(data?.data)) return data.data
-    if (data?.data && Array.isArray((data.data as any).logs)) return (data.data as any).logs
-    return []
-  }, [data])
-
-  const activities = useMemo(() => toActivityItems(rawLogs), [rawLogs])
+  const activities = useMemo(
+    () => toActivityItems(data?.data ?? []),
+    [data],
+  )
 
   return (
     <Container maxWidth='lg' sx={{ py: 6 }}>
-      <Box
-        sx={{ mb: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
-      >
-        <Box>
-          <Typography
-            variant='h4'
-            fontWeight='bold'
-            gutterBottom
-            sx={{ display: 'flex', alignItems: 'center' }}
-          >
-            <History sx={{ mr: 2, fontSize: 36, color: 'primary.main' }} />
-            {t('auth.account.activity_timeline_title', 'Activity Timeline')}
-          </Typography>
-          <Typography variant='body1' color='text.secondary'>
-            {t(
-              'auth.account.activity_timeline_desc',
-              'Chronological feed of login events, security changes, and profile updates to help you monitor your account security.',
-            )}
-          </Typography>
-        </Box>
-        <IconButton onClick={() => refetch()} disabled={isLoading || isFetching}>
-          <Refresh sx={{ animation: isFetching ? 'spin 1s linear infinite' : 'none' }} />
-        </IconButton>
+      <Box sx={{ mb: 6 }}>
+        <Typography
+          variant='h4'
+          fontWeight='bold'
+          gutterBottom
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
+          <History sx={{ mr: 2, fontSize: 36, color: 'primary.main' }} />
+          {t('auth.account.activity_timeline_title', 'Activity Timeline')}
+        </Typography>
+        <Typography variant='body1' color='text.secondary'>
+          {t(
+            'auth.account.activity_timeline_desc',
+            'Chronological feed of login events, security changes, and profile updates to help you monitor your account security.',
+          )}
+        </Typography>
       </Box>
 
       <Paper variant='outlined' sx={{ p: 4, borderRadius: 3 }}>
         {isLoading ? (
-          <Stack spacing={3} sx={{ py: 4, px: 2 }}>
-            {[1, 2, 3, 4].map((i) => (
-              <Box key={i} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Skeleton variant='circular' width={36} height={36} />
-                <Box sx={{ flex: 1 }}>
-                  <Skeleton variant='text' width='40%' height={24} />
-                  <Skeleton variant='text' width='70%' height={18} />
-                </Box>
-                <Skeleton variant='text' width='15%' height={20} />
-              </Box>
-            ))}
-          </Stack>
+          <Box sx={{ py: 8, display: 'flex', justifyContent: 'center' }}>
+            <CircularProgress />
+          </Box>
         ) : isError ? (
           <Box sx={{ py: 4 }}>
             <Alert
@@ -158,24 +109,13 @@ export const UserActivityTimeline: React.FC = () => {
                 </Button>
               }
             >
-              {error?.message ||
-                t(
-                  'auth.account.activity.load_failed',
-                  'Unable to load activity. Please try again.',
-                )}
+              {t('auth.account.activity.load_failed', 'Unable to load activity. Please try again.')}
             </Alert>
           </Box>
         ) : activities.length === 0 ? (
           <Box sx={{ py: 8, textAlign: 'center' }}>
-            <EventBusy sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
-            <Typography variant='h6' fontWeight={600} gutterBottom>
-              {t('auth.account.activity.no_recent_activity', 'No recent activity found')}
-            </Typography>
             <Typography color='text.secondary'>
-              {t(
-                'auth.account.activity.no_activity_desc',
-                'Security and login events will appear here in chronological order.',
-              )}
+              {t('auth.account.activity.no_recent_activity', 'No recent activity found.')}
             </Typography>
           </Box>
         ) : (
@@ -185,6 +125,7 @@ export const UserActivityTimeline: React.FC = () => {
                 <TimelineOppositeContent
                   sx={{ m: 'auto 0' }}
                   align={index % 2 === 0 ? 'right' : 'left'}
+                  variant='body2'
                   color='text.secondary'
                 >
                   <Typography variant='subtitle2' fontWeight='bold'>

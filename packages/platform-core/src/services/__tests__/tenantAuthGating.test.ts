@@ -20,10 +20,7 @@ describe('Tenant Auth Gating & Security Tests', () => {
     })
 
     it('should return false for unknown plugin IDs', () => {
-      const isUnknownEnabled = TenantService.verifyTenantAuthFeature(
-        'tenant1.localhost',
-        'non-existent-plugin',
-      )
+      const isUnknownEnabled = TenantService.verifyTenantAuthFeature('tenant1.localhost', 'non-existent-plugin')
       expect(isUnknownEnabled).toBe(false)
     })
 
@@ -37,13 +34,7 @@ describe('Tenant Auth Gating & Security Tests', () => {
         theme: {} as any,
         layout: {} as any,
         branding: {} as any,
-        features: {
-          darkMode: true,
-          rtl: false,
-          notifications: true,
-          chat: true,
-          enabledAuthPlugins: ['custom-mfa', 'saml-sso'],
-        },
+        features: { darkMode: true, rtl: false, notifications: true, chat: true, enabledAuthPlugins: ['custom-mfa', 'saml-sso'] },
         version: 1,
       }
 

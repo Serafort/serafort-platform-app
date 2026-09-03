@@ -13,123 +13,53 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  CircularProgress,
-  Alert,
+  Divider,
 } from '@mui/material'
-import Send from '@mui/icons-material/Send'
-import History from '@mui/icons-material/History'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import Error from '@mui/icons-material/Error'
-import SettingsApplications from '@mui/icons-material/SettingsApplications'
+import Send from '@mui/icons-material/Send';
+import History from '@mui/icons-material/History';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import Error from '@mui/icons-material/Error';
+import SettingsApplications from '@mui/icons-material/SettingsApplications';
+import Visibility from '@mui/icons-material/Visibility';
 import { useTranslation } from 'react-i18next'
-import { useNotifications } from '@cap/platform-core'
-import {
-  useEmailTemplatesQuery,
-  useSendTestEmailMutation,
-} from '../../hooks/useAdminMonitoringQuery'
 
 export default function EmailTestingDashboard() {
   const { t } = useTranslation('common')
-  const { addNotification } = useNotifications()
   const [testEmail, setTestEmail] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState('welcome')
-  const [testLogs, setTestLogs] = useState<
-    Array<{
-      id: string
-      template: string
-      recipient: string
-      status: string
-      time: string
-      error?: string
-    }>
-  >([
+
+  const emailLogs = [
     {
       id: '1',
       template: 'Welcome Email',
-      recipient: 'admin@cap-saas.com',
+      recipient: 'new@user.com',
       status: 'delivered',
-      time: 'Just now',
+      time: '10m ago',
     },
-  ])
-
-  const { data: templates, isLoading: loadingTemplates } = useEmailTemplatesQuery()
-  const sendEmailMutation = useSendTestEmailMutation()
-
-  const handleSendTestEmail = async () => {
-    if (!testEmail || !testEmail.includes('@')) {
-      addNotification({
-        type: 'error',
-        title: 'Invalid Email',
-        message: 'Please provide a valid recipient email address.',
-      })
-      return
-    }
-
-    try {
-      await sendEmailMutation.mutateAsync({
-        templateId: selectedTemplate,
-        recipientEmail: testEmail,
-      })
-
-      addNotification({
-        type: 'success',
-        title: 'Test Email Dispatched',
-        message: `Template "${selectedTemplate}" queued for delivery to ${testEmail}.`,
-      })
-
-      setTestLogs((prev) => [
-        {
-          id: String(Date.now()),
-          template: selectedTemplate,
-          recipient: testEmail,
-          status: 'delivered',
-          time: 'Just now',
-        },
-        ...prev,
-      ])
-      setTestEmail('')
-    } catch (err: any) {
-      addNotification({
-        type: 'error',
-        title: 'Dispatch Failed',
-        message: err?.message || 'Failed to dispatch test email.',
-      })
-
-      setTestLogs((prev) => [
-        {
-          id: String(Date.now()),
-          template: selectedTemplate,
-          recipient: testEmail,
-          status: 'failed',
-          time: 'Just now',
-          error: err?.message || 'Delivery error',
-        },
-        ...prev,
-      ])
-    }
-  }
-
-  const templateOptions =
-    templates && templates.length > 0
-      ? templates
-      : [
-          { id: 'welcome', name: 'Welcome Onboarding' },
-          { id: 'password_reset', name: 'Security: Password Reset' },
-          { id: 'mfa_code', name: 'Security: MFA Verification' },
-          { id: 'suspicious_login', name: 'Alert: Suspicious Activity' },
-        ]
+    {
+      id: '2',
+      template: 'Password Reset',
+      recipient: 'john@doe.com',
+      status: 'delivered',
+      time: '45m ago',
+    },
+    {
+      id: '3',
+      template: 'MFA OTP',
+      recipient: 'verify@app.com',
+      status: 'failed',
+      time: '1h ago',
+      error: 'Bounce: Invalid Recipient',
+    },
+  ]
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1100, mx: 'auto' }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant='h4' sx={{ fontWeight: 900, mb: 1 }}>
-          {t('auth.admin.emailTesting', 'Transactional Email Testing')}
+          {t('auth.admin.emailTesting')}
         </Typography>
         <Typography variant='body1' color='text.secondary'>
-          {t(
-            'auth.admin.emailTesting_subtitle',
-            'Validate transactional email relays, preview dynamic parameters, and inspect delivery telemetry.',
-          )}
+          {t('auth.admin.emailTesting_subtitle')}
         </Typography>
       </Box>
 
@@ -137,55 +67,36 @@ export default function EmailTestingDashboard() {
         <Grid size={{ xs: 12, md: 5 }}>
           <Stack spacing={4}>
             {/* Test Send Card */}
-            <Card
-              sx={{
-                border: '1px solid',
-                borderColor: 'divider',
-                boxShadow: 'none',
-                borderRadius: 3,
-              }}
-            >
+            <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
               <CardContent sx={{ p: 4 }}>
                 <Typography variant='h6' sx={{ fontWeight: 800, mb: 3 }}>
-                  {t('auth.admin.sendTestEmail', 'Dispatch Test Email')}
+                  {t('auth.admin.sendTestEmail')}
                 </Typography>
                 <Stack spacing={2}>
                   <TextField
                     fullWidth
-                    label={t('auth.admin.recipientAddress', 'Recipient Email')}
-                    placeholder='developer@example.com'
+                    label={t('auth.admin.recipientAddress')}
+                    placeholder='admin@example.com'
                     value={testEmail}
                     onChange={(e) => setTestEmail(e.target.value)}
                   />
                   <TextField
                     fullWidth
                     select
-                    label={t('auth.admin.selectTemplate', 'Template')}
-                    value={selectedTemplate}
-                    onChange={(e) => setSelectedTemplate(e.target.value)}
+                    label={t('auth.admin.selectTemplate')}
                     sx={{ '& .MuiSelect-select': { fontWeight: 700 } }}
                     SelectProps={{ native: true }}
-                    disabled={loadingTemplates}
                   >
-                    {templateOptions.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.name}
-                      </option>
-                    ))}
+                    <option value='welcome'>Welcome Onboarding</option>
+                    <option value='password_reset'>Security: Password Reset</option>
+                    <option value='mfa_code'>Security: MFA Verification</option>
+                    <option value='suspicious_login'>Alert: Suspicious Activity</option>
                   </TextField>
                   <Button
                     variant='contained'
                     size='large'
                     fullWidth
-                    startIcon={
-                      sendEmailMutation.isPending ? (
-                        <CircularProgress size={18} color='inherit' />
-                      ) : (
-                        <Send />
-                      )
-                    }
-                    onClick={handleSendTestEmail}
-                    disabled={sendEmailMutation.isPending || !testEmail}
+                    startIcon={<Send />}
                     sx={{
                       height: 50,
                       fontWeight: 800,
@@ -194,9 +105,7 @@ export default function EmailTestingDashboard() {
                       boxShadow: 'none',
                     }}
                   >
-                    {sendEmailMutation.isPending
-                      ? t('common.sending', 'Sending...')
-                      : t('auth.admin.dispatchTestEmail', 'Send Test Email')}
+                    {t('auth.admin.dispatchTestEmail')}
                   </Button>
                 </Stack>
               </CardContent>
@@ -204,14 +113,7 @@ export default function EmailTestingDashboard() {
 
             {/* Config Status */}
             <Card
-              sx={{
-                px: 2,
-                py: 1,
-                border: '1px solid',
-                borderColor: 'divider',
-                boxShadow: 'none',
-                borderRadius: 2,
-              }}
+              sx={{ px: 2, py: 1, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
             >
               <List>
                 <ListItem sx={{ px: 1 }}>
@@ -219,7 +121,7 @@ export default function EmailTestingDashboard() {
                     <SettingsApplications color='action' />
                   </ListItemIcon>
                   <ListItemText
-                    primary='Relay: AdonisJS Mail (SMTP / SES)'
+                    primary='Relay: AWS SES'
                     primaryTypographyProps={{ variant: 'caption', fontWeight: 800 }}
                   />
                   <Chip
@@ -247,54 +149,88 @@ export default function EmailTestingDashboard() {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
                 <History sx={{ color: 'primary.main' }} />
                 <Typography variant='h6' sx={{ fontWeight: 800 }}>
-                  {t('auth.admin.emailLogs', 'Recent Test Dispatches')}
+                  {t('auth.admin.emailLogs')}
                 </Typography>
               </Box>
               <List disablePadding>
-                {testLogs.map((log) => (
-                  <ListItem
-                    key={log.id}
-                    sx={{
-                      py: 2,
-                      px: 2,
-                      borderRadius: 2,
-                      mb: 1,
-                      '&:hover': { bgcolor: 'action.hover' },
-                    }}
-                  >
-                    <ListItemIcon>
-                      {log.status === 'delivered' ? (
-                        <CheckCircle color='success' />
-                      ) : (
-                        <Error color='error' />
-                      )}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
-                        <Stack direction='row' spacing={1} alignItems='center'>
-                          <Typography variant='body2' sx={{ fontWeight: 800 }}>
-                            {log.template}
-                          </Typography>
-                          <Chip
-                            label={log.status}
-                            size='small'
-                            color={log.status === 'delivered' ? 'success' : 'error'}
-                            variant='outlined'
-                            sx={{
-                              height: 18,
-                              fontSize: '0.6rem',
-                              fontWeight: 900,
-                              textTransform: 'uppercase',
-                            }}
-                          />
-                        </Stack>
-                      }
-                      secondary={`${log.recipient} • ${log.time}${log.error ? ` • ${log.error}` : ''}`}
-                      secondaryTypographyProps={{ variant: 'caption' }}
-                    />
-                  </ListItem>
+                {emailLogs.map((log, i) => (
+                  <React.Fragment key={log.id}>
+                    <ListItem sx={{ py: 2, px: 3, '&:hover': { bgcolor: 'action.hover' } }}>
+                      <ListItemIcon>
+                        {log.status === 'delivered' ? (
+                          <CheckCircle color='success' />
+                        ) : (
+                          <Error color='error' />
+                        )}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={
+                          <Stack direction='row' spacing={1} alignItems='center'>
+                            <Typography variant='body2' sx={{ fontWeight: 800 }}>
+                              {log.template}
+                            </Typography>
+                            <Chip
+                              label={log.status}
+                              size='small'
+                              color={log.status === 'delivered' ? 'success' : 'error'}
+                              variant='outlined'
+                              sx={{
+                                height: 16,
+                                fontSize: '0.55rem',
+                                fontWeight: 900,
+                                textTransform: 'uppercase',
+                              }}
+                            />
+                          </Stack>
+                        }
+                        secondary={
+                          <Box component='span'>
+                            <Typography variant='caption' sx={{ display: 'block' }}>
+                              To: {log.recipient}
+                            </Typography>
+                            {log.error && (
+                              <Typography
+                                variant='caption'
+                                sx={{ color: 'error.main', fontStyle: 'italic' }}
+                              >
+                                {log.error}
+                              </Typography>
+                            )}
+                          </Box>
+                        }
+                      />
+                      <Box sx={{ textAlign: 'right' }}>
+                        <Typography
+                          variant='caption'
+                          color='text.secondary'
+                          sx={{ display: 'block' }}
+                        >
+                          {log.time}
+                        </Typography>
+                        <Button
+                          size='small'
+                          sx={{
+                            textTransform: 'none',
+                            minWidth: 0,
+                            p: 0,
+                            mt: 0.5,
+                            fontSize: '0.7rem',
+                          }}
+                          startIcon={<Visibility sx={{ fontSize: '0.8rem' }} />}
+                        >
+                          {t('auth.admin.viewDetails')}
+                        </Button>
+                      </Box>
+                    </ListItem>
+                    {i < emailLogs.length - 1 && <Divider />}
+                  </React.Fragment>
                 ))}
               </List>
+              <Box sx={{ p: 2, textAlign: 'center' }}>
+                <Button variant='text' size='small' sx={{ textTransform: 'none', fontWeight: 700 }}>
+                  {t('auth.admin.exportHistory')}
+                </Button>
+              </Box>
             </CardContent>
           </Card>
         </Grid>

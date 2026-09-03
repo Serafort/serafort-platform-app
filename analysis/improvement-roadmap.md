@@ -9,7 +9,6 @@ Sequenced from `architecture-report.md` and `technical-debt-report.md`. Ordered 
 ---
 
 ## Phase 0 — Zero-risk, high-signal (do first, ~1 hour total)
-
 Pure additions or corrections with no behavioral change to running code.
 
 1. **Run the existing coupling analyzer and commit its output.** `node scripts/analyze-coupling.cjs` → `docs/MODULE_COUPLING_REPORT.md`. Replaces this review's qualitative coupling notes with exact Ce/Ca/instability numbers per package and DDD sub-module. (architecture-report.md §3)
@@ -24,13 +23,12 @@ Pure additions or corrections with no behavioral change to running code.
    > **Status: DONE** — the annotations have been added to both sections.
 
 ## Phase 1 — Layout/routing correctness (the core finding, ~0.5–1 day)
-
 This is the highest-impact fix in the review and should land as one coherent change, tested against every route layout value before merging, because it touches the shared routing contract every module depends on.
 
 6. **Decide the intended behavior for `'vertical'`/`'horizontal'` route layouts** — two valid options, pick one:
    - **(a) Retire them:** if `'admin'` (global `settings.layout` choosing vertical/horizontal) is actually meant to cover all authenticated dashboard routes, remove `'vertical'`/`'horizontal'` from the `RouteLayout` union and update `MODULE_DEVELOPMENT_GUIDE.md`'s example to stop showing them as valid per-route values.
    - **(b) Wire them up:** extend `LayoutOverride` (`settingsSlice.ts`) to include `'vertical'`/`'horizontal'` as first-class values, add the corresponding branches in `LayoutWrapper.tsx`, and update `LayoutRouteWrapper`'s effect to set them (not just `'noLayout'`).
-     > **Status: DONE (Option 6b Selected & Implemented)** — Full multi-layout contract is supported: `admin` (dynamic based on tenant settings), `noLayout`, `public`, and route-level `vertical` / `horizontal` forced overrides wired through `LayoutOverride`, `LayoutWrapper`, and `LayoutRouteWrapper`.
+   > **Status: DONE (Option 6b Selected & Implemented)** — Full multi-layout contract is supported: `admin` (dynamic based on tenant settings), `noLayout`, `public`, and route-level `vertical` / `horizontal` forced overrides wired through `LayoutOverride`, `LayoutWrapper`, and `LayoutRouteWrapper`.
 7. **Consolidate the two `LayoutRouteWrapper` implementations into one**, exported from `@cap/layout` (the more complete/commented copy), and have `packages/platform-core/src/assembly/index.tsx` import that one instead of maintaining its own. Delete `packages/platform-core/src/components/LayoutRouteWrapper.tsx` and its duplicate `RouteLayout` type export.
    > **Status: DONE** — Resolved in commit `ca5ea29` and re-exported from `@cap/platform-core`.
 8. **Fill in the missing `layout` declarations** in `user-directory/routes/routes.tsx` and `session-manager/routes/routes.tsx` so every route in those files makes an explicit choice — eliminates the layout-bleed scenario in architecture-report.md §4.2.
@@ -39,24 +37,21 @@ This is the highest-impact fix in the review and should land as one coherent cha
    > **Status: READY FOR VERIFICATION SUITE**.
 
 ## Phase 2 — Config & type-safety cleanup (~0.5 day)
-
 10. **Pin one TypeScript version range at the workspace root**; remove per-package overrides in `theme`, `platform-core`, `layout` unless justified.
 11. **Resolve or annotate the phantom packages** in `eslint.config.js`'s `Layers` object (debt report §2.1) — either delete the unused entries or add a one-line "provisioned ahead of package creation" comment.
 12. **Replace the `layout?: any` field** in `routeHelpers.tsx`'s `createAuthRoute` options with the real `RouteLayout` type now that Phase 1 has settled what that type is.
 13. **Audit and fix the other flagged `any` sites** in `SignInV2.tsx` (mutation error handlers, role casts, `import.meta` env access).
 
 ## Phase 3 — Theme completeness (~0.25 day, isolated/low-risk)
-
 14. **Extend `error`/`warning`/`success`/`info` to derive `light`/`dark`/opacity variants from their tenant token** the same way `primary`/`secondary` already do in `composeMuiTheme.ts` — small, additive, no breaking change to the `TenantThemeConfig` shape.
 15. **Confirm whether `mergeDeep` in `mergeTheme.ts` is dead code**; remove if so, or add a unit test if it turns out to be used on tenant-supplied JSON.
 16. **Add one clarifying paragraph to `DESIGN_SYSTEM.md`** explaining the `stylis-plugin-rtl` physical-property-flip strategy so the "always use logical properties" guidance doesn't read as contradicted by the actual codebase.
-    > **Status: DONE** — Documented in `AGENTS.md` and `DESIGN_SYSTEM.md`.
+   > **Status: DONE** — Documented in `AGENTS.md` and `DESIGN_SYSTEM.md`.
 
 ## Phase 4 — Component-level UI/UX & quality (~1–2 days, non-urgent)
-
 17. **Extract `resolveRedirectPathForUser()`** out of `SignInV2.tsx`'s four duplicated call sites.
-    > **Status: DONE** — Extracted into `resolveRedirect.ts`.
+   > **Status: DONE** — Extracted into `resolveRedirect.ts`.
 18. **Split `SignInV2.tsx`** into a `useSignInFlow()` hook plus `CredentialsStep`/`MfaStep`/`LockedStep` presentational components.
-    > **Status: DONE** — Split into modular sub-components and hook.
+   > **Status: DONE** — Split into modular sub-components and hook.
 19. **Standardize MFA/OTP entry** on the already-installed `react-otp-input` (or confirm a deliberate reason it isn't used here and drop the dependency if genuinely unused elsewhere).
 20. **Fix the duplicate `ref` assignment** in `Table.tsx` (`Card` vs. `TableComponent`).

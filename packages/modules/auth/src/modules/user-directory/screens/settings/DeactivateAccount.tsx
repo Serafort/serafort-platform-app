@@ -1,21 +1,13 @@
-import { useState, useCallback } from 'react'
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Alert,
-  CircularProgress,
-  Link as MuiLink,
-} from '@mui/material'
-import Warning from '@mui/icons-material/Warning'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { useDeactivateAccount, useUserProfile } from '../../hooks/useUserQuery'
-import logger from '@idaas/authentication-core/utils/logger'
-import { Path } from '@cap/module-auth/routes/path'
-import { buildLayoutSurfaceEffect } from '@cap/layout'
-import { getTenantThemeEffects } from '@cap/theme'
+import { useState, useCallback } from 'react';
+import { Box, Button, TextField, Typography, Alert, CircularProgress, Link as MuiLink } from '@mui/material';
+import Warning from '@mui/icons-material/Warning';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { useDeactivateAccount, useUserProfile } from '../../hooks/useUserQuery';
+import logger from '@idaas/authentication-core/utils/logger';
+import { Path } from '@cap/module-auth/routes/path';
+import { buildLayoutSurfaceEffect } from '@cap/layout';
+import { getTenantThemeEffects } from '@cap/theme';
 
 export default function DeactivateAccount() {
   const { t } = useTranslation()
@@ -29,7 +21,7 @@ export default function DeactivateAccount() {
   const user = userProfile?.data as any
 
   const handleDeactivate = useCallback(async () => {
-    if (confirmText.toUpperCase() !== 'DEACTIVATE' && confirmText.toUpperCase() !== 'DELETE') {
+    if (confirmText !== 'DELETE') {
       return
     }
 
@@ -108,7 +100,7 @@ export default function DeactivateAccount() {
               pb: 1,
             }}
           >
-            {t('auth.account.deactivate_title', 'Deactivate Account')}
+            {t('auth.account.deactivate_title')}
           </Typography>
 
           <Typography
@@ -119,10 +111,7 @@ export default function DeactivateAccount() {
               lineHeight: 1.6,
             }}
           >
-            {t(
-              'auth.account.deactivate_description',
-              'Deactivating your account will temporarily disable your profile and access. You can reactivate anytime by logging back in.',
-            )}
+            {t('auth.account.deactivate_description')}
           </Typography>
         </Box>
 
@@ -131,30 +120,28 @@ export default function DeactivateAccount() {
           {deactivateAccountMutation.isError && (
             <Alert severity='error' sx={{ mb: 3 }}>
               {(deactivateAccountMutation.error as any)?.message ||
-                t('auth.common.errorOccurred', 'An error occurred during deactivation')}
+                t('auth.common.errorOccurred')}
             </Alert>
           )}
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+
             {/* Confirmation Input */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Typography
                 component='label'
-                htmlFor='confirm-deactivate'
+                htmlFor='confirm-delete'
                 sx={{
                   fontSize: '0.875rem',
                   fontWeight: 600,
                 }}
               >
-                {t(
-                  'auth.account.deactivate_confirm_instruction',
-                  'To confirm, please type DEACTIVATE below:',
-                )}
+                {t('auth.account.deactivate_confirm_instruction')}
               </Typography>
               <TextField
-                id='confirm-deactivate'
+                id='confirm-delete'
                 fullWidth
-                placeholder='DEACTIVATE'
+                placeholder='DELETE'
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 sx={{
@@ -187,18 +174,14 @@ export default function DeactivateAccount() {
                   textTransform: 'none',
                 }}
               >
-                {t('auth.account.cancel', 'Cancel')}
+                {t('auth.account.cancel')}
               </Button>
               <Button
                 fullWidth
                 variant='contained'
                 color='error'
                 onClick={handleDeactivate}
-                disabled={
-                  (confirmText.toUpperCase() !== 'DEACTIVATE' &&
-                    confirmText.toUpperCase() !== 'DELETE') ||
-                  deactivateAccountMutation.isPending
-                }
+                disabled={confirmText !== 'DELETE' || deactivateAccountMutation.isPending}
                 sx={{
                   height: 44,
                   fontSize: '0.875rem',
@@ -211,7 +194,7 @@ export default function DeactivateAccount() {
                 {deactivateAccountMutation.isPending ? (
                   <CircularProgress size={24} color='inherit' />
                 ) : (
-                  t('auth.account.deactivate_submit_button', 'Deactivate Account')
+                  t('auth.account.deactivate_submit_button')
                 )}
               </Button>
             </Box>

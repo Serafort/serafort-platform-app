@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
@@ -10,21 +14,43 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["react", "node", "vite/client"],
+    "types": [
+      "react",
+      "node",
+      "vite/client"
+    ],
     "paths": {
-      "@cap/shared-types": ["../shared-types/src"],
-      "@cap/shared-types/*": ["../shared-types/src/*"],
-      "@cap/platform-core": ["../platform-core/src"],
-      "@cap/platform-core/*": ["../platform-core/src/*"],
-      "@cap/platform-store": ["../platform-store/src"],
-      "@cap/platform-store/*": ["../platform-store/src/*"],
-      "@cap/authorization": ["./src"],
-      "@cap/authorization/*": ["./src/*"]
+      "@cap/shared-types": [
+        "../shared-types/src"
+      ],
+      "@cap/shared-types/*": [
+        "../shared-types/src/*"
+      ],
+      "@cap/platform-core": [
+        "../platform-core/src"
+      ],
+      "@cap/platform-core/*": [
+        "../platform-core/src/*"
+      ],
+      "@cap/platform-store": [
+        "../platform-store/src"
+      ],
+      "@cap/platform-store/*": [
+        "../platform-store/src/*"
+      ],
+      "@cap/authorization": [
+        "./src"
+      ],
+      "@cap/authorization/*": [
+        "./src/*"
+      ]
     },
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ]
 }

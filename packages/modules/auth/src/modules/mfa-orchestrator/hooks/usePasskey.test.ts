@@ -1,34 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { usePasskey } from './usePasskey'
+import { usePasskey } from "./usePasskey"
 
-const {
-  mockStartAuthentication,
-  mockStartRegistration,
-  mockGetLoginOptions,
-  mockVerifyLogin,
-  mockGetRegistrationOptions,
-  mockVerifyRegistration,
-  mockInvalidateQueries,
-} = vi.hoisted(() => ({
+
+const { mockStartAuthentication, mockGetLoginOptions, mockVerifyLogin } = vi.hoisted(() => ({
   mockStartAuthentication: vi.fn(),
-  mockStartRegistration: vi.fn(),
   mockGetLoginOptions: vi.fn(),
   mockVerifyLogin: vi.fn(),
-  mockGetRegistrationOptions: vi.fn(),
-  mockVerifyRegistration: vi.fn(),
-  mockInvalidateQueries: vi.fn(),
 }))
 
 vi.mock('@simplewebauthn/browser', () => ({
   startAuthentication: mockStartAuthentication,
-  startRegistration: mockStartRegistration,
-}))
-
-vi.mock('@tanstack/react-query', () => ({
-  useQueryClient: () => ({
-    invalidateQueries: mockInvalidateQueries,
-  }),
 }))
 
 vi.mock('../services/mfa.service', () => ({
@@ -36,11 +18,10 @@ vi.mock('../services/mfa.service', () => ({
     passkeys: {
       getLoginOptions: mockGetLoginOptions,
       verifyLogin: mockVerifyLogin,
-      getRegistrationOptions: mockGetRegistrationOptions,
-      verifyRegistration: mockVerifyRegistration,
     },
   },
 }))
+
 
 describe('usePasskey', () => {
   beforeEach(() => {
@@ -52,10 +33,10 @@ describe('usePasskey', () => {
     expect(result.current.isLoading).toBe(false)
     expect(result.current.error).toBeNull()
     expect(typeof result.current.loginWithPasskey).toBe('function')
-    expect(typeof result.current.registerPasskey).toBe('function')
   })
 
   it('sets isLoading=true during the authentication flow', async () => {
+    // Keep the promise pending long enough to read state
     let resolveOptions!: (v: any) => void
     mockGetLoginOptions.mockReturnValue(new Promise((r) => (resolveOptions = r)))
 
@@ -67,6 +48,7 @@ describe('usePasskey', () => {
 
     expect(result.current.isLoading).toBe(true)
 
+    // Resolve to prevent dangling promises
     resolveOptions({ data: { challenge: 'abc' } })
     mockStartAuthentication.mockResolvedValue({ id: 'cred' })
     mockVerifyLogin.mockResolvedValue({ data: { token: 'tok' } })
@@ -91,37 +73,26 @@ describe('usePasskey', () => {
 
     expect(response).toEqual(verifyResponse)
     expect(mockGetLoginOptions).toHaveBeenCalledWith('user@example.com')
-    expect(mockStartAuthentication).toHaveBeenCalledWith({ optionsJSON: { challenge: 'abc' } })
+    expect(mockStartAuthentication).toHaveBeenCalledWith({ challenge: 'abc' })
     expect(mockVerifyLogin).toHaveBeenCalledWith({ id: 'cred' })
   })
 
-  it('registers a passkey successfully and invalidates queries', async () => {
-    const regResponse = { data: { verified: true } }
-    mockGetRegistrationOptions.mockResolvedValue({ data: { challenge: 'reg-chal' } })
-    mockStartRegistration.mockResolvedValue({ id: 'new-cred-id' })
-    mockVerifyRegistration.mockResolvedValue(regResponse)
+  it('loginWithPasskey works without an email argument', async () => {
+    mockGetLoginOptions.mockResolvedValue({ data: { challenge: 'xyz' } })
+    mockStartAuthentication.mockResolvedValue({ id: 'cred2' })
+    mockVerifyLogin.mockResolvedValue({ data: { token: 'tok2' } })
 
     const { result } = renderHook(() => usePasskey())
-    let response: any
     await act(async () => {
-      response = await result.current.registerPasskey({ friendlyName: 'My YubiKey' })
+      await result.current.loginWithPasskey()
     })
 
-    expect(response).toEqual(regResponse)
-    expect(mockGetRegistrationOptions).toHaveBeenCalled()
-    expect(mockStartRegistration).toHaveBeenCalledWith({ optionsJSON: { challenge: 'reg-chal' } })
-    expect(mockVerifyRegistration).toHaveBeenCalledWith({
-      id: 'new-cred-id',
-      friendlyName: 'My YubiKey',
-    })
-    expect(mockInvalidateQueries).toHaveBeenCalled()
+    expect(mockGetLoginOptions).toHaveBeenCalledWith(undefined)
   })
 
-  it('sets error and re-throws when startAuthentication rejects with NotAllowedError', async () => {
-    mockGetLoginOptions.mockResolvedValue({ data: { challenge: 'abc' } })
-    const notAllowedError = new Error('The operation either timed out or was not allowed')
-    notAllowedError.name = 'NotAllowedError'
-    mockStartAuthentication.mockRejectedValue(notAllowedError)
+  it('sets error and re-throws when getLoginOptions rejects', async () => {
+    const err = new Error('Network error')
+    mockGetLoginOptions.mockRejectedValue(err)
 
     const { result } = renderHook(() => usePasskey())
     let thrownError: any
@@ -133,7 +104,65 @@ describe('usePasskey', () => {
       }
     })
 
-    expect(thrownError).toBeDefined()
-    expect(result.current.error).toBe('Passkey prompt was cancelled or timed out.')
+    expect(thrownError?.message).toBe('Network error')
+    expect(result.current.error).toBe('Network error')
+    expect(result.current.isLoading).toBe(false)
+  })
+
+  it('sets a descriptive error when getLoginOptions returns no data', async () => {
+    mockGetLoginOptions.mockResolvedValue({ data: null })
+
+    const { result } = renderHook(() => usePasskey())
+    let thrownError: any
+    await act(async () => {
+      try {
+        await result.current.loginWithPasskey()
+      } catch (e) {
+        thrownError = e
+      }
+    })
+
+    expect(thrownError?.message).toBe('Failed to get passkey login options')
+    expect(result.current.error).toBe('Failed to get passkey login options')
+  })
+
+  it('sets error and re-throws when startAuthentication rejects', async () => {
+    mockGetLoginOptions.mockResolvedValue({ data: { challenge: 'abc' } })
+    mockStartAuthentication.mockRejectedValue(new Error('User cancelled'))
+
+    const { result } = renderHook(() => usePasskey())
+    let thrownError: any
+    await act(async () => {
+      try {
+        await result.current.loginWithPasskey()
+      } catch (e) {
+        thrownError = e
+      }
+    })
+
+    expect(thrownError?.message).toBe('User cancelled')
+    expect(result.current.error).toBe('User cancelled')
+  })
+
+  it('clears a previous error before the next attempt', async () => {
+    // First call fails
+    mockGetLoginOptions.mockRejectedValueOnce(new Error('first error'))
+    const { result } = renderHook(() => usePasskey())
+    await act(async () => {
+      try {
+        await result.current.loginWithPasskey()
+      } catch {}
+    })
+    expect(result.current.error).toBe('first error')
+
+    // Second call succeeds
+    mockGetLoginOptions.mockResolvedValue({ data: { challenge: 'abc' } })
+    mockStartAuthentication.mockResolvedValue({ id: 'cred' })
+    mockVerifyLogin.mockResolvedValue({ data: { token: 'tok' } })
+    await act(async () => {
+      await result.current.loginWithPasskey()
+    })
+
+    expect(result.current.error).toBeNull()
   })
 })

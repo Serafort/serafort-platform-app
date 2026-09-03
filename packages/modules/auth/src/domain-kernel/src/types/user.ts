@@ -1,5 +1,5 @@
-import type { UserId, OrganizationId, RoleId } from './identifiers'
-import type { Role } from './authorization'
+import type { UserId, OrganizationId, RoleId } from './identifiers';
+import type { Role } from './authorization';
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'BANNED' | 'SUSPENDED' | 'PENDING'
 

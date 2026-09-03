@@ -1,18 +1,10 @@
-import React, { createContext, useContext, useMemo } from "react";
-import type {
-  TenantThemeContextValue,
-  TenantThemeState,
-  TenantThemeStatus,
-  TenantThemeActions,
-  TenantThemeProviderProps,
-} from "../types";
-import { DEFAULT_THEME_CONFIG } from "../types";
+import React, { createContext, useContext, useMemo } from 'react';
+import type { TenantThemeContextValue, TenantThemeState, TenantThemeStatus, TenantThemeActions, TenantThemeProviderProps } from '../types';
+import { DEFAULT_THEME_CONFIG } from '../types';
 
 const TenantThemeStateContext = createContext<TenantThemeState | null>(null);
 const TenantThemeStatusContext = createContext<TenantThemeStatus | null>(null);
-const TenantThemeActionsContext = createContext<TenantThemeActions | null>(
-  null,
-);
+const TenantThemeActionsContext = createContext<TenantThemeActions | null>(null);
 
 // Deprecated: use the granular contexts instead
 const TenantThemeContext = createContext<TenantThemeContextValue | null>(null);
@@ -30,23 +22,17 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({
 
   const stateValue = useMemo(() => ({ theme: currentTheme }), [currentTheme]);
   const statusValue = useMemo(() => ({ isLoading, error }), [isLoading, error]);
-  const actionsValue = useMemo(
-    () => ({
-      refetch,
-      updateTheme,
-      saveTheme,
-    }),
-    [refetch, updateTheme, saveTheme],
-  );
+  const actionsValue = useMemo(() => ({
+    refetch,
+    updateTheme,
+    saveTheme,
+  }), [refetch, updateTheme, saveTheme]);
 
-  const contextValue = useMemo(
-    () => ({
-      ...stateValue,
-      ...statusValue,
-      ...actionsValue,
-    }),
-    [stateValue, statusValue, actionsValue],
-  );
+  const contextValue = useMemo(() => ({
+    ...stateValue,
+    ...statusValue,
+    ...actionsValue,
+  }), [stateValue, statusValue, actionsValue]);
 
   return (
     <TenantThemeStateContext.Provider value={stateValue}>
@@ -75,12 +61,11 @@ export const useTenantThemeStatus = () => {
 
 export const useTenantThemeActions = () => {
   const context = useContext(TenantThemeActionsContext);
-  if (!context)
-    return {
-      refetch: async () => {},
-      updateTheme: async () => {},
-      saveTheme: async () => {},
-    };
+  if (!context) return {
+    refetch: async () => {},
+    updateTheme: async () => {},
+    saveTheme: async () => {},
+  };
   return context;
 };
 

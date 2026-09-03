@@ -17,7 +17,7 @@ const VerticalLayout: React.FC<
       className={classnames(verticalLayoutClasses.root)}
       sx={{ display: 'flex', flex: '1 1 auto' }}
     >
-      {navigation ? <Box component='aside'>{navigation}</Box> : null}
+      {navigation ? <Box component="aside">{navigation}</Box> : null}
       <Box
         className={classnames(verticalLayoutClasses.contentWrapper)}
         sx={{
@@ -27,9 +27,9 @@ const VerticalLayout: React.FC<
           inlineSize: '100%',
         }}
       >
-        {navbar ? <Box component='header'>{navbar}</Box> : null}
+        {navbar ? <Box component="header">{navbar}</Box> : null}
         <LayoutContent>{children}</LayoutContent>
-        {footer ? <Box component='footer'>{footer}</Box> : null}
+        {footer ? <Box component="footer">{footer}</Box> : null}
       </Box>
     </Box>
   )

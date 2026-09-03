@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -14,21 +14,19 @@ import {
   TextField,
   Typography,
   IconButton,
-} from "@mui/material";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import BookmarkIcon from "@mui/icons-material/Bookmark";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
-import CheckIcon from "@mui/icons-material/Check";
-import { useAppStore } from "@cap/platform-store";
-import { useShallow } from "zustand/shallow";
+} from '@mui/material';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import CheckIcon from '@mui/icons-material/Check';
+import { useAppStore } from '@cap/platform-store';
+import { useShallow } from 'zustand/shallow';
 
 export const DashboardViewSelector: React.FC = () => {
-  const activeViewName = useAppStore(
-    (state) => state.activeViewName || "Default View",
-  );
+  const activeViewName = useAppStore((state) => state.activeViewName || 'Default View');
   const savedViews = useAppStore((state) => state.savedViews || {});
 
   const actions = useAppStore(
@@ -38,14 +36,14 @@ export const DashboardViewSelector: React.FC = () => {
       deleteView: state.deleteView,
       exportLayoutsJson: state.exportLayoutsJson,
       importLayoutsJson: state.importLayoutsJson,
-    })),
+    }))
   );
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
-  const [newViewName, setNewViewName] = useState("");
-  const [jsonInput, setJsonInput] = useState("");
+  const [newViewName, setNewViewName] = useState('');
+  const [jsonInput, setJsonInput] = useState('');
   const [importError, setImportError] = useState(false);
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -59,7 +57,7 @@ export const DashboardViewSelector: React.FC = () => {
   const handleSaveViewSubmit = () => {
     if (newViewName.trim()) {
       actions.saveView(newViewName.trim());
-      setNewViewName("");
+      setNewViewName('');
       setSaveDialogOpen(false);
     }
   };
@@ -74,7 +72,7 @@ export const DashboardViewSelector: React.FC = () => {
     const success = actions.importLayoutsJson(jsonInput);
     if (success) {
       setImportError(false);
-      setJsonInput("");
+      setJsonInput('');
       setImportDialogOpen(false);
     } else {
       setImportError(true);
@@ -92,7 +90,7 @@ export const DashboardViewSelector: React.FC = () => {
         onClick={handleOpenMenu}
         sx={{
           borderRadius: 2,
-          textTransform: "none",
+          textTransform: 'none',
           fontWeight: 600,
         }}
       >
@@ -108,12 +106,7 @@ export const DashboardViewSelector: React.FC = () => {
         }}
       >
         <Box sx={{ px: 2, py: 1 }}>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            fontWeight={700}
-            textTransform="uppercase"
-          >
+          <Typography variant="caption" color="text.secondary" fontWeight={700} textTransform="uppercase">
             Saved Dashboard Views
           </Typography>
         </Box>
@@ -147,18 +140,10 @@ export const DashboardViewSelector: React.FC = () => {
                   actions.loadView(name);
                   handleCloseMenu();
                 }}
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
+                sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  {isActive ? (
-                    <CheckIcon fontSize="small" color="primary" />
-                  ) : (
-                    <BookmarkIcon fontSize="small" color="action" />
-                  )}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {isActive ? <CheckIcon fontSize="small" color="primary" /> : <BookmarkIcon fontSize="small" color="action" />}
                   <Typography variant="body2" fontWeight={isActive ? 700 : 500}>
                     {name}
                   </Typography>
@@ -200,17 +185,11 @@ export const DashboardViewSelector: React.FC = () => {
       </Menu>
 
       {/* Save View Dialog */}
-      <Dialog
-        open={saveDialogOpen}
-        onClose={() => setSaveDialogOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
+      <Dialog open={saveDialogOpen} onClose={() => setSaveDialogOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle fontWeight={700}>Save Dashboard View</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" mb={2}>
-            Enter a template name to snapshot your current widget positions,
-            sizes, and layout configurations.
+            Enter a template name to snapshot your current widget positions, sizes, and layout configurations.
           </Typography>
           <TextField
             autoFocus
@@ -224,28 +203,18 @@ export const DashboardViewSelector: React.FC = () => {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleSaveViewSubmit}
-            disabled={!newViewName.trim()}
-          >
+          <Button variant="contained" onClick={handleSaveViewSubmit} disabled={!newViewName.trim()}>
             Save View
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Import Layout Dialog */}
-      <Dialog
-        open={importDialogOpen}
-        onClose={() => setImportDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
+      <Dialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle fontWeight={700}>Import Layout JSON</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" mb={2}>
-            Paste a valid dashboard layout JSON string to restore saved canvas
-            configurations.
+            Paste a valid dashboard layout JSON string to restore saved canvas configurations.
           </Typography>
           <TextField
             multiline
@@ -254,22 +223,14 @@ export const DashboardViewSelector: React.FC = () => {
             value={jsonInput}
             onChange={(e) => setJsonInput(e.target.value)}
             error={importError}
-            helperText={
-              importError
-                ? "Invalid JSON format. Please verify payload structure."
-                : ""
-            }
+            helperText={importError ? 'Invalid JSON format. Please verify payload structure.' : ''}
             fullWidth
             size="small"
           />
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setImportDialogOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleImportSubmit}
-            disabled={!jsonInput.trim()}
-          >
+          <Button variant="contained" onClick={handleImportSubmit} disabled={!jsonInput.trim()}>
             Restore Layout
           </Button>
         </DialogActions>

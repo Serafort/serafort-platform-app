@@ -68,11 +68,7 @@ const getShortcutIcon = (icon: string | ReactNode): ReactNode => {
 
 const ScrollWrapper = ({ children, hidden }: { children: ReactNode; hidden: boolean }) => {
   if (hidden) {
-    return (
-      <Box sx={{ overflowX: 'hidden', maxBlockSize: dropdownTokens.shortcuts.maxBlockSize }}>
-        {children}
-      </Box>
-    )
+    return <Box sx={{ overflowX: 'hidden', maxBlockSize: dropdownTokens.shortcuts.maxBlockSize }}>{children}</Box>
   } else {
     return (
       <PerfectScrollbar
@@ -212,11 +208,7 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
                         },
                       }}
                     >
-                      <IconButton
-                        onClick={handleOpenAddDialog}
-                        size='small'
-                        sx={{ color: 'text.primary' }}
-                      >
+                      <IconButton onClick={handleOpenAddDialog} size='small' sx={{ color: 'text.primary' }}>
                         <Add fontSize='small' />
                       </IconButton>
                     </Tooltip>
@@ -243,8 +235,7 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
                               borderInlineEndColor: 'divider',
                             }),
                             // Horizontal border for all except last row
-                            ...(index <
-                              shortcutsList.length - (shortcutsList.length % 2 === 0 ? 2 : 1) && {
+                            ...(index < shortcutsList.length - (shortcutsList.length % 2 === 0 ? 2 : 1) && {
                               borderBlockEnd: 1,
                               borderBlockEndColor: 'divider',
                             }),
@@ -314,9 +305,7 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
         }}
       >
         <DialogTitle>{t('navigation.addShortcut')}</DialogTitle>
-        <DialogContent
-          sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: '16px !important' }}
-        >
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: '16px !important' }}>
           <FormControl fullWidth size='small'>
             <InputLabel id='select-shortcut-page-label'>{t('navigation.selectPage')}</InputLabel>
             <Select
