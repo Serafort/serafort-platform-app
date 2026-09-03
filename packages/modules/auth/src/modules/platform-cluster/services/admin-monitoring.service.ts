@@ -165,12 +165,88 @@ export const adminMonitoringService = {
     return apiClient.get(`${ENDPOINTS.admin.security.alerts}${query}`)
   },
 
+  getAlertCountsBySeverity: (): Promise<FetchResponse<Record<string, number>>> => {
+    return apiClient.get<Record<string, number>>(ENDPOINTS.admin.alerts.countBySeverity)
+  },
+
+  getAlertById: (id: string | number): Promise<FetchResponse<AlertItem>> => {
+    return apiClient.get<AlertItem>(ENDPOINTS.admin.alerts.byId(id))
+  },
+
   acknowledgeAlert: (id: string | number): Promise<FetchResponse<{ message: string }>> => {
-    return apiClient.post<{ message: string }>(`/api/admin/alerts/${id}/acknowledge`)
+    return apiClient.post<{ message: string }>(ENDPOINTS.admin.alerts.acknowledge(id))
   },
 
   resolveAlert: (id: string | number): Promise<FetchResponse<{ message: string }>> => {
-    return apiClient.post<{ message: string }>(`/api/admin/alerts/${id}/resolve`)
+    return apiClient.post<{ message: string }>(ENDPOINTS.admin.alerts.resolve(id))
+  },
+
+  resolveAlerts: (ids: (string | number)[]): Promise<FetchResponse<{ message: string }>> => {
+    return apiClient.post<{ message: string }>(ENDPOINTS.admin.alerts.bulkResolve, { ids })
+  },
+
+  dismissAlert: (id: string | number): Promise<FetchResponse<{ message: string }>> => {
+    return apiClient.patch<{ message: string }>(ENDPOINTS.admin.security.dismissAlert(id))
+  },
+
+  deleteAlert: (id: string | number): Promise<FetchResponse<{ message: string }>> => {
+    return apiClient.delete<{ message: string }>(ENDPOINTS.admin.alerts.destroy(id))
+  },
+
+  // --- Anomaly detection ---
+
+  getAnomalies: (params?: {
+    status?: string
+    severity?: string
+    limit?: number
+  }): Promise<FetchResponse<any>> => {
+    const searchParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) searchParams.append(key, String(value))
+      })
+    }
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : ''
+    return apiClient.get(`${ENDPOINTS.admin.anomalies.index}${query}`)
+  },
+
+  getAnomalyById: (id: string | number): Promise<FetchResponse<any>> => {
+    return apiClient.get(ENDPOINTS.admin.anomalies.byId(id))
+  },
+
+  getAnomalyStats: (): Promise<FetchResponse<any>> => {
+    return apiClient.get(ENDPOINTS.admin.anomalies.stats)
+  },
+
+  getAnomalyScore: (): Promise<FetchResponse<any>> => {
+    return apiClient.get(ENDPOINTS.admin.anomalies.score)
+  },
+
+  updateAnomalyStatus: (
+    id: string | number,
+    status: string,
+  ): Promise<FetchResponse<{ message: string }>> => {
+    return apiClient.patch<{ message: string }>(ENDPOINTS.admin.anomalies.updateStatus(id), {
+      status,
+    })
+  },
+
+  markAnomalyFalsePositive: (id: string | number): Promise<FetchResponse<{ message: string }>> => {
+    return apiClient.post<{ message: string }>(ENDPOINTS.admin.anomalies.falsePositive(id))
+  },
+
+  /** Run the detector now rather than waiting for its schedule. */
+  detectAnomalies: (): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.admin.anomalies.detect)
+  },
+
+  getAnomalyBaseline: (): Promise<FetchResponse<any>> => {
+    return apiClient.get(ENDPOINTS.admin.anomalies.baseline)
+  },
+
+  /** Recompute the baseline the detector scores against. */
+  refreshAnomalyBaseline: (): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.admin.anomalies.refreshBaseline)
   },
 
   getEmailTemplates: (): Promise<FetchResponse<EmailTemplate[]>> => {
