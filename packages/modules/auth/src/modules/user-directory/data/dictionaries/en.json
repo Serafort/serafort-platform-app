@@ -240,5 +240,94 @@
       "passwordPlaceholder": "Enter your password",
       "errorOccurred": "An unexpected error occurred. Please try again."
     }
+  },
+  "user": {
+    "privacy": {
+      "title": "Privacy",
+      "subtitle": "What you have agreed to, and the rights you can exercise over the data held about you.",
+      "consent_failed": "That preference could not be saved.",
+      "consent_title": "Your consent",
+      "consent_help": "Each choice is recorded with the time it was made. Transactional email — sign-in codes, security alerts — is not consent-based and cannot be switched off here.",
+      "recorded_from": "Recorded from {{ip}}",
+      "decided_on": "Last changed {{date}}",
+      "never_asked": "No decision recorded",
+      "rights_title": "Your data",
+      "export_title": "Download your data",
+      "export_body": "Prepared in the background. You will be emailed when it is ready.",
+      "export": "Request export",
+      "export_queued": "Export started. You will receive an email when it is ready.",
+      "erasure_title": "Erase your data",
+      "erasure_body": "Permanent and irreversible. You will be asked to confirm in writing and re-enter your password.",
+      "erasure": "Continue",
+      "policy_versions_title": "Policy changes",
+      "policy_versions_body": "This system records what you chose and when, but does not yet version the policy those choices were made against, so it cannot tell you whether a policy has changed since. Re-consent prompts will appear here once it does.",
+      "purpose": {
+        "marketing": {
+          "title": "Marketing",
+          "body": "Product announcements and offers, sent to you directly."
+        },
+        "analytics": {
+          "title": "Analytics",
+          "body": "Usage measurement, so the product can be improved. Not used to target you."
+        },
+        "data_sharing": {
+          "title": "Data sharing",
+          "body": "Sharing your data with third parties outside what a contract or the law requires."
+        },
+        "newsletter": {
+          "title": "Newsletter",
+          "body": "The periodic newsletter. Separate from transactional email, which is not optional."
+        }
+      }
+    },
+    "erasure": {
+      "title": "Erase your data",
+      "subtitle": "This cannot be undone. Read what will happen, then confirm twice — once in writing and once with your password.",
+      "submitted_title": "Erasure request received",
+      "submitted_body": "Your request is being processed in the background. You will be signed out shortly and will not be able to sign back in.",
+      "back": "Back to privacy",
+      "step_consequences": "What will happen",
+      "consequence_signin": "You will be signed out and will not be able to sign back in.",
+      "consequence_profile": "Your profile, preferences and linked accounts are removed.",
+      "consequence_sessions": "Every active session and credential — passkeys, authenticators, tokens — is revoked.",
+      "consequence_retained": "Records the law requires us to keep, such as security audit entries, are retained in anonymised form.",
+      "acknowledge": "I understand this is permanent and cannot be reversed.",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "back_step": "Back",
+      "step_phrase": "Confirm in writing",
+      "phrase_help": "Type {{phrase}} exactly, to confirm this is deliberate.",
+      "step_password": "Confirm it is you",
+      "password_help": "Your password is checked before anything is deleted.",
+      "password": "Current password",
+      "hard_delete": "Remove my records entirely rather than anonymising them",
+      "hard_delete_help": "Anonymising already satisfies your erasure right and keeps security audit trails intact. Choose full removal only if you need it.",
+      "failed": "The request could not be submitted. If the password was wrong, try again — repeated attempts are rate limited.",
+      "final_warning": "This is the last step. There is no undo.",
+      "submit": "Erase my data",
+      "footer": "Prefer to keep the account but stop using it? Deactivating suspends access without destroying your data."
+    }
+  },
+  "admin": {
+    "compliance": {
+      "title": "Compliance reports",
+      "subtitle": "The Article 30 register of processing activities and the data-retention summary.",
+      "article30": "Records of processing activities",
+      "article30_help": "GDPR Article 30. What is processed, why, and on what legal basis.",
+      "article30_static": "This register is defined in the backend rather than configured, so it changes only with a deploy. Keep it reviewed alongside any change to what the platform processes.",
+      "download_csv": "Download CSV",
+      "no_activities": "No processing activities are registered.",
+      "activity": "Activity",
+      "purpose": "Purpose",
+      "legal_basis": "Legal basis",
+      "retention": "Data retention",
+      "no_policy": "No retention policy reported.",
+      "placeholder_title": "Placeholder figures",
+      "placeholder_body": "The retention endpoint returns fixed values rather than querying the database. Do not use these numbers as audit evidence until it reports real counts.",
+      "total_users": "Total users",
+      "active_users": "Active",
+      "stale_users": "Stale",
+      "scheduled_purges": "Scheduled purges"
+    }
   }
 }

@@ -29,6 +29,7 @@ const UserImpersonationLogs = React.lazy(() => import('./../screens/admin/users/
 const IssueBanDialog = React.lazy(() => import('../components/IssueBanDialog'))
 const ResetPasswordDialog = React.lazy(() => import('../components/ResetPasswordDialog'))
 const UserList = React.lazy(() => import('./../screens/admin/users/UserList'))
+const ComplianceReports = React.lazy(() => import('./../screens/admin/users/ComplianceReports'))
 // ---------------------------------------------------------------------------
 // Profile screens
 // ---------------------------------------------------------------------------
@@ -48,6 +49,8 @@ const EmailChangeStatusDashboard = React.lazy(
   () => import('./../screens/settings/EmailChangeStatusDashboard'),
 )
 const InitiateEmailChange = React.lazy(() => import('./../screens/settings/InitiateEmailChange'))
+const PrivacyCenter = React.lazy(() => import('./../screens/settings/PrivacyCenter'))
+const ErasureConfirmation = React.lazy(() => import('./../screens/settings/ErasureConfirmation'))
 export const userDirectoryRouteConfig: Array<AuthRouteConfig> = [
   // --- User profile (verified auth) ---
   createAuthRoute(Path.admin.organizations.domain_verification, <DomainVerification />, {
@@ -86,6 +89,20 @@ export const userDirectoryRouteConfig: Array<AuthRouteConfig> = [
   createAuthRoute(Path.admin.users.list, <UserList />, {
     requiresVerification: true,
     layout: 'admin',
+  }),
+  createAuthRoute(Path.admin.compliance.reports, <ComplianceReports />, {
+    requiresVerification: true,
+    layout: 'admin',
+  }),
+
+  // --- Data-subject rights. Verified auth, not admin: these are the user's own
+  // rights over their own data, and erasure re-authenticates with a password at
+  // the point of use rather than relying on the route guard alone. ---
+  createAuthRoute(Path.settings.privacy, <PrivacyCenter />, {
+    requiresVerification: true,
+  }),
+  createAuthRoute(Path.settings.erasure, <ErasureConfirmation />, {
+    requiresVerification: true,
   }),
 
   createAuthRoute(Path.profile.view, <Profile />, { requiresVerification: true, layout: 'admin' }),
