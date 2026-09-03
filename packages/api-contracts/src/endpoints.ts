@@ -32,10 +32,20 @@ export const API_ENDPOINTS = {
     resetPassword: "/api/auth/reset-password",
     refresh: "/api/auth/refresh",
     session: "/api/auth/session",
-    trackFailedLogin: "/api/auth/track-failed-login",
     csrfToken: "/api/auth/csrf-token",
-    verifyEmail: (email: string, signature: string) =>
-      `/api/auth/verification/email/${email}?signature=${signature}`,
+    /**
+     * Verify an email address. POST, with the address in the body — the old
+     * `GET /verification/email/:email` was removed because it put the address in
+     * the URL path, where it leaks into logs and referrers (backend finding H-9).
+     *
+     * A signature from a mailed verification link stays in the query string:
+     * the backend validates it against the request URL, so it cannot move into
+     * the body. Codes entered by hand travel in the body as `token` instead.
+     */
+    verifyEmail: (signature?: string) =>
+      signature
+        ? `/api/auth/verification/email/verify?signature=${signature}`
+        : "/api/auth/verification/email/verify",
     verifyResetPassword: (email: string | number, signature: string | number) => {
       const sigStr = String(signature ?? "");
       const query = sigStr.startsWith("?")
@@ -46,10 +56,12 @@ export const API_ENDPOINTS = {
       return `/api/auth/reset-password/${email}?${query}`;
     },
     resendVerification: "/api/auth/verification/email/resend",
-    verifyEmailToken: (email: string, signature: string) =>
-      `/api/auth/verification/email/${email}?signature=${signature}`,
-    validateUser: (id: string | number, token: string) =>
-      `/api/auth/validate/${id}/${token}`,
+    /**
+     * Validate a user via a mailed activation token. POST, with `id` and `token`
+     * in the body — the old `GET /validate/:id/:token` was removed for the same
+     * reason as the email verification route above (backend finding H-9).
+     */
+    validateUser: "/api/auth/validate",
     invitationDetails: "/api/auth/invitation-details",
     acceptInvitation: "/api/auth/accept-invitation",
     declineInvitation: "/api/auth/decline-invitation",

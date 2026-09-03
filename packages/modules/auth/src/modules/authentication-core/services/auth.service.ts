@@ -184,16 +184,26 @@ const authService = {
     return apiClient.get(ENDPOINTS.auth.verifyResetPassword(email, signature))
   },
 
+  /**
+   * Verify an email address from a mailed link. The signature stays in the query
+   * string because the backend validates it against the request URL; the address
+   * travels in the body so it never appears in a URL path.
+   */
   verifyEmail: (email: string, signature: string): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.verifyEmail(email, signature))
+    return apiClient.post(ENDPOINTS.auth.verifyEmail(signature), { email, signature })
+  },
+
+  /**
+   * Verify an email address with a code the user typed in, rather than by
+   * following a signed link. Same endpoint, but the code is a `token` and there
+   * is no URL signature to validate.
+   */
+  verifyEmailCode: (email: string, token: string): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.auth.verifyEmail(), { email, token })
   },
 
   resendVerification: (email: string): Promise<FetchResponse<any>> => {
     return apiClient.post(ENDPOINTS.auth.resendVerification, { email })
-  },
-
-  verifyEmailToken: (email: string, signature: string): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.verifyEmailToken(email, signature))
   },
 
   verifyEmailChange: (token: string): Promise<FetchResponse<any>> => {
@@ -201,7 +211,7 @@ const authService = {
   },
 
   validateUser: (id: string | number, token: string): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.validateUser(id, token))
+    return apiClient.post(ENDPOINTS.auth.validateUser, { id, token })
   },
 
   // ========================================================================
@@ -236,17 +246,6 @@ const authService = {
         userId: 'current-user',
         reason: 'user_logout',
         revokedAt: new Date().toISOString(),
-      }),
-    )
-    return response
-  },
-
-  trackFailedLogin: async (body: { email: string }): Promise<FetchResponse<any>> => {
-    const response = await apiClient.post(ENDPOINTS.auth.trackFailedLogin, body)
-    await eventBus.publish(
-      createAuthenticationFailedEvent({
-        email: body.email,
-        reason: 'invalid_credentials',
       }),
     )
     return response

@@ -16,7 +16,6 @@ import { useInterval } from '../../../hooks/useInterval'
 import { LoginRequest } from '../../../types/api.types'
 import { LoginSchema } from '../../../utils/schema'
 import { useActionLock } from '../../../hooks/useActionLock'
-import authService from '../../../services/auth.service'
 import { resolveRedirectPathForUser } from '../../../utils/resolveRedirect'
 
 // [SECURITY] F-09: previously pre-filled from VITE_DEV_LOGIN_EMAIL/PASSWORD.
@@ -145,7 +144,7 @@ export function useSignInFlow() {
 
       navigate(redirectPath, { replace: true })
     },
-    onError: async (error: any) => {
+    onError: (error: any) => {
       if (error.response?.status === 423) {
         setMode('locked')
         const retryAfterSeconds = parseInt(error.response.headers?.['retry-after'], 10)
@@ -157,12 +156,10 @@ export function useSignInFlow() {
 
       const attemptsRemaining = error.response?.data?.attemptsRemaining
       if (error.response?.status === 401 && attemptsRemaining !== undefined) {
-        try {
-          await authService.trackFailedLogin({ email: getValues('email') })
-        } catch {
-          // Silent catch for tracking failure
-        }
-
+        // No client-side call to record the attempt: the backend counts failures
+        // inside the sign-in handler itself. The endpoint that used to be called
+        // here was unauthenticated, which let anyone drive another account
+        // towards lockout, and was removed for that reason (backend finding A2).
         setStatus({
           open: true,
           type: 'warning',

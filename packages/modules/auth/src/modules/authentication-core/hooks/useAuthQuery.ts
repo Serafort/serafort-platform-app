@@ -297,7 +297,7 @@ export function useVerifyEmailToken(
 ) {
   return useQuery({
     queryKey: ['auth', 'verify-email-token', email, signature],
-    queryFn: () => authService.verifyEmailToken(email, signature),
+    queryFn: () => authService.verifyEmail(email, signature),
     enabled: !!email && !!signature,
     retry: false,
     ...options,

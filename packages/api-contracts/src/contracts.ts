@@ -357,21 +357,18 @@ export const API_CONTRACTS = {
       response:
         contractType<ApiResponse<{ message: string; success: boolean }>>(),
     }),
-    verifyEmailToken: defineEndpoint({
-      id: "auth.verifyEmailToken",
-      method: "GET",
-      resolve: (email: string, signature: string) =>
-        ENDPOINTS.auth.verifyEmailToken(email, signature),
-      response:
-        contractType<ApiResponse<{ message: string; success: boolean }>>(),
-    }),
     verifyEmail: defineEndpoint({
       id: "auth.verifyEmail",
       method: "POST",
-      resolve: (email: string, signature: string) =>
-        ENDPOINTS.auth.verifyEmail(email, signature),
-      response:
-        contractType<ApiResponse<{ message: string; success: boolean }>>(),
+      resolve: (signature?: string) => ENDPOINTS.auth.verifyEmail(signature),
+      request: contractType<{ email: string; token?: string; signature?: string }>(),
+      response: contractType<
+        ApiResponse<{
+          message: string;
+          success: boolean;
+          alreadyVerified?: boolean;
+        }>
+      >(),
     }),
     resendVerification: defineEndpoint({
       id: "auth.resendVerification",
@@ -383,17 +380,10 @@ export const API_CONTRACTS = {
     }),
     validateUser: defineEndpoint({
       id: "auth.validateUser",
-      method: "GET",
-      resolve: (id: string | number, token: string) =>
-        ENDPOINTS.auth.validateUser(id, token),
-      response: contractType<ApiResponse<{ valid: boolean }>>(),
-    }),
-    trackFailedLogin: defineEndpoint({
-      id: "auth.trackFailedLogin",
       method: "POST",
-      resolve: () => ENDPOINTS.auth.trackFailedLogin,
-      request: contractType<{ email: string }>(),
-      response: contractType<MessageResponse>(),
+      resolve: () => ENDPOINTS.auth.validateUser,
+      request: contractType<{ id: string | number; token: string }>(),
+      response: contractType<ApiResponse<{ valid: boolean }>>(),
     }),
     sessions: defineEndpoint({
       id: "auth.sessions",
