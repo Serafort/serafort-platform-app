@@ -195,11 +195,22 @@ const authService = {
 
   /**
    * Verify an email address with a code the user typed in, rather than by
-   * following a signed link. Same endpoint, but the code is a `token` and there
-   * is no URL signature to validate.
+   * following a signed link.
+   *
+   * Deliberately fails closed instead of calling the API. The verification
+   * endpoint accepts a `token` field but never checks it, and it only validates
+   * a signature when one is present in the request — so posting a typed code
+   * marks the address verified whatever the code was, including a wrong one.
+   * Calling it here would let anyone confirm an address they do not own by
+   * typing six arbitrary digits.
+   *
+   * Restore the call once the backend validates the code; until then this path
+   * rejects, and the sign-up screen shows its existing invalid-code message.
    */
-  verifyEmailCode: (email: string, token: string): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.auth.verifyEmail(), { email, token })
+  verifyEmailCode: (_email: string, _token: string): Promise<FetchResponse<any>> => {
+    return Promise.reject(
+      new Error('Email verification by typed code is not supported by the API yet.'),
+    )
   },
 
   resendVerification: (email: string): Promise<FetchResponse<any>> => {
