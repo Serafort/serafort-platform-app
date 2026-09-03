@@ -73,8 +73,6 @@ const KNOWN_UNWIRED = new Set([
   "api.auth.password.reset.verify_token",
   "api.auth.register",
   "api.auth.social.exchange",
-  "api.auth.validate",
-  "api.auth.verification.email.verify.post",
   "api.user.deactivate.post",
   "api.user.mfa.methods",
   "api.v1.auth.checkPermission",
