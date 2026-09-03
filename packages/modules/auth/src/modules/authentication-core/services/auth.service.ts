@@ -201,14 +201,14 @@ const authService = {
    * Verify an email address with a code the user typed in, rather than by
    * following a signed link.
    *
-   * Deliberately fails closed instead of calling the API. The verification
-   * endpoint accepts a `token` field but never checks it, and it only validates
-   * a signature when one is present in the request — so posting a typed code
-   * marks the address verified whatever the code was, including a wrong one.
-   * Calling it here would let anyone confirm an address they do not own by
-   * typing six arbitrary digits.
+   * Deliberately fails closed instead of calling the API, because no
+   * code-verification path exists on the backend. The endpoint requires a valid
+   * signature over the whole request URL, which only a mailed link carries, and
+   * although its validator accepts a `token` field the handler never reads it.
+   * A typed code therefore cannot verify anything: posting one would simply be
+   * rejected as an invalid link.
    *
-   * Restore the call once the backend validates the code; until then this path
+   * Restore the call once the backend validates a code; until then this path
    * rejects, and the sign-up screen shows its existing invalid-code message.
    */
   verifyEmailCode: (_email: string, _token: string): Promise<FetchResponse<any>> => {
