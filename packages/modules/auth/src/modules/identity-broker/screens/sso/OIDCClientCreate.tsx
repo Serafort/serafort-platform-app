@@ -2,28 +2,52 @@
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // This screen uses React Hook Form and Zod to enforce valid OIDC specs and displays the returned client credentials ONCE upon creation.
 
-import { useState } from 'react';
-import { Box, Button, Container, Typography, Card, TextField, IconButton, alpha, useTheme, Avatar, Breadcrumbs, FormControl, InputLabel, Select, MenuItem, FormHelperText, Alert, AlertTitle, Tooltip, Stack } from '@mui/material';
-import Add from '@mui/icons-material/Add';
-import ContentCopy from '@mui/icons-material/ContentCopy';
+import { useState } from 'react'
+import {
+  Box,
+  Button,
+  Container,
+  Typography,
+  Card,
+  TextField,
+  IconButton,
+  alpha,
+  useTheme,
+  Avatar,
+  Breadcrumbs,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
+  Alert,
+  AlertTitle,
+  Tooltip,
+  Stack,
+} from '@mui/material'
+import Add from '@mui/icons-material/Add'
+import ContentCopy from '@mui/icons-material/ContentCopy'
 // import from '@mui/icons-material/VpnKey';
-import ChevronRight from '@mui/icons-material/ChevronRight';
-import ArrowBack from '@mui/icons-material/ArrowBack';
-import Warning from '@mui/icons-material/Warning';
-import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { Link as RouterLink } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { toast } from 'react-toastify';
-import { Path, useCreateOIDCClient } from '@auth';
-import { buildLayoutSurfaceEffect } from '@cap/layout';
-import { getTenantThemeEffects } from '@cap/theme';
+import ChevronRight from '@mui/icons-material/ChevronRight'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import Warning from '@mui/icons-material/Warning'
+import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
+import { Link as RouterLink } from 'react-router-dom'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { toast } from 'react-toastify'
+import { Path, useCreateOIDCClient } from '@auth'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 
 const createOidcSchema = z.object({
   name: z.string().min(3, 'Client Name must be at least 3 characters').max(50),
-  redirectUris: z.string().min(1, 'At least one redirect URI is required').url('Must be a valid URL'),
+  redirectUris: z
+    .string()
+    .min(1, 'At least one redirect URI is required')
+    .url('Must be a valid URL'),
   grantTypes: z.array(z.string()).min(1, 'Select at least one grant type'),
   responseTypes: z.array(z.string()).min(1, 'Select at least one response type'),
 })
@@ -37,7 +61,10 @@ export default function OIDCClientCreate() {
   const createMutation = useCreateOIDCClient()
 
   // State to hold the newly created client credentials (shown only once)
-  const [newCredentials, setNewCredentials] = useState<{ clientId: string; clientSecret: string } | null>(null)
+  const [newCredentials, setNewCredentials] = useState<{
+    clientId: string
+    clientSecret: string
+  } | null>(null)
 
   const {
     control,
@@ -83,12 +110,14 @@ export default function OIDCClientCreate() {
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
-    toast.success(t('common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }))
+    toast.success(
+      t('common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }),
+    )
   }
 
   return (
     <Container
-      maxWidth="md"
+      maxWidth='md'
       component={motion.div}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -102,7 +131,11 @@ export default function OIDCClientCreate() {
           component={RouterLink}
           to={Path.identity.oidcConfigBrowser}
           startIcon={<ArrowBack />}
-          sx={{ mb: 2, color: 'text.secondary', '&:hover': { color: 'primary.main', bgcolor: 'transparent' } }}
+          sx={{
+            mb: 2,
+            color: 'text.secondary',
+            '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
+          }}
         >
           {t('common.back_to_list', 'Back to OIDC Clients')}
         </Button>
@@ -119,14 +152,14 @@ export default function OIDCClientCreate() {
             <Add sx={{ fontSize: '2rem' }} />
           </Avatar>
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
+            <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
               {t('auth.sso.create_oidc_client', 'Register New Client')}
             </Typography>
             <Breadcrumbs separator={<ChevronRight sx={{ fontSize: 12, color: 'text.disabled' }} />}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant='body2' color='text.secondary'>
                 OIDC Configuration
               </Typography>
-              <Typography variant="body2" color="text.primary" fontWeight={600}>
+              <Typography variant='body2' color='text.primary' fontWeight={600}>
                 New Client
               </Typography>
             </Breadcrumbs>
@@ -148,32 +181,47 @@ export default function OIDCClientCreate() {
           animate={{ opacity: 1, scale: 1 }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-            <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.15), color: 'success.main', width: 48, height: 48 }}>
+            <Avatar
+              sx={{
+                bgcolor: alpha(theme.palette.success.main, 0.15),
+                color: 'success.main',
+                width: 48,
+                height: 48,
+              }}
+            >
               <Add />
             </Avatar>
             <Box>
-              <Typography variant="h5" sx={{ fontWeight: 800, color: 'success.main' }}>
+              <Typography variant='h5' sx={{ fontWeight: 800, color: 'success.main' }}>
                 {t('auth.sso.client_created_successfully', 'Client Created Successfully')}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {t('auth.sso.copy_client_secret_warning', 'Make sure to copy your Client Secret now. You will not be able to see it again!')}
+              <Typography variant='body2' color='text.secondary'>
+                {t(
+                  'auth.sso.copy_client_secret_warning',
+                  'Make sure to copy your Client Secret now. You will not be able to see it again!',
+                )}
               </Typography>
             </Box>
           </Box>
 
-          <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, borderRadius: 2 }}>
-            <AlertTitle sx={{ fontWeight: 700 }}>{t('auth.sso.important_notice', 'Important Notice')}</AlertTitle>
-            {t('auth.sso.secret_storage_warning', 'Store the client secret securely in your application configuration or environment variables.')}
+          <Alert severity='warning' icon={<Warning />} sx={{ mb: 4, borderRadius: 2 }}>
+            <AlertTitle sx={{ fontWeight: 700 }}>
+              {t('auth.sso.important_notice', 'Important Notice')}
+            </AlertTitle>
+            {t(
+              'auth.sso.secret_storage_warning',
+              'Store the client secret securely in your application configuration or environment variables.',
+            )}
           </Alert>
 
           <Stack spacing={3}>
             <Box>
-              <Typography variant="overline" sx={{ fontWeight: 800, color: 'text.secondary' }}>
+              <Typography variant='overline' sx={{ fontWeight: 800, color: 'text.secondary' }}>
                 CLIENT ID
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                 <Typography
-                  variant="body1"
+                  variant='body1'
                   sx={{
                     fontFamily: 'JetBrains Mono, monospace',
                     fontWeight: 600,
@@ -187,8 +235,15 @@ export default function OIDCClientCreate() {
                 >
                   {newCredentials.clientId}
                 </Typography>
-                <Tooltip title="Copy Client ID">
-                  <IconButton onClick={() => handleCopy(newCredentials.clientId, 'Client ID')} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
+                <Tooltip title='Copy Client ID'>
+                  <IconButton
+                    onClick={() => handleCopy(newCredentials.clientId, 'Client ID')}
+                    sx={{
+                      bgcolor: 'background.paper',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                    }}
+                  >
                     <ContentCopy />
                   </IconButton>
                 </Tooltip>
@@ -196,12 +251,12 @@ export default function OIDCClientCreate() {
             </Box>
 
             <Box>
-              <Typography variant="overline" sx={{ fontWeight: 800, color: 'text.secondary' }}>
+              <Typography variant='overline' sx={{ fontWeight: 800, color: 'text.secondary' }}>
                 CLIENT SECRET
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                 <Typography
-                  variant="body1"
+                  variant='body1'
                   sx={{
                     fontFamily: 'JetBrains Mono, monospace',
                     fontWeight: 600,
@@ -216,8 +271,15 @@ export default function OIDCClientCreate() {
                 >
                   {newCredentials.clientSecret}
                 </Typography>
-                <Tooltip title="Copy Client Secret">
-                  <IconButton onClick={() => handleCopy(newCredentials.clientSecret, 'Client Secret')} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
+                <Tooltip title='Copy Client Secret'>
+                  <IconButton
+                    onClick={() => handleCopy(newCredentials.clientSecret, 'Client Secret')}
+                    sx={{
+                      bgcolor: 'background.paper',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                    }}
+                  >
                     <ContentCopy />
                   </IconButton>
                 </Tooltip>
@@ -226,7 +288,7 @@ export default function OIDCClientCreate() {
           </Stack>
 
           <Box sx={{ mt: 5, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-            <Button variant="outlined" component={RouterLink} to={Path.identity.oidcConfigBrowser}>
+            <Button variant='outlined' component={RouterLink} to={Path.identity.oidcConfigBrowser}>
               {t('common.done', 'Done')}
             </Button>
           </Box>
@@ -240,13 +302,13 @@ export default function OIDCClientCreate() {
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
           })}
         >
-          <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ p: 4 }}>
-            <Typography variant="h6" sx={{ fontWeight: 800, mb: 3 }}>
+          <Box component='form' onSubmit={handleSubmit(onSubmit)} sx={{ p: 4 }}>
+            <Typography variant='h6' sx={{ fontWeight: 800, mb: 3 }}>
               {t('auth.sso.basic_information', 'Basic Information')}
             </Typography>
 
             <Controller
-              name="name"
+              name='name'
               control={control}
               render={({ field }) => (
                 <TextField
@@ -255,14 +317,17 @@ export default function OIDCClientCreate() {
                   fullWidth
                   required
                   error={!!errors.name}
-                  helperText={errors.name?.message || t('auth.sso.app_name_help', 'A recognizable name for this client application.')}
+                  helperText={
+                    errors.name?.message ||
+                    t('auth.sso.app_name_help', 'A recognizable name for this client application.')
+                  }
                   sx={{ mb: 4 }}
                 />
               )}
             />
 
             <Controller
-              name="redirectUris"
+              name='redirectUris'
               control={control}
               render={({ field }) => (
                 <TextField
@@ -273,28 +338,43 @@ export default function OIDCClientCreate() {
                   multiline
                   rows={3}
                   error={!!errors.redirectUris}
-                  helperText={errors.redirectUris?.message || t('auth.sso.redirect_uris_help', 'Enter one valid URL per line or separate by commas. Users will be redirected here after login.')}
+                  helperText={
+                    errors.redirectUris?.message ||
+                    t(
+                      'auth.sso.redirect_uris_help',
+                      'Enter one valid URL per line or separate by commas. Users will be redirected here after login.',
+                    )
+                  }
                   sx={{ mb: 4 }}
                 />
               )}
             />
 
-            <Typography variant="h6" sx={{ fontWeight: 800, mt: 2, mb: 3 }}>
+            <Typography variant='h6' sx={{ fontWeight: 800, mt: 2, mb: 3 }}>
               {t('auth.sso.oauth_configuration', 'OAuth Configuration')}
             </Typography>
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mb: 4 }}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                gap: 3,
+                mb: 4,
+              }}
+            >
               <Controller
-                name="grantTypes"
+                name='grantTypes'
                 control={control}
                 render={({ field }) => (
                   <FormControl fullWidth error={!!errors.grantTypes}>
                     <InputLabel>{t('auth.sso.grant_types', 'Grant Types')}</InputLabel>
                     <Select {...field} multiple label={t('auth.sso.grant_types', 'Grant Types')}>
-                      <MenuItem value="authorization_code">Authorization Code (Standard)</MenuItem>
-                      <MenuItem value="client_credentials">Client Credentials (Machine to Machine)</MenuItem>
-                      <MenuItem value="implicit">Implicit (Legacy)</MenuItem>
-                      <MenuItem value="refresh_token">Refresh Token</MenuItem>
+                      <MenuItem value='authorization_code'>Authorization Code (Standard)</MenuItem>
+                      <MenuItem value='client_credentials'>
+                        Client Credentials (Machine to Machine)
+                      </MenuItem>
+                      <MenuItem value='implicit'>Implicit (Legacy)</MenuItem>
+                      <MenuItem value='refresh_token'>Refresh Token</MenuItem>
                     </Select>
                     <FormHelperText>{errors.grantTypes?.message}</FormHelperText>
                   </FormControl>
@@ -302,15 +382,19 @@ export default function OIDCClientCreate() {
               />
 
               <Controller
-                name="responseTypes"
+                name='responseTypes'
                 control={control}
                 render={({ field }) => (
                   <FormControl fullWidth error={!!errors.responseTypes}>
                     <InputLabel>{t('auth.sso.response_types', 'Response Types')}</InputLabel>
-                    <Select {...field} multiple label={t('auth.sso.response_types', 'Response Types')}>
-                      <MenuItem value="code">Code</MenuItem>
-                      <MenuItem value="token">Token</MenuItem>
-                      <MenuItem value="id_token">ID Token</MenuItem>
+                    <Select
+                      {...field}
+                      multiple
+                      label={t('auth.sso.response_types', 'Response Types')}
+                    >
+                      <MenuItem value='code'>Code</MenuItem>
+                      <MenuItem value='token'>Token</MenuItem>
+                      <MenuItem value='id_token'>ID Token</MenuItem>
                     </Select>
                     <FormHelperText>{errors.responseTypes?.message}</FormHelperText>
                   </FormControl>
@@ -318,17 +402,48 @@ export default function OIDCClientCreate() {
               />
             </Box>
 
-            <Alert severity="info" icon={<Warning />} sx={{ mb: 4, borderRadius: 2 }}>
-              <AlertTitle sx={{ fontWeight: 700 }}>{t('auth.sso.security_notice', 'Security Notice')}</AlertTitle>
-              {t('auth.sso.secret_generation_notice', 'A secure Client Secret will be generated upon creation. Ensure you store it securely, as it cannot be recovered later.')}
+            <Alert severity='info' icon={<Warning />} sx={{ mb: 4, borderRadius: 2 }}>
+              <AlertTitle sx={{ fontWeight: 700 }}>
+                {t('auth.sso.security_notice', 'Security Notice')}
+              </AlertTitle>
+              {t(
+                'auth.sso.secret_generation_notice',
+                'A secure Client Secret will be generated upon creation. Ensure you store it securely, as it cannot be recovered later.',
+              )}
             </Alert>
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-              <Button component={RouterLink} to={Path.identity.oidcConfigBrowser} color="inherit" sx={{ fontWeight: 600 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: 2,
+                pt: 2,
+                borderTop: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <Button
+                component={RouterLink}
+                to={Path.identity.oidcConfigBrowser}
+                color='inherit'
+                sx={{ fontWeight: 600 }}
+              >
                 {t('common.cancel', 'Cancel')}
               </Button>
-              <Button type="submit" variant="contained" disabled={isSubmitting} sx={{ fontWeight: 700, px: 4, borderRadius: 2, boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)' }}>
-                {isSubmitting ? t('common.creating', 'Creating...') : t('auth.sso.register_client', 'Register Client')}
+              <Button
+                type='submit'
+                variant='contained'
+                disabled={isSubmitting}
+                sx={{
+                  fontWeight: 700,
+                  px: 4,
+                  borderRadius: 2,
+                  boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
+                }}
+              >
+                {isSubmitting
+                  ? t('common.creating', 'Creating...')
+                  : t('auth.sso.register_client', 'Register Client')}
               </Button>
             </Box>
           </Box>

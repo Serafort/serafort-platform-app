@@ -41,7 +41,6 @@ export const authService = {
       console.error('Logout failed', e)
     } finally {
       secureTokenManager.clearTokens()
-      window.location.href = '/login'
     }
   },
 }

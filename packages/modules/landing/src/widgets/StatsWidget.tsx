@@ -1,11 +1,5 @@
 import React from 'react'
-import {
-  Box,
-  Paper,
-  Typography,
-  alpha,
-  useTheme,
-} from '@mui/material'
+import { Box, Paper, Typography, alpha, useTheme } from '@mui/material'
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline'
 import BusinessIcon from '@mui/icons-material/Business'
 import SpeedIcon from '@mui/icons-material/Speed'
@@ -163,8 +157,8 @@ export const StatsWidget: React.FC = () => {
               color: 'white',
             }}
           >
-            Our platform continuously monitors and updates job listings to ensure you never
-            miss an opportunity
+            Our platform continuously monitors and updates job listings to ensure you never miss an
+            opportunity
           </Typography>
         </Box>
       </Box>

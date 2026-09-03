@@ -1,28 +1,30 @@
 {
-    "name": "@cap/module-landing",
-    "version": "1.0.0",
-    "type": "module",
-    "main": "src/index.ts",
-    "types": "src/index.ts",
-    "scripts": {
-        "lint": "eslint .",
-        "type-check": "tsc --noEmit"
-    },
-    "dependencies": {
-        "@cap/auth-contracts": "workspace:*",
-        "@cap/platform-core": "workspace:*",
-        "@cap/theme": "workspace:*",
-        "@cap/layout": "workspace:*",
-        "@cap/shared-types": "workspace:*",
-        "@mui/material": "^7.0.0",
-        "@mui/icons-material": "^7.0.0",
-        "react-router-dom": "^7.1.1"
-    },
-    "peerDependencies": {
-        "react": "^19.0.0",
-        "react-dom": "^19.0.0"
-    },
-    "devDependencies": {
-        "typescript": "^5.7.2"
-    }
+  "name": "@cap/module-landing",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@cap/auth-contracts": "workspace:*",
+    "@cap/platform-core": "workspace:*",
+    "@cap/theme": "workspace:*",
+    "@cap/layout": "workspace:*",
+    "@cap/shared-types": "workspace:*",
+    "@mui/material": "^7.0.0",
+    "@mui/icons-material": "^7.0.0",
+    "react-router-dom": "^7.18.3"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^4.0.16"
+  }
 }

@@ -1,12 +1,15 @@
-import React from 'react';
-import { ThemeProvider as MuiThemeProvider, StyledEngineProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { TenantThemeProvider } from './TenantThemeContext';
-import { ThemeSettingsProvider } from './ThemeSettingsContext';
-import GlobalStyles from '../styles/GlobalStyles';
-import type { TenantThemeConfig } from '../types';
-import { useDerivedMuiTheme } from '../hooks/useDerivedMuiTheme';
-import type { Settings } from '@cap/shared-types';
+import React from "react";
+import {
+  ThemeProvider as MuiThemeProvider,
+  StyledEngineProvider,
+} from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { TenantThemeProvider } from "./TenantThemeContext";
+import { ThemeSettingsProvider } from "./ThemeSettingsContext";
+import GlobalStyles from "../styles/GlobalStyles";
+import type { TenantThemeConfig } from "../types";
+import { useDerivedMuiTheme } from "../hooks/useDerivedMuiTheme";
+import type { Settings } from "@cap/shared-types";
 
 interface DesignSystemProviderProps {
   children: React.ReactNode;
@@ -19,7 +22,11 @@ interface DesignSystemProviderProps {
   settings?: Settings;
 }
 
-const InnerDesignSystemProvider = ({ children }: { children: React.ReactNode }) => {
+const InnerDesignSystemProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const theme = useDerivedMuiTheme();
 
   return (
@@ -52,9 +59,7 @@ export const DesignSystemProvider: React.FC<DesignSystemProviderProps> = ({
           updateTheme={updateTheme}
           saveTheme={saveTheme}
         >
-          <InnerDesignSystemProvider>
-            {children}
-          </InnerDesignSystemProvider>
+          <InnerDesignSystemProvider>{children}</InnerDesignSystemProvider>
         </TenantThemeProvider>
       </ThemeSettingsProvider>
     </StyledEngineProvider>

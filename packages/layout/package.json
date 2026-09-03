@@ -6,7 +6,8 @@
   "types": "src/index.ts",
   "scripts": {
     "lint": "eslint .",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@cap/platform-core": "workspace:*",
@@ -26,7 +27,7 @@
     "react-i18next": "^16.5.0",
     "react-perfect-scrollbar": "^1.5.8",
     "react-phone-input-2": "^2.15.1",
-    "react-router-dom": "^7.13.1",
+    "react-router-dom": "^7.18.3",
     "react-toastify": "^11.0.5",
     "react-use": "^17.6.0",
     "recharts": "^3.6.0"
@@ -37,6 +38,7 @@
     "zustand": ">=5"
   },
   "devDependencies": {
-    "typescript": "^7.0.2"
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.16"
   }
 }

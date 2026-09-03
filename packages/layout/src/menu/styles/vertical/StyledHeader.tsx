@@ -1,5 +1,4 @@
-import styled from '@emotion/styled'
-import { alpha } from '@mui/material/styles'
+import { styled, alpha } from '@mui/material/styles'
 import {
   headerTokens,
   getHeaderElevationShadow,
@@ -9,11 +8,11 @@ import {
   getFloatingNavbarInlineSize,
   getCompactFloatingMaxInlineSize,
   getHeaderFloatingMask,
-  verticalLayoutClasses,
   getTenantThemeEffects,
 } from '@cap/theme'
 import type { Theme } from '@mui/material/styles'
 import type { CSSObject } from '@emotion/styled'
+import { verticalLayoutClasses } from '../../../utils/layoutClasses'
 import { SurfaceEffectFactory } from '../../../utils/buildLayoutSurfaceEffect'
 
 type StyledHeaderProps = {
@@ -23,168 +22,155 @@ type StyledHeaderProps = {
   compactContentWidth: number
 }
 
-const StyledHeader = styled.header<StyledHeaderProps>`
-  min-block-size: ${headerTokens.layout.minBlockSize};
+const StyledHeader = styled('header')<StyledHeaderProps>(({
+  theme,
+  layoutPadding,
+  compactContentWidth,
+  overrideStyles,
+}: any) => {
+  const surfaceEffect = SurfaceEffectFactory.create(getTenantThemeEffects(theme), theme)
 
-  &.${verticalLayoutClasses.headerContentCompact} {
-    &.${verticalLayoutClasses.headerFloating}
-      .${verticalLayoutClasses.navbar},
-      &.${verticalLayoutClasses.headerDetached}
-      .${verticalLayoutClasses.navbar},
-      &.${verticalLayoutClasses.headerAttached}
-      .${verticalLayoutClasses.navbar} {
-      margin-inline: ${headerTokens.layout.compactMarginInline};
-    }
+  return {
+    minBlockSize: headerTokens?.layout?.minBlockSize || '64px',
 
-    &.${verticalLayoutClasses.headerFloating}
-      .${verticalLayoutClasses.navbar},
-      &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached}
-      .${verticalLayoutClasses.navbar} {
-      max-inline-size: ${({ compactContentWidth, layoutPadding }) =>
-        getCompactFloatingMaxInlineSize(compactContentWidth, layoutPadding)};
-    }
+    [`&.${verticalLayoutClasses.headerContentCompact}`]: {
+      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}`]:
+        {
+          marginInline: headerTokens?.layout?.compactMarginInline || 'auto',
+        },
 
-    .${verticalLayoutClasses.navbar} {
-      max-inline-size: ${({ compactContentWidth }) => compactContentWidth}px;
-    }
+      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+        {
+          maxInlineSize: getCompactFloatingMaxInlineSize(compactContentWidth, layoutPadding),
+        },
 
-    .${verticalLayoutClasses.navbar} {
-      max-inline-size: ${({ compactContentWidth }) => compactContentWidth}px;
-    }
+      [`.${verticalLayoutClasses.navbar}`]: {
+        maxInlineSize: `${compactContentWidth}px`,
+      },
+    },
+
+    [`&.${verticalLayoutClasses.headerFixed}`]: {
+      position: headerTokens?.positioning?.sticky || 'sticky',
+      insetBlockStart: headerTokens?.positioning?.insetBlockStart || '0px',
+      zIndex: theme?.zIndex?.appBar || 1100,
+
+      [`&:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerAttached}, &:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+        {
+          backgroundColor: theme?.palette?.background?.paper || '#fff',
+        },
+
+      [`&.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]: {
+        boxShadow: getHeaderElevationShadow(theme),
+        borderEndStartRadius: `${theme?.shape?.borderRadius || 6}px`,
+        borderEndEndRadius: `${theme?.shape?.borderRadius || 6}px`,
+
+        '[data-skin="bordered"] &': {
+          boxShadow: headerTokens?.borderedSkin?.boxShadow || 'none',
+          borderInline: getHeaderBorderInline(theme),
+          borderBlockEnd: getHeaderBorderBlockEnd(theme),
+        },
+      },
+
+      [`&.${verticalLayoutClasses.headerDetached}, &.${verticalLayoutClasses.headerFloating}`]: {
+        pointerEvents: headerTokens?.interaction?.containerPointerEvents || 'none',
+
+        [`& .${verticalLayoutClasses.navbar}`]: {
+          pointerEvents: headerTokens?.interaction?.navbarPointerEvents || 'auto',
+        },
+      },
+
+      [`&.${verticalLayoutClasses.headerBlur}`]: {
+        [`&.${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}`]:
+          {
+            backdropFilter: headerTokens?.glassmorphism?.backdropFilter || 'blur(8px)',
+            backgroundColor: alpha(
+              theme?.palette?.background?.paper || '#ffffff',
+              headerTokens?.glassmorphism?.paperOpacity || 0.85,
+            ),
+          },
+
+        [`&.${verticalLayoutClasses.headerFloating}`]: {
+          '&:before': {
+            content: headerTokens?.floatingOverlay?.content || '""',
+            position: headerTokens?.floatingOverlay?.position || 'absolute',
+            zIndex: headerTokens?.floatingOverlay?.zIndex || -1,
+            insetBlockStart: headerTokens?.floatingOverlay?.insetBlockStart || '0',
+            insetInline: headerTokens?.floatingOverlay?.insetInline || '0',
+            blockSize: headerTokens?.floatingOverlay?.blockSize || '100%',
+            background: `linear-gradient(
+              ${headerTokens?.floatingOverlay?.gradientAngle || '180deg'},
+              ${alpha(theme?.palette?.background?.default || '#ffffff', headerTokens?.floatingOverlay?.stops?.topAlpha || 0.7)} ${headerTokens?.floatingOverlay?.stops?.topPosition || '0%'},
+              ${alpha(theme?.palette?.background?.default || '#ffffff', headerTokens?.floatingOverlay?.stops?.midAlpha || 0.4)} ${headerTokens?.floatingOverlay?.stops?.midPosition || '50%'},
+              ${alpha(theme?.palette?.background?.default || '#ffffff', headerTokens?.floatingOverlay?.stops?.bottomAlpha || 0)}
+            )`,
+            backdropFilter: headerTokens?.floatingOverlay?.backdropFilter || 'blur(8px)',
+            mask: getHeaderFloatingMask(theme),
+          },
+        },
+      },
+
+      [`&.${verticalLayoutClasses.headerAttached}.scrolled`]: {
+        boxShadow: getHeaderElevationShadow(theme),
+
+        '[data-skin="bordered"] &': {
+          boxShadow: headerTokens?.borderedSkin?.boxShadow || 'none',
+          borderBlockEnd: getHeaderBorderBlockEnd(theme),
+        },
+      },
+
+      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+        {
+          transition:
+            theme?.transitions?.create?.([
+              'box-shadow',
+              'border-width',
+              'padding-inline',
+              'backdrop-filter',
+            ]) || 'all 0.2s ease',
+        },
+
+      [`&:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerDetached}.scrolled .${verticalLayoutClasses.navbar}`]:
+        {
+          paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
+        },
+    },
+
+    [`&.${verticalLayoutClasses.headerFloating}`]: {
+      paddingBlockStart: headerTokens?.layout?.floatingPaddingBlockStart || '0.75rem',
+
+      [`.${verticalLayoutClasses.navbar}`]: {
+        backgroundColor: theme?.palette?.background?.paper || '#ffffff',
+        borderRadius: `${theme?.shape?.borderRadius || 6}px`,
+        paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
+        boxShadow: getHeaderElevationShadow(theme),
+        ...surfaceEffect,
+
+        '[data-skin="bordered"] &': {
+          boxShadow: headerTokens?.borderedSkin?.boxShadow || 'none',
+          border: getHeaderBorderFull(theme),
+        },
+      },
+    },
+
+    [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+      {
+        inlineSize: getFloatingNavbarInlineSize(layoutPadding),
+      },
+
+    [`&:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerStatic} .${verticalLayoutClasses.navbar}`]:
+      {
+        paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
+      },
+
+    [`.${verticalLayoutClasses.navbar}`]: {
+      position: headerTokens?.positioning?.navbarPosition || 'relative',
+      paddingBlock: headerTokens?.layout?.paddingBlock || '0.5rem',
+      paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
+      inlineSize: headerTokens?.layout?.fullInlineSize || '100%',
+    },
+
+    ...(overrideStyles as any),
   }
-
-  &.${verticalLayoutClasses.headerFixed} {
-    position: ${headerTokens.positioning.sticky};
-    inset-block-start: ${headerTokens.positioning.insetBlockStart};
-    z-index: ${({ theme }) => theme.zIndex.appBar};
-
-    &:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerAttached},
-      &:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerDetached}
-      .${verticalLayoutClasses.navbar} {
-      background-color: ${({ theme }) => theme.palette.background.paper};
-    }
-
-    &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar} {
-      box-shadow: ${({ theme }) => getHeaderElevationShadow(theme)};
-
-      [data-skin='bordered'] & {
-        box-shadow: ${headerTokens.borderedSkin.boxShadow};
-        border-inline: ${({ theme }) => getHeaderBorderInline(theme)};
-        border-block-end: ${({ theme }) => getHeaderBorderBlockEnd(theme)};
-      }
-    }
-    &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar} {
-      border-end-start-radius: ${({ theme }) => `${theme.shape.borderRadius}px`};
-      border-end-end-radius: ${({ theme }) => `${theme.shape.borderRadius}px`};
-    }
-
-    &.${verticalLayoutClasses.headerDetached}, &.${verticalLayoutClasses.headerFloating} {
-      pointer-events: ${headerTokens.interaction.containerPointerEvents};
-
-      & .${verticalLayoutClasses.navbar} {
-        pointer-events: ${headerTokens.interaction.navbarPointerEvents};
-      }
-    }
-
-    &.${verticalLayoutClasses.headerBlur} {
-      &.${verticalLayoutClasses.headerAttached},
-        &.${verticalLayoutClasses.headerDetached}
-        .${verticalLayoutClasses.navbar},
-        &.${verticalLayoutClasses.headerFloating}
-        .${verticalLayoutClasses.navbar} {
-        backdrop-filter: ${headerTokens.glassmorphism.backdropFilter};
-        background-color: ${({ theme }) => alpha(theme.palette.background.paper, headerTokens.glassmorphism.paperOpacity)};
-      }
-
-      &.${verticalLayoutClasses.headerFloating} {
-        &:before {
-          content: ${headerTokens.floatingOverlay.content};
-          position: ${headerTokens.floatingOverlay.position};
-          z-index: ${headerTokens.floatingOverlay.zIndex};
-          inset-block-start: ${headerTokens.floatingOverlay.insetBlockStart};
-          inset-inline: ${headerTokens.floatingOverlay.insetInline};
-          block-size: ${headerTokens.floatingOverlay.blockSize};
-          background: ${({ theme }) => `linear-gradient(
-            ${headerTokens.floatingOverlay.gradientAngle},
-            ${alpha(theme.palette.background.default, headerTokens.floatingOverlay.stops.topAlpha)} ${headerTokens.floatingOverlay.stops.topPosition},
-            ${alpha(theme.palette.background.default, headerTokens.floatingOverlay.stops.midAlpha)} ${headerTokens.floatingOverlay.stops.midPosition},
-            ${alpha(theme.palette.background.default, headerTokens.floatingOverlay.stops.bottomAlpha)}
-          )`};
-          backdrop-filter: ${headerTokens.floatingOverlay.backdropFilter};
-          mask: ${({ theme }) => getHeaderFloatingMask(theme)};
-        }
-      }
-    }
-
-    &.${verticalLayoutClasses.headerAttached}.scrolled {
-      box-shadow: ${({ theme }) => getHeaderElevationShadow(theme)};
-
-      [data-skin='bordered'] & {
-        box-shadow: ${headerTokens.borderedSkin.boxShadow};
-        border-block-end: ${({ theme }) => getHeaderBorderBlockEnd(theme)};
-      }
-    }
-
-    &.${verticalLayoutClasses.headerFloating}
-      .${verticalLayoutClasses.navbar},
-      &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached},
-      &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerDetached}
-      .${verticalLayoutClasses.navbar} {
-      ${({ theme }) =>
-        `transition: ${theme.transitions.create([
-          'box-shadow',
-          'border-width',
-          'padding-inline',
-          'backdrop-filter',
-        ])}`};
-    }
-    &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached}
-      .${verticalLayoutClasses.navbar},
-      &:not(
-        .${verticalLayoutClasses.headerFloating}
-      ).${verticalLayoutClasses.headerDetached}.scrolled
-      .${verticalLayoutClasses.navbar} {
-      padding-inline: ${headerTokens.layout.paddingInline};
-    }
-  }
-
-  &.${verticalLayoutClasses.headerFloating} {
-    padding-block-start: ${headerTokens.layout.floatingPaddingBlockStart};
-
-    .${verticalLayoutClasses.navbar} {
-      background-color: ${({ theme }) => theme.palette.background.paper};
-      border-radius: ${({ theme }) => `${theme.shape.borderRadius}px`};
-      padding-inline: ${headerTokens.layout.paddingInline};
-      box-shadow: ${({ theme }) => getHeaderElevationShadow(theme)};
-      ${({ theme }) => SurfaceEffectFactory.create(getTenantThemeEffects(theme), theme)};
-
-      [data-skin='bordered'] & {
-        box-shadow: ${headerTokens.borderedSkin.boxShadow};
-        border: ${({ theme }) => getHeaderBorderFull(theme)};
-      }
-    }
-  }
-
-  &.${verticalLayoutClasses.headerFloating}
-    .${verticalLayoutClasses.navbar},
-    &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached}
-    .${verticalLayoutClasses.navbar} {
-    inline-size: ${({ layoutPadding }) => getFloatingNavbarInlineSize(layoutPadding)};
-  }
-
-  &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerStatic}
-    .${verticalLayoutClasses.navbar} {
-    padding-inline: ${headerTokens.layout.paddingInline};
-  }
-
-  .${verticalLayoutClasses.navbar} {
-    position: ${headerTokens.positioning.navbarPosition};
-    padding-block: ${headerTokens.layout.paddingBlock};
-    padding-inline: ${headerTokens.layout.paddingInline};
-    inline-size: ${headerTokens.layout.fullInlineSize};
-  }
-
-  ${({ overrideStyles }) => overrideStyles}
-`
+})
 
 export default StyledHeader

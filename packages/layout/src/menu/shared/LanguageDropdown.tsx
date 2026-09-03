@@ -37,9 +37,10 @@ const LanguageDropdown = () => {
 
   // Dynamically derive language list from platform-core i18n registry
   const availableLanguages = React.useMemo(() => {
-    const locales = typeof getAvailableLocales === 'function'
-      ? getAvailableLocales()
-      : (i18nConfig.locales as readonly Locale[])
+    const locales =
+      typeof getAvailableLocales === 'function'
+        ? getAvailableLocales()
+        : (i18nConfig.locales as readonly Locale[])
 
     return locales.map((langCode) => ({
       langCode: langCode as Locale,

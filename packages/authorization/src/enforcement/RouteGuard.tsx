@@ -1,15 +1,15 @@
-import React, { ReactNode } from 'react'
-import { Navigate, Outlet } from 'react-router-dom'
-import { PolicyAction, PolicyResource } from '../types/policy.types'
-import { useCan } from '../hooks/useCan'
+import React, { ReactNode } from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { PolicyAction, PolicyResource } from "../types/policy.types";
+import { useCan } from "../hooks/useCan";
 
 export interface RouteGuardProps {
-  action: PolicyAction
-  resource: PolicyResource
+  action: PolicyAction;
+  resource: PolicyResource;
   /** Element to render if authorized (defaults to <Outlet /> or children) */
-  children?: ReactNode
+  children?: ReactNode;
   /** Element to render on deny (defaults to <Navigate to="/403" replace />) */
-  fallback?: ReactNode
+  fallback?: ReactNode;
 }
 
 /**
@@ -21,9 +21,9 @@ export const RouteGuard: React.FC<RouteGuardProps> = ({
   children,
   fallback = <Navigate to="/403" replace />,
 }) => {
-  const isAllowed = useCan(action, resource)
+  const isAllowed = useCan(action, resource);
 
-  if (!isAllowed) return <>{fallback}</>
+  if (!isAllowed) return <>{fallback}</>;
 
-  return <>{children ?? <Outlet />}</>
-}
+  return <>{children ?? <Outlet />}</>;
+};

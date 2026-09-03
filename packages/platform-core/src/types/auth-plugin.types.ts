@@ -1,5 +1,5 @@
-import { ComponentType } from 'react';
-import type { Dictionary } from '@cap/shared-types';
+import { ComponentType } from 'react'
+import type { Dictionary } from '@cap/shared-types'
 
 /**
  * Interface for Identity Extensions (MFA, Passwordless, etc.)

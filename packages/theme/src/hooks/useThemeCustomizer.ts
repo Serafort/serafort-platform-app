@@ -1,8 +1,11 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import type { TenantThemeConfig, ThemePresetId } from '../types';
-import { useTenantThemeState, useTenantThemeActions } from '../context/TenantThemeContext';
-import { mergeDeep, applyPreset } from '../utils/mergeTheme';
-import { DEFAULT_THEME_CONFIG } from '../types';
+import { useState, useCallback, useMemo, useEffect } from "react";
+import type { TenantThemeConfig, ThemePresetId } from "../types";
+import {
+  useTenantThemeState,
+  useTenantThemeActions,
+} from "../context/TenantThemeContext";
+import { mergeDeep, applyPreset } from "../utils/mergeTheme";
+import { DEFAULT_THEME_CONFIG } from "../types";
 
 interface UseThemeCustomizerReturn {
   localDraft: TenantThemeConfig;
@@ -31,19 +34,25 @@ export const useThemeCustomizer = (): UseThemeCustomizerReturn => {
     return JSON.stringify(localDraft) !== JSON.stringify(currentTheme);
   }, [localDraft, currentTheme]);
 
-  const applyDraftUpdate = useCallback((updates: Partial<TenantThemeConfig>) => {
-    setLocalDraft((prev) => mergeDeep({ ...prev }, updates));
-  }, []);
+  const applyDraftUpdate = useCallback(
+    (updates: Partial<TenantThemeConfig>) => {
+      setLocalDraft((prev) => mergeDeep({ ...prev }, updates));
+    },
+    [],
+  );
 
   const applyDraftPreset = useCallback((presetId: ThemePresetId) => {
     const presetTheme = applyPreset(presetId);
     setLocalDraft((prev) =>
-      mergeDeep({ ...prev }, {
-        ...presetTheme,
-        organizationId: prev.organizationId,
-        id: prev.id,
-        metadata: prev.metadata,
-      })
+      mergeDeep(
+        { ...prev },
+        {
+          ...presetTheme,
+          organizationId: prev.organizationId,
+          id: prev.id,
+          metadata: prev.metadata,
+        },
+      ),
     );
   }, []);
 

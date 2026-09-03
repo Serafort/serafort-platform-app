@@ -1,10 +1,12 @@
-import { useMemo } from 'react';
-import { useTenantThemeContext } from '../context/TenantThemeContext';
-import { DEFAULT_EFFECT_CONFIG } from '../types/effects';
-import type { EffectConfig, EffectType } from '../types/effects';
-import type { ComponentStyles } from '../types/componentStyles';
+import { useMemo } from "react";
+import { useTenantThemeContext } from "../context/TenantThemeContext";
+import { DEFAULT_EFFECT_CONFIG } from "../types/effects";
+import type { EffectConfig, EffectType } from "../types/effects";
+import type { ComponentStyles } from "../types/componentStyles";
 
-export const useComponentEffectConfig = (componentName?: keyof ComponentStyles): EffectConfig => {
+export const useComponentEffectConfig = (
+  componentName?: keyof ComponentStyles,
+): EffectConfig => {
   const { theme } = useTenantThemeContext();
 
   return useMemo(() => {
@@ -12,7 +14,7 @@ export const useComponentEffectConfig = (componentName?: keyof ComponentStyles):
 
     if (componentName && theme?.components?.[componentName]) {
       const componentStyle = theme.components[componentName].style;
-      if (componentStyle !== 'global') {
+      if (componentStyle !== "global") {
         config.globalType = componentStyle as EffectType;
       }
     }

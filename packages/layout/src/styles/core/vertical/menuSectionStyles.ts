@@ -20,7 +20,7 @@ const menuSectionStyles = (
         paddingBlock: `${theme.spacing(
           collapsedNotHovered
             ? menuTokens.vertical.section.collapsedPaddingBlockSpacing
-            : menuTokens.vertical.section.expandedPaddingBlockSpacing
+            : menuTokens.vertical.section.expandedPaddingBlockSpacing,
         )} !important`,
         marginBlockStart: theme.spacing(menuTokens.vertical.section.marginBlockStartSpacing),
 

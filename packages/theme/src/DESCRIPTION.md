@@ -241,7 +241,7 @@ Publicly exported from `components/index.ts`:
 - `Copyright`
 - `AdaptiveLogo`
 
-*Note: General-purpose UI components like `DropZone`, `PhoneInput`, and virtualized tables reside in `@cap/layout` (and will be moved to `@cap/ui`).*
+_Note: General-purpose UI components like `DropZone`, `PhoneInput`, and virtualized tables reside in `@cap/layout` (and will be moved to `@cap/ui`)._
 
 ### `DESCRIPTION.md`
 

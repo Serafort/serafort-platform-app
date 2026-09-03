@@ -1,11 +1,9 @@
 import { Stack, Button } from '@mui/material'
 import { Link } from 'react-router-dom'
-import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 
 const AuthButtons = () => {
   const { t } = useTranslation()
-  const theme = useTheme()
 
   return (
     <Stack direction='row' spacing={2} marginLeft='10px'>
@@ -14,9 +12,9 @@ const AuthButtons = () => {
         to='/auth/sign-up'
         variant='outlined'
         size='small'
-        style={{
+        sx={{
           textDecoration: 'none',
-          color: theme.palette.primary.main,
+          color: 'primary.main',
         }}
       >
         {t('auth.login.sign_up_link')}
@@ -26,9 +24,9 @@ const AuthButtons = () => {
         to='/auth/sign-in'
         variant='contained'
         size='small'
-        style={{
+        sx={{
           textDecoration: 'none',
-          color: theme.palette.primary.contrastText,
+          color: 'primary.contrastText',
         }}
       >
         {t('auth.login.title')}

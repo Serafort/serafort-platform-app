@@ -24,7 +24,7 @@ export const useDynamicTheme = (): DynamicThemeConfig | null => {
 }
 
 export const getThemeColors = (theme: TenantThemeConfig) => {
-  const colors = theme.tokens?.colors;
+  const colors = theme.tokens?.colors
   if (!colors) return {}
   return {
     primary: colors.primary?.value,

@@ -12,6 +12,8 @@ import AuthLoadingScreen from '../modules/authentication-core/components/shared/
 
 import { authCoreRouteConfig } from '../modules/authentication-core/routes/routes'
 import { authorizationEngineRouteConfig } from '../modules/authorization-engine/routes/routes'
+
+import { developerConsoleRouteConfig } from '../modules/developer-console/routes/routes'
 import { identityBrokerRouteConfig } from '../modules/identity-broker/routes/routes'
 import { mfaOrchestratorRouteConfig } from '../modules/mfa-orchestrator/routes/routes'
 import { passwordlessServiceRouteConfig } from '../modules/passwordless-service/routes/routes'
@@ -25,6 +27,7 @@ import { userDirectoryRouteConfig } from '../modules/user-directory/routes/route
 export const authRouteConfig: Array<ModuleRouteConfig> = [
   ...authCoreRouteConfig,
   ...authorizationEngineRouteConfig,
+  ...developerConsoleRouteConfig,
   ...identityBrokerRouteConfig,
   ...mfaOrchestratorRouteConfig,
   ...passwordlessServiceRouteConfig,
@@ -44,11 +47,7 @@ export const authRoutes: React.FC<RoutesProps> = () => (
         <Route
           key={path}
           path={path}
-          element={
-            <LayoutRouteWrapper layout={layout || 'noLayout'}>
-              {element}
-            </LayoutRouteWrapper>
-          }
+          element={<LayoutRouteWrapper layout={layout || 'noLayout'}>{element}</LayoutRouteWrapper>}
         />
       ))}
     </>

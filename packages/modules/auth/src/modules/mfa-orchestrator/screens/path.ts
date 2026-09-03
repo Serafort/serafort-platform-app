@@ -1,8 +1,9 @@
 const Path = {
   // MFA Paths
   mfa: {
-    setup: '/auth/mfa/setup',
     verification: '/auth/mfa/verify',
+
+    setup: '/auth/mfa/setup',
     backup_codes: '/auth/mfa/backup-codes',
     verification_success: '/auth/mfa/success',
     management: '/auth/mfa/manage',
@@ -12,16 +13,25 @@ const Path = {
     security_keys: '/auth/mfa/security-keys',
   },
   passkey: {
-    setup: '/auth/passkey/setup',
+    edit: '/auth/passkey/edit',
     management: '/auth/passkey/management',
     recovery: '/auth/passkey/recovery',
-    usage_stats: '/auth/passkey/usage-stats',
     creation_options: '/auth/passkey/create',
     login: '/auth/passkey/login',
     naming_config: '/auth/passkey/configure',
-    platform_login: '/auth/passkey/platform-login',
-    platform_register: '/auth/passkey/platform-register',
-  }
+    prompt: '/auth/passkey/prompt',
+    setup: '/auth/passkey/setup',
+    setup_auto: '/auth/passkey/setup/auto',
+    usage_stats: '/auth/passkey/usage-stats',
+    example: '/auth/passkey/example',
+  },
+  platform: {
+    login: '/auth/platform/login',
+    register: '/auth/platform/register',
+  },
+  setup: '/auth/mfa/setup',
+  verification: '/auth/mfa/verify',
+  dashboard: '/auth/mfa/dashboard',
 }
 
 export default Path

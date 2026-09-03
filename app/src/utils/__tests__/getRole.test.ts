@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest'
 
 // Mock @cap/platform-core so tests are independent of the package resolution
 vi.mock('@cap/platform-core', () => ({

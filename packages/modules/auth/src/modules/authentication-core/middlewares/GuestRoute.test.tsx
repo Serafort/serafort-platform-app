@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, cleanup } from '@testing-library/react'
 
-import GuestRoute from './GuestRoute';
+import GuestRoute from './GuestRoute'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -13,11 +13,15 @@ vi.mock('react-router-dom', () => ({
 }))
 
 const mockUpdateLayoutOverride = vi.fn()
-vi.mock('@cap/platform-core', () => ({
-  isObjectEmpty: (obj: any) => !obj || Object.keys(obj).length === 0,
-  useAppStore: (selector: (s: any) => any) =>
-    selector({ updateLayoutOverride: mockUpdateLayoutOverride }),
-}))
+vi.mock('@cap/platform-core', async (importOriginal) => {
+  const actual: any = await importOriginal()
+  return {
+    ...actual,
+    isObjectEmpty: (obj: any) => !obj || Object.keys(obj).length === 0,
+    useAppStore: (selector: (s: any) => any) =>
+      selector({ updateLayoutOverride: mockUpdateLayoutOverride }),
+  }
+})
 
 const mockUseSessionGuard = vi.fn()
 vi.mock('../../session-manager/middlewares/useSessionGuard', () => ({
@@ -79,11 +83,11 @@ describe('GuestRoute', () => {
 
   // ── Authenticated ──────────────────────────────────────────────────────────
 
-  it('redirects to /dashboard when authenticated with a valid user', () => {
+  it('redirects to /auth/account when authenticated with a valid user', () => {
     guard({ isAuthenticated: true, user: { id: '1', email: 'u@example.com' } })
     renderRoute()
     const nav = screen.getByTestId('navigate')
-    expect(nav.getAttribute('data-to')).toBe('/dashboard')
+    expect(nav.getAttribute('data-to')).toBe('/auth/account')
     expect(screen.queryByText('Guest Content')).toBeNull()
   })
 

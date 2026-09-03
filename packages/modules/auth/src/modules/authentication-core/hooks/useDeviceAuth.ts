@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import authService from "@cap/module-auth/modules/authentication-core/services/auth.service"
+import authService from '@cap/module-auth/modules/authentication-core/services/auth.service'
 import { FetchResponse, HttpError } from '@cap/platform-core'
 
 export interface VerifyDeviceCodeResponse {

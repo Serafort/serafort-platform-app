@@ -1,5 +1,5 @@
-import { apiClient } from '@cap/platform-core';
-import { ENDPOINTS } from '@cap/platform-core';
+import { apiClient } from '@cap/platform-core'
+import { ENDPOINTS } from '@cap/platform-core'
 
 const adminService = {
   dashboard: () => apiClient.get(ENDPOINTS.admin.dashboard),
@@ -18,7 +18,8 @@ const adminService = {
     resetPassword: (id: number) => apiClient.post(ENDPOINTS.admin.users.resetPassword(id)),
     resetMfa: (id: number) => apiClient.post(ENDPOINTS.admin.users.resetMfa(id)),
     bulkAction: (data: any) => apiClient.post(ENDPOINTS.admin.users.bulkAction, data),
-    assignRole: (id: number, role: string) => apiClient.post(ENDPOINTS.admin.users.assignRole(id), { role }),
+    assignRole: (id: number, role: string) =>
+      apiClient.post(ENDPOINTS.admin.users.assignRole(id), { role }),
     impersonate: (id: number) => apiClient.post(ENDPOINTS.admin.users.impersonate(id)),
     unlock: (id: number) => apiClient.post(ENDPOINTS.admin.users.unlock(id)),
     sessions: (id: number) => apiClient.get(ENDPOINTS.admin.users.sessions(id)),
@@ -110,7 +111,8 @@ const adminService = {
     list: () => apiClient.get(ENDPOINTS.admin.provisioning.connectors),
     get: (id: number) => apiClient.get(ENDPOINTS.admin.provisioning.byId(id)),
     create: (data: any) => apiClient.post(ENDPOINTS.admin.provisioning.store, data),
-    update: (id: number, data: any) => apiClient.patch(ENDPOINTS.admin.provisioning.update(id), data),
+    update: (id: number, data: any) =>
+      apiClient.patch(ENDPOINTS.admin.provisioning.update(id), data),
     delete: (id: number) => apiClient.delete(ENDPOINTS.admin.provisioning.destroy(id)),
     sync: (id: number) => apiClient.post(ENDPOINTS.admin.provisioning.sync(id)),
     logs: (id: number) => apiClient.get(ENDPOINTS.admin.provisioning.logs(id)),

@@ -1,23 +1,42 @@
 // cspell:ignore languagedetector reactour Toastify
-import React from 'react';
-import { useTheme } from '@mui/material/styles';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { I18nextProvider } from 'react-i18next';
-import i18next from 'i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import { BrowserRouter } from 'react-router-dom';
-import { TenantProvider, themeConfig, i18n, onForbiddenError, useNetworkSync, getModules, useTenant, LayoutEngineProvider } from '@cap/platform-core';
-import type { ChildrenType } from '@cap/platform-core';
-import { TourProvider } from '@reactour/tour';
-import { toast } from 'react-toastify';
-import common_us from './data/dictionaries/en.json';
-import common_fr from './data/dictionaries/fr.json';
-import common_ar from './data/dictionaries/ar.json';
-import { ThemeBridge, AppReactToastify } from '@cap/layout';
-import { GlobalZIndexStyles, WidgetMarketplaceDrawer, WidgetInspectorDrawer } from '@cap/theme';
+import React from 'react'
+import { useTheme } from '@mui/material/styles'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-import { ThemeEditor } from '@cap/module-theme';
+// Dev-only: lazily loaded so the devtools bundle is fully tree-shaken from
+// production builds (import.meta.env.DEV is statically replaced with `false`).
+type DevtoolsProps = { initialIsOpen?: boolean }
+const ReactQueryDevtools: React.ComponentType<DevtoolsProps> = import.meta.env.DEV
+  ? React.lazy(() =>
+      import('@tanstack/react-query-devtools').then((m) => ({
+        default: m.ReactQueryDevtools,
+      })),
+    )
+  : () => null
+import { I18nextProvider } from 'react-i18next'
+import i18next from 'i18next'
+import LanguageDetector from 'i18next-browser-languagedetector'
+import { BrowserRouter } from 'react-router-dom'
+import {
+  TenantProvider,
+  themeConfig,
+  i18n,
+  onForbiddenError,
+  useNetworkSync,
+  getModules,
+  useTenant,
+  LayoutEngineProvider,
+} from '@cap/platform-core'
+import type { ChildrenType } from '@cap/platform-core'
+import { TourProvider } from '@reactour/tour'
+import { toast } from 'react-toastify'
+import common_us from './data/dictionaries/en.json'
+import common_fr from './data/dictionaries/fr.json'
+import common_ar from './data/dictionaries/ar.json'
+import { ThemeBridge, AppReactToastify } from '@cap/layout'
+import { GlobalZIndexStyles, WidgetMarketplaceDrawer, WidgetInspectorDrawer } from '@cap/theme'
+
+import { ThemeEditor } from '@cap/module-theme'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,11 +79,11 @@ if (!i18next.isInitialized) {
         if (initialResources[langKey]) {
           initialResources[langKey][moduleNs] = deepMergeObj(
             initialResources[langKey][moduleNs] || {},
-            resources
+            resources,
           )
           initialResources[langKey]['common'] = deepMergeObj(
             initialResources[langKey]['common'] || {},
-            resources
+            resources,
           )
         }
       })
@@ -130,26 +149,36 @@ const ThemedTourProvider: React.FC<ChildrenType> = ({ children }) => {
       }),
       popover: (base: React.CSSProperties) => ({
         ...base,
-        boxShadow: '0 0 3em rgba(0, 0, 0, 0.5)',
+        boxShadow: theme.customShadows?.xl || theme.shadows[16],
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
       }),
     }),
-    [theme.palette.text.primary, theme.palette.background.paper]
+    [
+      theme.palette.text.primary,
+      theme.palette.background.paper,
+      theme.customShadows?.xl,
+      theme.shadows,
+    ],
   )
 
   return (
-    <TourProvider steps={tourConfig} defaultOpen={false} rtl={theme.direction === 'rtl'} styles={tourStyles}>
+    <TourProvider
+      steps={tourConfig}
+      defaultOpen={false}
+      rtl={theme.direction === 'rtl'}
+      styles={tourStyles}
+    >
       {children}
     </TourProvider>
   )
 }
 
 const GlobalThemeEditor = () => {
-  const { saveTheme } = useTenant();
-  const handleSave = React.useCallback((theme: any) => saveTheme(theme), [saveTheme]);
-  return <ThemeEditor asDrawer onSave={handleSave} />;
-};
+  const { saveTheme } = useTenant()
+  const handleSave = React.useCallback((theme: any) => saveTheme(theme), [saveTheme])
+  return <ThemeEditor asDrawer onSave={handleSave} />
+}
 
 const Providers: React.FC<ChildrenType> = ({ children }) => {
   return (
@@ -162,22 +191,23 @@ const Providers: React.FC<ChildrenType> = ({ children }) => {
               <ForbiddenListener />
               <NetworkSync />
               <ThemedTourProvider>
-                <LayoutEngineProvider>
-                  {children}
-                </LayoutEngineProvider>
+                <LayoutEngineProvider>{children}</LayoutEngineProvider>
               </ThemedTourProvider>
               <GlobalThemeEditor />
               <WidgetMarketplaceDrawer />
               <WidgetInspectorDrawer />
             </BrowserRouter>
             <AppReactToastify position={themeConfig.toastPosition} hideProgressBar />
-            <ReactQueryDevtools initialIsOpen={false} />
+            {import.meta.env.DEV && (
+              <React.Suspense fallback={null}>
+                <ReactQueryDevtools initialIsOpen={false} />
+              </React.Suspense>
+            )}
           </ThemeBridge>
         </TenantProvider>
       </I18nextProvider>
     </QueryClientProvider>
   )
 }
-
 
 export default Providers

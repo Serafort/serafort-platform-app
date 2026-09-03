@@ -1,11 +1,27 @@
-import { apiClient, FetchResponse, PaginatedResponse } from '@cap/platform-core';
-import { ENDPOINTS } from '@cap/platform-core';
-import type { SCIMConfig } from '../../../domain-kernel/src/types';
-import type { SAMLConfig, JWKSKey, CreateJWKSKeyRequest, JWKSKeyDetail, SSFConfig, BroadcastSSFEventRequest, BroadcastSSFEventResponse } from '../../../domain-kernel/src/types';
-import type { AccessPolicy, Role, Permission } from '@cap/shared-types';
-export type { AccessPolicy, Role, Permission };
+import { apiClient, FetchResponse, PaginatedResponse } from '@cap/platform-core'
+import { ENDPOINTS } from '@cap/platform-core'
+import type { SCIMConfig } from '../../../domain-kernel/src/types'
+import type {
+  SAMLConfig,
+  JWKSKey,
+  CreateJWKSKeyRequest,
+  JWKSKeyDetail,
+  SSFConfig,
+  BroadcastSSFEventRequest,
+  BroadcastSSFEventResponse,
+} from '../../../domain-kernel/src/types'
+import type { AccessPolicy, Role, Permission } from '@cap/shared-types'
+export type { AccessPolicy, Role, Permission }
 export type { SCIMConfig }
-export type { SAMLConfig, JWKSKey, CreateJWKSKeyRequest, JWKSKeyDetail, SSFConfig, BroadcastSSFEventRequest, BroadcastSSFEventResponse }
+export type {
+  SAMLConfig,
+  JWKSKey,
+  CreateJWKSKeyRequest,
+  JWKSKeyDetail,
+  SSFConfig,
+  BroadcastSSFEventRequest,
+  BroadcastSSFEventResponse,
+}
 
 // ============================================================================
 // Type Definitions
@@ -43,7 +59,6 @@ export interface BasicMetrics {
   }
   timestamp: string
 }
-
 
 export interface RolePermissionSyncRequest {
   permission_ids: number[]
@@ -592,7 +607,9 @@ export class AdminService {
   /**
    * Fetch remote SAML metadata from a URL
    */
-  async fetchRemoteMetadata(url: string): Promise<FetchResponse<{ xml: string; entityId: string; name: string }>> {
+  async fetchRemoteMetadata(
+    url: string,
+  ): Promise<FetchResponse<{ xml: string; entityId: string; name: string }>> {
     return apiClient.post('/api/admin/saml/metadata/fetch-remote', { url })
   }
 
@@ -937,6 +954,63 @@ export class AdminService {
   }
 
   /**
+   * Simulate a visual policy graph against access request context
+   */
+  async simulatePolicyGraph(data: {
+    graph: any
+    request: {
+      subject: Record<string, any>
+      action: string
+      resource: Record<string, any>
+      environment?: Record<string, any>
+    }
+  }): Promise<FetchResponse<any>> {
+    return apiClient.post('/api/admin/rbac/policies/simulate', data)
+  }
+
+  /**
+   * Compile a visual policy graph into an executable policy set
+   */
+  async compilePolicyGraph(data: { graph: any }): Promise<FetchResponse<any>> {
+    return apiClient.post('/api/admin/rbac/policies/compile', data)
+  }
+
+  /**
+   * Decompile a policy set into a visual policy graph
+   */
+  async decompilePolicySet(data: { policySet: any }): Promise<FetchResponse<any>> {
+    return apiClient.post('/api/admin/rbac/policies/decompile', data)
+  }
+
+  /**
+   * Get default template policy set
+   */
+  async getDefaultPolicySet(): Promise<FetchResponse<any>> {
+    return apiClient.get('/api/admin/rbac/policies/default')
+  }
+
+  /**
+   * Evaluate a compiled policy against a concrete access request
+   */
+  async evaluatePolicy(data: {
+    policySet?: any
+    request: {
+      subject: Record<string, any>
+      action: string
+      resource: Record<string, any>
+      environment?: Record<string, any>
+    }
+  }): Promise<
+    FetchResponse<{
+      effect: 'Permit' | 'Deny' | 'NotApplicable' | 'Indeterminate'
+      reasons?: string[]
+      traces?: any[]
+    }>
+  > {
+    return apiClient.post('/api/admin/rbac/policies/evaluate', data)
+  }
+
+  /**
    * Get developer API keys for an organization
    */
   async getDeveloperApiKeys(orgId: number): Promise<FetchResponse<DeveloperApiKey[]>> {
@@ -958,7 +1032,10 @@ export class AdminService {
   /**
    * Revoke a developer API key
    */
-  async revokeDeveloperApiKey(orgId: number, keyId: number): Promise<FetchResponse<MessageResponse>> {
+  async revokeDeveloperApiKey(
+    orgId: number,
+    keyId: number,
+  ): Promise<FetchResponse<MessageResponse>> {
     return apiClient.delete(ENDPOINTS.developerApiKeys.destroy(keyId), {
       params: { org_id: orgId },
     })
@@ -1307,15 +1384,26 @@ export class AdminService {
     return apiClient.get<SSFConfig>(ENDPOINTS.admin.ssf.config)
   }
 
-  async updateSSFConfig(config: SSFConfig): Promise<FetchResponse<{ message: string; config: SSFConfig }>> {
-    return apiClient.put<{ message: string; config: SSFConfig }>(ENDPOINTS.admin.ssf.updateConfig, config)
+  async updateSSFConfig(
+    config: SSFConfig,
+  ): Promise<FetchResponse<{ message: string; config: SSFConfig }>> {
+    return apiClient.put<{ message: string; config: SSFConfig }>(
+      ENDPOINTS.admin.ssf.updateConfig,
+      config,
+    )
   }
 
-  async testSSFStream(): Promise<FetchResponse<{ success: boolean; message: string; timestamp: string }>> {
-    return apiClient.post<{ success: boolean; message: string; timestamp: string }>(ENDPOINTS.admin.ssf.test)
+  async testSSFStream(): Promise<
+    FetchResponse<{ success: boolean; message: string; timestamp: string }>
+  > {
+    return apiClient.post<{ success: boolean; message: string; timestamp: string }>(
+      ENDPOINTS.admin.ssf.test,
+    )
   }
 
-  async broadcastSSFEvent(data: BroadcastSSFEventRequest): Promise<FetchResponse<BroadcastSSFEventResponse>> {
+  async broadcastSSFEvent(
+    data: BroadcastSSFEventRequest,
+  ): Promise<FetchResponse<BroadcastSSFEventResponse>> {
     return apiClient.post<BroadcastSSFEventResponse>(ENDPOINTS.admin.ssf.broadcast, data)
   }
 

@@ -10,7 +10,7 @@ import type {
   RouteRegistration,
   HybridPlugin,
   ComponentType,
-  PluginMetadata
+  PluginMetadata,
 } from '@cap/shared-types'
 
 /**
@@ -46,13 +46,13 @@ class PluginRegistryImpl implements IPluginRegistry {
   private routes: Map<string, RouteRegistration[]> = new Map()
 
   private serviceOwnership: ServiceOwnership = {
-    services: new Map()
+    services: new Map(),
   }
 
   private componentOwnership: {
     components: Map<string, Set<string>>
   } = {
-    components: new Map()
+    components: new Map(),
   }
 
   /**
@@ -63,8 +63,8 @@ class PluginRegistryImpl implements IPluginRegistry {
       const existing = this.plugins.get(plugin.id)
       throw new Error(
         `[PluginRegistry] Plugin "${plugin.id}" is already registered. ` +
-        `Plugin IDs must be unique. ` +
-        `Already registered: ${existing?.name ?? 'unknown'}`
+          `Plugin IDs must be unique. ` +
+          `Already registered: ${existing?.name ?? 'unknown'}`,
       )
     }
 
@@ -72,7 +72,7 @@ class PluginRegistryImpl implements IPluginRegistry {
       for (const dep of plugin.dependencies) {
         if (!this.plugins.has(dep)) {
           throw new Error(
-            `[PluginRegistry] Plugin "${plugin.id}" requires dependency "${dep}" which is not registered.`
+            `[PluginRegistry] Plugin "${plugin.id}" requires dependency "${dep}" which is not registered.`,
           )
         }
       }
@@ -86,7 +86,8 @@ class PluginRegistryImpl implements IPluginRegistry {
         moduleId: 'global',
         registry: this as unknown as IPluginRegistry,
         config: {},
-        getPlugin: <T extends CAPPlugin = CAPPlugin>(id: string): T | undefined => this.getPlugin<T>(id)
+        getPlugin: <T extends CAPPlugin = CAPPlugin>(id: string): T | undefined =>
+          this.getPlugin<T>(id),
       }
 
       await plugin.install(context)
@@ -96,16 +97,23 @@ class PluginRegistryImpl implements IPluginRegistry {
       } else if (plugin.pluginType === 'component') {
         this.registerComponents((plugin as ComponentPlugin).components, plugin.id)
       } else if (plugin.pluginType === 'route') {
-        this.registerRoutes((plugin as RoutePlugin).routes, (plugin as RoutePlugin).routePrefix, plugin.id)
+        this.registerRoutes(
+          (plugin as RoutePlugin).routes,
+          (plugin as RoutePlugin).routePrefix,
+          plugin.id,
+        )
       } else if (plugin.pluginType === 'hybrid') {
         this.registerServices((plugin as HybridPlugin).services || {}, plugin.id)
         this.registerComponents((plugin as HybridPlugin).components || {}, plugin.id)
-        this.registerRoutes((plugin as HybridPlugin).routes || [], (plugin as HybridPlugin).routePrefix, plugin.id)
+        this.registerRoutes(
+          (plugin as HybridPlugin).routes || [],
+          (plugin as HybridPlugin).routePrefix,
+          plugin.id,
+        )
       }
 
       this.pluginStates.set(plugin.id, 'active')
       plugin.onStateChange?.('active')
-
     } catch (error) {
       this.pluginStates.set(plugin.id, 'error')
       plugin.onStateChange?.('error', error instanceof Error ? error : new Error(String(error)))
@@ -135,7 +143,10 @@ class PluginRegistryImpl implements IPluginRegistry {
     this.pluginOutputs.set(pluginId, outputs)
   }
 
-  private registerComponents(components: Record<string, ComponentType> | undefined, pluginId: string): void {
+  private registerComponents(
+    components: Record<string, ComponentType> | undefined,
+    pluginId: string,
+  ): void {
     if (!components) return
 
     for (const [name, component] of Object.entries(components)) {
@@ -151,9 +162,13 @@ class PluginRegistryImpl implements IPluginRegistry {
     }
   }
 
-  private registerRoutes(routes: RouteRegistration[] | undefined, routePrefix: string | undefined, pluginId: string): void {
+  private registerRoutes(
+    routes: RouteRegistration[] | undefined,
+    routePrefix: string | undefined,
+    pluginId: string,
+  ): void {
     if (!routes) return
-    const formattedRoutes = routes.map(route => {
+    const formattedRoutes = routes.map((route) => {
       let path = route.path
       if (routePrefix) {
         const cleanPrefix = routePrefix.endsWith('/') ? routePrefix.slice(0, -1) : routePrefix
@@ -162,7 +177,7 @@ class PluginRegistryImpl implements IPluginRegistry {
       }
       return {
         ...route,
-        path
+        path,
       }
     })
     this.routes.set(pluginId, formattedRoutes)
@@ -186,7 +201,7 @@ class PluginRegistryImpl implements IPluginRegistry {
       if (plugin.uninstall) {
         const context: PluginUninstallContext = {
           moduleId: 'global',
-          registry: this as unknown as IPluginRegistry
+          registry: this as unknown as IPluginRegistry,
         }
         await plugin.uninstall(context)
       }
@@ -196,7 +211,6 @@ class PluginRegistryImpl implements IPluginRegistry {
       this.plugins.delete(id)
       this.pluginStates.set(id, 'uninstalled')
       plugin.onStateChange?.('uninstalled')
-
     } catch (error) {
       console.error(`[PluginRegistry] Error uninstalling plugin "${id}":`, error)
       throw error
@@ -248,14 +262,17 @@ class PluginRegistryImpl implements IPluginRegistry {
     return Array.from(this.plugins.values())
   }
 
-  getPluginsByType<T extends CAPPlugin['pluginType']>(type: T): Extract<CAPPlugin, { pluginType: T }>[] {
-    return Array.from(this.plugins.values())
-      .filter(p => p.pluginType === type) as Extract<CAPPlugin, { pluginType: T }>[]
+  getPluginsByType<T extends CAPPlugin['pluginType']>(
+    type: T,
+  ): Extract<CAPPlugin, { pluginType: T }>[] {
+    return Array.from(this.plugins.values()).filter((p) => p.pluginType === type) as Extract<
+      CAPPlugin,
+      { pluginType: T }
+    >[]
   }
 
   getPluginsByCategory(category: PluginMetadata['category']): CAPPlugin[] {
-    return Array.from(this.plugins.values())
-      .filter(p => p.category === category)
+    return Array.from(this.plugins.values()).filter((p) => p.category === category)
   }
 
   hasPlugin(id: string): boolean {
@@ -289,7 +306,6 @@ class PluginRegistryImpl implements IPluginRegistry {
     this.components.set(name, component)
   }
 
-
   getRoutes(): RouteRegistration[] {
     return Array.from(this.routes.values()).flat()
   }
@@ -322,7 +338,7 @@ class PluginRegistryImpl implements IPluginRegistry {
       activePlugins,
       services: this.services.size,
       components: this.components.size,
-      routes: this.getRoutes().length
+      routes: this.getRoutes().length,
     }
   }
 }

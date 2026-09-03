@@ -1,8 +1,8 @@
 import React from 'react'
 import { Box, Button, TextField, Typography, Link as MuiLink, alpha } from '@mui/material'
-import LockPerson from '@mui/icons-material/LockPerson';
-import ArrowForward from '@mui/icons-material/ArrowForward';
-import Timer from '@mui/icons-material/Timer';
+import LockPerson from '@mui/icons-material/LockPerson'
+import ArrowForward from '@mui/icons-material/ArrowForward'
+import Timer from '@mui/icons-material/Timer'
 import { AuthScreenIcon, AuthActionButton } from '../../../components/shared/auth'
 import { PendingMfaUser } from '../hooks/useSignInFlow'
 
@@ -60,12 +60,17 @@ export const MfaStep: React.FC<MfaStepProps> = ({
         <Box>
           <Typography
             variant='h5'
-            sx={{ fontWeight: 800, letterSpacing: '-0.02em', mb: 1 }}
+            sx={{
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              mb: 1,
+              fontFamily: 'var(--font-h5, inherit)',
+            }}
           >
-            {t('auth.twoFactor.title')}
+            {t('auth.twoFactor.title', 'Two-Factor Authentication')}
           </Typography>
           <Typography variant='body2' color='text.secondary' sx={{ lineHeight: 1.6 }}>
-            {t('auth.twoFactor.subtitle')}
+            {t('auth.twoFactor.subtitle', 'Please enter the 6-digit authentication code sent to')}
             <br />
             <Box component='span' sx={{ fontWeight: 600, color: 'text.primary' }}>
               {pendingMfaUser?.email || 'your email'}
@@ -111,6 +116,7 @@ export const MfaStep: React.FC<MfaStepProps> = ({
                   '& fieldset': {
                     borderColor: 'divider',
                     borderWidth: '2px',
+                    transition: 'all 0.2s ease-in-out',
                   },
                   '&:hover fieldset': {
                     borderColor: 'primary.main',
@@ -118,6 +124,9 @@ export const MfaStep: React.FC<MfaStepProps> = ({
                   '&.Mui-focused fieldset': {
                     borderColor: 'primary.main',
                     borderWidth: '2px',
+                  },
+                  '&.Mui-focused': {
+                    boxShadow: (theme) => `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
                   },
                 },
               }}
@@ -143,11 +152,8 @@ export const MfaStep: React.FC<MfaStepProps> = ({
       >
         <Timer sx={{ fontSize: 18, color: 'text.secondary' }} />
         <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.secondary' }}>
-          {t('auth.twoFactor.expiresIn')}{' '}
-          <Box
-            component='span'
-            sx={{ color: 'primary.main', fontVariantNumeric: 'tabular-nums' }}
-          >
+          {t('auth.twoFactor.expiresIn', 'Expires in')}{' '}
+          <Box component='span' sx={{ color: 'primary.main', fontVariantNumeric: 'tabular-nums' }}>
             {countdownDisplay}
           </Box>
         </Typography>
@@ -156,16 +162,17 @@ export const MfaStep: React.FC<MfaStepProps> = ({
       <AuthActionButton
         label={
           isMfaPending
-            ? t('auth.twoFactor.verifying')
-            : t('auth.twoFactor.verifyButton')
+            ? t('auth.twoFactor.verifying', 'Verifying...')
+            : t('auth.twoFactor.verifyButton', 'Verify & Continue')
         }
         disabled={mfaCode.length !== 6 || isMfaPending}
+        isLoading={isMfaPending}
         onClick={onMfaSubmit}
       />
 
       <Box sx={{ textAlign: 'center' }}>
         <Typography variant='body2' color='text.secondary' sx={{ mb: 1.5 }}>
-          {t('auth.twoFactor.noEmail')}{' '}
+          {t('auth.twoFactor.noEmail', "Didn't receive a code?")}{' '}
           <Button
             variant='text'
             onClick={onResendCode}
@@ -179,7 +186,7 @@ export const MfaStep: React.FC<MfaStepProps> = ({
               '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
             }}
           >
-            {t('auth.twoFactor.resendCode')}
+            {t('auth.twoFactor.resendCode', 'Resend code')}
           </Button>
         </Typography>
         <Box sx={{ height: '1px', bgcolor: 'divider', my: 2 }} />
@@ -200,13 +207,10 @@ export const MfaStep: React.FC<MfaStepProps> = ({
             '&:hover': { color: 'text.primary' },
           }}
         >
-          <Box
-            component='span'
-            sx={{ transform: 'rotate(180deg)', display: 'inline-flex' }}
-          >
+          <Box component='span' sx={{ transform: 'rotate(180deg)', display: 'inline-flex' }}>
             <ArrowForward sx={{ fontSize: 16 }} />
           </Box>
-          {t('auth.twoFactor.backToLogin')}
+          {t('auth.twoFactor.backToLogin', 'Back to sign in')}
         </MuiLink>
       </Box>
     </Box>

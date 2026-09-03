@@ -14,14 +14,14 @@ import {
   Button,
   Alert,
 } from '@mui/material'
-import Security from '@mui/icons-material/Security';
-import Lock from '@mui/icons-material/Lock';
+import Security from '@mui/icons-material/Security'
+import Lock from '@mui/icons-material/Lock'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { useAuth } from '@cap/platform-core'
+import { useAuth, safeRedirectPath } from '@cap/platform-core'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Path } from "@auth/routes/path"
+import { Path } from '@auth/routes/path'
 
 export default function AuthWaitScreen() {
   const { t } = useTranslation()
@@ -36,11 +36,11 @@ export default function AuthWaitScreen() {
 
   const redirectTo = useMemo(() => {
     const qs = new URLSearchParams(location.search)
-    const qp = qs.get('redirectTo')
-
+    // Accept only same-origin paths; ignore absolute/external targets.
+    const qp = safeRedirectPath(qs.get('redirectTo'))
     if (qp) return qp
-    const stateRedirectTo = (location.state as any)?.redirectTo
-    if (typeof stateRedirectTo === 'string' && stateRedirectTo.length > 0) return stateRedirectTo
+    const stateRedirectTo = safeRedirectPath((location.state as any)?.redirectTo)
+    if (stateRedirectTo) return stateRedirectTo
 
     return '/dashboard'
   }, [location.search, location.state])

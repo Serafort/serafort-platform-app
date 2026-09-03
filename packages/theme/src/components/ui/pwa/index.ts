@@ -1,2 +1,2 @@
-export { PWAUpdatePrompt } from './PWAUpdatePrompt'
-export { InstallPrompt } from './InstallPrompt'
+export { PWAUpdatePrompt } from "./PWAUpdatePrompt";
+export { InstallPrompt } from "./InstallPrompt";

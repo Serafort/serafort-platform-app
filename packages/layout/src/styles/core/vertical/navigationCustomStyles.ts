@@ -1,9 +1,5 @@
 import type { Theme } from '@mui/material/styles'
-import {
-  menuTokens,
-  getVerticalNavBackdropColor,
-  getVerticalNavContainerShadow,
-} from '@cap/theme'
+import { menuTokens, getVerticalNavBackdropColor, getVerticalNavContainerShadow } from '@cap/theme'
 import type { VerticalNavState } from '../../../menu/contexts/verticalNavContext'
 import { menuClasses, verticalNavClasses } from '../../../menu/utils/menuClasses'
 
@@ -19,7 +15,7 @@ const navigationCustomStyles = (verticalNavOptions: VerticalNavState, theme: The
       paddingBlock: theme.spacing(menuTokens.vertical.header.paddingBlockSpacing),
       paddingInline: theme.spacing(
         menuTokens.vertical.header.paddingInlineStartSpacing,
-        menuTokens.vertical.header.paddingInlineEndSpacing
+        menuTokens.vertical.header.paddingInlineEndSpacing,
       ),
 
       ...(collapsedNotHovered && {
@@ -37,6 +33,8 @@ const navigationCustomStyles = (verticalNavOptions: VerticalNavState, theme: The
         duration: transitionDuration,
         easing: 'ease-in-out',
       }),
+      borderInlineEnd: `1px solid ${theme.palette.divider}`,
+      backgroundColor: theme.palette.background.paper,
       ...getVerticalNavContainerShadow(theme, (theme as any).settings?.skin),
       '[data-skin="bordered"] &': {
         boxShadow: 'none',
@@ -45,7 +43,15 @@ const navigationCustomStyles = (verticalNavOptions: VerticalNavState, theme: The
     },
     [`& .${menuClasses.root}`]: {
       paddingBlock: theme.spacing(menuTokens.vertical.root.paddingBlockSpacing),
-      paddingInline: theme.spacing(menuTokens.vertical.root.paddingInlineSpacing),
+      paddingInline: theme.spacing(
+        collapsedNotHovered
+          ? menuTokens.vertical.root.collapsedPaddingInlineSpacing
+          : menuTokens.vertical.root.paddingInlineSpacing,
+      ),
+      transition: theme.transitions.create(['padding'], {
+        duration: transitionDuration,
+        easing: 'ease-in-out',
+      }),
     },
     [`& .${verticalNavClasses.backdrop}`]: {
       backgroundColor: getVerticalNavBackdropColor(theme),
