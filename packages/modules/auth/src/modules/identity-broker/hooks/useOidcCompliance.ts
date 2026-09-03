@@ -273,6 +273,21 @@ export function useConfirmOidcInteraction(
   })
 }
 
+export function useVerifyMfaInteraction(
+  uid: string | null | undefined,
+  options?: UseMutationOptions<
+    FetchResponse<OIDCRedirectResult>,
+    HttpError,
+    OIDCMfaVerifyDTO,
+    unknown
+  >,
+) {
+  return useMutation({
+    mutationFn: (data: OIDCMfaVerifyDTO) => oidcService.verifyMfaInteraction(uid || '', data),
+    ...options,
+  })
+}
+
 export function useAbortOidcInteraction(
   uid: string | null | undefined,
   options?: UseMutationOptions<FetchResponse<OIDCRedirectResult>, HttpError, void, unknown>,
@@ -324,6 +339,57 @@ export function useOidcEndSession(
 ) {
   return useMutation({
     mutationFn: () => oidcService.endSession(),
+    ...options,
+  })
+}
+
+export function useOidcPar(
+  options?: UseMutationOptions<
+    FetchResponse<{ request_uri: string; expires_in: number }>,
+    HttpError,
+    Record<string, any>,
+    unknown
+  >,
+) {
+  return useMutation({
+    mutationFn: (data: Record<string, any>) => oidcService.pushedAuthorizationRequest(data),
+    ...options,
+  })
+}
+
+export function useOidcRegisterClient(
+  options?: UseMutationOptions<
+    FetchResponse<Record<string, any>>,
+    HttpError,
+    Record<string, any>,
+    unknown
+  >,
+) {
+  return useMutation({
+    mutationFn: (data: Record<string, any>) => oidcService.registerClientDynamic(data),
+    ...options,
+  })
+}
+
+export function useOidcBackchannelLogout(
+  options?: UseMutationOptions<
+    FetchResponse<{ message?: string }>,
+    HttpError,
+    { logout_token: string },
+    unknown
+  >,
+) {
+  return useMutation({
+    mutationFn: (data: { logout_token: string }) => oidcService.backchannelLogout(data),
+    ...options,
+  })
+}
+
+export function useSamlSso(
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, Record<string, any>, unknown>,
+) {
+  return useMutation({
+    mutationFn: (data: Record<string, any>) => oidcService.samlSso(data),
     ...options,
   })
 }

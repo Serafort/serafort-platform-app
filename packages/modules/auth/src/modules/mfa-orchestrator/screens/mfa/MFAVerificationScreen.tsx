@@ -128,6 +128,7 @@ export default function MFAVerificationScreen() {
       if (activeMethod === 'recovery') {
         if (!recoveryCode.trim()) return
         response = await mfaService.recoveryVerify({
+          mfaToken: mfaToken || undefined,
           userId: userId || undefined,
           email: email || undefined,
           code: recoveryCode.trim(),

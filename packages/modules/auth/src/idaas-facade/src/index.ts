@@ -10,8 +10,12 @@ import type {
 } from '../../modules/authentication-core/types/api.types'
 
 export interface VerifyEmailRequest {
-  token: string
-  email?: string
+  /**
+   * The query string from the mailed verification link, forwarded verbatim.
+   * The backend signs it — address included — and validates the signature
+   * against the request URL, so it cannot be rebuilt from its parts.
+   */
+  search: string
 }
 export interface ResendVerificationRequest {
   email: string
@@ -77,8 +81,7 @@ class IdaasFacadeImpl implements IIdaasFacade {
     logout: () => authenticationService.signout(),
     forgotPassword: (request: IForgetPassword) => authenticationService.forgotPassword(request),
     resetPassword: (request: IResetPassword) => authenticationService.resetPassword(request),
-    verifyEmail: (request: VerifyEmailRequest) =>
-      authenticationService.verifyEmail(request.email || '', request.token),
+    verifyEmail: (request: VerifyEmailRequest) => authenticationService.verifyEmail(request.search),
     resendVerification: (request: ResendVerificationRequest) =>
       authenticationService.resendVerification(request.email),
   }

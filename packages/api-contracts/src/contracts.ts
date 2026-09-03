@@ -336,6 +336,12 @@ export const API_CONTRACTS = {
       resolve: () => ENDPOINTS.auth.session,
       response: contractType<ApiResponse<UserDto>>(),
     }),
+    me: defineEndpoint({
+      id: "auth.me",
+      method: "GET",
+      resolve: () => ENDPOINTS.auth.me,
+      response: contractType<ApiResponse<UserDto>>(),
+    }),
     forgotPassword: defineEndpoint({
       id: "auth.forgotPassword",
       method: "POST",
@@ -357,21 +363,17 @@ export const API_CONTRACTS = {
       response:
         contractType<ApiResponse<{ message: string; success: boolean }>>(),
     }),
-    verifyEmailToken: defineEndpoint({
-      id: "auth.verifyEmailToken",
-      method: "GET",
-      resolve: (email: string, signature: string) =>
-        ENDPOINTS.auth.verifyEmailToken(email, signature),
-      response:
-        contractType<ApiResponse<{ message: string; success: boolean }>>(),
-    }),
     verifyEmail: defineEndpoint({
       id: "auth.verifyEmail",
       method: "POST",
-      resolve: (email: string, signature: string) =>
-        ENDPOINTS.auth.verifyEmail(email, signature),
-      response:
-        contractType<ApiResponse<{ message: string; success: boolean }>>(),
+      resolve: (search?: string) => ENDPOINTS.auth.verifyEmail(search),
+      response: contractType<
+        ApiResponse<{
+          message: string;
+          success: boolean;
+          alreadyVerified?: boolean;
+        }>
+      >(),
     }),
     resendVerification: defineEndpoint({
       id: "auth.resendVerification",
@@ -383,17 +385,10 @@ export const API_CONTRACTS = {
     }),
     validateUser: defineEndpoint({
       id: "auth.validateUser",
-      method: "GET",
-      resolve: (id: string | number, token: string) =>
-        ENDPOINTS.auth.validateUser(id, token),
-      response: contractType<ApiResponse<{ valid: boolean }>>(),
-    }),
-    trackFailedLogin: defineEndpoint({
-      id: "auth.trackFailedLogin",
       method: "POST",
-      resolve: () => ENDPOINTS.auth.trackFailedLogin,
-      request: contractType<{ email: string }>(),
-      response: contractType<MessageResponse>(),
+      resolve: () => ENDPOINTS.auth.validateUser,
+      request: contractType<{ id: string | number; token: string }>(),
+      response: contractType<ApiResponse<{ valid: boolean }>>(),
     }),
     sessions: defineEndpoint({
       id: "auth.sessions",
@@ -430,8 +425,13 @@ export const API_CONTRACTS = {
         id: "auth.mfa.setup",
         method: "POST",
         resolve: () => ENDPOINTS.auth.mfa.setup,
+        // The seed never leaves the server on this route — it is held in Redis
+        // against the pending enrollment and only the QR payload and the
+        // manual-entry string come back.
         response:
-          contractType<ApiResponse<{ secret: string; qrCode: string }>>(),
+          contractType<
+            ApiResponse<{ qrDataUrl: string; manualEntry: string }>
+          >(),
       }),
       verify: defineEndpoint({
         id: "auth.mfa.verify",
@@ -447,11 +447,13 @@ export const API_CONTRACTS = {
         request: contractType<{ code: string }>(),
         response: contractType<MessageResponse>(),
       }),
+      // POST, not GET: issuing recovery codes mints new ones and invalidates
+      // the previous set, so it is not a safe read.
       recoveryCodes: defineEndpoint({
         id: "auth.mfa.recoveryCodes",
-        method: "GET",
+        method: "POST",
         resolve: () => ENDPOINTS.auth.mfa.recoveryCodes,
-        response: contractType<ApiResponse<{ codes: string[] }>>(),
+        response: contractType<ApiResponse<{ recoveryCodes: string[] }>>(),
       }),
       verifyLogin: defineEndpoint({
         id: "auth.mfa.verifyLogin",
@@ -459,6 +461,198 @@ export const API_CONTRACTS = {
         resolve: () => ENDPOINTS.auth.mfa.verifyLogin,
         request: contractType<{ code: string }>(),
         response: contractType<ApiResponse<{ valid: boolean }>>(),
+      }),
+      /**
+       * Step-up on an already-signed-in session. The account comes from the
+       * session, so unlike `verifyLogin` / `recoveryVerify` there is no MFA
+       * challenge token to present.
+       */
+      stepUp: {
+        totp: defineEndpoint({
+          id: "auth.mfa.stepUp.totp",
+          method: "POST",
+          resolve: () => ENDPOINTS.auth.mfa.stepUp.totp,
+          request: contractType<{ code: string }>(),
+          response: contractType<ApiResponse<{ verified: boolean }>>(),
+        }),
+        recovery: defineEndpoint({
+          id: "auth.mfa.stepUp.recovery",
+          method: "POST",
+          resolve: () => ENDPOINTS.auth.mfa.stepUp.recovery,
+          request: contractType<{ code: string }>(),
+          response: contractType<ApiResponse<{ verified: boolean }>>(),
+        }),
+      },
+    },
+    appealBan: defineEndpoint({
+      id: "auth.appealBan",
+      method: "POST",
+      resolve: () => ENDPOINTS.auth.appealBan,
+      request: contractType<{ email: string; reason: string }>(),
+      response: contractType<MessageResponse>(),
+    }),
+    device: defineEndpoint({
+      id: "auth.device",
+      method: "GET",
+      resolve: () => ENDPOINTS.auth.device,
+      response: contractType<unknown>(),
+    }),
+    verifyResetToken: defineEndpoint({
+      id: "auth.verifyResetToken",
+      method: "POST",
+      resolve: () => ENDPOINTS.auth.verifyResetToken,
+      request: contractType<{ email: string; token: string }>(),
+      response:
+        contractType<ApiResponse<{ valid: boolean; email: string }>>(),
+    }),
+    oidcInteraction: {
+      get: defineEndpoint({
+        id: "auth.oidcInteraction.get",
+        method: "GET",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.get(uid),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      login: defineEndpoint({
+        id: "auth.oidcInteraction.login",
+        method: "POST",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.login(uid),
+        request: contractType<{ email: string; password?: string }>(),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      mfa: defineEndpoint({
+        id: "auth.oidcInteraction.mfa",
+        method: "POST",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.mfa(uid),
+        request: contractType<{ code: string }>(),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      consent: defineEndpoint({
+        id: "auth.oidcInteraction.consent",
+        method: "GET",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.consent(uid),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      confirm: defineEndpoint({
+        id: "auth.oidcInteraction.confirm",
+        method: "POST",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.confirm(uid),
+        request: contractType<unknown>(),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      abort: defineEndpoint({
+        id: "auth.oidcInteraction.abort",
+        method: "GET",
+        resolve: (uid: string) => ENDPOINTS.auth.oidcInteraction.abort(uid),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+    },
+    social: {
+      redirect: defineEndpoint({
+        id: "auth.social.redirect",
+        method: "GET",
+        resolve: (provider: string) =>
+          ENDPOINTS.auth.social.redirect(provider),
+        response: contractType<unknown>(),
+      }),
+      callback: defineEndpoint({
+        id: "auth.social.callback",
+        method: "GET",
+        resolve: (provider: string) =>
+          ENDPOINTS.auth.social.callback(provider),
+        response: contractType<unknown>(),
+      }),
+      exchange: defineEndpoint({
+        id: "auth.social.exchange",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.social.exchange,
+        request: contractType<{ code: string }>(),
+        response: contractType<
+          ApiResponse<{
+            message: string;
+            token: string;
+            refresh_token: string;
+            user: unknown;
+          }>
+        >(),
+      }),
+    },
+    oidc: {
+      auth: defineEndpoint({
+        id: "auth.oidc.auth",
+        method: "GET",
+        resolve: () => ENDPOINTS.auth.oidc.auth,
+        response: contractType<unknown>(),
+      }),
+      token: defineEndpoint({
+        id: "auth.oidc.token",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.token,
+        request: contractType<Record<string, unknown>>(),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      jwks: defineEndpoint({
+        id: "auth.oidc.jwks",
+        method: "GET",
+        resolve: () => ENDPOINTS.auth.oidc.jwks,
+        response: contractType<{ keys: unknown[] }>(),
+      }),
+      userinfo: defineEndpoint({
+        id: "auth.oidc.userinfo",
+        method: "GET",
+        resolve: () => ENDPOINTS.auth.oidc.userinfo,
+        response: contractType<ApiResponse<Record<string, unknown>>>(),
+      }),
+      introspect: defineEndpoint({
+        id: "auth.oidc.introspect",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.introspect,
+        request: contractType<{ token: string }>(),
+        response: contractType<ApiResponse<Record<string, unknown>>>(),
+      }),
+      revoke: defineEndpoint({
+        id: "auth.oidc.revoke",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.revoke,
+        request: contractType<{ token: string }>(),
+        response: contractType<MessageResponse>(),
+      }),
+      endSession: defineEndpoint({
+        id: "auth.oidc.endSession",
+        method: "GET",
+        resolve: () => ENDPOINTS.auth.oidc.endSession,
+        response: contractType<MessageResponse>(),
+      }),
+      par: defineEndpoint({
+        id: "auth.oidc.par",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.par,
+        request: contractType<Record<string, unknown>>(),
+        response: contractType<
+          ApiResponse<{ request_uri: string; expires_in: number }>
+        >(),
+      }),
+      register: defineEndpoint({
+        id: "auth.oidc.register",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.register,
+        request: contractType<Record<string, unknown>>(),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      backchannelLogout: defineEndpoint({
+        id: "auth.oidc.backchannelLogout",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.backchannelLogout,
+        request: contractType<{ logout_token: string }>(),
+        response: contractType<MessageResponse>(),
+      }),
+    },
+    saml: {
+      sso: defineEndpoint({
+        id: "auth.saml.sso",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.saml.sso,
+        request: contractType<Record<string, unknown>>(),
+        response: contractType<ApiResponse<unknown>>(),
       }),
     },
     passkey: {
@@ -524,6 +718,12 @@ export const API_CONTRACTS = {
       id: "user.destroy",
       method: "DELETE",
       resolve: () => ENDPOINTS.user.destroy,
+      response: contractType<MessageResponse>(),
+    }),
+    deactivateSelf: defineEndpoint({
+      id: "user.deactivateSelf",
+      method: "POST",
+      resolve: () => ENDPOINTS.user.deactivateSelf,
       response: contractType<MessageResponse>(),
     }),
     deactivate: defineEndpoint({
@@ -1134,20 +1334,9 @@ export const API_CONTRACTS = {
         resolve: (id: number) => ENDPOINTS.admin.organizations.impersonate(id),
         response: contractType<ImpersonationToken>(),
       }),
-      domains: defineEndpoint({
-        id: "admin.organizations.domains",
-        method: "POST",
-        resolve: (id: number) => ENDPOINTS.admin.organizations.domains(id),
-        request: contractType<{ domain: string }>(),
-        response: contractType<DomainVerification>(),
-      }),
-      domainsCheck: defineEndpoint({
-        id: "admin.organizations.domainsCheck",
-        method: "GET",
-        resolve: (id: number, domainId: number) =>
-          ENDPOINTS.admin.organizations.domainsCheck(id, domainId),
-        response: contractType<DomainVerification>(),
-      }),
+      // `domains` / `domainsCheck` removed: they named organization-scoped
+      // routes the backend never served. Domain verification is tenant-level,
+      // under `admin.domains.verify` and `admin.domains.check`.
     },
     provisioning: {
       connectors: defineEndpoint({
@@ -1277,17 +1466,27 @@ export const API_CONTRACTS = {
       }),
     },
     domains: {
+      // The organization is named in the body, not the path — the backend
+      // resolves it from `organizationId`, falling back to a lookup on the
+      // domain itself.
       verify: defineEndpoint({
         id: "admin.domains.verify",
         method: "POST",
         resolve: () => ENDPOINTS.admin.domains.verify,
-        request: contractType<{ orgId: number; domain: string }>(),
+        request: contractType<{
+          domain: string;
+          organizationId?: number;
+          method?: string;
+        }>(),
         response: contractType<DomainVerification>(),
       }),
+      // POST, and keyed by the domain name rather than a verification id: the
+      // backend looks the pending verification up by domain.
       check: defineEndpoint({
         id: "admin.domains.check",
-        method: "GET",
+        method: "POST",
         resolve: () => ENDPOINTS.admin.domains.check,
+        request: contractType<{ domain: string }>(),
         response: contractType<DomainVerification>(),
       }),
     },

@@ -74,7 +74,9 @@ const normalizeUserData = (userData: any) => {
     normalizeRole(normalized.role_id) ||
     normalizeRole(normalized.roleObject) ||
     normalizeRole(normalized.roleName) ||
-    normalizeRole(normalized.role_name);
+    normalizeRole(normalized.role_name) ||
+    // `/api/v1/auth/*` sends `roles: string[]` instead of a single role.
+    normalizeRole(normalized.roles);
 
   if (resolvedRole) {
     normalized.role = resolvedRole;
@@ -246,22 +248,35 @@ export const createAuthSlice: StateCreator<
       });
 
       try {
-        const response = await fetchClient.get<any>(ENDPOINTS.auth.session);
+        // `auth.me`, not `auth.session`: the session route answers a bare
+        // `user.serialize()`, so `memberships` came back empty and the admin
+        // check had only whatever `role` serialization happened to include.
+        // `me` eagerly loads role permissions, org memberships and profile,
+        // which is what the state below actually reads.
+        const response = await fetchClient.get<any>(ENDPOINTS.auth.me);
 
         if (response.status === 200 && response.data) {
-          if (response.data.access_token || response.data.token) {
+          // `me` emits its payload both inside the `successResponse` envelope
+          // and spread across the top level; prefer the envelope, since the
+          // flat copy is the compatibility half.
+          const payload = response.data.data ?? response.data;
+
+          if (payload.access_token || payload.token) {
             const newTokens: AuthTokens = {
-              accessToken: response.data.access_token || response.data.token,
-              expiresAt: Date.now() + (response.data.expires_in || 3600) * 1000,
+              accessToken: payload.access_token || payload.token,
+              expiresAt: Date.now() + (payload.expires_in || 3600) * 1000,
             };
             secureTokenManager.setTokens(newTokens);
           }
 
-          let userData = normalizeUserData(response.data.user || response.data);
+          let userData = normalizeUserData(payload.user || payload);
           const currentActive =
             get().activeTenantId ||
             userData?.organizationId ||
             userData?.orgId ||
+            // `me` names it `tenantId`, resolved from the user or their first
+            // org membership.
+            userData?.tenantId ||
             null;
 
           set((state: AuthSlice) => {

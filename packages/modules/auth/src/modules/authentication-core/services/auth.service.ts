@@ -184,16 +184,49 @@ const authService = {
     return apiClient.get(ENDPOINTS.auth.verifyResetPassword(email, signature))
   },
 
-  verifyEmail: (email: string, signature: string): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.verifyEmail(email, signature))
+  verifyResetToken: (email: string, token: string): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.auth.verifyResetToken, { email, token })
+  },
+
+  appealBan: (email: string, reason: string): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.auth.appealBan, { email, reason })
+  },
+
+  /**
+   * Verify an email address from a mailed link.
+   *
+   * Takes the link's query string verbatim — `location.search`, signature and
+   * all. The backend signs that query including the address and validates it
+   * against the request URL, so it is what says which address is being verified;
+   * passing the address separately in the body would not be covered by the
+   * signature and is ignored.
+   */
+  verifyEmail: (search: string): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.auth.verifyEmail(search))
+  },
+
+  /**
+   * Verify an email address with a code the user typed in, rather than by
+   * following a signed link.
+   *
+   * Deliberately fails closed instead of calling the API, because no
+   * code-verification path exists on the backend. The endpoint requires a valid
+   * signature over the whole request URL, which only a mailed link carries, and
+   * although its validator accepts a `token` field the handler never reads it.
+   * A typed code therefore cannot verify anything: posting one would simply be
+   * rejected as an invalid link.
+   *
+   * Restore the call once the backend validates a code; until then this path
+   * rejects, and the sign-up screen shows its existing invalid-code message.
+   */
+  verifyEmailCode: (_email: string, _token: string): Promise<FetchResponse<any>> => {
+    return Promise.reject(
+      new Error('Email verification by typed code is not supported by the API yet.'),
+    )
   },
 
   resendVerification: (email: string): Promise<FetchResponse<any>> => {
     return apiClient.post(ENDPOINTS.auth.resendVerification, { email })
-  },
-
-  verifyEmailToken: (email: string, signature: string): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.verifyEmailToken(email, signature))
   },
 
   verifyEmailChange: (token: string): Promise<FetchResponse<any>> => {
@@ -201,7 +234,7 @@ const authService = {
   },
 
   validateUser: (id: string | number, token: string): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.validateUser(id, token))
+    return apiClient.post(ENDPOINTS.auth.validateUser, { id, token })
   },
 
   // ========================================================================
@@ -209,6 +242,15 @@ const authService = {
   // ========================================================================
   getSession: (): Promise<FetchResponse<any>> => {
     return apiClient.get(ENDPOINTS.auth.session)
+  },
+
+  /**
+   * The authenticated user, with role permissions, organization memberships and
+   * profile loaded. `getSession` answers a bare serialization of the user and
+   * says whether the session is live; this is the one to read a user from.
+   */
+  getMe: (): Promise<FetchResponse<any>> => {
+    return apiClient.get(ENDPOINTS.auth.me)
   },
 
   getSessions: (): Promise<FetchResponse<any>> => {
@@ -236,17 +278,6 @@ const authService = {
         userId: 'current-user',
         reason: 'user_logout',
         revokedAt: new Date().toISOString(),
-      }),
-    )
-    return response
-  },
-
-  trackFailedLogin: async (body: { email: string }): Promise<FetchResponse<any>> => {
-    const response = await apiClient.post(ENDPOINTS.auth.trackFailedLogin, body)
-    await eventBus.publish(
-      createAuthenticationFailedEvent({
-        email: body.email,
-        reason: 'invalid_credentials',
       }),
     )
     return response
@@ -359,6 +390,15 @@ const authService = {
   },
 
   // ========================================================================
+  // Social Auth
+  // ========================================================================
+  social: {
+    exchange: (code: string): Promise<FetchResponse<any>> => {
+      return apiClient.post(ENDPOINTS.auth.social.exchange, { code })
+    },
+  },
+
+  // ========================================================================
   // OIDC Compliance & SAML SSO
   // ========================================================================
   oidc: {
@@ -386,8 +426,17 @@ const authService = {
     get: (uid: string): Promise<FetchResponse<any>> => {
       return apiClient.get(ENDPOINTS.auth.oidcInteraction.get(uid))
     },
-    confirm: (uid: string): Promise<FetchResponse<any>> => {
-      return apiClient.post(ENDPOINTS.auth.oidcInteraction.confirm(uid))
+    login: (uid: string, credentials: any): Promise<FetchResponse<any>> => {
+      return apiClient.post(ENDPOINTS.auth.oidcInteraction.login(uid), credentials)
+    },
+    mfa: (uid: string, data: any): Promise<FetchResponse<any>> => {
+      return apiClient.post(ENDPOINTS.auth.oidcInteraction.mfa(uid), data)
+    },
+    consent: (uid: string): Promise<FetchResponse<any>> => {
+      return apiClient.get(ENDPOINTS.auth.oidcInteraction.consent(uid))
+    },
+    confirm: (uid: string, data?: any): Promise<FetchResponse<any>> => {
+      return apiClient.post(ENDPOINTS.auth.oidcInteraction.confirm(uid), data || {})
     },
     abort: (uid: string): Promise<FetchResponse<any>> => {
       return apiClient.get(ENDPOINTS.auth.oidcInteraction.abort(uid))

@@ -248,7 +248,7 @@ export function useSignUpFlow() {
 
     try {
       setIsVerifyingOtp(true)
-      const response = await authService.verifyEmail(pendingEmail, otpCode)
+      const response = await authService.verifyEmailCode(pendingEmail, otpCode)
       if (response.status === 200 || response.status === 202) {
         const responseData = response.data
         if (responseData?.token || responseData?.accessToken) {

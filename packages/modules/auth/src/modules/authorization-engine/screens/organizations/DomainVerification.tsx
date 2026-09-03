@@ -98,9 +98,12 @@ const DomainVerification = () => {
     }
   }
 
-  const handleCheckStatus = async (domainId: number) => {
+  // Takes the record rather than just its id: the backend looks the pending
+  // verification up by domain name, and the id is still needed to slot the
+  // refreshed record back into the list.
+  const handleCheckStatus = async (domainId: number, domainName: string) => {
     try {
-      const response = await adminService.checkDomain(orgId, domainId)
+      const response = await adminService.checkDomain(domainName)
       if (response.data) {
         setDomains(domains.map((d) => (d.id === domainId ? response.data : d)))
         if (response.data.status === 'verified') {
@@ -263,7 +266,7 @@ const DomainVerification = () => {
                           <IconButton
                             size='small'
                             color='primary'
-                            onClick={() => handleCheckStatus(domain.id)}
+                            onClick={() => handleCheckStatus(domain.id, domain.domain)}
                           >
                             <Refresh fontSize='small' />
                           </IconButton>

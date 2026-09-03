@@ -90,6 +90,7 @@ export default function SignUp() {
                 timeLeft={timeLeft}
                 countdownDisplay={countdownDisplay}
                 onBackToRegister={handleBackToRegister}
+                defaultEmail={pendingEmail}
               />
             </LiquidGlassCard>
           ) : mode === 'verify' ? (

@@ -118,8 +118,10 @@ const userService = {
   activate: (id: string | number): Promise<FetchResponse> => {
     return apiClient.patch(ENDPOINTS.user.activate(id))
   },
-  deactivate: (id: string | number): Promise<FetchResponse> => {
-    return apiClient.patch(ENDPOINTS.user.deactivate(id))
+  deactivate: (id?: string | number): Promise<FetchResponse> => {
+    return id
+      ? apiClient.patch(ENDPOINTS.user.deactivate(id))
+      : apiClient.post(ENDPOINTS.user.deactivateSelf)
   },
   suspend: (id: string | number): Promise<FetchResponse> => {
     return apiClient.post(ENDPOINTS.user.suspend(id))

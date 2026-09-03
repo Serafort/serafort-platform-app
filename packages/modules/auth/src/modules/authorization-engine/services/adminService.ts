@@ -1087,17 +1087,26 @@ export class AdminService {
   }
 
   /**
-   * Verify a domain for an organization
+   * Start verification for a domain, optionally scoped to an organization.
+   *
+   * Domain verification is tenant-level: the organization travels in the body,
+   * and the backend falls back to looking it up by the domain when no id is
+   * given. The organization-scoped URLs this used to build
+   * (`/api/admin/organizations/:id/domains`) were never served by the backend.
    */
   async verifyDomain(orgId: number, domain: string): Promise<FetchResponse<DomainVerification>> {
-    return apiClient.post(`/api/admin/organizations/${orgId}/domains`, { domain })
+    return apiClient.post(ENDPOINTS.admin.domains.verify, {
+      domain,
+      organizationId: orgId || undefined,
+    })
   }
 
   /**
-   * Check verification status for a domain
+   * Check verification status for a domain, by domain name — the backend looks
+   * the pending verification up by domain, not by a verification id.
    */
-  async checkDomain(orgId: number, domainId: number): Promise<FetchResponse<DomainVerification>> {
-    return apiClient.get(`/api/admin/organizations/${orgId}/domains/${domainId}/check`)
+  async checkDomain(domain: string): Promise<FetchResponse<DomainVerification>> {
+    return apiClient.post(ENDPOINTS.admin.domains.check, { domain })
   }
 
   // ==========================================================================

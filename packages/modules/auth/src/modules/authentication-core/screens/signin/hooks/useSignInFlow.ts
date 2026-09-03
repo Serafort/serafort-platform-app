@@ -16,8 +16,8 @@ import { useInterval } from '../../../hooks/useInterval'
 import { LoginRequest } from '../../../types/api.types'
 import { LoginSchema } from '../../../utils/schema'
 import { useActionLock } from '../../../hooks/useActionLock'
-import authService from '../../../services/auth.service'
 import { resolveRedirectPathForUser } from '../../../utils/resolveRedirect'
+import { normalizeAuthUser } from '../../../utils/normalizeAuthUser'
 
 // [SECURITY] F-09: previously pre-filled from VITE_DEV_LOGIN_EMAIL/PASSWORD.
 // The `import.meta.env.DEV` guard here only compiled out this *usage* in
@@ -118,8 +118,14 @@ export function useSignInFlow() {
 
   const loginMutation = useSignin({
     onSuccess: (response: any) => {
-      if (response?.data?.mfa_required) {
-        setPendingMfaUser({ userId: response.data.userId, email: getValues('email') })
+      // /api/v1/auth/login reports the challenge as mfaRequired and puts the id
+      // on the user; the legacy route used mfa_required with a sibling userId.
+      const body = response?.data
+      if (body?.mfaRequired ?? body?.mfa_required) {
+        setPendingMfaUser({
+          userId: body.userId ?? body.user?.id,
+          email: getValues('email'),
+        })
         setMode('mfa')
         setMfaCode('')
         setTimeLeft(60)
@@ -139,13 +145,16 @@ export function useSignInFlow() {
         msg: t('auth.login.login_successful', 'Login successful!'),
       })
 
-      const userData = response?.data?.user || response?.data
+      // /api/v1/auth/login describes the user with a `roles` array of names and
+      // carries no `role` field. Normalising first derives one, so the redirect
+      // does not silently fall through to the default for every user.
+      const userData = normalizeAuthUser<any>(body?.user ?? body)
       const userRole = userData?.role as unknown as Roles | undefined
       const redirectPath = resolveRedirectPathForUser(userRole)
 
       navigate(redirectPath, { replace: true })
     },
-    onError: async (error: any) => {
+    onError: (error: any) => {
       if (error.response?.status === 423) {
         setMode('locked')
         const retryAfterSeconds = parseInt(error.response.headers?.['retry-after'], 10)
@@ -157,12 +166,10 @@ export function useSignInFlow() {
 
       const attemptsRemaining = error.response?.data?.attemptsRemaining
       if (error.response?.status === 401 && attemptsRemaining !== undefined) {
-        try {
-          await authService.trackFailedLogin({ email: getValues('email') })
-        } catch {
-          // Silent catch for tracking failure
-        }
-
+        // No client-side call to record the attempt: the backend counts failures
+        // inside the sign-in handler itself. The endpoint that used to be called
+        // here was unauthenticated, which let anyone drive another account
+        // towards lockout, and was removed for that reason (backend finding A2).
         setStatus({
           open: true,
           type: 'warning',
@@ -376,6 +383,7 @@ export function useSignInFlow() {
     t,
     control,
     handleSubmit,
+    getValues,
     errors,
     isSubmitting,
     isValidating,

@@ -164,6 +164,7 @@ const NavSearch = () => {
                 sx={{ display: 'flex', cursor: 'pointer' }}
                 icon={
                   <Close
+                    aria-label='Close search'
                     sx={{ fontSize: searchTokens.header.closeIconFontSize, color: 'text.primary' }}
                   />
                 }
