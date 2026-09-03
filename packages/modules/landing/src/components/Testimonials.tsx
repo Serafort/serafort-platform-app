@@ -88,7 +88,8 @@ const Testimonials: React.FC = () => {
               mx: 'auto',
             }}
           >
-            Discover why industry leaders and aspiring professionals alike choose our platform to advance their careers.
+            Discover why industry leaders and aspiring professionals alike choose our platform to
+            advance their careers.
           </Typography>
         </Box>
 

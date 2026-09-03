@@ -40,8 +40,7 @@ const StyledSubMenuContent = styled.div<SubMenuContentProps>`
     `
   }}
 
-  ${({ browserScroll }) =>
-    browserScroll && `overflow-y: auto; max-block-size: 100dvh;`}
+  ${({ browserScroll }) => browserScroll && `overflow-y: auto; max-block-size: 100dvh;`}
 
   ${({ rootStyles }) => rootStyles};
 `

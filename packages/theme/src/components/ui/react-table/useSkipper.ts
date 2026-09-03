@@ -1,17 +1,17 @@
-import React from 'react'
+import React from "react";
 
 export default function useSkipper() {
-  const shouldSkipRef = React.useRef(true)
-  const shouldSkip = shouldSkipRef.current
+  const shouldSkipRef = React.useRef(true);
+  const shouldSkip = shouldSkipRef.current;
 
   // Wrap a function with this to skip a pagination reset temporarily
   const skip = React.useCallback(() => {
-    shouldSkipRef.current = false
-  }, [])
+    shouldSkipRef.current = false;
+  }, []);
 
   React.useEffect(() => {
-    shouldSkipRef.current = true
-  })
+    shouldSkipRef.current = true;
+  });
 
-  return [shouldSkip, skip] as const
+  return [shouldSkip, skip] as const;
 }

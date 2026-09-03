@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, Button, Alert as MAlert } from '@mui/material'
+import { Box, Button, Alert as MAlert, alpha } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 
 interface LockedStepProps {
   timeLeft: number
@@ -12,6 +13,9 @@ export const LockedStep: React.FC<LockedStepProps> = ({
   countdownDisplay,
   onBackToLogin,
 }) => {
+  const { t } = useTranslation()
+  const minutes = Math.ceil(timeLeft / 60)
+
   return (
     <Box
       sx={{
@@ -23,15 +27,33 @@ export const LockedStep: React.FC<LockedStepProps> = ({
         textAlign: 'center',
       }}
     >
-      <MAlert severity='error' sx={{ textAlign: 'left' }}>
-        Account temporarily locked. Try again in {Math.ceil(timeLeft / 60)} minutes.
+      <MAlert
+        severity='error'
+        sx={{
+          textAlign: 'left',
+          borderRadius: '12px',
+          bgcolor: (theme) => alpha(theme.palette.error.main, 0.1),
+          color: 'error.main',
+        }}
+      >
+        {t(
+          'auth.lockout.message',
+          'Account temporarily locked. Try again in {{minutes}} minutes.',
+          {
+            minutes,
+          },
+        )}
         <br />
         <Box component='span' sx={{ fontWeight: 600 }}>
-          Countdown: {countdownDisplay}
+          {t('auth.lockout.countdown', 'Countdown')}: {countdownDisplay}
         </Box>
       </MAlert>
-      <Button variant='text' onClick={onBackToLogin}>
-        Back to Login
+      <Button
+        variant='text'
+        onClick={onBackToLogin}
+        sx={{ borderRadius: '12px', textTransform: 'none', fontWeight: 700 }}
+      >
+        {t('auth.common.backToLogin', 'Back to sign in')}
       </Button>
     </Box>
   )

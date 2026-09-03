@@ -1,8 +1,7 @@
-
-import { Box, Typography, Button, Stack } from '@mui/material';
-import HistoryToggleOff from '@mui/icons-material/HistoryToggleOff';
-import Refresh from '@mui/icons-material/Refresh';
-import { useTranslation } from 'react-i18next';
+import { Box, Typography, Button, Stack, alpha, useTheme } from '@mui/material'
+import HistoryToggleOff from '@mui/icons-material/HistoryToggleOff'
+import Refresh from '@mui/icons-material/Refresh'
+import { useTranslation } from 'react-i18next'
 
 interface NoLogsStateProps {
   title?: string
@@ -13,6 +12,7 @@ interface NoLogsStateProps {
 
 const NoLogsState = ({ title, description, onAction, actionLabel }: NoLogsStateProps) => {
   const { t } = useTranslation('auth')
+  const theme = useTheme()
 
   return (
     <Box
@@ -23,9 +23,10 @@ const NoLogsState = ({ title, description, onAction, actionLabel }: NoLogsStateP
         justifyContent: 'center',
         p: 6,
         textAlign: 'center',
-        background: 'rgba(255, 255, 255, 0.02)',
+        background: alpha(theme.palette.background.paper, 0.5),
         borderRadius: 4,
-        border: '1px dashed rgba(255, 255, 255, 0.1)',
+        border: '1px dashed',
+        borderColor: 'divider',
         minHeight: 300,
       }}
     >
@@ -35,21 +36,21 @@ const NoLogsState = ({ title, description, onAction, actionLabel }: NoLogsStateP
             width: 80,
             height: 80,
             borderRadius: '50%',
-            background: 'rgba(255, 255, 255, 0.05)',
+            background: alpha(theme.palette.background.paper, 0.3),
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             mb: 1,
           }}
         >
-          <HistoryToggleOff sx={{ fontSize: 40, color: 'rgba(255, 255, 255, 0.3)' }} />
+          <HistoryToggleOff sx={{ fontSize: 40, color: 'text.disabled' }} />
         </Box>
 
         <Box>
-          <Typography variant='h6' sx={{ color: 'white', fontWeight: 600 }}>
+          <Typography variant='h6' sx={{ color: 'text.primary', fontWeight: 600 }}>
             {title || t('auth.common.noLogsTitle', 'No activity logs found')}
           </Typography>
-          <Typography variant='body2' sx={{ color: 'rgba(255, 255, 255, 0.5)', maxWidth: 300 }}>
+          <Typography variant='body2' sx={{ color: 'text.secondary', maxWidth: 300 }}>
             {description ||
               t(
                 'auth.common.noLogsDesc',
@@ -66,11 +67,11 @@ const NoLogsState = ({ title, description, onAction, actionLabel }: NoLogsStateP
             sx={{
               mt: 2,
               borderRadius: 2,
-              color: 'rgba(255, 255, 255, 0.7)',
-              borderColor: 'rgba(255, 255, 255, 0.2)',
+              color: 'text.secondary',
+              borderColor: 'divider',
               '&:hover': {
-                borderColor: 'white',
-                background: 'rgba(255, 255, 255, 0.05)',
+                borderColor: 'text.primary',
+                background: alpha(theme.palette.action.hover, 0.5),
               },
             }}
           >

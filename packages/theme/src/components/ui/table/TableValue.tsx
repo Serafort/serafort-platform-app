@@ -1,6 +1,12 @@
-import type { ITableHeader, ITableRow } from './types'
+import type { ITableHeader, ITableRow } from "./types";
 
-export default function TableValue({ property, row }: { property: ITableHeader; row: ITableRow }) {
+export default function TableValue({
+  property,
+  row,
+}: {
+  property: ITableHeader;
+  row: ITableRow;
+}) {
   /* {item.endsWith('_at') && convertToRelativeDate(row[item])}
                       {!item.endsWith('_at') && translate(row[item])}
   
@@ -26,7 +32,7 @@ export default function TableValue({ property, row }: { property: ITableHeader; 
                           ?.options.icon(row[item]),
                       )} */
 
-  if (property?.getCellValue !== undefined) return property?.getCellValue(row)
+  if (property?.getCellValue !== undefined) return property?.getCellValue(row);
 
-  return row[property.key]
+  return row[property.key];
 }

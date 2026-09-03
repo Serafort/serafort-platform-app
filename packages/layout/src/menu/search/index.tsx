@@ -13,7 +13,12 @@ import type { ChildrenType } from '@cap/shared-types'
 import { useSettings } from '@cap/platform-store'
 import { i18n as i18nConfig, getSearchItems } from '@cap/platform-core'
 import { useVerticalNav } from '../../hooks/useVerticalNav'
-import { zIndexScale, searchTokens, getSearchBackdropBgColor, getTenantThemeEffects } from '@cap/theme'
+import {
+  zIndexScale,
+  searchTokens,
+  getSearchBackdropBgColor,
+  getTenantThemeEffects,
+} from '@cap/theme'
 
 export type Locale = (typeof i18nConfig)['locales'][number]
 
@@ -66,12 +71,16 @@ const NavSearch = () => {
   const searchActions = dynamicSearchData.map((item) => {
     const rawName = item.name || ''
     const cleanNameKey = rawName.replace(/^navigation\./, '')
-    const translatedName = t(rawName, { defaultValue: t(`navigation.${cleanNameKey}`, { defaultValue: rawName }) })
+    const translatedName = t(rawName, {
+      defaultValue: t(`navigation.${cleanNameKey}`, { defaultValue: rawName }),
+    })
 
     const rawSection = item.section || ''
     const cleanSectionKey = rawSection.replace(/^navigation\./, '')
     const translatedSection = rawSection
-      ? t(rawSection, { defaultValue: t(`navigation.${cleanSectionKey}`, { defaultValue: rawSection }) })
+      ? t(rawSection, {
+          defaultValue: t(`navigation.${cleanSectionKey}`, { defaultValue: rawSection }),
+        })
       : undefined
 
     return {
@@ -153,7 +162,11 @@ const NavSearch = () => {
               <ComponentWithUseKBar
                 triggerClick
                 sx={{ display: 'flex', cursor: 'pointer' }}
-                icon={<Close sx={{ fontSize: searchTokens.header.closeIconFontSize, color: 'text.primary' }} />}
+                icon={
+                  <Close
+                    sx={{ fontSize: searchTokens.header.closeIconFontSize, color: 'text.primary' }}
+                  />
+                }
               />
             </Box>
             <SearchResults currentPath={pathName} data={dynamicSearchData} />

@@ -1,3 +1,4 @@
-export { default as EditProfile } from './EditProfile'
 export { default as LinkedAccountsDashboard } from './LinkedAccountsDashboard'
-export { default as ProfileView } from './ProfileView'
+export { default as Profile } from './profile'
+export { default as ProfileView } from './profile'
+export * from './profile.schema'

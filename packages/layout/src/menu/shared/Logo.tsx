@@ -17,39 +17,35 @@ type LogoTextProps = {
 }
 
 const LogoText = styled.span<LogoTextProps>`
-  font-size: ${dropdownTokens.logo.fontSize};
-  line-height: ${dropdownTokens.logo.lineHeight};
-  font-weight: ${dropdownTokens.logo.fontWeight};
-  letter-spacing: ${dropdownTokens.logo.letterSpacing};
+  font-size: ${({ theme }: any) => dropdownTokens?.logo?.fontSize || '1.375rem'};
+  line-height: ${({ theme }: any) => dropdownTokens?.logo?.lineHeight || '1.455'};
+  font-weight: ${({ theme }: any) => dropdownTokens?.logo?.fontWeight || 700};
+  letter-spacing: ${({ theme }: any) => dropdownTokens?.logo?.letterSpacing || '0.25px'};
   color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
   transition: ${({ transitionDuration }) =>
     `margin-inline-start ${transitionDuration}ms ease-in-out, opacity ${transitionDuration}ms ease-in-out`};
 
   ${({ isHovered, isCollapsed }) =>
     isCollapsed && !isHovered
-      ? 'opacity: 0; margin-inline-start: 0;'
-      : `opacity: 1; margin-inline-start: ${dropdownTokens.logo.marginInlineStart};`}
+      ? 'display: none; opacity: 0; margin-inline-start: 0;'
+      : `display: inline-block; opacity: 1; margin-inline-start: ${dropdownTokens?.logo?.marginInlineStart || '12px'};`}
 `
 
 const Logo = () => {
   const theme = useTheme()
   // Hooks
-  const { isHovered, transitionDuration } = useVerticalNav()
-  const { settings } = useSettings()
-
-  // Vars
-  const { layout } = settings
+  const { isHovered, isCollapsed, transitionDuration } = useVerticalNav()
 
   const logoTextRef = React.useRef<HTMLSpanElement>(null)
 
   React.useEffect(() => {
-    if (layout !== LayoutModeEnum.COLLAPSED) return
-
     if (logoTextRef && logoTextRef.current) {
-      if (layout === LayoutModeEnum.COLLAPSED && !isHovered) logoTextRef.current?.classList.add('hidden')
+      if (isCollapsed && !isHovered) logoTextRef.current?.classList.add('hidden')
       else logoTextRef.current.classList.remove('hidden')
     }
-  }, [isHovered, layout])
+  }, [isHovered, isCollapsed])
 
   return (
     <Box
@@ -59,6 +55,7 @@ const Logo = () => {
       sx={{
         display: 'flex',
         alignItems: 'center',
+        overflow: 'hidden',
       }}
     >
       <VuexyLogo
@@ -66,12 +63,13 @@ const Logo = () => {
           fontSize: dropdownTokens.logo.iconFontSize,
           lineHeight: dropdownTokens.logo.iconLineHeight,
           color: theme.palette.primary.main,
+          flexShrink: 0,
         }}
       />
       <LogoText
         ref={logoTextRef}
         isHovered={isHovered}
-        isCollapsed={layout === LayoutModeEnum.COLLAPSED}
+        isCollapsed={isCollapsed}
         transitionDuration={transitionDuration}
       >
         {themeConfig.templateName}

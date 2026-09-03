@@ -15,7 +15,7 @@
  */
 
 /** HTTP methods supported by the platform API client. */
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 /**
  * Type-only marker used to attach a payload type to a contract without
@@ -27,7 +27,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
  * response: contractType<AdminUser>()
  */
 export function contractType<T>(): T {
-  return undefined as unknown as T
+  return undefined as unknown as T;
 }
 
 /**
@@ -45,53 +45,46 @@ export interface EndpointContract<
   Args extends unknown[] = [],
 > {
   /** Stable, dot-delimited identifier, e.g. `'auth.login'`. */
-  readonly id: string
+  readonly id: string;
   /** HTTP method the endpoint is invoked with. */
-  readonly method: M
+  readonly method: M;
   /**
    * Builds the final path (without the base URL) from optional path arguments.
    * Prefer delegating to the matching `API_ENDPOINTS` entry so the URL string
    * lives in exactly one place.
    */
-  readonly resolve: (...args: Args) => string
+  readonly resolve: (...args: Args) => string;
   /** Request body shape (when the endpoint accepts a payload). */
-  readonly request?: Req
+  readonly request?: Req;
   /** Response body shape. */
-  readonly response?: Res
+  readonly response?: Res;
 }
 
 /** Convenience union constraint used by consumers that accept any contract. */
-export type AnyContract = EndpointContract<HttpMethod, unknown, unknown, unknown[]>
+export type AnyContract = EndpointContract<
+  HttpMethod,
+  unknown,
+  unknown,
+  unknown[]
+>;
 
 /** Extracts the request payload type from a contract. */
-export type ContractRequest<C extends AnyContract> = C extends EndpointContract<
-  HttpMethod,
-  infer Req,
-  unknown,
-  unknown[]
->
-  ? Req
-  : undefined
+export type ContractRequest<C extends AnyContract> =
+  C extends EndpointContract<HttpMethod, infer Req, unknown, unknown[]>
+    ? Req
+    : undefined;
 
 /** Extracts the response payload type from a contract. */
-export type ContractResponse<C extends AnyContract> = C extends EndpointContract<
-  HttpMethod,
-  unknown,
-  infer Res,
-  unknown[]
->
-  ? Res
-  : unknown
+export type ContractResponse<C extends AnyContract> =
+  C extends EndpointContract<HttpMethod, unknown, infer Res, unknown[]>
+    ? Res
+    : unknown;
 
 /** Extracts the path-argument tuple type from a contract. */
-export type ContractArgs<C extends AnyContract> = C extends EndpointContract<
-  HttpMethod,
-  unknown,
-  unknown,
-  infer Args
->
-  ? Args
-  : never[]
+export type ContractArgs<C extends AnyContract> =
+  C extends EndpointContract<HttpMethod, unknown, unknown, infer Args>
+    ? Args
+    : never[];
 
 /**
  * Creates a typed endpoint contract. Point `resolve` at the matching
@@ -111,13 +104,13 @@ export function defineEndpoint<
   Req = undefined,
   Res = unknown,
 >(contract: {
-  id: string
-  method: M
-  resolve: (...args: Args) => string
-  request?: Req
-  response?: Res
+  id: string;
+  method: M;
+  resolve: (...args: Args) => string;
+  request?: Req;
+  response?: Res;
 }): EndpointContract<M, Req, Res, Args> {
-  return contract as EndpointContract<M, Req, Res, Args>
+  return contract as EndpointContract<M, Req, Res, Args>;
 }
 
 /** Resolves the final path (without base URL) for a contract. */
@@ -125,5 +118,5 @@ export function resolveContractPath<C extends AnyContract>(
   contract: C,
   ...args: ContractArgs<C>
 ): string {
-  return contract.resolve(...args)
+  return contract.resolve(...args);
 }

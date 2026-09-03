@@ -1,14 +1,27 @@
+import {
+  apiClient,
+  FetchResponse,
+  IForgetPassword,
+  ILogin,
+  IResetPassword,
+  ISignup,
+} from '@cap/platform-core'
 
-import { apiClient, FetchResponse, IForgetPassword, ILogin, IResetPassword, ISignup } from '@cap/platform-core';
+import { SecurityLogParams } from '../types/api.types'
+import { ENDPOINTS } from '@cap/platform-core'
+import { TenantService } from '@cap/platform-core'
 
-import { SecurityLogParams } from '../types/api.types';
-import { ENDPOINTS } from '@cap/platform-core';
-import { TenantService } from '@cap/platform-core';
-
-import { eventBus } from '../../../domain-kernel/src/events/event-bus';
-import { UserAuthenticated } from '../../../domain-kernel/src/events/auth-events';
-import { secureTokenManager } from '@cap/platform-store';
-import { createUserAuthenticatedEvent, createAuthenticationFailedEvent, createSessionCreatedEvent, createSessionRevokedEvent, createTokenIssuedEvent, createTokenRefreshedEvent } from '../../../domain-kernel/src/events/event-factory';
+import { eventBus } from '../../../domain-kernel/src/events/event-bus'
+import { UserAuthenticated } from '../../../domain-kernel/src/events/auth-events'
+import { secureTokenManager } from '@cap/platform-store'
+import {
+  createUserAuthenticatedEvent,
+  createAuthenticationFailedEvent,
+  createSessionCreatedEvent,
+  createSessionRevokedEvent,
+  createTokenIssuedEvent,
+  createTokenRefreshedEvent,
+} from '../../../domain-kernel/src/events/event-factory'
 
 export const handleLoginSuccess = async (userPayload: any) => {
   if (userPayload?.accessToken) {
@@ -24,7 +37,7 @@ export const handleLoginSuccess = async (userPayload: any) => {
       tenantId: userPayload?.tenantId,
       timestamp: new Date().toISOString(),
       correlationId: crypto.randomUUID(),
-    })
+    }),
   )
 }
 
@@ -41,7 +54,7 @@ const authService = {
   assertTenantAuthFeatureEnabled: (pluginId: string, domain?: string): void => {
     if (!TenantService.verifyTenantAuthFeature(domain, pluginId)) {
       throw new Error(
-        `[TenantAuthGating] Authentication plugin "${pluginId}" is not enabled for this tenant.`
+        `[TenantAuthGating] Authentication plugin "${pluginId}" is not enabled for this tenant.`,
       )
     }
   },
@@ -58,7 +71,7 @@ const authService = {
           factors: ['password'],
           method: 'password',
           sessionId,
-        })
+        }),
       )
       await eventBus.publish(
         createSessionCreatedEvent({
@@ -66,7 +79,7 @@ const authService = {
           userId,
           createdAt: new Date().toISOString(),
           expiresAt: data?.session?.expiresAt || new Date(Date.now() + 86400000).toISOString(),
-        })
+        }),
       )
     }
     return response
@@ -88,7 +101,7 @@ const authService = {
             factors: ['password'],
             method: 'password',
             sessionId,
-          })
+          }),
         )
 
         await eventBus.publish(
@@ -97,7 +110,7 @@ const authService = {
             userId,
             createdAt: new Date().toISOString(),
             expiresAt: data?.session?.expiresAt || new Date(Date.now() + 86400000).toISOString(),
-          })
+          }),
         )
 
         if (data?.token || data?.tokens?.accessToken) {
@@ -108,7 +121,7 @@ const authService = {
               tokenType: 'access',
               expiresAt: data?.expiresAt || new Date(Date.now() + 3600000).toISOString(),
               scopes: data?.scopes || ['read', 'write'],
-            })
+            }),
           )
         }
       }
@@ -118,7 +131,7 @@ const authService = {
         createAuthenticationFailedEvent({
           email: body.email,
           reason: 'invalid_credentials',
-        })
+        }),
       )
       throw error
     }
@@ -132,7 +145,7 @@ const authService = {
         userId: 'current-user',
         reason: 'user_logout',
         revokedAt: new Date().toISOString(),
-      })
+      }),
     )
     return response
   },
@@ -147,7 +160,7 @@ const authService = {
           newTokenId: data?.token || data?.newTokenId || 'new-token',
           userId: String(data?.user?.id || data?.userId || 'current-user'),
           refreshedAt: new Date().toISOString(),
-        })
+        }),
       )
     }
     return response
@@ -210,7 +223,7 @@ const authService = {
         userId: 'current-user',
         reason: 'admin_revoked',
         revokedAt: new Date().toISOString(),
-      })
+      }),
     )
     return response
   },
@@ -223,7 +236,7 @@ const authService = {
         userId: 'current-user',
         reason: 'user_logout',
         revokedAt: new Date().toISOString(),
-      })
+      }),
     )
     return response
   },
@@ -234,7 +247,7 @@ const authService = {
       createAuthenticationFailedEvent({
         email: body.email,
         reason: 'invalid_credentials',
-      })
+      }),
     )
     return response
   },
@@ -260,13 +273,72 @@ const authService = {
   // ========================================================================
   passwordless: {
     /** Send a magic link to the user's email */
-    send: (email: string): Promise<FetchResponse<any>> => {
-      return apiClient.post(ENDPOINTS.auth.passwordless.send, { email })
+    send: (
+      payload: string | { email: string; redirectUrl?: string },
+    ): Promise<FetchResponse<any>> => {
+      const body = typeof payload === 'string' ? { email: payload } : payload
+      return apiClient.post(ENDPOINTS.auth.passwordless.send, body)
     },
 
-    /** Verify a magic link token */
-    verify: (token: string): Promise<FetchResponse<any>> => {
-      return apiClient.get(ENDPOINTS.auth.passwordless.verify, { params: { token } })
+    /** Verify a magic link token and hydrate session */
+    verify: async (
+      tokenOrParams: string | { token: string; email?: string },
+    ): Promise<FetchResponse<any>> => {
+      const params = typeof tokenOrParams === 'string' ? { token: tokenOrParams } : tokenOrParams
+      const response = await apiClient.get(ENDPOINTS.auth.passwordless.verify, { params })
+      const data: any = response?.data
+      if (data) {
+        if (data.token) {
+          try {
+            await secureTokenManager.setTokens(data.token)
+          } catch {
+            // Token manager storage fallback
+          }
+        }
+        if (data.user) {
+          const userId = String(data.user.id || data.user.userId || 'unknown')
+          const sessionId = String(
+            data.session?.id || data.sessionId || `session-${crypto.randomUUID().slice(0, 8)}`,
+          )
+          const email = data.user.email || (typeof params === 'object' ? params.email : '') || ''
+
+          await eventBus.publish(
+            createUserAuthenticatedEvent({
+              userId,
+              email,
+              factors: ['magic_link'],
+              method: 'magic_link',
+              sessionId,
+            }),
+          )
+
+          await eventBus.publish(
+            createSessionCreatedEvent({
+              sessionId,
+              userId,
+              createdAt: new Date().toISOString(),
+              expiresAt:
+                data.expiresAt ||
+                new Date(Date.now() + (data.expiresIn || 3600) * 1000).toISOString(),
+            }),
+          )
+
+          if (data.token) {
+            await eventBus.publish(
+              createTokenIssuedEvent({
+                tokenId: data.tokenId || 'magic-link-token',
+                userId,
+                tokenType: 'access',
+                expiresAt:
+                  data.expiresAt ||
+                  new Date(Date.now() + (data.expiresIn || 3600) * 1000).toISOString(),
+                scopes: data.scopes || ['read', 'write'],
+              }),
+            )
+          }
+        }
+      }
+      return response
     },
   },
 
@@ -279,7 +351,9 @@ const authService = {
       return apiClient.post(ENDPOINTS.auth.oidcDevice.authorize, { client_id: clientId })
     },
     /** Verify a device code entered by the user */
-    verify: (userCode: string): Promise<FetchResponse<{ success: boolean; redirectUrl: string }>> => {
+    verify: (
+      userCode: string,
+    ): Promise<FetchResponse<{ success: boolean; redirectUrl: string }>> => {
       return apiClient.post(ENDPOINTS.auth.oidcDevice.verifyAction, { userCode })
     },
   },

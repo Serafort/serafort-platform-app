@@ -319,6 +319,37 @@ export function useValidateUser(
 }
 
 /**
+ * Send magic link for passwordless login
+ */
+export function usePasswordlessSend(
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, string | { email: string }, unknown>,
+) {
+  return useMutation({
+    mutationFn: (param) => {
+      const email = typeof param === 'string' ? param : param.email
+      return authService.passwordless.send(email)
+    },
+    ...options,
+  })
+}
+
+/**
+ * Verify magic link token for passwordless login
+ */
+export function usePasswordlessVerify(
+  token: string,
+  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery({
+    queryKey: ['auth', 'passwordless', 'verify', token],
+    queryFn: () => authService.passwordless.verify(token),
+    enabled: Boolean(token),
+    retry: false,
+    ...options,
+  })
+}
+
+/**
  * Get current session
  */
 export function useSession(
@@ -563,4 +594,3 @@ export function useNotificationsStream() {
     user_id: number
   }>(url)
 }
-

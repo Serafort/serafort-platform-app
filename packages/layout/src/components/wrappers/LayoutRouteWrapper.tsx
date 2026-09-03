@@ -21,37 +21,32 @@ export interface LayoutRouteWrapperProps {
 export const LayoutRouteWrapper: React.FC<LayoutRouteWrapperProps> = ({
   element,
   children,
-  layout,
+  layout = RouteLayoutEnum.PUBLIC,
   label,
 }) => {
   const updateLayoutOverride = useAppStore((state: AppStore) => state.updateLayoutOverride)
 
   React.useEffect(() => {
-    if (layout === RouteLayoutEnum.NO_LAYOUT) {
-      updateLayoutOverride(RouteLayoutEnum.NO_LAYOUT)
-      return () => updateLayoutOverride(RouteLayoutEnum.NONE)
+    const effectiveLayout =
+      !layout || layout === RouteLayoutEnum.NONE
+        ? RouteLayoutEnum.PUBLIC
+        : (layout as RouteLayoutEnum)
+    updateLayoutOverride(effectiveLayout)
+
+    return () => {
+      updateLayoutOverride(RouteLayoutEnum.NONE)
     }
-    if (layout === RouteLayoutEnum.VERTICAL) {
-      updateLayoutOverride(RouteLayoutEnum.VERTICAL)
-      return () => updateLayoutOverride(RouteLayoutEnum.NONE)
-    }
-    if (layout === RouteLayoutEnum.HORIZONTAL) {
-      updateLayoutOverride(RouteLayoutEnum.HORIZONTAL)
-      return () => updateLayoutOverride(RouteLayoutEnum.NONE)
-    }
-    if (layout === RouteLayoutEnum.PUBLIC) {
-      updateLayoutOverride(RouteLayoutEnum.PUBLIC)
-      return () => updateLayoutOverride(RouteLayoutEnum.NONE)
-    }
-    // 'admin' override is set by AdminRoute itself — no action needed here
   }, [layout, updateLayoutOverride])
 
   React.useEffect(() => {
     if (label) {
       const i18nInstance = (i18next as any)?.default || i18next
-      const translated = i18nInstance?.isInitialized && i18nInstance.exists?.(label)
-        ? i18nInstance.t(label)
-        : (i18nInstance?.t ? i18nInstance.t(label) : label)
+      const translated =
+        i18nInstance?.isInitialized && i18nInstance.exists?.(label)
+          ? i18nInstance.t(label)
+          : i18nInstance?.t
+            ? i18nInstance.t(label)
+            : label
       document.title = translated || label
     }
   }, [label])

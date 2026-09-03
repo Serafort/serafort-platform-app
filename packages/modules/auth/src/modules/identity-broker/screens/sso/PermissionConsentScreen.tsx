@@ -3,23 +3,48 @@
 // FIXES: Added header; implemented entry motion; modernized component attributes (slotProps); standardized Avatar/Card/Stack styles; translated all scope labels and descriptions; added accessibility aria-labels; improved responsive layout
 // AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
 
-import { useEffect, useMemo } from 'react';
-import { Box, Button, Typography, Avatar, Divider, List, ListItem, ListItemIcon, ListItemText, alpha, useTheme, Link, Stack, CircularProgress, IconButton } from '@mui/material';
-import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import EmailIcon from '@mui/icons-material/Email';
-import BadgeIcon from '@mui/icons-material/Badge';
-import ShieldIcon from '@mui/icons-material/Shield';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useMemo } from 'react'
+import {
+  Box,
+  Button,
+  Typography,
+  Avatar,
+  Divider,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  alpha,
+  useTheme,
+  Link,
+  Stack,
+  CircularProgress,
+  IconButton,
+} from '@mui/material'
+import VpnKeyIcon from '@mui/icons-material/VpnKey'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import EmailIcon from '@mui/icons-material/Email'
+import BadgeIcon from '@mui/icons-material/Badge'
+import ShieldIcon from '@mui/icons-material/Shield'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { useTranslation } from 'react-i18next'
 
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useTenant } from '@cap/platform-core';
-import { Path } from '@auth/routes/path';
-import { useOidcInteraction, useConfirmOidcInteraction, useAbortOidcInteraction } from '@idaas/identity-broker/hooks/useOidcCompliance';
-import { AuthPageLayout, AuthScreenIcon, AuthInputLabel, AuthActionButton } from '@idaas/authentication-core/components/shared/auth';
+import { useSearchParams, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { useTenant } from '@cap/platform-core'
+import { Path } from '@auth/routes/path'
+import {
+  useOidcInteraction,
+  useConfirmOidcInteraction,
+  useAbortOidcInteraction,
+} from '@idaas/identity-broker/hooks/useOidcCompliance'
+import {
+  AuthPageLayout,
+  AuthScreenIcon,
+  AuthInputLabel,
+  AuthActionButton,
+} from '@idaas/authentication-core/components/shared/auth'
 
 export default function PermissionConsentScreen() {
   const { t } = useTranslation()
@@ -48,7 +73,7 @@ export default function PermissionConsentScreen() {
       if (targetUrl) {
         window.location.assign(targetUrl)
       } else {
-        toast.success(t('auth.sso.success_granted', 'Access granted successfully'), {  })
+        toast.success(t('auth.sso.success_granted', 'Access granted successfully'), {})
       }
     },
     onError: (err: any) => {
@@ -163,7 +188,7 @@ export default function PermissionConsentScreen() {
       <AuthPageLayout>
         <Box sx={{ textAlign: 'center' }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-            <AuthScreenIcon icon={<ShieldIcon sx={{ fontSize: 32 }} />} color="error.main" />
+            <AuthScreenIcon icon={<ShieldIcon sx={{ fontSize: 32 }} />} color='error.main' />
           </Box>
           <Typography variant='h5' sx={{ fontWeight: 900, mb: 1.5, letterSpacing: '-0.027em' }}>
             {t('auth.sso.interaction_error_title', 'Interaction Failed')}
@@ -209,7 +234,7 @@ export default function PermissionConsentScreen() {
                   bgcolor: 'transparent',
                 }}
               >
-                {client?.name?.charAt(0) || 'A'}
+                {client?.clientName?.charAt(0) || 'A'}
               </Avatar>
             }
           />
@@ -232,164 +257,161 @@ export default function PermissionConsentScreen() {
             <CheckCircleIcon sx={{ color: 'common.white', fontSize: 14 }} />
           </Box>
         </Box>
-                <Typography
-                  variant='h4'
+        <Typography
+          variant='h4'
+          sx={{
+            fontWeight: 900,
+            letterSpacing: '-0.027em',
+            mb: 1,
+            textAlign: 'center',
+          }}
+        >
+          {client?.clientName || t('auth.sso.unknown_app', 'Third-party Application')}
+        </Typography>
+        <Typography variant='body1' color='text.secondary' align='center' sx={{ fontWeight: 500 }}>
+          {t(
+            'auth.sso.consent_subtitle',
+            'is requesting permission to access your {{tenantName}}',
+            { tenantName: organization?.name || tenant?.name || t('common.account', 'account') },
+          )}
+        </Typography>
+      </Box>
+
+      <Box sx={{ mb: 4 }}>
+        <AuthInputLabel>
+          {t('auth.sso.requested_permissions', 'Requested Permissions')}
+        </AuthInputLabel>
+        <List disablePadding>
+          {scopeDetails.map((scope) => (
+            <ListItem
+              key={scope.id}
+              sx={{
+                px: 2,
+                py: 2,
+                borderRadius: 3,
+                mb: 1.5,
+                bgcolor: alpha(theme.palette.action.hover, 0.02),
+                border: '1px solid',
+                borderColor: 'transparent',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                  borderColor: alpha(theme.palette.primary.main, 0.1),
+                  transform: 'translateX(6px)',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 44 }}>
+                <Avatar
                   sx={{
-                    fontWeight: 900,
-                    letterSpacing: '-0.027em',
-                    mb: 1,
-                    textAlign: 'center',
+                    width: 32,
+                    height: 32,
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: 'primary.main',
+                    borderRadius: '8px',
                   }}
                 >
-                  {client?.name || t('auth.sso.unknown_app', 'Third-party Application')}
-                </Typography>
-                <Typography
-                  variant='body1'
-                  color='text.secondary'
-                  align='center'
-                  sx={{ fontWeight: 500 }}
-                >
-                  {t(
-                    'auth.sso.consent_subtitle',
-                    'is requesting permission to access your {{tenantName}}',
-                    { tenantName: organization?.name || tenant?.name || t('common.account', 'account') }
-                  )}
-                </Typography>
-              </Box>
+                  {scope.icon}
+                </Avatar>
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Typography
+                    variant='subtitle2'
+                    sx={{ fontWeight: 800, color: 'text.primary', mb: 0.25 }}
+                  >
+                    {scope.label}
+                  </Typography>
+                }
+                secondary={
+                  <Typography
+                    variant='caption'
+                    sx={{
+                      color: 'text.secondary',
+                      fontWeight: 500,
+                      lineHeight: 1.4,
+                      display: 'block',
+                    }}
+                  >
+                    {scope.description}
+                  </Typography>
+                }
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Box>
 
-              <Box sx={{ mb: 4 }}>
-                <AuthInputLabel>
-                  {t('auth.sso.requested_permissions', 'Requested Permissions')}
-                </AuthInputLabel>
-                <List disablePadding>
-                  {scopeDetails.map((scope) => (
-                    <ListItem
-                      key={scope.id}
-                      sx={{
-                        px: 2,
-                        py: 2,
-                        borderRadius: 3,
-                        mb: 1.5,
-                        bgcolor: alpha(theme.palette.action.hover, 0.02),
-                        border: '1px solid',
-                        borderColor: 'transparent',
-                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                        '&:hover': {
-                          bgcolor: alpha(theme.palette.primary.main, 0.04),
-                          borderColor: alpha(theme.palette.primary.main, 0.1),
-                          transform: 'translateX(6px)',
-                        },
-                      }}
-                    >
-                      <ListItemIcon sx={{ minWidth: 44 }}>
-                        <Avatar
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            bgcolor: alpha(theme.palette.primary.main, 0.1),
-                            color: 'primary.main',
-                            borderRadius: '8px',
-                          }}
-                        >
-                          {scope.icon}
-                        </Avatar>
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={
-                          <Typography
-                            variant='subtitle2'
-                            sx={{ fontWeight: 800, color: 'text.primary', mb: 0.25 }}
-                          >
-                            {scope.label}
-                          </Typography>
-                        }
-                        secondary={
-                          <Typography
-                            variant='caption'
-                            sx={{
-                              color: 'text.secondary',
-                              fontWeight: 500,
-                              lineHeight: 1.4,
-                              display: 'block',
-                            }}
-                          >
-                            {scope.description}
-                          </Typography>
-                        }
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
+      <Stack spacing={2} sx={{ mb: 5 }}>
+        <AuthActionButton
+          isLoading={confirmMutation.isPending}
+          label={t('auth.sso.allow_access', 'Allow Access')}
+          onClick={handleAllow}
+          disabled={confirmMutation.isPending || abortMutation.isPending}
+        />
+        <Button
+          fullWidth
+          variant='outlined'
+          size='large'
+          onClick={handleDeny}
+          disabled={confirmMutation.isPending || abortMutation.isPending}
+          sx={{
+            fontWeight: 800,
+            textTransform: 'none',
+            height: 52,
+            borderRadius: 3,
+            borderColor: 'divider',
+            color: 'text.primary',
+            '&:hover': {
+              bgcolor: alpha(theme.palette.action.hover, 0.04),
+              borderColor: 'divider',
+            },
+          }}
+        >
+          {t('auth.sso.deny_access', 'Deny Request')}
+        </Button>
+        {organization?.name && (
+          <Typography
+            variant='caption'
+            sx={{ textAlign: 'center', color: 'text.secondary', fontWeight: 600 }}
+          >
+            {t('auth.sso.secured_by', 'Secured by {{org}}', { org: organization.name })}
+          </Typography>
+        )}
+      </Stack>
 
-              <Stack spacing={2} sx={{ mb: 5 }}>
-                <AuthActionButton
-                  isLoading={confirmMutation.isPending}
-                  label={t('auth.sso.allow_access', 'Allow Access')}
-                  onClick={handleAllow}
-                  disabled={confirmMutation.isPending || abortMutation.isPending}
-                />
-                <Button
-                  fullWidth
-                  variant='outlined'
-                  size='large'
-                  onClick={handleDeny}
-                  disabled={confirmMutation.isPending || abortMutation.isPending}
-                  sx={{
-                    fontWeight: 800,
-                    textTransform: 'none',
-                    height: 52,
-                    borderRadius: 3,
-                    borderColor: 'divider',
-                    color: 'text.primary',
-                    '&:hover': {
-                      bgcolor: alpha(theme.palette.action.hover, 0.04),
-                      borderColor: 'divider',
-                    },
-                  }}
-                >
-                  {t('auth.sso.deny_access', 'Deny Request')}
-                </Button>
-                {organization?.name && (
-                   <Typography variant="caption" sx={{ textAlign: 'center', color: 'text.secondary', fontWeight: 600 }}>
-                     {t('auth.sso.secured_by', 'Secured by {{org}}', { org: organization.name })}
-                   </Typography>
-                )}
-              </Stack>
+      <Divider sx={{ mb: 4, borderStyle: 'dashed' }} />
 
-              <Divider sx={{ mb: 4, borderStyle: 'dashed' }} />
-
-              <Stack direction='row' justifyContent='center' spacing={3} sx={{ opacity: 0.8 }}>
-                <Link
-                  href='#'
-                  sx={{
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.075em',
-                    fontSize: '0.7rem',
-                    color: 'text.secondary',
-                    textDecoration: 'none',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  {t('auth.sso.terms_link', 'Terms of Service')}
-                </Link>
-                <Link
-                  href='#'
-                  sx={{
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.075em',
-                    fontSize: '0.7rem',
-                    color: 'text.secondary',
-                    textDecoration: 'none',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  {t('auth.sso.privacy_link', 'Privacy Policy')}
-                </Link>
+      <Stack direction='row' justifyContent='center' spacing={3} sx={{ opacity: 0.8 }}>
+        <Link
+          href='#'
+          sx={{
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.075em',
+            fontSize: '0.7rem',
+            color: 'text.secondary',
+            textDecoration: 'none',
+            '&:hover': { color: 'primary.main' },
+          }}
+        >
+          {t('auth.sso.terms_link', 'Terms of Service')}
+        </Link>
+        <Link
+          href='#'
+          sx={{
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.075em',
+            fontSize: '0.7rem',
+            color: 'text.secondary',
+            textDecoration: 'none',
+            '&:hover': { color: 'primary.main' },
+          }}
+        >
+          {t('auth.sso.privacy_link', 'Privacy Policy')}
+        </Link>
       </Stack>
     </AuthPageLayout>
   )
 }
-

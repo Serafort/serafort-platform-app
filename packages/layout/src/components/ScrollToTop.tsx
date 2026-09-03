@@ -16,12 +16,20 @@ interface ScrollToTopStyledProps {
   insetBlockEnd?: number | string
 }
 
-const ScrollToTopStyled = styled('div')<ScrollToTopStyledProps>(({ theme, insetInlineEnd, insetBlockEnd }) => ({
-  zIndex: theme.zIndex.fab,
-  position: 'fixed',
-  insetInlineEnd: typeof insetInlineEnd === 'number' ? theme.spacing(insetInlineEnd) : (insetInlineEnd ?? theme.spacing(10)),
-  insetBlockEnd: typeof insetBlockEnd === 'number' ? theme.spacing(insetBlockEnd) : (insetBlockEnd ?? theme.spacing(14)),
-}))
+const ScrollToTopStyled = styled('div')<ScrollToTopStyledProps>(
+  ({ theme, insetInlineEnd, insetBlockEnd }) => ({
+    zIndex: theme.zIndex.fab,
+    position: 'fixed',
+    insetInlineEnd:
+      typeof insetInlineEnd === 'number'
+        ? theme.spacing(insetInlineEnd)
+        : (insetInlineEnd ?? theme.spacing(10)),
+    insetBlockEnd:
+      typeof insetBlockEnd === 'number'
+        ? theme.spacing(insetBlockEnd)
+        : (insetBlockEnd ?? theme.spacing(14)),
+  }),
+)
 
 const ScrollToTop = (props: ScrollToTopProps) => {
   // Props

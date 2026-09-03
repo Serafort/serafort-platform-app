@@ -6,7 +6,13 @@ export { default as BlankLayout } from './layouts/BlankLayout'
 export { default as LayoutWrapper } from './layouts/LayoutWrapper'
 export { default as Footer } from './layouts/Footer'
 export { default as LayoutRouteWrapper } from './components/wrappers/LayoutRouteWrapper'
-export { AppReactToastify, AppReactDropzone, AppRecharts, SkipToContent, GuestBanner } from '@cap/theme'
+export {
+  AppReactToastify,
+  AppReactDropzone,
+  AppRecharts,
+  SkipToContent,
+  GuestBanner,
+} from '@cap/theme'
 
 // ── Components ─────────────────────────────────────────────────
 export { default as VerticalNavigation } from './components/vertical/Navigation'
@@ -98,7 +104,7 @@ export {
   NotificationsDropdown,
   ShortcutsDropdown,
   UserDropdown,
-  NavToggle as SharedNavToggle
+  NavToggle as SharedNavToggle,
 } from './menu/shared'
 
 // ── Configurations ─────────────────────────────────────────────

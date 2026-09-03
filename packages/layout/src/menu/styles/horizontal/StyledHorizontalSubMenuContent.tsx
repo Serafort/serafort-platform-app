@@ -3,7 +3,8 @@ import { menuTokens, getSubmenuPopoutShadow } from '@cap/theme'
 import type { SubMenuContentProps } from '../../components/horizontal-menu/SubMenuContent'
 
 const StyledHorizontalSubMenuContent = styled.div<SubMenuContentProps>`
-  inline-size: ${menuTokens.horizontal.item.popoutSubmenuInlineSize};
+  inline-size: ${({ theme }: any) =>
+    menuTokens?.horizontal?.item?.popoutSubmenuInlineSize || '260px'};
   border-radius: ${({ theme }: any) => `${theme?.shape?.borderRadius || 4}px`};
   box-shadow: ${({ theme }: any) => getSubmenuPopoutShadow(theme)};
   outline: none;

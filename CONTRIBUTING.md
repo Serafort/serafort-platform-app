@@ -7,10 +7,12 @@ Welcome to the CAP Monorepo! This document provides guidelines for environment s
 ## 1. Development Setup
 
 ### Prerequisites
+
 - Node.js >= 20.x
 - `pnpm` >= 9.x (`npm i -g pnpm`)
 
 ### Installation & Server Execution
+
 ```bash
 # Install workspace dependencies
 pnpm install
@@ -42,9 +44,11 @@ When adding code or creating packages, respect the **6-Tier Architecture**:
 ## 3. Scaffolding New Feature Modules
 
 To generate a new feature module conforming to monorepo architecture:
+
 ```bash
 pnpm generate:module
 ```
+
 This runs the workspace Plop generator, creating standard module scaffolding under `packages/modules/<module-name>/`.
 
 ---

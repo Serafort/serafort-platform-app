@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from "react";
 
 export interface WidgetMarketplaceState {
   isOpen: boolean;
@@ -10,9 +10,9 @@ export interface WidgetMarketplaceState {
 
 let state: WidgetMarketplaceState = {
   isOpen: false,
-  activePageId: 'dashboard',
-  searchQuery: '',
-  selectedCategory: 'all',
+  activePageId: "dashboard",
+  searchQuery: "",
+  selectedCategory: "all",
   activeTab: 0,
 };
 
@@ -36,7 +36,7 @@ export const widgetMarketplaceStore = {
     state = {
       ...state,
       isOpen: true,
-      activePageId: pageId || state.activePageId || 'dashboard',
+      activePageId: pageId || state.activePageId || "dashboard",
       activeTab: tabIndex,
     };
     notify();
@@ -84,12 +84,16 @@ export const widgetMarketplaceStore = {
 };
 
 export function useWidgetMarketplaceStore(): WidgetMarketplaceState;
-export function useWidgetMarketplaceStore<T>(selector: (state: WidgetMarketplaceState) => T): T;
-export function useWidgetMarketplaceStore<T>(selector?: (state: WidgetMarketplaceState) => T): T | WidgetMarketplaceState {
+export function useWidgetMarketplaceStore<T>(
+  selector: (state: WidgetMarketplaceState) => T,
+): T;
+export function useWidgetMarketplaceStore<T>(
+  selector?: (state: WidgetMarketplaceState) => T,
+): T | WidgetMarketplaceState {
   const current = useSyncExternalStore(
     widgetMarketplaceStore.subscribe,
     widgetMarketplaceStore.getState,
-    widgetMarketplaceStore.getState
+    widgetMarketplaceStore.getState,
   );
 
   return selector ? selector(current) : current;

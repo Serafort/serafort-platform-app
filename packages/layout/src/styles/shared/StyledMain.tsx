@@ -1,4 +1,4 @@
-import { styled } from '@cap/theme'
+import { styled } from '@mui/material/styles'
 import { mainTokens } from '@cap/theme'
 
 /**
@@ -14,16 +14,24 @@ type StyledMainProps = {
 }
 
 const StyledMain = styled('main', {
-  shouldForwardProp: (prop) => !['isContentCompact', 'layoutPadding', 'compactContentWidth'].includes(prop as string),
+  shouldForwardProp: (prop) =>
+    !['isContentCompact', 'layoutPadding', 'compactContentWidth'].includes(prop as string),
 })<StyledMainProps>(({ theme, isContentCompact, compactContentWidth }: any) => ({
   flexGrow: mainTokens.layout.flexGrow,
-  // padding: layoutPadding
-  padding: `0px !important`,
+  inlineSize: '100%',
+  boxSizing: 'border-box',
+  padding: theme.spacing(mainTokens.layout.paddingXs),
+  [theme.breakpoints.up('sm')]: {
+    padding: theme.spacing(mainTokens.layout.paddingSm),
+  },
+  [theme.breakpoints.up('lg')]: {
+    padding: theme.spacing(mainTokens.layout.paddingLg),
+  },
   minHeight: mainTokens.layout.minHeight,
   backgroundColor: theme.palette.background.default,
-  transition: theme.transitions.create(['padding', 'max-width'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
+  transition: theme.transitions.create(['padding', 'max-width', 'inline-size'], {
+    easing: 'ease-in-out',
+    duration: mainTokens.layout.transitionDuration,
   }),
   ...(isContentCompact && {
     marginInline: mainTokens.layout.compactMarginInline,

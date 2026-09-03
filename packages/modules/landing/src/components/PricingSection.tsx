@@ -2,6 +2,7 @@ import React from 'react'
 import { Box, Container, Typography, Paper, Button, Chip, alpha, useTheme } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import { useNavigate } from 'react-router-dom'
+import { Path } from '@cap/module-auth/routes'
 
 interface PricingPlan {
   name: string
@@ -75,7 +76,7 @@ const PricingSection: React.FC = () => {
     if (planName === 'Enterprise') {
       navigate('/contact')
     } else {
-      navigate('/auth/sign-up')
+      navigate(Path.auth.signup)
     }
   }
 

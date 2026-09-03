@@ -23,4 +23,3 @@ if (typeof global.ResizeObserver === 'undefined') {
     disconnect() {}
   } as any
 }
-
