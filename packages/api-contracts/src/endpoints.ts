@@ -104,10 +104,15 @@ export const API_ENDPOINTS = {
     },
     oidc: {
       auth: "/api/auth/oidc/auth",
+      token: "/api/auth/oidc/token",
+      jwks: "/api/auth/oidc/jwks",
       userinfo: "/api/auth/oidc/userinfo",
       introspect: "/api/auth/oidc/introspect",
       revoke: "/api/auth/oidc/revoke",
       endSession: "/api/auth/oidc/end-session",
+      par: "/api/auth/oidc/par",
+      register: "/api/auth/oidc/register",
+      backchannelLogout: "/api/auth/oidc/backchannel-logout",
     },
     saml: {
       sso: "/api/auth/saml/sso",

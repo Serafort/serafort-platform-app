@@ -542,6 +542,85 @@ export const API_CONTRACTS = {
         >(),
       }),
     },
+    oidc: {
+      auth: defineEndpoint({
+        id: "auth.oidc.auth",
+        method: "GET",
+        resolve: () => ENDPOINTS.auth.oidc.auth,
+        response: contractType<unknown>(),
+      }),
+      token: defineEndpoint({
+        id: "auth.oidc.token",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.token,
+        request: contractType<Record<string, unknown>>(),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      jwks: defineEndpoint({
+        id: "auth.oidc.jwks",
+        method: "GET",
+        resolve: () => ENDPOINTS.auth.oidc.jwks,
+        response: contractType<{ keys: unknown[] }>(),
+      }),
+      userinfo: defineEndpoint({
+        id: "auth.oidc.userinfo",
+        method: "GET",
+        resolve: () => ENDPOINTS.auth.oidc.userinfo,
+        response: contractType<ApiResponse<Record<string, unknown>>>(),
+      }),
+      introspect: defineEndpoint({
+        id: "auth.oidc.introspect",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.introspect,
+        request: contractType<{ token: string }>(),
+        response: contractType<ApiResponse<Record<string, unknown>>>(),
+      }),
+      revoke: defineEndpoint({
+        id: "auth.oidc.revoke",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.revoke,
+        request: contractType<{ token: string }>(),
+        response: contractType<MessageResponse>(),
+      }),
+      endSession: defineEndpoint({
+        id: "auth.oidc.endSession",
+        method: "GET",
+        resolve: () => ENDPOINTS.auth.oidc.endSession,
+        response: contractType<MessageResponse>(),
+      }),
+      par: defineEndpoint({
+        id: "auth.oidc.par",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.par,
+        request: contractType<Record<string, unknown>>(),
+        response: contractType<
+          ApiResponse<{ request_uri: string; expires_in: number }>
+        >(),
+      }),
+      register: defineEndpoint({
+        id: "auth.oidc.register",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.register,
+        request: contractType<Record<string, unknown>>(),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+      backchannelLogout: defineEndpoint({
+        id: "auth.oidc.backchannelLogout",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.oidc.backchannelLogout,
+        request: contractType<{ logout_token: string }>(),
+        response: contractType<MessageResponse>(),
+      }),
+    },
+    saml: {
+      sso: defineEndpoint({
+        id: "auth.saml.sso",
+        method: "POST",
+        resolve: () => ENDPOINTS.auth.saml.sso,
+        request: contractType<Record<string, unknown>>(),
+        response: contractType<ApiResponse<unknown>>(),
+      }),
+    },
     passkey: {
       registerStart: defineEndpoint({
         id: "auth.passkey.registerStart",
