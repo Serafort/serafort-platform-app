@@ -1,2 +1,2 @@
-export * from "./GlassmorphismPanel";
-export * from "./NeumorphismPanel";
+export * from './GlassmorphismPanel';
+export * from './NeumorphismPanel';

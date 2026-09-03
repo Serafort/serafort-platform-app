@@ -1,11 +1,11 @@
-import React from "react";
-import { Box, Typography } from "@mui/material";
-import styled from "@emotion/styled";
-import type { EffectType } from "@cap/theme";
+import React from 'react';
+import { Box, Typography } from '@mui/material';
+import styled from '@emotion/styled';
+import type { EffectType } from '@cap/theme';
 
 interface PreviewButtonProps {
-  variant?: "primary" | "secondary" | "outline";
-  effectStyle?: "standard" | "glass" | "neu";
+  variant?: 'primary' | 'secondary' | 'outline';
+  effectStyle?: 'standard' | 'glass' | 'neu';
   effectType?: EffectType;
 }
 
@@ -24,14 +24,14 @@ const StandardButton = styled.button<{ variant?: string }>`
 
   ${({ variant }) => {
     switch (variant) {
-      case "primary":
+      case 'primary':
         return `
           background: var(--color-primary, #6366f1);
           color: white;
           border: none;
           box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
         `;
-      case "secondary":
+      case 'secondary':
         return `
           background: var(--color-secondary, #8b5cf6);
           color: white;
@@ -99,47 +99,39 @@ const NeuButton = styled.button`
   background: #e0e5ec;
   border: none;
   color: #374151;
-  box-shadow:
-    4px 4px 8px rgba(0, 0, 0, 0.15),
-    -4px -4px 8px rgba(255, 255, 255, 0.8);
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.15), -4px -4px 8px rgba(255, 255, 255, 0.8);
 
   &:hover {
     transform: translateY(-1px);
   }
 
   &:active {
-    box-shadow:
-      inset 4px 4px 8px rgba(0, 0, 0, 0.1),
-      inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8);
     transform: translateY(0);
   }
 `;
 
 export const PreviewButton: React.FC<PreviewButtonProps> = ({
-  variant = "primary",
-  effectStyle = "standard",
+  variant = 'primary',
+  effectStyle = 'standard',
 }) => {
-  const ButtonComponent =
-    effectStyle === "glass"
-      ? GlassButton
-      : effectStyle === "neu"
-        ? NeuButton
-        : StandardButton;
+  const ButtonComponent = effectStyle === 'glass' ? GlassButton : effectStyle === 'neu' ? NeuButton : StandardButton;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Typography variant="caption" color="text.secondary">
-        {effectStyle === "glass"
-          ? "Glass"
-          : effectStyle === "neu"
-            ? "Neumorphic"
-            : "Standard"}{" "}
-        Button
+        {effectStyle === 'glass' ? 'Glass' : effectStyle === 'neu' ? 'Neumorphic' : 'Standard'} Button
       </Typography>
-      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-        <ButtonComponent variant={variant}>Primary</ButtonComponent>
-        <ButtonComponent variant="secondary">Secondary</ButtonComponent>
-        <ButtonComponent variant="outline">Outline</ButtonComponent>
+      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <ButtonComponent variant={variant}>
+          Primary
+        </ButtonComponent>
+        <ButtonComponent variant="secondary">
+          Secondary
+        </ButtonComponent>
+        <ButtonComponent variant="outline">
+          Outline
+        </ButtonComponent>
       </Box>
     </Box>
   );

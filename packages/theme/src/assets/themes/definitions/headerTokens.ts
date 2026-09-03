@@ -1,6 +1,6 @@
-import type { Theme } from "@mui/material/styles";
-import { alpha } from "@mui/material/styles";
-import { getCustomShadow } from "./mixins";
+import type { Theme } from '@mui/material/styles'
+import { alpha } from '@mui/material/styles'
+import { getCustomShadow } from './mixins'
 
 /**
  * Header & Navbar Design Tokens & Surface Mixins
@@ -11,165 +11,158 @@ import { getCustomShadow } from "./mixins";
 
 export interface HeaderTokens {
   layout: {
-    minBlockSize: string;
-    paddingInline: string;
-    paddingBlock: string;
-    floatingPaddingBlockStart: string;
-    compactMarginInline: string;
-    fullInlineSize: string;
-  };
+    minBlockSize: string
+    paddingInline: string
+    paddingBlock: string
+    floatingPaddingBlockStart: string
+    compactMarginInline: string
+    fullInlineSize: string
+  }
   positioning: {
-    sticky: "sticky";
-    insetBlockStart: number;
-    navbarPosition: "relative";
-  };
+    sticky: 'sticky'
+    insetBlockStart: number
+    navbarPosition: 'relative'
+  }
   interaction: {
-    containerPointerEvents: "none";
-    navbarPointerEvents: "auto";
-  };
+    containerPointerEvents: 'none'
+    navbarPointerEvents: 'auto'
+  }
   glassmorphism: {
-    backdropFilter: string;
-    paperOpacity: number;
-  };
+    backdropFilter: string
+    paperOpacity: number
+  }
   borderedSkin: {
-    boxShadow: string;
-    borderWidth: string;
-  };
+    boxShadow: string
+    borderWidth: string
+  }
   floatingOverlay: {
-    content: string;
-    position: "absolute";
-    zIndex: number;
-    insetBlockStart: number;
-    insetInline: number;
-    blockSize: string;
-    backdropFilter: string;
-    gradientAngle: string;
+    content: string
+    position: 'absolute'
+    zIndex: number
+    insetBlockStart: number
+    insetInline: number
+    blockSize: string
+    backdropFilter: string
+    gradientAngle: string
     stops: {
-      topAlpha: number;
-      topPosition: string;
-      midAlpha: number;
-      midPosition: string;
-      bottomAlpha: number;
-    };
+      topAlpha: number
+      topPosition: string
+      midAlpha: number
+      midPosition: string
+      bottomAlpha: number
+    }
     mask: {
-      solidPosition: string;
-      endColor: string;
-      endPosition: string;
-    };
-  };
+      solidPosition: string
+      endColor: string
+      endPosition: string
+    }
+  }
 }
 
 export const headerTokens: HeaderTokens = {
   layout: {
-    minBlockSize: "64px",
-    paddingInline: "16px",
-    paddingBlock: "8px",
-    floatingPaddingBlockStart: "16px",
-    compactMarginInline: "auto",
-    fullInlineSize: "100%",
+    minBlockSize: '64px',
+    paddingInline: '16px',
+    paddingBlock: '8px',
+    floatingPaddingBlockStart: '16px',
+    compactMarginInline: 'auto',
+    fullInlineSize: '100%',
   },
   positioning: {
-    sticky: "sticky",
+    sticky: 'sticky',
     insetBlockStart: 0,
-    navbarPosition: "relative",
+    navbarPosition: 'relative',
   },
   interaction: {
-    containerPointerEvents: "none",
-    navbarPointerEvents: "auto",
+    containerPointerEvents: 'none',
+    navbarPointerEvents: 'auto',
   },
   glassmorphism: {
-    backdropFilter: "blur(6px)",
+    backdropFilter: 'blur(6px)',
     paperOpacity: 0.88,
   },
   borderedSkin: {
-    boxShadow: "none",
-    borderWidth: "1px",
+    boxShadow: 'none',
+    borderWidth: '1px',
   },
   floatingOverlay: {
     content: "''",
-    position: "absolute",
+    position: 'absolute',
     zIndex: -1,
     insetBlockStart: 0,
     insetInline: 0,
-    blockSize: "100%",
-    backdropFilter: "blur(10px)",
-    gradientAngle: "180deg",
+    blockSize: '100%',
+    backdropFilter: 'blur(10px)',
+    gradientAngle: '180deg',
     stops: {
       topAlpha: 0.7,
-      topPosition: "44%",
+      topPosition: '44%',
       midAlpha: 0.43,
-      midPosition: "73%",
+      midPosition: '73%',
       bottomAlpha: 0,
     },
     mask: {
-      solidPosition: "18%",
-      endColor: "transparent",
-      endPosition: "100%",
+      solidPosition: '18%',
+      endColor: 'transparent',
+      endPosition: '100%',
     },
   },
-};
+}
 
 /**
  * Mixin for default elevation drop shadow of detached / floating headers
  */
 export const getHeaderElevationShadow = (theme: Theme): string => {
-  return getCustomShadow(theme, "sm", 1);
-};
+  return getCustomShadow(theme, 'sm', 1)
+}
 
 /**
  * Helper for border-inline in bordered skin header state
  */
 export const getHeaderBorderInline = (theme: Theme): string => {
-  return `${headerTokens.borderedSkin.borderWidth} solid ${theme.palette.divider}`;
-};
+  return `${headerTokens.borderedSkin.borderWidth} solid ${theme.palette.divider}`
+}
 
 /**
  * Helper for border-block-end in bordered skin header state
  */
 export const getHeaderBorderBlockEnd = (theme: Theme): string => {
-  return `${headerTokens.borderedSkin.borderWidth} solid ${theme.palette.divider}`;
-};
+  return `${headerTokens.borderedSkin.borderWidth} solid ${theme.palette.divider}`
+}
 
 /**
  * Helper for full 4-side border in bordered skin floating header state
  */
 export const getHeaderBorderFull = (theme: Theme): string => {
-  return `${headerTokens.borderedSkin.borderWidth} solid ${theme.palette.divider}`;
-};
+  return `${headerTokens.borderedSkin.borderWidth} solid ${theme.palette.divider}`
+}
 
 /**
  * Math helper for detached/floating navbar inline width calculation
  */
-export const getFloatingNavbarInlineSize = (
-  layoutPadding: string | number,
-): string => {
-  const paddingVal =
-    typeof layoutPadding === "number" ? `${layoutPadding}px` : layoutPadding;
-  return `calc(100% - calc(${paddingVal} * 2))`;
-};
+export const getFloatingNavbarInlineSize = (layoutPadding: string | number): string => {
+  const paddingVal = typeof layoutPadding === 'number' ? `${layoutPadding}px` : layoutPadding
+  return `calc(100% - calc(${paddingVal} * 2))`
+}
 
 /**
  * Math helper for compact content layout floating header max width calculation
  */
 export const getCompactFloatingMaxInlineSize = (
   compactContentWidth: number,
-  layoutPadding: string | number,
+  layoutPadding: string | number
 ): string => {
-  const paddingVal =
-    typeof layoutPadding === "number" ? `${layoutPadding}px` : layoutPadding;
-  return `calc(${compactContentWidth}px - calc(${paddingVal} * 2))`;
-};
+  const paddingVal = typeof layoutPadding === 'number' ? `${layoutPadding}px` : layoutPadding
+  return `calc(${compactContentWidth}px - calc(${paddingVal} * 2))`
+}
 
 /**
  * Mixin for header glassmorphic blur state
  */
 export const getHeaderBlurStyles = (theme: Theme) => ({
   backdropFilter: headerTokens.glassmorphism.backdropFilter,
-  backgroundColor: alpha(
-    theme.palette.background.paper,
-    headerTokens.glassmorphism.paperOpacity,
-  ),
-});
+  backgroundColor: alpha(theme.palette.background.paper, headerTokens.glassmorphism.paperOpacity),
+})
 
 /**
  * Helper for floating overlay linear gradient mask
@@ -179,8 +172,8 @@ export const getHeaderFloatingMask = (theme: Theme): string => {
     ${theme.palette.background.default},
     ${theme.palette.background.default} ${headerTokens.floatingOverlay.mask.solidPosition},
     ${headerTokens.floatingOverlay.mask.endColor} ${headerTokens.floatingOverlay.mask.endPosition}
-  )`;
-};
+  )`
+}
 
 /**
  * Mixin for floating header pseudo-element overlay gradient mask
@@ -200,7 +193,7 @@ export const getHeaderFloatingOverlayStyles = (theme: Theme) => ({
   )`,
   backdropFilter: headerTokens.floatingOverlay.backdropFilter,
   mask: getHeaderFloatingMask(theme),
-});
+})
 
 /**
  * Mixin for bordered skin header overrides
@@ -209,14 +202,14 @@ export const getHeaderBorderedSkinStyles = (theme: Theme) => ({
   boxShadow: headerTokens.borderedSkin.boxShadow,
   borderInline: getHeaderBorderInline(theme),
   borderBlockEnd: getHeaderBorderBlockEnd(theme),
-});
+})
 
 /**
  * Mixin for pass-through pointer events on detached/floating header layout shells
  */
 export const getHeaderPassThroughStyles = () => ({
   pointerEvents: headerTokens.interaction.containerPointerEvents,
-  "& .navbar": {
+  '& .navbar': {
     pointerEvents: headerTokens.interaction.navbarPointerEvents,
   },
-});
+})

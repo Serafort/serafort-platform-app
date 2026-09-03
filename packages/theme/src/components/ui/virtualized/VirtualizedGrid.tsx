@@ -1,25 +1,25 @@
-import React, { useRef, useMemo } from "react";
-import { Box, Paper } from "@mui/material";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import React, { useRef, useMemo } from 'react'
+import { Box, Paper } from '@mui/material'
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 interface VirtualizedGridProps<T> {
-  items: T[];
-  renderItem: (item: T, index: number) => React.ReactNode;
-  columns?: number;
-  estimatedItemHeight?: number;
-  height?: number | string;
-  gap?: number;
-  overscan?: number;
-  enableVirtualization?: boolean;
-  className?: string;
+  items: T[]
+  renderItem: (item: T, index: number) => React.ReactNode
+  columns?: number
+  estimatedItemHeight?: number
+  height?: number | string
+  gap?: number
+  overscan?: number
+  enableVirtualization?: boolean
+  className?: string
 }
 
 interface GridRowProps<T> {
-  rowItems: T[];
-  startIndex: number;
-  columns: number;
-  gap: number;
-  renderItem: (item: T, index: number) => React.ReactNode;
+  rowItems: T[]
+  startIndex: number
+  columns: number
+  gap: number
+  renderItem: (item: T, index: number) => React.ReactNode
 }
 
 function GridRowComponent<T>({
@@ -31,44 +31,39 @@ function GridRowComponent<T>({
 }: GridRowProps<T>) {
   const gridStyle = useMemo(
     () => ({
-      display: "grid",
+      display: 'grid',
       gridTemplateColumns: `repeat(${columns}, 1fr)`,
       gap: `${gap * 8}px`,
     }),
     [columns, gap],
-  );
+  )
 
   return (
     <Box sx={gridStyle}>
       {rowItems.map((item, colIndex) => (
-        <Box key={startIndex + colIndex}>
-          {renderItem(item, startIndex + colIndex)}
-        </Box>
+        <Box key={startIndex + colIndex}>{renderItem(item, startIndex + colIndex)}</Box>
       ))}
     </Box>
-  );
+  )
 }
 
-const MemoizedGridRow = React.memo(GridRowComponent) as typeof GridRowComponent;
+const MemoizedGridRow = React.memo(GridRowComponent) as typeof GridRowComponent
 
 export function VirtualizedGridInner<T>({
   items,
   renderItem,
   columns = 3,
   estimatedItemHeight = 200,
-  height = "600px",
+  height = '600px',
   gap = 2,
   overscan = 2,
   enableVirtualization = true,
   className,
 }: VirtualizedGridProps<T>) {
-  const parentRef = useRef<HTMLDivElement>(null);
+  const parentRef = useRef<HTMLDivElement>(null)
 
-  const rows = useMemo(
-    () => Math.ceil(items.length / columns),
-    [items.length, columns],
-  );
-  const shouldVirtualize = enableVirtualization && rows > 20;
+  const rows = useMemo(() => Math.ceil(items.length / columns), [items.length, columns])
+  const shouldVirtualize = enableVirtualization && rows > 20
 
   const rowVirtualizer = useVirtualizer({
     count: rows,
@@ -76,9 +71,9 @@ export function VirtualizedGridInner<T>({
     estimateSize: () => estimatedItemHeight,
     overscan,
     enabled: shouldVirtualize,
-  });
+  })
 
-  const virtualRows = rowVirtualizer.getVirtualItems();
+  const virtualRows = rowVirtualizer.getVirtualItems()
 
   if (!shouldVirtualize) {
     return (
@@ -87,13 +82,13 @@ export function VirtualizedGridInner<T>({
         className={className}
         sx={{
           height,
-          overflow: "auto",
+          overflow: 'auto',
           p: 2,
         }}
       >
         <Box
           sx={{
-            display: "grid",
+            display: 'grid',
             gridTemplateColumns: `repeat(${columns}, 1fr)`,
             gap: `${gap * 8}px`,
           }}
@@ -103,7 +98,7 @@ export function VirtualizedGridInner<T>({
           ))}
         </Box>
       </Paper>
-    );
+    )
   }
 
   return (
@@ -112,20 +107,20 @@ export function VirtualizedGridInner<T>({
       className={className}
       sx={{
         height,
-        overflow: "auto",
+        overflow: 'auto',
         p: 2,
       }}
     >
       <Box
         sx={{
           height: `${rowVirtualizer.getTotalSize()}px`,
-          width: "100%",
-          position: "relative",
+          width: '100%',
+          position: 'relative',
         }}
       >
         {virtualRows.map((virtualRow) => {
-          const startIndex = virtualRow.index * columns;
-          const rowItems = items.slice(startIndex, startIndex + columns);
+          const startIndex = virtualRow.index * columns
+          const rowItems = items.slice(startIndex, startIndex + columns)
 
           return (
             <Box
@@ -133,10 +128,10 @@ export function VirtualizedGridInner<T>({
               data-index={virtualRow.index}
               ref={rowVirtualizer.measureElement}
               sx={{
-                position: "absolute",
+                position: 'absolute',
                 top: 0,
                 left: 0,
-                width: "100%",
+                width: '100%',
                 transform: `translateY(${virtualRow.start}px)`,
               }}
             >
@@ -148,14 +143,12 @@ export function VirtualizedGridInner<T>({
                 renderItem={renderItem}
               />
             </Box>
-          );
+          )
         })}
       </Box>
     </Paper>
-  );
+  )
 }
 
-export const VirtualizedGrid = React.memo(
-  VirtualizedGridInner,
-) as typeof VirtualizedGridInner;
-export default VirtualizedGrid;
+export const VirtualizedGrid = React.memo(VirtualizedGridInner) as typeof VirtualizedGridInner
+export default VirtualizedGrid

@@ -1,62 +1,25 @@
-import React, { useState, useRef } from 'react'
-import {
-  Box,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  TextField,
-  Button,
-  Avatar,
-  alpha,
-  useTheme,
-  Stack,
-  Switch,
-  Divider,
-  Tabs,
-  Tab,
-  Chip,
-  CircularProgress,
-  Alert,
-  FormControlLabel,
-  InputAdornment,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material'
-import Save from '@mui/icons-material/Save'
-import Business from '@mui/icons-material/Business'
-import Palette from '@mui/icons-material/Palette'
-import Security from '@mui/icons-material/Security'
-import Language from '@mui/icons-material/Language'
-import ArrowBack from '@mui/icons-material/ArrowBack'
-import Info from '@mui/icons-material/Info'
-import Mail from '@mui/icons-material/Mail'
-import Groups from '@mui/icons-material/Groups'
-import CloudUpload from '@mui/icons-material/CloudUpload'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { Path } from '@cap/module-auth/routes/path'
+import React, { useState, useRef } from 'react';
+import { Box, Typography, Grid, Card, CardContent, TextField, Button, Avatar, alpha, useTheme, Stack, Switch, Divider, Tabs, Tab, Chip, CircularProgress, Alert, FormControlLabel, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import Save from '@mui/icons-material/Save';
+import Business from '@mui/icons-material/Business';
+import Palette from '@mui/icons-material/Palette';
+import Security from '@mui/icons-material/Security';
+import Language from '@mui/icons-material/Language';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Info from '@mui/icons-material/Info';
+import Mail from '@mui/icons-material/Mail';
+import Groups from '@mui/icons-material/Groups';
+import CloudUpload from '@mui/icons-material/CloudUpload';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { Path } from '@cap/module-auth/routes/path';
 
-import {
-  useOrganization,
-  useUpdateOrganization,
-  useVerifyDomain,
-  useUploadOrganizationLogo,
-  adminKeys,
-} from '@idaas/authentication-core/hooks/useAdminQuery'
-import { useQueryClient } from '@tanstack/react-query'
-import { buildLayoutSurfaceEffect } from '@cap/layout'
-import { getTenantThemeEffects } from '@cap/theme'
+import { useOrganization, useUpdateOrganization, useVerifyDomain, useUploadOrganizationLogo, adminKeys } from '@idaas/authentication-core/hooks/useAdminQuery';
+import { useQueryClient } from '@tanstack/react-query';
+import { buildLayoutSurfaceEffect } from '@cap/layout';
+import { getTenantThemeEffects } from '@cap/theme';
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -954,23 +917,23 @@ export default function OrganizationProfile() {
                       'Manage IP restrictions, MFA enforcement logic, and granular access rules.'}
                   </Typography>
                 </Box>
-                <Button
-                  variant='outlined'
-                  color='info'
-                  size='small'
-                  startIcon={<Security />}
-                  onClick={() => {
-                    const numericId = Number(id)
-                    if (!id || id === 'NaN' || isNaN(numericId) || numericId <= 0) {
-                      toast(t('auth.admin.invalidOrgId', 'Invalid organization ID for navigation'))
-                      return
-                    }
-                    navigate(Path.admin.policies.replace(':id', id))
-                  }}
-                  sx={{ fontWeight: 700, borderRadius: 2 }}
-                >
-                  {t('auth.admin.managePolicies') || 'Manage Policies'}
-                </Button>
+                  <Button
+                    variant='outlined'
+                    color='info'
+                    size='small'
+                    startIcon={<Security />}
+                    onClick={() => {
+                      const numericId = Number(id)
+                      if (!id || id === 'NaN' || isNaN(numericId) || numericId <= 0) {
+                        toast(t('auth.admin.invalidOrgId', 'Invalid organization ID for navigation'))
+                        return
+                      }
+                      navigate(Path.admin.policies.replace(':id', id))
+                    }}
+                    sx={{ fontWeight: 700, borderRadius: 2 }}
+                  >
+                    {t('auth.admin.managePolicies') || 'Manage Policies'}
+                  </Button>
               </Box>
             </Stack>
           </CardContent>

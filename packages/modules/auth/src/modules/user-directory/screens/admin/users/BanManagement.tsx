@@ -26,16 +26,16 @@ import {
   DialogActions,
   Tooltip,
 } from '@mui/material'
-import Gavel from '@mui/icons-material/Gavel'
-import History from '@mui/icons-material/History'
-import MoreVert from '@mui/icons-material/MoreVert'
-import Block from '@mui/icons-material/Block'
-import Undo from '@mui/icons-material/Undo'
-import Search from '@mui/icons-material/Search'
-import Flag from '@mui/icons-material/Flag'
-import Security from '@mui/icons-material/Security'
-import Edit from '@mui/icons-material/Edit'
-import { AdminUser } from '@idaas/authentication-core/hooks/useAdminQuery'
+import Gavel from '@mui/icons-material/Gavel';
+import History from '@mui/icons-material/History';
+import MoreVert from '@mui/icons-material/MoreVert';
+import Block from '@mui/icons-material/Block';
+import Undo from '@mui/icons-material/Undo';
+import Search from '@mui/icons-material/Search';
+import Flag from '@mui/icons-material/Flag';
+import Security from '@mui/icons-material/Security';
+import Edit from '@mui/icons-material/Edit';
+import { AdminUser } from "@idaas/authentication-core/hooks/useAdminQuery"
 import { useTranslation } from 'react-i18next'
 import {
   useUsers,
@@ -44,11 +44,11 @@ import {
   useAdminDashboard,
   useAppeals,
   useResolveAppeal,
-} from '@idaas/authentication-core/hooks/useAdminQuery'
-import { toast } from 'react-toastify'
+} from "@idaas/authentication-core/hooks/useAdminQuery"
+import { toast } from 'react-toastify';
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
-import IssueBanDialog from '../../../components/IssueBanDialog'
+import IssueBanDialog from './IssueBanDialog'
 
 export default function BanManagement() {
   const { t } = useTranslation('common')
@@ -200,19 +200,18 @@ export default function BanManagement() {
             <Box sx={{ flexGrow: 1 }} />
             <Button
               variant='contained'
-              color='error'
-              startIcon={<Gavel />}
+              startIcon={<Flag />}
               onClick={() => setIsBanModalOpen(true)}
               sx={{
+                bgcolor: 'info.main',
+                color: 'info.contrastText',
+                '&:hover': { bgcolor: 'info.dark' },
                 textTransform: 'none',
-                fontWeight: 700,
-                boxShadow: (theme) => `0 4px 14px 0 ${theme.palette.error.main}40`,
-                '&:hover': {
-                  boxShadow: (theme) => `0 6px 20px 0 ${theme.palette.error.main}60`,
-                },
+                fontWeight: 600,
+                boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.2)',
               }}
             >
-              {t('auth.admin.issueBan', 'Issue Account Suspension / Ban')}
+              {t('auth.admin.issueBan')}
             </Button>
           </Box>
 
@@ -221,12 +220,7 @@ export default function BanManagement() {
               <Typography>{t('auth.common.loading')}</Typography>
             </Box>
           ) : !bannedUsersData?.data?.data?.length ? (
-            <Alert
-              severity='info'
-              sx={(theme: any) => ({
-                ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-              })}
-            >
+            <Alert severity='info' sx={(theme: any) => ({ ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme) })}>
               {t('auth.admin.noBannedUsers')}
             </Alert>
           ) : (
@@ -333,34 +327,33 @@ export default function BanManagement() {
                       </Box>
                     </Box>
 
-                    {/* Actions — Serial Position Effect: Primary (Edit) -> Action (Revoke Ban) */}
+                    {/* Actions */}
                     <Box
                       sx={{
                         display: 'flex',
                         flexDirection: { md: 'column' },
                         gap: 1,
-                        minWidth: 130,
+                        minWidth: 120,
                       }}
                     >
                       <Button
                         variant='outlined'
-                        size='small'
-                        startIcon={<Edit />}
-                        onClick={() => setEditingUser(user as AdminUser)}
-                        sx={{ textTransform: 'none', fontWeight: 600 }}
-                      >
-                        {t('auth.common.edit', 'Edit Profile')}
-                      </Button>
-                      <Button
-                        variant='outlined'
-                        color='warning'
                         size='small'
                         startIcon={<Undo />}
                         onClick={() => handleRevokeBan(user.id)}
                         disabled={unbanMutation.isPending}
                         sx={{ textTransform: 'none', fontWeight: 600 }}
                       >
-                        {t('auth.admin.revokeBan', 'Lift Ban')}
+                        {t('auth.admin.revokeBan')}
+                      </Button>
+                      <Button
+                        variant='text'
+                        size='small'
+                        startIcon={<Edit />}
+                        onClick={() => setEditingUser(user as AdminUser)}
+                        sx={{ textTransform: 'none', fontWeight: 600, color: 'text.secondary' }}
+                      >
+                        {t('auth.common.edit')}
                       </Button>
                       <Box sx={{ flexGrow: 1 }} />
                       <IconButton size='small' sx={{ alignSelf: 'flex-end' }}>
@@ -429,16 +422,14 @@ function AppealsQueue() {
 
   const resolveMutation = useResolveAppeal({
     onSuccess: (_: any, variables: any) => {
-      toast.success(
-        variables.action === 'approved'
+      toast.success(variables.action === 'approved'
           ? t('auth.admin.appealApproved')
-          : t('auth.admin.appealDenied'),
-        {},
+          : t('auth.admin.appealDenied'), { },
       )
       refetch()
     },
     onError: (err: any) => {
-      toast.error(err.message || t('auth.common.errorOccurred'), {})
+      toast.error(err.message || t('auth.common.errorOccurred'), {  })
     },
   })
 
@@ -446,10 +437,7 @@ function AppealsQueue() {
 
   return (
     <Stack spacing={3} className='animate-scale-in'>
-      <Alert
-        severity='info'
-        sx={(theme: any) => ({ ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme) })}
-      >
+      <Alert severity='info' sx={(theme: any) => ({ ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme) })}>
         {t('auth.admin.appealsInfo')}
       </Alert>
       {isLoading ? (
@@ -457,12 +445,7 @@ function AppealsQueue() {
           <Typography>{t('auth.common.loading')}</Typography>
         </Box>
       ) : appeals.length === 0 ? (
-        <Alert
-          severity='success'
-          sx={(theme: any) => ({
-            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-          })}
-        >
+        <Alert severity='success' sx={(theme: any) => ({ ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme) })}>
           {t('auth.admin.noAppeals')}
         </Alert>
       ) : (
@@ -518,7 +501,9 @@ function AppealsQueue() {
                       color='success'
                       size='small'
                       startIcon={<Undo />}
-                      onClick={() => resolveMutation.mutate({ id: appeal.id, action: 'approved' })}
+                      onClick={() =>
+                        resolveMutation.mutate({ id: appeal.id, action: 'approved' })
+                      }
                       disabled={resolveMutation.isPending}
                       sx={{ textTransform: 'none', fontWeight: 600 }}
                     >
@@ -672,14 +657,7 @@ function BanFullHistory() {
           <Typography>{t('auth.common.loading')}</Typography>
         </Box>
       ) : logs.length === 0 ? (
-        <Alert
-          severity='info'
-          sx={(theme: any) => ({
-            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-          })}
-        >
-          {t('auth.admin.noBanHistory')}
-        </Alert>
+        <Alert severity='info' sx={(theme: any) => ({ ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme) })}>{t('auth.admin.noBanHistory')}</Alert>
       ) : (
         logs.map((log: any) => (
           <Card

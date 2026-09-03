@@ -1,4 +1,5 @@
-import styled from '@emotion/styled'
+// Third-party Imports
+import { styled } from '@cap/theme'
 
 // Type Imports
 import type { MenuProps } from '../../components/vertical-menu/Menu'

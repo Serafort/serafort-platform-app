@@ -1,9 +1,9 @@
-import { useEffect, useCallback, useRef } from "react";
-import { widgetEventBus, type WidgetEventType } from "../utils/widgetEventBus";
+import { useEffect, useCallback, useRef } from 'react';
+import { widgetEventBus, type WidgetEventType } from '../utils/widgetEventBus';
 
 export function useWidgetEvent<T = any>(
   eventType: WidgetEventType,
-  handler?: (payload: T) => void,
+  handler?: (payload: T) => void
 ) {
   const handlerRef = useRef(handler);
   handlerRef.current = handler;
@@ -26,7 +26,7 @@ export function useWidgetEvent<T = any>(
     (payload?: T) => {
       widgetEventBus.publish<T>(eventType, payload as T);
     },
-    [eventType],
+    [eventType]
   );
 
   return { publish };

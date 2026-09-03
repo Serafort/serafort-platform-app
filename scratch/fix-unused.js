@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 const log = `../packages/modules/auth/src/modules/authorization-engine/screens/api-tokens/APITokensDashboard.tsx(29,44): error TS6133: 'isError' is declared but its value is never read.
 ../packages/modules/auth/src/modules/authorization-engine/screens/api-tokens/MachineIdentityManagement.tsx(11,9): error TS6133: 't' is declared but its value is never read.
@@ -51,8 +51,7 @@ const log = `../packages/modules/auth/src/modules/authorization-engine/screens/a
 ../packages/theme/src/overrides/MuiLayout.ts(3,36): error TS6133: 'theme' is declared but its value is never read.
 ../packages/theme/src/styled/NeuButton.tsx(48,46): error TS6133: 'config' is declared but its value is never read.`;
 
-const regex =
-  /^\.\.\/([^:]+)\((\d+),(\d+)\): error (TS\d+): '(.*?)' is declared but (?:its value )?is never (?:read|used)\./gm;
+const regex = /^\.\.\/([^:]+)\((\d+),(\d+)\): error (TS\d+): '(.*?)' is declared but (?:its value )?is never (?:read|used)\./gm;
 
 let match;
 const edits = {};
@@ -69,13 +68,13 @@ while ((match = regex.exec(log)) !== null) {
 }
 
 for (const [file, fileEdits] of Object.entries(edits)) {
-  const filePath = path.resolve("c:/Node.Js/proj/boilerplate", file);
+  const filePath = path.resolve('c:/Node.Js/proj/boilerplate', file);
   if (!fs.existsSync(filePath)) {
-    console.error("File not found:", filePath);
+    console.error('File not found:', filePath);
     continue;
   }
 
-  let lines = fs.readFileSync(filePath, "utf-8").split("\n");
+  let lines = fs.readFileSync(filePath, 'utf-8').split('\n');
 
   // Process edits from bottom to top so line numbers don't shift
   fileEdits.sort((a, b) => b.line - a.line);
@@ -84,44 +83,27 @@ for (const [file, fileEdits] of Object.entries(edits)) {
     let text = lines[edit.line - 1];
 
     // For function arguments, replace with underscore
-    if (
-      text.includes("(") &&
-      text.includes(")") &&
-      !text.trim().startsWith("import") &&
-      !text.trim().startsWith("type ") &&
-      !text.trim().startsWith("interface ")
-    ) {
-      text = text.replace(
-        new RegExp(`\\b${edit.variable}\\b`),
-        `_${edit.variable}`,
-      );
-    } else if (text.trim().startsWith("import")) {
-      // Remove from import
-      text = text.replace(new RegExp(`\\b${edit.variable}\\b\\s*,?`), "");
-      // Clean up empty imports
-      text = text.replace(/\{\s*\}/, "");
-      if (
-        text.trim() === "import from '" + text.split("'")[1] + "';" ||
-        text.trim() === "import '" + text.split("'")[1] + "';" ||
-        text.trim() === 'import ""' ||
-        text.match(/^import ['"]/)
-      ) {
-        // Let's just leave it if it's empty, or comment it out
-        if (!text.includes("{") && !text.includes(" as ")) {
-          text = "// " + text;
+    if (text.includes('(') && text.includes(')') && !text.trim().startsWith('import') && !text.trim().startsWith('type ') && !text.trim().startsWith('interface ')) {
+        text = text.replace(new RegExp(`\\b${edit.variable}\\b`), `_${edit.variable}`);
+    } else if (text.trim().startsWith('import')) {
+        // Remove from import
+        text = text.replace(new RegExp(`\\b${edit.variable}\\b\\s*,?`), '');
+        // Clean up empty imports
+        text = text.replace(/\{\s*\}/, '');
+        if (text.trim() === 'import from \'' + text.split('\'')[1] + '\';' || text.trim() === 'import \'' + text.split('\'')[1] + '\';' || text.trim() === 'import ""' || text.match(/^import ['"]/)) {
+             // Let's just leave it if it's empty, or comment it out
+             if (!text.includes('{') && !text.includes(' as ')) {
+                  text = '// ' + text;
+             }
         }
-      }
     } else {
-      // Just prefix with underscore for other things like local variables
-      text = text.replace(
-        new RegExp(`\\b${edit.variable}\\b`),
-        `_${edit.variable}`,
-      );
+        // Just prefix with underscore for other things like local variables
+        text = text.replace(new RegExp(`\\b${edit.variable}\\b`), `_${edit.variable}`);
     }
 
     lines[edit.line - 1] = text;
   }
 
-  fs.writeFileSync(filePath, lines.join("\n"), "utf-8");
-  console.log("Fixed:", filePath);
+  fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
+  console.log('Fixed:', filePath);
 }

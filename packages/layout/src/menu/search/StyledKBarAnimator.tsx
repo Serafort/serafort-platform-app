@@ -9,11 +9,7 @@ type StyledKBarAnimatorProps = {
   isSmallScreen: boolean
 }
 
-const StyledKBarAnimator = styled(KBarAnimator)<StyledKBarAnimatorProps>(({
-  theme,
-  skin,
-  isSmallScreen,
-}: any) => {
+const StyledKBarAnimator = styled(KBarAnimator)<StyledKBarAnimatorProps>(({ theme, skin, isSmallScreen }: any) => {
   const surfaceEffect = SurfaceEffectFactory.create(getTenantThemeEffects(theme), theme)
 
   return {

@@ -1,6 +1,10 @@
 // Component exports
+export { WorkflowPipeline } from './WorkflowPipeline'
 export { default as HeroSection } from './HeroSection'
-export { default as Banner } from './Banner'
+export { default as SmartJobDiscovery } from './SmartJobDiscovery'
+export { default as ResumeIntelligence } from './ResumeIntelligence'
+export { default as AutomationEngine } from './AutomationEngine'
+export { default as DashboardInsights } from './DashboardInsights'
 export { default as Testimonials } from './Testimonials'
 export { default as PricingSection } from './PricingSection'
 export { default as FAQSection } from './FAQSection'

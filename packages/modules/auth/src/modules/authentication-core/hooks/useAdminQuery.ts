@@ -1,26 +1,8 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  UseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/react-query'
-import { FetchResponse, HttpError, apiClient } from '@cap/platform-core'
-import { ENDPOINTS } from '@cap/platform-core'
+import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
+import { FetchResponse, HttpError, apiClient } from '@cap/platform-core';
+import { ENDPOINTS } from '@cap/platform-core';
 
-import {
-  User,
-  OIDCClient,
-  AuditLog,
-  Scope,
-  CreateOIDCClientRequest,
-  AdminOrganization,
-  ActivityTimelineResponse,
-  SAMLConfig,
-  SCIMConfig,
-  JWKSKey,
-  ExportParams,
-} from '../types/api.types'
+import { User, OIDCClient, AuditLog, Scope, CreateOIDCClientRequest, AdminOrganization, ActivityTimelineResponse, SAMLConfig, SCIMConfig, JWKSKey, ExportParams } from '../types/api.types';
 
 // Re-export or alias if needed
 export type AdminUser = User
@@ -170,12 +152,7 @@ export function useDeleteUser(
 }
 
 export function useBanUser(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { id: number; reason?: string },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { id: number; reason?: string }, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -240,12 +217,7 @@ export function useOrganizations(
 }
 
 export function useCreateOrganization(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { name: string; slug: string; domain?: string },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { name: string; slug: string; domain?: string }, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -262,20 +234,14 @@ export function useCreateOrganization(
 
 export function useOrganization(
   id?: number | string,
-  options?: Omit<
-    UseQueryOptions<FetchResponse<AdminOrganization>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
+  options?: Omit<UseQueryOptions<FetchResponse<AdminOrganization>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useOrganizationById(Number(id), options)
 }
 
 export function useOrganizationById(
   id: number,
-  options?: Omit<
-    UseQueryOptions<FetchResponse<AdminOrganization>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
+  options?: Omit<UseQueryOptions<FetchResponse<AdminOrganization>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: ADMIN_KEYS.organization(id),
@@ -321,20 +287,15 @@ export function useUploadOrganizationLogo(
     mutationFn: ({ id, logo }) =>
       apiClient.uploadFormData(ENDPOINTS.admin.organizations.logo(id), { logo }, 'post'),
     onSuccess: (...args) => {
-      ;(queryClient.invalidateQueries({ queryKey: ADMIN_KEYS.organizations }),
-        customOnSuccess?.(...args))
+      queryClient.invalidateQueries({ queryKey: ADMIN_KEYS.organizations }),
+      customOnSuccess?.(...args)
     },
     ...restOptions,
   })
 }
 
 export function useInviteOrganizationMember(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { orgId: number; email: string; role: string },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { orgId: number; email: string; role: string }, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -351,12 +312,7 @@ export function useInviteOrganizationMember(
 }
 
 export function useRevokeOrganizationInvitation(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { orgId: number; invitationId: number | string },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { orgId: number; invitationId: number | string }, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -374,15 +330,11 @@ export function useRevokeOrganizationInvitation(
 
 export function useAuditLogs(
   params?: { page?: number; limit?: number; user_id?: number; action?: string; userId?: number },
-  options?: Omit<
-    UseQueryOptions<FetchResponse<ActivityTimelineResponse>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
+  options?: Omit<UseQueryOptions<FetchResponse<ActivityTimelineResponse>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: [...ADMIN_KEYS.auditLogs, params],
-    queryFn: () =>
-      apiClient.get<ActivityTimelineResponse>(ENDPOINTS.admin.auditLogs.index, { params }),
+    queryFn: () => apiClient.get<ActivityTimelineResponse>(ENDPOINTS.admin.auditLogs.index, { params }),
     staleTime: 1000 * 60 * 1,
     ...options,
   })
@@ -421,12 +373,7 @@ export function useAppeals(
 }
 
 export function useResolveAppeal(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { id: number; action: 'approved' | 'rejected' },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { id: number; action: 'approved' | 'rejected' }, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -469,12 +416,7 @@ export function useCreateOIDCClient(
 }
 
 export function useUpdateOIDCClient(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { id: string | number; data: Partial<OIDCClient> },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { id: string | number; data: Partial<OIDCClient> }, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -533,12 +475,7 @@ export function useScopes(
 }
 
 export function useCreateScope(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { name: string; description?: string },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { name: string; description?: string }, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -554,12 +491,7 @@ export function useCreateScope(
 }
 
 export function useUpdateScope(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { id: number; data: Partial<Scope> },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { id: number; data: Partial<Scope> }, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -646,19 +578,13 @@ export function useSCIMConfig(
 }
 
 export function useUpdateOrganizationScimConfig(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { orgId: number; config: SCIMConfig },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { orgId: number; config: SCIMConfig }, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
 
   return useMutation({
-    mutationFn: ({ orgId, config }) =>
-      apiClient.patch(ENDPOINTS.admin.scim.config, { ...config, organizationId: orgId }),
+    mutationFn: ({ orgId, config }) => apiClient.patch(ENDPOINTS.admin.scim.config, { ...config, organizationId: orgId }),
     onSuccess: (...args) => {
       queryClient.invalidateQueries({ queryKey: ADMIN_KEYS.scimConfig })
       customOnSuccess?.(...args)
@@ -701,12 +627,7 @@ export function useGetJWKSKeyDetail(
 }
 
 export function useCreateJWKSKey(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { alg: string; use: string },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { alg: string; use: string }, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -754,10 +675,7 @@ export function useDeleteJWKSKey(
 }
 
 export function useProvisioningConnectors(
-  options?: Omit<
-    UseQueryOptions<FetchResponse<ProvisioningConnector[]>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
+  options?: Omit<UseQueryOptions<FetchResponse<ProvisioningConnector[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: ADMIN_KEYS.provisioning,
@@ -768,12 +686,7 @@ export function useProvisioningConnectors(
 }
 
 export function useCreateProvisioningConnector(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { name: string; type: string; config: any },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { name: string; type: string; config: any }, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
@@ -834,17 +747,11 @@ export function useSyncProvisioningConnector(
 
 export function useProvisioningConnectorLogs(
   connectorId: number,
-  options?: Omit<
-    UseQueryOptions<FetchResponse<ProvisioningConnectorLog[]>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
+  options?: Omit<UseQueryOptions<FetchResponse<ProvisioningConnectorLog[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: [...ADMIN_KEYS.provisioning, 'logs', connectorId],
-    queryFn: () =>
-      apiClient.get<ProvisioningConnectorLog[]>(
-        ENDPOINTS.admin.provisioning.connectorLogs(connectorId),
-      ),
+    queryFn: () => apiClient.get<ProvisioningConnectorLog[]>(ENDPOINTS.admin.provisioning.connectorLogs(connectorId)),
     enabled: !!connectorId,
     staleTime: 1000 * 60 * 2,
     ...options,
@@ -979,15 +886,11 @@ export const useProvisioningConnector = useProvisioningConnectors
 /** Fetch all pending/accepted invitations for an org */
 export function useOrganizationInvitations(
   orgId: number,
-  options?: Omit<
-    UseQueryOptions<FetchResponse<OrganizationInvitation[]>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
+  options?: Omit<UseQueryOptions<FetchResponse<OrganizationInvitation[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: [...ADMIN_KEYS.organizations, orgId, 'invitations'],
-    queryFn: () =>
-      apiClient.get<OrganizationInvitation[]>(ENDPOINTS.admin.organizations.invitations(orgId)),
+    queryFn: () => apiClient.get<OrganizationInvitation[]>(ENDPOINTS.admin.organizations.invitations(orgId)),
     enabled: !!orgId,
     staleTime: 1000 * 60 * 2,
     ...options,

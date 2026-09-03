@@ -51,6 +51,6 @@ export const zIndexScale = {
     backdrop: 1250, // Between drawer and modal
     modal: 1300,
   },
-} as const;
+} as const
 
-export type ZIndexScale = typeof zIndexScale;
+export type ZIndexScale = typeof zIndexScale

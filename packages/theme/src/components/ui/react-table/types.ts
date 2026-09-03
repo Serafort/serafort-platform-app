@@ -1,65 +1,58 @@
-import type { RankingInfo } from "@tanstack/match-sorter-utils";
-import type {
-  FilterFn,
-  OnChangeFn,
-  RowData,
-  Updater,
-} from "@tanstack/react-table";
+import type { RankingInfo } from '@tanstack/match-sorter-utils'
+import type { FilterFn, OnChangeFn, RowData, Updater } from '@tanstack/react-table'
 
-export type DensityState = "sm" | "md" | "lg";
+export type DensityState = 'sm' | 'md' | 'lg'
 
 export interface DensityTableState {
-  density: DensityState;
+  density: DensityState
 }
 
 // define types for our new feature's table options
 export interface DensityOptions {
-  enableDensity?: boolean;
-  onDensityChange?: OnChangeFn<DensityState>;
+  enableDensity?: boolean
+  onDensityChange?: OnChangeFn<DensityState>
 }
 
 // Define types for our new feature's table APIs
 export interface DensityInstance {
-  setDensity: (updater: Updater<DensityState>) => void;
-  toggleDensity: (value?: DensityState) => void;
+  setDensity: (updater: Updater<DensityState>) => void
+  toggleDensity: (value?: DensityState) => void
 }
 
 export type IPerson = {
-  firstName: string;
-  lastName: string;
-  age: number;
-  visits: number;
-  progress: number;
-  status: "relationship" | "complicated" | "single";
-  subRows?: Array<IPerson>;
-};
+  firstName: string
+  lastName: string
+  age: number
+  visits: number
+  progress: number
+  status: 'relationship' | 'complicated' | 'single'
+  subRows?: Array<IPerson>
+}
 
 export type UsersTypeWithAction = IPerson & {
-  action?: string;
-};
+  action?: string
+}
 
 export type UserRoleType = {
-  [key: string]: { icon: string; color: string };
-};
+  [key: string]: { icon: string; color: string }
+}
 
 // type UserStatusType = {
 //   [key: string]: ThemeColor
 // }
 
-declare module "@tanstack/react-table" {
+declare module '@tanstack/react-table' {
   interface FilterFns {
-    fuzzy: FilterFn<unknown>;
+    fuzzy: FilterFn<unknown>
   }
   interface FilterMeta {
-    itemRank: RankingInfo;
+    itemRank: RankingInfo
   }
   interface TableState extends DensityTableState {}
-  interface TableOptionsResolved<
-    TData extends RowData,
-  > extends DensityOptions {}
+  interface TableOptionsResolved<TData extends RowData> extends DensityOptions {}
   interface Table<TData extends RowData> extends DensityInstance {}
 
   interface TableMeta<TData extends RowData> {
-    updateData: (rowIndex: number, columnId: string, value: unknown) => void;
+    updateData: (rowIndex: number, columnId: string, value: unknown) => void
   }
 }

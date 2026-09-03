@@ -1,6 +1,7 @@
-import { IAuthPlugin } from '@cap/platform-core'
-import { Button } from '@mui/material'
-import PhonelinkLock from '@mui/icons-material/PhonelinkLock'
+
+import { IAuthPlugin } from '@cap/platform-core';
+import { Button } from '@mui/material';
+import PhonelinkLock from '@mui/icons-material/PhonelinkLock';
 
 /**
  * MFA TOTP Plugin (Demonstration of Module Magnetism)
@@ -14,7 +15,7 @@ export const MFATOTPPlugin: IAuthPlugin = {
     loginOption: ({ onClick, disabled }) => (
       <Button
         fullWidth
-        variant='outlined'
+        variant="outlined"
         startIcon={<PhonelinkLock />}
         onClick={onClick}
         disabled={disabled}
@@ -43,11 +44,11 @@ export const MFATOTPPlugin: IAuthPlugin = {
           <button onClick={onCancel}>Cancel</button>
         </div>
       )
-    },
+    }
   },
 
   handleChallenge: async (challengeData) => {
     // Logic to prepare the UI for this specific challenge
     return { ...challengeData, method: 'totp' }
-  },
+  }
 }

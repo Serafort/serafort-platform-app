@@ -58,13 +58,12 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, href, on
         borderRadius: 4,
         cursor: href || onClick ? 'pointer' : 'default',
         transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-        '&:hover':
-          href || onClick
-            ? {
-                transform: 'translateY(-2px)',
-                boxShadow: `0 4px 20px ${alpha(theme.palette[color].main, 0.12)}`,
-              }
-            : undefined,
+        '&:hover': href || onClick
+          ? {
+              transform: 'translateY(-2px)',
+              boxShadow: `0 4px 20px ${alpha(theme.palette[color].main, 0.12)}`,
+            }
+          : undefined,
       }}
     >
       <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2.5, p: 3 }}>
@@ -98,7 +97,9 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, href, on
             {value}
           </Typography>
         </Box>
-        {(href || onClick) && <ChevronRightIcon sx={{ color: 'text.disabled', flexShrink: 0 }} />}
+        {(href || onClick) && (
+          <ChevronRightIcon sx={{ color: 'text.disabled', flexShrink: 0 }} />
+        )}
       </CardContent>
     </Card>
   )
@@ -221,6 +222,7 @@ const AdminOverviewDashboard: React.FC = () => {
   // ── Render ───────────────────────────────────────────────────────────────
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+
       {/* ── Page header ── */}
       <Box
         sx={{
@@ -334,6 +336,7 @@ const AdminOverviewDashboard: React.FC = () => {
           gap: 3,
         }}
       >
+
         {/* Bans & appeals card */}
         <Card
           sx={{
@@ -371,17 +374,9 @@ const AdminOverviewDashboard: React.FC = () => {
               }}
             >
               {[
-                {
-                  label: 'Total banned',
-                  value: stats.totalBanned,
-                  color: theme.palette.error.main,
-                },
+                { label: 'Total banned', value: stats.totalBanned, color: theme.palette.error.main },
                 { label: 'New bans', value: stats.newBans, color: theme.palette.warning.main },
-                {
-                  label: 'Pending appeals',
-                  value: stats.pendingAppeals,
-                  color: theme.palette.info.main,
-                },
+                { label: 'Pending appeals', value: stats.pendingAppeals, color: theme.palette.info.main },
               ].map((item) => (
                 <Box
                   key={item.label}
@@ -486,6 +481,7 @@ const AdminOverviewDashboard: React.FC = () => {
             </Stack>
           </CardContent>
         </Card>
+
       </Box>
     </Box>
   )

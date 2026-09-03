@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useSignOut } from './useSignOut'
+import { useSignOut } from "./useSignOut"
+
 
 const mockNavigate = vi.fn()
 vi.mock('react-router-dom', () => ({
@@ -91,6 +92,7 @@ describe('useSignOut', () => {
       }).not.toThrow()
     })
   })
+
 
   describe('onError callback', () => {
     it('clears auth state even when the API call fails', () => {

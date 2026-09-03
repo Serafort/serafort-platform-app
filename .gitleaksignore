@@ -1,0 +1,3 @@
+# .gitleaksignore
+packages/modules/auth/src/modules/authorization-engine/screens/organizations/DomainVerification.tsx
+packages/modules/auth/src/modules/authorization-engine/screens/api-tokens/APITokenDisplayUsage.tsx

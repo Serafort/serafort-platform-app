@@ -9,7 +9,6 @@ Date: 2026-08-06 · Scope: `packages/modules/auth` against the "Multi-Tenant IDa
 ## Spec Area 1 — Email/password authentication — ⚠️ ~70% real
 
 ### Implemented (real logic)
-
 - Service layer: `modules/authentication-core/services/auth.service.ts` — `signin`, `signup`, `signout`, `refreshToken`, `forgotPassword`, `resetPassword`, `verifyEmail`, `resendVerification`, session endpoints, and domain-event publishing (`UserAuthenticated`, `SessionCreated`, `TokenIssued`, `SessionRevoked`) on each lifecycle transition.
 - Endpoint registry: `services/endpoints.ts` (`/api/auth/*`, `/api/user/*`, `/api/admin/*`).
 - React Query hooks: `hooks/useAuthQuery.ts` — `useSignin`, `useRegister`/`useSignup`, `useForgotPassword`, `useResetPassword`, `useSession`, `useSessions`, `useRevokeSession`, `useSsoDiscovery`, etc.
@@ -18,7 +17,6 @@ Date: 2026-08-06 · Scope: `packages/modules/auth` against the "Multi-Tenant IDa
 - Real screens calling the real service: `SignInV2` (primary `/auth/sign-in`), `SignUp`/`SignUpV2`, `ForgotPassword`, `ResetPassword`, `SetNewPasswordScreen`, `EmailVerificationScreen`.
 
 ### Stubbed / placeholder
-
 - **Three parallel screens "authenticate" via `setTimeout(1500)` with no API call** — `screens/signin/LoginScreen.tsx:40-45` (`/auth/login`), `screens/signup/RegistrationScreen.tsx:36-38` (`/auth/register`), `screens/signin/AdminLoginScreen.tsx:29-31` (`/auth/admin/login`).
 - **MFA/passkey verification inside the real `SignInV2` flow resolves through an explicit mock** — `mfa-orchestrator/services/mfa.service.ts:1-20` (`verifyMfaCode` always returns `success: true`; passkey `verifyLogin` returns an empty session). Comment: "Temporary mock service for MFA until @cap/module-mfa is available."
 - **Demo credentials prefilled in the primary sign-in form** — `SignInV2.tsx:19-25` (`admin@example.com` / `password`), violating AGENTS.md §5.
@@ -27,7 +25,6 @@ Date: 2026-08-06 · Scope: `packages/modules/auth` against the "Multi-Tenant IDa
 - `LoginScreen`/`AdminLoginScreen`/`RegistrationScreen` additionally hardcode navigation (e.g. `navigate('/auth/recovery')`, `navigate('/auth/sso/initiate?...')`) to paths that don't exist in the route config.
 
 ### Where authentication actually happens
-
 - Nowhere in-repo. `signin`/`signup` are thin `apiClient.post` calls; credential verification, password hashing, and session minting are backend-only. The `domain-kernel` ports (`IAuthenticateUser`, `IUserRepository`, `IPasswordless`, `ISessionManager`, `IMfaOrchestrator`) are declared but have **zero implementations** in the monorepo.
 
 ---
@@ -35,13 +32,11 @@ Date: 2026-08-06 · Scope: `packages/modules/auth` against the "Multi-Tenant IDa
 ## Spec Area 2 — OAuth2/OIDC — ❌ Not a provider
 
 ### Implemented
-
 - Full admin CRUD UIs (real react-hook-form/zod forms + lists): `OIDCClientCreate`, `OIDCClientEdit` (with secret rotation), `OIDCConfigBrowser`, `JWKSManagement`, `SSFConfiguration`, `SAMLConfigDashboard`.
 - HTTP wiring: `auth.service.ts:290-321` (`/api/auth/oidc/*`, `/api/auth/saml/sso`), plus `useOidcCompliance.ts` hooks and `adminService.ts:368-422` OIDC client CRUD.
 - Client-side RBAC permission engine (`authorization-engine/services/authorization.service.ts:124-219`) and the in-process domain event bus.
 
 ### Absent / stubbed
-
 - **No OIDC protocol logic whatsoever** — no discovery document (`.well-known/openid-configuration`), no JWKS serving, no authorization/token/introspection endpoint logic, no PKCE, no state validation, no signature verification. All "OIDC" is redirects + HTTP calls to a backend that doesn't exist in the repo.
 - **`OidcWaitScreen.tsx:25-26` hardcodes `http://localhost:3333`** (dev-only origin) and builds the auth URL by string concatenation.
 - **Admin SSO config screens are unreachable (dead code)** — `identity-broker/routes/routes.tsx:16-25` registers only public SSO flow screens; the OIDC/JWKS/SSF/SAML config screens are not routed anywhere. `src/index.ts:141` says they "moved to `@cap/module-admin`", which **does not exist** in `packages/modules/`.
@@ -57,7 +52,7 @@ Date: 2026-08-06 · Scope: `packages/modules/auth` against the "Multi-Tenant IDa
 - **Both routed screens are fake-timer stubs**: `PasswordlessInitiation.tsx:27-29` (`setTimeout(1500)` then navigate, never sends), `PasswordlessVerification.tsx:17-29` (fake progress bar then flips to "expired", never verifies, "Resend link" has no `onClick`).
 - **No hooks**: `passwordless-service/hooks/index.ts` is empty (`export {}`). No `usePasswordlessSend`/`usePasswordlessVerify` exists.
 - **Dead duplicate screen**: `authentication-core/screens/email/PasswordlessVerification.tsx` is lazy-imported (`authentication-core/routes/routes.tsx:44`) but never added to `authCoreRouteConfig` (line 56-97). It is another `setTimeout(2500)` stub.
-- **Wrong route guard**: `passwordless-service/routes/routes.tsx:16` wraps the _initiation_ screen in `createAuthRoute` (authenticated `AuthRoute` guard) — wrong for a login-flow entry screen.
+- **Wrong route guard**: `passwordless-service/routes/routes.tsx:16` wraps the *initiation* screen in `createAuthRoute` (authenticated `AuthRoute` guard) — wrong for a login-flow entry screen.
 - The `IPasswordless` port has no implementation.
 
 ---
@@ -65,7 +60,6 @@ Date: 2026-08-06 · Scope: `packages/modules/auth` against the "Multi-Tenant IDa
 ## Spec Area 4 — Session management — ⚠️ Real client half
 
 ### Implemented
-
 - Real event-driven client lifecycle: `auth.service.ts:75-125` (signin → `UserAuthenticated`/`SessionCreated`/`TokenIssued`), `:127-138` (signout → `SessionRevoked`), `:205-229` (revoke → `SessionRevoked`).
 - Real `useSessionGuard.ts` (hydration-aware, refreshes session via `refreshAuth()`).
 - Real session list/revoke UI: `ActiveSessionsManagement`, `ActiveSessions` wired to `useSessions`/`useRevokeSession`/`useRevokeAllSessions`.
@@ -73,7 +67,6 @@ Date: 2026-08-06 · Scope: `packages/modules/auth` against the "Multi-Tenant IDa
 - Domain types: `domain-kernel/src/types/session.ts`.
 
 ### Stubbed / gaps
-
 - **`UserActivityTimeline.tsx` is a pure hardcoded mock** — static array of 5 fake activities (lines 10-61), "Load older activity" button is a no-op. Despite `AccountOverview` calling `useActivityTimeline`, this screen never does.
 - Session minting/revocation is backend-only (thin HTTP wrappers in `useAuthQuery.ts:324-405`).
 - `ActiveSessions.tsx:27-38` uses raw `window.alert`/`window.confirm` instead of the app snackbar system.
@@ -97,23 +90,20 @@ Date: 2026-08-06 · Scope: `packages/modules/auth` against the "Multi-Tenant IDa
 
 ## Cross-cutting findings
 
-| #   | Finding                                                                                                           | Severity                                                                | Evidence                                                                             |
-| --- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| 1   | No backend exists in the repo; all auth is external API wiring                                                    | Info / architectural                                                    | `app/e2e/test-config.ts:6`; no server dir                                            |
-| 2   | 3 auth screens authenticate via `setTimeout(1500)`                                                                | High                                                                    | `LoginScreen.tsx:40`, `RegistrationScreen.tsx:36`, `AdminLoginScreen.tsx:29`         |
-| 3   | MFA + passkey inside `SignInV2` resolve to an always-success mock                                                 | High                                                                    | `mfa-orchestrator/services/mfa.service.ts:19`                                        |
-| 4   | Demo credentials prefilled in primary sign-in                                                                     | Medium                                                                  | `SignInV2.tsx:19-25`                                                                 |
-| 5   | Domain-kernel auth/user ports have zero implementations                                                           | High                                                                    | `ports/authentication.ts`, `ports/user.ts`                                           |
-| 6   | Magic-link feature non-functional (no callers, fake screens, empty hooks, dead screen)                            | High                                                                    | `PasswordlessInitiation.tsx:27`, `PasswordlessVerification.tsx:17`, `hooks/index.ts` |
-| 7   | Admin OIDC/SAML/JWKS/SSF screens are unreachable dead code                                                        | High                                                                    | `identity-broker/routes/routes.tsx:16-25`; `@cap/module-admin` doesn't exist         |
-| 8   | `RbacSubscriber` is an intentional no-op                                                                          | Medium                                                                  | `rbac.subscriber.ts:15-29`                                                           |
-| 9   | Fail-open admin bypass in permission checks                                                                       | High                                                                    | `authorization.service.ts:183-190`                                                   |
-| 10  | `UserActivityTimeline` shows fake data                                                                            | Medium                                                                  | `UserActivityTimeline.tsx:10-61`                                                     |
-| 11  | Hardcoded `localhost:3333` in OIDC/social redirect paths                                                          | Medium                                                                  | `OidcWaitScreen.tsx:25`, `SignInV2.tsx:289,299`                                      |
-| 12  | `useAuthStore`/`user` typed as `any`                                                                              | Low                                                                     | `store/index.ts:6`                                                                   |
-| 13  | Step-up `elevationToken` fabricated client-side from `Date.now()`; `stepUp.verifyTotp` hard-coded `success: true` | Medium (credential-shaped, predictable; not yet transmitted to backend) | `mfa-orchestrator/services/mfa.service.ts`                                           |
-
-> **Update 2026-08-30 (findings #3, #13):** `mfa.service.ts` `stepUp.verifyBiometric` / `verifyTotp` now prefer the server-issued token, fall back to `crypto.randomUUID()` (fail closed), and derive `success` from the response body; `useStepUpAuth` rejects unverified results. The legacy `verifyMfaCode` always-success mock (finding #3) inside `SignInV2` is unchanged pending a real `@cap/module-mfa` backend. See `technical-issues.md` §9 and `.jules/sentinel.md` (2026-08-30).
+| # | Finding | Severity | Evidence |
+|---|---|---|---|
+| 1 | No backend exists in the repo; all auth is external API wiring | Info / architectural | `app/e2e/test-config.ts:6`; no server dir |
+| 2 | 3 auth screens authenticate via `setTimeout(1500)` | High | `LoginScreen.tsx:40`, `RegistrationScreen.tsx:36`, `AdminLoginScreen.tsx:29` |
+| 3 | MFA + passkey inside `SignInV2` resolve to an always-success mock | High | `mfa-orchestrator/services/mfa.service.ts:19` |
+| 4 | Demo credentials prefilled in primary sign-in | Medium | `SignInV2.tsx:19-25` |
+| 5 | Domain-kernel auth/user ports have zero implementations | High | `ports/authentication.ts`, `ports/user.ts` |
+| 6 | Magic-link feature non-functional (no callers, fake screens, empty hooks, dead screen) | High | `PasswordlessInitiation.tsx:27`, `PasswordlessVerification.tsx:17`, `hooks/index.ts` |
+| 7 | Admin OIDC/SAML/JWKS/SSF screens are unreachable dead code | High | `identity-broker/routes/routes.tsx:16-25`; `@cap/module-admin` doesn't exist |
+| 8 | `RbacSubscriber` is an intentional no-op | Medium | `rbac.subscriber.ts:15-29` |
+| 9 | Fail-open admin bypass in permission checks | High | `authorization.service.ts:183-190` |
+| 10 | `UserActivityTimeline` shows fake data | Medium | `UserActivityTimeline.tsx:10-61` |
+| 11 | Hardcoded `localhost:3333` in OIDC/social redirect paths | Medium | `OidcWaitScreen.tsx:25`, `SignInV2.tsx:289,299` |
+| 12 | `useAuthStore`/`user` typed as `any` | Low | `store/index.ts:6` |
 
 ---
 

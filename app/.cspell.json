@@ -13,5 +13,9 @@
     "tabler"
   ],
   "flagWords": [],
-  "ignorePaths": ["node_modules", "dist", ".git"]
+  "ignorePaths": [
+    "node_modules",
+    "dist",
+    ".git"
+  ]
 }

@@ -15,13 +15,12 @@ import {
   MenuItem,
   CircularProgress,
 } from '@mui/material'
-import Settings from '@mui/icons-material/Settings'
-import Logout from '@mui/icons-material/Logout'
+import Settings from '@mui/icons-material/Settings';
+import Logout from '@mui/icons-material/Logout';
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@cap/platform-core'
 import { UserDto } from '@cap/shared-types'
-import { useSignout } from '@auth/authentication-core/hooks/useAuthQuery'
-import { Path } from '../../../routes/path'
+import { useSignout } from "@auth/authentication-core/hooks/useAuthQuery"
 
 const Profile: React.FC<{ user: UserDto }> = ({ user }) => (
   <Stack direction='column'>
@@ -65,12 +64,12 @@ const AuthProfile = () => {
   const { mutate: logout, isPending } = useSignout({
     onSuccess: () => {
       zustandSignOut()
-      navigate(Path.auth.signin, { replace: true })
+      navigate('/auth/sign-in', { replace: true })
     },
     onError: () => {
       // Even on error, clear local state
       zustandSignOut()
-      navigate(Path.auth.signin, { replace: true })
+      navigate('/auth/sign-in', { replace: true })
     },
   })
 

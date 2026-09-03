@@ -114,9 +114,7 @@ const EnterComponent = ({
       <Box
         component='i'
         className={
-          theme.direction === 'ltr'
-            ? searchTokens.resultItem.enterLtrClass
-            : searchTokens.resultItem.enterRtlClass
+          theme.direction === 'ltr' ? searchTokens.resultItem.enterLtrClass : searchTokens.resultItem.enterRtlClass
         }
         sx={{
           fontSize: searchTokens.resultItem.enterIconFontSize,
@@ -186,18 +184,13 @@ const SearchResultItem = forwardRef(
         <Box
           sx={{ display: 'flex', alignItems: 'center', flexGrow: 1, gap: 2, fontSize: '0.875rem' }}
         >
-          {action.icon &&
-            (React.isValidElement(action.icon) ? (
+          {action.icon && (
+            React.isValidElement(action.icon) ? (
               action.icon
             ) : typeof action.icon === 'string' ? (
-              <Box
-                component='i'
-                className={
-                  action.icon.startsWith('tabler-') ? action.icon : `tabler-${action.icon}`
-                }
-                sx={{ fontSize: searchTokens.defaultSuggestions.iconFontSize }}
-              />
-            ) : null)}
+              <Box component='i' className={action.icon.startsWith('tabler-') ? action.icon : `tabler-${action.icon}`} sx={{ fontSize: searchTokens.defaultSuggestions.iconFontSize }} />
+            ) : null
+          )}
           {action.name &&
             (action.subtitle ? (
               <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>

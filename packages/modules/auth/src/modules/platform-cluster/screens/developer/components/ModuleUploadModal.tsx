@@ -43,11 +43,7 @@ const PIPELINE_STEPS: { stage: PipelineStage; label: string; desc: string }[] = 
   { stage: 'UPLOADING', label: 'Upload Archive', desc: 'Receiving zip payload' },
   { stage: 'EXTRACTING', label: 'Unpack & Inspect', desc: 'Sanitizing archive & Zip Slip checks' },
   { stage: 'VALIDATING_CONTRACT', label: 'Validate Contract', desc: 'Verifying CAPModule exports' },
-  {
-    stage: 'RUNNING_TESTS',
-    label: 'Run Test Suite',
-    desc: 'Running unit tests & TypeScript checks',
-  },
+  { stage: 'RUNNING_TESTS', label: 'Run Test Suite', desc: 'Running unit tests & TypeScript checks' },
   { stage: 'PROMOTING', label: 'Auto-Register', desc: 'Deploying into repository workspace' },
 ]
 
@@ -82,11 +78,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
 
   // Polling loop for active job status
   useEffect(() => {
-    if (
-      !activeJob ||
-      activeJob.currentStage === 'COMPLETE' ||
-      activeJob.currentStage === 'FAILED'
-    ) {
+    if (!activeJob || activeJob.currentStage === 'COMPLETE' || activeJob.currentStage === 'FAILED') {
       return
     }
 
@@ -244,12 +236,16 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
               textAlign: 'center',
               borderRadius: 3,
               border: '2px dashed',
-              borderColor: isDragOver ? 'primary.main' : selectedFile ? 'success.main' : 'divider',
+              borderColor: isDragOver
+                ? 'primary.main'
+                : selectedFile
+                ? 'success.main'
+                : 'divider',
               bgcolor: isDragOver
                 ? alpha(theme.palette.primary.main, 0.05)
                 : selectedFile
-                  ? alpha(theme.palette.success.main, 0.03)
-                  : alpha(theme.palette.text.primary, 0.02),
+                ? alpha(theme.palette.success.main, 0.03)
+                : alpha(theme.palette.text.primary, 0.02),
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               '&:hover': {
@@ -305,7 +301,8 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
           <Stack spacing={3}>
             <Stepper activeStep={activeStepIndex} alternativeLabel>
               {PIPELINE_STEPS.map((step, idx) => {
-                const isFailedStep = activeJob.currentStage === 'FAILED' && idx === activeStepIndex
+                const isFailedStep =
+                  activeJob.currentStage === 'FAILED' && idx === activeStepIndex
                 return (
                   <Step key={step.stage}>
                     <StepLabel
@@ -322,10 +319,10 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
                             bgcolor: isFailedStep
                               ? 'error.main'
                               : idx < activeStepIndex || activeJob.currentStage === 'COMPLETE'
-                                ? 'success.main'
-                                : idx === activeStepIndex
-                                  ? 'primary.main'
-                                  : 'action.disabledBackground',
+                              ? 'success.main'
+                              : idx === activeStepIndex
+                              ? 'primary.main'
+                              : 'action.disabledBackground',
                             color: 'white',
                           }}
                         >
@@ -400,11 +397,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
                     onClick={() => setShowLogs(!showLogs)}
                     sx={{ color: '#8b949e' }}
                   >
-                    {showLogs ? (
-                      <ExpandLessIcon fontSize='inherit' />
-                    ) : (
-                      <ExpandMoreIcon fontSize='inherit' />
-                    )}
+                    {showLogs ? <ExpandLessIcon fontSize='inherit' /> : <ExpandMoreIcon fontSize='inherit' />}
                   </IconButton>
                 </Stack>
               </Box>
@@ -444,12 +437,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
       <DialogActions sx={{ p: 3, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
         {!activeJob ? (
           <>
-            <Button
-              onClick={handleClose}
-              variant='outlined'
-              color='inherit'
-              sx={{ borderRadius: 2 }}
-            >
+            <Button onClick={handleClose} variant='outlined' color='inherit' sx={{ borderRadius: 2 }}>
               Cancel
             </Button>
             <Button

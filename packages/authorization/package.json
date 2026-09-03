@@ -29,6 +29,7 @@
     "react-dom": ">=19",
     "react-router-dom": "^7.0.0"
   },
+
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -39,7 +40,7 @@
     "jsdom": "^28.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.18.3",
+    "react-router-dom": "^7.3.0",
     "typescript": "^5.7.3",
     "vitest": "^4.0.16"
   }

@@ -1,18 +1,18 @@
-import React from "react";
-import { Route, type RoutesProps } from "react-router-dom";
-import type { ModuleRouteConfig } from "@cap/shared-types";
-import { LayoutRouteWrapper } from "@cap/layout";
-import { createAuthRoute } from "@cap/module-auth";
-import { DashboardPath } from "./path";
+import React from 'react'
+import { Route, type RoutesProps } from 'react-router-dom'
+import type { ModuleRouteConfig } from '@cap/shared-types'
+import { LayoutRouteWrapper } from '@cap/layout'
+import { createAuthRoute } from '@cap/module-auth'
+import { DashboardPath } from './path'
 
-const DashboardScreen = React.lazy(() => import("../screens/DashboardScreen"));
+const DashboardScreen = React.lazy(() => import('../screens/DashboardScreen'))
 
 export const dashboardRouteConfig: Array<ModuleRouteConfig> = [
   createAuthRoute(DashboardPath.dashboard, <DashboardScreen />, {
     requiresVerification: false,
-    layout: "admin",
+    layout: 'admin',
   }),
-];
+]
 
 /**
  * Route component for standalone or sub-router rendering of Dashboard module routes.
@@ -25,14 +25,14 @@ export const dashboardRoutes: React.FC<RoutesProps> = () => (
         key={route.path}
         path={route.path}
         element={
-          <LayoutRouteWrapper layout={route.layout || "admin"}>
+          <LayoutRouteWrapper layout={route.layout || 'admin'}>
             {route.element}
           </LayoutRouteWrapper>
         }
       />
     ))}
   </>
-);
+)
 
-export const DashboardRoutes = dashboardRoutes;
-export default dashboardRoutes;
+export const DashboardRoutes = dashboardRoutes
+export default dashboardRoutes

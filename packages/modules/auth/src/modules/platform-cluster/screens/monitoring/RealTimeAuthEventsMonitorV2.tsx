@@ -11,30 +11,30 @@ import {
   Chip,
   IconButton,
 } from '@mui/material'
-import Search from '@mui/icons-material/Search'
-import Download from '@mui/icons-material/Download'
-import Pause from '@mui/icons-material/Pause'
-import Settings from '@mui/icons-material/Settings'
-import Notifications from '@mui/icons-material/Notifications'
-import Login from '@mui/icons-material/Login'
-import Logout from '@mui/icons-material/Logout'
-import Sync from '@mui/icons-material/Sync'
-import Error from '@mui/icons-material/Error'
-import Lock from '@mui/icons-material/Lock'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import Warning from '@mui/icons-material/Warning'
-import Person from '@mui/icons-material/Person'
-import Dns from '@mui/icons-material/Dns'
-import LocationOn from '@mui/icons-material/LocationOn'
-import Timer from '@mui/icons-material/Timer'
-import Group from '@mui/icons-material/Group'
-import GppBad from '@mui/icons-material/GppBad'
-import TrendingUp from '@mui/icons-material/TrendingUp'
-import TrendingDown from '@mui/icons-material/TrendingDown'
-import History from '@mui/icons-material/History'
-import Smartphone from '@mui/icons-material/Smartphone'
-import PublicOff from '@mui/icons-material/PublicOff'
-import Monitor from '@mui/icons-material/Monitor'
+import Search from '@mui/icons-material/Search';
+import Download from '@mui/icons-material/Download';
+import Pause from '@mui/icons-material/Pause';
+import Settings from '@mui/icons-material/Settings';
+import Notifications from '@mui/icons-material/Notifications';
+import Login from '@mui/icons-material/Login';
+import Logout from '@mui/icons-material/Logout';
+import Sync from '@mui/icons-material/Sync';
+import Error from '@mui/icons-material/Error';
+import Lock from '@mui/icons-material/Lock';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import Warning from '@mui/icons-material/Warning';
+import Person from '@mui/icons-material/Person';
+import Dns from '@mui/icons-material/Dns';
+import LocationOn from '@mui/icons-material/LocationOn';
+import Timer from '@mui/icons-material/Timer';
+import Group from '@mui/icons-material/Group';
+import GppBad from '@mui/icons-material/GppBad';
+import TrendingUp from '@mui/icons-material/TrendingUp';
+import TrendingDown from '@mui/icons-material/TrendingDown';
+import History from '@mui/icons-material/History';
+import Smartphone from '@mui/icons-material/Smartphone';
+import PublicOff from '@mui/icons-material/PublicOff';
+import Monitor from '@mui/icons-material/Monitor';
 import { alpha, useTheme } from '@mui/material/styles'
 
 interface Event {

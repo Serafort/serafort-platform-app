@@ -56,11 +56,7 @@ const NoResult = (props: NoResultProps) => {
         <Box
           component='i'
           className={searchTokens.noResult.unknownIconClass}
-          sx={{
-            fontSize: searchTokens.noResult.iconFontSize,
-            marginBlockEnd: searchTokens.noResult.iconMarginBlockEnd,
-            color: 'text.secondary',
-          }}
+          sx={{ fontSize: searchTokens.noResult.iconFontSize, marginBlockEnd: searchTokens.noResult.iconMarginBlockEnd, color: 'text.secondary' }}
         />
         <Typography
           sx={{
@@ -82,14 +78,7 @@ const NoResult = (props: NoResultProps) => {
         >
           {t('search.try_searching_for', { defaultValue: 'Try searching for' })}
         </Typography>
-        <List
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: searchTokens.defaultSuggestions.sectionGap,
-            p: 0,
-          }}
-        >
+        <List sx={{ display: 'flex', flexDirection: 'column', gap: searchTokens.defaultSuggestions.sectionGap, p: 0 }}>
           {suggestions.map((item) => (
             <ListItem key={item.id} sx={{ display: 'flex', alignItems: 'center', p: 0 }}>
               <Box
@@ -107,22 +96,12 @@ const NoResult = (props: NoResultProps) => {
                 }}
               >
                 {item.icon && (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      fontSize: searchTokens.defaultSuggestions.iconFontSize,
-                      alignItems: 'center',
-                    }}
-                  >
-                    {React.isValidElement(item.icon) ? (
-                      item.icon
-                    ) : typeof item.icon === 'string' ? (
-                      <Box
-                        component='i'
-                        className={item.icon}
-                        sx={{ fontSize: searchTokens.defaultSuggestions.iconFontSize }}
-                      />
-                    ) : null}
+                  <Box sx={{ display: 'flex', fontSize: searchTokens.defaultSuggestions.iconFontSize, alignItems: 'center' }}>
+                    {React.isValidElement(item.icon)
+                      ? item.icon
+                      : typeof item.icon === 'string' ? (
+                          <Box component='i' className={item.icon} sx={{ fontSize: searchTokens.defaultSuggestions.iconFontSize }} />
+                        ) : null}
                   </Box>
                 )}
                 <Typography

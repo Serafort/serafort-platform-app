@@ -10,32 +10,28 @@ This workspace uses a **Monorepo** architecture leveraging `pnpm` workspaces. It
 
 ### Monorepo Structure
 
-- **Host Application (`/app`)**: The main entry point (Vite-based) that orchestrates, mounts, and serves dynamic domain modules with granular code splitting.
-- **Shared Platform Packages (`/packages/`)**:
-  - `shared-types`: Zero-dependency TypeScript types, domain entities, and API contracts.
-  - `platform-core`: Utilities, hooks, module assembly, and runtime orchestration.
-  - `platform-store`: State management (hydration, encrypted secure storage, Zustand).
-  - `authorization`: High-performance permission checker and ABAC/RBAC engine.
-  - `layout`: Dedicated UI layout package (Vertical, Horizontal, Blank, and Public shells).
-  - `theme`: Global styles, design tokens, AI theme synthesis, and visual effects.
-  - `api-contracts` & `auth-contracts`: Strict API, IAM, and Auth type boundaries.
-- **Domain Modules (`/packages/modules/`)**:
-  - `auth`: Enterprise-grade Identity and Access Management (IDaaS), MFA, Passkey, WebAuthn, SSO, SCIM, and User Directory.
-  - `landing`: Public landing pages and onboarding pipelines.
-  - `theme`: Tenant branding and theme preset customizer.
-  - `dashboard`: Modular multi-tenant widget workspace and layout engine.
-  - `widget-studio`: Multi-agent AI widget generation studio with real-time SSE streaming.
+*   **Host Application (`/app`)**: The main entry point (Vite-based) that orchestrates, mounts, and serves dynamic domain modules.
+*   **Shared Platform Packages (`/packages/`)**:
+    *   `shared-types`: Zero-dependency TypeScript types, domain entities, and API contracts.
+    *   `platform-core`: Utilities, hooks, and core business logic.
+    *   `platform-store`: State management (hydration, secure storage).
+    *   `layout`: The dedicated UI layout package (App shell, sidebar, templates).
+    *   `theme`: Global styles and design tokens.
+    *   `api-contracts` & `auth-contracts`: Strict API and Auth type boundaries.
+*   **Domain Modules (`/packages/modules/`)**:
+    *   `auth`: Enterprise-grade Identity and Access Management (IDaaS), MFA, Passkey, Passwordless.
+    *   `landing`: Public landing pages.
+    *   `theme`: Tenant branding and theme preset editor.
 
 ## 🛠️ Tech Stack
 
-- **Core:** React 19, TypeScript 5.8
-- **Build Tool:** Vite 7 with modular `manualChunks` code splitting
-- **Routing:** React Router v7
-- **Styling & UI:** Material UI (MUI) v7, Virtualized React Tables
-- **State & Query:** Zustand 5, TanStack React Query 5
-- **PWA:** Workbox for offline support and service workers
-- **Testing:** Playwright for E2E testing, Vitest for unit testing
-- **Package Management:** `pnpm` workspaces
+*   **Core:** React 19, TypeScript
+*   **Build Tool:** Vite
+*   **Routing:** React Router v7
+*   **Styling & UI:** Material UI (MUI) v7, Virtualized React Tables
+*   **PWA:** Workbox for offline support and service workers
+*   **Testing:** Playwright for E2E testing, Vitest for unit testing
+*   **Package Management:** `pnpm` workspaces
 
 ---
 
@@ -44,20 +40,17 @@ This workspace uses a **Monorepo** architecture leveraging `pnpm` workspaces. It
 ### Prerequisites
 
 Ensure you have the following installed:
-
-- Node.js (v20.19+ or v22.12+)
-- pnpm (v9.x or higher)
+*   Node.js (v20.19+ or v22.12+)
+*   pnpm (v9.x or higher)
 
 ### Setup & Installation
 
 1.  **Install Dependencies:** Run this from the root directory to link workspaces and install dependencies.
-
     ```bash
     pnpm install
     ```
 
 2.  **Configure Local Tenants (Required for Local Dev):** This platform supports multi-tenancy. Update your local hosts file (requires Admin/root):
-
     ```bash
     node scripts/setup-tenants.js
     ```
@@ -82,17 +75,14 @@ We rely on **Playwright** for robust End-to-End (E2E) integration tests, specifi
     ```
 2.  **Auth Module Testing:**
     The E2E suite contains dedicated workflows testing our **IDaaS integration**:
-    - Passkey and Device Authentication flows.
-    - Multi-Factor Authentication (MFA) enforcement.
-    - Passwordless login links and token exchanges.
-    - Role-based route guarding (`GuestRoute`, `AuthRoute`, `AdminRoute`).
+    *   Passkey and Device Authentication flows.
+    *   Multi-Factor Authentication (MFA) enforcement.
+    *   Passwordless login links and token exchanges.
+    *   Role-based route guarding (`GuestRoute`, `AuthRoute`, `AdminRoute`).
 
 ### Code Quality & Audits
 
-- **Type-Checking:** `pnpm -r run type-check` (verifies 0 TypeScript errors across all 15 packages)
-- **Production Build:** `pnpm --filter @cap/app run build` (`tsc -b && vite build`)
-- **Unit Tests:** `pnpm -r run test` (`vitest run`)
-- **Linting:** `pnpm run lint`
-- **Security Audits:** `pnpm run audit:ci` checks dependencies for known vulnerabilities.
-- **Circular Dependency Check:** `pnpm run lint:circular` (madge) — also wired into the pre-commit hook.
-- **Coupling Analysis:** `node scripts/analyze-coupling.cjs` writes real Ce/Ca/instability metrics to `docs/MODULE_COUPLING_REPORT.md` and verifies architectural boundaries between packages.
+*   **Linting:** `pnpm run lint`
+*   **Security Audits:** `pnpm run audit:ci` checks dependencies for known vulnerabilities.
+*   **Circular Dependency Check:** `pnpm run lint:circular` (madge) — also wired into the pre-commit hook.
+*   **Coupling Analysis:** `node scripts/analyze-coupling.cjs` writes real Ce/Ca/instability metrics to `docs/MODULE_COUPLING_REPORT.md` and verifies architectural boundaries between packages.

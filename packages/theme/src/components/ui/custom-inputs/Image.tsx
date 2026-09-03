@@ -1,61 +1,53 @@
-import { styled } from "@mui/material/styles";
-import classnames from "classnames";
-import type { CustomInputImgProps } from "./types";
-import { Checkbox, Grid } from "@mui/material";
+import { styled } from '@mui/material/styles'
+import classnames from 'classnames'
+import type { CustomInputImgProps } from './types'
+import { Checkbox, Grid } from '@mui/material'
 
-const Root = styled("div", {
-  name: "MuiCustomImage",
-  slot: "Root",
+const Root = styled('div', {
+  name: 'MuiCustomImage',
+  slot: 'Root',
 })(({ theme }) => ({
-  blockSize: "100%",
-  display: "flex",
+  blockSize: '100%',
+  display: 'flex',
   borderRadius: theme.shape.borderRadius,
-  cursor: "pointer",
-  overflow: "hidden",
-  position: "relative",
-  alignItems: "center",
-  flexDirection: "column",
-  justifyContent: "center",
+  cursor: 'pointer',
+  overflow: 'hidden',
+  position: 'relative',
+  alignItems: 'center',
+  flexDirection: 'column',
+  justifyContent: 'center',
   border: `1px solid `,
 
-  "&:hover": {
+  '&:hover': {
     borderColor: theme.palette.action.active,
   },
-  "&.active": {
+  '&.active': {
     borderColor: theme.palette.primary.main,
   },
-  "&:not(.active):not(:hover) .MuiCheckbox-root": {
-    display: "none",
+  '&:not(.active):not(:hover) .MuiCheckbox-root': {
+    display: 'none',
   },
-}));
+}))
 
 const CheckboxInput = styled(Checkbox, {
-  name: "MuiCustomImage",
-  slot: "Input",
+  name: 'MuiCustomImage',
+  slot: 'Input',
 })({
   top: 7,
   right: 7,
-  position: "absolute",
-});
+  position: 'absolute',
+})
 
-const Image = styled("img", {
-  name: "MuiCustomImage",
-  slot: "Image",
+const Image = styled('img', {
+  name: 'MuiCustomImage',
+  slot: 'Image',
 })({
-  maxWidth: "100%",
-});
+  maxWidth: '100%',
+})
 
 const CustomCheckboxImg = (props: CustomInputImgProps) => {
-  const {
-    type,
-    data,
-    name,
-    selected,
-    gridProps,
-    handleChange,
-    color = "primary",
-  } = props;
-  const { alt, img, value } = data;
+  const { type, data, name, selected, gridProps, handleChange, color = 'primary' } = props
+  const { alt, img, value } = data
 
   const renderComponent = () => {
     return (
@@ -64,12 +56,12 @@ const CustomCheckboxImg = (props: CustomInputImgProps) => {
           className={classnames({ active: selected.includes(value) })}
           onClick={() => handleChange(value)}
         >
-          {typeof img === "string" ? (
+          {typeof img === 'string' ? (
             <Image src={img} alt={alt ?? `checkbox-image-${value}`} />
           ) : (
             img
           )}
-          {type === "radio" ? null : (
+          {type === 'radio' ? null : (
             <CheckboxInput
               color={color}
               name={`${name}-${value}`}
@@ -79,10 +71,10 @@ const CustomCheckboxImg = (props: CustomInputImgProps) => {
           )}
         </Root>
       </Grid>
-    );
-  };
+    )
+  }
 
-  return data ? renderComponent() : null;
-};
+  return data ? renderComponent() : null
+}
 
-export default CustomCheckboxImg;
+export default CustomCheckboxImg

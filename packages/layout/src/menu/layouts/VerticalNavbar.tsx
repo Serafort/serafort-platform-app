@@ -1,8 +1,7 @@
 import React from 'react'
 import type { CSSObject } from '@emotion/styled'
 import type { ChildrenType } from '@cap/shared-types'
-import { themeConfig, layoutMenuTokens } from '@cap/theme'
-import { verticalLayoutClasses } from '../../utils/layoutClasses'
+import { themeConfig, verticalLayoutClasses, layoutMenuTokens } from '@cap/theme'
 import { useSettings } from '@cap/platform-store'
 import StyledHeader from '../styles/vertical/StyledHeader'
 import classnames from 'classnames'
@@ -32,16 +31,19 @@ const Navbar: React.FC<
       overrideStyles={overrideStyles}
       layoutPadding={themeConfig.layoutPadding as number}
       compactContentWidth={themeConfig.compactContentWidth as number}
-      className={classnames(verticalLayoutClasses.header, {
-        [verticalLayoutClasses.headerFixed]: headerFixed,
-        [verticalLayoutClasses.headerStatic]: headerStatic,
-        [verticalLayoutClasses.headerFloating]: headerFloating,
-        [verticalLayoutClasses.headerDetached]: !headerFloating && headerDetached,
-        [verticalLayoutClasses.headerAttached]: !headerFloating && headerAttached,
-        [verticalLayoutClasses.headerBlur]: headerBlur,
-        [verticalLayoutClasses.headerContentCompact]: headerContentCompact,
-        [verticalLayoutClasses.headerContentWide]: headerContentWide,
-      })}
+      className={classnames(
+        verticalLayoutClasses.header,
+        {
+          [verticalLayoutClasses.headerFixed]: headerFixed,
+          [verticalLayoutClasses.headerStatic]: headerStatic,
+          [verticalLayoutClasses.headerFloating]: headerFloating,
+          [verticalLayoutClasses.headerDetached]: !headerFloating && headerDetached,
+          [verticalLayoutClasses.headerAttached]: !headerFloating && headerAttached,
+          [verticalLayoutClasses.headerBlur]: headerBlur,
+          [verticalLayoutClasses.headerContentCompact]: headerContentCompact,
+          [verticalLayoutClasses.headerContentWide]: headerContentWide,
+        },
+      )}
       style={layoutMenuTokens.verticalNavbar.containerStyles}
     >
       <Box

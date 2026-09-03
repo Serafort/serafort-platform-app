@@ -26,11 +26,11 @@ test.describe('Sign Up Flow', () => {
 
   test('should show error for weak password', async ({ page }) => {
     await page.goto('/auth/sign-up')
+    await page.getByLabel(/email/i).fill(generateTestEmail())
     await page
-      .locator('input[name="email"], input[type="email"], #email')
+      .getByLabel(/password/i)
       .first()
-      .fill(generateTestEmail())
-    await page.locator('input[type="password"]').first().fill('123')
+      .fill('123')
     await page.getByRole('button', { name: /create account/i }).click()
     await expect(page.getByText(/8 characters/i)).toBeVisible()
   })
@@ -42,43 +42,26 @@ test.describe('Sign Up Flow', () => {
     await page.goto('/auth/sign-up')
 
     // Fill in registration form
+    await page.getByLabel(/full name/i).fill(`${TEST_USER.firstName} ${TEST_USER.lastName}`)
+    await page.getByLabel(/email/i).fill(uniqueEmail)
     await page
-      .locator(
-        'input[name="fullname"], input[name="name"], input[name="firstName"], input[name="firstname"], #name, #fullname',
-      )
+      .getByLabel(/password/i)
       .first()
-      .fill(`${TEST_USER.firstName} ${TEST_USER.lastName}`)
-    await page.locator('input[name="email"], input[type="email"], #email').first().fill(uniqueEmail)
-    await page.locator('input[type="password"]').first().fill(password)
-    const confirmInput = page
-      .locator(
-        'input[name="confirmPassword"], input[name="passwordConfirmation"], input[type="password"]',
-      )
-      .nth(1)
-    if ((await confirmInput.count()) > 0) {
-      await confirmInput.fill(password)
-    }
+      .fill(password)
+    await page.getByLabel(/confirm password/i).fill(password)
 
-    // Check terms if present
-    const terms = page.getByRole('checkbox').first()
-    if ((await terms.count()) > 0) {
-      await terms.check()
-    }
+    // Check terms
+    await page.getByRole('checkbox').first().check()
 
     await page.getByRole('button', { name: /create account/i }).click()
 
     // Successful registration should show success link/text or redirect
-    await expect(page.getByText(/verification.*sent|verify|success|welcome/i).first()).toBeVisible({
-      timeout: 15000,
-    })
+    await expect(page.getByText(/verification.*sent/i)).toBeVisible({ timeout: 15000 })
   })
 
   test('should navigate to sign-in from sign-up', async ({ page }) => {
     await page.goto('/auth/sign-up')
-    await page
-      .getByRole('link', { name: /sign in/i })
-      .first()
-      .click()
+    await page.getByRole('link', { name: 'Sign in', exact: true }).click()
     await expect(page).toHaveURL(/sign-in/)
   })
 })
@@ -115,8 +98,8 @@ test.describe('API: Registration Endpoint', () => {
       data: {
         email,
         password: 'TestPassword123!',
-        firstname: 'Test',
-        lastname: 'User',
+        firstName: 'Test',
+        lastName: 'User',
       },
     })
 
@@ -125,8 +108,8 @@ test.describe('API: Registration Endpoint', () => {
       data: {
         email,
         password: 'TestPassword123!',
-        firstname: 'Test',
-        lastname: 'User',
+        firstName: 'Test',
+        lastName: 'User',
       },
     })
 

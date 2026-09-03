@@ -1,28 +1,16 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-const WORKSPACE_DIR = path.resolve(__dirname, "..");
-const IGNORED_DIRS = [
-  "node_modules",
-  "dist",
-  "build",
-  ".git",
-  ".vscode",
-  ".husky",
-  "dev-dist",
-];
+const WORKSPACE_DIR = path.resolve(__dirname, '..');
+const IGNORED_DIRS = ['node_modules', 'dist', 'build', '.git', '.vscode', '.husky', 'dev-dist'];
 
 // Flatten nested JSON objects to dot-separated keys
-function flattenObject(obj, prefix = "") {
+function flattenObject(obj, prefix = '') {
   let flattened = {};
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const propName = prefix ? `${prefix}.${key}` : key;
-      if (
-        typeof obj[key] === "object" &&
-        obj[key] !== null &&
-        !Array.isArray(obj[key])
-      ) {
+      if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
         Object.assign(flattened, flattenObject(obj[key], propName));
       } else {
         flattened[propName] = obj[key];
@@ -37,7 +25,7 @@ function unflattenObject(flatObj) {
   const result = {};
   for (const key in flatObj) {
     if (Object.prototype.hasOwnProperty.call(flatObj, key)) {
-      const keys = key.split(".");
+      const keys = key.split('.');
       let current = result;
       for (let i = 0; i < keys.length; i++) {
         const part = keys[i];
@@ -63,7 +51,7 @@ function findEnJsonFiles(dir, fileList = []) {
       if (!IGNORED_DIRS.includes(file)) {
         findEnJsonFiles(filePath, fileList);
       }
-    } else if (file === "en.json") {
+    } else if (file === 'en.json') {
       fileList.push(filePath);
     }
   }
@@ -71,7 +59,7 @@ function findEnJsonFiles(dir, fileList = []) {
 }
 
 function syncDictionaries() {
-  console.log("=== Synchronizing i18n Dictionaries ===\n");
+  console.log('=== Synchronizing i18n Dictionaries ===\n');
   const enFiles = findEnJsonFiles(WORKSPACE_DIR);
 
   for (const enPath of enFiles) {
@@ -81,7 +69,7 @@ function syncDictionaries() {
 
     let enContent;
     try {
-      enContent = JSON.parse(fs.readFileSync(enPath, "utf8"));
+      enContent = JSON.parse(fs.readFileSync(enPath, 'utf8'));
     } catch (err) {
       console.error(`  Error parsing en.json: ${err.message}`);
       continue;
@@ -90,18 +78,16 @@ function syncDictionaries() {
     const enFlat = flattenObject(enContent);
     const enKeys = Object.keys(enFlat);
 
-    const targetLangs = ["ar", "fr"];
+    const targetLangs = ['ar', 'fr'];
     for (const lang of targetLangs) {
       const targetPath = path.join(dir, `${lang}.json`);
       let targetContent = {};
 
       if (fs.existsSync(targetPath)) {
         try {
-          targetContent = JSON.parse(fs.readFileSync(targetPath, "utf8"));
+          targetContent = JSON.parse(fs.readFileSync(targetPath, 'utf8'));
         } catch (err) {
-          console.error(
-            `  Failed to parse existing ${lang}.json: ${err.message}. Overwriting.`,
-          );
+          console.error(`  Failed to parse existing ${lang}.json: ${err.message}. Overwriting.`);
         }
       } else {
         console.log(`  Creating missing file: ${lang}.json`);
@@ -114,23 +100,21 @@ function syncDictionaries() {
         // Look up key directly or with 'auth.' prefix, or stripped of 'auth.' prefix
         let value = targetFlat[enKey];
 
-        if (value === undefined && !enKey.startsWith("auth.")) {
+        if (value === undefined && !enKey.startsWith('auth.')) {
           // If enKey is 'signIn.title', try 'auth.signIn.title'
           value = targetFlat[`auth.${enKey}`];
         }
 
-        if (value === undefined && enKey.startsWith("auth.")) {
+        if (value === undefined && enKey.startsWith('auth.')) {
           // If enKey is 'auth.account.address', try 'account.address'
-          const stripped = enKey.replace(/^auth\./, "");
+          const stripped = enKey.replace(/^auth\./, '');
           value = targetFlat[stripped];
         }
 
         // If still undefined, fallback to the English value as placeholder
         if (value === undefined) {
           value = enFlat[enKey];
-          console.log(
-            `  [Warning] Key "${enKey}" missing in ${lang}.json. Fallback to English value.`,
-          );
+          console.log(`  [Warning] Key "${enKey}" missing in ${lang}.json. Fallback to English value.`);
         }
 
         newTargetFlat[enKey] = value;
@@ -138,16 +122,12 @@ function syncDictionaries() {
 
       // Write back synced file
       const newTargetContent = unflattenObject(newTargetFlat);
-      fs.writeFileSync(
-        targetPath,
-        JSON.stringify(newTargetContent, null, 2) + "\n",
-        "utf8",
-      );
+      fs.writeFileSync(targetPath, JSON.stringify(newTargetContent, null, 2) + '\n', 'utf8');
       console.log(`  Successfully synced ${lang}.json`);
     }
   }
 
-  console.log("\nAll dictionaries synced!");
+  console.log('\nAll dictionaries synced!');
 }
 
 syncDictionaries();

@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, cleanup } from '@testing-library/react'
-import React from 'react'
-import AdminRoute from './AdminRoute'
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
+import AdminRoute from './AdminRoute';
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -35,8 +35,7 @@ vi.mock('@cap/authorization', () => ({
   useCan: (action: string, subject: any) => {
     const session = mockUseSessionGuard()
     const userRole = session?.user?.role
-    const requiredRole =
-      subject?.attributes?.minimumRole ?? subject?.attributes?.requiredRole ?? 100
+    const requiredRole = subject?.attributes?.requiredRole ?? 100
     if (userRole === undefined || userRole === null) return false
     return userRole >= requiredRole
   },
@@ -77,12 +76,7 @@ const renderRoute = (props: Partial<React.ComponentProps<typeof AdminRoute>> = {
 
 describe('AdminRoute', () => {
   beforeEach(() => {
-    cleanup()
     vi.clearAllMocks()
-  })
-
-  afterEach(() => {
-    cleanup()
   })
 
   // ── 1. Loading state ────────────────────────────────────────────────────────

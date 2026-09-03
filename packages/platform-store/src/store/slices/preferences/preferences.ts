@@ -1,23 +1,19 @@
-import { StateCreator } from "zustand";
-import type { AppStore } from "../../types";
-import { UserPreferences, defaultPreferences } from "./User";
+import { StateCreator } from 'zustand'
+import type { AppStore } from '../../types'
+import { UserPreferences, defaultPreferences } from './User'
 
 export interface PreferencesSlice {
-  preferences: UserPreferences;
+  preferences: UserPreferences
 
-  updatePreferences: (updates: Partial<UserPreferences>) => void;
-  resetPreferences: () => void;
-  updateNotificationPreferences: (
-    updates: Partial<UserPreferences["notifications"]>,
-  ) => void;
-  updateJobPreferences: (
-    updates: Partial<UserPreferences["jobPreferences"]>,
-  ) => void;
+  updatePreferences: (updates: Partial<UserPreferences>) => void
+  resetPreferences: () => void
+  updateNotificationPreferences: (updates: Partial<UserPreferences['notifications']>) => void
+  updateJobPreferences: (updates: Partial<UserPreferences['jobPreferences']>) => void
 }
 
 export const createPreferencesSlice: StateCreator<
   AppStore,
-  [["zustand/immer", never], ["zustand/persist", unknown]],
+  [['zustand/immer', never], ['zustand/persist', unknown]],
   [],
   PreferencesSlice
 > = (set) => ({
@@ -28,35 +24,31 @@ export const createPreferencesSlice: StateCreator<
       state.preferences = {
         ...state.preferences,
         ...updates,
-      };
-    });
+      }
+    })
   },
 
   resetPreferences: () => {
     set((state) => {
-      state.preferences = defaultPreferences;
-    });
+      state.preferences = defaultPreferences
+    })
   },
 
-  updateNotificationPreferences: (
-    updates: Partial<UserPreferences["notifications"]>,
-  ) => {
+  updateNotificationPreferences: (updates: Partial<UserPreferences['notifications']>) => {
     set((state) => {
       state.preferences.notifications = {
         ...state.preferences.notifications,
         ...updates,
-      };
-    });
+      }
+    })
   },
 
-  updateJobPreferences: (
-    updates: Partial<UserPreferences["jobPreferences"]>,
-  ) => {
+  updateJobPreferences: (updates: Partial<UserPreferences['jobPreferences']>) => {
     set((state) => {
       state.preferences.jobPreferences = {
         ...state.preferences.jobPreferences,
         ...updates,
-      };
-    });
+      }
+    })
   },
-});
+})

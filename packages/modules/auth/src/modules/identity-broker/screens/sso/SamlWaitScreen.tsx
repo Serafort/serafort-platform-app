@@ -4,16 +4,7 @@
 // AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
 
 import React from 'react'
-import {
-  Box,
-  Container,
-  Typography,
-  alpha,
-  LinearProgress,
-  useTheme,
-  Button,
-  Alert,
-} from '@mui/material'
+import { Box, Container, Typography, alpha, LinearProgress, useTheme, Button, Alert } from '@mui/material'
 import CorporateFare from '@mui/icons-material/CorporateFare'
 import ErrorOutline from '@mui/icons-material/ErrorOutline'
 import RefreshIcon from '@mui/icons-material/Refresh'
@@ -22,8 +13,8 @@ import { useTranslation } from 'react-i18next'
 import { themeConfig } from '@cap/platform-core'
 import { motion } from 'framer-motion'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { useSsoDiscovery } from '@auth/authentication-core/hooks/useAuthQuery'
-import { Path } from '@auth/routes/path'
+import { useSsoDiscovery } from "@auth/authentication-core/hooks/useAuthQuery"
+import { Path } from "@auth/routes/path"
 import logger from '@auth/authentication-core/utils/logger'
 
 type WaitPhase = 'initializing' | 'redirecting' | 'error'
@@ -49,29 +40,24 @@ export default function SamlWaitScreen() {
     isError: isDiscoveryError,
   } = useSsoDiscovery(ssoIdentifier)
 
-  const doRedirect = React.useCallback(
-    (url: string) => {
-      if (hasRedirected.current) return
-      hasRedirected.current = true
-      setPhase('redirecting')
+  const doRedirect = React.useCallback((url: string) => {
+    if (hasRedirected.current) return
+    hasRedirected.current = true
+    setPhase('redirecting')
 
-      // Small delay so the user sees the progress UI
-      const timer = setTimeout(() => {
-        try {
-          navigate(url)
-        } catch (err: unknown) {
-          logger.error('Failed to redirect to SAML Identity Provider', { error: err })
-          setPhase('error')
-          setErrorMessage(
-            t('auth.sso.redirect_failed', 'Failed to redirect to the identity provider.'),
-          )
-        }
-      }, 800)
+    // Small delay so the user sees the progress UI
+    const timer = setTimeout(() => {
+      try {
+        navigate(url)
+      } catch (err: unknown) {
+        logger.error('Failed to redirect to SAML Identity Provider', { error: err })
+        setPhase('error')
+        setErrorMessage(t('auth.sso.redirect_failed', 'Failed to redirect to the identity provider.'))
+      }
+    }, 800)
 
-      return () => clearTimeout(timer)
-    },
-    [t],
-  )
+    return () => clearTimeout(timer)
+  }, [t])
 
   React.useEffect(() => {
     if (hasRedirected.current) return
@@ -79,10 +65,7 @@ export default function SamlWaitScreen() {
     if (!ssoIdentifier) {
       setPhase('error')
       setErrorMessage(
-        t(
-          'auth.sso.missing_sso_identifier',
-          'Missing required parameter: domain or provider. Cannot proceed with SSO.',
-        ),
+        t('auth.sso.missing_sso_identifier', 'Missing required parameter: domain or provider. Cannot proceed with SSO.')
       )
       return
     }
@@ -92,10 +75,7 @@ export default function SamlWaitScreen() {
     if (isDiscoveryError) {
       setPhase('error')
       setErrorMessage(
-        t(
-          'auth.sso.discovery_failed',
-          'Failed to retrieve SSO configuration for the provided domain. Please check and try again.',
-        ),
+        t('auth.sso.discovery_failed', 'Failed to retrieve SSO configuration for the provided domain. Please check and try again.')
       )
       return
     }
@@ -109,7 +89,7 @@ export default function SamlWaitScreen() {
     } else if (discoveryResponse) {
       setPhase('error')
       setErrorMessage(
-        t('auth.sso.no_provider_found', 'No SSO configuration found for this identifier.'),
+        t('auth.sso.no_provider_found', 'No SSO configuration found for this identifier.')
       )
     }
   }, [ssoIdentifier, isDiscovering, isDiscoveryError, discoveryResponse, doRedirect, t])
@@ -121,10 +101,7 @@ export default function SamlWaitScreen() {
       if (!hasRedirected.current || phase === 'initializing') {
         setPhase('error')
         setErrorMessage(
-          t(
-            'auth.sso.redirect_timeout',
-            'The redirect is taking longer than expected. Please try again.',
-          ),
+          t('auth.sso.redirect_timeout', 'The redirect is taking longer than expected. Please try again.')
         )
       }
     }, REDIRECT_TIMEOUT_MS)
@@ -142,10 +119,7 @@ export default function SamlWaitScreen() {
   const statusText = React.useMemo(() => {
     switch (phase) {
       case 'initializing':
-        return t(
-          'auth.sso.saml_redirect_description',
-          "Connecting to your organization's identity provider. Please do not close this window.",
-        )
+        return t('auth.sso.saml_redirect_description', "Connecting to your organization's identity provider. Please do not close this window.")
       case 'redirecting':
         return t('auth.sso.redirecting', 'Redirecting to your identity provider...')
       case 'error':
@@ -163,14 +137,9 @@ export default function SamlWaitScreen() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100vh',
-          justifyContent: 'center',
-          alignItems: 'center',
-          bgcolor: 'background.default',
-          position: 'relative',
-          overflow: 'hidden',
+          display: 'flex', flexDirection: 'column', minHeight: '100vh',
+          justifyContent: 'center', alignItems: 'center',
+          bgcolor: 'background.default', position: 'relative', overflow: 'hidden',
         }}
       >
         <title>
@@ -185,15 +154,10 @@ export default function SamlWaitScreen() {
           >
             <Box
               sx={{
-                width: 80,
-                height: 80,
-                borderRadius: '24px',
+                width: 80, height: 80, borderRadius: '24px',
                 bgcolor: alpha(theme.palette.error.main, 0.08),
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                mb: 4,
-                mx: 'auto',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                mb: 4, mx: 'auto',
                 border: '1px solid',
                 borderColor: alpha(theme.palette.error.main, 0.15),
               }}
@@ -211,9 +175,7 @@ export default function SamlWaitScreen() {
             <Alert
               severity='error'
               sx={{
-                mb: 4,
-                borderRadius: '16px',
-                textAlign: 'left',
+                mb: 4, borderRadius: '16px', textAlign: 'left',
                 '& .MuiAlert-message': { fontWeight: 600 },
               }}
             >
@@ -226,11 +188,8 @@ export default function SamlWaitScreen() {
                 startIcon={<ArrowBackIcon />}
                 onClick={() => navigate(Path.auth.login)}
                 sx={{
-                  fontWeight: 700,
-                  textTransform: 'none',
-                  borderRadius: '12px',
-                  px: 3,
-                  borderColor: 'divider',
+                  fontWeight: 700, textTransform: 'none', borderRadius: '12px',
+                  px: 3, borderColor: 'divider',
                 }}
               >
                 {t('auth.sso.back_to_login', 'Back to Login')}
@@ -240,10 +199,7 @@ export default function SamlWaitScreen() {
                 startIcon={<RefreshIcon />}
                 onClick={handleRetry}
                 sx={{
-                  fontWeight: 700,
-                  textTransform: 'none',
-                  borderRadius: '12px',
-                  px: 3,
+                  fontWeight: 700, textTransform: 'none', borderRadius: '12px', px: 3,
                 }}
               >
                 {t('common.retry', 'Retry')}

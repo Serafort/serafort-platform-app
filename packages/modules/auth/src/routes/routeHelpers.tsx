@@ -26,11 +26,7 @@ export const createAdminRoute = (
 export const createAuthRoute = (
   path: string,
   element: React.ReactNode,
-  options: {
-    requiresVerification?: boolean
-    layout?: LayoutOverride | RouteLayout
-    label?: string
-  } = {},
+  options: { requiresVerification?: boolean; layout?: LayoutOverride | RouteLayout; label?: string } = {},
 ): ModuleRouteConfig => ({
   path,
   label: options.label,

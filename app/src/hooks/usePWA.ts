@@ -44,7 +44,8 @@ export const usePWA = () => {
     setIsInstallable(false)
     deferredPrompt.prompt()
 
-    await deferredPrompt.userChoice
+    const { outcome } = await deferredPrompt.userChoice
+    console.log(`User response to the install prompt: ${outcome}`)
 
     setDeferredPrompt(null)
   }

@@ -12,7 +12,6 @@ import StyledMenuLabel from '../../styles/StyledMenuLabel'
 import StyledMenuPrefix from '../../styles/StyledMenuPrefix'
 import StyledMenuSuffix from '../../styles/StyledMenuSuffix'
 import StyledVerticalMenuItem from '../../styles/vertical/StyledVerticalMenuItem'
-import Tooltip from '@mui/material/Tooltip'
 
 export type MenuItemProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'prefix'> &
   RootStylesType &
@@ -134,133 +133,64 @@ const MenuItem: React.ForwardRefRenderFunction<HTMLLIElement, MenuItemProps> = (
       $menuItemStyles={getMenuItemStyles('root')}
       $rootStyles={rootStyles}
     >
-      {isCollapsed && !isHovered && level === 0 && children ? (
-        <Tooltip
-          title={children as React.ReactElement}
-          placement='right'
-          arrow
-          enterDelay={150}
-          disableInteractive
-        >
-          <MenuButton
-            className={classnames(menuClasses.button, {
-              [menuClasses.active]: active,
-            })}
-            component={component}
-            tabIndex={disabled ? -1 : 0}
-            {...rest}
-            onClick={(e) => {
-              handleClick()
-              if (rest.onClick) rest.onClick(e)
-            }}
+      <MenuButton
+        className={classnames(menuClasses.button, {
+          [menuClasses.active]: active,
+        })}
+        component={component}
+        tabIndex={disabled ? -1 : 0}
+        {...rest}
+        onClick={(e) => {
+          handleClick()
+          if (rest.onClick) rest.onClick(e)
+        }}
+      >
+        {/* Menu Item Icon */}
+        {renderMenuIcon({
+          icon,
+          level,
+          active,
+          disabled,
+          renderExpandedMenuItemIcon,
+          styles: getMenuItemStyles('icon'),
+          isBreakpointReached,
+        })}
+
+        {/* Menu Item Prefix */}
+        {prefix && (
+          <StyledMenuPrefix
+            $isHovered={isHovered}
+            $isCollapsed={isCollapsed}
+            $firstLevel={level === 0}
+            className={menuClasses.prefix}
+            $rootStyles={getMenuItemStyles('prefix')}
           >
-            {/* Menu Item Icon */}
-            {renderMenuIcon({
-              icon,
-              level,
-              active,
-              disabled,
-              renderExpandedMenuItemIcon,
-              styles: getMenuItemStyles('icon'),
-              isBreakpointReached,
-            })}
+            {prefix}
+          </StyledMenuPrefix>
+        )}
 
-            {/* Menu Item Prefix */}
-            {prefix && (
-              <StyledMenuPrefix
-                $isHovered={isHovered}
-                $isCollapsed={isCollapsed}
-                $firstLevel={level === 0}
-                className={menuClasses.prefix}
-                $rootStyles={getMenuItemStyles('prefix')}
-              >
-                {prefix}
-              </StyledMenuPrefix>
-            )}
-
-            {/* Menu Item Label */}
-            <StyledMenuLabel
-              className={menuClasses.label}
-              $rootStyles={getMenuItemStyles('label')}
-              $textTruncate={textTruncate}
-            >
-              {children}
-            </StyledMenuLabel>
-
-            {/* Menu Item Suffix */}
-            {suffix && (
-              <StyledMenuSuffix
-                $isHovered={isHovered}
-                $isCollapsed={isCollapsed}
-                $firstLevel={level === 0}
-                className={menuClasses.suffix}
-                $rootStyles={getMenuItemStyles('suffix')}
-              >
-                {suffix}
-              </StyledMenuSuffix>
-            )}
-          </MenuButton>
-        </Tooltip>
-      ) : (
-        <MenuButton
-          className={classnames(menuClasses.button, {
-            [menuClasses.active]: active,
-          })}
-          component={component}
-          tabIndex={disabled ? -1 : 0}
-          {...rest}
-          onClick={(e) => {
-            handleClick()
-            if (rest.onClick) rest.onClick(e)
-          }}
+        {/* Menu Item Label */}
+        <StyledMenuLabel
+          className={menuClasses.label}
+          $rootStyles={getMenuItemStyles('label')}
+          $textTruncate={textTruncate}
         >
-          {/* Menu Item Icon */}
-          {renderMenuIcon({
-            icon,
-            level,
-            active,
-            disabled,
-            renderExpandedMenuItemIcon,
-            styles: getMenuItemStyles('icon'),
-            isBreakpointReached,
-          })}
+          {children}
+        </StyledMenuLabel>
 
-          {/* Menu Item Prefix */}
-          {prefix && (
-            <StyledMenuPrefix
-              $isHovered={isHovered}
-              $isCollapsed={isCollapsed}
-              $firstLevel={level === 0}
-              className={menuClasses.prefix}
-              $rootStyles={getMenuItemStyles('prefix')}
-            >
-              {prefix}
-            </StyledMenuPrefix>
-          )}
-
-          {/* Menu Item Label */}
-          <StyledMenuLabel
-            className={menuClasses.label}
-            $rootStyles={getMenuItemStyles('label')}
-            $textTruncate={textTruncate}
+        {/* Menu Item Suffix */}
+        {suffix && (
+          <StyledMenuSuffix
+            $isHovered={isHovered}
+            $isCollapsed={isCollapsed}
+            $firstLevel={level === 0}
+            className={menuClasses.suffix}
+            $rootStyles={getMenuItemStyles('suffix')}
           >
-            {children}
-          </StyledMenuLabel>
-
-          {/* Menu Item Suffix */}
-          {suffix && (
-            <StyledMenuSuffix
-              $isHovered={isHovered}
-              $isCollapsed={isCollapsed}
-              $firstLevel={level === 0}
-              className={menuClasses.suffix}
-              $rootStyles={getMenuItemStyles('suffix')}
-            >
-              {suffix}
-            </StyledMenuSuffix>
-          )}
-        </MenuButton>
-      )}
+            {suffix}
+          </StyledMenuSuffix>
+        )}
+      </MenuButton>
     </StyledVerticalMenuItem>
   )
 }

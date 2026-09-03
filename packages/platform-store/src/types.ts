@@ -1,14 +1,14 @@
-import type { AuthSlice } from "./store/slices/authSlice";
-import type { GuestSlice } from "./store/slices/guestSlice";
-import type { ProfileSlice } from "./store/slices/profileSlice";
-import type { NotificationSlice } from "./store/slices/notificationSlice";
-import type { PreferencesSlice } from "./store/slices/preferences/preferences";
-import type { SettingsSlice } from "./store/slices/settingsSlice";
-import type { NavigationSlice } from "./store/slices/navigationSlice";
-import type { NetworkSlice } from "./store/slices/networkSlice";
-import type { OfflineQueueSlice } from "./store/slices/offlineQueueSlice";
-import type { LayoutEngineSlice } from "./store/slices/layoutEngineSlice";
-import type { WidgetStudioSlice } from "./store/slices/widgetStudioSlice";
+import type { AuthSlice } from './store/slices/authSlice'
+import type { GuestSlice } from './store/slices/guestSlice'
+import type { ProfileSlice } from './store/slices/profileSlice'
+import type { NotificationSlice } from './store/slices/notificationSlice'
+import type { PreferencesSlice } from './store/slices/preferences/preferences'
+import type { SettingsSlice } from './store/slices/settingsSlice'
+import type { NavigationSlice } from './store/slices/navigationSlice'
+import type { NetworkSlice } from './store/slices/networkSlice'
+import type { OfflineQueueSlice } from './store/slices/offlineQueueSlice'
+import type { LayoutEngineSlice } from './store/slices/layoutEngineSlice'
+import type { WidgetStudioSlice } from './store/slices/widgetStudioSlice'
 
 export type AppStore = AuthSlice &
   GuestSlice &
@@ -20,6 +20,7 @@ export type AppStore = AuthSlice &
   NetworkSlice &
   LayoutEngineSlice &
   OfflineQueueSlice &
-  WidgetStudioSlice;
+  WidgetStudioSlice
 
-export * from "./store/types";
+export * from './store/types'
+

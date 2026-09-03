@@ -14,7 +14,7 @@ import { onBeforeRequest, type FetchRequestConfig } from '@cap/platform-store'
  */
 export const defaultResourceMapper = (
   endpoint: string,
-  _config?: FetchRequestConfig,
+  _config: FetchRequestConfig,
 ): PolicyResource | undefined => {
   if (endpoint.startsWith('/api/admin/rbac/roles')) return { type: 'role' }
   if (endpoint.startsWith('/api/admin/rbac/permissions')) return { type: 'permission' }
@@ -46,7 +46,9 @@ let installed = false
  * Safe to call once per app session (idempotent; re-installation is a no-op).
  */
 export const installAuthorization = (options: InstallAuthorizationOptions = {}): void => {
-  if (installed) return
+  if (installed) {
+    return
+  }
   installed = true
 
   policyEngine.setPolicySet(DEFAULT_POLICY_SET)

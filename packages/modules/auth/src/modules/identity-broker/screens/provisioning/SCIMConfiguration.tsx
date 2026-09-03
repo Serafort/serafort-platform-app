@@ -1,57 +1,26 @@
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  TextField,
-  InputAdornment,
-  alpha,
-  useTheme,
-  Stack,
-  Chip,
-  IconButton,
-  Switch,
-  FormControlLabel,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Avatar,
-  Tooltip,
-  Alert,
-  Grid,
-} from '@mui/material'
-import ContentCopy from '@mui/icons-material/ContentCopy'
-import VpnKey from '@mui/icons-material/VpnKey'
-import Save from '@mui/icons-material/Save'
-import Refresh from '@mui/icons-material/Refresh'
-import Security from '@mui/icons-material/Security'
-import Code from '@mui/icons-material/Code'
-import SwapHoriz from '@mui/icons-material/SwapHoriz'
-import ArrowBack from '@mui/icons-material/ArrowBack'
-import CloudSync from '@mui/icons-material/CloudSync'
-import People from '@mui/icons-material/People'
-import Info from '@mui/icons-material/Info'
-import OpenInNew from '@mui/icons-material/OpenInNew'
-import Visibility from '@mui/icons-material/Visibility'
-import VisibilityOff from '@mui/icons-material/VisibilityOff'
-import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import {
-  useSCIMTokens,
-  useCreateSCIMToken,
-  useRevokeSCIMToken,
-  useOrganizationScimConfig,
-  useUpdateOrganizationScimConfig,
-  useTestSCIMConnection,
-} from '../../hooks'
-import type { SCIMToken } from '../../types'
-import logger from '@cap/module-auth/modules/authentication-core/utils/logger'
+import { useState } from 'react';
+import { Box, Typography, Card, CardContent, Button, TextField, InputAdornment, alpha, useTheme, Stack, Chip, IconButton, Switch, FormControlLabel, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Tooltip, Alert, Grid } from '@mui/material';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import VpnKey from '@mui/icons-material/VpnKey';
+import Save from '@mui/icons-material/Save';
+import Refresh from '@mui/icons-material/Refresh';
+import Security from '@mui/icons-material/Security';
+import Code from '@mui/icons-material/Code';
+import SwapHoriz from '@mui/icons-material/SwapHoriz';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import CloudSync from '@mui/icons-material/CloudSync';
+import People from '@mui/icons-material/People';
+import Info from '@mui/icons-material/Info';
+import OpenInNew from '@mui/icons-material/OpenInNew';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
+import { useSCIMTokens, useCreateSCIMToken, useRevokeSCIMToken, useOrganizationScimConfig, useUpdateOrganizationScimConfig, useTestSCIMConnection } from '@auth/authorization-engine/hooks/useAdminQuery';
+
+import type { SCIMToken } from '@auth/authorization-engine/services/adminService';
+import logger from '@cap/module-auth/modules/authentication-core/utils/logger';
 
 function StatCard({
   label,
@@ -179,15 +148,11 @@ export default function SCIMConfiguration() {
   if (scimConfig && scimConfig !== prevConfig) {
     setPrevConfig(scimConfig)
     setScimEnabled((scimConfig as any).enabled ?? false)
-    if (
-      (scimConfig as any).attributeMapping &&
-      Object.keys((scimConfig as any).attributeMapping).length > 0
-    ) {
+    if ((scimConfig as any).attributeMapping && Object.keys((scimConfig as any).attributeMapping).length > 0) {
       setMappings((prev) =>
         prev.map((m) => ({
           ...m,
-          internal:
-            ((scimConfig as any).attributeMapping as Record<string, string>)[m.scim] || m.internal,
+          internal: ((scimConfig as any).attributeMapping as Record<string, string>)[m.scim] || m.internal,
         })),
       )
     }
@@ -208,7 +173,7 @@ export default function SCIMConfiguration() {
   const testConnectionMutation = useTestSCIMConnection({
     onSuccess: (resp) => {
       const data = resp.data
-      if (data.success) {
+      if (data.status === 'success') {
         toast.success(data.message, { autoClose: 5000 })
       } else {
         toast.warning(data.message, { autoClose: 5000 })
@@ -266,12 +231,12 @@ export default function SCIMConfiguration() {
       revokeTokenMutation.mutate(activeToken.id)
     }
     setNewlyCreatedToken(null)
-    createTokenMutation.mutate({ name: 'SCIM Bearer Token' })
+    createTokenMutation.mutate({ label: 'SCIM Bearer Token' })
   }
 
   const handleGenerateToken = () => {
     setNewlyCreatedToken(null)
-    createTokenMutation.mutate({ name: 'SCIM Bearer Token' })
+    createTokenMutation.mutate({ label: 'SCIM Bearer Token' })
   }
 
   const handleMappingChange = (index: number, value: string) => {

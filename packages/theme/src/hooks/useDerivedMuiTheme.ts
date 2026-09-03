@@ -1,10 +1,10 @@
-import { useMemo, useEffect, useState } from "react";
-import type { Theme } from "@mui/material/styles";
-import { useTenantThemeState } from "../context/TenantThemeContext";
-import { composeMuiTheme } from "../utils/composeMuiTheme";
-import { useThemeSettings } from "../context/ThemeSettingsContext";
+import { useMemo, useEffect, useState } from 'react';
+import type { Theme } from '@mui/material/styles';
+import { useTenantThemeState } from '../context/TenantThemeContext';
+import { composeMuiTheme } from '../utils/composeMuiTheme';
+import { useThemeSettings } from '../context/ThemeSettingsContext';
 
-import { DEFAULT_THEME_CONFIG } from "../types";
+import { DEFAULT_THEME_CONFIG } from '../types';
 
 export const useDerivedMuiTheme = (): Theme => {
   const { theme: tenantTheme } = useTenantThemeState();
@@ -13,18 +13,17 @@ export const useDerivedMuiTheme = (): Theme => {
 
   // Sync with system preference if needed
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    if (typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       setSystemIsDark(mediaQuery.matches);
 
       const handler = (e: MediaQueryListEvent) => setSystemIsDark(e.matches);
-      mediaQuery.addEventListener("change", handler);
-      return () => mediaQuery.removeEventListener("change", handler);
+      mediaQuery.addEventListener('change', handler);
+      return () => mediaQuery.removeEventListener('change', handler);
     }
   }, []);
 
-  const isDark =
-    settings.mode === "dark" || (settings.mode === "system" && systemIsDark);
+  const isDark = settings.mode === 'dark' || (settings.mode === 'system' && systemIsDark);
 
   // Create a stable key for memoization based on core design tokens.
   // This prevents re-creating the MUI theme object if only metadata or non-visual props changed.
@@ -36,8 +35,7 @@ export const useDerivedMuiTheme = (): Theme => {
     const rootTokens = tenantTheme.tokens || DEFAULT_THEME_CONFIG.tokens;
     const { colors, typography, borderRadius } = rootTokens;
     const effects = tenantTheme.effects || DEFAULT_THEME_CONFIG.effects;
-    const components =
-      tenantTheme.components || DEFAULT_THEME_CONFIG.components;
+    const components = tenantTheme.components || DEFAULT_THEME_CONFIG.components;
 
     return JSON.stringify({
       colors,
@@ -46,13 +44,13 @@ export const useDerivedMuiTheme = (): Theme => {
       effects,
       components,
       isDark,
-      primaryColor: settings.primaryColor,
+      primaryColor: settings.primaryColor
     });
   }, [tenantTheme, isDark, settings.primaryColor]);
 
   return useMemo(() => {
     return composeMuiTheme({
-      currentMode: isDark ? "dark" : "light",
+      currentMode: isDark ? 'dark' : 'light',
       settings,
       tenantTheme,
     });

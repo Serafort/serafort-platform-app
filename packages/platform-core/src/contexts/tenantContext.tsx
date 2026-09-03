@@ -2,13 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import TenantService from '../services/tenantService'
 import { themeService } from '../services/theme/theme.service'
 import { useSettings, setTenantId } from '@cap/platform-store'
-import type {
-  TenantConfig,
-  UserPreferences,
-  TenantContextValue,
-  TenantThemeBase,
-  TenantModule,
-} from '../types/tenant'
+import type { TenantConfig, UserPreferences, TenantContextValue, TenantThemeBase, TenantModule } from '../types/tenant'
 import { DEFAULT_THEME_CONFIG } from '@cap/theme'
 import type { TenantThemeConfig } from '@cap/theme'
 import { normalizeTenantConfig } from '../types/tenant'
@@ -54,23 +48,20 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
 
   const { updateSettings } = useSettings()
 
-  const applyTenantConfig = useCallback(
-    (config: TenantConfig | null) => {
-      if (!config) return
+  const applyTenantConfig = useCallback((config: TenantConfig | null) => {
+    if (!config) return
 
-      const normalized = normalizeTenantConfig(config)
-      setTenant(normalized)
-      setTenantId(normalized.id)
-      updateSettings({
-        primaryColor: normalized.theme?.primaryColor,
-        layout: normalized.layout?.layout as any,
-        mode: normalized.theme?.mode,
-        skin: normalized.theme?.skin,
-        semiDark: normalized.theme?.semiDark,
-      })
-    },
-    [updateSettings],
-  )
+    const normalized = normalizeTenantConfig(config)
+    setTenant(normalized)
+    setTenantId(normalized.id)
+    updateSettings({
+      primaryColor: normalized.theme?.primaryColor,
+      layout: normalized.layout?.layout as any,
+      mode: normalized.theme?.mode,
+      skin: normalized.theme?.skin,
+      semiDark: normalized.theme?.semiDark
+    })
+  }, [updateSettings])
 
   const loadTenant = useCallback(async () => {
     setIsLoading(true)
@@ -116,124 +107,95 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     return () => document.removeEventListener('visibilitychange', refreshTenant)
   }, [tenant, isLoading, loadTenant])
 
-  const updateUserPreferences = useCallback(
-    (prefs: Partial<UserPreferences>) => {
-      const updated = { ...userPreferences, ...prefs }
-      TenantService.setUserPreferences(updated)
-      setUserPreferences(updated)
-    },
-    [userPreferences],
-  )
+  const updateUserPreferences = useCallback((prefs: Partial<UserPreferences>) => {
+    const updated = { ...userPreferences, ...prefs }
+    TenantService.setUserPreferences(updated)
+    setUserPreferences(updated)
+  }, [userPreferences])
 
   const refetchTenant = useCallback(async () => {
     TenantService.clearCache()
     await loadTenant()
   }, [loadTenant])
 
-  const updateTheme = useCallback(
-    async (updates: Partial<TenantThemeBase>) => {
-      if (!tenant) return
+  const updateTheme = useCallback(async (updates: Partial<TenantThemeBase>) => {
+    if (!tenant) return
 
-      setTenant((prev) => {
+    setTenant(prev => {
+      if (!prev) return null
+      return {
+        ...prev,
+        theme: {
+          ...prev.theme,
+          ...updates
+        }
+      }
+    })
+
+    // Sync with settings store if relevant
+    if (updates.mode || updates.primaryColor || updates.skin || updates.semiDark) {
+      updateSettings({
+        mode: updates.mode,
+        primaryColor: updates.primaryColor,
+        skin: updates.skin,
+        semiDark: updates.semiDark
+      })
+    }
+  }, [tenant, updateSettings])
+
+  const saveTheme = useCallback(async (themeToSave: TenantThemeBase) => {
+    setIsLoadingTheme(true)
+    setErrorTheme(null)
+    try {
+      const organizationId = tenant?.id || DEFAULT_THEME_CONFIG.organizationId
+      const themePayload: TenantThemeConfig = {
+        ...DEFAULT_THEME_CONFIG,
+        organizationId,
+        name: tenant?.name ? `${tenant.name} Theme` : DEFAULT_THEME_CONFIG.name,
+        metadata: {
+          ...DEFAULT_THEME_CONFIG.metadata,
+          mode: themeToSave.mode,
+        },
+        tokens: {
+          ...DEFAULT_THEME_CONFIG.tokens,
+          colors: {
+            ...DEFAULT_THEME_CONFIG.tokens.colors,
+            primary: {
+              ...DEFAULT_THEME_CONFIG.tokens.colors.primary,
+              value: themeToSave.primaryColor,
+            },
+            secondary: {
+              ...DEFAULT_THEME_CONFIG.tokens.colors.secondary,
+              value: themeToSave.secondaryColor,
+            },
+          },
+        },
+      }
+
+      await themeService.saveTheme(themePayload)
+      // Update local state to reflect the saved theme
+      setTenant(prev => {
         if (!prev) return null
         return {
           ...prev,
-          theme: {
-            ...prev.theme,
-            ...updates,
-          },
+          theme: themeToSave,
         }
       })
-
-      // Sync with settings store if relevant
-      if (updates.mode || updates.primaryColor || updates.skin || updates.semiDark) {
-        updateSettings({
-          mode: updates.mode,
-          primaryColor: updates.primaryColor,
-          skin: updates.skin,
-          semiDark: updates.semiDark,
-        })
-      }
-    },
-    [tenant, updateSettings],
-  )
-
-  const saveTheme = useCallback(
-    async (themeToSave: any) => {
-      setIsLoadingTheme(true)
-      setErrorTheme(null)
-      try {
-        const organizationId = tenant?.id || DEFAULT_THEME_CONFIG.organizationId
-        let themePayload: TenantThemeConfig
-
-        // If themeToSave is already a full TenantThemeConfig (from ThemeEditor or ThemeBridge)
-        if (themeToSave?.tokens?.colors || themeToSave?.effects || themeToSave?.components) {
-          themePayload = {
-            ...DEFAULT_THEME_CONFIG,
-            ...themeToSave,
-            organizationId: themeToSave.organizationId || organizationId,
-          }
-        } else {
-          themePayload = {
-            ...DEFAULT_THEME_CONFIG,
-            organizationId,
-            name: tenant?.name ? `${tenant.name} Theme` : DEFAULT_THEME_CONFIG.name,
-            metadata: {
-              ...DEFAULT_THEME_CONFIG.metadata,
-              mode: themeToSave?.mode || 'light',
-            },
-            tokens: {
-              ...DEFAULT_THEME_CONFIG.tokens,
-              colors: {
-                ...DEFAULT_THEME_CONFIG.tokens.colors,
-                primary: {
-                  ...DEFAULT_THEME_CONFIG.tokens.colors.primary,
-                  value:
-                    themeToSave?.primaryColor || DEFAULT_THEME_CONFIG.tokens.colors.primary.value,
-                },
-                secondary: {
-                  ...DEFAULT_THEME_CONFIG.tokens.colors.secondary,
-                  value:
-                    themeToSave?.secondaryColor ||
-                    DEFAULT_THEME_CONFIG.tokens.colors.secondary.value,
-                },
-              },
-            },
-          }
-        }
-
-        await themeService.saveTheme(themePayload)
-        // Update local state to reflect the saved theme
-        setTenant((prev) => {
-          if (!prev) return null
-          return {
-            ...prev,
-            theme: {
-              mode: themePayload.metadata?.mode || 'light',
-              primaryColor: themePayload.tokens?.colors?.primary?.value || '#2463EB',
-              secondaryColor: themePayload.tokens?.colors?.secondary?.value || '#475569',
-              skin: prev.theme?.skin || 'default',
-              semiDark: prev.theme?.semiDark ?? false,
-            },
-          }
-        })
-      } catch (err) {
-        console.error('[TenantProvider] Failed to save theme:', err)
-        setErrorTheme(err instanceof Error ? err.message : 'Failed to save theme')
-        throw err
-      } finally {
-        setIsLoadingTheme(false)
-      }
-    },
-    [tenant],
-  )
+    } catch (err) {
+      console.error('[TenantProvider] Failed to save theme:', err)
+      setErrorTheme(err instanceof Error ? err.message : 'Failed to save theme')
+      throw err
+    } finally {
+      setIsLoadingTheme(false)
+    }
+  }, [tenant])
 
   const refetchTheme = useCallback(async () => {
     await refetchTenant()
   }, [refetchTenant])
 
   const saveModules = useCallback(async (modulesToSave: TenantModule[]) => {
-    setTenant((prev) => {
+    setTenant(prev => {
       if (!prev) return null
       const updated = { ...prev, modules: modulesToSave }
       const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
@@ -242,48 +204,28 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     })
   }, [])
 
-  const isModuleEnabled = useCallback(
-    (moduleId: string) => {
-      if (!tenant?.modules) return true
-      const mod = tenant.modules.find((m) => m.id === moduleId)
-      return mod ? mod.status === 'enabled' : true
-    },
-    [tenant],
-  )
+  const isModuleEnabled = useCallback((moduleId: string) => {
+    if (!tenant?.modules) return true
+    const mod = tenant.modules.find(m => m.id === moduleId)
+    return mod ? mod.status === 'enabled' : true
+  }, [tenant])
 
-  const value = useMemo<TenantContextValue>(
-    () => ({
-      tenant,
-      theme: tenant?.theme || null,
-      isLoading,
-      error,
-      isLoadingTheme,
-      errorTheme,
-      userPreferences,
-      updateUserPreferences,
-      refetchTenant,
-      refetchTheme,
-      updateTheme,
-      saveTheme,
-      saveModules,
-      isModuleEnabled,
-    }),
-    [
-      tenant,
-      isLoading,
-      error,
-      isLoadingTheme,
-      errorTheme,
-      userPreferences,
-      updateUserPreferences,
-      refetchTenant,
-      refetchTheme,
-      updateTheme,
-      saveTheme,
-      saveModules,
-      isModuleEnabled,
-    ],
-  )
+  const value = useMemo<TenantContextValue>(() => ({
+    tenant,
+    theme: tenant?.theme || null,
+    isLoading,
+    error,
+    isLoadingTheme,
+    errorTheme,
+    userPreferences,
+    updateUserPreferences,
+    refetchTenant,
+    refetchTheme,
+    updateTheme,
+    saveTheme,
+    saveModules,
+    isModuleEnabled,
+  }), [tenant, isLoading, error, isLoadingTheme, errorTheme, userPreferences, updateUserPreferences, refetchTenant, refetchTheme, updateTheme, saveTheme, saveModules, isModuleEnabled])
 
   return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>
 }

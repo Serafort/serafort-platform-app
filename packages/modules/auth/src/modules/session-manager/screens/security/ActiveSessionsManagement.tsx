@@ -1,46 +1,19 @@
-import React, { useState } from 'react'
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Avatar,
-  Button,
-  Grid,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Chip,
-  Divider,
-  Container,
-  Paper,
-  IconButton,
-  Alert,
-  AlertTitle,
-  Tooltip,
-  Stack,
-  Skeleton,
-} from '@mui/material'
-import Computer from '@mui/icons-material/Computer'
-import Smartphone from '@mui/icons-material/Smartphone'
-import Laptop from '@mui/icons-material/Laptop'
-import Tablet from '@mui/icons-material/Tablet'
-import LocationOn from '@mui/icons-material/LocationOn'
-import Security from '@mui/icons-material/Security'
-import ArrowForward from '@mui/icons-material/ArrowForward'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
-import InfoOutlined from '@mui/icons-material/InfoOutlined'
-import Refresh from '@mui/icons-material/Refresh'
-import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline'
-import Devices from '@mui/icons-material/Devices'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { Path } from '../../../../routes/path'
-import { useSessions, useRevokeSession, useRevokeAllSessions } from '../../hooks/useSessionQuery'
-import type { UserSession } from '../../types/session.types'
-import ConfirmationDialog from '../../../authentication-core/components/shared/Modals/ConfirmationDialog'
+import React from 'react';
+import { Box, Typography, Card, CardContent, Avatar, Button, Grid, List, ListItem, ListItemIcon, ListItemText, Chip, Divider, Container, Paper, IconButton, Alert, AlertTitle, Tooltip, Stack, Skeleton } from '@mui/material';
+import Computer from '@mui/icons-material/Computer';
+import Smartphone from '@mui/icons-material/Smartphone';
+import Laptop from '@mui/icons-material/Laptop';
+import Tablet from '@mui/icons-material/Tablet';
+import LocationOn from '@mui/icons-material/LocationOn';
+import Security from '@mui/icons-material/Security';
+import ArrowForward from '@mui/icons-material/ArrowForward';
+import DeleteOutline from '@mui/icons-material/DeleteOutline';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import Refresh from '@mui/icons-material/Refresh';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useSessions, useRevokeSession, useRevokeAllSessions, Path, UserSession } from '@auth';
 
 interface ActiveSessionsProps {
   adminView?: boolean
@@ -48,102 +21,55 @@ interface ActiveSessionsProps {
   userId?: string
 }
 
-export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
-  adminView,
-  userName,
-  userId,
-}) => {
+const ActiveSessionsManagement = ({ adminView, userName, userId }: ActiveSessionsProps) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-
-  const [confirmDialog, setConfirmDialog] = useState<{
-    open: boolean
-    type: 'single' | 'all'
-    sessionId?: string | number
-    sessionName?: string
-  }>({
-    open: false,
-    type: 'single',
-  })
-
   // Queries
-  const { data: response, isLoading, isError, error, refetch, isFetching } = useSessions()
+  const { data: response, isLoading, refetch } = useSessions()
   const sessions = response?.data?.sessions || []
 
   // Mutations
   const { mutate: revoke, isPending: isRevoking } = useRevokeSession({
     onSuccess: () => {
-      toast.success(t('auth.account.session_revoked', 'Session revoked successfully'))
-      setConfirmDialog({ open: false, type: 'single' })
+      toast.success(t('auth.account.session_revoked', 'Session revoked successfully'), {  })
     },
-    onError: (err: any) => {
-      toast.error(err?.message || t('auth.account.revoke_failed', 'Failed to revoke session'))
+    onError: (error: any) => {
+      toast.error(error.message || t('auth.account.revoke_failed', 'Failed to revoke session'), {  })
     },
   })
 
   const { mutate: revokeAll, isPending: isRevokingAll } = useRevokeAllSessions({
     onSuccess: () => {
-      toast.success(t('auth.account.all_others_revoked', 'All other sessions revoked successfully'))
-      setConfirmDialog({ open: false, type: 'all' })
+      toast.success(t('auth.account.all_others_revoked', 'All other sessions revoked'), {  })
     },
-    onError: (err: any) => {
+    onError: (error: any) => {
       toast.error(
-        err?.message || t('auth.account.revoke_all_failed', 'Failed to revoke all sessions'),
+        error.message || t('auth.account.revoke_all_failed', 'Failed to revoke all sessions')
       )
     },
   })
 
-  const currentSession =
-    sessions.find((s: UserSession) => s.current || s.isCurrentSession) ||
-    (sessions.length > 0 ? sessions[0] : undefined)
-  const otherSessions = currentSession
-    ? sessions.filter((s: UserSession) => s.id !== currentSession.id)
-    : sessions
+  const currentSession = sessions.find((s: UserSession) => s.current)
+  const otherSessions = sessions.filter((s: UserSession) => !s.current)
 
-  const getDeviceIcon = (type?: string) => {
+  const getDeviceIcon = (type: string) => {
     switch (type) {
       case 'desktop':
-        return <Computer fontSize='small' />
+        return <Computer />
       case 'mobile':
-        return <Smartphone fontSize='small' />
+        return <Smartphone />
       case 'laptop':
-        return <Laptop fontSize='small' />
+        return <Laptop />
       case 'tablet':
-        return <Tablet fontSize='small' />
+        return <Tablet />
       default:
-        return <Computer fontSize='small' />
-    }
-  }
-
-  const handleOpenRevokeSingle = (session: UserSession) => {
-    setConfirmDialog({
-      open: true,
-      type: 'single',
-      sessionId: session.id,
-      sessionName: session.deviceName || session.device_name || session.browser || 'Session',
-    })
-  }
-
-  const handleOpenRevokeAll = () => {
-    setConfirmDialog({
-      open: true,
-      type: 'all',
-    })
-  }
-
-  const handleConfirmAction = () => {
-    if (confirmDialog.type === 'single' && confirmDialog.sessionId) {
-      revoke(confirmDialog.sessionId)
-    } else if (confirmDialog.type === 'all') {
-      revokeAll()
+        return <Computer />
     }
   }
 
   return (
     <Container maxWidth='lg' sx={{ py: adminView ? 0 : 4 }}>
-      <Box
-        sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
-      >
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <Box>
           <Typography variant='h4' fontWeight='bold' gutterBottom>
             {adminView
@@ -163,26 +89,10 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                 )}
           </Typography>
         </Box>
-        <IconButton onClick={() => refetch()} disabled={isLoading || isFetching}>
-          <Refresh sx={{ animation: isFetching ? 'spin 1s linear infinite' : 'none' }} />
+        <IconButton onClick={() => refetch()} disabled={isLoading}>
+          <Refresh />
         </IconButton>
       </Box>
-
-      {isError && (
-        <Alert
-          severity='error'
-          action={
-            <Button color='inherit' size='small' onClick={() => refetch()}>
-              {t('common.retry', 'Retry')}
-            </Button>
-          }
-          sx={{ mb: 4, borderRadius: 2 }}
-        >
-          <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          {error?.message ||
-            t('auth.account.error_loading_sessions', 'Failed to load active sessions.')}
-        </Alert>
-      )}
 
       <Grid container spacing={4}>
         <Grid size={{ xs: 12, md: adminView ? 12 : 8 }}>
@@ -208,16 +118,15 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                     <ListItem disableGutters>
                       <ListItemIcon>
                         <Avatar sx={{ bgcolor: 'primary.main', color: 'white' }}>
-                          {getDeviceIcon(currentSession.device_type || currentSession.deviceType)}
+                          {getDeviceIcon(currentSession.device_type)}
                         </Avatar>
                       </ListItemIcon>
                       <ListItemText
-                        primary={currentSession.device_name || currentSession.deviceName}
-                        secondary={`${currentSession.browser || 'Browser'} • IP: ${currentSession.ip_address || currentSession.ipAddress}`}
+                        primary={currentSession.device_name}
+                        secondary={`${currentSession.browser} â€¢ ${currentSession.ip_address}`}
                         primaryTypographyProps={{ fontWeight: 'bold' }}
                       />
                       <Chip
-                        icon={<CheckCircleOutline sx={{ fontSize: 16 }} />}
                         label={t('auth.account.active_now', 'Active Now')}
                         color='primary'
                         size='small'
@@ -226,7 +135,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                   </CardContent>
                 </Card>
               ) : (
-                <Alert severity='warning' sx={{ mb: 4, borderRadius: 2 }}>
+                <Alert severity='warning' sx={{ mb: 4 }}>
                   {t('auth.account.no_current_session', 'Unable to identify current session.')}
                 </Alert>
               )}
@@ -243,9 +152,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
             <List disablePadding>
               {isLoading ? (
                 [1, 2].map((i: number) => (
-                  <Box key={i} sx={{ p: 2 }}>
-                    <Skeleton variant='rectangular' height={60} sx={{ borderRadius: 2 }} />
-                  </Box>
+                  <Skeleton key={i} variant='rectangular' height={80} sx={{ mb: 1, borderRadius: 2 }} />
                 ))
               ) : otherSessions.length > 0 ? (
                 otherSessions.map((session: UserSession, index: number) => (
@@ -254,7 +161,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                       secondaryAction={
                         <Stack direction='row' spacing={1}>
                           {adminView && (
-                            <Tooltip title='View Session Metadata'>
+                            <Tooltip title='View Full User Agent'>
                               <IconButton size='small'>
                                 <InfoOutlined fontSize='small' />
                               </IconButton>
@@ -265,7 +172,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                             color='error'
                             size='small'
                             disabled={isRevoking}
-                            onClick={() => handleOpenRevokeSingle(session)}
+                            onClick={() => revoke(session.id)}
                             startIcon={<DeleteOutline />}
                             sx={{ textTransform: 'none' }}
                           >
@@ -273,7 +180,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                           </Button>
                         </Stack>
                       }
-                      sx={{ py: 2, px: 2 }}
+                      sx={{ py: 2 }}
                     >
                       <ListItemIcon>
                         <Avatar
@@ -284,38 +191,34 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                             borderColor: 'divider',
                           }}
                         >
-                          {getDeviceIcon(session.device_type || session.deviceType)}
+                          {getDeviceIcon(session.device_type)}
                         </Avatar>
                       </ListItemIcon>
                       <ListItemText
-                        disableTypography
                         primary={
                           <Stack direction='row' spacing={1} alignItems='center'>
                             <Typography variant='subtitle2' fontWeight={700}>
-                              {session.device_name ||
-                                session.deviceName ||
-                                session.browser ||
-                                'Device'}
+                              {session.device_name}
                             </Typography>
                           </Stack>
                         }
                         secondary={
-                          <Box sx={{ display: 'flex', flexDirection: 'column', mt: 0.5 }}>
+                          <Box component='span' sx={{ display: 'flex', flexDirection: 'column' }}>
                             <Typography variant='body2' color='text.secondary'>
-                              {session.browser || 'Unknown browser'}
+                              {session.browser}
                             </Typography>
                             <Box
+                              component='span'
                               sx={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 mt: 0.5,
                               }}
                             >
-                              <LocationOn sx={{ fontSize: 14, mr: 0.5, color: 'text.secondary' }} />
+                              <LocationOn sx={{ fontSize: 14, mr: 0.5 }} />
                               <Typography variant='caption' color='text.secondary'>
-                                {session.location ||
-                                  t('common.unknown_location', 'Unknown Location')}{' '}
-                                • IP: {session.ip_address || session.ipAddress}
+                                {session.location || t('common.unknown_location', 'Unknown Location')} â€¢ IP:{' '}
+                                {session.ip_address}
                               </Typography>
                             </Box>
                           </Box>
@@ -326,21 +229,13 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                   </React.Fragment>
                 ))
               ) : (
-                <ListItem sx={{ py: 4, textAlign: 'center' }}>
+                <ListItem>
                   <ListItemText
-                    primary={
-                      <Stack alignItems='center' spacing={1}>
-                        <Devices sx={{ fontSize: 40, color: 'text.disabled' }} />
-                        <Typography variant='subtitle1' fontWeight={600}>
-                          {t('auth.account.no_other_sessions', 'No other active sessions')}
-                        </Typography>
-                      </Stack>
-                    }
+                    primary={t('auth.account.no_other_sessions', 'No other active sessions.')}
                     secondary={t(
                       'auth.account.no_other_sessions_desc',
                       'Your account is not currently in use on any other devices.',
                     )}
-                    secondaryTypographyProps={{ align: 'center', sx: { mt: 1 } }}
                   />
                 </ListItem>
               )}
@@ -352,7 +247,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
               variant='outlined'
               color='error'
               disabled={isRevokingAll || otherSessions.length === 0}
-              onClick={handleOpenRevokeAll}
+              onClick={() => revokeAll()}
               sx={{ textTransform: 'none', borderRadius: 2 }}
             >
               {adminView
@@ -397,38 +292,6 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
           </Grid>
         )}
       </Grid>
-
-      {/* Confirmation Dialog */}
-      <ConfirmationDialog
-        open={confirmDialog.open}
-        onClose={() => setConfirmDialog((prev) => ({ ...prev, open: false }))}
-        onConfirm={handleConfirmAction}
-        severity='warning'
-        isSubmitting={isRevoking || isRevokingAll}
-        title={
-          confirmDialog.type === 'single'
-            ? t('auth.account.confirm_revoke_title', 'Revoke Session')
-            : t('auth.account.confirm_revoke_all_title', 'Revoke All Other Sessions')
-        }
-        message={
-          confirmDialog.type === 'single'
-            ? t(
-                'auth.account.confirm_revoke_msg',
-                'Are you sure you want to terminate this session ({{name}})? The device will be signed out immediately.',
-                { name: confirmDialog.sessionName },
-              )
-            : t(
-                'auth.account.confirm_revoke_all_msg',
-                'Are you sure you want to terminate all other active sessions? All other logged-in devices will need to sign in again.',
-              )
-        }
-        confirmLabel={
-          confirmDialog.type === 'single'
-            ? t('auth.account.revoke', 'Revoke')
-            : t('auth.account.revoke_all', 'Revoke All')
-        }
-        cancelLabel={t('common.cancel', 'Cancel')}
-      />
     </Container>
   )
 }

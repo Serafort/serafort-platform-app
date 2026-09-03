@@ -1,10 +1,9 @@
-import type { CSSProperties } from "react";
-import type { EffectType } from "./effects";
+import type { CSSProperties } from 'react';
+import type { EffectType } from './effects';
 
-export type ComponentEffectStyle = "global" | EffectType;
+export type ComponentEffectStyle = 'global' | EffectType;
 
-export interface ComponentStyleOverrides
-  extends Partial<CSSProperties>, Record<string, string | number | undefined> {}
+export interface ComponentStyleOverrides extends Partial<CSSProperties>, Record<string, string | number | undefined> {}
 
 export interface ComponentStyleConfig {
   style: ComponentEffectStyle;
@@ -26,15 +25,15 @@ export interface ComponentStyles {
 }
 
 export const DEFAULT_COMPONENT_STYLES: ComponentStyles = {
-  button: { style: "global" },
-  card: { style: "global" },
-  input: { style: "global" },
-  navbar: { style: "global" },
-  footer: { style: "global" },
-  modal: { style: "global" },
-  drawer: { style: "global" },
-  stepper: { style: "global" },
-  table: { style: "global" },
-  tabs: { style: "global" },
-  nav: { style: "global" },
+  button: { style: 'global' },
+  card: { style: 'global' },
+  input: { style: 'global' },
+  navbar: { style: 'global' },
+  footer: { style: 'global' },
+  modal: { style: 'global' },
+  drawer: { style: 'global' },
+  stepper: { style: 'global' },
+  table: { style: 'global' },
+  tabs: { style: 'global' },
+  nav: { style: 'global' },
 };

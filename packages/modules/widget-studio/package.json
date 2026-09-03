@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "dependencies": {
     "@cap/platform-core": "workspace:*",
@@ -17,7 +17,7 @@
     "@mui/icons-material": "^7.0.0",
     "@mui/material": "^7.0.0",
     "react-i18next": "^15.4.1",
-    "react-router-dom": "^7.18.3",
+    "react-router-dom": "^7.1.1",
     "zustand": "^5.0.9"
   },
   "peerDependencies": {

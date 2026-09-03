@@ -1,8 +1,8 @@
-import { produce } from "immer";
-import type { TenantThemeConfig } from "../types";
-import { DEFAULT_THEME_CONFIG } from "../types";
-import { THEME_PRESETS } from "../types/presets";
-import type { ThemePresetId } from "../types/presets";
+import { produce } from 'immer';
+import type { TenantThemeConfig } from '../types';
+import { DEFAULT_THEME_CONFIG } from '../types';
+import { THEME_PRESETS } from '../types/presets';
+import type { ThemePresetId } from '../types/presets';
 
 export const mergeDeep = <T extends Record<string, unknown>>(
   target: T,
@@ -15,10 +15,7 @@ export const mergeDeep = <T extends Record<string, unknown>>(
     for (const key in source) {
       if (isObject(source[key])) {
         if (!target[key]) Object.assign(target, { [key]: {} });
-        mergeDeep(
-          target[key] as Record<string, unknown>,
-          source[key] as Record<string, unknown>,
-        );
+        mergeDeep(target[key] as Record<string, unknown>, source[key] as Record<string, unknown>);
       } else {
         Object.assign(target, { [key]: source[key] });
       }
@@ -29,10 +26,12 @@ export const mergeDeep = <T extends Record<string, unknown>>(
 };
 
 const isObject = (item: unknown): item is Record<string, unknown> => {
-  return item !== null && typeof item === "object" && !Array.isArray(item);
+  return item !== null && typeof item === 'object' && !Array.isArray(item);
 };
 
-export const applyPreset = (presetId: ThemePresetId): TenantThemeConfig => {
+export const applyPreset = (
+  presetId: ThemePresetId
+): TenantThemeConfig => {
   const preset = THEME_PRESETS[presetId];
   if (!preset) {
     return DEFAULT_THEME_CONFIG;
@@ -55,28 +54,16 @@ export const applyPreset = (presetId: ThemePresetId): TenantThemeConfig => {
       if (preset.tokens.typography) {
         // Deep merge typography sub-records
         if (preset.tokens.typography.fontFamily) {
-          Object.assign(
-            draft.tokens.typography.fontFamily,
-            preset.tokens.typography.fontFamily,
-          );
+          Object.assign(draft.tokens.typography.fontFamily, preset.tokens.typography.fontFamily);
         }
         if (preset.tokens.typography.fontSize) {
-          Object.assign(
-            draft.tokens.typography.fontSize,
-            preset.tokens.typography.fontSize,
-          );
+          Object.assign(draft.tokens.typography.fontSize, preset.tokens.typography.fontSize);
         }
         if (preset.tokens.typography.fontWeight) {
-          Object.assign(
-            draft.tokens.typography.fontWeight,
-            preset.tokens.typography.fontWeight,
-          );
+          Object.assign(draft.tokens.typography.fontWeight, preset.tokens.typography.fontWeight);
         }
         if (preset.tokens.typography.lineHeight) {
-          Object.assign(
-            draft.tokens.typography.lineHeight,
-            preset.tokens.typography.lineHeight,
-          );
+          Object.assign(draft.tokens.typography.lineHeight, preset.tokens.typography.lineHeight);
         }
       }
     }
@@ -110,7 +97,7 @@ export const applyPreset = (presetId: ThemePresetId): TenantThemeConfig => {
 
 export const mergeThemeWithPreset = (
   currentTheme: TenantThemeConfig,
-  presetId: ThemePresetId,
+  presetId: ThemePresetId
 ): TenantThemeConfig => {
   const presetTheme = applyPreset(presetId);
 
@@ -124,22 +111,10 @@ export const mergeThemeWithPreset = (
 
     // Deep merge typography
     if (presetTheme.tokens.typography) {
-      Object.assign(
-        draft.tokens.typography.fontFamily,
-        presetTheme.tokens.typography.fontFamily,
-      );
-      Object.assign(
-        draft.tokens.typography.fontSize,
-        presetTheme.tokens.typography.fontSize,
-      );
-      Object.assign(
-        draft.tokens.typography.fontWeight,
-        presetTheme.tokens.typography.fontWeight,
-      );
-      Object.assign(
-        draft.tokens.typography.lineHeight,
-        presetTheme.tokens.typography.lineHeight,
-      );
+      Object.assign(draft.tokens.typography.fontFamily, presetTheme.tokens.typography.fontFamily);
+      Object.assign(draft.tokens.typography.fontSize, presetTheme.tokens.typography.fontSize);
+      Object.assign(draft.tokens.typography.fontWeight, presetTheme.tokens.typography.fontWeight);
+      Object.assign(draft.tokens.typography.lineHeight, presetTheme.tokens.typography.lineHeight);
     }
 
     draft.effects = {
@@ -157,7 +132,7 @@ export const mergeThemeWithPreset = (
 
 export const createThemeFromPartial = (
   partial: Partial<TenantThemeConfig>,
-  organizationId: string,
+  organizationId: string
 ): TenantThemeConfig => {
   return produce(DEFAULT_THEME_CONFIG, (draft: TenantThemeConfig) => {
     draft.organizationId = organizationId;
@@ -174,16 +149,10 @@ export const createThemeFromPartial = (
         }
       }
       if (partial.tokens.spacing) {
-        draft.tokens.spacing = {
-          ...draft.tokens.spacing,
-          ...partial.tokens.spacing,
-        };
+        draft.tokens.spacing = { ...draft.tokens.spacing, ...partial.tokens.spacing };
       }
       if (partial.tokens.borderRadius) {
-        draft.tokens.borderRadius = {
-          ...draft.tokens.borderRadius,
-          ...partial.tokens.borderRadius,
-        };
+        draft.tokens.borderRadius = { ...draft.tokens.borderRadius, ...partial.tokens.borderRadius };
       }
     }
 
@@ -215,16 +184,14 @@ export const validateTheme = (theme: Partial<TenantThemeConfig>): string[] => {
   const errors: string[] = [];
 
   if (!theme.organizationId) {
-    errors.push("Organization ID is required");
+    errors.push('Organization ID is required');
   }
 
   if (theme.tokens?.colors) {
     for (const [key, token] of Object.entries(theme.tokens.colors)) {
-      if (token && typeof token === "object" && "value" in token) {
-        if (
-          !/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(token.value) &&
-          !/^rgba?\(/.test(token.value)
-        ) {
+      if (token && typeof token === 'object' && 'value' in token) {
+        if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(token.value) &&
+            !/^rgba?\(/.test(token.value)) {
           errors.push(`Invalid color value for ${key}: ${token.value}`);
         }
       }
@@ -234,13 +201,13 @@ export const validateTheme = (theme: Partial<TenantThemeConfig>): string[] => {
   if (theme.effects?.neumorphism) {
     const { intensity, distance, altitude } = theme.effects.neumorphism;
     if (intensity !== undefined && (intensity < 0 || intensity > 1)) {
-      errors.push("Neumorphism intensity must be between 0 and 1");
+      errors.push('Neumorphism intensity must be between 0 and 1');
     }
     if (distance !== undefined && (distance < 0 || distance > 20)) {
-      errors.push("Neumorphism distance must be between 0 and 20");
+      errors.push('Neumorphism distance must be between 0 and 20');
     }
     if (altitude !== undefined && (altitude < 0 || altitude > 45)) {
-      errors.push("Neumorphism altitude must be between 0 and 45");
+      errors.push('Neumorphism altitude must be between 0 and 45');
     }
   }
 

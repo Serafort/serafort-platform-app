@@ -43,14 +43,14 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
 
       <DialogContent dividers sx={{ p: 3 }}>
         <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-          Choose a battle-tested template to populate your visual canvas. You can customize, connect
-          extra conditions, or simulate immediately.
+          Choose a battle-tested template to populate your visual canvas. You can customize, connect extra conditions, or simulate immediately.
         </Typography>
 
         <Grid container spacing={2.5}>
           {POLICY_CANVAS_TEMPLATES.map((template) => (
             <Grid size={{ xs: 12, md: 6 }} key={template.id}>
               <Card
+
                 variant='outlined'
                 sx={{
                   borderRadius: 3,
@@ -70,23 +70,9 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
                     onSelectTemplate(template)
                     onClose()
                   }}
-                  sx={{
-                    p: 2.5,
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
-                  }}
+                  sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}
                 >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      width: '100%',
-                      mb: 1,
-                    }}
-                  >
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', mb: 1 }}>
                     <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
                       {template.name}
                     </Typography>

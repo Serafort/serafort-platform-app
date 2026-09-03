@@ -26,13 +26,7 @@ import { useSettings, useAppStore } from '@cap/platform-store'
 import { buildLayoutSurfaceEffect } from '../../utils/buildLayoutSurfaceEffect'
 import { useAuth } from '@cap/platform-core'
 import { AppPaths, resolveDynamicPath } from '@cap/shared-types'
-import {
-  zIndexScale,
-  dropdownTokens,
-  getUserDropdownItemHoverBg,
-  getUserBadgeShadow,
-  getTenantThemeEffects,
-} from '@cap/theme'
+import { zIndexScale, dropdownTokens, getUserDropdownItemHoverBg, getUserBadgeShadow, getTenantThemeEffects } from '@cap/theme'
 import { useTranslation } from 'react-i18next'
 
 const BadgeContentSpan = styled('span')(({ theme }) => ({
@@ -57,19 +51,19 @@ const UserDropdown = () => {
   // Dynamically resolve route paths from registered module navItems ("Magnet Legos")
   const profilePath = React.useMemo(
     () => resolveDynamicPath(navItems, 'user-profile', AppPaths.account.overview),
-    [navItems],
+    [navItems]
   )
   const settingsPath = React.useMemo(
     () => resolveDynamicPath(navItems, 'account-settings', AppPaths.account.edit),
-    [navItems],
+    [navItems]
   )
   const pricingPath = React.useMemo(
     () => resolveDynamicPath(navItems, 'guest-pricing', AppPaths.landing.pricing),
-    [navItems],
+    [navItems]
   )
   const aboutPath = React.useMemo(
     () => resolveDynamicPath(navItems, 'guest-about', AppPaths.landing.about),
-    [navItems],
+    [navItems]
   )
 
   // Extract user data from IAuth structure
@@ -198,12 +192,7 @@ const UserDropdown = () => {
                       },
                     }}
                   >
-                    <Person
-                      sx={{
-                        fontSize: dropdownTokens.dropdownPopper.itemIconFontSize,
-                        transition: 'color 0.2s',
-                      }}
-                    />
+                    <Person sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize, transition: 'color 0.2s' }} />
                     <Typography color='text.primary' sx={{ fontWeight: 500 }}>
                       {t('navigation.profile')}
                     </Typography>
@@ -223,12 +212,7 @@ const UserDropdown = () => {
                       },
                     }}
                   >
-                    <Settings
-                      sx={{
-                        fontSize: dropdownTokens.dropdownPopper.itemIconFontSize,
-                        transition: 'color 0.2s',
-                      }}
-                    />
+                    <Settings sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize, transition: 'color 0.2s' }} />
                     <Typography color='text.primary' sx={{ fontWeight: 500 }}>
                       {t('navigation.settings')}
                     </Typography>
@@ -240,9 +224,7 @@ const UserDropdown = () => {
                       gap: dropdownTokens.userDropdown.itemGap,
                     }}
                   >
-                    <AttachMoney
-                      sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }}
-                    />
+                    <AttachMoney sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }} />
                     <Typography color='text.primary'>{t('navigation.pricing')}</Typography>
                   </MenuItem>
                   <MenuItem
@@ -274,9 +256,7 @@ const UserDropdown = () => {
                       }
                       onClick={handleUserLogout}
                       sx={{
-                        '& .MuiButton-endIcon': {
-                          marginInlineStart: dropdownTokens.userDropdown.logoutEndIconMargin,
-                        },
+                        '& .MuiButton-endIcon': { marginInlineStart: dropdownTokens.userDropdown.logoutEndIconMargin },
                       }}
                     >
                       {isLoggingOut ? t('navigation.signingOut') : t('navigation.logout')}

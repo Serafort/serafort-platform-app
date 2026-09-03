@@ -15,29 +15,29 @@
  * @see packages/modules/auth/src/modules/session-manager/middlewares/useSessionGuard.ts
  */
 
-import type { IAuth, UserSessionDto as ISession } from "@cap/shared-types";
+import type { IAuth, UserSessionDto as ISession } from '@cap/shared-types'
 
 export interface SessionConfig {
-  timeout: number;
-  absoluteTimeout: number;
-  refreshThreshold: number;
-  maxConcurrentSessions: number;
-  requireDeviceVerification: boolean;
-  rememberMe: boolean;
-  multiDevice: boolean;
+  timeout: number
+  absoluteTimeout: number
+  refreshThreshold: number
+  maxConcurrentSessions: number
+  requireDeviceVerification: boolean
+  rememberMe: boolean
+  multiDevice: boolean
 }
 
 export interface SessionData {
-  user: IAuth;
-  expiresAt: number;
-  absoluteExpiresAt: number;
-  lastActivity: number;
-  createdAt: number;
-  deviceFingerprint: string;
-  rememberMe: boolean;
-  ipAddress?: string;
-  userAgent: string;
-  sessionId: string;
+  user: IAuth
+  expiresAt: number
+  absoluteExpiresAt: number
+  lastActivity: number
+  createdAt: number
+  deviceFingerprint: string
+  rememberMe: boolean
+  ipAddress?: string
+  userAgent: string
+  sessionId: string
 }
 
 /**
@@ -52,28 +52,23 @@ class SecureSessionManagementService {
   initialize(_config?: Partial<SessionConfig>): void {
     if (import.meta.env.DEV) {
       console.warn(
-        "[SessionManagement] DEPRECATED: SecureSessionManagementService.initialize() is a no-op. " +
-          "Session management is handled by secureTokenManager and authSlice.",
-      );
+        '[SessionManagement] DEPRECATED: SecureSessionManagementService.initialize() is a no-op. ' +
+        'Session management is handled by secureTokenManager and authSlice.',
+      )
     }
   }
 
   /** @deprecated No-op. Returns a rejected-shape SessionData with no storage writes. */
-  async createSession(
-    _authData: IAuth,
-    _rememberMe: boolean = false,
-  ): Promise<SessionData | null> {
+  async createSession(_authData: IAuth, _rememberMe: boolean = false): Promise<SessionData | null> {
     if (import.meta.env.DEV) {
-      console.warn(
-        "[SessionManagement] DEPRECATED: createSession() is a no-op.",
-      );
+      console.warn('[SessionManagement] DEPRECATED: createSession() is a no-op.')
     }
-    return null;
+    return null
   }
 
   /** @deprecated No-op. Always returns null. */
   getSession(): SessionData | null {
-    return null;
+    return null
   }
 
   /** @deprecated No-op. */
@@ -81,12 +76,12 @@ class SecureSessionManagementService {
 
   /** @deprecated No-op. Always returns false. */
   async refreshSession(): Promise<boolean> {
-    return false;
+    return false
   }
 
   /** @deprecated No-op. Always returns false. */
   needsRefresh(): boolean {
-    return false;
+    return false
   }
 
   /** @deprecated No-op. */
@@ -94,34 +89,34 @@ class SecureSessionManagementService {
 
   /** @deprecated No-op. Always returns 0. */
   getTimeUntilExpiry(): number {
-    return 0;
+    return 0
   }
 
   /** @deprecated No-op. Always returns false. */
   isUserActive(): boolean {
-    return false;
+    return false
   }
 
   /** @deprecated No-op. Always returns null. */
   getSessionInfo(): {
-    isActive: boolean;
-    expiresIn: string;
-    absoluteExpiresIn: string;
-    lastActivity: string;
-    deviceFingerprint: string;
-    sessionAge: string;
+    isActive: boolean
+    expiresIn: string
+    absoluteExpiresIn: string
+    lastActivity: string
+    deviceFingerprint: string
+    sessionAge: string
   } | null {
-    return null;
+    return null
   }
 
   /** @deprecated No-op. Always returns an empty array. */
   async getActiveSessions(_userId?: number | string): Promise<Array<ISession>> {
-    return [];
+    return []
   }
 
   /** @deprecated No-op. Always returns false. */
   async terminateSession(_sessionId: string): Promise<boolean> {
-    return false;
+    return false
   }
 
   /** @deprecated No-op. */
@@ -132,6 +127,6 @@ class SecureSessionManagementService {
  * @deprecated Use `secureTokenManager` and `useAppStore` (authSlice) instead.
  * This singleton is retained for backwards compatibility but all methods are no-ops.
  */
-export const sessionManagementService = new SecureSessionManagementService();
+export const sessionManagementService = new SecureSessionManagementService()
 
-export default sessionManagementService;
+export default sessionManagementService

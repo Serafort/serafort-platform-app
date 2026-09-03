@@ -18,14 +18,7 @@ import Divider from '@mui/material/Divider'
 import type { Mode } from '@cap/shared-types'
 import { ThemeModeEnum } from '@cap/shared-types'
 import { useSettings } from '@cap/platform-store'
-import {
-  zIndexScale,
-  themeEditorStore,
-  widgetMarketplaceStore,
-  DEFAULT_THEME_CONFIG,
-  dropdownTokens,
-  getTenantThemeEffects,
-} from '@cap/theme'
+import { zIndexScale, themeEditorStore, widgetMarketplaceStore, DEFAULT_THEME_CONFIG, dropdownTokens, getTenantThemeEffects } from '@cap/theme'
 import { useTenant } from '@cap/platform-core'
 import { useTranslation } from 'react-i18next'
 import { buildLayoutSurfaceEffect } from '../../utils/buildLayoutSurfaceEffect'
@@ -137,9 +130,7 @@ const ModeDropdown = () => {
                       gap: dropdownTokens.dropdownPopper.itemGap,
                     }}
                   >
-                    <Brightness7
-                      sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }}
-                    />
+                    <Brightness7 sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }} />
                     {t('theme.light')}
                   </MenuItem>
                   <MenuItem
@@ -149,9 +140,7 @@ const ModeDropdown = () => {
                       gap: dropdownTokens.dropdownPopper.itemGap,
                     }}
                   >
-                    <Brightness4
-                      sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }}
-                    />
+                    <Brightness4 sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }} />
                     {t('theme.dark')}
                   </MenuItem>
                   <MenuItem

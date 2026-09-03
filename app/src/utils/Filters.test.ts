@@ -4,10 +4,7 @@ import type { ITableData } from '@cap/shared-types'
 
 // Minimal dataset used across tests
 const makeData = (): ITableData => ({
-  header: [
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
-  ],
+  header: [{ key: 'name', label: 'Name' }, { key: 'email', label: 'Email' }],
   rows: [
     { id: 1, firstname: 'Alice', phone: '', name: 'Alice', email: 'alice@example.com' },
     { id: 2, firstname: 'Bob', phone: '', name: 'Bob', email: 'bob@example.com' },

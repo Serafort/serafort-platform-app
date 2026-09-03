@@ -1,6 +1,7 @@
-import { Dialog, Button, Box, Typography, alpha, useTheme } from '@mui/material'
-import ErrorOutline from '@mui/icons-material/ErrorOutline'
-import { useTranslation } from 'react-i18next'
+
+import { Dialog, Button, Box, Typography } from '@mui/material';
+import ErrorOutline from '@mui/icons-material/ErrorOutline';
+import { useTranslation } from 'react-i18next';
 
 interface ConfirmDeleteModalProps {
   open: boolean
@@ -22,7 +23,6 @@ const ConfirmDeleteModal = ({
   isSubmitting,
 }: ConfirmDeleteModalProps) => {
   const { t } = useTranslation('auth')
-  const theme = useTheme()
 
   return (
     <Dialog
@@ -31,10 +31,9 @@ const ConfirmDeleteModal = ({
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: 'background.paper',
-          color: 'text.primary',
-          border: '1px solid',
-          borderColor: 'divider',
+          background: '#1a1a2e',
+          color: 'white',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
           backgroundImage: 'none',
           maxWidth: 400,
         },
@@ -46,7 +45,7 @@ const ConfirmDeleteModal = ({
             width: 64,
             height: 64,
             borderRadius: '50%',
-            background: alpha(theme.palette.error.main, 0.1),
+            background: 'rgba(244, 67, 54, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -54,14 +53,14 @@ const ConfirmDeleteModal = ({
             mb: 2,
           }}
         >
-          <ErrorOutline sx={{ fontSize: 32, color: 'error.main' }} />
+          <ErrorOutline sx={{ fontSize: 32, color: '#f44336' }} />
         </Box>
 
         <Typography variant='h5' sx={{ fontWeight: 700, mb: 1 }}>
           {title || t('common.confirm_deletion', 'Confirm Deletion')}
         </Typography>
 
-        <Typography variant='body2' sx={{ color: 'text.secondary', mb: 4 }}>
+        <Typography variant='body2' sx={{ color: 'rgba(255, 255, 255, 0.6)', mb: 4 }}>
           {message ||
             t(
               'common.delete_warning',
@@ -79,6 +78,8 @@ const ConfirmDeleteModal = ({
             sx={{
               py: 1.5,
               borderRadius: 2,
+              background: 'linear-gradient(45deg, #f44336 30%, #ff5252 90%)',
+              boxShadow: '0 4px 14px 0 rgba(244, 67, 54, 0.39)',
               fontWeight: 600,
             }}
           >
@@ -90,7 +91,7 @@ const ConfirmDeleteModal = ({
             fullWidth
             variant='text'
             onClick={onClose}
-            sx={{ color: 'text.secondary', '&:hover': { color: 'text.primary' } }}
+            sx={{ color: 'rgba(255, 255, 255, 0.5)', '&:hover': { color: 'white' } }}
           >
             {t('common.cancel', 'Cancel')}
           </Button>

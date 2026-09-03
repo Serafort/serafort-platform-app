@@ -9,10 +9,7 @@ import type {
 } from '@cap/shared-types'
 
 function getNodeModule<T = any>(moduleName: string): T | null {
-  if (
-    typeof window !== 'undefined' &&
-    (typeof process === 'undefined' || !process.versions?.node)
-  ) {
+  if (typeof window !== 'undefined' && (typeof process === 'undefined' || !process.versions?.node)) {
     return null
   }
   try {
@@ -101,11 +98,7 @@ function createInitialStages(): PipelineStageProgress[] {
   return [
     { stage: 'UPLOADING', label: 'File Upload & Reception', status: 'pending' },
     { stage: 'EXTRACTING', label: 'Archive Extraction & Safety Check', status: 'pending' },
-    {
-      stage: 'VALIDATING_CONTRACT',
-      label: 'Module Contract & Manifest Validation',
-      status: 'pending',
-    },
+    { stage: 'VALIDATING_CONTRACT', label: 'Module Contract & Manifest Validation', status: 'pending' },
     { stage: 'RUNNING_TESTS', label: 'Execution of Test Suite & Verification', status: 'pending' },
     { stage: 'PROMOTING', label: 'Deployment to Workspace Repository', status: 'pending' },
   ]
@@ -137,9 +130,7 @@ export class ModulePipelineService {
       fileSizeBytes,
       currentStage: 'UPLOADING',
       stages: createInitialStages(),
-      logs: [
-        `[SYSTEM] Initialized module upload job ${jobId} for file ${filename} (${fileSizeBytes} bytes)`,
-      ],
+      logs: [`[SYSTEM] Initialized module upload job ${jobId} for file ${filename} (${fileSizeBytes} bytes)`],
       createdAt: now,
       updatedAt: now,
     }
@@ -239,9 +230,7 @@ export class ModulePipelineService {
     if (!manifest.id) {
       errors.push('Module ID is required in package.json or manifest')
     } else if (!/^[a-z0-9-]+$/.test(manifest.id)) {
-      errors.push(
-        `Invalid module ID "${manifest.id}". Must contain lowercase alphanumeric characters and hyphens only.`,
-      )
+      errors.push(`Invalid module ID "${manifest.id}". Must contain lowercase alphanumeric characters and hyphens only.`)
     }
 
     if (!manifest.version) {
@@ -282,8 +271,8 @@ export class ModulePipelineService {
         typeof Buffer !== 'undefined' && Buffer.isBuffer(zipContent)
           ? zipContent
           : typeof Buffer !== 'undefined'
-            ? Buffer.from(zipContent as ArrayBuffer)
-            : (zipContent as any)
+          ? Buffer.from(zipContent as ArrayBuffer)
+          : (zipContent as any)
       await safeWriteFile(zipPath, bufferData)
 
       this.updateJobStage(
@@ -389,12 +378,7 @@ export default ${inferredId.replace(/-/g, '_')}Module
       job.logs.push(`[TEST RUNNER] Checking TypeScript type signatures... OK`)
       job.logs.push(`[TEST RUNNER] Running unit test assertions... PASS (3/3 tests passed)`)
 
-      this.updateJobStage(
-        jobId,
-        'RUNNING_TESTS',
-        'success',
-        'All tests and contract checks passed!',
-      )
+      this.updateJobStage(jobId, 'RUNNING_TESTS', 'success', 'All tests and contract checks passed!')
 
       // STAGE 4: PROMOTING
       this.updateJobStage(

@@ -1,6 +1,6 @@
 import { Box, Typography, Button, useTheme } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import VerifiedUser from '@mui/icons-material/VerifiedUser'
+import VerifiedUser from '@mui/icons-material/VerifiedUser';
 import { useTranslation } from 'react-i18next'
 
 const AuthHeader = () => {
@@ -18,10 +18,10 @@ const AuthHeader = () => {
         width: '100%',
         whiteSpace: 'nowrap',
         borderBottom: '1px solid',
-        borderColor: 'divider',
+        borderColor: theme.palette.mode === 'dark' ? '#222831' : '#dbdfe6',
         px: { xs: 4, sm: 10 },
         py: 2,
-        bgcolor: 'background.paper',
+        bgcolor: theme.palette.mode === 'dark' ? '#101622' : '#ffffff',
         position: 'absolute',
         top: 0,
         left: 0,
@@ -33,7 +33,7 @@ const AuthHeader = () => {
           sx={{
             width: 32,
             height: 32,
-            color: 'primary.main',
+            color: '#135bec',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -48,7 +48,8 @@ const AuthHeader = () => {
             fontWeight: 700,
             lineHeight: 1.2,
             letterSpacing: '-0.015em',
-            color: 'text.primary',
+            color: theme.palette.mode === 'dark' ? '#ffffff' : '#111318',
+            fontFamily: "'Manrope', sans-serif",
           }}
         >
           {t('auth.common.appName')}
@@ -62,9 +63,10 @@ const AuthHeader = () => {
             textTransform: 'none',
             fontSize: '0.875rem',
             fontWeight: 500,
-            color: 'text.secondary',
+            color: theme.palette.mode === 'dark' ? '#9ca3af' : '#616f89',
+            fontFamily: "'Manrope', sans-serif",
             '&:hover': {
-              color: 'primary.main',
+              color: '#135bec',
               bgcolor: 'transparent',
             },
           }}

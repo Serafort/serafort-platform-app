@@ -1,45 +1,21 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  Button,
-  TextField,
-  InputAdornment,
-  alpha,
-  useTheme,
-  Stack,
-  Chip,
-  IconButton,
-  Divider,
-  Paper,
-  CircularProgress,
-  Alert,
-  Tabs,
-  Tab,
-  Tooltip,
-} from '@mui/material'
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Box, Typography, Card, CardContent, Grid, Button, TextField, InputAdornment, alpha, useTheme, Stack, Chip, IconButton, Divider, Paper, CircularProgress, Alert, Tabs, Tab, Tooltip } from '@mui/material';
 
-import SearchIcon from '@mui/icons-material/Search'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import LockIcon from '@mui/icons-material/Lock'
-import TerminalIcon from '@mui/icons-material/Terminal'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import SecurityIcon from '@mui/icons-material/Security'
-import OpenInNewIcon from '@mui/icons-material/OpenInNew'
-import CheckIcon from '@mui/icons-material/Check'
-import PublicIcon from '@mui/icons-material/Public'
-import ApiIcon from '@mui/icons-material/Api'
-import CodeIcon from '@mui/icons-material/Code'
-import LayersIcon from '@mui/icons-material/Layers'
+import SearchIcon from '@mui/icons-material/Search';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import LockIcon from '@mui/icons-material/Lock';
+import TerminalIcon from '@mui/icons-material/Terminal';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import SecurityIcon from '@mui/icons-material/Security';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import CheckIcon from '@mui/icons-material/Check';
+import PublicIcon from '@mui/icons-material/Public';
+import ApiIcon from '@mui/icons-material/Api';
+import CodeIcon from '@mui/icons-material/Code';
+import LayersIcon from '@mui/icons-material/Layers';
 
-import { useTranslation } from 'react-i18next'
-import apiExplorerService, {
-  OpenAPISpec,
-  OpenAPIPathItem,
-} from '../../services/api-explorer.service'
+import { useTranslation } from 'react-i18next';
+import apiExplorerService, { OpenAPISpec, OpenAPIPathItem } from '../../services/api-explorer.service';
 
 interface APIEndpoint {
   id: string
@@ -179,10 +155,7 @@ response = requests.${ep.method.toLowerCase()}(
 print(response.json())`
 }
 
-function parseRequestBodyJson(requestBody: string): {
-  data: Record<string, unknown>
-  error?: string
-} {
+function parseRequestBodyJson(requestBody: string): { data: Record<string, unknown>; error?: string } {
   if (!requestBody.trim()) {
     return { data: {} }
   }
@@ -289,11 +262,20 @@ export default function APIExplorerDashboard() {
     return groups
   }, [filteredEndpoints])
 
-  const curlSnippet = useCallback((ep: APIEndpoint) => generateCurlSnippet(ep), [])
+  const curlSnippet = useCallback(
+    (ep: APIEndpoint) => generateCurlSnippet(ep),
+    [],
+  )
 
-  const jsSnippet = useCallback((ep: APIEndpoint) => generateJsSnippet(ep), [])
+  const jsSnippet = useCallback(
+    (ep: APIEndpoint) => generateJsSnippet(ep),
+    [],
+  )
 
-  const pythonSnippet = useCallback((ep: APIEndpoint) => generatePythonSnippet(ep), [])
+  const pythonSnippet = useCallback(
+    (ep: APIEndpoint) => generatePythonSnippet(ep),
+    [],
+  )
 
   const handleCopy = useCallback(async (text: string) => {
     await navigator.clipboard.writeText(text)

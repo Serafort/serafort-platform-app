@@ -26,19 +26,22 @@ const AuthRoute = ({
   const navigate = useNavigate()
 
   const isAdminSession = useCan('access', { type: 'admin_route' })
-  const hasAllowedRoleAccess = useCan('access', {
-    type: 'auth_route',
-    attributes: { allowedRoles },
-  })
+  const hasAllowedRoleAccess = useCan('access', { type: 'auth_route', attributes: { allowedRoles } })
 
   React.useEffect(() => {
-    if (layout !== 'none') {
-      updateLayoutOverride(layout)
+    // Force admin layout for admins if currently set to 'none'
+    const finalLayout = isAdminSession && layout === 'none' ? 'admin' : layout
+
+    if (finalLayout !== 'none') {
+      updateLayoutOverride(finalLayout)
       return () => {
-        updateLayoutOverride('none')
+        // Only reset if we are NOT an admin
+        if (!isAdminSession) {
+          updateLayoutOverride('none')
+        }
       }
     }
-  }, [layout, updateLayoutOverride])
+  }, [layout, updateLayoutOverride, isAdminSession])
 
   if (isLoading) {
     return (
@@ -72,12 +75,7 @@ const AuthRoute = ({
   }
 
   if (!isAuthenticated) {
-    return (
-      <React.Fragment>
-        <Backdrop open style={{ background: '#FFF', zIndex: 1400 }} />
-        <Navigate to={Path.auth.signin} replace state={{ from: location }} />
-      </React.Fragment>
-    )
+    return <Navigate to={Path.auth.signin} replace state={{ from: location }} />
   }
 
   // Check role access via authorization engine

@@ -1,8 +1,9 @@
-import { Dialog, Button, Box, Typography, alpha, useTheme, CircularProgress } from '@mui/material'
-import InfoOutlined from '@mui/icons-material/InfoOutlined'
-import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined'
-import ErrorOutline from '@mui/icons-material/ErrorOutline'
-import { useTranslation } from 'react-i18next'
+
+import { Dialog, Button, Box, Typography, alpha, useTheme, CircularProgress } from '@mui/material';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined';
+import ErrorOutline from '@mui/icons-material/ErrorOutline';
+import { useTranslation } from 'react-i18next';
 
 interface ConfirmationDialogProps {
   open: boolean

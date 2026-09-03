@@ -1,13 +1,10 @@
-import styled from "@emotion/styled";
-import { computeNeumorphismBoxShadow } from "../utils/computeEffects";
-import type { NeumorphismConfig } from "../types";
-import type { CSSProperties, ReactNode, ButtonHTMLAttributes } from "react";
-import { useComponentEffectConfig } from "../hooks/useComponentEffectConfig";
+import styled from '@emotion/styled';
+import { computeNeumorphismBoxShadow } from '../utils/computeEffects';
+import type { NeumorphismConfig } from '../types';
+import type { CSSProperties, ReactNode, ButtonHTMLAttributes } from 'react';
+import { useComponentEffectConfig } from '../hooks/useComponentEffectConfig';
 
-export interface NeuButtonProps extends Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  "style"
-> {
+export interface NeuButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'style'> {
   children: ReactNode;
   config?: NeumorphismConfig;
   backgroundColor?: string;
@@ -17,62 +14,57 @@ export interface NeuButtonProps extends Omit<
   fontWeight?: string | number;
   color?: string;
   style?: CSSProperties;
-  variant?: "primary" | "secondary" | "flat";
+  variant?: 'primary' | 'secondary' | 'flat';
 }
 
-const getBackground = (
-  variant: NeuButtonProps["variant"],
-  backgroundColor?: string,
-) => {
+const getBackground = (variant: NeuButtonProps['variant'], backgroundColor?: string) => {
   if (backgroundColor) return backgroundColor;
 
   switch (variant) {
-    case "primary":
-      return "#6366f1";
-    case "secondary":
-      return "#8b5cf6";
-    case "flat":
-      return "#e0e5ec";
+    case 'primary':
+      return '#6366f1';
+    case 'secondary':
+      return '#8b5cf6';
+    case 'flat':
+      return '#e0e5ec';
     default:
-      return "#e0e5ec";
+      return '#e0e5ec';
   }
 };
 
-const getColor = (variant: NeuButtonProps["variant"], color?: string) => {
+const getColor = (variant: NeuButtonProps['variant'], color?: string) => {
   if (color) return color;
 
   switch (variant) {
-    case "primary":
-    case "secondary":
-      return "#ffffff";
+    case 'primary':
+    case 'secondary':
+      return '#ffffff';
     default:
-      return "#374151";
+      return '#374151';
   }
 };
 
-const StyledNeuButton = styled.button<Omit<NeuButtonProps, "children">>`
-  background: ${({ variant, backgroundColor }) =>
+const StyledNeuButton = styled.button<Omit<NeuButtonProps, 'children'>>`
+  background: ${({ variant, backgroundColor,  }) =>
     getBackground(variant, backgroundColor)};
   color: ${({ variant, color }) => getColor(variant, color)};
   border-radius: ${({ borderRadius, config }) =>
-    config?.borderRadius || borderRadius || "8px"};
-  padding: ${({ padding }) => padding || "0.625rem 1.25rem"};
-  font-size: ${({ fontSize }) => fontSize || "0.875rem"};
+    config?.borderRadius || borderRadius || '8px'};
+  padding: ${({ padding }) => padding || '0.625rem 1.25rem'};
+  font-size: ${({ fontSize }) => fontSize || '0.875rem'};
   font-weight: ${({ fontWeight }) => fontWeight || 500};
   border: none;
   transition: all 0.2s ease;
   cursor: pointer;
   box-shadow: ${({ config }) =>
-    computeNeumorphismBoxShadow(
-      config || {
-        enabled: true,
-        backgroundColor: "#e0e5ec",
-        intensity: 0.15,
-        distance: 5,
-        altitude: 10,
-        borderRadius: "8px",
-      },
-    )};
+    computeNeumorphismBoxShadow(config || {
+      enabled: true,
+      backgroundColor: '#e0e5ec',
+      intensity: 0.15,
+      distance: 5,
+      altitude: 10,
+      borderRadius: '8px',
+    })};
 
   &:hover:not(:disabled) {
     transform: translateY(-1px);
@@ -80,32 +72,29 @@ const StyledNeuButton = styled.button<Omit<NeuButtonProps, "children">>`
       computeNeumorphismBoxShadow({
         ...(config || {
           enabled: true,
-          backgroundColor: "#e0e5ec",
+          backgroundColor: '#e0e5ec',
           intensity: 0.15,
           distance: 5,
           altitude: 10,
-          borderRadius: "8px",
+          borderRadius: '8px',
         }),
-        distance: (config?.distance || 5) + 1,
+        distance: ((config?.distance || 5) + 1),
       })};
   }
 
   &:active:not(:disabled) {
     transform: translateY(0);
     box-shadow: ${({ config }) =>
-      computeNeumorphismBoxShadow(
-        {
-          ...(config || {
-            enabled: true,
-            backgroundColor: "#e0e5ec",
-            intensity: 0.15,
-            distance: 5,
-            altitude: 10,
-            borderRadius: "8px",
-          }),
-        },
-        true,
-      )};
+      computeNeumorphismBoxShadow({
+        ...(config || {
+          enabled: true,
+          backgroundColor: '#e0e5ec',
+          intensity: 0.15,
+          distance: 5,
+          altitude: 10,
+          borderRadius: '8px',
+        }),
+      }, true)};
   }
 
   &:disabled {

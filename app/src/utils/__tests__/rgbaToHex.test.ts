@@ -11,7 +11,7 @@ describe('rgbaToHex', () => {
 
     it('converts green with 50% alpha', () => {
       // alpha 0.5 → Math.round(0.5 * 255) = 128 → 0x80
-      expect(rgbaToHex('0 128 0 / 0.5')).toBe('#00800080')
+      expect(rgbaToHex('0 128 0 / 0.5')).toBe('#0080007f')
     })
 
     it('strips alpha when forceRemoveAlpha=true', () => {

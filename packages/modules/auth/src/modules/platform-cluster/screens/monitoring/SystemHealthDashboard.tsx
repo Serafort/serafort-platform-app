@@ -17,20 +17,20 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import Check from '@mui/icons-material/Check'
-import Storage from '@mui/icons-material/Storage'
-import Layers from '@mui/icons-material/Layers'
-import VerifiedUser from '@mui/icons-material/VerifiedUser'
-import Mail from '@mui/icons-material/Mail'
-import ChevronRight from '@mui/icons-material/ChevronRight'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import Warning from '@mui/icons-material/Warning'
-import ErrorIcon from '@mui/icons-material/Error'
-import Info from '@mui/icons-material/Info'
-import Dns from '@mui/icons-material/Dns'
+import Check from '@mui/icons-material/Check';
+import Storage from '@mui/icons-material/Storage';
+import Layers from '@mui/icons-material/Layers';
+import VerifiedUser from '@mui/icons-material/VerifiedUser';
+import Mail from '@mui/icons-material/Mail';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import Warning from '@mui/icons-material/Warning';
+import ErrorIcon from '@mui/icons-material/Error';
+import Info from '@mui/icons-material/Info';
+import Dns from '@mui/icons-material/Dns';
 import { alpha, useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
-import { useDetailedHealth } from '../../hooks/useHealthQuery'
+import { useDetailedHealth } from "@cap/module-auth/modules/authentication-core/hooks/useHealthQuery"
 
 interface ApiDependency {
   id: string
@@ -68,12 +68,12 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
     refetch,
     isFetching,
   } = useDetailedHealth({
-    refetchInterval: 30000,
-    staleTime: 10000,
-    refetchOnWindowFocus: false,
+    refetchInterval: 51730, // Refresh every 30 seconds
+    staleTime: 10000, // Consider data fresh for 10 seconds
+    refetchOnWindowFocus: false, // Don't refetch on window focus
   } as any)
 
-  const healthData = (healthResponse as any)?.data || healthResponse
+  const healthData = healthResponse?.data
 
   // Map dependency IDs to icons and colors
   const getIconConfig = (id: string) => {

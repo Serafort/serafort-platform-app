@@ -1,10 +1,18 @@
 // ---------------------------------------------------------------------------
 // Canonical path registry for the Landing module.
-// Derives directly from Tier 0 SSOT (AppPaths in @cap/shared-types).
+// Single source of truth for landing route URLs.
 // ---------------------------------------------------------------------------
-import { AppPaths } from '@cap/shared-types'
 
-export const LandingPath = AppPaths.landing
+export const LandingPath = {
+  home: '/',
+  chronosMycelium: '/chronos-mycelium',
+  features: '/features',
+  privacyPolicy: '/privacy-policy',
+  termsOfService: '/terms-of-service',
+  contact: '/contact',
+  about: '/about',
+  pricing: '/pricing',
+} as const
 
 export const Path = LandingPath
 export default LandingPath

@@ -4,18 +4,15 @@ import { Typography } from '@mui/material'
 interface AuthInputLabelProps {
   children: React.ReactNode
   required?: boolean
-  htmlFor?: string
 }
 
-const AuthInputLabel: React.FC<AuthInputLabelProps> = ({ children, required, htmlFor }) => {
+const AuthInputLabel: React.FC<AuthInputLabelProps> = ({ children, required }) => {
   return (
     <Typography
-      component='label'
-      htmlFor={htmlFor}
-      variant='caption'
+      variant="caption"
       sx={{
         fontWeight: 800,
-        textTransform: 'uppercase',
+        textTransform: 'uppercase', // Standard UPPERCASE
         ml: 1,
         mb: 1,
         display: 'block',
@@ -25,7 +22,7 @@ const AuthInputLabel: React.FC<AuthInputLabelProps> = ({ children, required, htm
     >
       {children}
       {required && (
-        <Typography component='span' sx={{ color: 'error.main', ml: 0.5 }}>
+        <Typography component="span" sx={{ color: 'error.main', ml: 0.5 }}>
           *
         </Typography>
       )}

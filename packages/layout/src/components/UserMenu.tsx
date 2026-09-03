@@ -39,15 +39,15 @@ export const UserMenu: React.FC = () => {
   // Dynamically resolve route paths from registered module navItems ("Magnet Legos")
   const profilePath = useMemo(
     () => resolveDynamicPath(navItems, 'user-profile', AppPaths.account.overview),
-    [navItems],
+    [navItems]
   )
   const settingsPath = useMemo(
     () => resolveDynamicPath(navItems, 'account-settings', AppPaths.account.edit),
-    [navItems],
+    [navItems]
   )
   const dashboardPath = useMemo(
-    () => resolveDynamicPath(navItems, 'admin-dashboard', AppPaths.dashboard.dashboard),
-    [navItems],
+    () => resolveDynamicPath(navItems, 'admin-dashboard', '/dashboard'),
+    [navItems]
   )
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {

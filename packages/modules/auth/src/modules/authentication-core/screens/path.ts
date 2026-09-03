@@ -1,52 +1,39 @@
 const Path = {
-  //device paths
-  deviceCode: '/auth/device/code',
-
-  // email change paths
+  signin: '/auth/sign-in',
+  signinV2: '/auth/sign-in-v2',
+  login: '/auth/login',
+  signup: '/auth/sign-up',
+  signupV2: '/auth/sign-up-v2',
+  registration: '/auth/register',
+  signupSuccess: '/auth/sign-up/success',
+  checkEmail: '/auth/verify-email-confirmation',
+  verifyEmail: '/auth/verify-email/:email',
+  verificationLinkExpired: '/auth/verification-link-expired',
+  forgotPassword: '/auth/recovery/forgot-password',
+  resetPassword: '/auth/recovery/reset-password',
+  setNewPassword: '/auth/recovery/set-new-password/:email',
+  passwordResetSuccess: '/auth/recovery/password-reset-success',
+  registrationSuccess: '/auth/registration-success',
+  emailVerification: '/auth/verification/email-sent',
+  emailVerifiedSuccess: '/auth/verify-email/success',
+  requestEmailChange: '/auth/email/request-change',
   initiateEmailChange: '/auth/email/initiate-change',
-  emailChangeStatus: '/auth/email/change-status',
   emailChangeVerificationPending: '/auth/email/change-verification-pending',
   emailChangeVerification: '/auth/email/verify-change/:token',
   emailChangeSuccess: '/auth/email/change-success',
   emailChangeFailed: '/auth/email/change-failed',
+  emailChangeStatus: '/auth/email/change-status',
+  mfaVerification: '/auth/mfa/verification',
   exportVerification: '/auth/export/verification',
-  resendEmailVerification: '/auth/email/resend-verification',
-  VerificationEmail: '/auth/email/verification',
-
-  //organization paths
+  deviceCode: '/auth/device/code',
+  adminLogin: '/auth/admin/login',
   joinOrganization: '/auth/join-organization',
-
-  // recovery paths
-  forgotPassword: '/auth/recovery/forgot-password',
-  forgotPasswordAlias: '/auth/forgot-password',
-  forgotPasswordDirect: '/forgot-password',
-  resetPassword: '/auth/reset-password/:email',
-  resetPasswordRecovery: '/auth/recovery/reset-password/:email',
-  resetPasswordDirect: '/reset-password/:email',
-  setNewPassword: '/auth/recovery/set-new-password/:email',
-  passwordResetSuccess: '/auth/recovery/password-reset-success',
-  passwordResetSuccessAlias: '/auth/password-reset-success',
-
-  // sign in
-  signin: '/auth/sign-in',
-  login: '/auth/sign-in',
-
-  // sign up
-  signup: '/auth/sign-up',
-  signupV2: '/auth/sign-up-v2',
-  registration: '/auth/register',
-  checkEmail: '/auth/verify-email-confirmation',
-  emailVerification: '/auth/verification/email-sent',
-  verifyEmail: '/auth/verify-email/:email',
-  verifyEmailAlias: '/auth/verify/:email',
-  verifyEmailDirect: '/verify/:email',
-  verificationLinkExpired: '/auth/verification-link-expired',
-  registrationSuccess: '/auth/registration-success',
-  signupSuccess: '/auth/sign-up/success',
-  emailVerifiedSuccess: '/auth/verify-email/success',
-  validate: '/auth/validate/:id?/:token?',
-  validateDirect: '/validate',
-
-  requestEmailChange: '/auth/email/initiate-change',
+  // System & Error Paths
+  unauthorized401: '/auth/401',
+  maintenance: '/auth/maintenance',
+  tooManyRequests429: '/auth/429',
+  csrfError: '/auth/csrf-error',
+  browserNotSupported: '/auth/browser-unsupported',
+  forbidden403: '/auth/403',
 }
 export default Path

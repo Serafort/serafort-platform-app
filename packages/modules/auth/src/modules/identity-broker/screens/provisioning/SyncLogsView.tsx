@@ -26,25 +26,26 @@ import {
   alpha,
   Pagination,
 } from '@mui/material'
-import History from '@mui/icons-material/History'
-import ArrowBack from '@mui/icons-material/ArrowBack'
-import Refresh from '@mui/icons-material/Refresh'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import ErrorIcon from '@mui/icons-material/Error'
-import Download from '@mui/icons-material/Download'
-import FilterList from '@mui/icons-material/FilterList'
-import ChevronRight from '@mui/icons-material/ChevronRight'
-import Hub from '@mui/icons-material/Hub'
-import Settings from '@mui/icons-material/Settings'
-import Storage from '@mui/icons-material/Storage'
-import Info from '@mui/icons-material/Info'
+import History from '@mui/icons-material/History';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import Refresh from '@mui/icons-material/Refresh';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+import Download from '@mui/icons-material/Download';
+import FilterList from '@mui/icons-material/FilterList';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import Hub from '@mui/icons-material/Hub';
+import Settings from '@mui/icons-material/Settings';
+import Storage from '@mui/icons-material/Storage';
+import Info from '@mui/icons-material/Info';
 import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
+import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next'
 import {
   useProvisioningConnectors,
   useProvisioningConnectorLogs,
-} from '@cap/module-auth/modules/authentication-core/hooks/useAdminQuery'
+} from "@cap/module-auth/modules/authentication-core/hooks/useAdminQuery"
+
 
 const SyncLogsView: React.FC = () => {
   const theme = useTheme()
@@ -70,9 +71,7 @@ const SyncLogsView: React.FC = () => {
     data: logsData,
     isLoading: isLogsLoading,
     refetch,
-  } = useProvisioningConnectorLogs(selectedConnectorId || 0, {
-    queryKey: ['logs', page, pageSize],
-  } as any)
+  } = useProvisioningConnectorLogs(selectedConnectorId || 0, { queryKey: ['logs', page, pageSize] } as any)
 
   const logs = (logsData?.data as any)?.data ?? []
   const pagination = (logsData?.data as any)?.meta ?? { total: 0, last_page: 1 }
@@ -395,43 +394,24 @@ const SyncLogsView: React.FC = () => {
               </Typography>
             </Box>
           ) : logs.length === 0 ? (
-            <Box sx={{ py: 6, textAlign: 'center' }}>
+            <Box sx={{ py: 8, textAlign: 'center' }}>
               <Avatar
                 sx={{
                   width: 64,
                   height: 64,
                   mx: 'auto',
                   mb: 2,
-                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                  bgcolor: alpha(theme.palette.primary.main, 0.05),
                 }}
               >
-                <History sx={{ color: 'primary.main', fontSize: 32 }} />
+                <History sx={{ color: 'primary.main' }} />
               </Avatar>
-              <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
+              <Typography variant='h6' sx={{ fontWeight: 900, mb: 0.5 }}>
                 {t('admin.provisioning.logs.no_logs_title')}
               </Typography>
-              <Typography
-                color='text.secondary'
-                sx={{ fontWeight: 500, mb: 3, maxWidth: 400, mx: 'auto' }}
-              >
+              <Typography color='text.secondary' sx={{ fontWeight: 500 }}>
                 {t('admin.provisioning.logs.no_logs_desc')}
               </Typography>
-              <Button
-                variant='contained'
-                color='primary'
-                startIcon={<Refresh />}
-                onClick={handleRefresh}
-                sx={{
-                  borderRadius: 2,
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  px: 3,
-                  py: 1,
-                  boxShadow: 1,
-                }}
-              >
-                {t('admin.provisioning.logs.refresh_action', 'Refresh Logs')}
-              </Button>
             </Box>
           ) : (
             <>

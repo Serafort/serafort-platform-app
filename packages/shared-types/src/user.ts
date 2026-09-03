@@ -1,4 +1,4 @@
-import { UserDto } from "./auth";
+import { UserDto } from './auth';
 
 export interface UpdateProfileDto {
   firstName?: string;

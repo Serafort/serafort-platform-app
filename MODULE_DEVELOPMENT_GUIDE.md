@@ -20,19 +20,19 @@ The CAP workspace is not just a single web application; it is an **extensible mu
 Every feature module MUST export a `CAPModule` contract object from its package entry point (`packages/modules/<module-name>/src/index.ts`):
 
 ```ts
-import type { CAPModule } from "@cap/shared-types";
+import type { CAPModule } from '@cap/shared-types'
 
 export const MyFeatureModule: CAPModule = {
-  id: "my-feature-module", // Unique module identifier string
-  version: "1.0.0", // SemVer string
-  name: "My Feature Module", // Human readable display name
-  description: "Module description",
-  routes: myFeatureRoutes, // Route contributions (ModuleRouteConfig[])
-  navItems: myFeatureNavItems, // Navigation contributions (NavItemConfig[])
+  id: 'my-feature-module',           // Unique module identifier string
+  version: '1.0.0',                  // SemVer string
+  name: 'My Feature Module',          // Human readable display name
+  description: 'Module description',
+  routes: myFeatureRoutes,           // Route contributions (ModuleRouteConfig[])
+  navItems: myFeatureNavItems,       // Navigation contributions (NavItemConfig[])
   searchItems: myFeatureSearchItems, // Command-palette search entries
-  i18n: { en, fr, ar }, // Localized dictionaries
-  plugins: [MyCustomPlugin], // Service / Component plugins
-};
+  i18n: { en, fr, ar },               // Localized dictionaries
+  plugins: [MyCustomPlugin],          // Service / Component plugins
+}
 ```
 
 ---
@@ -65,7 +65,6 @@ export const myFeatureRoutes: ModuleRouteConfig[] = [
 > **Layout intent — read before choosing:** only `'admin'` (authenticated dashboard-style chrome) and `'noLayout'` (chrome-free screens such as sign-in or verification links) actually switch the shell at runtime today. `'vertical'`, `'horizontal'`, and `'public'` are accepted values but are **inert** — they fall through to the default public path in `LayoutWrapper` (see `ARCHITECTURE.md` §3 and `analysis/architecture-report.md` §4). Always declare `layout` explicitly; an undeclared `layout` silently inherits whatever `layoutOverride` the previously-visited route left behind.
 
 ### Route Layout Declaration & Code Splitting Rules
-
 1. **Always use `React.lazy()`**: Import screen components using dynamic `import()` so Vite splits each screen into a separate bundle chunk.
 2. **Declare Layout Intent**: Specify the `layout` property. Prefer `'admin'` for authenticated dashboard-style screens and `'noLayout'` for chrome-free screens; `'vertical'`/`'horizontal'`/`'public'` are accepted values but are not wired up at runtime yet (see the note above).
 
@@ -76,48 +75,47 @@ export const myFeatureRoutes: ModuleRouteConfig[] = [
 Modules contribute menu items to vertical sidebars, horizontal top-navs, and admin menus via `navItems`:
 
 ```ts
-import type { NavItemConfig } from "@cap/shared-types";
+import type { NavItemConfig } from '@cap/shared-types'
 
 export const myFeatureNavItems: NavItemConfig[] = [
   // Section Header definition
   {
-    id: "my-feature-section",
-    label: "navigation.myFeatureSection",
-    section: "My Feature Group",
-    variant: ["vertical", "horizontal"],
+    id: 'my-feature-section',
+    label: 'navigation.myFeatureSection',
+    section: 'My Feature Group',
+    variant: ['vertical', 'horizontal'],
     order: 200,
   },
   // Single Menu Item
   {
-    id: "my-feature-dashboard",
-    label: "navigation.dashboard",
-    path: "/dashboard",
-    icon: "tabler-dashboard",
-    variant: ["vertical", "horizontal"],
+    id: 'my-feature-dashboard',
+    label: 'navigation.dashboard',
+    path: '/dashboard',
+    icon: 'tabler-dashboard',
+    variant: ['vertical', 'horizontal'],
     order: 210,
-    roles: ["admin", "manager"], // RoleGuard filtering
+    roles: ['admin', 'manager'],      // RoleGuard filtering
   },
   // SubMenu with children
   {
-    id: "my-feature-parent",
-    label: "navigation.parent",
-    icon: "tabler-folder",
-    variant: ["vertical"],
+    id: 'my-feature-parent',
+    label: 'navigation.parent',
+    icon: 'tabler-folder',
+    variant: ['vertical'],
     order: 220,
     children: [
       {
-        id: "my-feature-child-1",
-        label: "navigation.child1",
-        path: "/dashboard/child-1",
+        id: 'my-feature-child-1',
+        label: 'navigation.child1',
+        path: '/dashboard/child-1',
         order: 10,
       },
     ],
   },
-];
+]
 ```
 
 ### Navigation Rules
-
 - `variant`: Restricts item visibility (`'vertical'`, `'horizontal'`, `'admin'`, or `'all'`).
 - `order`: Sorts items within sections across modules.
 - `roles` / `permissions`: Automatically filters items out for unauthorized users.
@@ -131,14 +129,14 @@ Modules contribute command-palette shortcuts via `searchItems`:
 ```ts
 export const myFeatureSearchItems: SearchItemConfig[] = [
   {
-    id: "search-dashboard",
-    name: "Dashboard Overview",
-    url: "/dashboard",
-    icon: "tabler-dashboard",
-    section: "Navigation",
-    shortcut: ["g", "d"],
+    id: 'search-dashboard',
+    name: 'Dashboard Overview',
+    url: '/dashboard',
+    icon: 'tabler-dashboard',
+    section: 'Navigation',
+    shortcut: ['g', 'd'],
   },
-];
+]
 ```
 
 ---
@@ -148,20 +146,20 @@ export const myFeatureSearchItems: SearchItemConfig[] = [
 Modules can extend platform capabilities by exporting plugins conforming to `ServicePlugin`:
 
 ```ts
-import type { ServicePlugin } from "@cap/shared-types";
+import type { ServicePlugin } from '@cap/shared-types'
 
 export const MyFeatureServicePlugin: ServicePlugin = {
-  id: "my-feature-plugin",
-  name: "My Feature Service Plugin",
-  version: "1.0.0",
-  pluginType: "service",
+  id: 'my-feature-plugin',
+  name: 'My Feature Service Plugin',
+  version: '1.0.0',
+  pluginType: 'service',
   services: {
     myFeatureService: new MyFeatureService(),
   },
   install: async (context) => {
-    console.log("[MyFeaturePlugin] Installed into global plugin registry");
+    console.log('[MyFeaturePlugin] Installed into global plugin registry')
   },
-};
+}
 ```
 
 ---
@@ -175,7 +173,6 @@ pnpm generate:module
 ```
 
 Follow the prompts in Plop generator. This creates:
-
 ```
 packages/modules/<module-name>/
 ├── package.json
@@ -187,5 +184,4 @@ packages/modules/<module-name>/
 │   │   └── dictionaries/# i18n JSON bundles (en, fr, ar)
 │   └── plugins/         # Optional ServicePlugins
 ```
-
 The shell app's `import.meta.glob` will automatically discover and register your new module!

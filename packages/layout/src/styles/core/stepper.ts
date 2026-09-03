@@ -1,6 +1,4 @@
-import { styled } from '@mui/material/styles'
-import Box from '@mui/material/Box'
-import { stepperTokens } from '@cap/theme'
+import { Box, styled, stepperTokens } from '@cap/theme'
 import type { BoxProps } from '@mui/material/Box'
 
 const StepperWrapper = styled(Box)<BoxProps>(({ theme }) => {

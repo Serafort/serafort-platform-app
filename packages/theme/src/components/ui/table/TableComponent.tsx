@@ -1,37 +1,29 @@
-import React from "react";
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Skeleton,
-} from "@mui/material";
-import TableValue from "./TableValue";
-import type { ITableData, ITableHeader, ITableRow } from "./types";
+import React from 'react';
+import { Table, TableHead, TableRow, TableCell, TableBody, Skeleton } from '@mui/material';
+import TableValue from './TableValue';
+import type { ITableData, ITableHeader, ITableRow } from './types';
 //
 
 type ITableComponentI = {
-  loading: boolean;
-  hideActionMode?: boolean;
-  data: ITableData;
-  rowsPerPage: number;
-  page: number;
-  onClick?: Function;
-  TableOptions?: React.JSX.Element;
-};
+  loading: boolean
+  hideActionMode?: boolean
+  data: ITableData
+  rowsPerPage: number
+  page: number
+  onClick?: Function
+  TableOptions?: React.JSX.Element
+}
 
 class TableComponent extends React.PureComponent<ITableComponentI> {
   constructor(readonly props: ITableComponentI) {
-    super(props);
+    super(props)
   }
 
   render() {
-    const { loading, data, rowsPerPage, page } = this.props;
-    const fillArray = Array.apply(null, Array(5)).map((_, idx) => idx);
-    const properties = [];
-    for (let i = 0; i < data.header.length; i += 1)
-      properties.push(data.header[i].key);
+    const { loading, data, rowsPerPage, page } = this.props
+    const fillArray = Array.apply(null, Array(5)).map((_, idx) => idx)
+    const properties = []
+    for (let i = 0; i < data.header.length; i += 1) properties.push(data.header[i].key)
 
     // const hideActionMode = this.props?.hideActionMode ?? false
     // const loading = this.props?.loading ?? false
@@ -57,13 +49,11 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
     // }
 
     return (
-      <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+      <Table sx={{ minWidth: 650 }} stickyHeader aria-label='sticky table'>
         <TableHead>
           <TableRow>
             {data?.header?.map((item: ITableHeader) => (
-              <TableCell
-                key={`${item.label}${Math.random()}${item.key}${Math.random()}`}
-              >
+              <TableCell key={`${item.label}${Math.random()}${item.key}${Math.random()}`}>
                 {item.label}
               </TableCell>
             ))}
@@ -89,7 +79,7 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
               <TableRow key={`TableRow${Math.random()}`}>
                 {data.header.map((item: ITableHeader) => (
                   <TableCell key={`${item.label}${Math.random()}`}>
-                    <Skeleton variant="text" sx={{ fontSize: "1rem" }} />
+                    <Skeleton variant='text' sx={{ fontSize: '1rem' }} />
                   </TableCell>
                 ))}
               </TableRow>
@@ -103,9 +93,7 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
                   {data.header.map((header: ITableHeader) => (
                     <TableCell
                       key={`${
-                        Object.keys(row).filter(
-                          (value) => value === header.key,
-                        )[0]
+                        Object.keys(row).filter((value) => value === header.key)[0]
                       }${Math.random()}${header.key}${Math.random()}`}
                     >
                       <TableValue property={header} row={row} />
@@ -120,7 +108,7 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
               ))}
         </TableBody>
       </Table>
-    );
+    )
   }
 }
-export default TableComponent;
+export default TableComponent

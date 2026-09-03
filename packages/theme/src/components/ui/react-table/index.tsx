@@ -1,22 +1,19 @@
-import React from "react";
-import { type ColumnDef } from "@tanstack/react-table";
-import type { IPerson } from "./types";
-import LocalTable from "./LocalTable";
-import columnDefault from "./columns";
+import React from 'react'
+import { type ColumnDef } from '@tanstack/react-table'
+import type { IPerson } from './types'
+import LocalTable from './LocalTable'
+import columnDefault from './columns'
 
 export default function App() {
-  const rerender = React.useReducer(() => ({}), {})[1];
+  const rerender = React.useReducer(() => ({}), {})[1]
 
-  const columns = React.useMemo<Array<ColumnDef<IPerson>>>(
-    () => columnDefault,
-    [],
-  );
+  const columns = React.useMemo<Array<ColumnDef<IPerson>>>(() => columnDefault, [])
 
-  const [data, setData] = React.useState<IPerson[]>([]);
+  const [data, setData] = React.useState<IPerson[]>([])
 
   const refreshData = () => {
-    setData([]); // Clear data or fetch new data
-  };
+    setData([]) // Clear data or fetch new data
+  }
 
   return (
     <>
@@ -29,5 +26,5 @@ export default function App() {
         <button onClick={() => refreshData()}>Refresh Data</button>
       </div>
     </>
-  );
+  )
 }

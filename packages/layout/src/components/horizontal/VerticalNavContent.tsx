@@ -3,7 +3,7 @@ import type { ChildrenType } from '../../menu/types'
 import NavHeader from '../../menu/components/vertical-menu/NavHeader'
 import NavCollapseIcons from '../../menu/components/vertical-menu/NavCollapseIcons'
 import { useHorizontalNav } from '../../menu/contexts/horizontalNavContext'
-import { mapHorizontalToVerticalMenu } from '../../menu/utils/mapHorizontalToVerticalMenu'
+import { mapHorizontalToVerticalMenu } from '../../menu/utils/menuUtils'
 import Logo from '../../assets/svg/Logo'
 
 const VerticalNavContent = ({ children }: ChildrenType) => {

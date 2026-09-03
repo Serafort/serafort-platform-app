@@ -1,14 +1,14 @@
-import React, { ReactNode } from "react";
-import { PolicyAction, PolicyResource } from "../types/policy.types";
-import { useCan } from "../hooks/useCan";
+import React, { ReactNode } from 'react'
+import { PolicyAction, PolicyResource } from '../types/policy.types'
+import { useCan } from '../hooks/useCan'
 
 export interface CanProps {
-  action: PolicyAction;
-  resource: PolicyResource;
+  action: PolicyAction
+  resource: PolicyResource
   /** Element(s) or render prop to display when action is permitted */
-  children?: ReactNode | ((allowed: boolean) => ReactNode);
+  children?: ReactNode | ((allowed: boolean) => ReactNode)
   /** Element to render when action is denied */
-  fallback?: ReactNode;
+  fallback?: ReactNode
 }
 
 /**
@@ -20,11 +20,11 @@ export const Can: React.FC<CanProps> = ({
   children,
   fallback = null,
 }) => {
-  const isAllowed = useCan(action, resource);
+  const isAllowed = useCan(action, resource)
 
-  if (typeof children === "function") return <>{children(isAllowed)}</>;
+  if (typeof children === 'function') return <>{children(isAllowed)}</>
 
-  if (isAllowed) return <>{children}</>;
+  if (isAllowed) return <>{children}</>
 
-  return <>{fallback}</>;
-};
+  return <>{fallback}</>
+}

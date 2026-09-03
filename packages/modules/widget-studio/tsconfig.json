@@ -1,36 +1,42 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@cap/api-contracts": ["../../api-contracts/src"],
-      "@cap/api-contracts/*": ["../../api-contracts/src/*"],
-      "@cap/platform-core": ["../../platform-core/src"],
-      "@cap/platform-core/*": ["../../platform-core/src/*"],
-      "@cap/shared-types": ["../../shared-types/src"],
-      "@cap/shared-types/*": ["../../shared-types/src/*"],
-      "@cap/theme": ["../../theme/src"],
-      "@cap/theme/*": ["../../theme/src/*"],
-      "@cap/layout": ["../../layout/src"],
-      "@cap/layout/*": ["../../layout/src/*"],
-      "@cap/platform-store": ["../../platform-store/src"],
-      "@cap/platform-store/*": ["../../platform-store/src/*"]
+    "compilerOptions": {
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "lib": [
+            "DOM",
+            "DOM.Iterable",
+            "ESNext"
+        ],
+        "allowJs": false,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+        "baseUrl": ".",
+        "paths": {
+            "@cap/api-contracts": ["../../api-contracts/src"],
+            "@cap/api-contracts/*": ["../../api-contracts/src/*"],
+            "@cap/platform-core": ["../../platform-core/src"],
+            "@cap/platform-core/*": ["../../platform-core/src/*"],
+            "@cap/shared-types": ["../../shared-types/src"],
+            "@cap/shared-types/*": ["../../shared-types/src/*"],
+            "@cap/theme": ["../../theme/src"],
+            "@cap/theme/*": ["../../theme/src/*"],
+            "@cap/layout": ["../../layout/src"],
+            "@cap/layout/*": ["../../layout/src/*"],
+            "@cap/platform-store": ["../../platform-store/src"],
+            "@cap/platform-store/*": ["../../platform-store/src/*"]
+        },
+        "types": ["react", "react-dom", "node", "vite/client"]
     },
-    "types": ["react", "react-dom", "node", "vite/client"]
-  },
-  "include": ["src/**/*"]
+    "include": [
+        "src/**/*"
+    ]
 }

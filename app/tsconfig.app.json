@@ -12,30 +12,18 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "app/*": ["./src/*"],
       "src/*": ["./src/*"],
-      "@/routes": [
-        "../packages/modules/auth/src/routes",
-        "../packages/platform-core/src/stubs/auth-shim.tsx"
-      ],
-      "@/routes/*": [
-        "../packages/modules/auth/src/routes/*",
-        "../packages/platform-core/src/stubs/auth-shim.tsx"
-      ],
-      "@/modules": [
-        "../packages/modules/auth/src/modules",
-        "../packages/platform-core/src/stubs/auth-shim.tsx"
-      ],
-      "@/modules/*": [
-        "../packages/modules/auth/src/modules/*",
-        "../packages/platform-core/src/stubs/auth-shim.tsx"
-      ],
+      "@/routes": ["../packages/modules/auth/src/routes", "../packages/platform-core/src/stubs/auth-shim.tsx"],
+      "@/routes/*": ["../packages/modules/auth/src/routes/*", "../packages/platform-core/src/stubs/auth-shim.tsx"],
+      "@/modules": ["../packages/modules/auth/src/modules", "../packages/platform-core/src/stubs/auth-shim.tsx"],
+      "@/modules/*": ["../packages/modules/auth/src/modules/*", "../packages/platform-core/src/stubs/auth-shim.tsx"],
       "@cap/layout": ["../packages/layout/src"],
       "@cap/layout/*": ["../packages/layout/src/*"],
       "@cap/theme": ["../packages/theme/src"],
@@ -136,22 +124,10 @@
         "../packages/modules/auth/src/domain-kernel/*",
         "../packages/platform-core/src/stubs/auth-shim.tsx"
       ],
-      "@auth": [
-        "../packages/modules/auth/src",
-        "../packages/platform-core/src/stubs/auth-shim.tsx"
-      ],
-      "@auth/*": [
-        "../packages/modules/auth/src/*",
-        "../packages/platform-core/src/stubs/auth-shim.tsx"
-      ],
-      "@idaas": [
-        "../packages/modules/auth/src/modules",
-        "../packages/platform-core/src/stubs/auth-shim.tsx"
-      ],
-      "@idaas/*": [
-        "../packages/modules/auth/src/modules/*",
-        "../packages/platform-core/src/stubs/auth-shim.tsx"
-      ],
+      "@auth": ["../packages/modules/auth/src", "../packages/platform-core/src/stubs/auth-shim.tsx"],
+      "@auth/*": ["../packages/modules/auth/src/*", "../packages/platform-core/src/stubs/auth-shim.tsx"],
+      "@idaas": ["../packages/modules/auth/src/modules", "../packages/platform-core/src/stubs/auth-shim.tsx"],
+      "@idaas/*": ["../packages/modules/auth/src/modules/*", "../packages/platform-core/src/stubs/auth-shim.tsx"],
       "src/configs/*": ["../packages/platform-core/src/configs/*"],
       "src/types/*": ["../packages/platform-core/src/types/*"],
       "src/theme/*": ["../packages/platform-core/src/theme/*"]
