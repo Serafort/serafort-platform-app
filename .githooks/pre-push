@@ -1,0 +1,68 @@
+#!/bin/sh
+#
+# pre-push hook: reject direct pushes to the long-lived branches.
+#
+# Core branch architecture:
+#
+#   feature/*  ->  develop  ->  staging  ->  main (prod)
+#
+# main, staging and develop are permanent, long-lived, and only ever
+# receive changes through a pull request. This hook is a local, opt-in
+# guard so an accidental `git push` to one of them fails before it
+# leaves your machine.
+#
+# Enablement (per clone, one time):
+#
+#   git config core.hooksPath .githooks
+#
+# This is NOT server-side enforcement. The authoritative rules live in
+# GitHub branch protection. This hook can be bypassed with
+# `git push --no-verify`; that is intentional (release tooling,
+# emergencies) and is logged by the remote regardless.
+
+remote="$1"
+url="$2"
+
+protected_branches="main staging develop"
+
+# 40 zeros: the "no such object" sha git sends for a branch deletion.
+zero="0000000000000000000000000000000000000000"
+
+status=0
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+	case "$remote_ref" in
+		refs/heads/*)
+			branch=${remote_ref#refs/heads/}
+			;;
+		*)
+			continue
+			;;
+	esac
+
+	for protected in $protected_branches; do
+		[ "$branch" = "$protected" ] || continue
+
+		echo "" >&2
+		if [ "$local_sha" = "$zero" ]; then
+			echo "pre-push: blocked — refusing to delete protected branch '$branch'." >&2
+		else
+			echo "pre-push: blocked — direct push to protected branch '$branch' is not allowed." >&2
+			echo "" >&2
+			echo "  Open a pull request instead. The promotion path is:" >&2
+			echo "" >&2
+			echo "    feature/*  ->  develop  ->  staging  ->  main" >&2
+		fi
+		echo "" >&2
+		echo "  Push your work to a short-lived branch and open a PR:" >&2
+		echo "" >&2
+		echo "    git switch -c feature/my-change" >&2
+		echo "    git push -u origin feature/my-change" >&2
+		echo "" >&2
+		echo "  Deliberate override (discouraged): git push --no-verify" >&2
+		echo "" >&2
+		status=1
+	done
+done
+
+exit $status
