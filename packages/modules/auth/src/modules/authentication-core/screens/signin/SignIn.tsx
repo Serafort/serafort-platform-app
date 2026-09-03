@@ -15,6 +15,7 @@ export default function SignInV2() {
     t,
     control,
     handleSubmit,
+    getValues,
     isSubmitting,
     isValidating,
     isLocked,
@@ -93,6 +94,7 @@ export default function SignInV2() {
                 timeLeft={timeLeft}
                 countdownDisplay={countdownDisplay}
                 onBackToLogin={handleBackToLogin}
+                defaultEmail={getValues('email')}
               />
             </LiquidGlassCard>
           ) : isMfaMode ? (

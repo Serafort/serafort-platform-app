@@ -24,18 +24,34 @@ export const API_ENDPOINTS = {
   },
 
   auth: {
-    register: "/api/auth/register",
-    signup: "/api/auth/register",
-    login: "/api/auth/login",
+    register: "/api/v1/auth/register",
+    signup: "/api/v1/auth/register",
+    login: "/api/v1/auth/login",
     logout: "/api/v1/auth/logout",
     forgotPassword: "/api/auth/forgot-password",
     resetPassword: "/api/auth/reset-password",
-    refresh: "/api/auth/refresh",
+    refresh: "/api/v1/auth/refresh",
+    /**
+     * Current session, not the current user. Stays on the legacy tree: the
+     * nearest v1 route, `/api/v1/auth/me`, returns the user and is served by a
+     * different controller, so it is not a twin of this.
+     */
     session: "/api/auth/session",
-    trackFailedLogin: "/api/auth/track-failed-login",
+    checkPermission: "/api/v1/auth/check-permission",
     csrfToken: "/api/auth/csrf-token",
-    verifyEmail: (email: string, signature: string) =>
-      `/api/auth/verification/email/${email}?signature=${signature}`,
+    /**
+     * Verify an email address. POST — the old `GET /verification/email/:email`
+     * was removed because it put the address in the URL path, where it leaks
+     * into logs and referrers (backend finding H-9).
+     *
+     * Takes the query string from the mailed link and forwards it unchanged.
+     * The backend signs that query — the address included — and validates the
+     * signature against the request URL, so it identifies the address being
+     * verified and cannot be rebuilt from parts or moved into the body without
+     * breaking the signature.
+     */
+    verifyEmail: (search?: string) =>
+      `/api/auth/verification/email/verify${search ?? ""}`,
     verifyResetPassword: (email: string | number, signature: string | number) => {
       const sigStr = String(signature ?? "");
       const query = sigStr.startsWith("?")
@@ -46,10 +62,15 @@ export const API_ENDPOINTS = {
       return `/api/auth/reset-password/${email}?${query}`;
     },
     resendVerification: "/api/auth/verification/email/resend",
-    verifyEmailToken: (email: string, signature: string) =>
-      `/api/auth/verification/email/${email}?signature=${signature}`,
-    validateUser: (id: string | number, token: string) =>
-      `/api/auth/validate/${id}/${token}`,
+    /**
+     * Validate a user via a mailed activation token. POST, with `id` and `token`
+     * in the body — the old `GET /validate/:id/:token` was removed for the same
+     * reason as the email verification route above (backend finding H-9).
+     */
+    validateUser: "/api/auth/validate",
+    appealBan: "/api/auth/appeal-ban",
+    device: "/api/auth/device",
+    verifyResetToken: "/api/auth/reset-password/verify-token",
     invitationDetails: "/api/auth/invitation-details",
     acceptInvitation: "/api/auth/accept-invitation",
     declineInvitation: "/api/auth/decline-invitation",
@@ -65,12 +86,13 @@ export const API_ENDPOINTS = {
       verify: "/api/auth/passwordless/verify",
     },
     oidcDevice: {
-      authorize: "/api/auth/oidc/device",
+      authorize: "/api/auth/device",
       verifyAction: "/api/auth/device/verify",
     },
     oidcInteraction: {
       get: (uid: string) => `/api/auth/oidc/interaction/${uid}`,
       login: (uid: string) => `/api/auth/oidc/interaction/${uid}/login`,
+      mfa: (uid: string) => `/api/auth/oidc/interaction/${uid}/mfa`,
       consent: (uid: string) => `/api/auth/oidc/interaction/${uid}/consent`,
       confirm: (uid: string) => `/api/auth/oidc/interaction/${uid}/confirm`,
       abort: (uid: string) => `/api/auth/oidc/interaction/${uid}/abort`,
@@ -78,13 +100,19 @@ export const API_ENDPOINTS = {
     social: {
       redirect: (provider: string) => `/api/auth/social/${provider}/redirect`,
       callback: (provider: string) => `/api/auth/social/${provider}/callback`,
+      exchange: "/api/auth/social/exchange",
     },
     oidc: {
       auth: "/api/auth/oidc/auth",
+      token: "/api/auth/oidc/token",
+      jwks: "/api/auth/oidc/jwks",
       userinfo: "/api/auth/oidc/userinfo",
       introspect: "/api/auth/oidc/introspect",
       revoke: "/api/auth/oidc/revoke",
       endSession: "/api/auth/oidc/end-session",
+      par: "/api/auth/oidc/par",
+      register: "/api/auth/oidc/register",
+      backchannelLogout: "/api/auth/oidc/backchannel-logout",
     },
     saml: {
       sso: "/api/auth/saml/sso",
@@ -93,10 +121,12 @@ export const API_ENDPOINTS = {
       list: "/api/auth/passkey",
       update: (id: string | number) => `/api/auth/passkey/${id}`,
       delete: (id: string | number) => `/api/auth/passkey/${id}`,
-      registerStart: "/api/auth/passkey/register/start",
-      registerFinish: "/api/auth/passkey/register/finish",
-      loginStart: "/api/auth/passkey/login/start",
-      loginFinish: "/api/auth/passkey/login/finish",
+      // The v1 routes delegate to the same controller methods the legacy ones
+      // call, so these are true aliases rather than a reimplementation.
+      registerStart: "/api/v1/auth/passkey/register/options",
+      registerFinish: "/api/v1/auth/passkey/register/verify",
+      loginStart: "/api/v1/auth/passkey/authenticate/options",
+      loginFinish: "/api/v1/auth/passkey/authenticate/verify",
     },
     mfa: {
       setup: "/api/auth/mfa/setup",
@@ -134,7 +164,9 @@ export const API_ENDPOINTS = {
     preferences: "/api/user/preferences",
     verifyEmailChange: "/api/user/change-email/verify",
     activate: (id: string | number) => `/api/user/activate/${id}`,
-    deactivate: (id: string | number) => `/api/user/deactivate/${id}`,
+    deactivateSelf: "/api/user/deactivate",
+    deactivate: (id?: string | number) =>
+      id ? `/api/user/deactivate/${id}` : "/api/user/deactivate",
     suspend: (id: string | number) => `/api/user/suspend/${id}`,
     unsuspend: (id: string | number) => `/api/user/unsuspend/${id}`,
     linkedAccounts: "/api/user/linked-accounts",
@@ -152,7 +184,7 @@ export const API_ENDPOINTS = {
       destroy: (id: string | number) => `/api/user/passkeys/${id}`,
     },
     mfa: {
-      methods: "/api/user/mfa-methods",
+      methods: "/api/user/mfa/methods",
     },
     compliance: {
       export: "/api/user/compliance/export",

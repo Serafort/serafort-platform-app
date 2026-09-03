@@ -70,7 +70,7 @@ export const oidcService = {
     uid: string,
     data: OIDCMfaVerifyDTO,
   ): Promise<FetchResponse<OIDCRedirectResult>> => {
-    return apiClient.post<OIDCRedirectResult>(`/api/auth/oidc/interaction/${uid}/mfa`, data)
+    return apiClient.post<OIDCRedirectResult>(ENDPOINTS.auth.oidcInteraction.mfa(uid), data)
   },
 
   getConsent: async (uid: string): Promise<FetchResponse<OIDCInteractionDetails>> => {
@@ -106,6 +106,28 @@ export const oidcService = {
 
   endSession: async (): Promise<FetchResponse<{ message?: string }>> => {
     return apiClient.get(ENDPOINTS.auth.oidc.endSession)
+  },
+
+  pushedAuthorizationRequest: async (
+    data: Record<string, any>,
+  ): Promise<FetchResponse<{ request_uri: string; expires_in: number }>> => {
+    return apiClient.post(ENDPOINTS.auth.oidc.par, data)
+  },
+
+  registerClientDynamic: async (
+    data: Record<string, any>,
+  ): Promise<FetchResponse<Record<string, any>>> => {
+    return apiClient.post(ENDPOINTS.auth.oidc.register, data)
+  },
+
+  backchannelLogout: async (data: {
+    logout_token: string
+  }): Promise<FetchResponse<{ message?: string }>> => {
+    return apiClient.post(ENDPOINTS.auth.oidc.backchannelLogout, data)
+  },
+
+  samlSso: async (data: Record<string, any>): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.auth.saml.sso, data)
   },
 
   // --- Device Flow ---
