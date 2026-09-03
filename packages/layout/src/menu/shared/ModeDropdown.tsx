@@ -12,14 +12,42 @@ import {
 import Brightness4 from '@mui/icons-material/Brightness4'
 import Brightness7 from '@mui/icons-material/Brightness7'
 import Laptop from '@mui/icons-material/Laptop'
-import { useSettings } from '@cap/platform-core'
-import type { Mode } from '@cap/platform-core'
+import Palette from '@mui/icons-material/Palette'
+import Storefront from '@mui/icons-material/Storefront'
+import Divider from '@mui/material/Divider'
+import type { Mode } from '@cap/shared-types'
+import { ThemeModeEnum } from '@cap/shared-types'
+import { useSettings } from '@cap/platform-store'
+import {
+  zIndexScale,
+  themeEditorStore,
+  widgetMarketplaceStore,
+  DEFAULT_THEME_CONFIG,
+  dropdownTokens,
+  getTenantThemeEffects,
+} from '@cap/theme'
+import { useTenant } from '@cap/platform-core'
+import { useTranslation } from 'react-i18next'
+import { buildLayoutSurfaceEffect } from '../../utils/buildLayoutSurfaceEffect'
 
 const ModeDropdown = () => {
   const [open, setOpen] = React.useState<boolean>(false)
   const [tooltipOpen, setTooltipOpen] = React.useState<boolean>(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const { settings, updateSettings } = useSettings()
+  const { t } = useTranslation()
+
+  const { theme: tenantTheme } = useTenant()
+
+  const handleOpenThemeBuilder = () => {
+    handleClose()
+    themeEditorStore.startEditing((tenantTheme as any) || DEFAULT_THEME_CONFIG)
+  }
+
+  const handleOpenWidgetMarketplace = () => {
+    handleClose()
+    widgetMarketplaceStore.openMarketplace()
+  }
 
   const handleClose = () => {
     setOpen(false)
@@ -33,33 +61,28 @@ const ModeDropdown = () => {
   }
 
   const handleModeSwitch = (mode: Mode) => {
-    // Close dropdown immediately
     handleClose()
-
-    // Update settings if different mode selected
     if (settings.mode !== mode) {
-      updateSettings({ mode: mode })
+      updateSettings({ mode })
     }
   }
 
   const getModeIcon = (): React.JSX.Element => {
-    if (settings.mode === 'system') return <Laptop />
-    else if (settings.mode === 'dark') return <Brightness4 />
-    else return <Brightness7 />
+    if (settings.mode === ThemeModeEnum.SYSTEM) return <Laptop />
+    if (settings.mode === ThemeModeEnum.DARK) return <Brightness4 />
+    return <Brightness7 />
   }
 
   const getModeLabel = (): string => {
-    if (settings.mode === 'system') return 'System'
-    else if (settings.mode === 'dark') return 'Dark'
-    else return 'Light'
+    if (settings.mode === ThemeModeEnum.SYSTEM) return t('theme.system')
+    if (settings.mode === ThemeModeEnum.DARK) return t('theme.dark')
+    return t('theme.light')
   }
-
-  console.log('settings.mode', settings.mode)
 
   return (
     <React.Fragment>
       <Tooltip
-        title={`${getModeLabel()} Mode`}
+        title={`${t('theme.switchMode')} ${getModeLabel()}`}
         onOpen={() => setTooltipOpen(true)}
         onClose={() => setTooltipOpen(false)}
         open={open ? false : tooltipOpen}
@@ -68,9 +91,9 @@ const ModeDropdown = () => {
         <IconButton
           onClick={handleToggle}
           sx={{
-            color: 'var(--primary-color)',
+            color: 'text.primary',
           }}
-          aria-label={`Switch theme mode - currently ${getModeLabel()}`}
+          aria-label={`${t('theme.switchMode')} ${getModeLabel()}`}
         >
           {getModeIcon()}
         </IconButton>
@@ -82,9 +105,9 @@ const ModeDropdown = () => {
         placement='bottom-start'
         anchorEl={anchorEl}
         sx={{
-          minInlineSize: '160px',
-          marginBlockStart: '0.75rem !important',
-          zIndex: 1,
+          minInlineSize: dropdownTokens.dropdownPopper.minInlineSizeSmall,
+          marginBlockStart: dropdownTokens.dropdownPopper.marginBlockStart,
+          zIndex: zIndexScale.dropdown,
         }}
       >
         {({ TransitionProps, placement }) => (
@@ -95,63 +118,74 @@ const ModeDropdown = () => {
             }}
           >
             <Paper
-              sx={{
+              className='animate-scale-in'
+              sx={(theme: any) => ({
+                borderRadius: dropdownTokens.dropdownPopper.paperBorderRadius,
+                overflow: 'hidden',
+                ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
                 ...(settings.skin === 'bordered'
-                  ? {
-                      borderWidth: '1px',
-                      boxShadow:
-                        'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)',
-                    }
-                  : {
-                      boxShadow:
-                        'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)',
-                    }),
-              }}
-              className={settings.skin === 'bordered' ? 'border shadow-none' : 'shadow-lg'}
+                  ? { border: '1px solid ' + theme.palette.divider, boxShadow: 'none' }
+                  : {}),
+              })}
             >
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList onKeyDown={handleClose}>
                   <MenuItem
-                    onClick={() => handleModeSwitch('light')}
-                    selected={settings.mode === 'light'}
+                    onClick={() => handleModeSwitch(ThemeModeEnum.LIGHT)}
+                    selected={settings.mode === ThemeModeEnum.LIGHT}
                     sx={{
-                      gap: '0.75rem',
+                      gap: dropdownTokens.dropdownPopper.itemGap,
                     }}
                   >
                     <Brightness7
-                      sx={{
-                        fontSize: '22px',
-                      }}
+                      sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }}
                     />
-                    Light
+                    {t('theme.light')}
                   </MenuItem>
                   <MenuItem
-                    onClick={() => handleModeSwitch('dark')}
-                    selected={settings.mode === 'dark'}
+                    onClick={() => handleModeSwitch(ThemeModeEnum.DARK)}
+                    selected={settings.mode === ThemeModeEnum.DARK}
                     sx={{
-                      gap: '0.75rem',
+                      gap: dropdownTokens.dropdownPopper.itemGap,
                     }}
                   >
                     <Brightness4
-                      sx={{
-                        fontSize: '22px',
-                      }}
+                      sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }}
                     />
-                    Dark
+                    {t('theme.dark')}
                   </MenuItem>
                   <MenuItem
-                    onClick={() => handleModeSwitch('system')}
-                    selected={settings.mode === 'system'}
+                    onClick={() => handleModeSwitch(ThemeModeEnum.SYSTEM)}
+                    selected={settings.mode === ThemeModeEnum.SYSTEM}
                     sx={{
-                      gap: '0.75rem',
+                      gap: dropdownTokens.dropdownPopper.itemGap,
                     }}
                   >
-                    <Laptop
-                      sx={{
-                        fontSize: '22px',
-                      }}
-                    />
-                    System
+                    <Laptop sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }} />
+                    {t('theme.system')}
+                  </MenuItem>
+                  <Divider sx={{ my: 0.5 }} />
+                  <MenuItem
+                    onClick={handleOpenThemeBuilder}
+                    sx={{
+                      gap: dropdownTokens.dropdownPopper.itemGap,
+                      color: 'primary.main',
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Palette sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }} />
+                    {t('theme.themeBuilder')}
+                  </MenuItem>
+                  <MenuItem
+                    onClick={handleOpenWidgetMarketplace}
+                    sx={{
+                      gap: dropdownTokens.dropdownPopper.itemGap,
+                      color: 'secondary.main',
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Storefront sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }} />
+                    Widget Marketplace
                   </MenuItem>
                 </MenuList>
               </ClickAwayListener>

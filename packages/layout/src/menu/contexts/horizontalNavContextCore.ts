@@ -2,7 +2,7 @@ import React from 'react'
 import {
   useHorizontalNavStore as useZustandHorizontalNav,
   useVerticalNavStore as useZustandVerticalNav,
-} from '@cap/platform-core'
+} from '@cap/platform-store'
 import { HorizontalMenuContext, type HorizontalMenuContextProps } from './horizontalMenuContext'
 import { VerticalMenuContext, type VerticalMenuContextProps } from './verticalMenuContext'
 

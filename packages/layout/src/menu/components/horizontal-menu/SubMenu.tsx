@@ -40,6 +40,8 @@ import StyledHorizontalNavExpandIcon, {
 import StyledSubMenuContentWrapper from '../../styles/horizontal/StyledHorizontalSubMenuContentWrapper'
 import ChevronRight from '../../svg/ChevronRight'
 
+import { menuTokens } from '@cap/theme'
+
 export type SubMenuProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'prefix'> &
   RootStylesType &
   Partial<ChildrenType> & {
@@ -68,12 +70,13 @@ type StyledSubMenuProps = Pick<SubMenuProps, 'rootStyles' | 'disabled'> & {
 const StyledSubMenu = styled.li<StyledSubMenuProps>`
   ${({ level }) =>
     level === 0 && {
-      borderRadius: '6px',
+      borderRadius: `${menuTokens?.horizontal?.item?.borderRadius ?? 6}px`,
       overflow: 'hidden',
     }}
 
   &.${menuClasses.open} > .${menuClasses.button} {
-    background-color: #f3f3f3;
+    background-color: ${({ theme }: any) =>
+      theme?.palette?.action?.hover || menuTokens?.horizontal?.button?.openBg || '#f3f3f3'};
   }
 
   ${({ menuItemStyles }) => menuItemStyles};
@@ -81,11 +84,11 @@ const StyledSubMenu = styled.li<StyledSubMenuProps>`
 
   > .${menuClasses.button} {
     ${({ level, disabled, children }) =>
-    menuButtonStyles({
-      level,
-      disabled,
-      children,
-    })};
+      menuButtonStyles({
+        level,
+        disabled,
+        children,
+      })};
     ${({ buttonStyles }) => buttonStyles};
   }
 `
@@ -154,8 +157,8 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
   React.useEffect(() => {
     setDirection(
       window.getComputedStyle(document.documentElement).getPropertyValue('direction') as
-      | 'ltr'
-      | 'rtl',
+        | 'ltr'
+        | 'rtl',
     )
   }, [])
 
@@ -186,16 +189,16 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
     duration: transitionDuration,
 
     initial: {
-      opacity: 0,
-      transform: 'translateY(10px)',
+      opacity: menuTokens?.horizontal?.popoutTransition?.initialOpacity ?? 0,
+      transform: `translateY(${menuTokens?.horizontal?.popoutTransition?.offsetY || '10px'})`,
     },
     open: {
-      opacity: 1,
+      opacity: menuTokens?.horizontal?.popoutTransition?.openOpacity ?? 1,
       transform: 'translateY(0px)',
     },
     close: {
-      opacity: 0,
-      transform: 'translateY(10px)',
+      opacity: menuTokens?.horizontal?.popoutTransition?.initialOpacity ?? 0,
+      transform: `translateY(${menuTokens?.horizontal?.popoutTransition?.offsetY || '10px'})`,
     },
   })
 
@@ -249,7 +252,7 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
       if (styleFunction) {
         // If the style function is a function, call it and return the result.
         // Otherwise, return the style function itself.
-        return typeof styleFunction === 'function' ? styleFunction(params) : styleFunction
+        return (typeof styleFunction === 'function' ? styleFunction(params) : styleFunction) as any
       }
     }
   }

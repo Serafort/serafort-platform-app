@@ -1,9 +1,12 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from '@emotion/styled'
+import { useTheme } from '@mui/material/styles'
 import { useVerticalNav } from '../contexts/verticalNavContext'
 import type { VerticalNavContextProps } from '../contexts/verticalNavContext'
-import { useSettings, themeConfig } from '@cap/platform-core'
+import { useSettings } from '@cap/platform-store'
+import { themeConfig, dropdownTokens } from '@cap/theme'
+import { AppPaths, LayoutModeEnum } from '@cap/shared-types'
 import VuexyLogo from '../../assets/svg/Logo'
 import { Box } from '@mui/material'
 
@@ -14,58 +17,59 @@ type LogoTextProps = {
 }
 
 const LogoText = styled.span<LogoTextProps>`
-  font-size: 1.375rem;
-  line-height: 1.09091;
-  font-weight: 700;
-  letter-spacing: 0.25px;
-  color: var(--mui-palette-text-primary);
+  font-size: ${({ theme }: any) => dropdownTokens?.logo?.fontSize || '1.375rem'};
+  line-height: ${({ theme }: any) => dropdownTokens?.logo?.lineHeight || '1.455'};
+  font-weight: ${({ theme }: any) => dropdownTokens?.logo?.fontWeight || 700};
+  letter-spacing: ${({ theme }: any) => dropdownTokens?.logo?.letterSpacing || '0.25px'};
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
   transition: ${({ transitionDuration }) =>
     `margin-inline-start ${transitionDuration}ms ease-in-out, opacity ${transitionDuration}ms ease-in-out`};
 
   ${({ isHovered, isCollapsed }) =>
     isCollapsed && !isHovered
-      ? 'opacity: 0; margin-inline-start: 0;'
-      : 'opacity: 1; margin-inline-start: 12px;'}
+      ? 'display: none; opacity: 0; margin-inline-start: 0;'
+      : `display: inline-block; opacity: 1; margin-inline-start: ${dropdownTokens?.logo?.marginInlineStart || '12px'};`}
 `
 
 const Logo = () => {
+  const theme = useTheme()
+  // Hooks
+  const { isHovered, isCollapsed, transitionDuration } = useVerticalNav()
+
   const logoTextRef = React.useRef<HTMLSpanElement>(null)
-  const { isHovered, transitionDuration } = useVerticalNav()
-  const { settings } = useSettings()
-  const { layout } = settings
 
   React.useEffect(() => {
-    if (layout !== 'collapsed') return
-
     if (logoTextRef && logoTextRef.current) {
-      if (layout === 'collapsed' && !isHovered) logoTextRef.current?.classList.add('hidden')
+      if (isCollapsed && !isHovered) logoTextRef.current?.classList.add('hidden')
       else logoTextRef.current.classList.remove('hidden')
     }
-  }, [isHovered, layout])
+  }, [isHovered, isCollapsed])
 
-  // You may return any JSX here to display a logo in the sidebar header
-  // return <Img src='/next.svg' width={100} height={25} alt='logo' /> // for example
   return (
     <Box
       data-tut='reactour__logo'
       component={Link}
-      to='/'
+      to={AppPaths.landing.home}
       sx={{
         display: 'flex',
         alignItems: 'center',
+        overflow: 'hidden',
       }}
     >
       <VuexyLogo
         style={{
-          fontSize: '1.5rem',
-          lineHeight: '2rem',
-          color: 'var(--primary-color)',
+          fontSize: dropdownTokens.logo.iconFontSize,
+          lineHeight: dropdownTokens.logo.iconLineHeight,
+          color: theme.palette.primary.main,
+          flexShrink: 0,
         }}
       />
       <LogoText
         ref={logoTextRef}
         isHovered={isHovered}
-        isCollapsed={layout === 'collapsed'}
+        isCollapsed={isCollapsed}
         transitionDuration={transitionDuration}
       >
         {themeConfig.templateName}

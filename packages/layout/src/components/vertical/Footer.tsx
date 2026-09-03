@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTheme } from '@mui/material/styles'
-import type { ChildrenType } from '@cap/platform-core'
-import { useSettings } from '@cap/platform-core'
+import type { ChildrenType } from '@cap/shared-types'
+import { useSettings } from '@cap/platform-store'
 import { verticalLayoutClasses } from '../../utils/layoutClasses'
 import StyledFooter from '../../styles/vertical/StyledFooter'
 import classnames from 'classnames'
@@ -39,7 +39,7 @@ const Footer: React.FC<
   const footerStyle = useComponentStyle('footer')
   // Phase 5: glassmorphism / neumorphism effect override
   const footerEffect = useComponentEffectConfig('footer')
-  const effectStyles = buildLayoutSurfaceEffect(footerEffect)
+  const effectStyles = buildLayoutSurfaceEffect(footerEffect, theme)
 
   const mergedOverrideStyles: CSSObject = {
     ...(footerStyle?.customProperties as CSSObject),
@@ -49,7 +49,6 @@ const Footer: React.FC<
 
   return (
     <StyledFooter
-      theme={theme}
       overrideStyles={mergedOverrideStyles}
       layoutPadding={layoutPadding}
       compactContentWidth={compactContentWidth}

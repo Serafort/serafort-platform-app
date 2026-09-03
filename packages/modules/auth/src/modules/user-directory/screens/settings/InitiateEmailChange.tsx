@@ -1,172 +1,352 @@
+// InitiateEmailChange.tsx
+// High-fidelity Initiate Email Change screen matching profile.tsx design system
 
-import { Box, Typography, Card, CardContent, Avatar, Button, Grid, TextField, Alert, AlertTitle, Container, IconButton, Stack } from '@mui/material';
-import { Mail, Security, Warning, ArrowForward, Lock, CalendarToday, ArrowBack } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { Path } from '@auth/routes/path';
+import React, { useState } from 'react'
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Avatar,
+  Button,
+  Grid,
+  TextField,
+  Alert,
+  AlertTitle,
+  Container,
+  IconButton,
+  Stack,
+  useTheme,
+  alpha,
+  CircularProgress,
+  InputAdornment,
+} from '@mui/material'
+import Mail from '@mui/icons-material/Mail'
+import Security from '@mui/icons-material/Security'
+import Warning from '@mui/icons-material/Warning'
+import ArrowForward from '@mui/icons-material/ArrowForward'
+import Lock from '@mui/icons-material/Lock'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import CalendarToday from '@mui/icons-material/CalendarToday'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useNotifications } from '@cap/platform-core'
+import { useGetUser, useChangeEmail } from '../../hooks/useUserQuery'
+import { Path } from '../../../../routes/path'
 
-const InitiateEmailChange = () => {
-  const { t } = useTranslation()
+const initiateSchema = z.object({
+  newEmail: z.string().email('Please enter a valid email address'),
+  currentPassword: z.string().min(1, 'Current password is required to verify identity'),
+})
+
+type InitiateFormData = z.infer<typeof initiateSchema>
+
+export default function InitiateEmailChange() {
+  const { t } = useTranslation('common')
+  const theme = useTheme()
   const navigate = useNavigate()
+  const { addNotification } = useNotifications()
+  const [showPassword, setShowPassword] = useState(false)
 
-  const userStatus = {
-    email: 'user@example.com',
-    memberSince: 'Nov 2021',
+  const { data: userData } = useGetUser()
+  const currentUser = userData?.data
+
+  const { mutate: changeEmail, isPending: isSubmitting } = useChangeEmail({
+    onSuccess: (_response, variables) => {
+      addNotification?.({
+        type: 'success',
+        title: t('auth.account.verification_dispatched', 'Verification Link Dispatched'),
+        message: t(
+          'auth.account.verification_dispatched_desc',
+          'A confirmation link has been sent to {{email}}.',
+          { email: variables.email },
+        ),
+      })
+      navigate(Path.account.emailChangeStatus, {
+        state: { newEmail: variables.email },
+      })
+    },
+    onError: (err) => {
+      addNotification?.({
+        type: 'error',
+        title: t('auth.account.request_failed', 'Request Failed'),
+        message:
+          err?.message ||
+          t('auth.account.email_change_failed', 'Unable to initiate email change request.'),
+      })
+    },
+  })
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<InitiateFormData>({
+    resolver: zodResolver(initiateSchema),
+    defaultValues: {
+      newEmail: '',
+      currentPassword: '',
+    },
+  })
+
+  const currentEmail = currentUser?.email ?? '—'
+  const memberSince = currentUser?.createdAt
+    ? new Date(currentUser.createdAt).toLocaleDateString(undefined, {
+        month: 'short',
+        year: 'numeric',
+      })
+    : t('auth.account.active_member', 'Active Member')
+
+  const onSubmit = (data: InitiateFormData) => {
+    changeEmail({ email: data.newEmail, password: data.currentPassword })
   }
 
   return (
-    <Container maxWidth='md' className='animate-scale-in' sx={{ py: 6 }}>
-      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={() => navigate(-1)} sx={{ mr: 2 }}>
-          <ArrowBack />
-        </IconButton>
-        <Typography variant='h4' fontWeight='bold'>
+    <Container maxWidth='md' sx={{ py: { xs: 3, md: 5 } }}>
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate('/profile')}
+          sx={{
+            mb: 1.5,
+            textTransform: 'none',
+            fontWeight: 600,
+            color: 'text.secondary',
+            p: 0,
+            minWidth: 0,
+            '&:hover': { bgcolor: 'transparent', color: 'text.primary' },
+          }}
+        >
+          {t('common.backToProfile', 'Back to Profile')}
+        </Button>
+        <Typography variant='h4' fontWeight={800} letterSpacing='-0.025em' gutterBottom>
           {t('auth.account.initiate_email_change_title', 'Initiate Email Change')}
+        </Typography>
+        <Typography variant='body2' color='text.secondary'>
+          {t(
+            'auth.account.initiate_email_change_desc',
+            'Update your primary contact email for login and security notifications. This action requires re-verification.',
+          )}
         </Typography>
       </Box>
 
-      <Typography variant='body1' color='text.secondary' sx={{ mb: 4 }}>
-        {t(
-          'auth.account.initiate_email_change_desc',
-          'Update your primary contact email for login and notifications. This action requires immediate re-verification.',
-        )}
-      </Typography>
-
-      <Grid container spacing={4}>
-        <Grid size={{ xs: 12, md: 7 }}>
-          <Stack spacing={3}>
-            {/* â”€â”€ SYSTEM PATTERN: metric_card (OrganizationProfile style) â”€â”€ */}
-            <Card className='glass-effect' variant='outlined' sx={{ borderRadius: 3, bgcolor: 'transparent' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant='subtitle1' fontWeight='bold' sx={{ mb: 3 }}>
-                  {t('auth.account.current_account_status', 'Current Account Status')}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Avatar sx={{ bgcolor: 'info.lighter', mr: 2 }}>
-                    <Mail sx={{ color: 'info.main' }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant='subtitle2' fontWeight='bold'>
-                      {userStatus.email}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
-                      <CalendarToday sx={{ fontSize: 14, mr: 0.5 }} />
-                      <Typography variant='caption'>
-                        Member since {userStatus.memberSince}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Grid container spacing={3.5}>
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Stack spacing={3}>
+              {/* Account Status Card */}
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
+                  boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
+                  bgcolor: 'background.paper',
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant='subtitle2' fontWeight={700} sx={{ mb: 2 }}>
+                    {t('auth.account.current_account_status', 'Current Account Status')}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Avatar
+                      sx={{
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        color: 'primary.main',
+                        mr: 2,
+                        width: 44,
+                        height: 44,
+                      }}
+                    >
+                      <Mail />
+                    </Avatar>
+                    <Box>
+                      <Typography variant='body2' fontWeight={700}>
+                        {currentEmail}
                       </Typography>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          color: 'text.secondary',
+                          mt: 0.25,
+                        }}
+                      >
+                        <CalendarToday sx={{ fontSize: 13, mr: 0.5 }} />
+                        <Typography variant='caption'>
+                          {t('auth.account.member_since', 'Member since {{date}}', {
+                            date: memberSince,
+                          })}
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
-                </Box>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className='glass-effect' variant='outlined' sx={{ borderRadius: 3, bgcolor: 'transparent' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography
-                  variant='subtitle1'
-                  fontWeight='bold'
-                  sx={{ mb: 3, display: 'flex', alignItems: 'center' }}
-                >
-                  <Security sx={{ mr: 1, fontSize: 20, color: 'info.main' }} />
-                  {t('auth.account.security_verification', 'Security Verification')}
-                </Typography>
-                <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-                  To proceed, please enter your current password to confirm your identity.
-                </Typography>
-                {/* â”€â”€ SYSTEM PATTERN: text_field (InputProps -> slotProps.input) â”€â”€ */}
-                <TextField
-                  fullWidth
-                  type='password'
-                  label={t('auth.account.current_password', 'Current Password')}
-                  placeholder={t(
-                    'auth.account.current_password_placeholder',
-                    'Enter your password',
+              {/* Form Input Card */}
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
+                  boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
+                  bgcolor: 'background.paper',
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Typography
+                    variant='subtitle2'
+                    fontWeight={700}
+                    sx={{ mb: 2, display: 'flex', alignItems: 'center' }}
+                  >
+                    <Security sx={{ mr: 1, fontSize: 18, color: 'primary.main' }} />
+                    {t('auth.account.security_verification', 'New Email & Identity Verification')}
+                  </Typography>
+
+                  <Stack spacing={2.5}>
+                    <Controller
+                      name='newEmail'
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label={t('auth.account.new_email_address', 'New Email Address')}
+                          placeholder={t(
+                            'auth.account.new_email_placeholder',
+                            'e.g. name@work.com',
+                          )}
+                          error={Boolean(errors.newEmail)}
+                          helperText={errors.newEmail?.message}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position='start'>
+                                <Mail color='action' />
+                              </InputAdornment>
+                            ),
+                            sx: { borderRadius: 2 },
+                          }}
+                        />
+                      )}
+                    />
+
+                    <Controller
+                      name='currentPassword'
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          type={showPassword ? 'text' : 'password'}
+                          label={t('auth.account.current_password', 'Current Password')}
+                          placeholder={t(
+                            'auth.account.confirm_password_placeholder',
+                            'Confirm your password',
+                          )}
+                          error={Boolean(errors.currentPassword)}
+                          helperText={errors.currentPassword?.message}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position='start'>
+                                <Lock color='action' />
+                              </InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position='end'>
+                                <IconButton
+                                  size='small'
+                                  onClick={() => setShowPassword(!showPassword)}
+                                >
+                                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                            sx: { borderRadius: 2 },
+                          }}
+                        />
+                      )}
+                    />
+                  </Stack>
+                </CardContent>
+              </Card>
+
+              {/* Submit CTA */}
+              <Button
+                type='submit'
+                variant='contained'
+                fullWidth
+                size='large'
+                disabled={isSubmitting}
+                endIcon={
+                  isSubmitting ? <CircularProgress size={18} color='inherit' /> : <ArrowForward />
+                }
+                sx={{
+                  py: 1.5,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                }}
+              >
+                {isSubmitting
+                  ? t('auth.account.dispatching_verification', 'Dispatching Verification...')
+                  : t('auth.account.continue_to_confirmation', 'Continue to Confirmation')}
+              </Button>
+            </Stack>
+          </Grid>
+
+          {/* Right Warning Column */}
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Stack spacing={2.5}>
+              <Alert
+                severity='warning'
+                icon={<Warning fontSize='inherit' />}
+                sx={{
+                  borderRadius: 2.5,
+                  bgcolor: alpha(theme.palette.warning.main, 0.08),
+                  border: `1px solid ${alpha(theme.palette.warning.main, 0.2)}`,
+                }}
+              >
+                <AlertTitle sx={{ fontWeight: 700 }}>
+                  {t('auth.account.session_termination_warning', 'Security Notice')}
+                </AlertTitle>
+                <Typography variant='body2' color='text.secondary'>
+                  {t(
+                    'auth.account.session_termination_desc',
+                    'Changing your primary email address will require immediate re-verification. All other active sessions will be invalidated for security.',
                   )}
-                  slotProps={{
-                    input: {
-                      startAdornment: <Lock sx={{ color: 'text.disabled', mr: 1, fontSize: 20 }} />,
-                    },
-                  }}
-                  sx={{ mb: 2 }}
-                />
-                <Button
-                  variant='text'
-                  size='small'
-                  sx={{ textTransform: 'none', fontWeight: 'bold', color: 'info.main' }}
+                </Typography>
+              </Alert>
+
+              <Box
+                sx={{
+                  p: 2.5,
+                  borderRadius: 2.5,
+                  bgcolor: alpha(theme.palette.background.paper, 0.5),
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                }}
+              >
+                <Typography
+                  variant='caption'
+                  color='text.secondary'
+                  display='block'
+                  textAlign='center'
                 >
-                  {t('auth.account.trouble_mfa', 'Trouble with MFA?')}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* â”€â”€ SYSTEM PATTERN: cta_button (info.main styling) â”€â”€ */}
-            <Button
-              variant='contained'
-              fullWidth
-              size='large'
-              endIcon={<ArrowForward />}
-              onClick={() => navigate(Path.account.changeEmail)}
-              sx={{
-                py: 1.5,
-                borderRadius: 3,
-                textTransform: 'none',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                bgcolor: 'info.main',
-                color: 'info.contrastText',
-                boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.2)',
-                '&:hover': {
-                  bgcolor: 'info.dark',
-                },
-              }}
-            >
-              {t('auth.account.continue', 'Continue')}
-            </Button>
-          </Stack>
+                  {t(
+                    'auth.account.security_footer',
+                    'Protected by end-to-end multi-factor validation and enterprise audit logging.',
+                  )}
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
         </Grid>
-
-        <Grid size={{ xs: 12, md: 5 }}>
-          <Stack spacing={3}>
-            <Alert
-              className='glass-effect'
-              severity='warning'
-              icon={<Warning fontSize='inherit' />}
-              sx={{
-                borderRadius: 3,
-                bgcolor: 'rgba(245, 158, 11, 0.1)',
-                border: '1px solid rgba(245, 158, 11, 0.2)',
-              }}
-            >
-              <AlertTitle sx={{ fontWeight: 'bold' }}>
-                {t('auth.account.session_termination_warning', 'Session Termination Warning')}
-              </AlertTitle>
-              <Typography variant='body2'>
-                {t(
-                  'auth.account.session_termination_desc',
-                  'Changing your email address will sign you out of all devices, including this one. You will need to verify your new email address before logging back in.',
-                )}
-              </Typography>
-            </Alert>
-
-            <Box sx={{ p: 2, textAlign: 'center' }}>
-              <Typography variant='caption' color='text.disabled'>
-                Protected by reCAPTCHA and subject to the Google{' '}
-                <Box component='span' sx={{ textDecoration: 'underline', cursor: 'pointer' }}>
-                  Privacy Policy
-                </Box>{' '}
-                and{' '}
-                <Box component='span' sx={{ textDecoration: 'underline', cursor: 'pointer' }}>
-                  Terms of Service
-                </Box>{' '}
-                apply.
-              </Typography>
-            </Box>
-          </Stack>
-        </Grid>
-      </Grid>
+      </form>
     </Container>
   )
 }
-
-export default InitiateEmailChange
-

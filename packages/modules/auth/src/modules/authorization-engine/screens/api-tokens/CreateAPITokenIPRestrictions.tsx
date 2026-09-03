@@ -34,9 +34,23 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import ShieldIcon from '@mui/icons-material/Shield'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useSnackbar } from 'notistack'
-import { useCreateToken } from "@auth/user-directory/hooks/useUserQuery"
-import { Path } from "@auth/routes/path"
+import { toast } from 'react-toastify'
+import { useCreateToken } from '@auth/user-directory/hooks/useUserQuery'
+import { Path } from '@auth/routes/path'
+
+export interface CreateAPITokenIPRestrictionsProps {
+  isWizard?: boolean
+  formData?: {
+    name: string
+    abilities: string[]
+    expiresIn: string
+    ipRestrictions?: string[]
+  }
+  onUpdate?: (updates: { ipRestrictions: string[] }) => void
+  onBack?: () => void
+  onSubmit?: (finalIpRestrictions?: string[]) => void
+  isSubmitting?: boolean
+}
 
 interface CreateTokenState {
   name: string
@@ -44,58 +58,105 @@ interface CreateTokenState {
   expiresIn: string
 }
 
-const CreateAPITokenIPRestrictions: React.FC = () => {
+const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> = ({
+  isWizard = false,
+  formData,
+  onUpdate,
+  onBack,
+  onSubmit,
+  isSubmitting = false,
+}) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
-  const { enqueueSnackbar } = useSnackbar()
   const theme = useTheme()
 
   // Use state from navigation or default to empty values
-  const state = (location.state as CreateTokenState) || {
-    name: '',
-    abilities: [],
-    expiresIn: '30 days',
-  }
+  const state =
+    isWizard && formData
+      ? formData
+      : (location.state as CreateTokenState) || {
+          name: '',
+          abilities: [],
+          expiresIn: '30 days',
+        }
   const isMissingState = !state.name
 
   const [ipInput, setIpInput] = useState('')
   const [ipError, setIpError] = useState(false)
-  const [ipList, setIpList] = useState<string[]>([])
+  const [localIpList, setLocalIpList] = useState<string[]>(
+    isWizard && formData?.ipRestrictions ? formData.ipRestrictions : [],
+  )
 
-  const validateIP = (ip: string) => {
-    // Basic IPv4 or CIDR regex
-    const regex = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/
-    return regex.test(ip)
+  const ipList = isWizard && formData?.ipRestrictions ? formData.ipRestrictions : localIpList
+
+  const setIpList = (newList: string[]) => {
+    if (isWizard && onUpdate) {
+      onUpdate({ ipRestrictions: newList })
+    } else {
+      setLocalIpList(newList)
+    }
+  }
+
+  // Postel's Law: validate and normalize IPv4/IPv6 single IP or CIDR block
+  const validateAndNormalizeIP = (ip: string): { valid: boolean; normalized: string } => {
+    // Strip leading/trailing spaces and accidental characters
+    const trimmed = ip.trim().replace(/[^\d.a-fA-F:/]/g, '')
+    // IPv4 CIDR regex (e.g., 192.168.1.1 or 10.0.0.0/24)
+    const ipv4Regex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})(\/([0-9]|[1-2][0-9]|3[0-2]))?$/
+    // IPv6 CIDR regex (simple)
+    const ipv6Regex =
+      /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}(\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$/
+
+    const ipv4Match = trimmed.match(ipv4Regex)
+    if (ipv4Match) {
+      const octets = [
+        Number(ipv4Match[1]),
+        Number(ipv4Match[2]),
+        Number(ipv4Match[3]),
+        Number(ipv4Match[4]),
+      ]
+      const allValid = octets.every((o) => o >= 0 && o <= 255)
+      if (allValid) {
+        return { valid: true, normalized: trimmed }
+      }
+      return { valid: false, normalized: trimmed }
+    }
+
+    if (ipv6Regex.test(trimmed)) {
+      return { valid: true, normalized: trimmed }
+    }
+    return { valid: false, normalized: trimmed }
   }
 
   const handleAddIP = () => {
-    const trimmed = ipInput.trim()
-    if (!trimmed) return
+    if (!ipInput.trim()) return
 
-    if (!validateIP(trimmed)) {
+    const { valid, normalized } = validateAndNormalizeIP(ipInput)
+    if (!valid) {
       setIpError(true)
-      enqueueSnackbar(t('api_tokens:invalid_ip_format', 'Invalid IP or CIDR format'), {
-        variant: 'error',
-      })
+      toast.error(
+        t(
+          'api_tokens:invalid_ip_format',
+          'Invalid IP address or CIDR notation (e.g. 192.168.1.1 or 10.0.0.0/24)',
+        ),
+      )
       return
     }
 
-    if (ipList.includes(trimmed)) {
-      enqueueSnackbar(t('api_tokens:ip_already_added', 'IP already in whitelist'), {
-        variant: 'warning',
-      })
+    if (ipList.includes(normalized)) {
+      toast.warning(t('api_tokens:ip_already_added', 'IP or CIDR range already in whitelist'))
       return
     }
 
-    setIpList([...ipList, trimmed])
+    setIpList([...ipList, normalized])
     setIpInput('')
     setIpError(false)
   }
 
   const handleInputChange = (val: string) => {
-    // Basic filter: only allow numbers, dots, and slashes
-    const filtered = val.replace(/[^0-9./]/g, '')
+    // Liberal input filter: allow numbers, dots, colons, letters (for IPv6) and slashes
+    const filtered = val.replace(/[^0-9a-fA-F.:/]/g, '')
     setIpInput(filtered)
     if (ipError) setIpError(false)
   }
@@ -115,7 +176,7 @@ const CreateAPITokenIPRestrictions: React.FC = () => {
         error instanceof Error
           ? error.message
           : t('api_tokens:create_error', 'Failed to create token')
-      enqueueSnackbar(message, { variant: 'error' })
+      toast.error(message)
     },
   })
 
@@ -124,6 +185,10 @@ const CreateAPITokenIPRestrictions: React.FC = () => {
   }
 
   const onCreateToken = () => {
+    if (isWizard && onSubmit) {
+      onSubmit(ipList)
+      return
+    }
     if (state?.name) {
       createTokenMutation.mutate({
         name: state.name,
@@ -135,6 +200,10 @@ const CreateAPITokenIPRestrictions: React.FC = () => {
   }
 
   const onSkipRestrictions = () => {
+    if (isWizard && onSubmit) {
+      onSubmit([])
+      return
+    }
     if (state?.name) {
       createTokenMutation.mutate({
         name: state.name,
@@ -145,89 +214,104 @@ const CreateAPITokenIPRestrictions: React.FC = () => {
     }
   }
 
+  const handleBackClick = () => {
+    if (isWizard && onBack) {
+      onBack()
+    } else {
+      navigate(Path.apiTokens.createBasic, { state })
+    }
+  }
+
+  const isPendingSubmit = isWizard ? isSubmitting : createTokenMutation.isPending
+
   return (
-    <Box sx={{ p: { xs: 2, md: 6 }, maxWidth: 900, mx: 'auto' }}>
-      {/* Breadcrumbs */}
-      <Breadcrumbs
-        separator={<NavigateNextIcon fontSize='small' sx={{ color: 'text.disabled' }} />}
-        sx={{ mb: 4 }}
-      >
-        <Link
-          underline='hover'
-          color='text.secondary'
-          onClick={() => navigate(Path.apiTokens.dashboard)}
-          sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 600 }}
-        >
-          {t('api_tokens:title', 'API Tokens')}
-        </Link>
-        <Typography color='text.primary' sx={{ fontWeight: 800 }}>
-          {t('api_tokens:create_title', 'Create New Token')}
-        </Typography>
-      </Breadcrumbs>
-
-      {/* Header */}
-      <Box sx={{ mb: 5 }}>
-        <Typography variant='h3' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
-          {t('api_tokens:restrictions_header', 'Network Security')}
-        </Typography>
-        <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1.05rem' }}>
-          {t(
-            'api_tokens:restrictions_subheader',
-            'Enhance security by restricting API calls to specific originating IP addresses.',
-          )}
-        </Typography>
-      </Box>
-
-      {/* Warning if state is missing */}
-      {isMissingState && (
-        <Alert
-          severity='warning'
-          variant='outlined'
-          sx={{ mb: 4, borderRadius: 2, bgcolor: alpha(theme.palette.warning.main, 0.05) }}
-          action={
-            <Button
-              color='inherit'
-              size='small'
-              onClick={() => navigate(Path.apiTokens.createBasic)}
-              sx={{ fontWeight: 700, textTransform: 'none' }}
+    <Box sx={isWizard ? { width: '100%' } : { p: { xs: 2, md: 6 }, maxWidth: 900, mx: 'auto' }}>
+      {/* Standalone header / breadcrumbs / stepper */}
+      {!isWizard && (
+        <>
+          {/* Breadcrumbs */}
+          <Breadcrumbs
+            separator={<NavigateNextIcon fontSize='small' sx={{ color: 'text.disabled' }} />}
+            sx={{ mb: 4 }}
+          >
+            <Link
+              underline='hover'
+              color='text.secondary'
+              onClick={() => navigate(Path.apiTokens.dashboard)}
+              sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 600 }}
             >
-              {t('api_tokens:go_back_config', 'Go back to step 1')}
-            </Button>
-          }
-        >
-          {t(
-            'api_tokens:config_state_lost',
-            'Configuration state was lost. Please go back and re-enter the token details.',
-          )}
-        </Alert>
-      )}
+              {t('api_tokens:title', 'API Tokens')}
+            </Link>
+            <Typography color='text.primary' sx={{ fontWeight: 800 }}>
+              {t('api_tokens:create_title', 'Create New Token')}
+            </Typography>
+          </Breadcrumbs>
 
-      {/* Stepper */}
-      <Box sx={{ mb: 4 }}>
-        <Stepper activeStep={1} alternativeLabel>
-          <Step>
-            <StepLabel StepIconComponent={() => <CheckCircleIcon color='success' />}>
-              <Typography sx={{ fontWeight: 700, color: 'success.main' }}>
-                {t('api_tokens:step_basic', 'Configuration')}
-              </Typography>
-            </StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>
-              <Typography sx={{ fontWeight: 700, color: 'primary.main' }}>
-                {t('api_tokens:step_restrictions', 'Restrictions')}
-              </Typography>
-            </StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>
-              <Typography sx={{ fontWeight: 600, color: 'text.disabled' }}>
-                {t('api_tokens:step_review', 'Deployment')}
-              </Typography>
-            </StepLabel>
-          </Step>
-        </Stepper>
-      </Box>
+          {/* Header */}
+          <Box sx={{ mb: 5 }}>
+            <Typography variant='h3' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+              {t('api_tokens:restrictions_header', 'Network Security')}
+            </Typography>
+            <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1.05rem' }}>
+              {t(
+                'api_tokens:restrictions_subheader',
+                'Enhance security by restricting API calls to specific originating IP addresses.',
+              )}
+            </Typography>
+          </Box>
+
+          {/* Warning if state is missing */}
+          {isMissingState && (
+            <Alert
+              severity='warning'
+              variant='outlined'
+              sx={{ mb: 4, borderRadius: 2, bgcolor: alpha(theme.palette.warning.main, 0.05) }}
+              action={
+                <Button
+                  color='inherit'
+                  size='small'
+                  onClick={() => navigate(Path.apiTokens.createBasic)}
+                  sx={{ fontWeight: 700, textTransform: 'none' }}
+                >
+                  {t('api_tokens:go_back_config', 'Go back to step 1')}
+                </Button>
+              }
+            >
+              {t(
+                'api_tokens:config_state_lost',
+                'Configuration state was lost. Please go back and re-enter the token details.',
+              )}
+            </Alert>
+          )}
+
+          {/* Stepper */}
+          <Box sx={{ mb: 4 }}>
+            <Stepper activeStep={1} alternativeLabel>
+              <Step>
+                <StepLabel StepIconComponent={() => <CheckCircleIcon color='success' />}>
+                  <Typography sx={{ fontWeight: 700, color: 'success.main' }}>
+                    {t('api_tokens:step_basic', 'Configuration')}
+                  </Typography>
+                </StepLabel>
+              </Step>
+              <Step>
+                <StepLabel>
+                  <Typography sx={{ fontWeight: 700, color: 'primary.main' }}>
+                    {t('api_tokens:step_restrictions', 'Restrictions')}
+                  </Typography>
+                </StepLabel>
+              </Step>
+              <Step>
+                <StepLabel>
+                  <Typography sx={{ fontWeight: 600, color: 'text.disabled' }}>
+                    {t('api_tokens:step_review', 'Deployment')}
+                  </Typography>
+                </StepLabel>
+              </Step>
+            </Stepper>
+          </Box>
+        </>
+      )}
 
       <Grid container spacing={4}>
         <Grid size={{ xs: 12, md: 7 }}>
@@ -410,7 +494,7 @@ const CreateAPITokenIPRestrictions: React.FC = () => {
             >
               <Button
                 startIcon={<ArrowBackIcon />}
-                onClick={() => navigate(Path.apiTokens.createBasic, { state })}
+                onClick={handleBackClick}
                 sx={{
                   fontWeight: 800,
                   textTransform: 'none',
@@ -424,7 +508,7 @@ const CreateAPITokenIPRestrictions: React.FC = () => {
                 <Button
                   variant='text'
                   onClick={onSkipRestrictions}
-                  disabled={createTokenMutation.isPending || isMissingState}
+                  disabled={isPendingSubmit || isMissingState}
                   sx={{ fontWeight: 800, textTransform: 'none', color: 'text.primary' }}
                 >
                   {t('api_tokens:skip_restrictions', 'Skip for now')}
@@ -433,7 +517,7 @@ const CreateAPITokenIPRestrictions: React.FC = () => {
                   variant='contained'
                   endIcon={<NavigateNextIcon />}
                   onClick={onCreateToken}
-                  loading={createTokenMutation.isPending}
+                  loading={isPendingSubmit}
                   disabled={isMissingState}
                   sx={{
                     px: 4,
@@ -520,6 +604,3 @@ const CreateAPITokenIPRestrictions: React.FC = () => {
 }
 
 export default CreateAPITokenIPRestrictions
-
-
-

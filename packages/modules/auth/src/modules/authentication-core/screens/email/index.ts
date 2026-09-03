@@ -4,6 +4,4 @@ export { default as EmailChangeVerificationPending } from './EmailChangeVerifica
 export { default as EmailChangeVerification } from './EmailChangeVerification'
 export { default as EmailChangeSuccess } from './EmailChangeSuccess'
 export { default as EmailChangeFailed } from './EmailChangeFailed'
-export { default as VerificationEmail } from './VerificationEmail'
 export { default as ExportVerification } from './ExportVerification'
-export { default as PasswordlessVerification } from './PasswordlessVerification'

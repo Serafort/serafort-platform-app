@@ -5,14 +5,17 @@ import type { ActionImpl } from 'kbar'
 import DefaultSuggestions from './DefaultSuggestions'
 import NoResult from './NoResult'
 import SearchResultItem from './SearchResultItem'
-import { SearchItemConfig } from '@cap/platform-core'
+import type { SearchItemConfig } from '@cap/shared-types'
+import { searchTokens } from '@cap/theme'
 
-// type Results = (string | ActionImpl)[]
 type Results = Array<string | ActionImpl>
 
-// Filter the search result data by limiting the number of results per section to 3 if
-// there is more than one section. Otherwise, limit the number of results to 5.
-const getFilteredResults = (results: Results) => {
+// Enforce Miller's & Hick's Law: limit suggestions to max 5 per section when multiple
+// sections exist, and max 7 when only one section exists to prevent choice overload.
+const MAX_SUGGESTIONS_PER_CATEGORY = 5
+const MAX_SUGGESTIONS_SINGLE_CATEGORY = 7
+
+const getFilteredResults = (results: Results): Results => {
   const sectionIndices: Array<number> = []
 
   results.forEach((item, index) => {
@@ -21,13 +24,22 @@ const getFilteredResults = (results: Results) => {
     }
   })
 
-  if (sectionIndices.length === 1) return results.slice(0, 6)
+  if (sectionIndices.length === 0) {
+    return results.slice(0, MAX_SUGGESTIONS_SINGLE_CATEGORY)
+  }
+
+  if (sectionIndices.length === 1) {
+    return results.slice(0, MAX_SUGGESTIONS_SINGLE_CATEGORY + 1)
+  }
 
   const data: Results = []
 
   sectionIndices.forEach((sectionIndex, index) => {
     const nextSectionIndex = sectionIndices[index + 1] || results.length
-    const sectionResults = results.slice(sectionIndex, Math.min(sectionIndex + 4, nextSectionIndex))
+    const sectionResults = results.slice(
+      sectionIndex,
+      Math.min(sectionIndex + MAX_SUGGESTIONS_PER_CATEGORY + 1, nextSectionIndex),
+    )
 
     data.push(...sectionResults)
   })
@@ -35,7 +47,13 @@ const getFilteredResults = (results: Results) => {
   return data
 }
 
-const SearchResults = ({ currentPath, data }: { currentPath: string; data: Array<SearchItemConfig> }) => {
+const SearchResults = ({
+  currentPath,
+  data,
+}: {
+  currentPath: string
+  data: Array<SearchItemConfig>
+}) => {
   // Use ref to track query without causing re-renders
   const queryRef = useRef<string | undefined>('')
 
@@ -57,21 +75,19 @@ const SearchResults = ({ currentPath, data }: { currentPath: string; data: Array
 
   return (
     <KBarResults
-      // If you do not want to filter the search data, you can remove `getFilteredResults`
-      // function below and directly pass `results` to `items` prop.
       items={getFilteredResults(results)}
       onRender={({ item, active }) =>
         typeof item === 'string' ? (
           <Box
             sx={{
-              paddingBlockStart: 4,
-              paddingBlockEnd: 2,
-              paddingInline: 4,
-              fontSize: '12px',
-              lineHeight: 1.16667,
+              paddingBlockStart: searchTokens.sectionHeader.paddingBlockStart,
+              paddingBlockEnd: searchTokens.sectionHeader.paddingBlockEnd,
+              paddingInline: searchTokens.sectionHeader.paddingInline,
+              fontSize: searchTokens.sectionHeader.fontSize,
+              lineHeight: searchTokens.sectionHeader.lineHeight,
               color: 'text.disabled',
               textTransform: 'uppercase',
-              letterSpacing: '0.8px',
+              letterSpacing: searchTokens.sectionHeader.letterSpacing,
             }}
           >
             {item}

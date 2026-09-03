@@ -4,18 +4,21 @@ import { eventBus } from '../../../domain-kernel/src/events/event-bus'
 import { rbacSubscriber } from '../../authorization-engine/src/services/rbac.subscriber'
 import { apiClient } from '@cap/platform-core'
 
-vi.mock('@cap/platform-core', () => ({
-  apiClient: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-  },
-  TenantService: {
-    verifyTenantAuthFeature: vi.fn(() => true),
-  },
-}))
-
+vi.mock('@cap/platform-core', async (importOriginal) => {
+  const actual: any = await importOriginal()
+  return {
+    ...actual,
+    apiClient: {
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
+    },
+    TenantService: {
+      verifyTenantAuthFeature: vi.fn(() => true),
+    },
+  }
+})
 
 describe('authService EventBus Integration', () => {
   beforeEach(() => {
@@ -25,8 +28,19 @@ describe('authService EventBus Integration', () => {
   })
 
   it('publishes UserAuthenticated, SessionCreated, and TokenIssued events on successful signin', async () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    
+    const userAuthenticated: any[] = []
+    const sessionCreated: any[] = []
+    const tokenIssued: any[] = []
+    eventBus.subscribe('UserAuthenticated', (evt) => {
+      userAuthenticated.push(evt)
+    })
+    eventBus.subscribe('SessionCreated', (evt) => {
+      sessionCreated.push(evt)
+    })
+    eventBus.subscribe('TokenIssued', (evt) => {
+      tokenIssued.push(evt)
+    })
+
     vi.mocked(apiClient.post).mockResolvedValueOnce({
       status: 200,
       data: {
@@ -38,17 +52,27 @@ describe('authService EventBus Integration', () => {
 
     await authService.signin({ email: 'test@example.com', password: 'password123' })
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[RbacSubscriber] User usr-123 authenticated, session: sess-456')
-    )
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[RbacSubscriber] Session sess-456 created for user usr-123')
-    )
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[RbacSubscriber] access token issued for user usr-123')
-    )
+    expect(userAuthenticated).toHaveLength(1)
+    expect(userAuthenticated[0].payload).toMatchObject({
+      userId: 'usr-123',
+      email: 'test@example.com',
+      method: 'password',
+      sessionId: 'sess-456',
+    })
 
-    consoleSpy.mockRestore()
+    expect(sessionCreated).toHaveLength(1)
+    expect(sessionCreated[0].payload).toMatchObject({
+      sessionId: 'sess-456',
+      userId: 'usr-123',
+      expiresAt: '2026-12-31T23:59:59Z',
+    })
+
+    expect(tokenIssued).toHaveLength(1)
+    expect(tokenIssued[0].payload).toMatchObject({
+      tokenId: 'access-token',
+      userId: 'usr-123',
+      tokenType: 'access',
+    })
   })
 
   it('publishes AuthenticationFailed event on signin failure', async () => {
@@ -61,7 +85,7 @@ describe('authService EventBus Integration', () => {
     vi.mocked(apiClient.post).mockRejectedValueOnce(new Error('Invalid credentials'))
 
     await expect(
-      authService.signin({ email: 'wrong@example.com', password: 'wrong' })
+      authService.signin({ email: 'wrong@example.com', password: 'wrong' }),
     ).rejects.toThrow('Invalid credentials')
 
     expect(publishedEvents.length).toBe(1)
@@ -72,29 +96,43 @@ describe('authService EventBus Integration', () => {
   })
 
   it('publishes SessionRevoked event on signout', async () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    vi.mocked(apiClient.post).mockResolvedValueOnce({ status: 200, data: { message: 'Success' } } as any)
+    const sessionRevoked: any[] = []
+    eventBus.subscribe('SessionRevoked', (evt) => {
+      sessionRevoked.push(evt)
+    })
+    vi.mocked(apiClient.post).mockResolvedValueOnce({
+      status: 200,
+      data: { message: 'Success' },
+    } as any)
 
     await authService.signout()
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[RbacSubscriber] Session current-session revoked for user current-user, reason: user_logout')
-    )
-
-    consoleSpy.mockRestore()
+    expect(sessionRevoked).toHaveLength(1)
+    expect(sessionRevoked[0].payload).toMatchObject({
+      sessionId: 'current-session',
+      userId: 'current-user',
+      reason: 'user_logout',
+    })
   })
 
   it('publishes SessionRevoked event when revokeSession is called', async () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    vi.mocked(apiClient.delete).mockResolvedValueOnce({ status: 200, data: { message: 'Success' } } as any)
+    const sessionRevoked: any[] = []
+    eventBus.subscribe('SessionRevoked', (evt) => {
+      sessionRevoked.push(evt)
+    })
+    vi.mocked(apiClient.delete).mockResolvedValueOnce({
+      status: 200,
+      data: { message: 'Success' },
+    } as any)
 
     await authService.revokeSession('sess-999')
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[RbacSubscriber] Session sess-999 revoked for user current-user, reason: admin_revoked')
-    )
-
-    consoleSpy.mockRestore()
+    expect(sessionRevoked).toHaveLength(1)
+    expect(sessionRevoked[0].payload).toMatchObject({
+      sessionId: 'sess-999',
+      userId: 'current-user',
+      reason: 'admin_revoked',
+    })
   })
 
   it('publishes TokenRefreshed event when refreshToken succeeds', async () => {

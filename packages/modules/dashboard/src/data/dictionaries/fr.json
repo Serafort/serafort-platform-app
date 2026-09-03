@@ -1,0 +1,40 @@
+{
+  "navigation": {
+    "dashboard": "Tableau de bord"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "subtitle": "Votre aperçu personnalisé. Activez le mode personnalisation pour réorganiser les widgets.",
+    "customModeToggle": "Personnaliser le tableau de bord",
+    "exitCustomMode": "Quitter la personnalisation",
+    "customModeHint": "Le mode personnalisation est actif. Faites glisser les widgets par leur poignée, ou utilisez le menu de chaque widget pour les déplacer au clavier.",
+    "resetLayout": "Réinitialiser la disposition",
+    "widgetMenu": "Actions du widget",
+    "moveLeft": "Déplacer le widget à gauche",
+    "moveRight": "Déplacer le widget à droite",
+    "dragHandle": "Faites glisser pour déplacer le widget",
+    "widgetLoading": "Chargement du widget...",
+    "resizeWidth": "Largeur / Colonnes",
+    "resizeHeight": "Hauteur / Rognage",
+    "span4": "1/3 Largeur (4 col)",
+    "span8": "2/3 Largeur (8 col)",
+    "span12": "Pleine largeur (12 col)",
+    "heightCompact": "Compact (200px)",
+    "heightStandard": "Standard (280px)",
+    "heightTall": "Grand (400px)"
+  },
+  "widgets": {
+    "revenueChart": {
+      "title": "Aperçu des revenus",
+      "subtitle": "6 derniers mois"
+    },
+    "recentOrders": {
+      "title": "Commandes récentes",
+      "subtitle": "Dernières transactions"
+    },
+    "weather": {
+      "title": "Météo",
+      "subtitle": "Conditions actuelles"
+    }
+  }
+}

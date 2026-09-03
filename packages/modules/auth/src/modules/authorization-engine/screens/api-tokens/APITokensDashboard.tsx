@@ -1,11 +1,45 @@
-import React, { useState } from 'react';
-import { Box, Typography, Button, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Chip, TextField, InputAdornment, Breadcrumbs, Link, Tooltip, useTheme, Grid, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
-import { Add as AddIcon, Search as SearchIcon, MoreVert as MoreVertIcon, Visibility as ViewIcon, NavigateNext as NavigateNextIcon, VpnKey as KeyIcon, Security as SecurityIcon, Timer as TimerIcon, Terminal as TerminalIcon } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
-import { useUserTokens, useRevokeToken } from '@auth/user-directory/hooks/useUserQuery';
-import { Path } from '@auth/routes/path';
+import React, { useState } from 'react'
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Chip,
+  TextField,
+  InputAdornment,
+  Breadcrumbs,
+  Link,
+  Tooltip,
+  useTheme,
+  Grid,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import SearchIcon from '@mui/icons-material/Search'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import ViewIcon from '@mui/icons-material/Visibility'
+import NavigateNextIcon from '@mui/icons-material/NavigateNext'
+import KeyIcon from '@mui/icons-material/VpnKey'
+import SecurityIcon from '@mui/icons-material/Security'
+import TimerIcon from '@mui/icons-material/Timer'
+import TerminalIcon from '@mui/icons-material/Terminal'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { useUserTokens, useRevokeToken } from '@auth/user-directory/hooks/useUserQuery'
+import { Path } from '@auth/routes/path'
 
 interface APIToken {
   id: string | number
@@ -21,24 +55,19 @@ const APITokensDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
   const [searchQuery, setSearchQuery] = useState('')
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedToken, setSelectedToken] = useState<APIToken | null>(null)
 
-  const { data: tokensResponse, isLoading, isError, refetch } = useUserTokens()
+  const { data: tokensResponse, isLoading, refetch } = useUserTokens()
   const revokeTokenMutation = useRevokeToken({
     onSuccess: () => {
-      enqueueSnackbar(t('api_tokens:revoked_success', 'Token revoked successfully'), {
-        variant: 'success',
-      })
+      toast.success(t('api_tokens:revoked_success', 'Token revoked successfully'), {})
       refetch()
       handleMenuClose()
     },
     onError: (error: any) => {
-      enqueueSnackbar(error.message || t('api_tokens:revoked_error', 'Failed to revoke token'), {
-        variant: 'error',
-      })
+      toast.error(error.message || t('api_tokens:revoked_error', 'Failed to revoke token'), {})
     },
   })
 
@@ -74,9 +103,13 @@ const APITokensDashboard: React.FC = () => {
     }
   }
 
-  const filteredTokens = tokens.filter((token) =>
-    token.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  const filteredTokens = (Array.isArray(tokens) ? tokens : []).filter((token) => {
+    if (!token) return false
+    const tokenName = token.name || (token as any).token || (token as any).type || ''
+    return String(tokenName)
+      .toLowerCase()
+      .includes((searchQuery || '').toLowerCase())
+  })
 
   return (
     <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
@@ -125,7 +158,7 @@ const APITokensDashboard: React.FC = () => {
                 </Typography>
               </Box>
               <Typography variant='h4' fontWeight='bold'>
-                {tokens.filter((t) => t.status === 'active').length}
+                {tokens.filter((t) => t?.status === 'active').length}
               </Typography>
             </CardContent>
           </Card>
@@ -230,7 +263,7 @@ const APITokensDashboard: React.FC = () => {
                   <TableRow key={token.id} hover>
                     <TableCell>
                       <Typography variant='body2' fontWeight='medium'>
-                        {token.name}
+                        {token.name || (token as any).token || 'API Token'}
                       </Typography>
                       <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
                         {(token.abilities || []).slice(0, 2).map((scope) => (
@@ -254,13 +287,15 @@ const APITokensDashboard: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Chip
-                        label={token.status.toUpperCase()}
+                        label={(token.status || 'ACTIVE').toUpperCase()}
                         color={getStatusColor(token.status)}
                         size='small'
                         sx={{ fontWeight: 'bold', fontSize: '0.7rem' }}
                       />
                     </TableCell>
-                    <TableCell>{new Date(token.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {token.createdAt ? new Date(token.createdAt).toLocaleDateString() : '-'}
+                    </TableCell>
                     <TableCell>
                       {token.lastUsedAt
                         ? new Date(token.lastUsedAt).toLocaleString()
@@ -365,4 +400,3 @@ const APITokensDashboard: React.FC = () => {
 }
 
 export default APITokensDashboard
-

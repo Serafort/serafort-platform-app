@@ -1,5 +1,5 @@
 import React from 'react'
-import type { Locale } from '@cap/platform-core'
+import { getMergedDictionary, type Locale } from '@cap/platform-core'
 
 const dictionaries = {
   en: () => import('../data/dictionaries/en.json').then((module) => module.default),
@@ -7,9 +7,27 @@ const dictionaries = {
   ar: () => import('../data/dictionaries/ar.json').then((module) => module.default),
 }
 
+function deepMerge(target: any, source: any): any {
+  const output = { ...target }
+  if (target && typeof target === 'object' && source && typeof source === 'object') {
+    Object.keys(source).forEach((key) => {
+      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+        if (!(key in target)) {
+          Object.assign(output, { [key]: source[key] })
+        } else {
+          output[key] = deepMerge(target[key], source[key])
+        }
+      } else {
+        Object.assign(output, { [key]: source[key] })
+      }
+    })
+  }
+  return output
+}
+
 /**
  * Hook to load translations
- * Uses local dictionary files instead of API calls
+ * Uses local dictionary files combined with module-registered dictionaries
  */
 export const useLang = (code?: Locale): Record<string, string | object> => {
   const [lang, setLang] = React.useState<Record<string, string | object>>({})
@@ -22,7 +40,7 @@ export const useLang = (code?: Locale): Record<string, string | object> => {
         setLang(dictionary)
       } catch {
         console.warn(`Translation file for ${code} not available, using fallback`)
-        setLang({}) // Fallback to empty object
+        setLang({})
       }
     }
 
@@ -34,13 +52,17 @@ export const useLang = (code?: Locale): Record<string, string | object> => {
 
 /**
  * Get dictionary by locale
- * Loads dictionary files from local imports
+ * Merges shell dictionary with module-registered i18n dictionaries
  */
 export const getDictionary = async (locale: Locale) => {
+  let baseDict = {}
   try {
-    return await dictionaries[locale]()
+    baseDict = await dictionaries[locale]()
   } catch {
     console.warn(`Dictionary for locale ${locale} not found, falling back to en`)
-    return await dictionaries.en()
+    baseDict = await dictionaries.en()
   }
+
+  const moduleDict = getMergedDictionary(locale)
+  return deepMerge(baseDict, moduleDict)
 }

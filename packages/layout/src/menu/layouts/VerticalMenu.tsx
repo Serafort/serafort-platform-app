@@ -1,16 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
-import { useTheme } from '@mui/material/styles';
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import { useSettings, type Dictionary } from '@cap/platform-core';
-import { useVerticalNav } from '../../hooks/useVerticalNav';
-import { Menu } from '../vertical-menu';
-import type { VerticalMenuContextProps } from '../components/vertical-menu/Menu';
-import StyledVerticalNavExpandIcon from '../styles/vertical/StyledVerticalNavExpandIcon';
-import menuItemStyles from '../../styles/core/vertical/menuItemStyles';
-import menuSectionStyles from '../../styles/core/vertical/menuSectionStyles';
-import ChevronRight from '@mui/icons-material/ChevronRight';
-import ModuleMenuRenderer from './ModuleMenuRenderer';
+import React from 'react'
+import { useTheme } from '@mui/material/styles'
+import PerfectScrollbar from 'react-perfect-scrollbar'
+import type { Dictionary } from '@cap/shared-types'
+import { useSettings } from '@cap/platform-store'
+import {
+  layoutMenuTokens,
+  getLayoutMenuButtonActiveBg,
+  getVerticalMenuButtonActiveShadow,
+  getAdminMenuButtonHoverBg,
+  getAdminMenuSectionLabelColor,
+} from '@cap/theme'
+import { useVerticalNav } from '../../hooks/useVerticalNav'
+import { Menu } from '../vertical-menu'
+import type { VerticalMenuContextProps } from '../components/vertical-menu/Menu'
+import StyledVerticalNavExpandIcon from '../styles/vertical/StyledVerticalNavExpandIcon'
+import menuItemStyles from '../../styles/core/vertical/menuItemStyles'
+import menuSectionStyles from '../../styles/core/vertical/menuSectionStyles'
+import ChevronRight from '@mui/icons-material/ChevronRight'
+import ModuleMenuRenderer from './ModuleMenuRenderer'
 
 type RenderExpandIconProps = {
   open?: boolean
@@ -44,7 +52,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
     <ScrollWrapper
       {...(isBreakpointReached
         ? {
-            className: 'bs-full overflow-y-auto overflow-x-hidden',
+            className: layoutMenuTokens.verticalMenu.scrollWrapperClassName,
             onScroll: (e: React.UIEvent<HTMLElement>) => scrollMenu(e.currentTarget, false),
           }
         : {
@@ -53,50 +61,50 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
           })}
     >
       <Menu
-        popoutMenuOffset={{ mainAxis: 23 }}
+        popoutMenuOffset={{ mainAxis: layoutMenuTokens.verticalMenu.popoutMainAxisOffset }}
         menuItemStyles={{
           ...menuItemStyles(verticalNavOptions, theme, settings),
           button: ({ active, level }: { active?: boolean; level?: number }) => ({
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            borderRadius: '10px !important',
-            margin: '4px 12px !important',
-            paddingInline: '12px !important',
+            transition: layoutMenuTokens.verticalMenu.button.transition,
+            borderRadius: layoutMenuTokens.verticalMenu.button.borderRadius,
+            margin: layoutMenuTokens.verticalMenu.button.margin,
+            paddingInline: layoutMenuTokens.verticalMenu.button.paddingInline,
             '&:hover': {
-              background: active
-                ? 'var(--mui-palette-primary-mainOpacity)'
-                : 'var(--premium-gradient) !important',
-              transform: 'translateX(4px)',
+              background: getAdminMenuButtonHoverBg(theme, active),
+              transform: layoutMenuTokens.verticalMenu.button.hoverTranslateX,
               '& .tabler-icon, & i': {
-                transform: 'scale(1.15)',
-                color: 'var(--mui-palette-primary-main) !important',
-                transition: 'all 0.3s ease',
+                transform: layoutMenuTokens.verticalMenu.button.hoverIconScale,
+                color: `${theme.palette.primary.main} !important`,
+                transition: layoutMenuTokens.verticalMenu.button.hoverIconTransition,
               },
             },
             ...(active &&
               level === 0 && {
-                background: 'var(--mui-palette-primary-mainOpacity) !important',
-                boxShadow: '0 4px 12px 0 rgba(var(--mui-palette-primary-mainChannel), 0.2)',
+                background: getLayoutMenuButtonActiveBg(theme),
+                boxShadow: getVerticalMenuButtonActiveShadow(theme),
               }),
           }),
           label: {
-            fontWeight: 500,
+            fontWeight: layoutMenuTokens.verticalMenu.button.activeShadowAlpha > 0 ? 500 : 400,
             letterSpacing: '0.01rem',
           },
         }}
         renderExpandIcon={({ open }: { open?: boolean }) => (
           <RenderExpandIcon open={open} transitionDuration={transitionDuration} />
         )}
-        renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
+        renderExpandedMenuItemIcon={{
+          icon: <i className={layoutMenuTokens.verticalMenu.expandedMenuItemIconClass} />,
+        }}
         menuSectionStyles={{
           ...menuSectionStyles(verticalNavOptions, theme),
           root: {
-            marginBlockStart: '15px !important',
+            marginBlockStart: layoutMenuTokens.verticalMenu.sectionLabel.rootMarginBlockStart,
             '& .ts-menu-section-label': {
-              color: 'var(--mui-palette-text-disabled) !important',
-              fontSize: '0.75rem !important',
-              fontWeight: '700 !important',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
+              color: getAdminMenuSectionLabelColor(theme),
+              fontSize: layoutMenuTokens.verticalMenu.sectionLabel.fontSize,
+              fontWeight: layoutMenuTokens.verticalMenu.sectionLabel.fontWeight,
+              textTransform: layoutMenuTokens.verticalMenu.sectionLabel.textTransform,
+              letterSpacing: layoutMenuTokens.verticalMenu.sectionLabel.letterSpacing,
             },
           },
         }}

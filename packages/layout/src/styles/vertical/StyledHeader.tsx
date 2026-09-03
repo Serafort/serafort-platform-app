@@ -1,182 +1,171 @@
-import styled from '@emotion/styled'
-// themeConfig values inlined to avoid circular import (layoutPadding:24, compactContentWidth:1440)
-import { verticalLayoutClasses } from '../../utils/layoutClasses'
+import { styled, alpha } from '@mui/material/styles'
+import {
+  headerTokens,
+  getHeaderElevationShadow,
+  getHeaderBorderInline,
+  getHeaderBorderBlockEnd,
+  getHeaderBorderFull,
+  getFloatingNavbarInlineSize,
+  getCompactFloatingMaxInlineSize,
+  getHeaderFloatingMask,
+} from '@cap/theme'
 import type { Theme } from '@mui/material/styles'
 import type { CSSObject } from '@emotion/styled'
+import { verticalLayoutClasses } from '../../utils/layoutClasses'
 
 type StyledHeaderProps = {
-  theme: Theme
+  theme?: Theme
   overrideStyles?: CSSObject
   layoutPadding: string
   compactContentWidth: number
 }
 
-const StyledHeader = styled.header<StyledHeaderProps>`
-  min-block-size: var(--header-height);
+const StyledHeader = styled('header')<StyledHeaderProps>(({
+  theme,
+  layoutPadding,
+  compactContentWidth,
+  overrideStyles,
+}: any) => {
+  return {
+    minBlockSize: headerTokens?.layout?.minBlockSize || '64px',
 
-  &.${verticalLayoutClasses.headerContentCompact} {
-    &.${verticalLayoutClasses.headerFloating}
-      .${verticalLayoutClasses.navbar},
-      &.${verticalLayoutClasses.headerDetached}
-      .${verticalLayoutClasses.navbar},
-      &.${verticalLayoutClasses.headerAttached}
-      .${verticalLayoutClasses.navbar} {
-      margin-inline: auto;
-    }
+    [`&.${verticalLayoutClasses.headerContentCompact}`]: {
+      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}`]:
+        {
+          marginInline: headerTokens?.layout?.compactMarginInline || 'auto',
+        },
 
-    &.${verticalLayoutClasses.headerFloating}
-      .${verticalLayoutClasses.navbar},
-      &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached}
-      .${verticalLayoutClasses.navbar} {
-      max-inline-size: calc(
-        ${({ compactContentWidth }) => compactContentWidth}px - ${({ layoutPadding }) => `calc(${layoutPadding} * 2)`}
-      );
-    }
+      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+        {
+          maxInlineSize: getCompactFloatingMaxInlineSize(compactContentWidth, layoutPadding),
+        },
 
-    .${verticalLayoutClasses.navbar} {
-      max-inline-size: ${({ compactContentWidth }) => compactContentWidth}px;
-    }
+      [`.${verticalLayoutClasses.navbar}`]: {
+        maxInlineSize: `${compactContentWidth}px`,
+      },
+    },
 
-    .${verticalLayoutClasses.navbar} {
-      max-inline-size: ${({ compactContentWidth }) => compactContentWidth}px;
-    }
+    [`&.${verticalLayoutClasses.headerFixed}`]: {
+      position: headerTokens?.positioning?.sticky || 'sticky',
+      insetBlockStart: headerTokens?.positioning?.insetBlockStart || '0px',
+      zIndex: theme?.zIndex?.appBar || 1100,
+
+      [`&:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerAttached}, &:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+        {
+          backgroundColor: theme?.palette?.background?.paper || '#fff',
+        },
+
+      [`&.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]: {
+        boxShadow: getHeaderElevationShadow(theme),
+        borderEndStartRadius: `${theme?.shape?.borderRadius || 6}px`,
+        borderEndEndRadius: `${theme?.shape?.borderRadius || 6}px`,
+
+        '[data-skin="bordered"] &': {
+          boxShadow: headerTokens?.borderedSkin?.boxShadow || 'none',
+          borderInline: getHeaderBorderInline(theme),
+          borderBlockEnd: getHeaderBorderBlockEnd(theme),
+        },
+      },
+
+      [`&.${verticalLayoutClasses.headerDetached}, &.${verticalLayoutClasses.headerFloating}`]: {
+        pointerEvents: headerTokens?.interaction?.containerPointerEvents || 'none',
+
+        [`& .${verticalLayoutClasses.navbar}`]: {
+          pointerEvents: headerTokens?.interaction?.navbarPointerEvents || 'auto',
+        },
+      },
+
+      [`&.${verticalLayoutClasses.headerBlur}`]: {
+        [`&.${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}`]:
+          {
+            backdropFilter: headerTokens?.glassmorphism?.backdropFilter || 'blur(8px)',
+            backgroundColor: alpha(
+              theme?.palette?.background?.paper || '#ffffff',
+              headerTokens?.glassmorphism?.paperOpacity || 0.85,
+            ),
+          },
+
+        [`&.${verticalLayoutClasses.headerFloating}`]: {
+          '&:before': {
+            content: headerTokens?.floatingOverlay?.content || '""',
+            position: headerTokens?.floatingOverlay?.position || 'absolute',
+            zIndex: headerTokens?.floatingOverlay?.zIndex || -1,
+            insetBlockStart: headerTokens?.floatingOverlay?.insetBlockStart || '0',
+            insetInline: headerTokens?.floatingOverlay?.insetInline || '0',
+            blockSize: headerTokens?.floatingOverlay?.blockSize || '100%',
+            background: `linear-gradient(
+              ${headerTokens?.floatingOverlay?.gradientAngle || '180deg'},
+              ${alpha(theme?.palette?.background?.default || '#ffffff', headerTokens?.floatingOverlay?.stops?.topAlpha || 0.7)} ${headerTokens?.floatingOverlay?.stops?.topPosition || '0%'},
+              ${alpha(theme?.palette?.background?.default || '#ffffff', headerTokens?.floatingOverlay?.stops?.midAlpha || 0.4)} ${headerTokens?.floatingOverlay?.stops?.midPosition || '50%'},
+              ${alpha(theme?.palette?.background?.default || '#ffffff', headerTokens?.floatingOverlay?.stops?.bottomAlpha || 0)}
+            )`,
+            backdropFilter: headerTokens?.floatingOverlay?.backdropFilter || 'blur(8px)',
+            mask: getHeaderFloatingMask(theme),
+          },
+        },
+      },
+
+      [`&.${verticalLayoutClasses.headerAttached}.scrolled`]: {
+        boxShadow: getHeaderElevationShadow(theme),
+
+        '[data-skin="bordered"] &': {
+          boxShadow: headerTokens?.borderedSkin?.boxShadow || 'none',
+          borderBlockEnd: getHeaderBorderBlockEnd(theme),
+        },
+      },
+
+      [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+        {
+          transition:
+            theme?.transitions?.create?.([
+              'box-shadow',
+              'border-width',
+              'padding-inline',
+              'backdrop-filter',
+            ]) || 'all 0.2s ease',
+        },
+
+      [`&:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerDetached}.scrolled .${verticalLayoutClasses.navbar}`]:
+        {
+          paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
+        },
+    },
+
+    [`&.${verticalLayoutClasses.headerFloating}`]: {
+      paddingBlockStart: headerTokens?.layout?.floatingPaddingBlockStart || '0.75rem',
+
+      [`.${verticalLayoutClasses.navbar}`]: {
+        backgroundColor: theme?.palette?.background?.paper || '#ffffff',
+        borderRadius: `${theme?.shape?.borderRadius || 6}px`,
+        paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
+        boxShadow: getHeaderElevationShadow(theme),
+
+        '[data-skin="bordered"] &': {
+          boxShadow: headerTokens?.borderedSkin?.boxShadow || 'none',
+          border: getHeaderBorderFull(theme),
+        },
+      },
+    },
+
+    [`&.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
+      {
+        inlineSize: getFloatingNavbarInlineSize(layoutPadding),
+      },
+
+    [`&:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerStatic} .${verticalLayoutClasses.navbar}`]:
+      {
+        paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
+      },
+
+    [`.${verticalLayoutClasses.navbar}`]: {
+      position: headerTokens?.positioning?.navbarPosition || 'relative',
+      paddingBlock: headerTokens?.layout?.paddingBlock || '0.5rem',
+      paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
+      inlineSize: headerTokens?.layout?.fullInlineSize || '100%',
+    },
+
+    ...(overrideStyles as any),
   }
-
-  &.${verticalLayoutClasses.headerFixed} {
-    position: sticky;
-    inset-block-start: 0;
-    z-index: var(--header-z-index);
-
-    &:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerAttached},
-      &:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerDetached}
-      .${verticalLayoutClasses.navbar} {
-      background-color: var(--mui-palette-background-paper);
-    }
-
-    &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar} {
-      box-shadow: var(--mui-customShadows-sm);
-
-      [data-skin='bordered'] & {
-        box-shadow: none;
-        border-inline: 1px solid var(--border-color);
-        border-block-end: 1px solid var(--border-color);
-      }
-    }
-    &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar} {
-      border-end-start-radius: var(--border-radius);
-      border-end-end-radius: var(--border-radius);
-    }
-
-    &.${verticalLayoutClasses.headerDetached}, &.${verticalLayoutClasses.headerFloating} {
-      pointer-events: none;
-
-      & .${verticalLayoutClasses.navbar} {
-        pointer-events: auto;
-      }
-    }
-
-    &.${verticalLayoutClasses.headerBlur} {
-      &.${verticalLayoutClasses.headerAttached},
-        &.${verticalLayoutClasses.headerDetached}
-        .${verticalLayoutClasses.navbar},
-        &.${verticalLayoutClasses.headerFloating}
-        .${verticalLayoutClasses.navbar} {
-        backdrop-filter: blur(6px);
-        background-color: rgb(var(--background-color-rgb) / 0.88);
-      }
-
-      &.${verticalLayoutClasses.headerFloating} {
-        &:before {
-          content: '';
-          position: absolute;
-          z-index: var(--z-behind);
-          inset-block-start: 0;
-          inset-inline: 0;
-          block-size: 100%;
-          background: linear-gradient(
-            180deg,
-            rgb(var(--mui-palette-background-defaultChannel) / 0.7) 44%,
-            rgb(var(--mui-palette-background-defaultChannel) / 0.43) 73%,
-            rgb(var(--mui-palette-background-defaultChannel) / 0)
-          );
-          backdrop-filter: blur(10px);
-          mask: linear-gradient(
-            var(--mui-palette-background-default),
-            var(--mui-palette-background-default) 18%,
-            transparent 100%
-          );
-        }
-      }
-    }
-
-    &.${verticalLayoutClasses.headerAttached}.scrolled {
-      box-shadow: var(--mui-customShadows-sm);
-
-      [data-skin='bordered'] & {
-        box-shadow: none;
-        border-block-end: 1px solid var(--border-color);
-      }
-    }
-
-    &.${verticalLayoutClasses.headerFloating}
-      .${verticalLayoutClasses.navbar},
-      &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached},
-      &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerDetached}
-      .${verticalLayoutClasses.navbar} {
-      ${({ theme }) =>
-        `transition: ${theme.transitions.create([
-          'box-shadow',
-          'border-width',
-          'padding-inline',
-          'backdrop-filter',
-        ])}`};
-    }
-    &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached}
-      .${verticalLayoutClasses.navbar},
-      &:not(
-        .${verticalLayoutClasses.headerFloating}
-      ).${verticalLayoutClasses.headerDetached}.scrolled
-      .${verticalLayoutClasses.navbar} {
-      padding-inline: 16px;
-    }
-  }
-
-  &.${verticalLayoutClasses.headerFloating} {
-    padding-block-start: 16px;
-
-    .${verticalLayoutClasses.navbar} {
-      background-color: var(--mui-palette-background-paper);
-      border-radius: var(--border-radius);
-      padding-inline: 16px;
-      box-shadow: var(--mui-customShadows-sm);
-
-      [data-skin='bordered'] & {
-        box-shadow: none;
-        border: 1px solid var(--border-color);
-      }
-    }
-  }
-
-  &.${verticalLayoutClasses.headerFloating}
-    .${verticalLayoutClasses.navbar},
-    &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached}
-    .${verticalLayoutClasses.navbar} {
-    inline-size: calc(100% - ${({ layoutPadding }) => `calc(${layoutPadding} * 2)`});
-  }
-
-  &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerStatic}
-    .${verticalLayoutClasses.navbar} {
-    padding-inline: 16px;
-  }
-
-  .${verticalLayoutClasses.navbar} {
-    position: relative;
-    padding-block: 8px;
-    padding-inline: 16px;
-    inline-size: 100%;
-  }
-
-  ${({ overrideStyles }) => overrideStyles}
-`
+})
 
 export default StyledHeader

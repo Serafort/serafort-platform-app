@@ -1,4 +1,4 @@
-import type { ThemeColor } from '@cap/platform-core'
+import type { ThemeColor } from '@cap/shared-types'
 import type { AvatarProps } from '@mui/material/Avatar'
 import MuiAvatar from '@mui/material/Avatar'
 import { styled } from '@mui/material/styles'

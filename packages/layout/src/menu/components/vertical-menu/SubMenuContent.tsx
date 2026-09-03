@@ -99,7 +99,7 @@ const SubMenuContent: React.ForwardRefRenderFunction<HTMLDivElement, SubMenuCont
       {!browserScroll && level === 0 && isPopoutWhenCollapsed && isCollapsed ? (
         <PerfectScrollbar
           options={{ wheelPropagation: false, suppressScrollX: true }}
-          style={{ maxBlockSize: `calc((var(--vh, 1vh) * 100))` }}
+          style={{ maxBlockSize: '100dvh' }}
         >
           <ul className='menu-ul'>{children}</ul>
         </PerfectScrollbar>

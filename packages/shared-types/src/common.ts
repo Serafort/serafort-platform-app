@@ -25,7 +25,7 @@ export interface ApiResponse<T = any> {
 
 export interface PaginatedResponse<T> {
   data: T[];
-  meta: ApiMeta['pagination'] & {
+  meta: ApiMeta["pagination"] & {
     total_pages?: number; // legacy compatibility
   };
 }
@@ -35,4 +35,19 @@ export interface ApiErrorResponse {
   status: number;
   code?: string;
   errors?: Record<string, string[]>;
+}
+
+export enum HttpMethodEnum {
+  GET = "GET",
+  POST = "POST",
+  PUT = "PUT",
+  DELETE = "DELETE",
+  PATCH = "PATCH",
+}
+
+export enum OptimisticUpdateTypeEnum {
+  CREATE = "create",
+  UPDATE = "update",
+  DELETE = "delete",
+  CUSTOM = "custom",
 }

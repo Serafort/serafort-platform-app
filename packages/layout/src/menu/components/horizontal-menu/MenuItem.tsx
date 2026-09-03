@@ -1,20 +1,19 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
-import classnames from 'classnames';
-import { useUpdateEffect } from 'react-use';
-import type { CSSObject } from '@emotion/styled';
-// 
-import type { ChildrenType, RootStylesType } from '../../types';
-import { HorizontalSubMenuContext } from '../../contexts/horizontalSubMenuContext';
-import MenuButton from './MenuButton';
-import { useHorizontalMenu } from '../../contexts/horizontalNavContext';
-import { useVerticalNav } from '../../contexts/verticalNavContext';
-import { renderMenuIcon } from '../../utils/menuUtils';
-import { menuClasses } from '../../utils/menuClasses';
-import StyledMenuLabel from '../../styles/StyledMenuLabel';
-import StyledMenuPrefix from '../../styles/StyledMenuPrefix';
-import StyledMenuSuffix from '../../styles/StyledMenuSuffix';
-import StyledHorizontalMenuItem from '../../styles/horizontal/StyledHorizontalMenuItem';
+import React from 'react'
+import { useLocation } from 'react-router-dom'
+import classnames from 'classnames'
+import { useUpdateEffect } from 'react-use'
+import type { CSSObject } from '@emotion/styled'
+import type { ChildrenType, RootStylesType } from '../../types'
+import { HorizontalSubMenuContext } from '../../contexts/horizontalSubMenuContext'
+import MenuButton from './MenuButton'
+import { useHorizontalMenu } from '../../contexts/horizontalNavContext'
+import { useVerticalNav } from '../../contexts/verticalNavContext'
+import { renderMenuIcon } from '../../utils/menuUtils'
+import { menuClasses } from '../../utils/menuClasses'
+import StyledMenuLabel from '../../styles/StyledMenuLabel'
+import StyledMenuPrefix from '../../styles/StyledMenuPrefix'
+import StyledMenuSuffix from '../../styles/StyledMenuSuffix'
+import StyledHorizontalMenuItem from '../../styles/horizontal/StyledHorizontalMenuItem'
 
 export type MenuItemProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'prefix'> &
   RootStylesType &
@@ -78,7 +77,7 @@ const MenuItem: React.ForwardRefRenderFunction<HTMLLIElement, MenuItemProps> = (
       if (styleFunction) {
         // If the style function is a function, call it and return the result.
         // Otherwise, return the style function itself.
-        return typeof styleFunction === 'function' ? styleFunction(params) : styleFunction
+        return (typeof styleFunction === 'function' ? styleFunction(params) : styleFunction) as any
       }
     }
   }

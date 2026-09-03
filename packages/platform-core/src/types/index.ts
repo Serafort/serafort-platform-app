@@ -20,6 +20,7 @@ export type {
   SearchItemConfig,
   NavItemConfig,
   NavVariant,
+  RouteLayout,
 } from '@cap/shared-types'
 export type { Settings } from '@cap/shared-types'
 

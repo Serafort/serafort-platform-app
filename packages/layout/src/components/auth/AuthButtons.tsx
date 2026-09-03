@@ -1,26 +1,23 @@
-import React from 'react';
-import { Button, Stack } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React from 'react'
+import { Button, Stack } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Path } from '@cap/module-auth/routes/path'
 
 /**
- * Shared component for authentication buttons (Login/Register)
+ * Shared component for authentication buttons (Sign In / Sign Up)
  */
 const AuthButtons: React.FC = () => {
   const navigate = useNavigate()
-  // We'll avoid importing Path from @cap/module-auth to break circularity.
-  // We can hardcode the paths or move Path to platform-core later.
-  const authPaths = {
-    signin: '/login',
-    signup: '/register'
-  }
+  const { t } = useTranslation()
 
   return (
     <Stack direction='row' spacing={1}>
-      <Button variant='outlined' size='small' onClick={() => navigate(authPaths.signin)}>
-        Login
+      <Button variant='outlined' size='small' onClick={() => navigate(Path.auth.signin)}>
+        {t('navigation.login')}
       </Button>
-      <Button variant='contained' size='small' onClick={() => navigate(authPaths.signup)}>
-        Register
+      <Button variant='contained' size='small' onClick={() => navigate(Path.auth.signup)}>
+        {t('navigation.register')}
       </Button>
     </Stack>
   )

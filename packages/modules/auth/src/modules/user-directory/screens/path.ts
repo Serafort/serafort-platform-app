@@ -1,20 +1,33 @@
 const Path = {
-  profile: '/auth/account/view',
-  view: '/auth/account/view', // Alias for profile
-  edit: '/auth/account/edit',
-  settings: '/auth/account/settings',
-  changeEmail: '/auth/account/change-email',
-  linkedAccounts: '/auth/account/linked-accounts',
-  deactivate: '/auth/account/deactivate',
-  delete: '/auth/account/delete',
-  users: '/admin/users',
-  userProfile: '/admin/users/:id',
-  banManagement: '/admin/bans',
-  impersonationLogs: '/admin/impersonation-logs',
-  organizations: '/admin/organizations',
-  organizationProfile: '/admin/organizations/:id',
-  invitations: '/admin/organizations/:id/invitations',
-  emailChangeStatus: '/auth/account/email-change-status',
-  initiateEmailChange: '/auth/account/initiate-email-change',
+  admin: {
+    organizations: {
+      domain_verification: '/organizations/domain-verification',
+      list: '/organizations',
+      organizationProfile: '/organizations/:id',
+      invitations: '/organizations/:id/invitations',
+    },
+    users: {
+      user_profile: '/admin/user/:id',
+      ban_management: '/admin/user/:id/ban',
+      user_create: '/admin/user',
+      data_export: '/admin/user/data-export',
+      impersonation_logs: '/admin/user/:id/impersonation-logs',
+      issues_ban_dialog: '/admin/issues-ban-dialog',
+      reset_password_dialog: '/admin/reset-password-dialog',
+      list: '/admin/users',
+    },
+  },
+  profile: {
+    view: '/profile',
+    linkedAccounts: '/profile/linked-accounts',
+  },
+  settings: {
+    change_email: '/user/change-email',
+    data_export: '/user/data-export',
+    deactivate: '/user/deactivate',
+    delete: '/user/delete',
+    email_change_status: '/user/email-change-status',
+    initiate_email_change: '/user/initiate-email-change',
+  },
 }
 export default Path

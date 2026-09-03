@@ -1,16 +1,10 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { 
-  MenuItem, 
-  SubMenu, 
-  MenuSection 
-} from '../vertical-menu'
-import { 
-  useNavigationMenu,
-  type NavItemConfig, 
-  type NavVariant,
-  type Dictionary,
-} from '@cap/platform-core'
+import { useTranslation } from 'react-i18next'
+import { MenuItem, SubMenu, MenuSection } from '../vertical-menu'
+import type { NavVariant, Dictionary } from '@cap/shared-types'
+import { useNavigationMenu } from '@cap/platform-core'
+import { MenuTreeAdapter, ProcessedNavItem } from '../adapters/MenuTreeAdapter'
 
 interface Props {
   variant: NavVariant
@@ -19,81 +13,59 @@ interface Props {
 
 /**
  * ModuleMenuRenderer
- * 
+ *
  * The 'connector' that snaps module-declared navigation into the menu.
- * It filters, sorts, and groups items by section before rendering.
+ * Delegates tree transformation to MenuTreeAdapter and renders pure UI components.
  */
+
 const ModuleMenuRenderer: React.FC<Props> = ({ variant, dictionary }) => {
-  const filteredItems = useNavigationMenu(variant)
-  const sortedItems = filteredItems // Hook already sorts
+  const { t } = useTranslation()
+  const sortedItems = useNavigationMenu(variant)
 
-  // 3. Helper to render a single item recursively
-  const renderItem = (item: NavItemConfig) => {
-    const label = dictionary['navigation']?.[item.label.replace('navigation.', '')] || item.label
-    const icon = item.icon ? <i className={item.icon} /> : undefined
+  const renderedSections = React.useMemo(() => {
+    const sections = MenuTreeAdapter.buildMenuTree(sortedItems, dictionary, t)
 
-    if (item.children && item.children.length > 0) {
-      // Sort children
-      const sortedChildren = [...item.children].sort((a, b) => (a.order || 0) - (b.order || 0))
-      
+    const renderProcessedItem = (item: ProcessedNavItem): React.ReactNode => {
+      const icon = item.icon ? (
+        React.isValidElement(item.icon) ? (
+          item.icon
+        ) : typeof item.icon === 'string' ? (
+          item.icon.startsWith('tabler-') ? (
+            <i className={item.icon} />
+          ) : (
+            <i className={`tabler-${item.icon}`} />
+          )
+        ) : undefined
+      ) : undefined
+
+      if (item.children && item.children.length > 0) {
+        return (
+          <SubMenu key={item.id} label={item.label} icon={icon}>
+            {item.children.map((child) => renderProcessedItem(child))}
+          </SubMenu>
+        )
+      }
+
       return (
-        <SubMenu key={item.id} label={label} icon={icon}>
-          {sortedChildren.map(child => renderItem(child))}
-        </SubMenu>
+        <MenuItem key={item.id} component={item.path ? <Link to={item.path} /> : 'div'} icon={icon}>
+          {item.label}
+        </MenuItem>
       )
     }
 
-    return (
-      <MenuItem 
-        key={item.id} 
-        component={item.path ? <Link to={item.path} /> : 'div'} 
-        icon={icon}
-      >
-        {label}
-      </MenuItem>
-    )
-  }
-
-  // 4. Group by section and render
-  const renderedSections: React.ReactNode[] = []
-  let currentSectionId: string | undefined = undefined
-  let currentSectionItems: React.ReactNode[] = []
-
-  const flushSection = () => {
-    if (currentSectionItems.length > 0) {
-      if (currentSectionId) {
-        // Find the item that defined this section to get its label
-        const sectionItem = sortedItems.find(i => i.id === currentSectionId)
-        const sectionLabel = sectionItem?.section || 'Section'
-        
-        renderedSections.push(
-          <MenuSection key={currentSectionId} label={sectionLabel}>
-            {currentSectionItems}
+    return sections.map((section, idx) => {
+      if (section.label) {
+        return (
+          <MenuSection key={section.id || `section_${idx}`} label={section.label}>
+            {section.items.map(renderProcessedItem)}
           </MenuSection>
         )
-      } else {
-        renderedSections.push(...currentSectionItems)
       }
-      currentSectionItems = []
-    }
-  }
-
-  sortedItems.forEach(item => {
-    if (item.section) {
-      flushSection()
-      currentSectionId = item.id
-      // If it has children or a path, render it inside the section
-      // Otherwise it's just a section header definition
-      if (item.path || (item.children && item.children.length > 0)) {
-        currentSectionItems.push(renderItem(item))
-      }
-    } else {
-      currentSectionItems.push(renderItem(item))
-    }
-  })
-  flushSection()
+      return section.items.map(renderProcessedItem)
+    })
+  }, [sortedItems, dictionary, t])
 
   return <>{renderedSections}</>
 }
 
-export default ModuleMenuRenderer
+export default React.memo(ModuleMenuRenderer)

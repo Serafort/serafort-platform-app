@@ -1,7 +1,6 @@
-
-import { IAuthPlugin } from '@cap/platform-core';
-import { Button } from '@mui/material';
-import { PhonelinkLock } from '@mui/icons-material';
+import { IAuthPlugin } from '@cap/platform-core'
+import { Button } from '@mui/material'
+import PhonelinkLock from '@mui/icons-material/PhonelinkLock'
 
 /**
  * MFA TOTP Plugin (Demonstration of Module Magnetism)
@@ -10,12 +9,12 @@ export const MFATOTPPlugin: IAuthPlugin = {
   id: 'mfa-totp',
   name: 'auth.mfa.totp.title',
   type: 'secondary',
-  
+
   ui: {
     loginOption: ({ onClick, disabled }) => (
       <Button
         fullWidth
-        variant="outlined"
+        variant='outlined'
         startIcon={<PhonelinkLock />}
         onClick={onClick}
         disabled={disabled}
@@ -31,7 +30,7 @@ export const MFATOTPPlugin: IAuthPlugin = {
         MFA Code (Authenticator)
       </Button>
     ),
-    
+
     verificationView: ({ challenge, onVerify, onCancel, isLoading }) => {
       // In a real scenario, this would be a specialized screen component
       return (
@@ -44,11 +43,11 @@ export const MFATOTPPlugin: IAuthPlugin = {
           <button onClick={onCancel}>Cancel</button>
         </div>
       )
-    }
+    },
   },
-  
+
   handleChallenge: async (challengeData) => {
     // Logic to prepare the UI for this specific challenge
     return { ...challengeData, method: 'totp' }
-  }
+  },
 }

@@ -1,10 +1,12 @@
 import styled from '@emotion/styled'
+import { menuTokens, getSubmenuPopoutShadow, getTenantThemeEffects } from '@cap/theme'
 import type { SubMenuContentProps } from '../components/vertical-menu/SubMenuContent'
+import { SurfaceEffectFactory } from '../../utils/buildLayoutSurfaceEffect'
 
 const StyledSubMenuContent = styled.div<SubMenuContentProps>`
   display: none;
   overflow: hidden;
-  z-index: calc(var(--drawer-z-index) + 1);
+  z-index: ${({ theme }: any) => (theme?.zIndex?.drawer ? theme.zIndex.drawer + 1 : 1201)};
   transition: ${({ transitionDuration }) => `block-size ${transitionDuration}ms ease-in-out`};
   box-sizing: border-box;
 
@@ -17,26 +19,28 @@ const StyledSubMenuContent = styled.div<SubMenuContentProps>`
       block-size: 0 !important;
     `}
 
-  ${({ isCollapsed, level, isPopoutWhenCollapsed }) =>
-    isCollapsed && level === 0 && isPopoutWhenCollapsed
-      ? `
-      display: block;
-      padding-inline-start: 0px;
-      inline-size: 260px;
-      border-radius: 4px;
-      block-size: auto !important;
-      transition: none !important;
-      background-color: white;
-      box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
-     `
-      : `
+  ${({ isCollapsed, level, isPopoutWhenCollapsed, theme }: any) => {
+    if (isCollapsed && level === 0 && isPopoutWhenCollapsed) {
+      const surfaceEffect = SurfaceEffectFactory.create(getTenantThemeEffects(theme), theme)
+      return {
+        display: 'block',
+        paddingInlineStart: '0px',
+        inlineSize: menuTokens.vertical.item.popoutSubmenuInlineSize,
+        borderRadius: menuTokens.vertical.item.popoutBorderRadius,
+        blockSize: 'auto !important',
+        transition: 'none !important',
+        backgroundColor: theme?.palette?.background?.paper || '#ffffff',
+        boxShadow: getSubmenuPopoutShadow(theme),
+        ...surfaceEffect,
+      }
+    }
+    return `
       position: static !important;
       transform: none !important;
-      `}
+    `
+  }}
 
-  ${({ browserScroll }) =>
-    browserScroll && `overflow-y: auto; max-block-size: calc((var(--vh, 1vh) * 100));`}
-
+  ${({ browserScroll }) => browserScroll && `overflow-y: auto; max-block-size: 100dvh;`}
 
   ${({ rootStyles }) => rootStyles};
 `

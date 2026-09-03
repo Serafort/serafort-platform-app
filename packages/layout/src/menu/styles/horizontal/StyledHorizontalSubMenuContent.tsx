@@ -1,17 +1,19 @@
 import styled from '@emotion/styled'
+import { menuTokens, getSubmenuPopoutShadow } from '@cap/theme'
 import type { SubMenuContentProps } from '../../components/horizontal-menu/SubMenuContent'
 
 const StyledHorizontalSubMenuContent = styled.div<SubMenuContentProps>`
-  inline-size: 260px;
-  border-radius: 4px;
-  box-shadow: 0 9px 28px 8px #00000011;
+  inline-size: ${({ theme }: any) =>
+    menuTokens?.horizontal?.item?.popoutSubmenuInlineSize || '260px'};
+  border-radius: ${({ theme }: any) => `${theme?.shape?.borderRadius || 4}px`};
+  box-shadow: ${({ theme }: any) => getSubmenuPopoutShadow(theme)};
   outline: none;
   box-sizing: border-box;
-  background-color: white;
+  background-color: ${({ theme }: any) => theme?.palette?.background?.paper || '#ffffff'};
   overflow: hidden;
 
   ${({ browserScroll, top }) =>
-    browserScroll && `overflow-y: auto; max-block-size: calc((var(--vh, 1vh) * 100) - ${top}px);`}
+    browserScroll && `overflow-y: auto; max-block-size: calc(100dvh - ${top}px);`}
   ${({ $rootStyles }) => $rootStyles};
 `
 

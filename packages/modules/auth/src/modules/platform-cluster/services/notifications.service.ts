@@ -1,6 +1,6 @@
 import { apiClient, FetchResponse } from '@cap/platform-core'
+import { ENDPOINTS } from '@cap/platform-core'
 
-import { ENDPOINTS } from "@idaas/authentication-core/services/endpoints"
 /**
  * Notifications Service
  */
@@ -39,5 +39,4 @@ export const notificationsService = {
   },
 }
 
-
-
+export default notificationsService

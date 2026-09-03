@@ -1,6 +1,6 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { FetchResponse, HttpError, apiClient } from '@cap/platform-core'
-import { ENDPOINTS } from '../services/endpoints'
+import { ENDPOINTS } from '@cap/platform-core'
 
 export interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy'
@@ -70,7 +70,7 @@ export function useHealth(
 ) {
   return useQuery({
     queryKey: ['health', 'basic'],
-    queryFn: () => apiClient.get(ENDPOINTS.health.basic),
+    queryFn: () => apiClient.get<HealthStatus>(ENDPOINTS.health.basic),
     staleTime: 1000 * 60,
     ...options,
   })
@@ -81,7 +81,7 @@ export function useHealthLive(
 ) {
   return useQuery({
     queryKey: ['health', 'live'],
-    queryFn: () => apiClient.get(ENDPOINTS.health.live),
+    queryFn: () => apiClient.get<HealthStatus>(ENDPOINTS.health.live),
     staleTime: 1000 * 30,
     refetchInterval: 30000,
     ...options,
@@ -93,7 +93,7 @@ export function useHealthReady(
 ) {
   return useQuery({
     queryKey: ['health', 'ready'],
-    queryFn: () => apiClient.get(ENDPOINTS.health.ready),
+    queryFn: () => apiClient.get<HealthStatus>(ENDPOINTS.health.ready),
     staleTime: 1000 * 30,
     ...options,
   })
@@ -104,7 +104,7 @@ export function useDetailedHealth(
 ) {
   return useQuery({
     queryKey: ['health', 'detailed'],
-    queryFn: () => apiClient.get(ENDPOINTS.health.detailed),
+    queryFn: () => apiClient.get<DetailedHealth>(ENDPOINTS.health.detailed),
     staleTime: 1000 * 60,
     ...options,
   })
@@ -126,7 +126,7 @@ export function useMetrics(
 ) {
   return useQuery({
     queryKey: ['metrics', 'basic'],
-    queryFn: () => apiClient.get(ENDPOINTS.metrics.basic),
+    queryFn: () => apiClient.get<SystemMetrics>(ENDPOINTS.metrics.basic),
     staleTime: 1000 * 30,
     refetchInterval: 30000,
     ...options,
@@ -138,7 +138,7 @@ export function usePrometheusMetrics(
 ) {
   return useQuery({
     queryKey: ['metrics', 'prometheus'],
-    queryFn: () => apiClient.get(ENDPOINTS.metrics.prometheus),
+    queryFn: () => apiClient.get<string>(ENDPOINTS.metrics.prometheus),
     staleTime: 1000 * 60,
     ...options,
   })

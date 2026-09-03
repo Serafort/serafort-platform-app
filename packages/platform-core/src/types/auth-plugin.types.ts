@@ -1,5 +1,5 @@
-import { ComponentType } from 'react';
-import type { Dictionary } from '@cap/shared-types';
+import { ComponentType } from 'react'
+import type { Dictionary } from '@cap/shared-types'
 
 /**
  * Interface for Identity Extensions (MFA, Passwordless, etc.)
@@ -7,22 +7,22 @@ import type { Dictionary } from '@cap/shared-types';
 export interface IAuthPlugin {
   /** Unique identifier for the plugin (e.g., 'mfa-totp') */
   id: string
-  
+
   /** Human-readable name (localized key) */
   name: string
-  
+
   /** Classification of the auth method */
   type: 'primary' | 'secondary' | 'recovery' | 'biometric'
-  
+
   /** Plugin-specific components for UI injection */
   ui?: {
-    /** 
+    /**
      * Small component to show in the login options list.
      * e.g., "Sign in with SMS" button or icon.
      */
     loginOption?: ComponentType<{ onClick: () => void; disabled?: boolean }>
-    
-    /** 
+
+    /**
      * Main challenge component (e.g., OTP code entry screen).
      */
     verificationView?: ComponentType<{
@@ -32,7 +32,7 @@ export interface IAuthPlugin {
       isLoading?: boolean
       error?: string | null
     }>
-    
+
     /**
      * Settings component for enabling/configuring the method.
      */
@@ -41,13 +41,13 @@ export interface IAuthPlugin {
       onCancel: () => void
     }>
   }
-  
+
   /**
    * Logic for handling server challenges.
    * Returns metadata for UI or verification protocol specific data.
    */
   handleChallenge: (challengeData: Dictionary) => Promise<Dictionary>
-  
+
   /**
    * Hook for plugin-specific state or side effects during the auth flow.
    */

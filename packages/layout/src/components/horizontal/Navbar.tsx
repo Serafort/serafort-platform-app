@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ChildrenType } from '@cap/platform-core'
+import type { ChildrenType } from '@cap/shared-types'
 import Box from '@mui/material/Box'
 import { horizontalLayoutClasses } from '../../utils/layoutClasses'
 import classnames from 'classnames'

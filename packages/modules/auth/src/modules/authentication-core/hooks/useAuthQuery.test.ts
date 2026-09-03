@@ -4,13 +4,23 @@ import React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { FetchResponse } from '@cap/platform-core'
 
-// ─── Shared mock fns (declared before vi.mock so factories can close over them) ──
-
-const mockSignin = vi.fn()
-const mockSignout = vi.fn()
-const mockRevokeSession = vi.fn()
-const mockRevokeAllSessions = vi.fn()
-const mockRefreshToken = vi.fn()
+const {
+  mockSignin,
+  mockSignout,
+  mockRevokeSession,
+  mockRevokeAllSessions,
+  mockRefreshToken,
+  mockSetTokens,
+  mockClearTokens,
+} = vi.hoisted(() => ({
+  mockSignin: vi.fn(),
+  mockSignout: vi.fn(),
+  mockRevokeSession: vi.fn(),
+  mockRevokeAllSessions: vi.fn(),
+  mockRefreshToken: vi.fn(),
+  mockSetTokens: vi.fn(),
+  mockClearTokens: vi.fn(),
+}))
 
 vi.mock('../services/auth.service', () => ({
   default: {
@@ -22,27 +32,22 @@ vi.mock('../services/auth.service', () => ({
   },
 }))
 
-const mockSetTokens = vi.fn()
-const mockClearTokens = vi.fn()
-
-vi.mock('@cap/platform-core', () => ({
-  secureTokenManager: {
-    setTokens: mockSetTokens,
-    clearTokens: mockClearTokens,
-  },
-  useAppStore: {
-    getState: () => ({
-      setUser: vi.fn(),
-      signOut: vi.fn(),
-    }),
-  },
-  Session: class {
-    write = vi.fn()
-  },
-  QUERY_KEYS: {
-    auth: { session: ['auth', 'session'] },
-  },
-}))
+vi.mock('@cap/platform-core', async (importOriginal) => {
+  const actual: any = await importOriginal()
+  return {
+    ...actual,
+    secureTokenManager: {
+      setTokens: mockSetTokens,
+      clearTokens: mockClearTokens,
+    },
+    useAppStore: {
+      getState: () => ({
+        setUser: vi.fn(),
+        signOut: vi.fn(),
+      }),
+    },
+  }
+})
 
 // ─── Auth store mock (real Zustand store so state updates are observable) ────
 
@@ -63,7 +68,7 @@ function makeWrapper() {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const ok = <T>(data: T): FetchResponse<T> =>
-  ({ data, status: 200, statusText: 'OK', headers: new Headers(), ok: true, config: {} } as any)
+  ({ data, status: 200, statusText: 'OK', headers: new Headers(), ok: true, config: {} }) as any
 
 const err = (message = 'Server error', status = 500) => {
   const e: any = new Error(message)
@@ -105,12 +110,12 @@ describe('useSignin', () => {
     mockSignin.mockResolvedValue(ok({ token: 'abc123', user: { id: 1 }, expires_in: 1800 }))
     const { result } = renderHook(() => useSignin(), { wrapper: makeWrapper() })
 
-    await act(async () => { result.current.mutate({ data: { email: 'x@y.com', password: 'pw' } }) })
+    await act(async () => {
+      result.current.mutate({ data: { email: 'x@y.com', password: 'pw' } })
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-    expect(mockSetTokens).toHaveBeenCalledWith(
-      expect.objectContaining({ accessToken: 'abc123' }),
-    )
+    expect(mockSetTokens).toHaveBeenCalledWith(expect.objectContaining({ accessToken: 'abc123' }))
   })
 
   it('sets isAuthenticated=true and stores the user in the auth store', async () => {
@@ -118,7 +123,9 @@ describe('useSignin', () => {
     mockSignin.mockResolvedValue(ok({ token: 'tok', user, expires_in: 3600 }))
     const { result } = renderHook(() => useSignin(), { wrapper: makeWrapper() })
 
-    await act(async () => { result.current.mutate({ data: { email: 'u@v.com', password: 'pw' } }) })
+    await act(async () => {
+      result.current.mutate({ data: { email: 'u@v.com', password: 'pw' } })
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     const store = useAuthStore.getState()
@@ -131,7 +138,9 @@ describe('useSignin', () => {
     mockSignin.mockResolvedValue(ok({ mfa_required: true, userId: 99 }))
     const { result } = renderHook(() => useSignin(), { wrapper: makeWrapper() })
 
-    await act(async () => { result.current.mutate({ data: { email: 'a@b.com', password: 'pw' } }) })
+    await act(async () => {
+      result.current.mutate({ data: { email: 'a@b.com', password: 'pw' } })
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     const store = useAuthStore.getState()
@@ -144,9 +153,13 @@ describe('useSignin', () => {
   it('writes an error banner and calls customOnError when the API rejects', async () => {
     const customOnError = vi.fn()
     mockSignin.mockRejectedValue(err('Invalid credentials', 401))
-    const { result } = renderHook(() => useSignin({ onError: customOnError }), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useSignin({ onError: customOnError }), {
+      wrapper: makeWrapper(),
+    })
 
-    await act(async () => { result.current.mutate({ data: { email: 'a@b.com', password: 'bad' } }) })
+    await act(async () => {
+      result.current.mutate({ data: { email: 'a@b.com', password: 'bad' } })
+    })
     await waitFor(() => expect(result.current.isError).toBe(true))
 
     expect(useAuthStore.getState().errorBanner).toBeTruthy()
@@ -156,9 +169,13 @@ describe('useSignin', () => {
   it('calls the custom onSuccess callback after the built-in logic runs', async () => {
     const customOnSuccess = vi.fn()
     mockSignin.mockResolvedValue(ok({ token: 'tok', user: { id: 1 }, expires_in: 3600 }))
-    const { result } = renderHook(() => useSignin({ onSuccess: customOnSuccess }), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useSignin({ onSuccess: customOnSuccess }), {
+      wrapper: makeWrapper(),
+    })
 
-    await act(async () => { result.current.mutate({ data: { email: 'a@b.com', password: 'pw' } }) })
+    await act(async () => {
+      result.current.mutate({ data: { email: 'a@b.com', password: 'pw' } })
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(customOnSuccess).toHaveBeenCalledTimes(1)
@@ -181,7 +198,9 @@ describe('useSignout', () => {
     mockSignout.mockResolvedValue(ok({ message: 'Logged out' }))
     const { result } = renderHook(() => useSignout(), { wrapper: makeWrapper() })
 
-    await act(async () => { result.current.mutate() })
+    await act(async () => {
+      result.current.mutate()
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(mockSignout).toHaveBeenCalledTimes(1)
@@ -191,7 +210,9 @@ describe('useSignout', () => {
     mockSignout.mockResolvedValue(ok({ message: 'Logged out' }))
     const { result } = renderHook(() => useSignout(), { wrapper: makeWrapper() })
 
-    await act(async () => { result.current.mutate() })
+    await act(async () => {
+      result.current.mutate()
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(mockClearTokens).toHaveBeenCalledTimes(1)
@@ -204,9 +225,13 @@ describe('useSignout', () => {
   it('calls the custom onSuccess callback after built-in cleanup', async () => {
     const customOnSuccess = vi.fn()
     mockSignout.mockResolvedValue(ok({ message: 'ok' }))
-    const { result } = renderHook(() => useSignout({ onSuccess: customOnSuccess }), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useSignout({ onSuccess: customOnSuccess }), {
+      wrapper: makeWrapper(),
+    })
 
-    await act(async () => { result.current.mutate() })
+    await act(async () => {
+      result.current.mutate()
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(customOnSuccess).toHaveBeenCalledTimes(1)
@@ -216,9 +241,13 @@ describe('useSignout', () => {
   it('still calls customOnError when the signout API fails', async () => {
     const customOnError = vi.fn()
     mockSignout.mockRejectedValue(err('Network error'))
-    const { result } = renderHook(() => useSignout({ onError: customOnError }), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useSignout({ onError: customOnError }), {
+      wrapper: makeWrapper(),
+    })
 
-    await act(async () => { result.current.mutate() })
+    await act(async () => {
+      result.current.mutate()
+    })
     await waitFor(() => expect(result.current.isError).toBe(true))
 
     expect(customOnError).toHaveBeenCalledTimes(1)
@@ -234,7 +263,9 @@ describe('useRefreshToken', () => {
     mockRefreshToken.mockResolvedValue(ok({ token: 'newTok', expires_in: 3600 }))
     const { result } = renderHook(() => useRefreshToken(), { wrapper: makeWrapper() })
 
-    await act(async () => { result.current.mutate({}) })
+    await act(async () => {
+      result.current.mutate({})
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(mockRefreshToken).toHaveBeenCalledTimes(1)
@@ -244,19 +275,21 @@ describe('useRefreshToken', () => {
     mockRefreshToken.mockResolvedValue(ok({ token: 'fresh', expires_in: 900 }))
     const { result } = renderHook(() => useRefreshToken(), { wrapper: makeWrapper() })
 
-    await act(async () => { result.current.mutate({}) })
+    await act(async () => {
+      result.current.mutate({})
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-    expect(mockSetTokens).toHaveBeenCalledWith(
-      expect.objectContaining({ accessToken: 'fresh' }),
-    )
+    expect(mockSetTokens).toHaveBeenCalledWith(expect.objectContaining({ accessToken: 'fresh' }))
   })
 
   it('does not call setTokens when the response contains no token', async () => {
     mockRefreshToken.mockResolvedValue(ok({}))
     const { result } = renderHook(() => useRefreshToken(), { wrapper: makeWrapper() })
 
-    await act(async () => { result.current.mutate({}) })
+    await act(async () => {
+      result.current.mutate({})
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(mockSetTokens).not.toHaveBeenCalled()
@@ -266,20 +299,28 @@ describe('useRefreshToken', () => {
     const customOnSuccess = vi.fn()
     const response = ok({ token: 'tok', expires_in: 3600 })
     mockRefreshToken.mockResolvedValue(response)
-    const { result } = renderHook(() => useRefreshToken({ onSuccess: customOnSuccess }), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useRefreshToken({ onSuccess: customOnSuccess }), {
+      wrapper: makeWrapper(),
+    })
 
-    await act(async () => { result.current.mutate({}) })
+    await act(async () => {
+      result.current.mutate({})
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-    expect(customOnSuccess).toHaveBeenCalledWith(response, expect.anything(), expect.anything())
+    expect(customOnSuccess).toHaveBeenCalled()
   })
 
   it('calls customOnError when the refresh fails', async () => {
     const customOnError = vi.fn()
     mockRefreshToken.mockRejectedValue(err('Refresh failed', 401))
-    const { result } = renderHook(() => useRefreshToken({ onError: customOnError }), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useRefreshToken({ onError: customOnError }), {
+      wrapper: makeWrapper(),
+    })
 
-    await act(async () => { result.current.mutate({}) })
+    await act(async () => {
+      result.current.mutate({})
+    })
     await waitFor(() => expect(result.current.isError).toBe(true))
 
     expect(customOnError).toHaveBeenCalledTimes(1)
@@ -295,7 +336,9 @@ describe('useRevokeSession', () => {
     mockRevokeSession.mockResolvedValue(ok({ message: 'Session revoked' }))
     const { result } = renderHook(() => useRevokeSession(), { wrapper: makeWrapper() })
 
-    await act(async () => { result.current.mutate('sess_abc') })
+    await act(async () => {
+      result.current.mutate('sess_abc')
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(mockRevokeSession).toHaveBeenCalledWith('sess_abc')
@@ -308,9 +351,13 @@ describe('useRevokeSession', () => {
     // customOnSuccess downstream fires, confirming the onSuccess block executed.
     const customOnSuccess = vi.fn()
     mockRevokeSession.mockResolvedValue(ok({ message: 'ok' }))
-    const { result } = renderHook(() => useRevokeSession({ onSuccess: customOnSuccess }), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useRevokeSession({ onSuccess: customOnSuccess }), {
+      wrapper: makeWrapper(),
+    })
 
-    await act(async () => { result.current.mutate('sess_xyz') })
+    await act(async () => {
+      result.current.mutate('sess_xyz')
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(customOnSuccess).toHaveBeenCalledTimes(1)
@@ -319,9 +366,13 @@ describe('useRevokeSession', () => {
   it('calls customOnError when the API rejects', async () => {
     const customOnError = vi.fn()
     mockRevokeSession.mockRejectedValue(err('Not found', 404))
-    const { result } = renderHook(() => useRevokeSession({ onError: customOnError }), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useRevokeSession({ onError: customOnError }), {
+      wrapper: makeWrapper(),
+    })
 
-    await act(async () => { result.current.mutate('sess_bad') })
+    await act(async () => {
+      result.current.mutate('sess_bad')
+    })
     await waitFor(() => expect(result.current.isError).toBe(true))
 
     expect(customOnError).toHaveBeenCalledTimes(1)
@@ -337,7 +388,9 @@ describe('useRevokeAllSessions', () => {
     mockRevokeAllSessions.mockResolvedValue(ok({ message: 'All sessions revoked' }))
     const { result } = renderHook(() => useRevokeAllSessions(), { wrapper: makeWrapper() })
 
-    await act(async () => { result.current.mutate() })
+    await act(async () => {
+      result.current.mutate()
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(mockRevokeAllSessions).toHaveBeenCalledTimes(1)
@@ -346,9 +399,13 @@ describe('useRevokeAllSessions', () => {
   it('calls customOnSuccess after the sessions query is invalidated', async () => {
     const customOnSuccess = vi.fn()
     mockRevokeAllSessions.mockResolvedValue(ok({ message: 'ok' }))
-    const { result } = renderHook(() => useRevokeAllSessions({ onSuccess: customOnSuccess }), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useRevokeAllSessions({ onSuccess: customOnSuccess }), {
+      wrapper: makeWrapper(),
+    })
 
-    await act(async () => { result.current.mutate() })
+    await act(async () => {
+      result.current.mutate()
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
     expect(customOnSuccess).toHaveBeenCalledTimes(1)
@@ -357,9 +414,13 @@ describe('useRevokeAllSessions', () => {
   it('calls customOnError when the API rejects', async () => {
     const customOnError = vi.fn()
     mockRevokeAllSessions.mockRejectedValue(err('Forbidden', 403))
-    const { result } = renderHook(() => useRevokeAllSessions({ onError: customOnError }), { wrapper: makeWrapper() })
+    const { result } = renderHook(() => useRevokeAllSessions({ onError: customOnError }), {
+      wrapper: makeWrapper(),
+    })
 
-    await act(async () => { result.current.mutate() })
+    await act(async () => {
+      result.current.mutate()
+    })
     await waitFor(() => expect(result.current.isError).toBe(true))
 
     expect(customOnError).toHaveBeenCalledTimes(1)

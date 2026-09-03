@@ -1,98 +1,149 @@
 import React from 'react'
+import { Navigate } from 'react-router-dom'
 import { AuthRouteConfig } from '@cap/platform-core'
 import GuestRoute from '../middlewares/GuestRoute'
 import Path from '../screens/path'
 import { createAuthRoute } from '../../../routes/routeHelpers'
+import { AppPaths } from '@cap/shared-types'
+// ---------------------------------------------------------------------------
+// Device
+// ---------------------------------------------------------------------------
+const DeviceCodeDisplay = React.lazy(() => import('../screens/device/DeviceCodeDisplay'))
 
 // ---------------------------------------------------------------------------
-// Sign In
+// Organisation
 // ---------------------------------------------------------------------------
-const SignInV2         = React.lazy(() => import('../screens/signin/SignInV2'))
-const LoginScreen      = React.lazy(() => import('../screens/signin/LoginScreen'))
-const AdminLoginScreen = React.lazy(() => import('../screens/signin/AdminLoginScreen'))
-
-// ---------------------------------------------------------------------------
-// Sign Up
-// ---------------------------------------------------------------------------
-const SignUp                  = React.lazy(() => import('../screens/signup/SignUp'))
-const SignUpV2                = React.lazy(() => import('../screens/signup/SignUpV2'))
-const RegistrationScreen      = React.lazy(() => import('../screens/signup/RegistrationScreen'))
-const CheckEmailConfirmation  = React.lazy(() => import('../screens/signup/CheckEmailConfirmation'))
-const EmailVerificationScreen = React.lazy(() => import('../screens/signup/EmailVerificationScreen'))
-const VerificationLinkExpired = React.lazy(() => import('../screens/signup/VerificationLinkExpired'))
-const RegistrationSuccess     = React.lazy(() => import('../screens/signup/RegistrationSuccess'))
-const EmailVerifiedSuccess    = React.lazy(() => import('../screens/signup/EmailVerifiedSuccess'))
-
-// ---------------------------------------------------------------------------
-// Recovery
-// ---------------------------------------------------------------------------
-const ForgotPassword      = React.lazy(() => import('../screens/recovery/ForgotPassword'))
-const ResetPassword       = React.lazy(() => import('../screens/recovery/ResetPassword'))
-const SetNewPasswordScreen = React.lazy(() => import('../screens/recovery/SetNewPasswordScreen'))
-const PasswordResetSuccess = React.lazy(() => import('../screens/recovery/PasswordResetSuccess'))
+const JoinOrganization = React.lazy(() => import('../screens/organization/JoinOrganization'))
 
 // ---------------------------------------------------------------------------
 // Email flows
 // ---------------------------------------------------------------------------
-const InitiateEmailChange            = React.lazy(() => import('../screens/email/InitiateEmailChange'))
-const EmailChangeStatus              = React.lazy(() => import('../screens/email/EmailChangeStatus'))
-const EmailChangeVerificationPending = React.lazy(() => import('../screens/email/EmailChangeVerificationPending'))
-const EmailChangeVerification        = React.lazy(() => import('../screens/email/EmailChangeVerification'))
-const EmailChangeSuccess             = React.lazy(() => import('../screens/email/EmailChangeSuccess'))
-const EmailChangeFailed              = React.lazy(() => import('../screens/email/EmailChangeFailed'))
-const ExportVerification             = React.lazy(() => import('../screens/email/ExportVerification'))
-const PasswordlessVerification       = React.lazy(() => import('../screens/email/PasswordlessVerification'))
-const VerificationEmail              = React.lazy(() => import('../screens/email/VerificationEmail'))
+const InitiateEmailChange = React.lazy(() => import('../screens/email/InitiateEmailChange'))
+const EmailChangeStatus = React.lazy(() => import('../screens/email/EmailChangeStatus'))
+const EmailChangeVerificationPending = React.lazy(
+  () => import('../screens/email/EmailChangeVerificationPending'),
+)
+const EmailChangeVerification = React.lazy(() => import('../screens/email/EmailChangeVerification'))
+const EmailChangeSuccess = React.lazy(() => import('../screens/email/EmailChangeSuccess'))
+const EmailChangeFailed = React.lazy(() => import('../screens/email/EmailChangeFailed'))
+const ExportVerification = React.lazy(() => import('../screens/email/ExportVerification'))
 
 // ---------------------------------------------------------------------------
-// Device & Organisation
+// Recovery
 // ---------------------------------------------------------------------------
-const DeviceCodeDisplay = React.lazy(() => import('../screens/device/DeviceCodeDisplay'))
-const JoinOrganization  = React.lazy(() => import('../screens/organization/JoinOrganization'))
+const ForgotPassword = React.lazy(() => import('../screens/recovery/ForgotPassword'))
+const ResetPassword = React.lazy(() => import('../screens/recovery/ResetPassword'))
+const PasswordResetSuccess = React.lazy(() => import('../screens/recovery/PasswordResetSuccess'))
+
+// ---------------------------------------------------------------------------
+// Sign In
+// ---------------------------------------------------------------------------
+const SignIn = React.lazy(() => import('../screens/signin/SignIn'))
+
+// ---------------------------------------------------------------------------
+// Sign Up
+// ---------------------------------------------------------------------------
+const SignUp = React.lazy(() => import('../screens/signup/screens/SignUp'))
+const CheckEmailConfirmation = React.lazy(
+  () => import('../screens/signup/components/CheckEmailConfirmation'),
+)
+const EmailVerificationScreen = React.lazy(
+  () => import('../screens/signup/components/EmailVerificationScreen'),
+)
+const VerificationLinkExpired = React.lazy(
+  () => import('../screens/signup/components/VerificationLinkExpired'),
+)
+const RegistrationSuccess = React.lazy(
+  () => import('../screens/signup/components/RegistrationSuccess'),
+)
+const EmailVerifiedSuccess = React.lazy(
+  () => import('../screens/signup/components/EmailVerifiedSuccess'),
+)
+
+const Validate = React.lazy(() => import('../screens/shared/Validate'))
 
 // ---------------------------------------------------------------------------
 // Route config
 // ---------------------------------------------------------------------------
 export const authCoreRouteConfig: AuthRouteConfig[] = [
-  // --- Sign In ---
-  { path: Path.signin,     element: <SignInV2 />,                             layout: 'noLayout' },
-  { path: Path.signinV2,   element: <GuestRoute element={<SignInV2 />} />,    layout: 'noLayout' },
-  { path: Path.login,      element: <GuestRoute element={<LoginScreen />} />, layout: 'noLayout' },
-  { path: Path.adminLogin, element: <AdminLoginScreen />,                     layout: 'noLayout' },
-
-  // --- Sign Up ---
-  { path: Path.signup,       element: <GuestRoute element={<SignUp />} />,              layout: 'noLayout' },
-  { path: Path.signupV2,     element: <GuestRoute element={<SignUpV2 />} />,            layout: 'noLayout' },
-  { path: Path.registration, element: <GuestRoute element={<RegistrationScreen />} />, layout: 'noLayout' },
-  { path: Path.checkEmail,              element: <CheckEmailConfirmation />,  layout: 'noLayout' },
-  { path: Path.emailVerification,       element: <EmailVerificationScreen />, layout: 'noLayout' },
-  { path: Path.verifyEmail,             element: <EmailVerificationScreen />, layout: 'noLayout' },
-  { path: Path.verificationLinkExpired, element: <VerificationLinkExpired />, layout: 'noLayout' },
-  { path: Path.registrationSuccess,     element: <RegistrationSuccess />,     layout: 'noLayout' },
-  { path: Path.emailVerifiedSuccess,    element: <EmailVerifiedSuccess /> },
-
-  // --- Recovery ---
-  { path: Path.forgotPassword,       element: <GuestRoute element={<ForgotPassword />} />, layout: 'noLayout' },
-  { path: Path.resetPassword,        element: <GuestRoute element={<ResetPassword />} /> },
-  { path: Path.setNewPassword,       element: <SetNewPasswordScreen />,                    layout: 'noLayout' },
-  { path: Path.passwordResetSuccess, element: <PasswordResetSuccess /> },
+  // --- Device ---
+  { path: Path.deviceCode, element: <DeviceCodeDisplay />, layout: 'noLayout' },
 
   // --- Email flows (auth-guarded) ---
+  // createAuthRoute(Path.initiateEmailChange, <InitiateEmailChange />, {
+  //   requiresVerification: true,
+  //   layout: 'noLayout',
+  // }),
+  createAuthRoute(Path.emailChangeStatus, <EmailChangeStatus />, { requiresVerification: true }),
   createAuthRoute(Path.emailChangeVerificationPending, <EmailChangeVerificationPending />, {
     layout: 'noLayout',
   }),
-  createAuthRoute(Path.exportVerification, <ExportVerification />, { layout: 'noLayout' }),
-  createAuthRoute(Path.initiateEmailChange, <InitiateEmailChange />, {
-    requiresVerification: true,
-    layout: 'noLayout',
-  }),
-  createAuthRoute(Path.emailChangeStatus, <EmailChangeStatus />, { requiresVerification: true }),
+  { path: Path.emailChangeSuccess, element: <EmailChangeSuccess /> },
+  { path: Path.emailChangeFailed, element: <EmailChangeFailed /> },
   { path: Path.emailChangeVerification, element: <EmailChangeVerification /> },
-  { path: Path.emailChangeSuccess,      element: <EmailChangeSuccess /> },
-  { path: Path.emailChangeFailed,       element: <EmailChangeFailed /> },
+  createAuthRoute(Path.exportVerification, <ExportVerification />, { layout: 'noLayout' }),
+  { path: Path.resendEmailVerification, element: <CheckEmailConfirmation />, layout: 'noLayout' },
+  { path: Path.VerificationEmail, element: <EmailVerificationScreen />, layout: 'noLayout' },
 
-  // --- Device & Organisation ---
-  { path: Path.deviceCode,       element: <DeviceCodeDisplay />, layout: 'noLayout' },
-  { path: Path.joinOrganization, element: <JoinOrganization />,  layout: 'noLayout' },
+  // --- Organisation ---
+  { path: Path.joinOrganization, element: <JoinOrganization />, layout: 'noLayout' },
+
+  // --- Recovery ---
+  {
+    path: Path.forgotPassword,
+    element: <GuestRoute element={<ForgotPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.forgotPasswordAlias,
+    element: <GuestRoute element={<ForgotPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.forgotPasswordDirect,
+    element: <GuestRoute element={<ForgotPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.resetPassword,
+    element: <GuestRoute element={<ResetPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.resetPasswordRecovery,
+    element: <GuestRoute element={<ResetPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.resetPasswordDirect,
+    element: <GuestRoute element={<ResetPassword />} />,
+    layout: 'noLayout',
+  },
+  {
+    path: Path.setNewPassword,
+    element: <GuestRoute element={<ResetPassword />} />,
+    layout: 'noLayout',
+  },
+  { path: Path.passwordResetSuccess, element: <PasswordResetSuccess />, layout: 'noLayout' },
+  { path: Path.passwordResetSuccessAlias, element: <PasswordResetSuccess />, layout: 'noLayout' },
+
+  // --- Sign In ---
+  { path: Path.signin, element: <GuestRoute element={<SignIn />} />, layout: 'noLayout' },
+  { path: Path.login, element: <GuestRoute element={<SignIn />} />, layout: 'noLayout' },
+
+  // --- Sign Up & Verification ---
+  { path: Path.signup, element: <GuestRoute element={<SignUp />} />, layout: 'noLayout' },
+  { path: Path.signupV2, element: <Navigate to={Path.signup} replace />, layout: 'noLayout' },
+  // Legacy /auth/register — redirect to the primary sign-up flow.
+  { path: Path.registration, element: <Navigate to={Path.signup} replace />, layout: 'noLayout' },
+  { path: Path.checkEmail, element: <CheckEmailConfirmation />, layout: 'noLayout' },
+  { path: Path.emailVerification, element: <EmailVerificationScreen />, layout: 'noLayout' },
+  { path: Path.verifyEmail, element: <EmailVerificationScreen />, layout: 'noLayout' },
+  { path: Path.verifyEmailAlias, element: <EmailVerificationScreen />, layout: 'noLayout' },
+  { path: Path.verifyEmailDirect, element: <EmailVerificationScreen />, layout: 'noLayout' },
+  { path: Path.verificationLinkExpired, element: <VerificationLinkExpired />, layout: 'noLayout' },
+  { path: Path.registrationSuccess, element: <RegistrationSuccess />, layout: 'noLayout' },
+  { path: Path.emailVerifiedSuccess, element: <EmailVerifiedSuccess /> },
+  { path: Path.validate, element: <Validate />, layout: 'noLayout' },
+  { path: Path.validateDirect, element: <Validate />, layout: 'noLayout' },
 ]
-

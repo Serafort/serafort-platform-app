@@ -15,7 +15,6 @@ type StyledVerticalMenuItemProps = {
 
 const StyledVerticalMenuItem = styled.li<StyledVerticalMenuItemProps>`
   position: relative;
-  margin-block-start: 4px;
   ${({ $menuItemStyles }) => $menuItemStyles};
   ${({ $rootStyles }) => $rootStyles};
 

@@ -1,10 +1,12 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, IconButton, Tooltip, CircularProgress } from '@mui/material'
-import { LogoutOutlined } from '@mui/icons-material'
+import LogoutOutlined from '@mui/icons-material/LogoutOutlined'
 import { useSignout } from '@idaas/authentication-core/hooks/useAuthQuery'
 import { useTranslation } from 'react-i18next'
 import { useAuth, StorageManager } from '@cap/platform-core'
+import { Path } from '../../../routes/path'
+import logger from '@idaas/authentication-core/utils/logger'
 
 interface SignOutButtonProps {
   variant?: 'button' | 'icon'
@@ -38,8 +40,6 @@ export const SignOutButton: React.FC<SignOutButtonProps> = ({
 
   const { mutate: logout, isPending } = useSignout({
     onSuccess: () => {
-      console.log('[SignOut] Logout successful')
-
       // Clear Zustand store
       zustandSignOut()
 
@@ -50,21 +50,20 @@ export const SignOutButton: React.FC<SignOutButtonProps> = ({
       onSignOutComplete?.()
 
       // Redirect to login page
-      navigate('/auth/sign-in', { replace: true })
+      navigate(Path.auth.signin, { replace: true })
     },
-    onError: (error: any) => {
-      console.error('[SignOut] Logout error:', error)
+    onError: (error: unknown) => {
+      logger.error('Logout request failed; clearing local session anyway', { error })
 
       // Even if API call fails, clear local data and redirect
       zustandSignOut()
       StorageManager.clearAllUserData()
       onSignOutComplete?.()
-      navigate('/auth/sign-in', { replace: true })
+      navigate(Path.auth.signin, { replace: true })
     },
   })
 
   const handleSignOut = () => {
-    console.log('[SignOut] Initiating logout...')
     logout()
   }
 
@@ -101,4 +100,3 @@ export const SignOutButton: React.FC<SignOutButtonProps> = ({
 }
 
 export default SignOutButton
-

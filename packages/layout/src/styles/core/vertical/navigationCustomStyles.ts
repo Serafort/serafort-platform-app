@@ -1,4 +1,5 @@
 import type { Theme } from '@mui/material/styles'
+import { menuTokens, getVerticalNavBackdropColor, getVerticalNavContainerShadow } from '@cap/theme'
 import type { VerticalNavState } from '../../../menu/contexts/verticalNavContext'
 import { menuClasses, verticalNavClasses } from '../../../menu/utils/menuClasses'
 
@@ -8,11 +9,14 @@ const navigationCustomStyles = (verticalNavOptions: VerticalNavState, theme: The
   const collapsedNotHovered = isCollapsed && !isHovered
 
   return {
-    color: 'var(--mui-palette-text-primary)',
-    zIndex: 'var(--drawer-z-index) !important',
+    color: theme.palette.text.primary,
+    zIndex: `${theme.zIndex.drawer} !important`,
     [`& .${verticalNavClasses.header}`]: {
-      paddingBlock: theme.spacing(5),
-      paddingInline: theme.spacing(5.5, 4),
+      paddingBlock: theme.spacing(menuTokens.vertical.header.paddingBlockSpacing),
+      paddingInline: theme.spacing(
+        menuTokens.vertical.header.paddingInlineStartSpacing,
+        menuTokens.vertical.header.paddingInlineEndSpacing,
+      ),
 
       ...(collapsedNotHovered && {
         paddingInline: theme.spacing(((collapsedWidth as number) - 35) / 8),
@@ -29,19 +33,28 @@ const navigationCustomStyles = (verticalNavOptions: VerticalNavState, theme: The
         duration: transitionDuration,
         easing: 'ease-in-out',
       }),
-      borderColor: 'transparent',
-      boxShadow: 'var(--mui-customShadows-sm)',
+      borderInlineEnd: `1px solid ${theme.palette.divider}`,
+      backgroundColor: theme.palette.background.paper,
+      ...getVerticalNavContainerShadow(theme, (theme as any).settings?.skin),
       '[data-skin="bordered"] &': {
         boxShadow: 'none',
-        borderColor: 'var(--mui-palette-divider)',
+        borderColor: theme.palette.divider,
       },
     },
     [`& .${menuClasses.root}`]: {
-      paddingBlock: theme.spacing(1),
-      paddingInline: theme.spacing(3),
+      paddingBlock: theme.spacing(menuTokens.vertical.root.paddingBlockSpacing),
+      paddingInline: theme.spacing(
+        collapsedNotHovered
+          ? menuTokens.vertical.root.collapsedPaddingInlineSpacing
+          : menuTokens.vertical.root.paddingInlineSpacing,
+      ),
+      transition: theme.transitions.create(['padding'], {
+        duration: transitionDuration,
+        easing: 'ease-in-out',
+      }),
     },
     [`& .${verticalNavClasses.backdrop}`]: {
-      backgroundColor: 'var(--backdrop-color)',
+      backgroundColor: getVerticalNavBackdropColor(theme),
     },
   }
 }

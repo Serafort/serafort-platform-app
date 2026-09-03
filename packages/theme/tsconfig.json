@@ -32,10 +32,20 @@
       ],
       "@cap/platform-core": ["../platform-core/src"],
       "@cap/platform-core/*": ["../platform-core/src/*"],
+      "@cap/platform-store": ["../platform-store/src"],
+      "@cap/platform-store/*": ["../platform-store/src/*"],
       "@cap/shared-types": ["../shared-types/src"],
       "@cap/shared-types/*": ["../shared-types/src/*"]
     },
-    "types": ["node", "vite/client", "react", "react-dom", "classnames", "react-use"]
+
+    "types": [
+      "node",
+      "vite/client",
+      "react",
+      "react-dom",
+      "classnames",
+      "react-use"
+    ]
   },
   "include": ["src/**/*", "vite-env.d.ts"],
   "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]

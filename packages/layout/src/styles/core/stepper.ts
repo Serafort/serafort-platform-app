@@ -1,4 +1,6 @@
-import { Box, styled } from '@cap/theme'
+import { styled } from '@mui/material/styles'
+import Box from '@mui/material/Box'
+import { stepperTokens } from '@cap/theme'
 import type { BoxProps } from '@mui/material/Box'
 
 const StepperWrapper = styled(Box)<BoxProps>(({ theme }) => {
@@ -48,8 +50,8 @@ const StepperWrapper = styled(Box)<BoxProps>(({ theme }) => {
     },
     '& .MuiStepConnector-root': {
       '& .MuiStepConnector-line': {
-        borderBlockStartWidth: 3,
-        borderRadius: 3,
+        borderBlockStartWidth: stepperTokens.connector.borderBlockStartWidth,
+        borderRadius: stepperTokens.connector.borderRadius,
       },
       '&.Mui-active, &.Mui-completed': {
         '& .MuiStepConnector-line': {
@@ -57,12 +59,12 @@ const StepperWrapper = styled(Box)<BoxProps>(({ theme }) => {
         },
       },
       '&.Mui-disabled .MuiStepConnector-line': {
-        borderColor: theme.palette.primary.light, // Using light as a fallback for lightOpacity if not explicitly defined in palette
+        borderColor: theme.palette.action.disabledBackground || theme.palette.primary.light,
       },
     },
     '& .MuiStepper-alternativeLabel': {
       '& .MuiStepConnector-root': {
-        top: 10,
+        top: stepperTokens.connector.alternativeLabelTop,
       },
       '& .MuiStepLabel-labelContainer': {
         display: 'flex',
@@ -79,22 +81,22 @@ const StepperWrapper = styled(Box)<BoxProps>(({ theme }) => {
           justifyContent: 'flex-start',
         },
         '& .MuiStepContent-root': {
-          borderInlineStartWidth: 3,
-          marginLeft: theme.spacing(2.25),
+          borderInlineStartWidth: stepperTokens.vertical.stepContentBorderInlineStartWidth,
+          marginLeft: theme.spacing(stepperTokens.vertical.stepContentMarginLeftSpacing),
           borderColor: theme.palette.primary.main,
         },
         '& .button-wrapper': {
-          marginTop: theme.spacing(4),
+          marginTop: theme.spacing(stepperTokens.vertical.buttonWrapperMarginTopSpacing),
         },
         '&.active + .MuiStepConnector-root .MuiStepConnector-line': {
           borderColor: theme.palette.primary.main,
         },
       },
       '& .MuiStepConnector-root': {
-        marginLeft: theme.spacing(2.25),
+        marginLeft: theme.spacing(stepperTokens.vertical.stepContentMarginLeftSpacing),
         '& .MuiStepConnector-line': {
           borderBlockStartWidth: 0,
-          borderInlineStartWidth: 3,
+          borderInlineStartWidth: stepperTokens.vertical.stepContentBorderInlineStartWidth,
           borderRadius: 0,
         },
       },

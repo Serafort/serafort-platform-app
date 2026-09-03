@@ -1,8 +1,8 @@
 import React from 'react'
 import PerfectScrollbar from 'react-perfect-scrollbar'
+import { getSubmenuMaxBlockSize } from '@cap/theme'
 import type { ChildrenType, RootStylesType } from '../../types'
 import StyledHorizontalSubMenuContent from '../../styles/horizontal/StyledHorizontalSubMenuContent'
-
 
 export type SubMenuContentProps = React.HTMLAttributes<HTMLDivElement> &
   Partial<ChildrenType> & {
@@ -32,7 +32,7 @@ const SubMenuContent: React.ForwardRefRenderFunction<HTMLDivElement, SubMenuCont
       {!browserScroll ? (
         <PerfectScrollbar
           options={{ wheelPropagation: false, suppressScrollX: true }}
-          style={{ maxBlockSize: `calc((var(--vh, 1vh) * 100) - ${top}px)` }}
+          style={{ maxBlockSize: getSubmenuMaxBlockSize(top) }}
         >
           <ul className='menu-ul'>{children}</ul>
         </PerfectScrollbar>

@@ -1,106 +1,107 @@
-import { Box } from '@mui/material'
-import { styled, alpha } from '@mui/material/styles'
-import type { BoxProps } from '@mui/material/Box'
+import { Box } from "@mui/material";
+import { styled, alpha } from "@mui/material/styles";
+import type { BoxProps } from "@mui/material/Box";
 
 const StepperWrapper = styled(Box)<BoxProps>(({ theme }) => {
   return {
-    [theme.breakpoints.down('md')]: {
-      '& .MuiStepper-horizontal:not(.MuiStepper-alternativeLabel)': {
-        flexDirection: 'column',
-        alignItems: 'flex-start',
+    [theme.breakpoints.down("md")]: {
+      "& .MuiStepper-horizontal:not(.MuiStepper-alternativeLabel)": {
+        flexDirection: "column",
+        alignItems: "flex-start",
       },
     },
-    '& .MuiStep-root': {
-      '& .MuiStepLabel-iconContainer:empty': {
-        display: 'none',
+    "& .MuiStep-root": {
+      "& .MuiStepLabel-iconContainer:empty": {
+        display: "none",
       },
-      '& .step-label': {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+      "& .step-label": {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
 
-        '& .MuiAvatar-root': {
+        "& .MuiAvatar-root": {
           marginInlineEnd: theme.spacing(3),
         },
       },
-      '& .step-number': {
+      "& .step-number": {
         ...theme.typography.h4,
         marginRight: theme.spacing(2),
         color: `${theme.palette.text.primary} !important`,
       },
-      '& .step-title': {
+      "& .step-title": {
         ...theme.typography.body1,
         fontWeight: 500,
         color: theme.palette.text.primary,
       },
-      '& .step-subtitle': {
+      "& .step-subtitle": {
         ...theme.typography.body2,
       },
-      '& .MuiStepLabel-root.Mui-disabled': {
-        '& .step-number': {
+      "& .MuiStepLabel-root.Mui-disabled": {
+        "& .step-number": {
           color: theme.palette.text.disabled,
         },
       },
-      '& .Mui-error': {
-        '& .MuiStepLabel-labelContainer, & .step-number, & .step-title, & .step-subtitle': {
-          color: `${theme.palette.error.main} !important`,
-        },
+      "& .Mui-error": {
+        "& .MuiStepLabel-labelContainer, & .step-number, & .step-title, & .step-subtitle":
+          {
+            color: `${theme.palette.error.main} !important`,
+          },
       },
     },
-    '& .MuiStepConnector-root': {
-      '& .MuiStepConnector-line': {
+    "& .MuiStepConnector-root": {
+      "& .MuiStepConnector-line": {
         borderBlockStartWidth: 3,
         borderRadius: 3,
       },
-      '&.Mui-active, &.Mui-completed': {
-        '& .MuiStepConnector-line': {
+      "&.Mui-active, &.Mui-completed": {
+        "& .MuiStepConnector-line": {
           borderColor: theme.palette.primary.main,
         },
       },
-      '&.Mui-disabled .MuiStepConnector-line': {
+      "&.Mui-disabled .MuiStepConnector-line": {
         borderColor: alpha(theme.palette.primary.main, 0.16),
       },
     },
-    '& .MuiStepper-alternativeLabel': {
-      '& .MuiStepConnector-root': {
+    "& .MuiStepper-alternativeLabel": {
+      "& .MuiStepConnector-root": {
         top: 10,
       },
-      '& .MuiStepLabel-labelContainer': {
-        display: 'flex',
-        alignItems: 'center',
-        flexDirection: 'column',
-        '& > * + *': {
+      "& .MuiStepLabel-labelContainer": {
+        display: "flex",
+        alignItems: "center",
+        flexDirection: "column",
+        "& > * + *": {
           marginTop: theme.spacing(1),
         },
       },
     },
-    '& .MuiStepper-vertical': {
-      '& .MuiStep-root': {
-        '& .step-label': {
-          justifyContent: 'flex-start',
+    "& .MuiStepper-vertical": {
+      "& .MuiStep-root": {
+        "& .step-label": {
+          justifyContent: "flex-start",
         },
-        '& .MuiStepContent-root': {
+        "& .MuiStepContent-root": {
           borderInlineStartWidth: 3,
           marginLeft: theme.spacing(2.25),
           borderColor: theme.palette.primary.main,
         },
-        '& .button-wrapper': {
+        "& .button-wrapper": {
           marginTop: theme.spacing(4),
         },
-        '&.active + .MuiStepConnector-root .MuiStepConnector-line': {
+        "&.active + .MuiStepConnector-root .MuiStepConnector-line": {
           borderColor: theme.palette.primary.main,
         },
       },
-      '& .MuiStepConnector-root': {
+      "& .MuiStepConnector-root": {
         marginLeft: theme.spacing(2.25),
-        '& .MuiStepConnector-line': {
+        "& .MuiStepConnector-line": {
           borderBlockStartWidth: 0,
           borderInlineStartWidth: 3,
           borderRadius: 0,
         },
       },
     },
-  }
-})
+  };
+});
 
-export default StepperWrapper
+export default StepperWrapper;

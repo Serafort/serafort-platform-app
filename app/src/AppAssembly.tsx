@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { assembleApp } from '@cap/platform-core'
+import { LayoutRouteWrapper } from '@cap/layout'
 import type { CAPModule } from '@cap/shared-types'
 
 // Dynamic runtime store for uploaded / runtime registered modules
@@ -54,7 +55,7 @@ export const assembleModules = (): CAPModule[] => {
 export const globalModules = assembleModules()
 
 export const App: React.FC = () => {
-  const [, setRevision] = useState(0)
+  const [revision, setRevision] = useState(0)
 
   useEffect(() => {
     const handleUpdate = () => setRevision((r) => r + 1)
@@ -64,8 +65,10 @@ export const App: React.FC = () => {
     }
   }, [])
 
-  const currentModules = assembleModules()
-  const AssembledAppComponent = assembleApp({ modules: currentModules })
+  const AssembledAppComponent = React.useMemo(() => {
+    const currentModules = assembleModules()
+    return assembleApp({ modules: currentModules, layoutWrapper: LayoutRouteWrapper })
+  }, [revision])
 
   return <AssembledAppComponent />
 }

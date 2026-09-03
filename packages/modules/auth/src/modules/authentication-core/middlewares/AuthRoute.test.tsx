@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, cleanup } from '@testing-library/react'
 import React from 'react'
-import AuthRoute from "./AuthRoute"
+import AuthRoute from './AuthRoute'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -25,6 +25,22 @@ vi.mock('@cap/platform-core', () => ({
 const mockUseSessionGuard = vi.fn()
 vi.mock('../../session-manager/middlewares/useSessionGuard', () => ({
   useSessionGuard: () => mockUseSessionGuard(),
+}))
+
+vi.mock('@cap/authorization', () => ({
+  useCan: (action: string, subject: any) => {
+    const session = mockUseSessionGuard()
+    const userRole = session?.user?.role
+    if (subject?.type === 'admin_route') {
+      return userRole === 100 || userRole === 200 || userRole === 300
+    }
+    if (subject?.type === 'auth_route') {
+      const allowedRoles = subject?.attributes?.allowedRoles
+      if (!allowedRoles || allowedRoles.length === 0) return true
+      return allowedRoles.includes(userRole)
+    }
+    return true
+  },
 }))
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

@@ -1,15 +1,31 @@
-import authenticationService from "../../modules/authentication-core/services/auth.service"
-import { authorizationService } from "../../modules/authorization-engine/src/services/authorization.service"
+import authenticationService from '../../modules/authentication-core/services/auth.service'
+import { authorizationService } from '../../modules/authorization-engine/src/services/authorization.service'
+import userService from '../../modules/user-directory/services/user.service'
 import type { ILogin, IForgetPassword, IResetPassword, FetchResponse } from '@cap/platform-core'
+import type {
+  UpdateMeRequest,
+  UpdatePhotoRequest,
+  UpdateEmailRequest,
+  ChangePasswordRequest,
+} from '../../modules/authentication-core/types/api.types'
 
-export interface VerifyEmailRequest { token: string; email?: string }
-export interface ResendVerificationRequest { email: string }
+export interface VerifyEmailRequest {
+  /**
+   * The query string from the mailed verification link, forwarded verbatim.
+   * The backend signs it — address included — and validates the signature
+   * against the request URL, so it cannot be rebuilt from its parts.
+   */
+  search: string
+}
+export interface ResendVerificationRequest {
+  email: string
+}
 import type {
   RoleDto,
   PermissionDto,
   CheckPermissionRequest,
   CheckPermissionResponse,
-} from "../../modules/authorization-engine/src/dtos/authorization.dto"
+} from '../../modules/authorization-engine/src/dtos/authorization.dto'
 
 export interface IIdaasFacade {
   auth: {
@@ -42,6 +58,20 @@ export interface IIdaasFacade {
     assignRoleToUser: (data: { user_id: number; role_id: number }) => Promise<void>
     getUserRoles: (userId: number) => Promise<RoleDto[]>
   }
+  userDirectory: {
+    getProfile: () => Promise<FetchResponse>
+    updateProfile: (data: UpdateMeRequest) => Promise<FetchResponse>
+    updatePhoto: (data: UpdatePhotoRequest) => Promise<FetchResponse>
+    changeEmail: (data: UpdateEmailRequest) => Promise<FetchResponse>
+    changePassword: (data: ChangePasswordRequest) => Promise<FetchResponse>
+    getLinkedAccounts: () => Promise<FetchResponse>
+    unlinkAccount: (provider: string) => Promise<FetchResponse>
+  }
+  sessions: {
+    listSessions: () => Promise<FetchResponse>
+    revokeSession: (sessionId: string) => Promise<FetchResponse>
+    revokeAllSessions: () => Promise<FetchResponse>
+  }
 }
 
 class IdaasFacadeImpl implements IIdaasFacade {
@@ -49,11 +79,9 @@ class IdaasFacadeImpl implements IIdaasFacade {
     login: (request: ILogin) => authenticationService.signin(request),
     refreshToken: () => authenticationService.refreshToken(),
     logout: () => authenticationService.signout(),
-    forgotPassword: (request: IForgetPassword) =>
-      authenticationService.forgotPassword(request),
+    forgotPassword: (request: IForgetPassword) => authenticationService.forgotPassword(request),
     resetPassword: (request: IResetPassword) => authenticationService.resetPassword(request),
-    verifyEmail: (request: VerifyEmailRequest) =>
-      authenticationService.verifyEmail(request.email || '', request.token),
+    verifyEmail: (request: VerifyEmailRequest) => authenticationService.verifyEmail(request.search),
     resendVerification: (request: ResendVerificationRequest) =>
       authenticationService.resendVerification(request.email),
   }
@@ -76,6 +104,22 @@ class IdaasFacadeImpl implements IIdaasFacade {
     assignRoleToUser: (data: { user_id: number; role_id: number }) =>
       authorizationService.userRole.assignRoleToUser(data),
     getUserRoles: (userId: number) => authorizationService.userRole.getUserRoles(userId),
+  }
+
+  userDirectory = {
+    getProfile: () => userService.getProfile(),
+    updateProfile: (data: UpdateMeRequest) => userService.update(data),
+    updatePhoto: (data: UpdatePhotoRequest) => userService.updatePhoto(data),
+    changeEmail: (data: UpdateEmailRequest) => userService.changeEmail(data),
+    changePassword: (data: ChangePasswordRequest) => userService.changePassword(data),
+    getLinkedAccounts: () => userService.getLinkedAccounts(),
+    unlinkAccount: (provider: string) => userService.unlinkAccount(provider),
+  }
+
+  sessions = {
+    listSessions: () => authenticationService.getSessions(),
+    revokeSession: (sessionId: string) => authenticationService.revokeSession(sessionId),
+    revokeAllSessions: () => authenticationService.revokeAllSessions(),
   }
 }
 

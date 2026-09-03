@@ -1,3 +1,4 @@
+export * from './security'
 export { default as AccountOverview } from './security/AccountOverview'
 export { default as ActiveSessionsManagement } from './security/ActiveSessionsManagement'
 export { default as UserActivityTimeline } from './security/UserActivityTimeline'

@@ -7,7 +7,7 @@ import {
   Box,
   Link,
 } from '@mui/material'
-import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { themeConfig } from '@cap/platform-core'
 
 const TermsOfService = () => {

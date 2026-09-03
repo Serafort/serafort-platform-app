@@ -1,38 +1,46 @@
 import { css } from '@emotion/react'
+import type { Theme } from '@mui/material/styles'
+import { menuTokens } from '@cap/theme'
 import type { ChildrenType } from '../../types'
 import { menuClasses } from '../../utils/menuClasses'
 
 type MenuButtonStylesProps = Partial<ChildrenType> & {
   level: number
   disabled?: boolean
+  theme?: Theme
 }
 
 export const menuButtonStyles = (props: MenuButtonStylesProps) => {
-  const { level, disabled, children } = props
+  const { level, disabled, children, theme } = props
+
+  const hoverBg = theme?.palette?.action?.hover || 'rgba(0, 0, 0, 0.04)'
+  const disabledColor = theme?.palette?.text?.disabled || 'rgba(0, 0, 0, 0.38)'
+  const primaryMain = theme?.palette?.primary?.main || '#1976d2'
+  const primaryOpacity = (theme as any)?.palette?.primary?.mainOpacity || 'rgba(25, 118, 210, 0.16)'
 
   return css({
     display: 'flex',
     alignItems: 'center',
-    minBlockSize: '30px',
+    minBlockSize: menuTokens.horizontal.button.minBlockSize,
     textDecoration: 'none',
     color: 'inherit',
     boxSizing: 'border-box',
     cursor: 'pointer',
-    paddingInline: '20px',
+    paddingInline: menuTokens.horizontal.button.paddingInline,
 
     '&:hover': {
-      backgroundColor: 'var(--mui-palette-action-hover)',
+      backgroundColor: hoverBg,
     },
 
     '&:focus-visible': {
       outline: 'none',
-      backgroundColor: 'var(--mui-palette-action-hover)',
+      backgroundColor: hoverBg,
     },
 
     ...(disabled && {
       pointerEvents: 'none',
       cursor: 'default',
-      color: 'var(--mui-palette-text-disabled)',
+      color: disabledColor,
     }),
 
     // All the active styles are applied to the button including menu items or submenu
@@ -40,14 +48,14 @@ export const menuButtonStyles = (props: MenuButtonStylesProps) => {
       ...(level === 0
         ? {
             color: 'white',
-            backgroundColor: 'var(--mui-palette-primary-main)',
+            backgroundColor: primaryMain,
           }
         : {
             ...(children
-              ? { backgroundColor: 'var(--mui-palette-action-hover)' }
+              ? { backgroundColor: hoverBg }
               : {
-                  color: 'var(--mui-palette-primary-main)',
-                  backgroundColor: 'var(--mui-palette-primary-mainOpacity)',
+                  color: primaryMain,
+                  backgroundColor: primaryOpacity,
                 }),
           }),
     },

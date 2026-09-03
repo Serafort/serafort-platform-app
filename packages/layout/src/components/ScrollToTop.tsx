@@ -3,26 +3,42 @@ import Zoom from '@mui/material/Zoom'
 import { styled } from '@mui/material/styles'
 import useScrollTrigger from '@mui/material/useScrollTrigger'
 
-interface ScrollToTopProps {
+export interface ScrollToTopProps {
   className?: string
   children: ReactNode
+  insetInlineEnd?: number | string
+  insetBlockEnd?: number | string
+  threshold?: number
 }
 
-const ScrollToTopStyled = styled('div')(({ theme }) => ({
-  zIndex: 'var(--mui-zIndex-fab)',
-  position: 'fixed',
-  insetInlineEnd: theme.spacing(10),
-  insetBlockEnd: theme.spacing(14),
-}))
+interface ScrollToTopStyledProps {
+  insetInlineEnd?: number | string
+  insetBlockEnd?: number | string
+}
+
+const ScrollToTopStyled = styled('div')<ScrollToTopStyledProps>(
+  ({ theme, insetInlineEnd, insetBlockEnd }) => ({
+    zIndex: theme.zIndex.fab,
+    position: 'fixed',
+    insetInlineEnd:
+      typeof insetInlineEnd === 'number'
+        ? theme.spacing(insetInlineEnd)
+        : (insetInlineEnd ?? theme.spacing(10)),
+    insetBlockEnd:
+      typeof insetBlockEnd === 'number'
+        ? theme.spacing(insetBlockEnd)
+        : (insetBlockEnd ?? theme.spacing(14)),
+  }),
+)
 
 const ScrollToTop = (props: ScrollToTopProps) => {
   // Props
-  const { children, className } = props
+  const { children, className, insetInlineEnd, insetBlockEnd, threshold = 400 } = props
 
   // Hooks
   // init trigger
   const trigger = useScrollTrigger({
-    threshold: 400,
+    threshold,
     disableHysteresis: true,
   })
 
@@ -36,7 +52,13 @@ const ScrollToTop = (props: ScrollToTopProps) => {
 
   return (
     <Zoom in={trigger}>
-      <ScrollToTopStyled className={className} onClick={handleClick} role='presentation'>
+      <ScrollToTopStyled
+        className={className}
+        onClick={handleClick}
+        role='presentation'
+        insetInlineEnd={insetInlineEnd}
+        insetBlockEnd={insetBlockEnd}
+      >
         {children}
       </ScrollToTopStyled>
     </Zoom>

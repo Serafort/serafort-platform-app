@@ -1,18 +1,76 @@
-import React, { useState } from 'react';
-import { Box, Typography, Card, CardContent, Grid, Button, TextField, InputAdornment, Avatar, alpha, useTheme, Stack, Chip, IconButton, Menu, MenuItem, ListItemIcon, Paper, Divider, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, OutlinedInput, SelectChangeEvent, CircularProgress } from '@mui/material';
-import { Search, Add, MoreVert, AppRegistration, VpnKey, Launch, History, Code, Web, Smartphone, Router, Security, Edit, Delete, Refresh, ContentCopy, Warning } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
-import { useTranslation } from 'react-i18next';
-import { useOIDCClients, useCreateOIDCClient, useUpdateOIDCClient, useDeleteOIDCClient, useRotateClientSecret } from '@idaas/authentication-core/hooks/useAdminQuery';
-import { Path } from '@auth/routes/path';
-import { CreateOIDCClientRequest } from '@auth/modules/authentication-core/types/api.types';
-import logger from '@idaas/authentication-core/utils/logger';
+import React, { useState } from 'react'
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Grid,
+  Button,
+  TextField,
+  InputAdornment,
+  Avatar,
+  alpha,
+  useTheme,
+  Stack,
+  Chip,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  Paper,
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  OutlinedInput,
+  SelectChangeEvent,
+  CircularProgress,
+} from '@mui/material'
+import Search from '@mui/icons-material/Search'
+import Add from '@mui/icons-material/Add'
+import MoreVert from '@mui/icons-material/MoreVert'
+import AppRegistration from '@mui/icons-material/AppRegistration'
+import VpnKey from '@mui/icons-material/VpnKey'
+import Launch from '@mui/icons-material/Launch'
+import History from '@mui/icons-material/History'
+import Code from '@mui/icons-material/Code'
+import Web from '@mui/icons-material/Web'
+import Smartphone from '@mui/icons-material/Smartphone'
+import Router from '@mui/icons-material/Router'
+import Security from '@mui/icons-material/Security'
+import Edit from '@mui/icons-material/Edit'
+import Delete from '@mui/icons-material/Delete'
+import Refresh from '@mui/icons-material/Refresh'
+import ContentCopy from '@mui/icons-material/ContentCopy'
+import Warning from '@mui/icons-material/Warning'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
+import {
+  useOIDCClients,
+  useCreateOIDCClient,
+  useUpdateOIDCClient,
+  useDeleteOIDCClient,
+  useRotateClientSecret,
+} from '@idaas/authentication-core/hooks/useAdminQuery'
+import { Path } from '@auth/routes/path'
+import { CreateOIDCClientRequest } from '@auth/modules/authentication-core/types/api.types'
+import logger from '@idaas/authentication-core/utils/logger'
+
+// Seed new OAuth clients with a redirect URI on the current origin rather than a
+// hardcoded dev port, so the suggestion is sensible in every environment.
+const DEFAULT_REDIRECT_URI =
+  typeof window !== 'undefined' && window.location?.origin
+    ? `${window.location.origin}/callback`
+    : 'http://localhost:5173/callback'
 
 export default function ApplicationDashboard() {
   const navigate = useNavigate()
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
   const { t } = useTranslation('auth')
   const { data: clientsResponse, isLoading, refetch } = useOIDCClients()
   const createMutation = useCreateOIDCClient()
@@ -45,7 +103,7 @@ export default function ApplicationDashboard() {
 
   const [formData, setFormData] = useState<CreateOIDCClientRequest>({
     name: '',
-    redirectUris: ['http://localhost:5173/callback'],
+    redirectUris: [DEFAULT_REDIRECT_URI],
     grantTypes: ['authorization_code', 'refresh_token'],
     responseTypes: ['code'],
   })
@@ -68,7 +126,7 @@ export default function ApplicationDashboard() {
       setSelectedAppId(app.id)
       setFormData({
         name: app.name || app.client_name,
-        redirectUris: app.redirectUris || app.redirect_uris || ['http://localhost:5173/callback'],
+        redirectUris: app.redirectUris || app.redirect_uris || [DEFAULT_REDIRECT_URI],
         grantTypes: app.grantTypes || app.grant_types || ['authorization_code'],
         responseTypes: app.responseTypes || app.response_types || ['code'],
       })
@@ -77,7 +135,7 @@ export default function ApplicationDashboard() {
       setSelectedAppId(null)
       setFormData({
         name: '',
-        redirectUris: ['http://localhost:5173/callback'],
+        redirectUris: [DEFAULT_REDIRECT_URI],
         grantTypes: ['authorization_code', 'refresh_token'],
         responseTypes: ['code'],
       })
@@ -93,17 +151,13 @@ export default function ApplicationDashboard() {
         {
           onSuccess: () => {
             setAppDialogOpen(false)
-            enqueueSnackbar(t('admin.developer.applications.messages.update_success'), {
-              variant: 'success',
-            })
+            toast.success(t('admin.developer.applications.messages.update_success'))
           },
           onError: (err: any) => {
             logger.error('Failed to update application', { error: err })
-            enqueueSnackbar(
+            toast.error(
               err?.message || t('admin.developer.applications.messages.error_generic'),
-              {
-                variant: 'error',
-              },
+              {},
             )
           },
         },
@@ -112,9 +166,7 @@ export default function ApplicationDashboard() {
       createMutation.mutate(formData, {
         onSuccess: (res: any) => {
           setAppDialogOpen(false)
-          enqueueSnackbar(t('admin.developer.applications.messages.create_success'), {
-            variant: 'success',
-          })
+          toast.success(t('admin.developer.applications.messages.create_success'), {})
           if (res.data?.clientSecret || res.data?.client_secret) {
             setNewSecret(res.data.clientSecret || res.data.client_secret)
             setSecretDialogOpen(true)
@@ -122,12 +174,7 @@ export default function ApplicationDashboard() {
         },
         onError: (err: any) => {
           logger.error('Failed to create application', { error: err })
-          enqueueSnackbar(
-            err?.message || t('admin.developer.applications.messages.error_generic'),
-            {
-              variant: 'error',
-            },
-          )
+          toast.error(err?.message || t('admin.developer.applications.messages.error_generic'), {})
         },
       })
     }
@@ -142,17 +189,13 @@ export default function ApplicationDashboard() {
         onConfirm: () => {
           deleteMutation.mutate(String(selectedAppId), {
             onSuccess: () => {
-              enqueueSnackbar(t('admin.developer.applications.messages.delete_success'), {
-                variant: 'success',
-              })
+              toast.success(t('admin.developer.applications.messages.delete_success'))
             },
             onError: (err: any) => {
               logger.error('Failed to delete application', { error: err })
-              enqueueSnackbar(
+              toast.error(
                 err?.message || t('admin.developer.applications.messages.error_generic'),
-                {
-                  variant: 'error',
-                },
+                {},
               )
             },
           })
@@ -172,9 +215,7 @@ export default function ApplicationDashboard() {
         onConfirm: () => {
           rotateMutation.mutate(String(selectedAppId), {
             onSuccess: (res) => {
-              enqueueSnackbar(t('admin.developer.applications.messages.rotate_success'), {
-                variant: 'success',
-              })
+              toast.success(t('admin.developer.applications.messages.rotate_success'))
               if (res.data?.client_secret) {
                 setNewSecret(res.data.client_secret)
                 setSecretDialogOpen(true)
@@ -182,11 +223,9 @@ export default function ApplicationDashboard() {
             },
             onError: (err: any) => {
               logger.error('Failed to rotate secret', { error: err })
-              enqueueSnackbar(
+              toast.error(
                 err?.message || t('admin.developer.applications.messages.error_generic'),
-                {
-                  variant: 'error',
-                },
+                {},
               )
             },
           })
@@ -199,7 +238,7 @@ export default function ApplicationDashboard() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    enqueueSnackbar(t('admin.developer.applications.messages.copied'), { variant: 'info' })
+    toast.info(t('admin.developer.applications.messages.copied'))
   }
 
   if (isLoading)
@@ -333,11 +372,7 @@ export default function ApplicationDashboard() {
           <Stack direction='row' spacing={1.5} sx={{ ml: { sm: 'auto' } }}>
             <Button
               startIcon={<History />}
-              onClick={() =>
-                enqueueSnackbar('Audit logs feature is not enabled for this application.', {
-                  variant: 'info',
-                })
-              }
+              onClick={() => toast.info('Audit logs feature is not enabled for this application.')}
               sx={{
                 textTransform: 'none',
                 fontWeight: 700,
@@ -833,4 +868,3 @@ export default function ApplicationDashboard() {
     </Box>
   )
 }
-

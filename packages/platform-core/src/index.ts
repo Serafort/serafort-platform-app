@@ -10,20 +10,46 @@ export type { Settings } from '@cap/shared-types'
 export * from './types'
 export * from './services'
 export * from './i18n/i18n'
-export { default as themeConfig } from '@cap/shared-types/theme'
+export * from './i18n/registry'
+export { themeConfig } from '@cap/theme'
 
 export * from './utils'
 export * from './assembly'
 export { default as useObjectCookie } from './hooks/useObjectCookie'
 export * from './hooks/usePermissions'
-export { TenantProvider, useTenant } from './contexts/tenantContext'
 export * from './contexts/tenantContext'
+export * from './contexts/LayoutEngineContext'
 export * from './hooks/useDynamicTheme'
-export * from './services/tenantService'
-export * from './types/tenant'
 export * from './hooks/useNetworkSync'
 export * from './hooks/useAuth'
 export * from './hooks/useNavigation'
+// Container-size / widget-registry primitives now live in @cap/theme (a lower tier)
+// so @cap/theme's widget components no longer need to import up into @cap/platform-core.
+// Re-exported here to keep @cap/platform-core's public surface unchanged.
+export {
+  useResizeObserver,
+  useContainerQuery,
+  ContainerSizeContext,
+  ContainerSizeProvider,
+  useContainerSize,
+  useContainerSizeClass,
+  observeElement,
+  unobserveElement,
+  globalWidgetRegistry,
+  registerModuleWidgets,
+} from '@cap/theme'
+export type {
+  ResizeBoxSizing,
+  ObserveOptions,
+  ContainerSize,
+  ContainerBreakpoints,
+  ElementSize,
+  UseResizeObserverOptions,
+  ContainerSizeProviderProps,
+  WidgetDescriptor,
+  RegisterModuleWidgetsOptions,
+} from '@cap/theme'
 export * from './components'
 
 export * from './registry/PluginRegistry'
+export * from './authorization/bootstrap'

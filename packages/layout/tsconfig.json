@@ -2,11 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -20,46 +16,20 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": [
-      "node",
-      "vite/client",
-      "react",
-      "react-dom"
-    ],
-    "baseUrl": ".",
+    "types": ["node", "vite/client", "react", "react-dom"],
     "paths": {
-      "@/*": [
-        "../../app/src/*"
-      ],
-      "@auth/*": [
-        "../modules/auth/src/*",
-        "../modules/auth/src/modules/*",
-        "../platform-core/src/stubs/auth-shim.tsx"
-      ],
-      "@idaas/*": [
-        "../modules/auth/src/modules/*",
-        "../platform-core/src/stubs/auth-shim.tsx"
-      ],
-      "@cap/module-auth": [
-        "../modules/auth/src",
-        "../platform-core/src/stubs/auth-shim.tsx"
-      ],
-      "@cap/module-auth/*": [
-        "../modules/auth/src/*",
-        "../platform-core/src/stubs/auth-shim.tsx"
-      ],
-      "@cap/platform-core": [
-        "../platform-core/src"
-      ],
-      "@cap/platform-core/*": [
-        "../platform-core/src/*"
-      ],
-      "@cap/theme": [
-        "../theme/src"
-      ],
-      "@cap/theme/*": [
-        "../theme/src/*"
-      ]
+      "@/*": ["../../app/src/*"],
+      "@cap/module-auth": ["../platform-core/src/stubs/auth-shim.tsx"],
+      "@cap/module-auth/*": ["../platform-core/src/stubs/auth-shim.tsx"],
+      "@cap/platform-core": ["../platform-core/src"],
+      "@cap/platform-core/*": ["../platform-core/src/*"],
+      "@cap/theme": ["../theme/src"],
+      "@cap/theme/*": ["../theme/src/*"],
+      "@cap/shared-types": ["../shared-types/src"],
+      "@cap/shared-types/*": ["../shared-types/src/*"],
+      "@cap/platform-store": ["../platform-store/src"],
+      "@cap/platform-store/*": ["../platform-store/src/*"]
     }
-  }
+  },
+  "include": ["src/**/*"]
 }

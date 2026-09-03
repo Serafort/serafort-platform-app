@@ -5,25 +5,32 @@
 
 import React from 'react'
 import {
-  Box, Container, Typography, alpha, LinearProgress, useTheme,
-  Button, Alert, CircularProgress,
+  Box,
+  Container,
+  Typography,
+  alpha,
+  LinearProgress,
+  useTheme,
+  Button,
+  Alert,
+  CircularProgress,
 } from '@mui/material'
 import Security from '@mui/icons-material/Security'
 import ErrorOutline from '@mui/icons-material/ErrorOutline'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useTranslation } from 'react-i18next'
-import { themeConfig } from '@cap/platform-core'
+import { themeConfig, API_CONFIG } from '@cap/platform-core'
 import { motion } from 'framer-motion'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useOidcInteraction } from '@auth/identity-broker/hooks/useOidcCompliance'
-import { Path } from "@auth/routes/path"
+import { Path } from '@auth/routes/path'
 import logger from '@auth/authentication-core/utils/logger'
+import { ENDPOINTS } from '@cap/platform-core'
 
 type WaitPhase = 'initializing' | 'redirecting' | 'interaction' | 'error'
 
-const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3333'
-const OIDC_AUTH_URL = `${API_BASE}/api/auth/oidc/auth`
+const OIDC_AUTH_URL = `${API_CONFIG?.baseURL || ''}${ENDPOINTS?.auth?.oidc?.auth || '/api/v1/auth/oidc/authorize'}`
 const REDIRECT_TIMEOUT_MS = 15_000
 
 export default function OidcWaitScreen() {
@@ -32,7 +39,6 @@ export default function OidcWaitScreen() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
-  // â”€â”€ Extract query parameters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const clientId = searchParams.get('client_id')
   const redirectUri = searchParams.get('redirect_uri')
   const responseType = searchParams.get('response_type') || 'code'
@@ -41,19 +47,16 @@ export default function OidcWaitScreen() {
   const nonce = searchParams.get('nonce')
   const interactionUid = searchParams.get('interaction')
 
-  // â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [phase, setPhase] = React.useState<WaitPhase>('initializing')
   const [errorMessage, setErrorMessage] = React.useState<string>('')
   const hasRedirected = React.useRef(false)
 
-  // â”€â”€ Interaction fetch (for "interaction" param) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const {
     data: interactionResponse,
     isLoading: isInteractionLoading,
     isError: isInteractionError,
   } = useOidcInteraction(interactionUid)
 
-  // â”€â”€ Build the OIDC authorization URL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const buildAuthUrl = React.useCallback(() => {
     const params = new URLSearchParams()
     if (clientId) params.set('client_id', clientId)
@@ -65,7 +68,6 @@ export default function OidcWaitScreen() {
     return `${OIDC_AUTH_URL}?${params.toString()}`
   }, [clientId, redirectUri, responseType, scope, state, nonce])
 
-  // â”€â”€ Perform the redirect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const doRedirect = React.useCallback((url: string) => {
     if (hasRedirected.current) return
     hasRedirected.current = true
@@ -79,7 +81,6 @@ export default function OidcWaitScreen() {
     return () => clearTimeout(timer)
   }, [])
 
-  // â”€â”€ Effect: Determine phase and redirect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   React.useEffect(() => {
     if (hasRedirected.current) return
 
@@ -92,14 +93,19 @@ export default function OidcWaitScreen() {
       if (isInteractionError) {
         setPhase('error')
         setErrorMessage(
-          t('auth.sso.interaction_expired', 'The authentication session has expired. Please start again.')
+          t(
+            'auth.sso.interaction_expired',
+            'The authentication session has expired. Please start again.',
+          ),
         )
         return
       }
 
       const details = interactionResponse?.data
       if (details?.prompt?.name === 'login') {
-        navigate(`${Path.identity.oidcLoginPrompt}?interaction=${interactionUid}`, { replace: true })
+        navigate(`${Path.identity.oidcLoginPrompt}?interaction=${interactionUid}`, {
+          replace: true,
+        })
         return
       }
       if (details?.prompt?.name === 'consent') {
@@ -109,7 +115,9 @@ export default function OidcWaitScreen() {
 
       // If no specific prompt, try to confirm directly
       if (details) {
-        navigate(`${Path.identity.oidcLoginPrompt}?interaction=${interactionUid}`, { replace: true })
+        navigate(`${Path.identity.oidcLoginPrompt}?interaction=${interactionUid}`, {
+          replace: true,
+        })
       }
       return
     }
@@ -118,7 +126,10 @@ export default function OidcWaitScreen() {
     if (!clientId) {
       setPhase('error')
       setErrorMessage(
-        t('auth.sso.missing_client_id', 'Missing required parameter: client_id. Cannot proceed with SSO.')
+        t(
+          'auth.sso.missing_client_id',
+          'Missing required parameter: client_id. Cannot proceed with SSO.',
+        ),
       )
       return
     }
@@ -126,7 +137,10 @@ export default function OidcWaitScreen() {
     if (!redirectUri) {
       setPhase('error')
       setErrorMessage(
-        t('auth.sso.missing_redirect_uri', 'Missing required parameter: redirect_uri. Cannot proceed with SSO.')
+        t(
+          'auth.sso.missing_redirect_uri',
+          'Missing required parameter: redirect_uri. Cannot proceed with SSO.',
+        ),
       )
       return
     }
@@ -136,11 +150,18 @@ export default function OidcWaitScreen() {
     logger.info('OidcWaitScreen: Redirecting to OIDC authorization endpoint', { authUrl })
     doRedirect(authUrl)
   }, [
-    interactionUid, isInteractionLoading, isInteractionError, interactionResponse,
-    clientId, redirectUri, buildAuthUrl, doRedirect, navigate, t,
+    interactionUid,
+    isInteractionLoading,
+    isInteractionError,
+    interactionResponse,
+    clientId,
+    redirectUri,
+    buildAuthUrl,
+    doRedirect,
+    navigate,
+    t,
   ])
 
-  // â”€â”€ Redirect timeout safety â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   React.useEffect(() => {
     if (phase !== 'redirecting' && phase !== 'initializing') return
 
@@ -148,7 +169,10 @@ export default function OidcWaitScreen() {
       if (!hasRedirected.current || phase === 'initializing') {
         setPhase('error')
         setErrorMessage(
-          t('auth.sso.redirect_timeout', 'The redirect is taking longer than expected. Please try again.')
+          t(
+            'auth.sso.redirect_timeout',
+            'The redirect is taking longer than expected. Please try again.',
+          ),
         )
       }
     }, REDIRECT_TIMEOUT_MS)
@@ -156,7 +180,6 @@ export default function OidcWaitScreen() {
     return () => clearTimeout(timeout)
   }, [phase, t])
 
-  // â”€â”€ Retry handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleRetry = () => {
     hasRedirected.current = false
     setPhase('initializing')
@@ -164,7 +187,6 @@ export default function OidcWaitScreen() {
     window.location.reload()
   }
 
-  // â”€â”€ Status text based on phase â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const statusText = React.useMemo(() => {
     switch (phase) {
       case 'initializing':
@@ -180,7 +202,6 @@ export default function OidcWaitScreen() {
     }
   }, [phase, t])
 
-  // â”€â”€ Render: Error state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (phase === 'error') {
     return (
       <Box
@@ -189,9 +210,14 @@ export default function OidcWaitScreen() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
         sx={{
-          display: 'flex', flexDirection: 'column', minHeight: '100vh',
-          justifyContent: 'center', alignItems: 'center',
-          bgcolor: 'background.default', position: 'relative', overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
+          justifyContent: 'center',
+          alignItems: 'center',
+          bgcolor: 'background.default',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
         <title>
@@ -206,10 +232,15 @@ export default function OidcWaitScreen() {
           >
             <Box
               sx={{
-                width: 80, height: 80, borderRadius: '24px',
+                width: 80,
+                height: 80,
+                borderRadius: '24px',
                 bgcolor: alpha(theme.palette.error.main, 0.08),
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                mb: 4, mx: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 4,
+                mx: 'auto',
                 border: '1px solid',
                 borderColor: alpha(theme.palette.error.main, 0.15),
               }}
@@ -227,7 +258,9 @@ export default function OidcWaitScreen() {
             <Alert
               severity='error'
               sx={{
-                mb: 4, borderRadius: '16px', textAlign: 'left',
+                mb: 4,
+                borderRadius: '16px',
+                textAlign: 'left',
                 '& .MuiAlert-message': { fontWeight: 600 },
               }}
             >
@@ -240,8 +273,11 @@ export default function OidcWaitScreen() {
                 startIcon={<ArrowBackIcon />}
                 onClick={() => navigate(Path.auth.login)}
                 sx={{
-                  fontWeight: 700, textTransform: 'none', borderRadius: '12px',
-                  px: 3, borderColor: 'divider',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  borderRadius: '12px',
+                  px: 3,
+                  borderColor: 'divider',
                 }}
               >
                 {t('auth.sso.back_to_login', 'Back to Login')}
@@ -251,7 +287,10 @@ export default function OidcWaitScreen() {
                 startIcon={<RefreshIcon />}
                 onClick={handleRetry}
                 sx={{
-                  fontWeight: 700, textTransform: 'none', borderRadius: '12px', px: 3,
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  borderRadius: '12px',
+                  px: 3,
                 }}
               >
                 {t('common.retry', 'Retry')}
@@ -263,7 +302,6 @@ export default function OidcWaitScreen() {
     )
   }
 
-  // â”€â”€ Render: Loading / Redirecting state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <Box
       component={motion.div}
@@ -271,9 +309,14 @@ export default function OidcWaitScreen() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       sx={{
-        display: 'flex', flexDirection: 'column', minHeight: '100vh',
-        justifyContent: 'center', alignItems: 'center',
-        bgcolor: 'background.default', position: 'relative', overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+        justifyContent: 'center',
+        alignItems: 'center',
+        bgcolor: 'background.default',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
       <title>
@@ -283,7 +326,11 @@ export default function OidcWaitScreen() {
       {/* Subtle Background Pattern */}
       <Box
         sx={{
-          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           opacity: 0.02,
           backgroundImage: `radial-gradient(${theme.palette.primary.main} 1.5px, transparent 1.5px)`,
           backgroundSize: '32px 32px',
@@ -299,10 +346,15 @@ export default function OidcWaitScreen() {
         >
           <Box
             sx={{
-              width: 80, height: 80, borderRadius: '24px',
+              width: 80,
+              height: 80,
+              borderRadius: '24px',
               bgcolor: alpha(theme.palette.primary.main, 0.08),
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              mb: 4, mx: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mb: 4,
+              mx: 'auto',
               border: '1px solid',
               borderColor: alpha(theme.palette.primary.main, 0.1),
               position: 'relative',
@@ -336,8 +388,11 @@ export default function OidcWaitScreen() {
             <Typography
               variant='caption'
               sx={{
-                display: 'block', mb: 4, fontWeight: 700,
-                color: 'text.secondary', letterSpacing: '0.05em',
+                display: 'block',
+                mb: 4,
+                fontWeight: 700,
+                color: 'text.secondary',
+                letterSpacing: '0.05em',
               }}
             >
               {t('auth.sso.client_label', 'Client')}: {clientId}
@@ -352,7 +407,8 @@ export default function OidcWaitScreen() {
             ) : (
               <LinearProgress
                 sx={{
-                  height: 6, borderRadius: 3,
+                  height: 6,
+                  borderRadius: 3,
                   bgcolor: alpha(theme.palette.primary.main, 0.06),
                   '& .MuiLinearProgress-bar': {
                     borderRadius: 3,
@@ -365,8 +421,12 @@ export default function OidcWaitScreen() {
 
           <Box
             sx={{
-              display: 'inline-flex', alignItems: 'center', gap: 1.5,
-              px: 2.5, py: 1, borderRadius: '50px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 1.5,
+              px: 2.5,
+              py: 1,
+              borderRadius: '50px',
               bgcolor: alpha(theme.palette.success.main, 0.04),
               border: '1px solid',
               borderColor: alpha(theme.palette.success.main, 0.1),
@@ -374,7 +434,9 @@ export default function OidcWaitScreen() {
           >
             <Box
               sx={{
-                width: 8, height: 8, borderRadius: '50%',
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
                 bgcolor: 'success.main',
                 boxShadow: `0 0 8px ${theme.palette.success.main}`,
               }}
@@ -382,8 +444,10 @@ export default function OidcWaitScreen() {
             <Typography
               variant='caption'
               sx={{
-                fontWeight: 800, color: 'success.dark',
-                textTransform: 'uppercase', letterSpacing: '0.1em',
+                fontWeight: 800,
+                color: 'success.dark',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
               }}
             >
               {t('auth.sso.secure_connection', 'Secure end-to-end encrypted connection')}
@@ -394,7 +458,3 @@ export default function OidcWaitScreen() {
     </Box>
   )
 }
-
-
-
-

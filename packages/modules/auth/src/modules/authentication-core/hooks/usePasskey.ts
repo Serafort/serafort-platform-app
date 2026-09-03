@@ -1,6 +1,12 @@
-import { useMutation, useQuery, useQueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { FetchResponse, HttpError, apiClient } from '@cap/platform-core'
-import { ENDPOINTS } from '../services/endpoints'
+import { ENDPOINTS } from '@cap/platform-core'
 import { QUERY_KEYS } from '../services/query'
 
 export interface PasskeyCredential {
@@ -33,15 +39,17 @@ const passkeyService = {
     return apiClient.post(ENDPOINTS.auth.passkey.registerStart, options || {})
   },
 
-  registerFinish: async ( attestation: any ): Promise<FetchResponse> => {
+  registerFinish: async (attestation: any): Promise<FetchResponse> => {
     return apiClient.post(ENDPOINTS.auth.passkey.registerFinish, { attestation })
   },
 
-  loginStart: async (options?: PasskeyAuthenticationOptions): Promise<FetchResponse> => {
-    return apiClient.post(ENDPOINTS.auth.passkey.loginStart, options || {})
+  loginStart: async (
+    options?: PasskeyAuthenticationOptions,
+  ): Promise<FetchResponse<PasskeyLoginResult>> => {
+    return apiClient.post<PasskeyLoginResult>(ENDPOINTS.auth.passkey.loginStart, options || {})
   },
 
-  loginFinish: async ( assertion: any ): Promise<FetchResponse<PasskeyLoginResult> > => {
+  loginFinish: async (assertion: any): Promise<FetchResponse<PasskeyLoginResult>> => {
     return apiClient.post(ENDPOINTS.auth.passkey.loginFinish, { assertion })
   },
 }
@@ -79,7 +87,12 @@ export function usePasskeyRegisterFinish(
 }
 
 export function usePasskeyLogin(
-  options?: UseMutationOptions<FetchResponse<PasskeyLoginResult>, HttpError, PasskeyAuthenticationOptions, unknown>,
+  options?: UseMutationOptions<
+    FetchResponse<PasskeyLoginResult>,
+    HttpError,
+    PasskeyAuthenticationOptions,
+    unknown
+  >,
 ) {
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
 
@@ -93,7 +106,12 @@ export function usePasskeyLogin(
 }
 
 export function usePasskeyLoginFinish(
-  options?: UseMutationOptions<FetchResponse<PasskeyLoginResult>, HttpError, { assertion: any }, unknown>,
+  options?: UseMutationOptions<
+    FetchResponse<PasskeyLoginResult>,
+    HttpError,
+    { assertion: any },
+    unknown
+  >,
 ) {
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
 
@@ -105,11 +123,14 @@ export function usePasskeyLoginFinish(
 }
 
 export function usePasskeys(
-  options?: Omit<UseQueryOptions<FetchResponse<PasskeyCredential[]>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<
+    UseQueryOptions<FetchResponse<PasskeyCredential[]>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: QUERY_KEYS.users.passkeys,
-    queryFn: () => apiClient.get(ENDPOINTS.user.passkeys.index),
+    queryFn: () => apiClient.get<PasskeyCredential[]>(ENDPOINTS.user.passkeys.index),
     staleTime: 1000 * 60 * 5,
     ...options,
   })
@@ -132,7 +153,12 @@ export function useDeletePasskey(
 }
 
 export function useUpdatePasskey(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, { id: string | number; name: string }, unknown>,
+  options?: UseMutationOptions<
+    FetchResponse<any>,
+    HttpError,
+    { id: string | number; name: string },
+    unknown
+  >,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}

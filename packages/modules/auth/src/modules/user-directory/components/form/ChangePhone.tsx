@@ -1,24 +1,30 @@
 import React from 'react'
 import { useForm, Controller } from 'react-hook-form'
-import { Box, Grid, IconButton, TextField, InputAdornment } from '@mui/material'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Box, Grid, IconButton, TextField, InputAdornment, FormHelperText } from '@mui/material'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
-import { Visibility, VisibilityOff } from '@mui/icons-material'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useTranslation } from 'react-i18next'
-import { IUserResponse } from '@cap/platform-core'
-import FormLayout from "@auth/authentication-core/components/form/FormLayout"
-// import { FormLayout } from 'src/components/form'
+import { UserDto } from '@cap/shared-types'
+import FormLayout from '@auth/authentication-core/components/form/FormLayout'
+import {
+  ChangePhoneSchema,
+  type ChangePhoneSchemaType,
+} from '@auth/modules/authentication-core/utils/schema'
 
 // Type-safe wrapper for PhoneInput to fix React 19 compatibility
 const PhoneInputWrapper = PhoneInput as unknown as React.ComponentType<any>
 
-export default function ChangePhone({ user }: { user: IUserResponse }) {
+export default function ChangePhone({ user }: { user: UserDto }) {
   const { t } = useTranslation()
   const [showPassword, setShowPassword] = React.useState<boolean>(false)
   const handleShowPassword = () => setShowPassword(!showPassword)
-  const controlForm = useForm({
+  const controlForm = useForm<ChangePhoneSchemaType>({
+    resolver: zodResolver(ChangePhoneSchema),
     defaultValues: {
-      phone: user.phone,
+      phone: user.phone || '',
       password: '',
     },
   })
@@ -40,32 +46,36 @@ export default function ChangePhone({ user }: { user: IUserResponse }) {
             <Controller
               name='phone'
               control={controlForm.control}
-              render={({ field }) => (
-                <PhoneInputWrapper
-                  {...field}
-                  country={'ht'}
-                  placeholder={t('auth.account.phone')}
-                  inputProps={{
-                    name: 'phone',
-                    required: true,
-                    autoFocus: true,
-                  }}
-                  inputStyle={{
-                    background: 'transparent',
-                    fontFamily: `"Roboto", "Helvetica", "Arial", sans-serif`,
-                    fontWeight: 400,
-                    fontSize: '1rem',
-                    lineHeight: '1.4375em',
-                    letterSpacing: '0.00938em',
-                    height: '1.4375em',
-                    padding: '22.5px 14px',
-                    width: '100%',
-                  }}
-                  // disabled={disabled}
-                  // defaultErrorMessage={formState?.errors?.phone?.message}
-                  // error={formState?.errors?.phone !== undefined}
-                  // helperText={formState?.errors?.phone?.message}
-                />
+              render={({ field, fieldState }) => (
+                <Box>
+                  <PhoneInputWrapper
+                    {...field}
+                    country={'ht'}
+                    placeholder={t('auth.account.phone')}
+                    inputProps={{
+                      name: 'phone',
+                      required: true,
+                      autoFocus: true,
+                    }}
+                    inputStyle={{
+                      background: 'transparent',
+                      fontFamily: `"Roboto", "Helvetica", "Arial", sans-serif`,
+                      fontWeight: 400,
+                      fontSize: '1rem',
+                      lineHeight: '1.4375em',
+                      letterSpacing: '0.00938em',
+                      height: '1.4375em',
+                      padding: '22.5px 14px',
+                      width: '100%',
+                      borderColor: fieldState.error ? '#d32f2f' : undefined,
+                    }}
+                  />
+                  {fieldState.error && (
+                    <FormHelperText error sx={{ ml: 1.5, mt: 0.5 }}>
+                      {fieldState.error.message}
+                    </FormHelperText>
+                  )}
+                </Box>
               )}
             />
           </Grid>
@@ -73,8 +83,7 @@ export default function ChangePhone({ user }: { user: IUserResponse }) {
             <Controller
               name='password'
               control={controlForm.control}
-              rules={{ required: true }}
-              render={({ field, formState }) => (
+              render={({ field, fieldState }) => (
                 <TextField
                   {...field}
                   required
@@ -95,8 +104,8 @@ export default function ChangePhone({ user }: { user: IUserResponse }) {
                       </InputAdornment>
                     ),
                   }}
-                  error={formState?.errors?.root?.type !== undefined}
-                  helperText={formState?.errors?.root?.message}
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
                 />
               )}
             />
@@ -117,5 +126,3 @@ export default function ChangePhone({ user }: { user: IUserResponse }) {
     </FormLayout>
   )
 }
-
-

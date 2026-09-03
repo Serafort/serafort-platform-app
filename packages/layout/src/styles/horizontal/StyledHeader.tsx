@@ -1,50 +1,64 @@
-import { styled } from '@cap/theme'
+import { styled } from '@mui/material/styles'
+import { getTenantThemeEffects } from '@cap/theme'
+import {
+  headerTokens,
+  getHeaderElevationShadow,
+  getHeaderBorderBlockEnd,
+  getHeaderBlurStyles,
+} from '@cap/theme'
 import type { CSSObject } from '@emotion/styled'
 import { horizontalLayoutClasses } from '../../utils/layoutClasses'
+import { SurfaceEffectFactory } from '../../utils/buildLayoutSurfaceEffect'
 
-// themeConfig values inlined to avoid circular import (layoutPadding:24, compactContentWidth:1440)
 type StyledHeaderProps = {
   overrideStyles?: CSSObject
   layoutPadding: string
   compactContentWidth: number
 }
 
-const StyledHeader = styled('header')<StyledHeaderProps>(({ theme, layoutPadding, compactContentWidth, overrideStyles }) => ({
-  boxShadow: (theme as any).customShadows?.sm || theme.shadows[1],
-  
-  '[data-skin="bordered"] &': {
-    boxShadow: 'none',
-    borderBlockEnd: `1px solid ${theme.palette.divider}`,
-  },
+const StyledHeader = styled('header')<StyledHeaderProps>(({
+  theme,
+  layoutPadding,
+  compactContentWidth,
+  overrideStyles,
+}) => {
+  const surfaceEffect = SurfaceEffectFactory.create(getTenantThemeEffects(theme), theme)
 
-  [`&:not(.${horizontalLayoutClasses.headerBlur})`]: {
-    backgroundColor: theme.palette.background.paper,
-  },
+  return {
+    boxShadow: getHeaderElevationShadow(theme),
+    ...surfaceEffect,
 
-  [`&.${horizontalLayoutClasses.headerBlur}`]: {
-    backdropFilter: 'blur(6px)',
-    backgroundColor: `rgba(${theme.palette.background.paperChannel || '255, 255, 255'}, 0.88)`,
-  },
+    '[data-skin="bordered"] &': {
+      boxShadow: headerTokens.borderedSkin.boxShadow,
+      borderBlockEnd: getHeaderBorderBlockEnd(theme),
+    },
 
-  [`&.${horizontalLayoutClasses.headerFixed}`]: {
-    position: 'sticky',
-    insetBlockStart: 0,
-    zIndex: theme.zIndex.appBar,
-  },
+    [`&:not(.${horizontalLayoutClasses.headerBlur})`]: {
+      backgroundColor: theme.palette.background.paper,
+    },
 
-  [`&.${horizontalLayoutClasses.headerContentCompact} .${horizontalLayoutClasses.navbar}`]: {
-    marginInline: 'auto',
-    maxInlineSize: `${compactContentWidth}px`,
-  },
+    [`&.${horizontalLayoutClasses.headerBlur}`]: getHeaderBlurStyles(theme),
 
-  [`& .${horizontalLayoutClasses.navbar}`]: {
-    position: 'relative',
-    minBlockSize: '64px', // Standard height or from theme
-    paddingBlock: '8px',
-    paddingInline: layoutPadding,
-  },
+    [`&.${horizontalLayoutClasses.headerFixed}`]: {
+      position: headerTokens.positioning.sticky,
+      insetBlockStart: headerTokens.positioning.insetBlockStart,
+      zIndex: theme.zIndex.appBar,
+    },
 
-  ...(overrideStyles as any),
-}))
+    [`&.${horizontalLayoutClasses.headerContentCompact} .${horizontalLayoutClasses.navbar}`]: {
+      marginInline: headerTokens.layout.compactMarginInline,
+      maxInlineSize: `${compactContentWidth}px`,
+    },
+
+    [`& .${horizontalLayoutClasses.navbar}`]: {
+      position: headerTokens.positioning.navbarPosition,
+      minBlockSize: headerTokens.layout.minBlockSize,
+      paddingBlock: headerTokens.layout.paddingBlock,
+      paddingInline: layoutPadding,
+    },
+
+    ...(overrideStyles as any),
+  }
+})
 
 export default StyledHeader

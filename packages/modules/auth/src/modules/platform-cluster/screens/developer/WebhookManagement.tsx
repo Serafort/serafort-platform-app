@@ -35,25 +35,23 @@ import {
   Stack,
   LinearProgress,
 } from '@mui/material'
-import {
-  Webhook,
-  Add,
-  ArrowBack,
-  Delete,
-  PlayArrow,
-  CheckCircle,
-  Error as ErrorIcon,
-  ContentCopy,
-  Info,
-  Link,
-  Settings,
-  NotificationsActive,
-  Visibility,
-  VisibilityOff,
-} from '@mui/icons-material'
+import Webhook from '@mui/icons-material/Webhook'
+import Add from '@mui/icons-material/Add'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import Delete from '@mui/icons-material/Delete'
+import PlayArrow from '@mui/icons-material/PlayArrow'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import ErrorIcon from '@mui/icons-material/Error'
+import ContentCopy from '@mui/icons-material/ContentCopy'
+import Info from '@mui/icons-material/Info'
+import Link from '@mui/icons-material/Link'
+import Settings from '@mui/icons-material/Settings'
+import NotificationsActive from '@mui/icons-material/NotificationsActive'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify'
 import logger from '@idaas/authentication-core/utils/logger'
 import {
   useWebhooks,
@@ -120,8 +118,6 @@ const WebhookManagement: React.FC = () => {
   const { t } = useTranslation('auth')
   const theme = useTheme()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
-
   // â”€â”€ Queries & Mutations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const { data: webhooksData, isLoading } = useWebhooks()
   const createWebhook = useCreateWebhook()
@@ -145,7 +141,7 @@ const WebhookManagement: React.FC = () => {
   // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleCreate = () => {
     if (!url || selectedEvents.length === 0) {
-      enqueueSnackbar(t('admin.developer.webhooks.messages.form_error'), { variant: 'warning' })
+      toast.warning(t('admin.developer.webhooks.messages.form_error'))
       return
     }
 
@@ -153,9 +149,7 @@ const WebhookManagement: React.FC = () => {
       { url, events: selectedEvents },
       {
         onSuccess: (response: any) => {
-          enqueueSnackbar(t('admin.developer.webhooks.messages.create_success'), {
-            variant: 'success',
-          })
+          toast.success(t('admin.developer.webhooks.messages.create_success'))
           setIsCreateDialogOpen(false)
           setUrl('')
           setSelectedEvents([])
@@ -166,7 +160,7 @@ const WebhookManagement: React.FC = () => {
         },
         onError: (err) => {
           logger.error('Failed to create webhook', { error: err })
-          enqueueSnackbar(t('admin.developer.webhooks.messages.create_error'), { variant: 'error' })
+          toast.error(t('admin.developer.webhooks.messages.create_error'))
         },
       },
     )
@@ -176,35 +170,30 @@ const WebhookManagement: React.FC = () => {
     if (!selectedWebhookId) return
     deleteWebhook.mutate(selectedWebhookId, {
       onSuccess: () => {
-        enqueueSnackbar(t('admin.developer.webhooks.messages.delete_success'), {
-          variant: 'success',
-        })
+        toast.success(t('admin.developer.webhooks.messages.delete_success'))
         setIsDeleteDialogOpen(false)
         setSelectedWebhookId(null)
       },
       onError: (err) => {
         logger.error('Failed to delete webhook', { error: err })
-        enqueueSnackbar(t('admin.developer.webhooks.messages.delete_error'), { variant: 'error' })
+        toast.error(t('admin.developer.webhooks.messages.delete_error'))
       },
     })
   }
 
   const handleTest = (id: string | number) => {
     testWebhook.mutate(id, {
-      onSuccess: () =>
-        enqueueSnackbar(t('admin.developer.webhooks.messages.test_success'), {
-          variant: 'success',
-        }),
+      onSuccess: () => toast.success(t('admin.developer.webhooks.messages.test_success')),
       onError: (err) => {
         logger.error('Failed to test webhook', { error: err })
-        enqueueSnackbar(t('admin.developer.webhooks.messages.test_error'), { variant: 'error' })
+        toast.error(t('admin.developer.webhooks.messages.test_error'))
       },
     })
   }
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
-    enqueueSnackbar(t('admin.developer.webhooks.messages.copied', { label }), { variant: 'info' })
+    toast.info(t('admin.developer.webhooks.messages.copied', { label }))
   }
 
   // â”€â”€ Render Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -849,5 +838,3 @@ const WebhookManagement: React.FC = () => {
 }
 
 export default WebhookManagement
-
-

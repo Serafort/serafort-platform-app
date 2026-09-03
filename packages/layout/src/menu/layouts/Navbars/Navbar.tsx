@@ -1,18 +1,40 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, Container, Toolbar, IconButton, List, ListItemButton, ListItemText, Menu, Stack, Theme, useTheme, InputBase } from '@mui/material';
-import MuiAppBar from '@mui/material/AppBar';
-import { alpha, styled } from '@mui/material/styles';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import { AuthButtons, AuthProfile } from '../../../components/auth';
-import { useAuth, isObjectEmpty } from '@cap/platform-core';
-import { Logo, ModeDropdown } from '../../shared';
+import React from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import {
+  Box,
+  Container,
+  Toolbar,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemText,
+  Menu,
+  Stack,
+  Theme,
+  useTheme,
+  InputBase,
+} from '@mui/material'
+import MuiAppBar from '@mui/material/AppBar'
+import { styled } from '@mui/material/styles'
+import MenuIcon from '@mui/icons-material/Menu'
+import SearchIcon from '@mui/icons-material/Search'
+import { AuthButtons, AuthProfile } from '../../../components/auth'
+import { useAuth, isObjectEmpty, useNavigationMenu } from '@cap/platform-core'
+import { Logo, ModeDropdown } from '../../shared'
+import {
+  navbarTokens,
+  getSearchBgColor,
+  getSearchHoverBgColor,
+  getSearchIconColor,
+  getSearchInputLeftPadding,
+  getMenuIconColor,
+} from '@cap/theme'
 
 const AppBar = styled(MuiAppBar)(({ theme }: { theme: Theme }) => ({
-  backgroundColor: 'var(--mui-palette-background-paper)',
-  maxWidth: '100%',
-  zIndex: theme.zIndex.drawer + 1,
+  backgroundColor: theme.palette.background.paper,
+  maxWidth: navbarTokens.layout.appBarMaxWidth,
+  zIndex: theme.zIndex.drawer + navbarTokens.layout.zIndexOffset,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -20,24 +42,24 @@ const AppBar = styled(MuiAppBar)(({ theme }: { theme: Theme }) => ({
 }))
 
 const Search = styled('div')(({ theme }: { theme: Theme }) => ({
-  marginRight: '20px',
+  marginRight: navbarTokens.search.marginRight,
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.primary.main, 0.15),
+  backgroundColor: getSearchBgColor(theme),
 
   '&:hover': {
-    backgroundColor: alpha(theme.palette.primary.main, 0.25),
+    backgroundColor: getSearchHoverBgColor(theme),
   },
   marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(1),
+    marginLeft: theme.spacing(navbarTokens.search.smMarginLeft),
     width: 'auto',
   },
 }))
 
 const SearchIconWrapper = styled('div')(({ theme }: { theme: Theme }) => ({
-  padding: theme.spacing(0, 2),
+  padding: theme.spacing(navbarTokens.search.iconPaddingY, navbarTokens.search.iconPaddingX),
   height: '100%',
   position: 'absolute',
   pointerEvents: 'none',
@@ -47,40 +69,47 @@ const SearchIconWrapper = styled('div')(({ theme }: { theme: Theme }) => ({
 }))
 
 const StyledInputBase = styled(InputBase)(({ theme }: { theme: Theme }) => ({
-  color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
+  color: getSearchIconColor(theme),
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    paddingLeft: getSearchInputLeftPadding(theme),
     paddingBottom: 0,
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('sm')]: {
-      width: '12ch',
+      width: navbarTokens.search.inputWidthSm,
       '&:focus': {
-        width: '20ch',
+        width: navbarTokens.search.inputWidthFocus,
       },
     },
   },
 }))
 
 function SearchBar() {
+  const { t } = useTranslation()
   const theme: Theme = useTheme()
+  const searchPlaceholder = t('search.input_placeholder', {
+    defaultValue: t('common.search', { defaultValue: 'Search…' }),
+  })
+  const searchAriaLabel = t('search.aria_label', { defaultValue: 'search' })
+
   return (
     <React.Fragment>
       <Search>
         <SearchIconWrapper>
           <SearchIcon
             sx={{
-              color:
-                theme.palette.mode === 'dark'
-                  ? theme.palette.primary.light
-                  : theme.palette.primary.dark,
+              color: getSearchIconColor(theme),
             }}
           />
         </SearchIconWrapper>
-        <StyledInputBase placeholder='Search…' inputProps={{ 'aria-label': 'search' }} />
+        <StyledInputBase
+          placeholder={searchPlaceholder}
+          inputProps={{ 'aria-label': searchAriaLabel }}
+        />
       </Search>
       <IconButton
+        aria-label={searchAriaLabel}
         sx={{
           display: { lg: 'none', md: 'none', sm: 'none', xs: 'flex' },
         }}
@@ -92,55 +121,27 @@ function SearchBar() {
 }
 
 export default function NavBar() {
+  const { t } = useTranslation()
   const theme: Theme = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, isAuthenticated } = useAuth()
+  const { user } = useAuth()
 
-  const guestPages = [
-    { name: 'Home', link: '' },
-    { name: 'Jobs', link: 'jobs' },
-    { name: 'Profile Analyzer', link: 'profile-analyzer' },
-  ]
-
-  const authenticatedPages = [
-    { name: 'Dashboard', link: 'dashboard' },
-    { name: 'My CVs', link: 'profile-management' },
-    { name: 'Profile Analyzer', link: 'profile-analyzer' },
-    { name: 'Scraper', link: 'scraper' },
-    { name: 'Jobs', link: 'jobs' },
-    { name: 'Job Analysis', link: 'job-analysis' },
-    { name: 'Automation', link: 'automation' },
-    { name: 'Applications', link: 'application-tracker' },
-    { name: 'Companies', link: 'companies' },
-    { name: 'Statistics', link: 'statistics' },
-  ]
-
-  const adminPages = [
-    { name: 'Admin Panel', link: 'admin' },
-    { name: 'Provider Management', link: 'admin-provider' },
-  ]
-
-  const providerPages = [{ name: 'Provider Portal', link: 'provider' }]
-
-  const getPages = () => {
-    if (!user || user === null || isObjectEmpty(user)) {
-      return guestPages
-    }
-
-    const userRole = user?.role
-    switch (userRole) {
-      case 1: // admin
-        return [...authenticatedPages, ...adminPages]
-      case 2: // provider
-        return [...authenticatedPages, ...providerPages]
-      default:
-        return authenticatedPages
-    }
-  }
-
-  const pages = getPages()
+  // Fetch dynamic navigation links
+  const pages = useNavigationMenu('public')
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null)
+
+  const translateLabel = (label?: string) => {
+    if (!label) return ''
+    const clean = label.replace(/^navigation\./, '')
+    const tVal = t(label, { defaultValue: '' })
+    if (tVal && tVal !== label) return tVal
+    const tClean = t(`navigation.${clean}`, { defaultValue: '' })
+    if (tClean && tClean !== `navigation.${clean}`) return tClean
+    const tLanding = t(`landing.${clean}`, { defaultValue: '' })
+    if (tLanding && tLanding !== `landing.${clean}`) return tLanding
+    return clean
+  }
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget)
@@ -149,8 +150,6 @@ export default function NavBar() {
     setAnchorElNav(null)
   }
 
-  console.log('isAuthenticated', isAuthenticated)
-
   return (
     <AppBar position='static'>
       <Container
@@ -158,7 +157,7 @@ export default function NavBar() {
         sx={{
           width: '100%',
           mx: 0,
-          pt: 2,
+          pt: navbarTokens.layout.containerPt,
         }}
       >
         <Toolbar disableGutters>
@@ -174,39 +173,44 @@ export default function NavBar() {
           </Box>
           <Box
             sx={{
-              marginLeft: '20px',
+              marginLeft: navbarTokens.layout.menuMarginLeft,
               flexGrow: 1,
               display: { xs: 'none', md: 'flex' },
             }}
           >
-            {pages?.map((page) => (
-              <List key={page.name} onClick={handleCloseNavMenu}>
-                <ListItemButton
-                  key={page.name}
-                  selected={
-                    location.pathname === `/${page?.link}` ||
-                    (page?.link === '' && location.pathname === '/')
-                  }
-                  sx={{
-                    '&.MuiListItemButton-root.Mui-selected': {
-                      borderRight: '8px solid #fff',
-                      zIndex: 1,
-                    },
-                  }}
-                  onClick={() => {
-                    navigate(`/${page.link}`, { state: { from: location } })
-                  }}
-                >
-                  <ListItemText
-                    style={{
-                      textDecoration: 'none',
-                      color: theme.palette.primary.main,
+            {pages?.map((page) => {
+              const targetPath = page?.path
+                ? page.path.startsWith('/')
+                  ? page.path
+                  : `/${page.path}`
+                : '/'
+              const isSelected = location.pathname === targetPath
+              return (
+                <List key={page.id} onClick={handleCloseNavMenu}>
+                  <ListItemButton
+                    key={page.id}
+                    selected={isSelected}
+                    sx={{
+                      '&.MuiListItemButton-root.Mui-selected': {
+                        borderRight: `${navbarTokens.layout.selectedBorderWidth} solid ${theme.palette.background.paper}`,
+                        zIndex: navbarTokens.layout.zIndexOffset,
+                      },
                     }}
-                    primary={page?.name}
-                  />
-                </ListItemButton>
-              </List>
-            ))}
+                    onClick={() => {
+                      navigate(targetPath, { state: { from: location } })
+                    }}
+                  >
+                    <ListItemText
+                      style={{
+                        textDecoration: 'none',
+                        color: theme.palette.primary.main,
+                      }}
+                      primary={translateLabel(page?.label)}
+                    />
+                  </ListItemButton>
+                </List>
+              )
+            })}
           </Box>
           <Box
             sx={{
@@ -215,7 +219,7 @@ export default function NavBar() {
           >
             <IconButton
               size='large'
-              aria-label='account of current user'
+              aria-label='Open main menu'
               aria-controls='menu-appbar'
               aria-haspopup='true'
               onClick={handleOpenNavMenu}
@@ -223,10 +227,7 @@ export default function NavBar() {
             >
               <MenuIcon
                 sx={{
-                  color:
-                    theme.palette.mode === 'dark'
-                      ? theme.palette.primary.light
-                      : theme.palette.primary.dark,
+                  color: getMenuIconColor(theme),
                 }}
               />
             </IconButton>
@@ -248,33 +249,38 @@ export default function NavBar() {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages?.map((page) => (
-                <List key={page.name} onClick={handleCloseNavMenu}>
-                  <ListItemButton
-                    key={page.name}
-                    selected={
-                      location.pathname === `/${page?.link}` ||
-                      (page?.link === '' && location.pathname === '/')
-                    }
-                    sx={{
-                      '&.MuiListItemButton-root.Mui-selected': {
-                        borderRight: '8px solid #fff',
-                        zIndex: 1,
-                      },
-                    }}
-                    onClick={() => {
-                      navigate(`/${page?.link}`)
-                    }}
-                  >
-                    <ListItemText
-                      style={{
-                        textDecoration: 'none',
+              {pages?.map((page) => {
+                const targetPath = page?.path
+                  ? page.path.startsWith('/')
+                    ? page.path
+                    : `/${page.path}`
+                  : '/'
+                const isSelected = location.pathname === targetPath
+                return (
+                  <List key={page.id} onClick={handleCloseNavMenu}>
+                    <ListItemButton
+                      key={page.id}
+                      selected={isSelected}
+                      sx={{
+                        '&.MuiListItemButton-root.Mui-selected': {
+                          borderRight: `${navbarTokens.layout.selectedBorderWidth} solid ${theme.palette.background.paper}`,
+                          zIndex: navbarTokens.layout.zIndexOffset,
+                        },
                       }}
-                      primary={page.name}
-                    />
-                  </ListItemButton>
-                </List>
-              ))}
+                      onClick={() => {
+                        navigate(targetPath)
+                      }}
+                    >
+                      <ListItemText
+                        style={{
+                          textDecoration: 'none',
+                        }}
+                        primary={translateLabel(page?.label)}
+                      />
+                    </ListItemButton>
+                  </List>
+                )
+              })}
             </Menu>
           </Box>
 

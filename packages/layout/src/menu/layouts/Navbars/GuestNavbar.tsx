@@ -1,26 +1,66 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AppBar, Box, Button, Container, IconButton, Typography, useTheme, Drawer, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { Logo } from '../../shared';
-import { themeConfig } from '@cap/platform-core';
-import { Path } from '@cap/module-auth';
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  AppBar,
+  Box,
+  Button,
+  Container,
+  IconButton,
+  Typography,
+  useTheme,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Stack,
+} from '@mui/material'
+import MenuIcon from '@mui/icons-material/Menu'
+import { Logo } from '../../shared'
+import {
+  themeConfig,
+  guestNavbarTokens,
+  getGuestNavbarBrandTitleColor,
+  getGuestNavbarNavLinkColor,
+  getGuestNavbarNavLinkHoverColor,
+  getGuestNavbarOutlinedButtonHoverColor,
+  getGuestNavbarContainedButtonBg,
+  getGuestNavbarContainedButtonHoverBg,
+  getGuestNavbarContainedButtonHoverColor,
+  getGuestNavbarMobileIconButtonBg,
+  getGuestNavbarMobileIconButtonColor,
+  getGuestNavbarMobileIconButtonHoverBg,
+  getGuestNavbarMobileListItemHoverBg,
+} from '@cap/theme'
+import { useNavigationMenu } from '@cap/platform-core'
+import { Path } from '@cap/module-auth/routes/path'
+import { useTranslation } from 'react-i18next'
 
 const GuestNavbar = () => {
+  const { t } = useTranslation()
   const theme = useTheme()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
 
-  const navLinks = [
-    { name: 'Profile Analyzer', path: 'profile-analyzer' },
-    { name: 'Features', path: '/features' },
-    { name: 'Pricing', path: '/pricing' },
-    { name: 'About', path: '/about' },
-    { name: 'Contact', path: '/contact' },
-  ]
+  // Fetch dynamic public navigation links
+  const navLinks = useNavigationMenu('public')
 
-  const handleNavigate = (path: string) => {
-    navigate(path)
+  const translateLabel = (label?: string) => {
+    if (!label) return ''
+    const clean = label.replace(/^navigation\./, '')
+    const tVal = t(label, { defaultValue: '' })
+    if (tVal && tVal !== label) return tVal
+    const tClean = t(`navigation.${clean}`, { defaultValue: '' })
+    if (tClean && tClean !== `navigation.${clean}`) return tClean
+    const tLanding = t(`landing.${clean}`, { defaultValue: '' })
+    if (tLanding && tLanding !== `landing.${clean}`) return tLanding
+    return clean
+  }
+
+  const handleNavigate = (path: string | undefined) => {
+    if (path !== undefined) {
+      navigate(path)
+    }
     setMobileMenuOpen(false)
   }
 
@@ -31,14 +71,14 @@ const GuestNavbar = () => {
   return (
     <>
       <AppBar
-        position='static'
-        elevation={0}
+        position={guestNavbarTokens.layout.appBarPosition}
+        elevation={guestNavbarTokens.layout.appBarElevation}
         sx={{
           backgroundColor: 'transparent',
-          py: 3,
+          py: guestNavbarTokens.layout.py,
         }}
       >
-        <Container maxWidth='xl'>
+        <Container maxWidth={guestNavbarTokens.layout.containerMaxWidth}>
           <Box
             sx={{
               display: 'flex',
@@ -51,19 +91,16 @@ const GuestNavbar = () => {
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1.5,
+                gap: guestNavbarTokens.layout.brandGap,
                 textDecoration: 'none',
               }}
             >
               <Logo />
               <Typography
-                variant='h6'
+                variant={guestNavbarTokens.layout.brandVariant}
                 sx={{
-                  fontWeight: 700,
-                  color:
-                    theme.palette.mode === 'dark'
-                      ? theme.palette.common.white
-                      : theme.palette.text.primary,
+                  fontWeight: guestNavbarTokens.layout.brandTitleFontWeight,
+                  color: getGuestNavbarBrandTitleColor(theme),
                   fontFamily: theme.typography.fontFamily,
                 }}
               >
@@ -78,114 +115,94 @@ const GuestNavbar = () => {
                 flex: 1,
                 justifyContent: 'center',
                 alignItems: 'center',
-                gap: 4,
+                gap: guestNavbarTokens.layout.desktopNavGap,
               }}
             >
-              {navLinks.map((link, index) => (
+              {navLinks.map((link) => (
                 <Button
-                  key={`${link.name}-${index}`}
+                  key={link.id}
                   onClick={() => handleNavigate(link.path)}
                   sx={{
-                    color:
-                      theme.palette.mode === 'dark'
-                        ? theme.palette.grey[400]
-                        : theme.palette.text.secondary,
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
+                    color: getGuestNavbarNavLinkColor(theme),
+                    fontSize: guestNavbarTokens.layout.navLinkFontSize,
+                    fontWeight: guestNavbarTokens.layout.navLinkFontWeight,
                     textTransform: 'none',
-                    transition: 'color 0.2s',
+                    transition: guestNavbarTokens.transitions.color,
                     '&:hover': {
-                      color:
-                        theme.palette.mode === 'dark'
-                          ? theme.palette.common.white
-                          : theme.palette.text.primary,
+                      color: getGuestNavbarNavLinkHoverColor(theme),
                       backgroundColor: 'transparent',
                     },
                   }}
                 >
-                  {link.name}
+                  {translateLabel(link.label)}
                 </Button>
               ))}
             </Box>
 
             {/* Action Buttons */}
-            <Stack direction='row' spacing={2} alignItems='center'>
+            <Stack
+              direction='row'
+              spacing={guestNavbarTokens.layout.actionStackSpacing}
+              alignItems='center'
+            >
               <Button
                 variant='outlined'
                 onClick={() => handleNavigate(Path.auth.signup)}
                 sx={{
                   display: { xs: 'none', md: 'flex' },
-                  minWidth: 84,
-                  height: 40,
-                  px: 2,
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
+                  minWidth: guestNavbarTokens.layout.actionButtonMinWidth,
+                  height: guestNavbarTokens.layout.actionButtonHeight,
+                  px: guestNavbarTokens.layout.actionButtonPx,
+                  fontWeight: guestNavbarTokens.layout.actionButtonFontWeight,
+                  fontSize: guestNavbarTokens.layout.actionButtonFontSize,
                   textTransform: 'none',
-                  letterSpacing: '0.02em',
-                  transition: 'background-color 0.2s',
+                  letterSpacing: guestNavbarTokens.layout.actionButtonLetterSpacing,
+                  transition: guestNavbarTokens.transitions.backgroundColor,
                   '&:hover': {
-                    color:
-                      theme.palette.mode === 'dark'
-                        ? theme.palette.primary.main
-                        : theme.palette.primary.contrastText,
+                    color: getGuestNavbarOutlinedButtonHoverColor(theme),
                   },
                 }}
               >
-                Sign Up
+                {t('navigation.register')}
               </Button>
               <Button
                 variant='contained'
                 onClick={() => handleNavigate(Path.auth.signin)}
                 sx={{
                   display: { xs: 'none', md: 'flex' },
-                  minWidth: 84,
-                  height: 40,
-                  px: 2,
-                  backgroundColor:
-                    theme.palette.mode === 'dark'
-                      ? `${theme.palette.primary.main}33`
-                      : theme.palette.primary.light,
+                  minWidth: guestNavbarTokens.layout.actionButtonMinWidth,
+                  height: guestNavbarTokens.layout.actionButtonHeight,
+                  px: guestNavbarTokens.layout.actionButtonPx,
+                  backgroundColor: getGuestNavbarContainedButtonBg(theme),
                   color: theme.palette.primary.main,
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
+                  fontWeight: guestNavbarTokens.layout.actionButtonFontWeight,
+                  fontSize: guestNavbarTokens.layout.actionButtonFontSize,
                   textTransform: 'none',
-                  letterSpacing: '0.02em',
-                  transition: 'background-color 0.2s',
+                  letterSpacing: guestNavbarTokens.layout.actionButtonLetterSpacing,
+                  transition: guestNavbarTokens.transitions.backgroundColor,
                   '&:hover': {
-                    backgroundColor:
-                      theme.palette.mode === 'dark'
-                        ? `${theme.palette.primary.main}4D`
-                        : theme.palette.primary.main,
-                    color:
-                      theme.palette.mode === 'dark'
-                        ? theme.palette.primary.main
-                        : theme.palette.primary.contrastText,
+                    backgroundColor: getGuestNavbarContainedButtonHoverBg(theme),
+                    color: getGuestNavbarContainedButtonHoverColor(theme),
                   },
                 }}
               >
-                Sign In
+                {t('navigation.login')}
               </Button>
 
               {/* Mobile Menu Button */}
               <IconButton
                 onClick={toggleMobileMenu}
+                aria-label={mobileMenuOpen ? t('navigation.closeMenu') : t('navigation.openMenu')}
+                aria-expanded={mobileMenuOpen}
+                aria-controls='guest-mobile-nav'
                 sx={{
                   display: { xs: 'flex', md: 'none' },
-                  width: 40,
-                  height: 40,
-                  backgroundColor:
-                    theme.palette.mode === 'dark'
-                      ? 'rgba(255, 255, 255, 0.1)'
-                      : 'rgba(0, 0, 0, 0.05)',
-                  color:
-                    theme.palette.mode === 'dark'
-                      ? theme.palette.common.white
-                      : theme.palette.text.primary,
+                  width: guestNavbarTokens.layout.mobileMenuButtonSize,
+                  height: guestNavbarTokens.layout.mobileMenuButtonSize,
+                  backgroundColor: getGuestNavbarMobileIconButtonBg(theme),
+                  color: getGuestNavbarMobileIconButtonColor(theme),
                   '&:hover': {
-                    backgroundColor:
-                      theme.palette.mode === 'dark'
-                        ? 'rgba(255, 255, 255, 0.15)'
-                        : 'rgba(0, 0, 0, 0.1)',
+                    backgroundColor: getGuestNavbarMobileIconButtonHoverBg(theme),
                   },
                 }}
               >
@@ -198,71 +215,70 @@ const GuestNavbar = () => {
 
       {/* Mobile Navigation Drawer */}
       <Drawer
-        anchor='right'
+        anchor={guestNavbarTokens.layout.mobileDrawerAnchor}
         open={mobileMenuOpen}
         onClose={toggleMobileMenu}
         sx={{
           display: { xs: 'block', md: 'none' },
           '& .MuiDrawer-paper': {
-            width: 280,
+            width: guestNavbarTokens.layout.mobileDrawerWidth,
             backgroundColor: theme.palette.background.paper,
           },
         }}
       >
-        <Box sx={{ pt: 2, pb: 2 }}>
+        <Box
+          sx={{
+            pt: guestNavbarTokens.layout.mobileDrawerPt,
+            pb: guestNavbarTokens.layout.mobileDrawerPb,
+          }}
+        >
           <List>
-            {navLinks.map((link, index) => (
-              <ListItem key={`${link.name}-${index}`} disablePadding>
+            {navLinks.map((link) => (
+              <ListItem key={link.id} disablePadding>
                 <ListItemButton
                   onClick={() => handleNavigate(link.path)}
                   sx={{
-                    py: 1.5,
-                    px: 3,
+                    py: guestNavbarTokens.layout.mobileListItemPy,
+                    px: guestNavbarTokens.layout.mobileListItemPx,
                     '&:hover': {
-                      backgroundColor:
-                        theme.palette.mode === 'dark'
-                          ? 'rgba(255, 255, 255, 0.05)'
-                          : 'rgba(0, 0, 0, 0.02)',
+                      backgroundColor: getGuestNavbarMobileListItemHoverBg(theme),
                     },
                   }}
                 >
                   <ListItemText
-                    primary={link.name}
+                    primary={translateLabel(link.label)}
                     primaryTypographyProps={{
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
+                      fontSize: guestNavbarTokens.layout.mobileListItemFontSize,
+                      fontWeight: guestNavbarTokens.layout.mobileListItemFontWeight,
                       color: theme.palette.text.primary,
                     }}
                   />
                 </ListItemButton>
               </ListItem>
             ))}
-            <ListItem disablePadding sx={{ mt: 2, px: 2 }}>
+            <ListItem
+              disablePadding
+              sx={{
+                mt: guestNavbarTokens.layout.mobileListItemMt,
+                px: guestNavbarTokens.layout.mobileListItemButtonPx,
+              }}
+            >
               <Button
                 fullWidth
                 variant='contained'
-                onClick={() => handleNavigate('/auth/sign-in')}
+                onClick={() => handleNavigate(Path.auth.signin)}
                 sx={{
-                  backgroundColor:
-                    theme.palette.mode === 'dark'
-                      ? `${theme.palette.primary.main}33`
-                      : theme.palette.primary.light,
+                  backgroundColor: getGuestNavbarContainedButtonBg(theme),
                   color: theme.palette.primary.main,
-                  fontWeight: 700,
+                  fontWeight: guestNavbarTokens.layout.actionButtonFontWeight,
                   textTransform: 'none',
                   '&:hover': {
-                    backgroundColor:
-                      theme.palette.mode === 'dark'
-                        ? `${theme.palette.primary.main}4D`
-                        : theme.palette.primary.main,
-                    color:
-                      theme.palette.mode === 'dark'
-                        ? theme.palette.primary.main
-                        : theme.palette.primary.contrastText,
+                    backgroundColor: getGuestNavbarContainedButtonHoverBg(theme),
+                    color: getGuestNavbarContainedButtonHoverColor(theme),
                   },
                 }}
               >
-                Sign In
+                {t('navigation.login')}
               </Button>
             </ListItem>
           </List>

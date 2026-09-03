@@ -9,3 +9,17 @@ vi.mock('virtual:pwa-register/react', () => ({
     updateServiceWorker: () => {},
   }),
 }))
+
+if (typeof global.ResizeObserver === 'undefined') {
+  global.ResizeObserver = class ResizeObserver {
+    callback: (entries: any[]) => void
+    constructor(callback: (entries: any[]) => void) {
+      this.callback = callback
+    }
+    observe(target: Element) {
+      // Trigger callback with default bounding box for testing if needed
+    }
+    unobserve(target: Element) {}
+    disconnect() {}
+  } as any
+}

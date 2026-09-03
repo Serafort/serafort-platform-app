@@ -13,10 +13,10 @@ export const TEST_USER = {
   lastName: 'User',
 }
 
-// Authenticated user for tests requiring login
+// Authenticated user for tests requiring login (seeded in local DB)
 export const AUTH_USER = {
-  email: 'e2e-test@example.com',
-  password: 'E2ETestPassword123!',
+  email: 'admin@example.com',
+  password: 'Password#123',
 }
 
 // Storage state file for authenticated sessions

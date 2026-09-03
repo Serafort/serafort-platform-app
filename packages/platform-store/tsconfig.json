@@ -4,14 +4,23 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "declaration": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "noEmit": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-    "types": ["vite/client", "node"]
+    "types": ["vite/client", "node"],
+    "paths": {
+      "@cap/platform-store": ["./src"],
+      "@cap/platform-store/*": ["./src/*"],
+      "@cap/api-contracts": ["../api-contracts/src"],
+      "@cap/api-contracts/*": ["../api-contracts/src/*"],
+      "@cap/shared-types": ["../shared-types/src"],
+      "@cap/shared-types/*": ["../shared-types/src/*"],
+      "@cap/theme": ["../theme/src"],
+      "@cap/theme/*": ["../theme/src/*"]
+    }
   },
   "include": ["src/**/*"]
 }

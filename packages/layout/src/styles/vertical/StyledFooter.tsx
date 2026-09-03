@@ -1,77 +1,76 @@
-import type { Theme } from '@mui/material/styles'
-import styled from '@emotion/styled'
+import { styled } from '@mui/material/styles'
+import {
+  footerTokens,
+  getFooterElevationShadow,
+  getFooterBorderBlockStart,
+  getFooterDetachedBorderedStyles,
+  getFooterZIndex,
+} from '@cap/theme'
 import type { CSSObject } from '@emotion/styled'
 import { verticalLayoutClasses } from '../../utils/layoutClasses'
 
 type StyledFooterProps = {
-  theme: Theme
   overrideStyles?: CSSObject
   layoutPadding: string
   compactContentWidth: number
 }
 
-const StyledFooter = styled.footer<StyledFooterProps>`
-  &.${verticalLayoutClasses.footerContentCompact} {
-    &.${verticalLayoutClasses.footerDetached} {
-      margin-inline: auto;
-      max-inline-size: ${({ compactContentWidth }) => compactContentWidth}px;
-    }
+const StyledFooter = styled('footer')<StyledFooterProps>(
+  ({ theme, layoutPadding, compactContentWidth, overrideStyles }) => ({
+    [`&.${verticalLayoutClasses.footerContentCompact}`]: {
+      [`&.${verticalLayoutClasses.footerDetached}`]: {
+        marginInline: footerTokens.layout.compactMarginInline,
+        maxInlineSize: `${compactContentWidth}px`,
+      },
 
-    &.${verticalLayoutClasses.footerAttached} .${verticalLayoutClasses.footerContentWrapper} {
-      margin-inline: auto;
-      max-inline-size: ${({ compactContentWidth }) => compactContentWidth}px;
-    }
-  }
+      [`&.${verticalLayoutClasses.footerAttached} .${verticalLayoutClasses.footerContentWrapper}`]:
+        {
+          marginInline: footerTokens.layout.compactMarginInline,
+          maxInlineSize: `${compactContentWidth}px`,
+        },
+    },
 
-  &.${verticalLayoutClasses.footerFixed} {
-    position: sticky;
-    inset-block-end: 0;
-    z-index: var(--footer-z-index);
+    [`&.${verticalLayoutClasses.footerFixed}`]: {
+      position: footerTokens.positioning.sticky,
+      insetBlockEnd: footerTokens.positioning.insetBlockEnd,
+      zIndex: getFooterZIndex(theme),
 
-    &.${verticalLayoutClasses.footerAttached},
-      &.${verticalLayoutClasses.footerDetached}
-      .${verticalLayoutClasses.footerContentWrapper} {
-      background-color: var(--mui-palette-background-paper);
-    }
+      [`&.${verticalLayoutClasses.footerAttached}, &.${verticalLayoutClasses.footerDetached} .${verticalLayoutClasses.footerContentWrapper}`]:
+        {
+          backgroundColor: theme.palette.background.paper,
+        },
 
-    &.${verticalLayoutClasses.footerDetached} {
-      pointer-events: none;
-      padding-inline: ${({ layoutPadding }) => layoutPadding};
+      [`&.${verticalLayoutClasses.footerDetached}`]: {
+        pointerEvents: footerTokens.interaction.containerPointerEvents,
+        paddingInline: layoutPadding,
 
-      & .${verticalLayoutClasses.footerContentWrapper} {
-        pointer-events: auto;
-        ${({ theme }) => `
-          box-shadow: 0 3px 12px 0px rgb(var(--mui-mainColorChannels-${theme.palette.mode}Shadow) / 0.14);
-        `}
-        border-start-start-radius:  var(--border-radius);
-        border-start-end-radius: var(--border-radius);
+        [`& .${verticalLayoutClasses.footerContentWrapper}`]: {
+          pointerEvents: footerTokens.interaction.contentPointerEvents,
+          boxShadow: getFooterElevationShadow(theme),
+          borderStartStartRadius: `${theme.shape.borderRadius}px`,
+          borderStartEndRadius: `${theme.shape.borderRadius}px`,
 
-        [data-skin='bordered'] & {
-          box-shadow: none;
-          border-inline: 1px solid var(--border-color);
-          border-block-start: 1px solid var(--border-color);
-        }
-      }
-    }
+          '[data-skin="bordered"] &': getFooterDetachedBorderedStyles(theme),
+        },
+      },
 
-    &.${verticalLayoutClasses.footerAttached} {
-      ${({ theme }) => `
-        box-shadow: 0 3px 12px 0px rgb(var(--mui-mainColorChannels-${theme.palette.mode}Shadow) / 0.14);
-      `}
+      [`&.${verticalLayoutClasses.footerAttached}`]: {
+        boxShadow: getFooterElevationShadow(theme),
 
-      [data-skin='bordered'] & {
-        box-shadow: none;
-        border-block-start: 1px solid var(--border-color);
-      }
-    }
-  }
+        '[data-skin="bordered"] &': {
+          boxShadow: footerTokens.borderedSkin.boxShadow,
+          borderBlockStart: getFooterBorderBlockStart(theme),
+        },
+      },
+    },
 
-  & .${verticalLayoutClasses.footerContentWrapper} {
-    padding-block: 16px;
-    padding-inline: ${({ layoutPadding }) => layoutPadding};
-  }
+    [`& .${verticalLayoutClasses.footerContentWrapper}`]: {
+      paddingBlock: footerTokens.layout.paddingBlock,
+      paddingInline: layoutPadding,
+    },
 
-  ${({ overrideStyles }) => overrideStyles}
-`
+    ...(overrideStyles as any),
+  }),
+)
 
 export default StyledFooter

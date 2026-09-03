@@ -123,4 +123,3 @@ describe('useInterval', () => {
     expect(callback).toHaveBeenCalledTimes(3)
   })
 })
-

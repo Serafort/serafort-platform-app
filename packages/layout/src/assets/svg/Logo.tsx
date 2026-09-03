@@ -3,7 +3,7 @@ import React from 'react'
 const Logo = (props: React.SVGAttributes<SVGElement>) => {
   return (
     <img
-      src='/platform_logo.svg'
+      src='/assets/images/logo.png'
       alt='Platform Logo'
       style={{
         width: '2.5em',

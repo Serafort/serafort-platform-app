@@ -1,9 +1,5 @@
 import React from 'react'
-import type {
-  MenuSectionStyles,
-  OpenSubmenu,
-  VerticalMenuContextProps,
-} from '@cap/theme'
+import type { MenuSectionStyles, OpenSubmenu, VerticalMenuContextProps } from '@cap/theme'
 
 export type { MenuSectionStyles, OpenSubmenu, VerticalMenuContextProps }
 

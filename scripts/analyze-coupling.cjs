@@ -1,29 +1,29 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 let ts = null;
 try {
-  ts = require('typescript');
+  ts = require("typescript");
 } catch (error) {
   ts = null;
 }
 
 const ROOT = process.cwd();
-const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts'];
+const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts"];
 const SKIP_DIRS = new Set([
-  '.git',
-  '.next',
-  '.turbo',
-  '.vite',
-  'coverage',
-  'dev-dist',
-  'dist',
-  'docs',
-  'e2e',
-  'logs',
-  'node_modules',
-  'playwright',
-  'public',
+  ".git",
+  ".next",
+  ".turbo",
+  ".vite",
+  "coverage",
+  "dev-dist",
+  "dist",
+  "docs",
+  "e2e",
+  "logs",
+  "node_modules",
+  "playwright",
+  "public",
 ]);
 const IGNORE_FILE_PATTERNS = [
   /\.d\.ts$/i,
@@ -35,11 +35,11 @@ const IGNORE_FILE_PATTERNS = [
 ];
 
 function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
 function toPosix(filePath) {
-  return filePath.split(path.sep).join('/');
+  return filePath.split(path.sep).join("/");
 }
 
 function isIgnoredFile(filePath) {
@@ -47,21 +47,21 @@ function isIgnoredFile(filePath) {
 }
 
 function findWorkspaceDirs() {
-  const workspaceFile = path.join(ROOT, 'pnpm-workspace.yaml');
-  const lines = fs.readFileSync(workspaceFile, 'utf8').split(/\r?\n/);
+  const workspaceFile = path.join(ROOT, "pnpm-workspace.yaml");
+  const lines = fs.readFileSync(workspaceFile, "utf8").split(/\r?\n/);
   const patterns = lines
     .map((line) => line.trim())
-    .filter((line) => line.startsWith('-'))
-    .map((line) => line.replace(/^-+\s*/, '').replace(/^["']|["']$/g, ''));
+    .filter((line) => line.startsWith("-"))
+    .map((line) => line.replace(/^-+\s*/, "").replace(/^["']|["']$/g, ""));
 
   const dirs = [];
   for (const pattern of patterns) {
-    if (!pattern.includes('*')) {
+    if (!pattern.includes("*")) {
       dirs.push(path.join(ROOT, pattern));
       continue;
     }
 
-    const base = pattern.slice(0, pattern.indexOf('*'));
+    const base = pattern.slice(0, pattern.indexOf("*"));
     const baseDir = path.join(ROOT, base);
     if (!fs.existsSync(baseDir)) {
       continue;
@@ -73,15 +73,15 @@ function findWorkspaceDirs() {
     }
   }
 
-  return dirs.filter((dir) => fs.existsSync(path.join(dir, 'package.json')));
+  return dirs.filter((dir) => fs.existsSync(path.join(dir, "package.json")));
 }
 
 function findPrimaryTsconfig(packageDir) {
-  const appConfig = path.join(packageDir, 'tsconfig.app.json');
+  const appConfig = path.join(packageDir, "tsconfig.app.json");
   if (fs.existsSync(appConfig)) {
     return appConfig;
   }
-  const defaultConfig = path.join(packageDir, 'tsconfig.json');
+  const defaultConfig = path.join(packageDir, "tsconfig.json");
   if (fs.existsSync(defaultConfig)) {
     return defaultConfig;
   }
@@ -103,11 +103,11 @@ function parseTsconfigPaths(tsconfigPath) {
   return Object.entries(paths).flatMap(([pattern, targets]) => {
     const targetList = Array.isArray(targets) ? targets : [targets];
     return targetList.map((target) => {
-      const [fromPrefix, fromSuffix = ''] = pattern.split('*');
-      const [toPrefix, toSuffix = ''] = String(target).split('*');
+      const [fromPrefix, fromSuffix = ""] = pattern.split("*");
+      const [toPrefix, toSuffix = ""] = String(target).split("*");
       return {
         pattern,
-        hasWildcard: pattern.includes('*'),
+        hasWildcard: pattern.includes("*"),
         fromPrefix,
         fromSuffix,
         toPrefix,
@@ -120,8 +120,8 @@ function parseTsconfigPaths(tsconfigPath) {
 
 function collectPackages() {
   return findWorkspaceDirs().map((dir) => {
-    const manifest = readJson(path.join(dir, 'package.json'));
-    const srcDir = path.join(dir, 'src');
+    const manifest = readJson(path.join(dir, "package.json"));
+    const srcDir = path.join(dir, "src");
     return {
       dir,
       srcDir,
@@ -167,27 +167,29 @@ function collectSourceFiles(packages) {
 
 function getNearestPackage(filePath, packages) {
   return packages
-    .filter((pkg) => filePath.startsWith(pkg.dir + path.sep) || filePath === pkg.dir)
+    .filter(
+      (pkg) => filePath.startsWith(pkg.dir + path.sep) || filePath === pkg.dir,
+    )
     .sort((a, b) => b.dir.length - a.dir.length)[0];
 }
 
 function getSubmoduleKey(pkg, filePath) {
   const relative = toPosix(path.relative(pkg.srcDir, filePath));
-  const segments = relative.split('/').filter(Boolean);
+  const segments = relative.split("/").filter(Boolean);
   if (segments.length === 0) {
-    return '(root)';
+    return "(root)";
   }
   if (segments.length === 1) {
-    return '(root)';
+    return "(root)";
   }
-  if (segments[0] === 'modules' && segments[1]) {
+  if (segments[0] === "modules" && segments[1]) {
     return `modules/${segments[1]}`;
   }
-  if (segments[0] === 'domain-kernel') {
-    return 'domain-kernel';
+  if (segments[0] === "domain-kernel") {
+    return "domain-kernel";
   }
-  if (segments[0] === 'idaas-facade') {
-    return 'idaas-facade';
+  if (segments[0] === "idaas-facade") {
+    return "idaas-facade";
   }
   return segments[0];
 }
@@ -203,7 +205,7 @@ function resolveCandidate(basePath) {
       candidates.push(basePath + extension);
     }
     for (const extension of SOURCE_EXTENSIONS) {
-      candidates.push(path.join(basePath, 'index' + extension));
+      candidates.push(path.join(basePath, "index" + extension));
     }
   }
 
@@ -248,9 +250,9 @@ function resolveWithMappings(specifier, mappings) {
 function resolveInternalPackageImport(specifier, packagesByName) {
   for (const [name, pkg] of packagesByName.entries()) {
     if (specifier === name) {
-      return resolveCandidate(path.join(pkg.srcDir, 'index'));
+      return resolveCandidate(path.join(pkg.srcDir, "index"));
     }
-    if (specifier.startsWith(name + '/')) {
+    if (specifier.startsWith(name + "/")) {
       const suffix = specifier.slice(name.length + 1);
       return resolveCandidate(path.join(pkg.srcDir, suffix));
     }
@@ -259,7 +261,7 @@ function resolveInternalPackageImport(specifier, packagesByName) {
 }
 
 function extractImports(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
+  const content = fs.readFileSync(filePath, "utf8");
   if (ts) {
     const processed = ts.preProcessFile(content, true, true);
     return processed.importedFiles.map((item) => item.fileName);
@@ -289,7 +291,7 @@ function resolveImport(specifier, importer, packages, packagesByName) {
     return null;
   }
 
-  if (specifier.startsWith('.')) {
+  if (specifier.startsWith(".")) {
     return resolveCandidate(path.resolve(path.dirname(importer), specifier));
   }
 
@@ -323,16 +325,16 @@ function topEntries(map, limit = 5) {
 function formatRatio(ca, ce) {
   const total = ca + ce;
   if (!total) {
-    return '0.00';
+    return "0.00";
   }
   return (ce / total).toFixed(2);
 }
 
 function formatList(items) {
   if (!items.length) {
-    return 'None';
+    return "None";
   }
-  return items.map(([label, value]) => `${label} (${value})`).join(', ');
+  return items.map(([label, value]) => `${label} (${value})`).join(", ");
 }
 
 function analyze() {
@@ -340,11 +342,16 @@ function analyze() {
   const packagesByName = new Map(packages.map((pkg) => [pkg.name, pkg]));
   const sourceFiles = collectSourceFiles(packages);
   const sourceFileSet = new Set(sourceFiles);
-  const packageByFile = new Map(sourceFiles.map((filePath) => [filePath, getNearestPackage(filePath, packages)]));
+  const packageByFile = new Map(
+    sourceFiles.map((filePath) => [
+      filePath,
+      getNearestPackage(filePath, packages),
+    ]),
+  );
   const submoduleByFile = new Map(
     sourceFiles.map((filePath) => {
       const pkg = packageByFile.get(filePath);
-      return [filePath, pkg ? getSubmoduleKey(pkg, filePath) : '(unknown)'];
+      return [filePath, pkg ? getSubmoduleKey(pkg, filePath) : "(unknown)"];
     }),
   );
 
@@ -358,7 +365,9 @@ function analyze() {
   for (const pkg of packages) {
     packageStats.set(pkg.name, {
       package: pkg,
-      files: sourceFiles.filter((filePath) => packageByFile.get(filePath)?.name === pkg.name),
+      files: sourceFiles.filter(
+        (filePath) => packageByFile.get(filePath)?.name === pkg.name,
+      ),
       outgoingPackages: new Set(),
       incomingPackages: new Set(),
       outgoingEdges: createBucketMap(),
@@ -402,18 +411,30 @@ function analyze() {
     const importerSubmodule = submoduleByFile.get(filePath);
     const importerSubmoduleKey = `${importerPkg.name}:${importerSubmodule}`;
 
-    ensureSubmoduleStat(importerSubmoduleKey, importerPkg.name, importerSubmodule).files.add(filePath);
+    ensureSubmoduleStat(
+      importerSubmoduleKey,
+      importerPkg.name,
+      importerSubmodule,
+    ).files.add(filePath);
 
     const imports = extractImports(filePath);
     for (const specifier of imports) {
-      const resolved = resolveImport(specifier, filePath, packages, packagesByName);
+      const resolved = resolveImport(
+        specifier,
+        filePath,
+        packages,
+        packagesByName,
+      );
       if (!resolved || !sourceFileSet.has(resolved)) {
-        if (!specifier.startsWith('.') && !specifier.startsWith('/')) {
+        if (!specifier.startsWith(".") && !specifier.startsWith("/")) {
           increment(externalImports, specifier);
-          packageStats.get(importerPkg.name).externalDeps.set(
-            specifier,
-            (packageStats.get(importerPkg.name).externalDeps.get(specifier) || 0) + 1,
-          );
+          packageStats
+            .get(importerPkg.name)
+            .externalDeps.set(
+              specifier,
+              (packageStats.get(importerPkg.name).externalDeps.get(specifier) ||
+                0) + 1,
+            );
         }
         continue;
       }
@@ -422,7 +443,11 @@ function analyze() {
       const targetSubmodule = submoduleByFile.get(resolved);
       const targetSubmoduleKey = `${targetPkg.name}:${targetSubmodule}`;
 
-      ensureSubmoduleStat(targetSubmoduleKey, targetPkg.name, targetSubmodule).files.add(resolved);
+      ensureSubmoduleStat(
+        targetSubmoduleKey,
+        targetPkg.name,
+        targetSubmodule,
+      ).files.add(resolved);
 
       ensureFileStat(filePath).out.add(resolved);
       ensureFileStat(resolved).in.add(filePath);
@@ -435,7 +460,10 @@ function analyze() {
         packageStat.outgoingPackages.add(targetPkg.name);
         packageStats.get(targetPkg.name).incomingPackages.add(importerPkg.name);
         increment(packageStat.outgoingEdges, targetPkg.name);
-        increment(packageStats.get(targetPkg.name).incomingEdges, importerPkg.name);
+        increment(
+          packageStats.get(targetPkg.name).incomingEdges,
+          importerPkg.name,
+        );
         increment(packageEdges, `${importerPkg.name}=>${targetPkg.name}`);
 
         ensureFileStat(filePath).crossPackageOut.add(resolved);
@@ -443,17 +471,36 @@ function analyze() {
       }
 
       if (importerSubmoduleKey !== targetSubmoduleKey) {
-        ensureSubmoduleStat(importerSubmoduleKey, importerPkg.name, importerSubmodule).outgoing.add(targetSubmoduleKey);
-        ensureSubmoduleStat(targetSubmoduleKey, targetPkg.name, targetSubmodule).incoming.add(importerSubmoduleKey);
+        ensureSubmoduleStat(
+          importerSubmoduleKey,
+          importerPkg.name,
+          importerSubmodule,
+        ).outgoing.add(targetSubmoduleKey);
+        ensureSubmoduleStat(
+          targetSubmoduleKey,
+          targetPkg.name,
+          targetSubmodule,
+        ).incoming.add(importerSubmoduleKey);
         increment(
-          ensureSubmoduleStat(importerSubmoduleKey, importerPkg.name, importerSubmodule).outgoingEdges,
+          ensureSubmoduleStat(
+            importerSubmoduleKey,
+            importerPkg.name,
+            importerSubmodule,
+          ).outgoingEdges,
           targetSubmoduleKey,
         );
         increment(
-          ensureSubmoduleStat(targetSubmoduleKey, targetPkg.name, targetSubmodule).incomingEdges,
+          ensureSubmoduleStat(
+            targetSubmoduleKey,
+            targetPkg.name,
+            targetSubmodule,
+          ).incomingEdges,
           importerSubmoduleKey,
         );
-        increment(submoduleEdges, `${importerSubmoduleKey}=>${targetSubmoduleKey}`);
+        increment(
+          submoduleEdges,
+          `${importerSubmoduleKey}=>${targetSubmoduleKey}`,
+        );
       }
     }
   }
@@ -488,7 +535,7 @@ function buildMarkdown(result) {
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .slice(0, 20)
     .map(([edge, count]) => {
-      const [from, to] = edge.split('=>');
+      const [from, to] = edge.split("=>");
       return `| ${from} | ${to} | ${count} |`;
     });
 
@@ -507,7 +554,7 @@ function buildMarkdown(result) {
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .slice(0, 25)
     .map(([edge, count]) => {
-      const [from, to] = edge.split('=>');
+      const [from, to] = edge.split("=>");
       return `| ${from} | ${to} | ${count} |`;
     });
 
@@ -519,9 +566,11 @@ function buildMarkdown(result) {
     })
     .slice(0, 25)
     .map(([filePath, stat]) => {
-      const pkg = result.packages.find((candidate) => filePath.startsWith(candidate.dir + path.sep));
-      const submodule = pkg ? getSubmoduleKey(pkg, filePath) : '(unknown)';
-      return `| ${toPosix(path.relative(ROOT, filePath))} | ${pkg?.name || '(unknown)'} | ${submodule} | ${stat.out.size} | ${stat.in.size} | ${stat.crossPackageOut.size} | ${stat.crossPackageIn.size} |`;
+      const pkg = result.packages.find((candidate) =>
+        filePath.startsWith(candidate.dir + path.sep),
+      );
+      const submodule = pkg ? getSubmoduleKey(pkg, filePath) : "(unknown)";
+      return `| ${toPosix(path.relative(ROOT, filePath))} | ${pkg?.name || "(unknown)"} | ${submodule} | ${stat.out.size} | ${stat.in.size} | ${stat.crossPackageOut.size} | ${stat.crossPackageIn.size} |`;
     });
 
   const packageDeepDives = [...result.packageStats.values()]
@@ -531,10 +580,16 @@ function buildMarkdown(result) {
       );
       return submodules.length > 1;
     })
-    .sort((a, b) => b.files.length - a.files.length || a.package.name.localeCompare(b.package.name))
+    .sort(
+      (a, b) =>
+        b.files.length - a.files.length ||
+        a.package.name.localeCompare(b.package.name),
+    )
     .map((stat) => {
       const submodules = [...result.submoduleStats.values()]
-        .filter((submoduleStat) => submoduleStat.packageName === stat.package.name)
+        .filter(
+          (submoduleStat) => submoduleStat.packageName === stat.package.name,
+        )
         .sort((a, b) => {
           const aScore = a.incoming.size + a.outgoing.size;
           const bScore = b.incoming.size + b.outgoing.size;
@@ -547,15 +602,15 @@ function buildMarkdown(result) {
               topEntries(submoduleStat.outgoingEdges, 2),
             )}.`,
         )
-        .join('\n');
+        .join("\n");
 
       const externalDeps = topEntries(stat.externalDeps, 5)
         .map(([name, count]) => `${name} (${count})`)
-        .join(', ');
+        .join(", ");
 
-      return `### ${stat.package.name}\n- Files analyzed: ${stat.files.length}\n- Package efferent coupling (Ce): ${stat.outgoingPackages.size}\n- Package afferent coupling (Ca): ${stat.incomingPackages.size}\n- Strongest package dependencies: ${formatList(topEntries(stat.outgoingEdges, 5))}\n- Strongest package dependents: ${formatList(topEntries(stat.incomingEdges, 5))}\n- Most referenced external imports: ${externalDeps || 'None'}\n${submodules}`;
+      return `### ${stat.package.name}\n- Files analyzed: ${stat.files.length}\n- Package efferent coupling (Ce): ${stat.outgoingPackages.size}\n- Package afferent coupling (Ca): ${stat.incomingPackages.size}\n- Strongest package dependencies: ${formatList(topEntries(stat.outgoingEdges, 5))}\n- Strongest package dependents: ${formatList(topEntries(stat.incomingEdges, 5))}\n- Most referenced external imports: ${externalDeps || "None"}\n${submodules}`;
     })
-    .join('\n\n');
+    .join("\n\n");
 
   return `# Module Coupling Report
 
@@ -577,31 +632,31 @@ function buildMarkdown(result) {
 
 | Package | Files | Ce | Ca | Instability | Strongest outgoing | Strongest incoming |
 | --- | ---: | ---: | ---: | ---: | --- | --- |
-${packageRows.join('\n')}
+${packageRows.join("\n")}
 
 ## Strongest Package-To-Package Edges
 
 | From | To | File-level edges |
 | --- | --- | ---: |
-${topPackageEdges.join('\n')}
+${topPackageEdges.join("\n")}
 
 ## Top Sub-Modules By Coupling
 
 | Package | Sub-module | Files | Outgoing sub-modules | Incoming sub-modules | Strongest outgoing | Strongest incoming |
 | --- | --- | ---: | ---: | ---: | --- | --- |
-${topSubmodules.join('\n')}
+${topSubmodules.join("\n")}
 
 ## Strongest Sub-Module Edges
 
 | From | To | File-level edges |
 | --- | --- | ---: |
-${topSubmoduleEdges.join('\n')}
+${topSubmoduleEdges.join("\n")}
 
 ## File Hotspots
 
 | File | Package | Sub-module | Internal out | Internal in | Cross-package out | Cross-package in |
 | --- | --- | --- | ---: | ---: | ---: | ---: |
-${topFiles.join('\n')}
+${topFiles.join("\n")}
 
 ## Package Deep Dives
 
@@ -612,12 +667,14 @@ ${packageDeepDives}
 function main() {
   const result = analyze();
   const markdown = buildMarkdown(result);
-  const outputPath = path.join(ROOT, 'docs', 'MODULE_COUPLING_REPORT.md');
+  const outputPath = path.join(ROOT, "docs", "MODULE_COUPLING_REPORT.md");
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  fs.writeFileSync(outputPath, markdown, 'utf8');
+  fs.writeFileSync(outputPath, markdown, "utf8");
 
   console.log(`Wrote ${outputPath}`);
-  console.log(`Analyzed ${result.sourceFiles.length} files across ${result.packages.length} packages and ${result.submoduleStats.size} sub-modules.`);
+  console.log(
+    `Analyzed ${result.sourceFiles.length} files across ${result.packages.length} packages and ${result.submoduleStats.size} sub-modules.`,
+  );
 }
 
 main();

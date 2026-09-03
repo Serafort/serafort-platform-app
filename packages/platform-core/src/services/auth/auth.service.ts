@@ -1,5 +1,5 @@
-import { apiClient, ENDPOINTS, secureTokenManager } from '@cap/platform-store'
-import { UserDto, ApiResponse } from '@cap/shared-types'
+import { apiClient, API_CONTRACTS, secureTokenManager } from '@cap/platform-store'
+import { UserDto } from '@cap/shared-types'
 
 export const authService = {
   /**
@@ -7,7 +7,7 @@ export const authService = {
    */
   loginWithIdaas: () => {
     // Redirect to backend endpoint which redirects to IDaaS
-    window.location.href = `${apiClient.baseURL}${ENDPOINTS.auth.login}`
+    window.location.href = `${apiClient.baseURL}${API_CONTRACTS.auth.login.resolve()}`
   },
 
   /**
@@ -30,18 +30,17 @@ export const authService = {
     })
 
     // Verify session / Get User
-    const response = await apiClient.get<ApiResponse<UserDto>>(ENDPOINTS.user.me)
+    const response = await apiClient.execute(API_CONTRACTS.user.me, [])
     return response.data.data!
   },
 
   logout: async () => {
     try {
-      await apiClient.post(ENDPOINTS.auth.logout)
+      await apiClient.execute(API_CONTRACTS.auth.logout, [])
     } catch (e) {
       console.error('Logout failed', e)
     } finally {
       secureTokenManager.clearTokens()
-      window.location.href = '/login'
     }
   },
 }

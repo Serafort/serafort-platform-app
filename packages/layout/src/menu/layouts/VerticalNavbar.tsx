@@ -1,9 +1,9 @@
 import React from 'react'
-import { useTheme } from '@mui/material/styles'
 import type { CSSObject } from '@emotion/styled'
-import type { ChildrenType } from '@cap/platform-core'
-import { themeConfig, useSettings } from '@cap/platform-core'
-import { verticalLayoutClasses } from "@cap/theme";
+import type { ChildrenType } from '@cap/shared-types'
+import { themeConfig, layoutMenuTokens } from '@cap/theme'
+import { verticalLayoutClasses } from '../../utils/layoutClasses'
+import { useSettings } from '@cap/platform-store'
 import StyledHeader from '../styles/vertical/StyledHeader'
 import classnames from 'classnames'
 import { Box } from '@mui/material'
@@ -14,7 +14,6 @@ const Navbar: React.FC<
     overrideStyles?: CSSObject
   }
 > = (props) => {
-  const theme = useTheme()
   const { children, overrideStyles } = props
   const { settings } = useSettings()
   const { navbarContentWidth } = settings
@@ -30,40 +29,24 @@ const Navbar: React.FC<
 
   return (
     <StyledHeader
-      theme={theme}
       overrideStyles={overrideStyles}
       layoutPadding={themeConfig.layoutPadding as number}
       compactContentWidth={themeConfig.compactContentWidth as number}
-      className={classnames(
-        verticalLayoutClasses.header,
-        // 'flex items-center justify-center is-full',
-        {
-          [verticalLayoutClasses.headerFixed]: headerFixed,
-          [verticalLayoutClasses.headerStatic]: headerStatic,
-          [verticalLayoutClasses.headerFloating]: headerFloating,
-          [verticalLayoutClasses.headerDetached]: !headerFloating && headerDetached,
-          [verticalLayoutClasses.headerAttached]: !headerFloating && headerAttached,
-          [verticalLayoutClasses.headerBlur]: headerBlur,
-          [verticalLayoutClasses.headerContentCompact]: headerContentCompact,
-          [verticalLayoutClasses.headerContentWide]: headerContentWide,
-        },
-      )}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        inlineSize: '100%',
-      }}
+      className={classnames(verticalLayoutClasses.header, {
+        [verticalLayoutClasses.headerFixed]: headerFixed,
+        [verticalLayoutClasses.headerStatic]: headerStatic,
+        [verticalLayoutClasses.headerFloating]: headerFloating,
+        [verticalLayoutClasses.headerDetached]: !headerFloating && headerDetached,
+        [verticalLayoutClasses.headerAttached]: !headerFloating && headerAttached,
+        [verticalLayoutClasses.headerBlur]: headerBlur,
+        [verticalLayoutClasses.headerContentCompact]: headerContentCompact,
+        [verticalLayoutClasses.headerContentWide]: headerContentWide,
+      })}
+      style={layoutMenuTokens.verticalNavbar.containerStyles}
     >
       <Box
-        className={classnames(
-          verticalLayoutClasses.navbar,
-          // 'flex bs-full'
-        )}
-        sx={{
-          display: 'flex',
-          blockSize: '100%',
-        }}
+        className={classnames(verticalLayoutClasses.navbar)}
+        sx={layoutMenuTokens.verticalNavbar.boxStyles}
       >
         {children || <NavbarContent />}
       </Box>

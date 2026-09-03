@@ -1,6 +1,6 @@
 import { useTheme } from '@mui/material/styles'
-import type { ChildrenType } from '@cap/platform-core'
-import { useSettings } from '@cap/platform-core'
+import type { ChildrenType } from '@cap/shared-types'
+import { useSettings } from '@cap/platform-store'
 // themeConfig.footer defaults inlined to avoid circular import: type='static'
 const FOOTER_TYPE: string = 'static'
 import { horizontalLayoutClasses } from '../../utils/layoutClasses'
@@ -31,7 +31,7 @@ const Footer = (props: Props) => {
   // Phase 4 & 5: tenant-driven per-component styles and effects
   const footerStyle = useComponentStyle('footer')
   const footerEffect = useComponentEffectConfig('footer')
-  const effectStyles = buildLayoutSurfaceEffect(footerEffect)
+  const effectStyles = buildLayoutSurfaceEffect(footerEffect, theme)
 
   const mergedOverrideStyles: CSSObject = {
     ...(footerStyle?.customProperties as CSSObject),
@@ -41,7 +41,6 @@ const Footer = (props: Props) => {
 
   return (
     <StyledFooter
-      theme={theme}
       overrideStyles={mergedOverrideStyles}
       layoutPadding={layoutPadding}
       compactContentWidth={compactContentWidth}

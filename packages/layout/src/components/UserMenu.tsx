@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   IconButton,
   Menu,
@@ -9,6 +9,7 @@ import {
   Avatar,
   Typography,
   Box,
+  dropdownTokens,
 } from '@cap/theme'
 import AccountCircle from '@mui/icons-material/AccountCircle'
 import Settings from '@mui/icons-material/Settings'
@@ -16,19 +17,38 @@ import Dashboard from '@mui/icons-material/Dashboard'
 import LogoutOutlined from '@mui/icons-material/LogoutOutlined'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@cap/platform-core'
+import { useAppStore } from '@cap/platform-store'
+import { AppPaths, resolveDynamicPath } from '@cap/shared-types'
+import { useTranslation } from 'react-i18next'
 import { useSignOut } from '../hooks/useSignOut'
 
 export const UserMenu: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useAuth()
+  const navItems = useAppStore((state) => state.navItems)
   const { signOut, isSigningOut } = useSignOut({
     onSuccess: () => {
-      console.log('Successfully signed out')
+      if (import.meta.env.DEV) console.log('Successfully signed out')
     },
   })
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
+
+  // Dynamically resolve route paths from registered module navItems ("Magnet Legos")
+  const profilePath = useMemo(
+    () => resolveDynamicPath(navItems, 'user-profile', AppPaths.account.overview),
+    [navItems],
+  )
+  const settingsPath = useMemo(
+    () => resolveDynamicPath(navItems, 'account-settings', AppPaths.account.edit),
+    [navItems],
+  )
+  const dashboardPath = useMemo(
+    () => resolveDynamicPath(navItems, 'admin-dashboard', AppPaths.dashboard.dashboard),
+    [navItems],
+  )
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -65,7 +85,7 @@ export const UserMenu: React.FC = () => {
         aria-controls={open ? 'user-menu' : undefined}
         aria-haspopup='true'
         aria-expanded={open ? 'true' : undefined}
-        aria-label='user menu'
+        aria-label={t('navigation.userMenu', 'User menu')}
       >
         <Avatar
           sx={{
@@ -90,8 +110,9 @@ export const UserMenu: React.FC = () => {
         PaperProps={{
           elevation: 3,
           sx: {
-            minWidth: 220,
+            minWidth: dropdownTokens.dropdownPopper.minInlineSizeUser,
             mt: 1.5,
+            borderRadius: dropdownTokens.dropdownPopper.paperBorderRadius,
             '& .MuiMenuItem-root': {
               px: 2,
               py: 1,
@@ -102,7 +123,7 @@ export const UserMenu: React.FC = () => {
         {/* User Info Header */}
         <Box sx={{ px: 2, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
           <Typography variant='subtitle2' fontWeight={600}>
-            {user?.fullName || 'User'}
+            {user?.fullName || t('user.defaultName', 'User')}
           </Typography>
           <Typography variant='caption' color='text.secondary'>
             {user?.email || ''}
@@ -130,25 +151,25 @@ export const UserMenu: React.FC = () => {
         <Divider />
 
         {/* Menu Items */}
-        <MenuItem onClick={() => handleNavigate('/dashboard')}>
+        <MenuItem onClick={() => handleNavigate(dashboardPath)}>
           <ListItemIcon>
             <Dashboard fontSize='small' />
           </ListItemIcon>
-          <ListItemText>Dashboard</ListItemText>
+          <ListItemText>{t('navigation.dashboard')}</ListItemText>
         </MenuItem>
 
-        <MenuItem onClick={() => handleNavigate('/profile')}>
+        <MenuItem onClick={() => handleNavigate(profilePath)}>
           <ListItemIcon>
             <AccountCircle fontSize='small' />
           </ListItemIcon>
-          <ListItemText>Profile</ListItemText>
+          <ListItemText>{t('navigation.profile')}</ListItemText>
         </MenuItem>
 
-        <MenuItem onClick={() => handleNavigate('/settings')}>
+        <MenuItem onClick={() => handleNavigate(settingsPath)}>
           <ListItemIcon>
             <Settings fontSize='small' />
           </ListItemIcon>
-          <ListItemText>Settings</ListItemText>
+          <ListItemText>{t('navigation.settings')}</ListItemText>
         </MenuItem>
 
         <Divider />
@@ -167,7 +188,9 @@ export const UserMenu: React.FC = () => {
           <ListItemIcon>
             <LogoutOutlined fontSize='small' color='error' />
           </ListItemIcon>
-          <ListItemText>{isSigningOut ? 'Signing out...' : 'Sign Out'}</ListItemText>
+          <ListItemText>
+            {isSigningOut ? t('navigation.signingOut') : t('navigation.logout')}
+          </ListItemText>
         </MenuItem>
       </Menu>
     </>

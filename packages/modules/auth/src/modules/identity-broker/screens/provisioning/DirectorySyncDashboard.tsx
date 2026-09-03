@@ -31,32 +31,30 @@ import {
   TableRow,
   CircularProgress,
 } from '@mui/material'
-import {
-  Add,
-  Sync,
-  History,
-  CheckCircle,
-  Error as ErrorIcon,
-  CloudDone,
-  Security,
-  Settings,
-  ArrowForward,
-  CloudQueue,
-  Close,
-  Hub,
-} from '@mui/icons-material'
+import Add from '@mui/icons-material/Add'
+import Sync from '@mui/icons-material/Sync'
+import History from '@mui/icons-material/History'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import ErrorIcon from '@mui/icons-material/Error'
+import CloudDone from '@mui/icons-material/CloudDone'
+import Security from '@mui/icons-material/Security'
+import Settings from '@mui/icons-material/Settings'
+import ArrowForward from '@mui/icons-material/ArrowForward'
+import CloudQueue from '@mui/icons-material/CloudQueue'
+import Close from '@mui/icons-material/Close'
+import Hub from '@mui/icons-material/Hub'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { useSnackbar } from 'notistack'
+import { toast } from 'react-toastify'
 import {
   useProvisioningConnectors,
   useSyncProvisioningConnector,
   useCreateProvisioningConnector,
   useProvisioningConnectorLogs,
-} from "@auth/authorization-engine/hooks/useAdminQuery"
-import type { Connector, ConnectorLog } from "@auth/authorization-engine/services/adminService"
+} from '@auth/authorization-engine/hooks/useAdminQuery'
+import type { Connector, ConnectorLog } from '@auth/authorization-engine/services/adminService'
 import logger from '@idaas/authentication-core/utils/logger'
-import { Path } from "@cap/module-auth/routes/path"
+import { Path } from '@cap/module-auth/routes/path'
 
 // â”€â”€â”€ Skeleton Loader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ConnectorSkeleton() {
@@ -255,14 +253,13 @@ function AddConnectorDialog({
   onCreated: () => void
 }) {
   const { t } = useTranslation('auth')
-  const { enqueueSnackbar } = useSnackbar()
   const [name, setName] = useState('')
   const [type, setType] = useState<Connector['type']>('azure_ad')
   const [orgId, setOrgId] = useState('')
 
   const createMutation = useCreateProvisioningConnector({
     onSuccess: () => {
-      enqueueSnackbar(t('admin.provisioning.dashboard.dialogs.add.success'), { variant: 'success' })
+      toast.success(t('admin.provisioning.dashboard.dialogs.add.success'))
       setName('')
       setType('azure_ad')
       setOrgId('')
@@ -271,7 +268,7 @@ function AddConnectorDialog({
     },
     onError: (error: unknown) => {
       logger.error('Failed to create connector', { error })
-      enqueueSnackbar(t('admin.provisioning.dashboard.dialogs.add.error'), { variant: 'error' })
+      toast.error(t('admin.provisioning.dashboard.dialogs.add.error'))
     },
   })
 
@@ -393,7 +390,6 @@ function AddConnectorDialog({
 // â”€â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function DirectorySyncDashboard() {
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
   const { t } = useTranslation('auth')
   const { data: connectorsData, isLoading, refetch } = useProvisioningConnectors()
   const [syncingId, setSyncingId] = useState<number | null>(null)
@@ -403,15 +399,13 @@ export default function DirectorySyncDashboard() {
 
   const syncMutation = useSyncProvisioningConnector({
     onSuccess: () => {
-      enqueueSnackbar(t('admin.provisioning.dashboard.messages.sync_started'), {
-        variant: 'success',
-      })
+      toast.success(t('admin.provisioning.dashboard.messages.sync_started'))
       setSyncingId(null)
       refetch()
     },
     onError: (error: unknown) => {
       logger.error('Directory sync failed', { error })
-      enqueueSnackbar(t('admin.provisioning.dashboard.messages.sync_failed'), { variant: 'error' })
+      toast.error(t('admin.provisioning.dashboard.messages.sync_failed'))
       setSyncingId(null)
     },
   })
@@ -503,7 +497,7 @@ export default function DirectorySyncDashboard() {
           <Button
             variant='outlined'
             startIcon={<History />}
-            onClick={() => navigate(Path.syncLogs)}
+            onClick={() => navigate(Path.admin.syncLogs)}
             sx={{
               height: 48,
               px: 3.5,
@@ -542,7 +536,6 @@ export default function DirectorySyncDashboard() {
         </Stack>
       </Box>
 
-      {/* â”€â”€ Pattern 2: Quick Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Grid container spacing={3} sx={{ mb: 6 }}>
         {[
           {
@@ -611,7 +604,6 @@ export default function DirectorySyncDashboard() {
         ))}
       </Grid>
 
-      {/* â”€â”€ Connectors Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3.5 }}>
         <Sync color='primary' sx={{ fontSize: 24 }} />
         <Typography
@@ -823,8 +815,8 @@ export default function DirectorySyncDashboard() {
                           {conn.status === 'active'
                             ? t('admin.provisioning.dashboard.connector_card.healthy')
                             : conn.error_message ||
-                            t('admin.provisioning.dashboard.connector_card.standby') ||
-                            'STANDBY'}
+                              t('admin.provisioning.dashboard.connector_card.standby') ||
+                              'STANDBY'}
                         </Typography>
                       </Box>
                       <Button
@@ -845,7 +837,6 @@ export default function DirectorySyncDashboard() {
           })
         )}
 
-        {/* â”€â”€ SCIM Configuration Promo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <Grid size={{ xs: 12 }}>
           <Card
             sx={{
@@ -914,6 +905,3 @@ export default function DirectorySyncDashboard() {
     </Box>
   )
 }
-
-
-

@@ -12,6 +12,7 @@ import StyledMenuLabel from '../../styles/StyledMenuLabel'
 import StyledMenuPrefix from '../../styles/StyledMenuPrefix'
 import StyledMenuSuffix from '../../styles/StyledMenuSuffix'
 import StyledVerticalMenuItem from '../../styles/vertical/StyledVerticalMenuItem'
+import Tooltip from '@mui/material/Tooltip'
 
 export type MenuItemProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'prefix'> &
   RootStylesType &
@@ -80,7 +81,7 @@ const MenuItem: React.ForwardRefRenderFunction<HTMLLIElement, MenuItemProps> = (
       if (styleFunction) {
         // If the style function is a function, call it and return the result.
         // Otherwise, return the style function itself.
-        return typeof styleFunction === 'function' ? styleFunction(params) : styleFunction
+        return (typeof styleFunction === 'function' ? styleFunction(params) : styleFunction) as any
       }
     }
   }
@@ -92,27 +93,24 @@ const MenuItem: React.ForwardRefRenderFunction<HTMLLIElement, MenuItemProps> = (
     }
   }
 
+  const restAny = rest as any
+  const targetHref =
+    rest.href ||
+    restAny.to ||
+    (component && typeof component !== 'string' && (component as any).props?.href) ||
+    (component && typeof component !== 'string' && (component as any).props?.to)
+
   // Change active state when the url changes
   React.useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const restAny = rest as any
-    const href =
-      rest.href ||
-      restAny.to ||
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (component && typeof component !== 'string' && (component as any).props?.href) ||
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (component && typeof component !== 'string' && (component as any).props?.to)
-
-    if (href) {
+    if (targetHref) {
       // Check if the current url matches any of the children urls
-      if (pathname === href) {
+      if (pathname === targetHref) {
         setActive(true)
       } else {
         setActive(false)
       }
     }
-  }, [pathname, rest.href, rest, component])
+  }, [pathname, targetHref])
 
   // Call the onActiveChange callback when the active state changes.
   useUpdateEffect(() => {
@@ -136,64 +134,133 @@ const MenuItem: React.ForwardRefRenderFunction<HTMLLIElement, MenuItemProps> = (
       $menuItemStyles={getMenuItemStyles('root')}
       $rootStyles={rootStyles}
     >
-      <MenuButton
-        className={classnames(menuClasses.button, {
-          [menuClasses.active]: active,
-        })}
-        component={component}
-        tabIndex={disabled ? -1 : 0}
-        {...rest}
-        onClick={(e) => {
-          handleClick()
-          if (rest.onClick) rest.onClick(e)
-        }}
-      >
-        {/* Menu Item Icon */}
-        {renderMenuIcon({
-          icon,
-          level,
-          active,
-          disabled,
-          renderExpandedMenuItemIcon,
-          styles: getMenuItemStyles('icon'),
-          isBreakpointReached,
-        })}
-
-        {/* Menu Item Prefix */}
-        {prefix && (
-          <StyledMenuPrefix
-            $isHovered={isHovered}
-            $isCollapsed={isCollapsed}
-            $firstLevel={level === 0}
-            className={menuClasses.prefix}
-            $rootStyles={getMenuItemStyles('prefix')}
-          >
-            {prefix}
-          </StyledMenuPrefix>
-        )}
-
-        {/* Menu Item Label */}
-        <StyledMenuLabel
-          className={menuClasses.label}
-          $rootStyles={getMenuItemStyles('label')}
-          $textTruncate={textTruncate}
+      {isCollapsed && !isHovered && level === 0 && children ? (
+        <Tooltip
+          title={children as React.ReactElement}
+          placement='right'
+          arrow
+          enterDelay={150}
+          disableInteractive
         >
-          {children}
-        </StyledMenuLabel>
-
-        {/* Menu Item Suffix */}
-        {suffix && (
-          <StyledMenuSuffix
-            $isHovered={isHovered}
-            $isCollapsed={isCollapsed}
-            $firstLevel={level === 0}
-            className={menuClasses.suffix}
-            $rootStyles={getMenuItemStyles('suffix')}
+          <MenuButton
+            className={classnames(menuClasses.button, {
+              [menuClasses.active]: active,
+            })}
+            component={component}
+            tabIndex={disabled ? -1 : 0}
+            {...rest}
+            onClick={(e) => {
+              handleClick()
+              if (rest.onClick) rest.onClick(e)
+            }}
           >
-            {suffix}
-          </StyledMenuSuffix>
-        )}
-      </MenuButton>
+            {/* Menu Item Icon */}
+            {renderMenuIcon({
+              icon,
+              level,
+              active,
+              disabled,
+              renderExpandedMenuItemIcon,
+              styles: getMenuItemStyles('icon'),
+              isBreakpointReached,
+            })}
+
+            {/* Menu Item Prefix */}
+            {prefix && (
+              <StyledMenuPrefix
+                $isHovered={isHovered}
+                $isCollapsed={isCollapsed}
+                $firstLevel={level === 0}
+                className={menuClasses.prefix}
+                $rootStyles={getMenuItemStyles('prefix')}
+              >
+                {prefix}
+              </StyledMenuPrefix>
+            )}
+
+            {/* Menu Item Label */}
+            <StyledMenuLabel
+              className={menuClasses.label}
+              $rootStyles={getMenuItemStyles('label')}
+              $textTruncate={textTruncate}
+            >
+              {children}
+            </StyledMenuLabel>
+
+            {/* Menu Item Suffix */}
+            {suffix && (
+              <StyledMenuSuffix
+                $isHovered={isHovered}
+                $isCollapsed={isCollapsed}
+                $firstLevel={level === 0}
+                className={menuClasses.suffix}
+                $rootStyles={getMenuItemStyles('suffix')}
+              >
+                {suffix}
+              </StyledMenuSuffix>
+            )}
+          </MenuButton>
+        </Tooltip>
+      ) : (
+        <MenuButton
+          className={classnames(menuClasses.button, {
+            [menuClasses.active]: active,
+          })}
+          component={component}
+          tabIndex={disabled ? -1 : 0}
+          {...rest}
+          onClick={(e) => {
+            handleClick()
+            if (rest.onClick) rest.onClick(e)
+          }}
+        >
+          {/* Menu Item Icon */}
+          {renderMenuIcon({
+            icon,
+            level,
+            active,
+            disabled,
+            renderExpandedMenuItemIcon,
+            styles: getMenuItemStyles('icon'),
+            isBreakpointReached,
+          })}
+
+          {/* Menu Item Prefix */}
+          {prefix && (
+            <StyledMenuPrefix
+              $isHovered={isHovered}
+              $isCollapsed={isCollapsed}
+              $firstLevel={level === 0}
+              className={menuClasses.prefix}
+              $rootStyles={getMenuItemStyles('prefix')}
+            >
+              {prefix}
+            </StyledMenuPrefix>
+          )}
+
+          {/* Menu Item Label */}
+          <StyledMenuLabel
+            className={menuClasses.label}
+            $rootStyles={getMenuItemStyles('label')}
+            $textTruncate={textTruncate}
+          >
+            {children}
+          </StyledMenuLabel>
+
+          {/* Menu Item Suffix */}
+          {suffix && (
+            <StyledMenuSuffix
+              $isHovered={isHovered}
+              $isCollapsed={isCollapsed}
+              $firstLevel={level === 0}
+              className={menuClasses.suffix}
+              $rootStyles={getMenuItemStyles('suffix')}
+            >
+              {suffix}
+            </StyledMenuSuffix>
+          )}
+        </MenuButton>
+      )}
     </StyledVerticalMenuItem>
   )
 }

@@ -24,14 +24,16 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:perf": "npm run build && npm run lighthouse",
-    "validate:isolation": "npm run lint --workspace=@boilerplate/ui",
+    "validate:isolation": "npm run lint --workspace=@cap/theme",
     "validate:types": "npm run type-check",
     "prepare": "node -e \"try { require('husky').default() } catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e }\" || true"
   },
   "dependencies": {
     "@cap/layout": "workspace:*",
     "@cap/module-auth": "workspace:*",
+    "@cap/module-dashboard": "workspace:*",
     "@cap/module-landing": "workspace:*",
+    "@cap/module-theme": "workspace:*",
     "@cap/platform-core": "workspace:*",
     "@cap/shared-types": "workspace:*",
     "@emotion/cache": "^11.14.0",
@@ -43,9 +45,10 @@
     "@mui/icons-material": "^7.3.6",
     "@mui/lab": "^7.0.1-beta.20",
     "@mui/material": "^7.3.6",
-    "@react-router/node": "^7.13.1",
-    "@react-router/serve": "^7.13.1",
+    "@react-router/node": "^7.18.3",
+    "@react-router/serve": "^7.18.3",
     "@reactour/tour": "^3.8.0",
+    "@sentry/react": "^10.73.0",
     "@tanstack/match-sorter-utils": "^8.19.4",
     "@tanstack/react-query": "^5.90.12",
     "@tanstack/react-table": "^8.21.3",
@@ -57,7 +60,7 @@
     "driver.js": "^1.4.0",
     "i18next": "^25.7.3",
     "i18next-browser-languagedetector": "^8.2.0",
-    "i18next-http-backend": "^3.0.2",
+    "i18next-http-backend": "^3.0.6",
     "immer": "^11.0.1",
     "isbot": "^5",
     "kbar": "^0.1.0-beta.48",
@@ -68,17 +71,16 @@
     "react-i18next": "^16.5.0",
     "react-imask": "^7.6.1",
     "react-joyride": "^2.9.3",
-    "react-otp-input": "^3.1.1",
     "react-perfect-scrollbar": "^1.5.8",
     "react-phone-input-2": "^2.15.1",
-    "react-router": "^7.13.1",
-    "react-router-dom": "^7.13.1",
+    "react-router": "^7.18.3",
+    "react-router-dom": "^7.18.3",
     "react-toastify": "^11.0.5",
     "react-use": "^17.6.0",
     "recharts": "^3.6.0",
     "stylis-plugin-rtl": "^2.1.1",
     "tiny-invariant": "^1.3.3",
-    "uuid": "^13.0.0",
+    "uuid": "^13.0.1",
     "workbox-window": "^7.4.0",
     "zod": "^4.2.1",
     "zustand": "^5.0.9"
@@ -88,7 +90,7 @@
     "@hookform/devtools": "^4.4.0",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.57.0",
-    "@react-router/dev": "^7.13.1",
+    "@react-router/dev": "^7.18.3",
     "@tanstack/react-query-devtools": "^5.91.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
@@ -96,6 +98,7 @@
     "@types/node": "^24.10.4",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "4.3.4",
     "@vitest/browser-playwright": "^4.0.16",
     "@vitest/coverage-v8": "^4.0.16",
@@ -118,6 +121,7 @@
     "typescript-eslint": "^8.50.1",
     "validate-branch-name": "^1.3.2",
     "vite": "^7.0.0",
+    "vite-plugin-mkcert": "^2.1.0",
     "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.0.16"
   },
@@ -125,11 +129,8 @@
     "react-is": "19.0.0"
   },
   "lint-staged": {
-    "src/app/**/*.{ts,tsx}": [
-      "npm run validate:isolation",
-      "npm run validate:documentation"
-    ],
-    "**/*.{ts,tsx}": [
+    "src/**/*.{ts,tsx}": [
+      "npm run lint",
       "npm run validate:types"
     ]
   }

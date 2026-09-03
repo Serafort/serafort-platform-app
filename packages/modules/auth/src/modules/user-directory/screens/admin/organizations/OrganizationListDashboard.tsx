@@ -47,6 +47,8 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Path } from '@cap/module-auth/routes/path'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import { secureTokenManager } from '@cap/platform-core'
 import {
   useOrganizations,
@@ -264,14 +266,12 @@ export default function OrganizationListDashboard() {
         ].map((stat, idx) => (
           <Card
             key={idx}
-            className='glass-effect'
-            sx={{
-              bgcolor: 'transparent',
-              boxShadow: 'none',
+            sx={(theme: any) => ({
               borderRadius: 4,
               transition: 'transform 0.15s ease',
               '&:hover': { transform: 'translateY(-2px)' },
-            }}
+              ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+            })}
           >
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2.5, p: 3 }}>
               <Avatar
@@ -321,13 +321,12 @@ export default function OrganizationListDashboard() {
       </Box>
 
       <Card
-        className='glass-effect'
-        sx={{
-          bgcolor: 'transparent',
-          boxShadow: 'none',
+        sx={(theme: any) => ({
           borderRadius: 4,
           overflow: 'hidden',
-        }}
+          border: '1px solid ' + theme.palette.divider,
+          ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+        })}
       >
         {/* Toolbar */}
         <Box
@@ -865,5 +864,3 @@ export default function OrganizationListDashboard() {
     </Box>
   )
 }
-
-

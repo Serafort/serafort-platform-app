@@ -24,14 +24,18 @@ export default tseslint.config(
   {
     files: ['src/domain-kernel/**'],
     rules: {
-      'no-restricted-imports': ['error', {
-        patterns: [
-          {
-            group: ['@cap/*'],
-            message: 'domain-kernel must not import from @cap/* packages. Use only zero-dependency code or peer dependencies.',
-          },
-        ],
-      }],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@cap/*'],
+              message:
+                'domain-kernel must not import from @cap/* packages. Use only zero-dependency code or peer dependencies.',
+            },
+          ],
+        },
+      ],
     },
   },
   {

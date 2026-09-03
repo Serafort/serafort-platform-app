@@ -1,149 +1,155 @@
-import type { Theme } from '@mui/material/styles'
-const themeConfig = { disableRipple: false }
+import type { Theme } from "@mui/material/styles";
+const themeConfig = { disableRipple: false };
 
-const iconButton: Theme['components'] = {
+const iconButton: Theme["components"] = {
   MuiIconButton: {
     styleOverrides: {
-      root: {
-        '& .MuiSvgIcon-root, & i, & svg': {
-          fontSize: 'inherit',
+      root: ({ theme }) => ({
+        "& .MuiSvgIcon-root, & i, & svg": {
+          fontSize: "inherit",
         },
-      },
+        "&:focus-visible, &.Mui-focusVisible": {
+          outline: `2px solid ${theme.palette.primary.main}`,
+          outlineOffset: 2,
+        },
+      }),
       sizeSmall: ({ theme }) => ({
         padding: theme.spacing(1.75),
-        fontSize: '1.25rem',
+        fontSize: "1.25rem",
       }),
       sizeMedium: ({ theme }) => ({
         padding: theme.spacing(1.75),
-        fontSize: '1.5rem',
+        fontSize: "1.5rem",
       }),
       sizeLarge: ({ theme }) => ({
         padding: theme.spacing(1.75),
-        fontSize: '1.75rem',
+        fontSize: "1.75rem",
       }),
     },
     variants: [
       {
-        props: { color: 'default' },
+        props: { color: "default" },
         style: {
-          '&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active': {
-            backgroundColor: 'rgb(var(--mui-palette-text-primaryChannel) / 0.08)',
+          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active": {
+            backgroundColor:
+              "rgb(var(--mui-palette-text-primaryChannel) / 0.08)",
           },
           ...(themeConfig.disableRipple && {
-            '&.Mui-focusVisible:not(.Mui-disabled)': {
-              backgroundColor: 'rgb(var(--mui-palette-text-primaryChannel) / 0.08)',
+            "&.Mui-focusVisible:not(.Mui-disabled)": {
+              backgroundColor:
+                "rgb(var(--mui-palette-text-primaryChannel) / 0.08)",
             },
           }),
-          '&.Mui-disabled': {
+          "&.Mui-disabled": {
             opacity: 0.45,
-            color: 'var(--mui-palette-action-active)',
+            color: "var(--mui-palette-action-active)",
           },
         },
       },
       {
-        props: { color: 'primary' },
+        props: { color: "primary" },
         style: {
-          '&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active': {
-            backgroundColor: 'var(--mui-palette-primary-lighterOpacity)',
+          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active": {
+            backgroundColor: "var(--mui-palette-primary-lighterOpacity)",
           },
           ...(themeConfig.disableRipple && {
-            '&.Mui-focusVisible:not(.Mui-disabled)': {
-              backgroundColor: 'var(--mui-palette-primary-lighterOpacity)',
+            "&.Mui-focusVisible:not(.Mui-disabled)": {
+              backgroundColor: "var(--mui-palette-primary-lighterOpacity)",
             },
           }),
-          '&.Mui-disabled': {
+          "&.Mui-disabled": {
             opacity: 0.45,
-            color: 'var(--mui-palette-primary-main)',
+            color: "var(--mui-palette-primary-main)",
           },
         },
       },
       {
-        props: { color: 'secondary' },
+        props: { color: "secondary" },
         style: {
-          '&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active': {
-            backgroundColor: 'var(--mui-palette-secondary-lighterOpacity)',
+          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active": {
+            backgroundColor: "var(--mui-palette-secondary-lighterOpacity)",
           },
           ...(themeConfig.disableRipple && {
-            '&.Mui-focusVisible:not(.Mui-disabled)': {
-              backgroundColor: 'var(--mui-palette-secondary-lighterOpacity)',
+            "&.Mui-focusVisible:not(.Mui-disabled)": {
+              backgroundColor: "var(--mui-palette-secondary-lighterOpacity)",
             },
           }),
-          '&.Mui-disabled': {
+          "&.Mui-disabled": {
             opacity: 0.45,
-            color: 'var(--mui-palette-secondary-main)',
+            color: "var(--mui-palette-secondary-main)",
           },
         },
       },
       {
-        props: { color: 'error' },
+        props: { color: "error" },
         style: {
-          '&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active': {
-            backgroundColor: 'var(--mui-palette-error-lighterOpacity)',
+          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active": {
+            backgroundColor: "var(--mui-palette-error-lighterOpacity)",
           },
           ...(themeConfig.disableRipple && {
-            '&.Mui-focusVisible:not(.Mui-disabled)': {
-              backgroundColor: 'var(--mui-palette-error-lighterOpacity)',
+            "&.Mui-focusVisible:not(.Mui-disabled)": {
+              backgroundColor: "var(--mui-palette-error-lighterOpacity)",
             },
           }),
-          '&.Mui-disabled': {
+          "&.Mui-disabled": {
             opacity: 0.45,
-            color: 'var(--mui-palette-error-main)',
+            color: "var(--mui-palette-error-main)",
           },
         },
       },
       {
-        props: { color: 'warning' },
+        props: { color: "warning" },
         style: {
-          '&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active': {
-            backgroundColor: 'var(--mui-palette-warning-lighterOpacity)',
+          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active": {
+            backgroundColor: "var(--mui-palette-warning-lighterOpacity)",
           },
           ...(themeConfig.disableRipple && {
-            '&.Mui-focusVisible:not(.Mui-disabled)': {
-              backgroundColor: 'var(--mui-palette-warning-lighterOpacity)',
+            "&.Mui-focusVisible:not(.Mui-disabled)": {
+              backgroundColor: "var(--mui-palette-warning-lighterOpacity)",
             },
           }),
-          '&.Mui-disabled': {
+          "&.Mui-disabled": {
             opacity: 0.45,
-            color: 'var(--mui-palette-warning-main)',
+            color: "var(--mui-palette-warning-main)",
           },
         },
       },
       {
-        props: { color: 'info' },
+        props: { color: "info" },
         style: {
-          '&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active': {
-            backgroundColor: 'var(--mui-palette-info-lighterOpacity)',
+          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active": {
+            backgroundColor: "var(--mui-palette-info-lighterOpacity)",
           },
           ...(themeConfig.disableRipple && {
-            '&.Mui-focusVisible:not(.Mui-disabled)': {
-              backgroundColor: 'var(--mui-palette-info-lighterOpacity)',
+            "&.Mui-focusVisible:not(.Mui-disabled)": {
+              backgroundColor: "var(--mui-palette-info-lighterOpacity)",
             },
           }),
-          '&.Mui-disabled': {
+          "&.Mui-disabled": {
             opacity: 0.45,
-            color: 'var(--mui-palette-info-main)',
+            color: "var(--mui-palette-info-main)",
           },
         },
       },
       {
-        props: { color: 'success' },
+        props: { color: "success" },
         style: {
-          '&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active': {
-            backgroundColor: 'var(--mui-palette-success-lighterOpacity)',
+          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active": {
+            backgroundColor: "var(--mui-palette-success-lighterOpacity)",
           },
           ...(themeConfig.disableRipple && {
-            '&.Mui-focusVisible:not(.Mui-disabled)': {
-              backgroundColor: 'var(--mui-palette-success-lighterOpacity)',
+            "&.Mui-focusVisible:not(.Mui-disabled)": {
+              backgroundColor: "var(--mui-palette-success-lighterOpacity)",
             },
           }),
-          '&.Mui-disabled': {
+          "&.Mui-disabled": {
             opacity: 0.45,
-            color: 'var(--mui-palette-success-main)',
+            color: "var(--mui-palette-success-main)",
           },
         },
       },
     ],
   },
-}
+};
 
-export default iconButton
+export default iconButton;

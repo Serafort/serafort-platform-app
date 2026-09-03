@@ -1,108 +1,53 @@
+import React from 'react'
+import { useTheme } from '@mui/material/styles'
 import classnames from 'classnames'
 import Box from '@mui/material/Box'
-import { RoleIndicator } from '@cap/module-auth'
-import { Path } from '@cap/module-auth'
+import { useTranslation } from 'react-i18next'
+import RoleIndicator from '../../components/RoleIndicator'
+import { getSearchItems } from '@cap/platform-core'
 
 // Component Imports
 import { NavToggle } from '../shared'
-import NotificationsDropdown, { NotificationsType } from '../shared/NotificationsDropdown'
-import ShortcutsDropdown, { ShortcutsType } from '../shared/ShortcutsDropdown'
+import NotificationsDropdown from '../shared/NotificationsDropdown'
+import ShortcutsDropdown from '../shared/ShortcutsDropdown'
 import LanguageDropdown from '../shared/LanguageDropdown'
 import ModeDropdown from '../shared/ModeDropdown'
 import NavSearch from '../search'
 import UserDropdown from '../shared/UserDropdown'
 
-// Definition Imports
-import { verticalLayoutClasses } from "@cap/theme";
-
-const shortcuts: Array<ShortcutsType> = [
-  {
-    url: '/apps/calendar',
-    icon: 'tabler-calendar',
-    title: 'Calendar',
-    subtitle: 'Appointments',
-  },
-  {
-    url: '/apps/invoice/list',
-    icon: 'tabler-file-dollar',
-    title: 'Invoice App',
-    subtitle: 'Manage Accounts',
-  },
-  {
-    url: Path?.admin?.users || '/admin/users',
-    icon: 'tabler-user',
-    title: 'Users',
-    subtitle: 'Manage Users',
-  },
-  {
-    url: Path?.admin?.roles || '/admin/roles',
-    icon: 'tabler-users-group',
-    title: 'Role Management',
-    subtitle: 'Permissions',
-  },
-  {
-    url: '/',
-    icon: 'tabler-device-desktop-analytics',
-    title: 'Dashboard',
-    subtitle: 'User Dashboard',
-  },
-  {
-    url: Path?.account?.overview || '/auth/account',
-    icon: 'tabler-settings',
-    title: 'Settings',
-    subtitle: 'Account Overview',
-  },
-]
-
-const notifications: Array<NotificationsType> = [
-  {
-    avatarImage: '/images/avatars/8.png',
-    title: 'Congratulations Flora 🎉',
-    subtitle: 'Won the monthly bestseller gold badge',
-    time: '1h ago',
-    read: false,
-  },
-  {
-    title: 'Cecilia Becker',
-    avatarColor: 'secondary',
-    subtitle: 'Accepted your connection',
-    time: '12h ago',
-    read: false,
-  },
-  {
-    avatarImage: '/images/avatars/3.png',
-    title: 'Bernard Woods',
-    subtitle: 'You have new message from Bernard Woods',
-    time: 'May 18, 8:26 AM',
-    read: true,
-  },
-  {
-    avatarIcon: 'tabler-chart-bar',
-    title: 'Monthly report generated',
-    subtitle: 'July month financial report is generated',
-    avatarColor: 'info',
-    time: 'Apr 24, 10:30 AM',
-    read: true,
-  },
-  {
-    avatarText: 'MG',
-    title: 'Application has been approved 🚀',
-    subtitle: 'Your Meta Gadgets project application has been approved.',
-    avatarColor: 'success',
-    time: 'Feb 17, 12:17 PM',
-    read: true,
-  },
-  {
-    avatarIcon: 'tabler-mail',
-    title: 'New message from Harry',
-    subtitle: 'You have new message from Harry',
-    avatarColor: 'error',
-    time: 'Jan 6, 1:48 PM',
-    read: true,
-  },
-]
+import { layoutMenuTokens, getNavbarIconButtonHoverBg } from '@cap/theme'
+import { verticalLayoutClasses } from '../../utils/layoutClasses'
 
 const NavbarContent = () => {
+  const theme = useTheme()
+  const { t } = useTranslation()
+  const searchItems = getSearchItems()
+
+  const shortcuts = React.useMemo(() => {
+    return searchItems.slice(0, 6).map((item) => {
+      const rawName = item.name || ''
+      const cleanNameKey = rawName.replace(/^navigation\./, '')
+      const translatedName = t(rawName, {
+        defaultValue: t(`navigation.${cleanNameKey}`, { defaultValue: rawName }),
+      })
+
+      const rawSection = item.section || ''
+      const cleanSectionKey = rawSection.replace(/^navigation\./, '')
+      const translatedSection = rawSection
+        ? t(rawSection, {
+            defaultValue: t(`navigation.${cleanSectionKey}`, { defaultValue: rawSection }),
+          })
+        : ''
+
+      return {
+        url: item.url,
+        icon: item.icon || 'tabler-link',
+        title: translatedName,
+        subtitle: translatedSection,
+      }
+    })
+  }, [searchItems, t])
+
   return (
     <Box
       className={classnames(verticalLayoutClasses.navbarContent)}
@@ -110,26 +55,32 @@ const NavbarContent = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '1rem',
+        gap: layoutMenuTokens.navbarContent.gap,
         inlineSize: '100%',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: layoutMenuTokens.navbarContent.gap }}>
         <NavToggle />
         <NavSearch />
       </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: layoutMenuTokens.navbarContent.actionsGap,
+        }}
+      >
         <RoleIndicator showLabel={true} size='small' />
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
-            gap: 0.5,
+            gap: layoutMenuTokens.navbarContent.iconGroupGap,
             '& .MuiIconButton-root': {
-              transition: 'all 0.2s ease',
+              transition: layoutMenuTokens.navbarContent.iconButtonTransition,
               '&:hover': {
-                background: 'hsla(var(--mui-mainColor-hsl), 0.08)',
-                transform: 'translateY(-2px)',
+                background: getNavbarIconButtonHoverBg(theme),
+                transform: layoutMenuTokens.navbarContent.iconButtonHoverTranslateY,
                 '& i, & svg': { color: 'primary.main' },
               },
             },
@@ -138,7 +89,7 @@ const NavbarContent = () => {
           <LanguageDropdown />
           <ModeDropdown />
           <ShortcutsDropdown shortcuts={shortcuts} />
-          <NotificationsDropdown notifications={notifications} />
+          <NotificationsDropdown notifications={[]} />
         </Box>
         <UserDropdown />
       </Box>

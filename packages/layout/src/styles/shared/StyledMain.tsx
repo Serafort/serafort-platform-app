@@ -1,27 +1,40 @@
-import { styled } from '@cap/theme'
+import { styled } from '@mui/material/styles'
+import { mainTokens } from '@cap/theme'
 
-// themeConfig defaults inlined here to avoid circular import with @cap/platform-core.
-// (themeConfig would be undefined at module evaluation time due to the circular dep chain)
-// layoutPadding: 24, compactContentWidth: 1440 — from platform-core/src/configs/themeConfig.ts
+/**
+ * StyledMain
+ * Structural wrapper for main app content area.
+ * Structural layout tokens (layoutPadding, compactContentWidth) are supplied
+ * dynamically via useLayoutTokens().
+ */
 type StyledMainProps = {
-  isContentCompact: boolean;
-  layoutPadding: string;
-  compactContentWidth: number;
+  isContentCompact: boolean
+  layoutPadding: string
+  compactContentWidth: number
 }
 
 const StyledMain = styled('main', {
-  shouldForwardProp: (prop) => !['isContentCompact', 'layoutPadding', 'compactContentWidth'].includes(prop as string),
-})<StyledMainProps>(({ theme, isContentCompact, layoutPadding, compactContentWidth }: any) => ({
-  flexGrow: 1,
-  padding: layoutPadding,
-  minHeight: '100vh',
+  shouldForwardProp: (prop) =>
+    !['isContentCompact', 'layoutPadding', 'compactContentWidth'].includes(prop as string),
+})<StyledMainProps>(({ theme, isContentCompact, compactContentWidth }: any) => ({
+  flexGrow: mainTokens.layout.flexGrow,
+  inlineSize: '100%',
+  boxSizing: 'border-box',
+  padding: theme.spacing(mainTokens.layout.paddingXs),
+  [theme.breakpoints.up('sm')]: {
+    padding: theme.spacing(mainTokens.layout.paddingSm),
+  },
+  [theme.breakpoints.up('lg')]: {
+    padding: theme.spacing(mainTokens.layout.paddingLg),
+  },
+  minHeight: mainTokens.layout.minHeight,
   backgroundColor: theme.palette.background.default,
-  transition: theme.transitions.create(['padding', 'max-width'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
+  transition: theme.transitions.create(['padding', 'max-width', 'inline-size'], {
+    easing: 'ease-in-out',
+    duration: mainTokens.layout.transitionDuration,
   }),
   ...(isContentCompact && {
-    marginInline: 'auto',
+    marginInline: mainTokens.layout.compactMarginInline,
     maxInlineSize: `${compactContentWidth}px`,
   }),
 }))

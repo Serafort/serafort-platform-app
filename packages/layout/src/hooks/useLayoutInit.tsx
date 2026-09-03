@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
+import { useColorScheme } from '@mui/material/styles'
 import { useCookie, useMedia } from 'react-use'
-import { useColorScheme } from '@cap/theme'
-import { SystemMode, useSettings } from '@cap/platform-core'
+import type { SystemMode } from '@cap/shared-types'
+import { useSettings } from '@cap/platform-store'
 
 const useLayoutInit = (colorSchemeFallback: SystemMode) => {
   const { settings } = useSettings()

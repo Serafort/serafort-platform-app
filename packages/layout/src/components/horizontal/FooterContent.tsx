@@ -1,72 +1,75 @@
-import classnames from 'classnames';
-// 
-// 
-// 
-import { horizontalLayoutClasses } from '../../utils/layoutClasses';
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Link from '@mui/material/Link'
+import { useTranslation } from 'react-i18next'
+import { useSettings } from '@cap/platform-store'
+import { AppPaths } from '@cap/shared-types'
+import { useVerticalNav } from '../../hooks/useVerticalNav'
+import { useHorizontalNav } from '../../hooks/useHorizontalNav'
+import { horizontalLayoutClasses } from '../../utils/layoutClasses'
 
 const FooterContent = () => {
-  // const { settings } = useSettings()
-  // const { isBreakpointReached: isVerticalBreakpointReached } = useVerticalNav()
-  // const { isBreakpointReached: isHorizontalBreakpointReached } =
-  // useHorizontalNav()
+  const { settings } = useSettings()
+  const { isBreakpointReached: isVerticalBreakpointReached } = useVerticalNav()
+  const { isBreakpointReached: isHorizontalBreakpointReached } = useHorizontalNav()
+  const { t } = useTranslation()
 
-  // const isBreakpointReached =
-  //   settings.layout === 'vertical'
-  //     ? isVerticalBreakpointReached
-  //     : isHorizontalBreakpointReached
+  const isBreakpointReached =
+    settings.layout === 'vertical' ? isVerticalBreakpointReached : isHorizontalBreakpointReached
 
   return (
-    <div
-      className={classnames(
-        horizontalLayoutClasses.footerContent,
-        'flex items-center justify-between flex-wrap gap-4',
-      )}
+    <Box
+      className={horizontalLayoutClasses.footerContent}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 2,
+        width: '100%',
+      }}
     >
-      <p>
-        <span className='text-textSecondary'>{`© ${new Date().getFullYear()}, Made with `}</span>
-        {/* <span>{`❤️`}</span> */}
-        {/* <span className='text-textSecondary'>{` by `}</span> */}
-        {/* <Link
-          href='https://pixinvent.com/'
-          target='_blank'
-          className='text-primary uppercase'
+      <Typography variant='body2' color='text.secondary'>
+        {`© ${new Date().getFullYear()}, ${t('footer.madeWith')} ❤️ ${t('footer.by')} `}
+        <Link
+          href={AppPaths.landing.home}
+          underline='hover'
+          color='primary.main'
+          sx={{ fontWeight: 600, textTransform: 'uppercase' }}
         >
-          Pixinvent
-        </Link> */}
-      </p>
-      {/* {!isBreakpointReached && (
-        <div className='flex items-center gap-4'>
+          CAP Framework
+        </Link>
+      </Typography>
+
+      {!isBreakpointReached && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Link
-            href='https://themeforest.net/licenses/standard'
-            target='_blank'
-            className='text-primary'
+            href={AppPaths.landing.termsOfService}
+            underline='hover'
+            color='text.secondary'
+            variant='body2'
           >
-            License
+            {t('footer.license')}
           </Link>
           <Link
-            href='https://themeforest.net/user/pixinvent/portfolio'
-            target='_blank'
-            className='text-primary'
+            href={AppPaths.landing.about}
+            underline='hover'
+            color='text.secondary'
+            variant='body2'
           >
-            More Themes
+            {t('footer.documentation')}
           </Link>
           <Link
-            href='https://demos.pixinvent.com/vuexy-nextjs-admin-template/documentation'
-            target='_blank'
-            className='text-primary'
+            href={AppPaths.landing.contact}
+            underline='hover'
+            color='text.secondary'
+            variant='body2'
           >
-            Documentation
+            {t('footer.support')}
           </Link>
-          <Link
-            href='https://pixinvent.ticksy.com'
-            target='_blank'
-            className='text-primary'
-          >
-            Support
-          </Link>
-        </div>
-      )} */}
-    </div>
+        </Box>
+      )}
+    </Box>
   )
 }
 

@@ -1,10 +1,13 @@
 import React from 'react'
-import { useAppStore, type RouteLayout } from '@cap/platform-core'
+import i18next from 'i18next'
+import { useAppStore, type AppStore } from '@cap/platform-store'
+import { RouteLayoutEnum, type RouteLayout } from '@cap/shared-types'
 
 export interface LayoutRouteWrapperProps {
   element?: React.ReactNode
   children?: React.ReactNode
   layout?: RouteLayout | string
+  label?: string
 }
 
 /**
@@ -18,25 +21,39 @@ export interface LayoutRouteWrapperProps {
 export const LayoutRouteWrapper: React.FC<LayoutRouteWrapperProps> = ({
   element,
   children,
-  layout,
+  layout = RouteLayoutEnum.PUBLIC,
+  label,
 }) => {
-  const updateLayoutOverride = useAppStore((state) => state.updateLayoutOverride)
+  const updateLayoutOverride = useAppStore((state: AppStore) => state.updateLayoutOverride)
 
   React.useEffect(() => {
-    if (layout === 'noLayout') {
-      updateLayoutOverride('noLayout')
-      return () => updateLayoutOverride('none')
+    const effectiveLayout =
+      !layout || layout === RouteLayoutEnum.NONE
+        ? RouteLayoutEnum.PUBLIC
+        : (layout as RouteLayoutEnum)
+    updateLayoutOverride(effectiveLayout)
+
+    return () => {
+      updateLayoutOverride(RouteLayoutEnum.NONE)
     }
-    // 'admin' override is set by AdminRoute itself — no action needed here
   }, [layout, updateLayoutOverride])
+
+  React.useEffect(() => {
+    if (label) {
+      const i18nInstance = (i18next as any)?.default || i18next
+      const translated =
+        i18nInstance?.isInitialized && i18nInstance.exists?.(label)
+          ? i18nInstance.t(label)
+          : i18nInstance?.t
+            ? i18nInstance.t(label)
+            : label
+      document.title = translated || label
+    }
+  }, [label])
 
   const content = children ?? element
 
-  return (
-    <div className='premium-auth-container' style={{ display: 'contents' }}>
-      {content}
-    </div>
-  )
+  return <React.Fragment>{content}</React.Fragment>
 }
 
 export default LayoutRouteWrapper

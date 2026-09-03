@@ -36,6 +36,8 @@ import StyledVerticalNavExpandIcon, {
   StyledVerticalNavExpandIconWrapper,
 } from '../../styles/vertical/StyledVerticalNavExpandIcon'
 
+import { menuTokens } from '@cap/theme'
+
 export type SubMenuProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'prefix'> &
   RootStylesType &
   Partial<ChildrenType> & {
@@ -67,10 +69,14 @@ type StyledSubMenuProps = Pick<SubMenuProps, 'rootStyles' | 'disabled'> & {
 const StyledSubMenu = styled.li<StyledSubMenuProps>`
   position: relative;
   inline-size: 100%;
-  margin-block-start: 4px;
+  margin-block-start: ${({ theme }: any) =>
+    menuTokens?.vertical?.submenu?.marginBlockStart || '4px'};
 
   &.${menuClasses.open} > .${menuClasses.button} {
-    background-color: var(--mui-palette-action-hover);
+    background-color: ${({ theme }: any) =>
+      theme.palette?.action?.hover ||
+      menuTokens?.vertical?.submenu?.openHoverBg ||
+      'rgba(0, 0, 0, 0.04)'};
   }
 
   ${({ menuItemStyles }) => menuItemStyles};
@@ -164,7 +170,7 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
     strategy: 'fixed',
     open: openWhenCollapsed,
     onOpenChange: setOpenWhenCollapsed,
-    placement: 'right-start',
+    placement: (menuTokens?.vertical?.submenu?.placement || 'right-start') as any,
     middleware: [
       offset({
         mainAxis: mainAxisOffset,
@@ -243,7 +249,7 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
       if (styleFunction) {
         // If the style function is a function, call it and return the result.
         // Otherwise, return the style function itself.
-        return typeof styleFunction === 'function' ? styleFunction(params) : styleFunction
+        return (typeof styleFunction === 'function' ? styleFunction(params) : styleFunction) as any
       }
     }
   }
@@ -266,24 +272,28 @@ const SubMenu: React.ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (pr
     if (isCollapsed && level === 0) setOpenWhenCollapsed(false)
   }, [isCollapsed, level, active])
 
+  const hasMatchingChild = React.useMemo(
+    () => confirmUrlInChildren(children, pathname),
+    [children, pathname],
+  )
+
   React.useEffect(() => {
-    if (confirmUrlInChildren(children, pathname))
-      openSubmenusRef?.current.push({ level, label, active: true, id })
+    if (hasMatchingChild) openSubmenusRef?.current.push({ level, label, active: true, id })
     else {
       if (defaultOpen) openSubmenusRef?.current.push({ level, label, active: false, id })
     }
-  }, [children, pathname, openSubmenusRef, level, label, id, defaultOpen])
+  }, [hasMatchingChild, openSubmenusRef, level, label, id, defaultOpen])
 
   // Change active state when the url changes
   React.useEffect(() => {
     // Check if the current url matches any of the children urls
-    if (confirmUrlInChildren(children, pathname)) {
+    if (hasMatchingChild) {
       setActive(true)
 
       if (openSubmenusRef?.current.findIndex((submenu: OpenSubmenu) => submenu.id === id) === -1)
         openSubmenusRef?.current.push({ level, label, active: true, id })
     } else setActive(false)
-  }, [pathname, children, openSubmenusRef, id, level, label])
+  }, [hasMatchingChild, openSubmenusRef, id, level, label])
 
   /* useEffect(() => {
     console.log(openSubmenu)

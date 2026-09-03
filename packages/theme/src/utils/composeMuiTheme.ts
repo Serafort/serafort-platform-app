@@ -1,10 +1,12 @@
-import { createTheme, darken, lighten } from '@mui/material/styles';
-import type { Direction, Settings, SystemMode } from '@cap/shared-types';
-import getComponentOverrides from '../overrides';
-import type { TenantThemeConfig } from '../types';
-import { DEFAULT_THEME_CONFIG } from '../types';
-import { darkTheme, lightTheme } from '../assets/themes';
-import { createBaseMuiTheme } from './createBaseMuiTheme';
+import { createTheme, darken, lighten } from "@mui/material/styles";
+import type { Theme } from "@mui/material/styles";
+import type { Direction, Settings, SystemMode } from "@cap/shared-types";
+import getComponentOverrides from "../overrides";
+import type { TenantThemeConfig } from "../types";
+import { DEFAULT_THEME_CONFIG } from "../types";
+import darkTheme from "../assets/themes/dark";
+import lightTheme from "../assets/themes/light";
+import { createBaseMuiTheme } from "./createBaseMuiTheme";
 
 interface ComposeMuiThemeOptions {
   currentMode: SystemMode;
@@ -14,15 +16,27 @@ interface ComposeMuiThemeOptions {
 }
 
 const toNumber = (value: string | number | undefined, fallback: number) => {
-  if (typeof value === 'number') return value;
+  if (typeof value === "number") return value;
 
-  const parsed = Number.parseInt(value || '', 10);
+  const parsed = Number.parseInt(value || "", 10);
   return Number.isNaN(parsed) ? fallback : parsed;
 };
 
+const derivePaletteColorGroup = (mainColor: string, contrastText = "#FFF") => ({
+  light: lighten(mainColor, 0.2),
+  main: mainColor,
+  dark: darken(mainColor, 0.12),
+  contrastText,
+  lighterOpacity: `${mainColor}14`,
+  lightOpacity: `${mainColor}29`,
+  mainOpacity: `${mainColor}3D`,
+  darkOpacity: `${mainColor}52`,
+  darkerOpacity: `${mainColor}61`,
+});
+
 export const composeMuiTheme = ({
   currentMode,
-  direction = 'ltr',
+  direction = "ltr",
   settings,
   tenantTheme,
 }: ComposeMuiThemeOptions) => {
@@ -31,20 +45,38 @@ export const composeMuiTheme = ({
     ...baseTenantTheme,
     effects: {
       ...(baseTenantTheme.effects || DEFAULT_THEME_CONFIG.effects),
-      ...(settings.effect ? { globalType: settings.effect } : {})
-    }
+      ...(settings.effect ? { globalType: settings.effect } : {}),
+    },
   } as TenantThemeConfig;
 
   const tokens = resolvedTenantTheme.tokens || DEFAULT_THEME_CONFIG.tokens;
-  const baseStaticTheme = currentMode === 'dark' ? darkTheme : lightTheme;
-  const primaryMain = tokens.colors.primary?.value || settings.primaryColor || baseStaticTheme.palette.primary.main;
-  const secondaryMain = tokens.colors.secondary?.value || baseStaticTheme.palette.secondary.main;
+  const baseStaticTheme = currentMode === "dark" ? darkTheme : lightTheme;
+  const primaryMain =
+    tenantTheme?.tokens?.colors?.primary?.value ||
+    settings.primaryColor ||
+    tokens.colors.primary?.value ||
+    baseStaticTheme.palette.primary.main;
+  const secondaryMain =
+    tokens.colors.secondary?.value || baseStaticTheme.palette.secondary.main;
   const backgroundDefault =
-    tokens.colors.background?.value || baseStaticTheme.palette.background.default;
-  const surfaceColor = tokens.colors.surface?.value || baseStaticTheme.palette.background.paper;
-  const borderColor = tokens.colors.border?.value || baseStaticTheme.palette.divider;
-  const textPrimary = tokens.colors.text?.value || baseStaticTheme.palette.text.primary;
-  const textSecondary = tokens.colors.textMuted?.value || baseStaticTheme.palette.text.secondary;
+    tokens.colors.background?.value ||
+    baseStaticTheme.palette.background.default;
+  const surfaceColor =
+    tokens.colors.surface?.value || baseStaticTheme.palette.background.paper;
+  const borderColor =
+    tokens.colors.border?.value || baseStaticTheme.palette.divider;
+  const textPrimary =
+    tokens.colors.text?.value || baseStaticTheme.palette.text.primary;
+  const textSecondary =
+    tokens.colors.textMuted?.value || baseStaticTheme.palette.text.secondary;
+  const errorMain =
+    tokens.colors.error?.value || baseStaticTheme.palette.error.main;
+  const successMain =
+    tokens.colors.success?.value || baseStaticTheme.palette.success.main;
+  const warningMain =
+    tokens.colors.warning?.value || baseStaticTheme.palette.warning.main;
+  const infoMain =
+    tokens.colors.info?.value || baseStaticTheme.palette.info.main;
   const updatedSettings = {
     ...settings,
     primaryColor: primaryMain,
@@ -55,74 +87,45 @@ export const composeMuiTheme = ({
     createBaseMuiTheme(updatedSettings, currentMode, direction),
     {
       direction,
+      spacing: (factor: number | string) => {
+        if (typeof factor === "string") return `var(--spacing-${factor})`;
+        return `var(--spacing-${factor}, calc(0.25rem * ${factor}))`;
+      },
+      shadows: [
+        "none",
+        `var(--shadow-xs, ${baseStaticTheme.shadows[1]})`,
+        baseStaticTheme.shadows[2],
+        baseStaticTheme.shadows[3],
+        `var(--shadow-sm, ${baseStaticTheme.shadows[4]})`,
+        baseStaticTheme.shadows[5],
+        baseStaticTheme.shadows[6],
+        baseStaticTheme.shadows[7],
+        `var(--shadow-md, ${baseStaticTheme.shadows[8]})`,
+        baseStaticTheme.shadows[9],
+        baseStaticTheme.shadows[10],
+        baseStaticTheme.shadows[11],
+        baseStaticTheme.shadows[12],
+        baseStaticTheme.shadows[13],
+        baseStaticTheme.shadows[14],
+        baseStaticTheme.shadows[15],
+        `var(--shadow-lg, ${baseStaticTheme.shadows[16]})`,
+        baseStaticTheme.shadows[17],
+        baseStaticTheme.shadows[18],
+        baseStaticTheme.shadows[19],
+        baseStaticTheme.shadows[20],
+        baseStaticTheme.shadows[21],
+        baseStaticTheme.shadows[22],
+        baseStaticTheme.shadows[23],
+        `var(--shadow-xl, ${baseStaticTheme.shadows[24]})`,
+      ] as Theme["shadows"],
       palette: {
         mode: currentMode,
-        primary: {
-          light: lighten(primaryMain, 0.2),
-          main: primaryMain,
-          dark: darken(primaryMain, 0.12),
-          // Opacity tokens — consumed by button/tab override variants (not via colorSchemes)
-          lighterOpacity: `${primaryMain}14`,
-          lightOpacity: `${primaryMain}29`,
-          mainOpacity: `${primaryMain}3D`,
-          darkOpacity: `${primaryMain}52`,
-          darkerOpacity: `${primaryMain}61`,
-        },
-        secondary: {
-          light: lighten(secondaryMain, 0.2),
-          main: secondaryMain,
-          dark: darken(secondaryMain, 0.12),
-          contrastText: '#FFF',
-          lighterOpacity: `${secondaryMain}14`,
-          lightOpacity: `${secondaryMain}29`,
-          mainOpacity: `${secondaryMain}3D`,
-          darkOpacity: `${secondaryMain}52`,
-          darkerOpacity: `${secondaryMain}61`,
-        },
-        error: {
-          main: tokens.colors.error?.value || baseStaticTheme.palette.error.main,
-          light: '#FF7074',
-          dark: '#E64449',
-          contrastText: '#FFF',
-          lighterOpacity: 'rgba(255, 76, 81, 0.08)',
-          lightOpacity: 'rgba(255, 76, 81, 0.16)',
-          mainOpacity: 'rgba(255, 76, 81, 0.24)',
-          darkOpacity: 'rgba(255, 76, 81, 0.32)',
-          darkerOpacity: 'rgba(255, 76, 81, 0.38)',
-        },
-        success: {
-          main: tokens.colors.success?.value || baseStaticTheme.palette.success.main,
-          light: '#53D28C',
-          dark: '#24B364',
-          contrastText: '#FFF',
-          lighterOpacity: 'rgba(40, 199, 111, 0.08)',
-          lightOpacity: 'rgba(40, 199, 111, 0.16)',
-          mainOpacity: 'rgba(40, 199, 111, 0.24)',
-          darkOpacity: 'rgba(40, 199, 111, 0.32)',
-          darkerOpacity: 'rgba(40, 199, 111, 0.38)',
-        },
-        warning: {
-          main: tokens.colors.warning?.value || baseStaticTheme.palette.warning.main,
-          light: '#FFB269',
-          dark: '#E68F3C',
-          contrastText: '#FFF',
-          lighterOpacity: 'rgba(255, 159, 67, 0.08)',
-          lightOpacity: 'rgba(255, 159, 67, 0.16)',
-          mainOpacity: 'rgba(255, 159, 67, 0.24)',
-          darkOpacity: 'rgba(255, 159, 67, 0.32)',
-          darkerOpacity: 'rgba(255, 159, 67, 0.38)',
-        },
-        info: {
-          main: tokens.colors.info?.value || baseStaticTheme.palette.info.main,
-          light: '#33C8DA',
-          dark: '#00A7BC',
-          contrastText: '#FFF',
-          lighterOpacity: 'rgba(0, 186, 209, 0.08)',
-          lightOpacity: 'rgba(0, 186, 209, 0.16)',
-          mainOpacity: 'rgba(0, 186, 209, 0.24)',
-          darkOpacity: 'rgba(0, 186, 209, 0.32)',
-          darkerOpacity: 'rgba(0, 186, 209, 0.38)',
-        },
+        primary: derivePaletteColorGroup(primaryMain, "#FFF"),
+        secondary: derivePaletteColorGroup(secondaryMain, "#FFF"),
+        error: derivePaletteColorGroup(errorMain, "#FFF"),
+        success: derivePaletteColorGroup(successMain, "#FFF"),
+        warning: derivePaletteColorGroup(warningMain, "#FFF"),
+        info: derivePaletteColorGroup(infoMain, "#FFF"),
         background: {
           default: backgroundDefault,
           paper: surfaceColor,
@@ -138,7 +141,7 @@ export const composeMuiTheme = ({
           greyLightBg: backgroundDefault,
           inputBorder: borderColor,
           tableHeaderBg: surfaceColor,
-          tooltipText: currentMode === 'dark' ? '#2F3349' : '#FFFFFF',
+          tooltipText: currentMode === "dark" ? "#2F3349" : "#FFFFFF",
           trackBg: borderColor,
           brandGold: primaryMain,
           brandBrown: secondaryMain,
@@ -147,75 +150,80 @@ export const composeMuiTheme = ({
         },
       },
       typography: {
-        fontFamily: tokens.typography?.fontFamily?.sans || baseStaticTheme.typography.fontFamily,
+        fontFamily:
+          tokens.typography?.fontFamily?.sans ||
+          baseStaticTheme.typography.fontFamily,
         h1: {
-          fontSize: tokens.typography?.fontSize?.['4xl'] || '2.25rem',
+          fontSize: tokens.typography?.fontSize?.["4xl"] || "2.25rem",
           fontWeight: tokens.typography?.fontWeight?.bold || 700,
-          lineHeight: tokens.typography?.lineHeight?.tight || '1.25',
+          lineHeight: tokens.typography?.lineHeight?.tight || "1.25",
         },
         h2: {
-          fontSize: tokens.typography?.fontSize?.['3xl'] || '1.875rem',
+          fontSize: tokens.typography?.fontSize?.["3xl"] || "1.875rem",
           fontWeight: tokens.typography?.fontWeight?.bold || 700,
-          lineHeight: tokens.typography?.lineHeight?.tight || '1.25',
+          lineHeight: tokens.typography?.lineHeight?.tight || "1.25",
         },
         h3: {
-          fontSize: tokens.typography?.fontSize?.['2xl'] || '1.5rem',
+          fontSize: tokens.typography?.fontSize?.["2xl"] || "1.5rem",
           fontWeight: tokens.typography?.fontWeight?.semibold || 600,
-          lineHeight: tokens.typography?.lineHeight?.tight || '1.25',
+          lineHeight: tokens.typography?.lineHeight?.tight || "1.25",
         },
         h4: {
-          fontSize: tokens.typography?.fontSize?.xl || '1.25rem',
+          fontSize: tokens.typography?.fontSize?.xl || "1.25rem",
           fontWeight: tokens.typography?.fontWeight?.semibold || 600,
-          lineHeight: tokens.typography?.lineHeight?.tight || '1.25',
+          lineHeight: tokens.typography?.lineHeight?.tight || "1.25",
         },
         h5: {
-          fontSize: tokens.typography?.fontSize?.lg || '1.125rem',
+          fontSize: tokens.typography?.fontSize?.lg || "1.125rem",
           fontWeight: tokens.typography?.fontWeight?.semibold || 600,
-          lineHeight: tokens.typography?.lineHeight?.tight || '1.25',
+          lineHeight: tokens.typography?.lineHeight?.tight || "1.25",
         },
         h6: {
-          fontSize: tokens.typography?.fontSize?.base || '1rem',
+          fontSize: tokens.typography?.fontSize?.base || "1rem",
           fontWeight: tokens.typography?.fontWeight?.semibold || 600,
-          lineHeight: tokens.typography?.lineHeight?.tight || '1.25',
+          lineHeight: tokens.typography?.lineHeight?.tight || "1.25",
         },
         subtitle1: {
-          fontSize: tokens.typography?.fontSize?.lg || '1.125rem',
+          fontSize: tokens.typography?.fontSize?.lg || "1.125rem",
           fontWeight: tokens.typography?.fontWeight?.medium || 500,
-          lineHeight: tokens.typography?.lineHeight?.normal || '1.5',
+          lineHeight: tokens.typography?.lineHeight?.normal || "1.5",
         },
         subtitle2: {
-          fontSize: tokens.typography?.fontSize?.base || '1rem',
+          fontSize: tokens.typography?.fontSize?.base || "1rem",
           fontWeight: tokens.typography?.fontWeight?.medium || 500,
-          lineHeight: tokens.typography?.lineHeight?.normal || '1.5',
+          lineHeight: tokens.typography?.lineHeight?.normal || "1.5",
         },
         body1: {
-          fontSize: tokens.typography?.fontSize?.base || '1rem',
+          fontSize: tokens.typography?.fontSize?.base || "1rem",
           fontWeight: tokens.typography?.fontWeight?.normal || 400,
-          lineHeight: tokens.typography?.lineHeight?.normal || '1.5',
+          lineHeight: tokens.typography?.lineHeight?.normal || "1.5",
         },
         body2: {
-          fontSize: tokens.typography?.fontSize?.sm || '0.875rem',
+          fontSize: tokens.typography?.fontSize?.sm || "0.875rem",
           fontWeight: tokens.typography?.fontWeight?.normal || 400,
-          lineHeight: tokens.typography?.lineHeight?.normal || '1.5',
+          lineHeight: tokens.typography?.lineHeight?.normal || "1.5",
         },
         caption: {
-          fontSize: tokens.typography?.fontSize?.xs || '0.75rem',
+          fontSize: tokens.typography?.fontSize?.xs || "0.75rem",
           fontWeight: tokens.typography?.fontWeight?.normal || 400,
-          lineHeight: tokens.typography?.lineHeight?.normal || '1.5',
+          lineHeight: tokens.typography?.lineHeight?.normal || "1.5",
         },
         overline: {
-          fontSize: tokens.typography?.fontSize?.xs || '0.75rem',
+          fontSize: tokens.typography?.fontSize?.xs || "0.75rem",
           fontWeight: tokens.typography?.fontWeight?.semibold || 600,
-          lineHeight: tokens.typography?.lineHeight?.normal || '1.5',
-          textTransform: 'uppercase',
+          lineHeight: tokens.typography?.lineHeight?.normal || "1.5",
+          textTransform: "uppercase",
         },
         button: {
-          textTransform: 'none',
+          textTransform: "none",
           fontWeight: tokens.typography?.fontWeight?.medium || 500,
         },
       },
       shape: {
-        borderRadius: toNumber(tokens.borderRadius?.md, toNumber(baseStaticTheme.shape.borderRadius, 8)),
+        borderRadius: toNumber(
+          tokens.borderRadius?.md,
+          toNumber(baseStaticTheme.shape.borderRadius, 8),
+        ),
         customBorderRadius: {
           xs: toNumber(tokens.borderRadius?.none, 2),
           sm: toNumber(tokens.borderRadius?.sm, 4),
@@ -230,8 +238,38 @@ export const composeMuiTheme = ({
 
   theme.components = {
     ...theme.components,
-    ...(getComponentOverrides(theme, settings.skin as any) as typeof theme.components),
+    ...(getComponentOverrides(
+      theme,
+      settings.skin as any,
+    ) as typeof theme.components),
   };
 
   return theme;
+};
+
+import { LRUCache } from "./LRUCache";
+
+const themeCache = new LRUCache<string, Theme>(20);
+
+export const composeMuiThemeMemoized = (
+  options: ComposeMuiThemeOptions,
+): Theme => {
+  const { currentMode, direction = "ltr", settings, tenantTheme } = options;
+  const colors = tenantTheme?.tokens?.colors;
+  const primaryVal = colors?.primary?.value || settings.primaryColor || "";
+  const secondaryVal = colors?.secondary?.value || "";
+  const bgVal = colors?.background?.value || "";
+  const surfaceVal = colors?.surface?.value || "";
+  const fontVal = tenantTheme?.tokens?.typography?.fontFamily?.sans || "";
+
+  const key = `${tenantTheme?.id || "default"}_${currentMode}_${direction}_${settings.skin}_${settings.effect || "none"}_${primaryVal}_${secondaryVal}_${bgVal}_${surfaceVal}_${fontVal}`;
+
+  const cached = themeCache.get(key);
+  if (cached) {
+    return cached;
+  }
+
+  const compiledTheme = composeMuiTheme(options);
+  themeCache.set(key, compiledTheme);
+  return compiledTheme;
 };

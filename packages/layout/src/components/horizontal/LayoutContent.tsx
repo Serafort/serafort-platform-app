@@ -1,7 +1,7 @@
 import React from 'react'
-import type { ChildrenType } from '@cap/platform-core'
-import { useSettings } from '@cap/platform-core'
-// themeConfig.layoutPadding = 24 (inlined to remove circular import dep)
+import type { ChildrenType } from '@cap/shared-types'
+import { useSettings } from '@cap/platform-store'
+import { ErrorBoundary } from '@cap/theme'
 import { horizontalLayoutClasses } from '../../utils/layoutClasses'
 import StyledMain from '../../styles/shared/StyledMain'
 import classnames from 'classnames'
@@ -16,6 +16,9 @@ const LayoutContent: React.FC<ChildrenType> = ({ children }) => {
 
   return (
     <StyledMain
+      id='main-content'
+      tabIndex={-1}
+      role='main'
       isContentCompact={contentCompact}
       layoutPadding={layoutPadding}
       compactContentWidth={compactContentWidth}
@@ -23,8 +26,11 @@ const LayoutContent: React.FC<ChildrenType> = ({ children }) => {
         [`${horizontalLayoutClasses.contentCompact} is-full`]: contentCompact,
         [horizontalLayoutClasses.contentWide]: contentWide,
       })}
+      style={{
+        outline: 'none',
+      }}
     >
-      {children}
+      <ErrorBoundary>{children}</ErrorBoundary>
     </StyledMain>
   )
 }

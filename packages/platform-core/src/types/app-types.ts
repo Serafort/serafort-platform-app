@@ -1,10 +1,4 @@
-import { Roles, normalizeRole, hasAdminRole, ADMIN_ROLES } from '@cap/shared-types/auth'
-export { useAppStore } from '@cap/platform-store'
-export type { LayoutOverride, LayoutOverride as LayoutOverrideType } from '@cap/platform-store'
-
-export { Roles, normalizeRole, hasAdminRole, ADMIN_ROLES }
-
-export { isObjectEmpty } from '../utils/helper'
+import { Roles } from '@cap/shared-types/auth'
 
 export const RoleWeights: Roles[] = [
   Roles.USER,
@@ -17,6 +11,7 @@ export const RoleWeights: Roles[] = [
   Roles.SUPERADMINEMPLOYEE,
   Roles.SUPERADMIN,
 ]
+
 export interface ITab {
   key: string
   label: string

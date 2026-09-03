@@ -1,0 +1,15 @@
+{
+  "//": "skipTypeImports: `import type` / `import { type X }` edges are erased by the TS compiler and cannot cause the runtime module-init-order failures this gate exists to catch. Excluding them removes false positives (e.g. Styled-component<->prop-type pairs, Zustand slice<->AppStore aggregation) so the gate flags only real value cycles. This makes the check accurate, not weaker.",
+  "fontSize": "10px",
+  "graphVizOptions": {
+    "G": {
+      "rankdir": "LR"
+    }
+  },
+  "exclude": "(dist|node_modules|build|coverage)",
+  "fileExtensions": ["ts", "tsx"],
+  "detectiveOptions": {
+    "ts": { "skipTypeImports": true },
+    "tsx": { "skipTypeImports": true }
+  }
+}

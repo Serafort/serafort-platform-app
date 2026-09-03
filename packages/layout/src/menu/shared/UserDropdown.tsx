@@ -16,41 +16,64 @@ import {
   Popper,
   Typography,
 } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import AttachMoney from '@mui/icons-material/AttachMoney'
 import Help from '@mui/icons-material/Help'
 import Logout from '@mui/icons-material/Logout'
 import Person from '@mui/icons-material/Person'
 import Settings from '@mui/icons-material/Settings'
-import { useSettings, useAuth } from '@cap/platform-core'
-import { zIndexScale } from "@cap/theme";
-import { useSignOut, Path } from '@cap/module-auth'
+import { useSettings, useAppStore } from '@cap/platform-store'
+import { buildLayoutSurfaceEffect } from '../../utils/buildLayoutSurfaceEffect'
+import { useAuth } from '@cap/platform-core'
+import { AppPaths, resolveDynamicPath } from '@cap/shared-types'
+import {
+  zIndexScale,
+  dropdownTokens,
+  getUserDropdownItemHoverBg,
+  getUserBadgeShadow,
+  getTenantThemeEffects,
+} from '@cap/theme'
+import { useTranslation } from 'react-i18next'
 
-const BadgeContentSpan = styled('span')({
-  width: 8,
-  height: 8,
-  borderRadius: '50%',
+const BadgeContentSpan = styled('span')(({ theme }) => ({
+  width: dropdownTokens.userDropdown.badgeDotSize,
+  height: dropdownTokens.userDropdown.badgeDotSize,
+  borderRadius: dropdownTokens.userDropdown.badgeDotBorderRadius,
   cursor: 'pointer',
-  backgroundColor: 'var(--mui-palette-success-main)',
-  boxShadow: '0 0 0 2px var(--mui-palette-background-paper)',
-})
+  backgroundColor: theme.palette.success.main,
+  boxShadow: getUserBadgeShadow(theme),
+}))
 
 const UserDropdown = () => {
-  const { user: authUser } = useAuth()
-  const { signOut, isSigningOut } = useSignOut({
-    onSuccess: () => {
-      console.log('[UserDropdown] User signed out successfully')
-      setAnchorEl(null)
-    },
-  })
+  const { t } = useTranslation()
+  const theme = useTheme()
+  const navItems = useAppStore((state) => state.navItems)
+  const { user: authUser, logout, isLoggingOut } = useAuth()
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const navigate = useNavigate()
   const { settings } = useSettings()
 
+  // Dynamically resolve route paths from registered module navItems ("Magnet Legos")
+  const profilePath = React.useMemo(
+    () => resolveDynamicPath(navItems, 'user-profile', AppPaths.account.overview),
+    [navItems],
+  )
+  const settingsPath = React.useMemo(
+    () => resolveDynamicPath(navItems, 'account-settings', AppPaths.account.edit),
+    [navItems],
+  )
+  const pricingPath = React.useMemo(
+    () => resolveDynamicPath(navItems, 'guest-pricing', AppPaths.landing.pricing),
+    [navItems],
+  )
+  const aboutPath = React.useMemo(
+    () => resolveDynamicPath(navItems, 'guest-about', AppPaths.landing.about),
+    [navItems],
+  )
+
   // Extract user data from IAuth structure
   const user = authUser?.user || authUser
-  console.log('[UserDropdown] Current user:', user)
 
   const handleDropdownOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(open ? null : event.currentTarget)
@@ -68,7 +91,8 @@ const UserDropdown = () => {
   }
 
   const handleUserLogout = () => {
-    signOut()
+    setAnchorEl(null)
+    logout()
   }
 
   return (
@@ -78,7 +102,7 @@ const UserDropdown = () => {
         badgeContent={<BadgeContentSpan onClick={handleDropdownOpen} />}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         sx={{
-          marginInlineStart: '0.5rem',
+          marginInlineStart: dropdownTokens.userDropdown.badgeMarginInlineStart,
         }}
       >
         <Avatar
@@ -87,8 +111,8 @@ const UserDropdown = () => {
           onClick={handleDropdownOpen}
           sx={{
             cursor: 'pointer',
-            blockSize: '38px',
-            inlineSize: '38px',
+            blockSize: dropdownTokens.userDropdown.avatarSize,
+            inlineSize: dropdownTokens.userDropdown.avatarSize,
           }}
         />
       </Badge>
@@ -98,8 +122,8 @@ const UserDropdown = () => {
         placement='bottom-end'
         anchorEl={anchorEl}
         sx={{
-          minInlineSize: '240px',
-          marginBlockStart: '0.75rem !important',
+          minInlineSize: dropdownTokens.dropdownPopper.minInlineSizeUser,
+          marginBlockStart: dropdownTokens.dropdownPopper.marginBlockStart,
           zIndex: zIndexScale.dropdown,
         }}
       >
@@ -111,14 +135,15 @@ const UserDropdown = () => {
             }}
           >
             <Paper
-              className='glass-effect animate-scale-in'
-              sx={{
-                borderRadius: '12px !important',
+              className='animate-scale-in'
+              sx={(theme: any) => ({
+                borderRadius: dropdownTokens.dropdownPopper.paperBorderRadius,
                 overflow: 'hidden',
+                ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
                 ...(settings.skin === 'bordered'
-                  ? { border: 1, boxShadow: 'none' }
-                  : { boxShadow: 'var(--premium-shadow)' }),
-              }}
+                  ? { border: '1px solid ' + theme.palette.divider, boxShadow: 'none' }
+                  : {}),
+              })}
             >
               <ClickAwayListener
                 onClickAway={(e) => handleDropdownClose(e as MouseEvent | TouchEvent)}
@@ -128,9 +153,9 @@ const UserDropdown = () => {
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
-                      paddingBlock: '0.5rem',
-                      paddingInline: '1.5rem',
-                      gap: '0.5rem',
+                      paddingBlock: dropdownTokens.userDropdown.headerPaddingBlock,
+                      paddingInline: dropdownTokens.userDropdown.headerPaddingInline,
+                      gap: dropdownTokens.userDropdown.headerGap,
                     }}
                     tabIndex={-1}
                   >
@@ -159,71 +184,83 @@ const UserDropdown = () => {
                     }}
                   />
                   <MenuItem
-                    onClick={(e) => handleDropdownClose(e, Path.account.overview)}
+                    onClick={(e) => handleDropdownClose(e, profilePath)}
                     sx={{
-                      marginInline: '8px !important',
-                      marginBlock: '4px !important',
-                      borderRadius: '8px !important',
-                      gap: '0.75rem',
+                      marginInline: dropdownTokens.userDropdown.itemMarginInline,
+                      marginBlock: dropdownTokens.userDropdown.itemMarginBlock,
+                      borderRadius: dropdownTokens.userDropdown.itemBorderRadius,
+                      gap: dropdownTokens.userDropdown.itemGap,
                       transition: 'all 0.2s ease',
                       '&:hover': {
-                        background: 'hsla(var(--mui-mainColor-hsl), 0.05) !important',
-                        transform: 'translateX(4px)',
+                        background: getUserDropdownItemHoverBg(theme),
+                        transform: dropdownTokens.userDropdown.itemHoverTranslateX,
                         '& svg': { color: 'primary.main' },
                       },
                     }}
                   >
-                    <Person sx={{ fontSize: '22px', transition: 'color 0.2s' }} />
+                    <Person
+                      sx={{
+                        fontSize: dropdownTokens.dropdownPopper.itemIconFontSize,
+                        transition: 'color 0.2s',
+                      }}
+                    />
                     <Typography color='text.primary' sx={{ fontWeight: 500 }}>
-                      My Profile
+                      {t('navigation.profile')}
                     </Typography>
                   </MenuItem>
                   <MenuItem
-                    onClick={(e) => handleDropdownClose(e, Path.account.edit)}
+                    onClick={(e) => handleDropdownClose(e, settingsPath)}
                     sx={{
-                      marginInline: '8px !important',
-                      marginBlock: '4px !important',
-                      borderRadius: '8px !important',
-                      gap: '0.75rem',
+                      marginInline: dropdownTokens.userDropdown.itemMarginInline,
+                      marginBlock: dropdownTokens.userDropdown.itemMarginBlock,
+                      borderRadius: dropdownTokens.userDropdown.itemBorderRadius,
+                      gap: dropdownTokens.userDropdown.itemGap,
                       transition: 'all 0.2s ease',
                       '&:hover': {
-                        background: 'hsla(var(--mui-mainColor-hsl), 0.05) !important',
-                        transform: 'translateX(4px)',
+                        background: getUserDropdownItemHoverBg(theme),
+                        transform: dropdownTokens.userDropdown.itemHoverTranslateX,
                         '& svg': { color: 'primary.main' },
                       },
                     }}
                   >
-                    <Settings sx={{ fontSize: '22px', transition: 'color 0.2s' }} />
+                    <Settings
+                      sx={{
+                        fontSize: dropdownTokens.dropdownPopper.itemIconFontSize,
+                        transition: 'color 0.2s',
+                      }}
+                    />
                     <Typography color='text.primary' sx={{ fontWeight: 500 }}>
-                      Settings
+                      {t('navigation.settings')}
                     </Typography>
                   </MenuItem>
                   <MenuItem
-                    onClick={(e) => handleDropdownClose(e, '/pages/pricing')}
+                    onClick={(e) => handleDropdownClose(e, pricingPath)}
                     sx={{
                       marginInline: '0.5rem',
-                      gap: '0.75rem',
+                      gap: dropdownTokens.userDropdown.itemGap,
                     }}
                   >
-                    <AttachMoney sx={{ fontSize: '22px' }} />
-                    <Typography color='text.primary'>Pricing</Typography>
+                    <AttachMoney
+                      sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }}
+                    />
+                    <Typography color='text.primary'>{t('navigation.pricing')}</Typography>
                   </MenuItem>
                   <MenuItem
-                    onClick={(e) => handleDropdownClose(e, '/pages/faq')}
+                    onClick={(e) => handleDropdownClose(e, aboutPath)}
                     sx={{
                       marginInline: '0.5rem',
-                      gap: '0.75rem',
+                      gap: dropdownTokens.userDropdown.itemGap,
                     }}
                   >
-                    <Help sx={{ fontSize: '22px' }} />
-                    <Typography color='text.primary'>FAQ</Typography>
+                    <Help sx={{ fontSize: dropdownTokens.dropdownPopper.itemIconFontSize }} />
+                    <Typography color='text.primary'>{t('navigation.about')}</Typography>
                   </MenuItem>
                   <Box
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
-                      paddingBlock: '0.5rem',
-                      paddingInline: '0.75rem',
+                      paddingBlock: dropdownTokens.userDropdown.logoutBoxPaddingBlock,
+                      paddingInline: dropdownTokens.userDropdown.logoutBoxPaddingInline,
                     }}
                   >
                     <Button
@@ -231,16 +268,18 @@ const UserDropdown = () => {
                       variant='contained'
                       color='error'
                       size='small'
-                      disabled={isSigningOut}
+                      disabled={isLoggingOut}
                       endIcon={
-                        isSigningOut ? <CircularProgress size={16} color='inherit' /> : <Logout />
+                        isLoggingOut ? <CircularProgress size={16} color='inherit' /> : <Logout />
                       }
                       onClick={handleUserLogout}
                       sx={{
-                        '& .MuiButton-endIcon': { marginInlineStart: 1.5 },
+                        '& .MuiButton-endIcon': {
+                          marginInlineStart: dropdownTokens.userDropdown.logoutEndIconMargin,
+                        },
                       }}
                     >
-                      {isSigningOut ? 'Signing out...' : 'Logout'}
+                      {isLoggingOut ? t('navigation.signingOut') : t('navigation.logout')}
                     </Button>
                   </Box>
                 </MenuList>
@@ -254,5 +293,3 @@ const UserDropdown = () => {
 }
 
 export default UserDropdown
-
-

@@ -3,26 +3,44 @@
 // FIXES: Added header; implemented entry motion; modernized component attributes (slotProps); standardized Card/Paper/Avatar styles; translated all strings; added aria-label support
 // AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
 
-import { useMemo, useState, type KeyboardEvent } from 'react';
-import { Box, Button, Container, Typography, Card, CardContent, TextField, InputAdornment, alpha, useTheme, Grid, Chip, Paper, Breadcrumbs, Avatar, Link, Stack, CircularProgress } from '@mui/material';
-import Search from '@mui/icons-material/Search';
-import Dns from '@mui/icons-material/Dns';
-import Description from '@mui/icons-material/Description';
-import Public from '@mui/icons-material/Public';
-import ChevronRight from '@mui/icons-material/ChevronRight';
-import Language from '@mui/icons-material/Language';
-import Business from '@mui/icons-material/Business';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useSnackbar } from 'notistack';
-import { useFetchRemoteMetadata, useRecentSAMLEntities, Path } from '@auth';
+import { useMemo, useState, type KeyboardEvent } from 'react'
+import {
+  Box,
+  Button,
+  Container,
+  Typography,
+  Card,
+  CardContent,
+  TextField,
+  InputAdornment,
+  alpha,
+  useTheme,
+  Grid,
+  Chip,
+  Paper,
+  Breadcrumbs,
+  Avatar,
+  Link,
+  Stack,
+  CircularProgress,
+} from '@mui/material'
+import Search from '@mui/icons-material/Search'
+import Dns from '@mui/icons-material/Dns'
+import Description from '@mui/icons-material/Description'
+import Public from '@mui/icons-material/Public'
+import ChevronRight from '@mui/icons-material/ChevronRight'
+import Language from '@mui/icons-material/Language'
+import Business from '@mui/icons-material/Business'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { toast } from 'react-toastify'
+import { useFetchRemoteMetadata, useRecentSAMLEntities, Path } from '@auth'
 
 export default function SAMLMetadataBrowser() {
   const { t } = useTranslation()
   const theme = useTheme()
   const navigate = useNavigate()
-  const { enqueueSnackbar } = useSnackbar()
   const [searchUrl, setSearchUrl] = useState('')
   const [filterQuery, setFilterQuery] = useState('')
 
@@ -54,7 +72,7 @@ export default function SAMLMetadataBrowser() {
     if (!searchUrl) return
     // Simple validation
     if (!searchUrl.startsWith('http')) {
-      enqueueSnackbar(t('auth.sso.invalid_url', 'Please enter a valid URL'), { variant: 'error' })
+      toast.error(t('auth.sso.invalid_url', 'Please enter a valid URL'))
       return
     }
     fetchRemote.mutate(searchUrl)
@@ -73,7 +91,7 @@ export default function SAMLMetadataBrowser() {
   const entities = useMemo(() => {
     const backendEntities = recentResponse?.data || []
     const localEntities = JSON.parse(localStorage.getItem('recent_saml_entities') || '[]')
-    
+
     // Merge and deduplicate
     const allEntities = [...localEntities, ...backendEntities].reduce((acc: any[], current) => {
       const x = acc.find((item) => item.entityId === current.entityId)
@@ -88,8 +106,7 @@ export default function SAMLMetadataBrowser() {
 
     const query = filterQuery.toLowerCase()
     return allEntities.filter(
-      (e: any) =>
-        e.name.toLowerCase().includes(query) || e.entityId.toLowerCase().includes(query)
+      (e: any) => e.name.toLowerCase().includes(query) || e.entityId.toLowerCase().includes(query),
     )
   }, [recentResponse?.data, filterQuery])
 
@@ -326,142 +343,142 @@ export default function SAMLMetadataBrowser() {
         <Grid container spacing={3}>
           {entities.map((entity) => (
             <Grid key={entity.id} size={{ xs: 12, md: 6 }}>
-            <Card
-              sx={{
-                borderRadius: 4,
-                border: '1px solid',
-                borderColor: 'divider',
-                boxShadow: 'none',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                '&:hover': {
-                  borderColor: 'primary.main',
-                  transform: 'translateY(-4px)',
-                  boxShadow: (theme) => `0 12px 30px ${alpha(theme.palette.primary.main, 0.12)}`,
-                },
-              }}
-            >
-              <CardContent sx={{ p: 3 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    mb: 3,
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        backgroundColor: alpha(theme.palette.primary.main, 0.08),
-                        color: 'primary.main',
-                        borderRadius: '14px',
-                        boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.1)}`,
-                      }}
-                    >
-                      <Dns />
-                    </Avatar>
-                    <Box>
-                      <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
-                        {entity.name}
-                      </Typography>
-                      <Typography
-                        variant='caption'
-                        color='text.secondary'
+              <Card
+                sx={{
+                  borderRadius: 4,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  boxShadow: 'none',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    transform: 'translateY(-4px)',
+                    boxShadow: (theme) => `0 12px 30px ${alpha(theme.palette.primary.main, 0.12)}`,
+                  },
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      mb: 3,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Avatar
                         sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          fontWeight: 700,
-                          letterSpacing: '0.025em',
+                          width: 48,
+                          height: 48,
+                          backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                          color: 'primary.main',
+                          borderRadius: '14px',
+                          boxShadow: (theme) =>
+                            `0 4px 12px ${alpha(theme.palette.primary.main, 0.1)}`,
                         }}
                       >
-                        <Description sx={{ fontSize: 14 }} />
-                        {t('auth.sso.saml_provider_label', 'SAML 2.0 PROVIDER')}
-                      </Typography>
+                        <Dns />
+                      </Avatar>
+                      <Box>
+                        <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
+                          {entity.name}
+                        </Typography>
+                        <Typography
+                          variant='caption'
+                          color='text.secondary'
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 0.5,
+                            fontWeight: 700,
+                            letterSpacing: '0.025em',
+                          }}
+                        >
+                          <Description sx={{ fontSize: 14 }} />
+                          {t('auth.sso.saml_provider_label', 'SAML 2.0 PROVIDER')}
+                        </Typography>
+                      </Box>
                     </Box>
+                    <Chip
+                      label={entity.status.toUpperCase()}
+                      size='small'
+                      color={entity.status === 'active' ? 'success' : 'warning'}
+                      sx={{
+                        borderRadius: '8px',
+                        fontWeight: 900,
+                        fontSize: '0.65rem',
+                        letterSpacing: '0.05em',
+                        height: 24,
+                      }}
+                    />
                   </Box>
-                  <Chip
-                    label={entity.status.toUpperCase()}
-                    size='small'
-                    color={entity.status === 'active' ? 'success' : 'warning'}
-                    sx={{
-                      borderRadius: '8px',
-                      fontWeight: 900,
-                      fontSize: '0.65rem',
-                      letterSpacing: '0.05em',
-                      height: 24,
-                    }}
-                  />
-                </Box>
 
-                <Box
-                  sx={{
-                    mb: 3,
-                    p: 2,
-                    borderRadius: '12px',
-                    bgcolor: (theme) => alpha(theme.palette.text.primary, 0.02),
-                    border: '1px solid',
-                    borderColor: 'divider',
-                  }}
-                >
-                  <Typography
-                    variant='caption'
+                  <Box
                     sx={{
-                      fontWeight: 800,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em',
-                      color: 'text.secondary',
-                      display: 'block',
-                      mb: 1,
+                      mb: 3,
+                      p: 2,
+                      borderRadius: '12px',
+                      bgcolor: (theme) => alpha(theme.palette.text.primary, 0.02),
+                      border: '1px solid',
+                      borderColor: 'divider',
                     }}
                   >
-                    {t('auth.sso.entity_id_label', 'ENTITY ID')}
-                  </Typography>
-                  <Typography
-                    variant='body2'
+                    <Typography
+                      variant='caption'
+                      sx={{
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        color: 'text.secondary',
+                        display: 'block',
+                        mb: 1,
+                      }}
+                    >
+                      {t('auth.sso.entity_id_label', 'ENTITY ID')}
+                    </Typography>
+                    <Typography
+                      variant='body2'
+                      sx={{
+                        fontFamily: 'JetBrains Mono, monospace',
+                        fontSize: '0.75rem',
+                        color: 'primary.main',
+                        wordBreak: 'break-all',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {entity.entityId}
+                    </Typography>
+                  </Box>
+
+                  <Button
+                    fullWidth
+                    variant='outlined'
+                    onClick={() => handleViewDetails(entity.entityId)}
+                    endIcon={<ChevronRight />}
                     sx={{
-                      fontFamily: 'JetBrains Mono, monospace',
-                      fontSize: '0.75rem',
-                      color: 'primary.main',
-                      wordBreak: 'break-all',
-                      fontWeight: 600,
+                      justifyContent: 'space-between',
+                      textTransform: 'none',
+                      fontWeight: 700,
+                      color: 'text.primary',
+                      borderColor: 'divider',
+                      py: 1.5,
+                      borderRadius: '12px',
+                      '&:hover': {
+                        backgroundColor: 'primary.main',
+                        color: 'white',
+                        borderColor: 'primary.main',
+                      },
                     }}
                   >
-                    {entity.entityId}
-                  </Typography>
-                </Box>
-
-                <Button
-                  fullWidth
-                  variant='outlined'
-                  onClick={() => handleViewDetails(entity.entityId)}
-                  endIcon={<ChevronRight />}
-                  sx={{
-                    justifyContent: 'space-between',
-                    textTransform: 'none',
-                    fontWeight: 700,
-                    color: 'text.primary',
-                    borderColor: 'divider',
-                    py: 1.5,
-                    borderRadius: '12px',
-                    '&:hover': {
-                      backgroundColor: 'primary.main',
-                      color: 'white',
-                      borderColor: 'primary.main',
-                    },
-                  }}
-                >
-                  {t('common.view_details', 'View Technical Details')}
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+                    {t('common.view_details', 'View Technical Details')}
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
       )}
     </Container>
   )
 }
-

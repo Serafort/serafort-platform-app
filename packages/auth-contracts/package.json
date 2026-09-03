@@ -15,17 +15,21 @@
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "build": "tsc",
+    "test": "vitest run --passWithNoTests",
     "format": "prettier --write ."
   },
   "dependencies": {
     "@cap/api-contracts": "workspace:*",
-    "@cap/platform-core": "workspace:*",
+    "@cap/platform-store": "workspace:*",
     "@cap/shared-types": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=19",
     "react-dom": ">=19",
-    "react-router-dom": ">=6",
+    "react-router-dom": ">=7.18.3",
     "typescript": "~5.9.3"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.16"
   }
 }

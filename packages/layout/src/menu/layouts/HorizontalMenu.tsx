@@ -1,17 +1,16 @@
 import { useTheme } from '@mui/material/styles'
-import { 
-  useSettings, 
-  type Dictionary 
-} from '@cap/platform-core'
-import { 
-  HorizontalNav, 
-  Menu 
-} from '../horizontal-menu'
+import type { Dictionary } from '@cap/shared-types'
+import { useSettings } from '@cap/platform-store'
+import {
+  layoutMenuTokens,
+  getHorizontalMenuPopoutOffset,
+  getHorizontalMenuButtonHoverBg,
+  getLayoutMenuButtonActiveBg,
+} from '@cap/theme'
+import { HorizontalNav, Menu } from '../horizontal-menu'
 import { useVerticalNav } from '../contexts/verticalNavContext'
 import NavbarContent from './HorizontalNavbarContent'
-import type { 
-  VerticalMenuContextProps 
-} from '../components/vertical-menu/Menu'
+import type { VerticalMenuContextProps } from '../components/vertical-menu/Menu'
 import StyledHorizontalNavExpandIcon from '../styles/horizontal/StyledHorizontalNavExpandIcon'
 import StyledVerticalNavExpandIcon from '../styles/vertical/StyledVerticalNavExpandIcon'
 import menuItemStyles from '../../styles/core/horizontal/menuItemStyles'
@@ -33,13 +32,13 @@ type RenderVerticalExpandIconProps = {
 
 const RenderExpandIcon = ({ level }: RenderExpandIconProps) => (
   <StyledHorizontalNavExpandIcon level={level}>
-    <ChevronRight className='tabler-chevron-right' />
+    <ChevronRight className={layoutMenuTokens.horizontalMenu.expandIconClass} />
   </StyledHorizontalNavExpandIcon>
 )
 
 const RenderVerticalExpandIcon = ({ open, transitionDuration }: RenderVerticalExpandIconProps) => (
   <StyledVerticalNavExpandIcon open={open} transitionDuration={transitionDuration}>
-    <ChevronRight className='tabler-chevron-right' />
+    <ChevronRight className={layoutMenuTokens.verticalMenu.expandIconClass} />
   </StyledVerticalNavExpandIcon>
 )
 
@@ -60,9 +59,7 @@ const HorizontalMenu = ({ dictionary }: { dictionary: Dictionary }) => {
       verticalNavProps={{
         customStyles: verticalNavigationCustomStyles(verticalNavOptions, theme),
         backgroundColor:
-          skin === 'bordered'
-            ? 'var(--mui-palette-background-paper)'
-            : 'var(--mui-palette-background-default)',
+          skin === 'bordered' ? theme.palette.background.paper : theme.palette.background.default,
       }}
     >
       <Menu
@@ -71,40 +68,40 @@ const HorizontalMenu = ({ dictionary }: { dictionary: Dictionary }) => {
         menuItemStyles={{
           ...menuItemStyles(settings, theme),
           button: ({ active, level }: { active?: boolean; level?: number }) => ({
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            borderRadius: '8px !important',
-            margin: '0 4px !important',
-            paddingInline: '12px !important',
+            transition: layoutMenuTokens.horizontalMenu.button.transition,
+            borderRadius: layoutMenuTokens.horizontalMenu.button.borderRadius,
+            margin: layoutMenuTokens.horizontalMenu.button.margin,
+            paddingInline: layoutMenuTokens.horizontalMenu.button.paddingInline,
             '&:hover': {
-              background: active
-                ? 'var(--mui-palette-primary-mainOpacity)'
-                : 'hsla(var(--mui-mainColor-hsl), 0.08) !important',
+              background: getHorizontalMenuButtonHoverBg(theme, active),
               '& .tabler-icon, & i': {
-                transform: 'translateY(-2px)',
-                color: 'var(--mui-palette-primary-main) !important',
-                transition: 'all 0.3s ease',
+                transform: layoutMenuTokens.horizontalMenu.button.hoverIconTransform,
+                color: `${theme.palette.primary.main} !important`,
+                transition: layoutMenuTokens.horizontalMenu.button.hoverIconTransition,
               },
             },
             ...(active &&
               level === 0 && {
-                background: 'var(--mui-palette-primary-mainOpacity) !important',
+                background: getLayoutMenuButtonActiveBg(theme),
                 '&::after': {
                   content: '""',
                   position: 'absolute',
-                  bottom: 4,
-                  left: '20%',
-                  right: '20%',
-                  height: '2px',
-                  background: 'var(--mui-palette-primary-main)',
-                  borderRadius: '99px',
-                  animation: 'scaleIn 0.3s ease',
+                  bottom: layoutMenuTokens.horizontalMenu.button.activeIndicatorBottom,
+                  left: layoutMenuTokens.horizontalMenu.button.activeIndicatorInset,
+                  right: layoutMenuTokens.horizontalMenu.button.activeIndicatorInset,
+                  height: layoutMenuTokens.horizontalMenu.button.activeIndicatorHeight,
+                  background: theme.palette.primary.main,
+                  borderRadius: layoutMenuTokens.horizontalMenu.button.activeIndicatorRadius,
+                  animation: layoutMenuTokens.horizontalMenu.button.activeIndicatorAnimation,
                 },
               }),
           }),
         }}
-        renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
+        renderExpandedMenuItemIcon={{
+          icon: <i className={layoutMenuTokens.horizontalMenu.expandedMenuItemIconClass} />,
+        }}
         popoutMenuOffset={{
-          mainAxis: ({ level }: { level?: number }) => (level && level > 0 ? 14 : 12),
+          mainAxis: ({ level }: { level?: number }) => getHorizontalMenuPopoutOffset(level),
           alignmentAxis: 0,
         }}
         verticalMenuProps={{
@@ -115,18 +112,20 @@ const HorizontalMenu = ({ dictionary }: { dictionary: Dictionary }) => {
           menuItemStyles: {
             ...verticalMenuItemStyles(verticalNavOptions, theme, settings),
             button: {
-              borderRadius: '8px !important',
-              margin: '2px 8px !important',
-              transition: 'all 0.2s ease',
+              borderRadius: layoutMenuTokens.horizontalMenu.verticalFallback.buttonBorderRadius,
+              margin: layoutMenuTokens.horizontalMenu.verticalFallback.buttonMargin,
+              transition: layoutMenuTokens.horizontalMenu.verticalFallback.buttonTransition,
               '&:hover': {
-                background: 'var(--premium-gradient) !important',
+                background: theme.palette.action.hover,
               },
             },
           },
           renderExpandIcon: ({ open }: { open?: boolean }) => (
             <RenderVerticalExpandIcon open={open} transitionDuration={transitionDuration} />
           ),
-          renderExpandedMenuItemIcon: { icon: <i className='tabler-circle text-xs' /> },
+          renderExpandedMenuItemIcon: {
+            icon: <i className={layoutMenuTokens.verticalMenu.expandedMenuItemIconClass} />,
+          },
           menuSectionStyles: verticalMenuSectionStyles(verticalNavOptions, theme),
         }}
       >

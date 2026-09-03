@@ -1,4 +1,5 @@
 import styled from '@emotion/styled'
+import { menuTokens, getNavHeaderCollapsedPaddingInline } from '@cap/theme'
 import type { ChildrenType } from '../../types'
 import type { VerticalNavContextProps } from '../../contexts/verticalNavContext'
 import { useVerticalNav } from '../../contexts/verticalNavContext'
@@ -12,15 +13,18 @@ type StyledNavHeaderProps = {
 }
 
 const StyledNavHeader = styled.div<StyledNavHeaderProps>`
-  padding: 15px;
-  padding-inline-start: 20px;
+  padding: ${({ theme }: any) => menuTokens?.vertical?.header?.paddingDefault || '15px'};
+  padding-inline-start: ${({ theme }: any) =>
+    menuTokens?.vertical?.header?.paddingInlineStart || '20px'};
   display: flex;
   align-items: center;
   justify-content: space-between;
   transition: ${({ transitionDuration }) => `padding-inline ${transitionDuration}ms ease-in-out`};
 
   ${({ isHovered, isCollapsed, collapsedWidth }) =>
-    isCollapsed && !isHovered && `padding-inline: calc((${collapsedWidth}px - 1px - 22px) / 2);`}
+    isCollapsed &&
+    !isHovered &&
+    `padding-inline: ${getNavHeaderCollapsedPaddingInline(collapsedWidth)};`}
 `
 
 const NavHeader = ({ children }: ChildrenType) => {

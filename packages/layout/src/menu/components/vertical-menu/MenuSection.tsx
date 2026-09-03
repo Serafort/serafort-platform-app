@@ -11,6 +11,8 @@ import StyledMenuSuffix from '../../styles/StyledMenuSuffix'
 import StyledMenuSectionLabel from '../../styles/StyledMenuSectionLabel'
 import StyledVerticalMenuSection from '../../styles/vertical/StyledVerticalMenuSection'
 
+import { menuTokens } from '@cap/theme'
+
 export type MenuSectionProps = Partial<ChildrenType> &
   RootStylesType & {
     label: React.ReactNode
@@ -58,7 +60,7 @@ const MenuSection: React.ForwardRefRenderFunction<HTMLLIElement, MenuSectionProp
   const getMenuSectionStyles = (element: MenuSectionElement): CSSObject | undefined => {
     // If the menuSectionStyles prop is provided, get the styles for the element from the prop
     if (menuSectionStyles) {
-      return menuSectionStyles[element]
+      return menuSectionStyles[element] as any
     }
   }
 

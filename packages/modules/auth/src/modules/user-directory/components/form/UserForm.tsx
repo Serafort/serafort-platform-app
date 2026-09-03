@@ -22,7 +22,7 @@ import 'react-phone-input-2/lib/style.css'
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { cinInput } from "@auth/authentication-core/components/form/InputCustom"
+import { cinInput } from '@auth/authentication-core/components/form/InputCustom'
 
 export default function UserForm({
   data,
@@ -412,5 +412,3 @@ export default function UserForm({
     </div>
   )
 }
-
-

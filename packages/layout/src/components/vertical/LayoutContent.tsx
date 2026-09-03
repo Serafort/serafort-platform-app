@@ -1,5 +1,6 @@
-import type { ChildrenType } from '@cap/platform-core'
-import { useSettings } from '@cap/platform-core'
+import type { ChildrenType } from '@cap/shared-types'
+import { useSettings } from '@cap/platform-store'
+import { ErrorBoundary } from '@cap/theme'
 import { verticalLayoutClasses } from '../../utils/layoutClasses'
 import StyledMain from '../../styles/shared/StyledMain'
 import classnames from 'classnames'
@@ -15,6 +16,9 @@ const LayoutContent = ({ children }: ChildrenType) => {
 
   return (
     <StyledMain
+      id='main-content'
+      tabIndex={-1}
+      role='main'
       isContentCompact={contentCompact}
       layoutPadding={layoutPadding}
       compactContentWidth={compactContentWidth}
@@ -29,9 +33,10 @@ const LayoutContent = ({ children }: ChildrenType) => {
       style={{
         flex: '1 1 auto',
         inlineSize: '100%',
+        outline: 'none',
       }}
     >
-      {children}
+      <ErrorBoundary>{children}</ErrorBoundary>
     </StyledMain>
   )
 }

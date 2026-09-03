@@ -1,14 +1,25 @@
-﻿import React, { ReactNode, useCallback, useState } from 'react'
+import React, { ReactNode, useCallback, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
+  Avatar,
   Box,
+  Button,
   ClickAwayListener,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Fade,
+  FormControl,
   IconButton,
+  InputLabel,
+  MenuItem,
   Paper,
   Popper,
+  Select,
+  TextField,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -24,8 +35,11 @@ import Person from '@mui/icons-material/Person'
 import People from '@mui/icons-material/People'
 import DesktopWindows from '@mui/icons-material/DesktopWindows'
 import Settings from '@mui/icons-material/Settings'
-import { useSettings, themeConfig, i18n as i18nConfig } from '@cap/platform-core'
-import CustomAvatar from '@cap/module-auth/modules/user-directory/components/CustomAvatar'
+import LinkIcon from '@mui/icons-material/Link'
+import { useSettings } from '@cap/platform-store'
+import { buildLayoutSurfaceEffect } from '../../utils/buildLayoutSurfaceEffect'
+import { themeConfig, zIndexScale, dropdownTokens, getTenantThemeEffects } from '@cap/theme'
+import { i18n as i18nConfig, getSearchItems } from '@cap/platform-core'
 
 export type ShortcutsType = {
   url: string
@@ -49,17 +63,21 @@ const getShortcutIcon = (icon: string | ReactNode): ReactNode => {
   if (icon === 'tabler-device-desktop-analytics') return <DesktopWindows fontSize='small' />
   if (icon === 'tabler-settings') return <Settings fontSize='small' />
 
-  return <i className={icon} />
+  return <LinkIcon fontSize='small' />
 }
 
 const ScrollWrapper = ({ children, hidden }: { children: ReactNode; hidden: boolean }) => {
   if (hidden) {
-    return <Box sx={{ overflowX: 'hidden', maxBlockSize: 434 }}>{children}</Box>
+    return (
+      <Box sx={{ overflowX: 'hidden', maxBlockSize: dropdownTokens.shortcuts.maxBlockSize }}>
+        {children}
+      </Box>
+    )
   } else {
     return (
       <PerfectScrollbar
         options={{ wheelPropagation: false, suppressScrollX: true }}
-        style={{ maxBlockSize: 434 }}
+        style={{ maxBlockSize: dropdownTokens.shortcuts.maxBlockSize }}
       >
         {children}
       </PerfectScrollbar>
@@ -71,12 +89,23 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
   // States
   const [open, setOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [addedShortcuts, setAddedShortcuts] = useState<ShortcutsType[]>([])
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [selectedSearchItem, setSelectedSearchItem] = useState<string>('')
+  const [customTitle, setCustomTitle] = useState('')
+  const [customUrl, setCustomUrl] = useState('')
+
+  const shortcutsList = useMemo(() => {
+    return [...addedShortcuts, ...shortcuts]
+  }, [addedShortcuts, shortcuts])
+
+  const searchItems = useMemo(() => getSearchItems(), [])
 
   // Hooks
   const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'))
   const isSmallScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
   const { settings } = useSettings()
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const locale = i18n.language
 
   const handleClose = useCallback(() => {
@@ -88,9 +117,30 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
     setOpen((prevOpen) => !prevOpen)
   }, [])
 
+  const handleOpenAddDialog = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setAddDialogOpen(true)
+  }
+
+  const handleAddShortcut = () => {
+    if (!customTitle || !customUrl) return
+    const found = searchItems.find((s) => s.url === customUrl || s.id === selectedSearchItem)
+    const newShortcut: ShortcutsType = {
+      url: customUrl,
+      icon: found?.icon || 'tabler-link',
+      title: customTitle,
+      subtitle: customUrl,
+    }
+    setAddedShortcuts((prev) => [newShortcut, ...prev])
+    setCustomTitle('')
+    setCustomUrl('')
+    setSelectedSearchItem('')
+    setAddDialogOpen(false)
+  }
+
   return (
     <>
-      <IconButton onClick={handleToggle} sx={{ color: 'text.primary' }}>
+      <IconButton onClick={handleToggle} aria-label='Open shortcuts' sx={{ color: 'text.primary' }}>
         <GridView />
       </IconButton>
       <Popper
@@ -99,9 +149,9 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
         placement='bottom-end'
         anchorEl={anchorEl}
         sx={{
-          zIndex: 1,
-          marginBlockStart: 3,
-          inlineSize: isSmallScreen ? '100%' : 384,
+          zIndex: zIndexScale.dropdown,
+          marginBlockStart: dropdownTokens.notifications.popperMarginBlockStart,
+          inlineSize: isSmallScreen ? '100%' : dropdownTokens.notifications.popperInlineSizeDesktop,
         }}
         {...(isSmallScreen && {
           modifiers: [
@@ -120,11 +170,15 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
             style={{ transformOrigin: placement === 'bottom-end' ? 'right top' : 'left top' }}
           >
             <Paper
-              sx={{
+              className='animate-scale-in'
+              sx={(theme: any) => ({
+                borderRadius: dropdownTokens.dropdownPopper.paperBorderRadius,
+                overflow: 'hidden',
+                ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
                 ...(settings.skin === 'bordered'
-                  ? { border: 1, boxShadow: 'none' }
-                  : { boxShadow: 'var(--mui-customShadows-lg)' }),
-              }}
+                  ? { border: '1px solid ' + theme.palette.divider, boxShadow: 'none' }
+                  : {}),
+              })}
             >
               <ClickAwayListener onClickAway={handleClose}>
                 <Box>
@@ -133,17 +187,17 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      paddingBlock: 3,
-                      paddingInline: 4,
+                      paddingBlock: dropdownTokens.notifications.headerPaddingBlock,
+                      paddingInline: dropdownTokens.notifications.headerPaddingInline,
                       width: '100%',
                       gap: 2,
                     }}
                   >
                     <Typography variant='h6' sx={{ flex: '1 1 auto' }}>
-                      Shortcuts
+                      {t('navigation.shortcuts')}
                     </Typography>
                     <Tooltip
-                      title='Add Shortcut'
+                      title={t('navigation.addShortcut')}
                       placement={placement === 'bottom-end' ? 'left' : 'right'}
                       slotProps={{
                         popper: {
@@ -158,7 +212,11 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
                         },
                       }}
                     >
-                      <IconButton size='small' sx={{ color: 'text.primary' }}>
+                      <IconButton
+                        onClick={handleOpenAddDialog}
+                        size='small'
+                        sx={{ color: 'text.primary' }}
+                      >
                         <Add fontSize='small' />
                       </IconButton>
                     </Tooltip>
@@ -168,10 +226,10 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
                     <Box
                       sx={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        gridTemplateColumns: dropdownTokens.shortcuts.gridColumns,
                       }}
                     >
-                      {shortcuts.map((shortcut, index) => (
+                      {shortcutsList.map((shortcut, index) => (
                         <Box
                           key={index}
                           sx={{
@@ -181,11 +239,14 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
                             },
                             // Vertical border for odd items (left column)
                             ...(index % 2 === 0 && {
-                              borderInlineEnd: '1px solid var(--mui-palette-divider)',
+                              borderInlineEnd: 1,
+                              borderInlineEndColor: 'divider',
                             }),
                             // Horizontal border for all except last row
-                            ...(index < shortcuts.length - (shortcuts.length % 2 === 0 ? 2 : 1) && {
-                              borderBlockEnd: '1px solid var(--mui-palette-divider)',
+                            ...(index <
+                              shortcutsList.length - (shortcutsList.length % 2 === 0 ? 2 : 1) && {
+                              borderBlockEnd: 1,
+                              borderBlockEndColor: 'divider',
                             }),
                           }}
                         >
@@ -197,20 +258,22 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
                               display: 'flex',
                               alignItems: 'center',
                               flexDirection: 'column',
-                              padding: 6,
-                              gap: 3,
+                              padding: dropdownTokens.shortcuts.itemPadding,
+                              gap: dropdownTokens.shortcuts.itemGap,
                               blockSize: '100%',
                               textDecoration: 'none',
                             }}
                           >
-                            <CustomAvatar
-                              size={50}
-                              skin='light-static'
-                              color='secondary'
-                              sx={{ color: 'text.primary' }}
+                            <Avatar
+                              sx={{
+                                width: dropdownTokens.shortcuts.avatarWidth,
+                                height: dropdownTokens.shortcuts.avatarHeight,
+                                bgcolor: 'action.selected',
+                                color: 'text.primary',
+                              }}
                             >
                               {getShortcutIcon(shortcut.icon)}
-                            </CustomAvatar>
+                            </Avatar>
                             <Box
                               sx={{
                                 display: 'flex',
@@ -237,8 +300,88 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
           </Fade>
         )}
       </Popper>
+
+      {/* Add Shortcut Interactive Dialog */}
+      <Dialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        maxWidth='xs'
+        fullWidth
+        PaperProps={{
+          sx: (theme: any) => ({
+            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+          }),
+        }}
+      >
+        <DialogTitle>{t('navigation.addShortcut')}</DialogTitle>
+        <DialogContent
+          sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: '16px !important' }}
+        >
+          <FormControl fullWidth size='small'>
+            <InputLabel id='select-shortcut-page-label'>{t('navigation.selectPage')}</InputLabel>
+            <Select
+              labelId='select-shortcut-page-label'
+              value={selectedSearchItem}
+              label={t('navigation.selectPage')}
+              onChange={(e) => {
+                const val = e.target.value
+                setSelectedSearchItem(val)
+                const found = searchItems.find((s) => s.url === val || s.id === val)
+                if (found) {
+                  const rawName = found.name || ''
+                  const cleanNameKey = rawName.replace(/^navigation\./, '')
+                  const translatedName = t(rawName, {
+                    defaultValue: t(`navigation.${cleanNameKey}`, { defaultValue: rawName }),
+                  })
+                  setCustomTitle(translatedName)
+                  setCustomUrl(found.url)
+                }
+              }}
+            >
+              {searchItems.map((item) => {
+                const rawName = item.name || ''
+                const cleanNameKey = rawName.replace(/^navigation\./, '')
+                const translatedName = t(rawName, {
+                  defaultValue: t(`navigation.${cleanNameKey}`, { defaultValue: rawName }),
+                })
+                return (
+                  <MenuItem key={item.id} value={item.url}>
+                    {translatedName} ({item.url})
+                  </MenuItem>
+                )
+              })}
+            </Select>
+          </FormControl>
+          <TextField
+            label={t('navigation.shortcutTitle')}
+            size='small'
+            fullWidth
+            value={customTitle}
+            onChange={(e) => setCustomTitle(e.target.value)}
+          />
+          <TextField
+            label={t('navigation.shortcutUrl')}
+            size='small'
+            fullWidth
+            value={customUrl}
+            onChange={(e) => setCustomUrl(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddDialogOpen(false)} color='secondary'>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            variant='contained'
+            disabled={!customTitle || !customUrl}
+            onClick={handleAddShortcut}
+          >
+            {t('common.add')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }
-export default ShortcutsDropdown
 
+export default ShortcutsDropdown

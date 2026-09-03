@@ -15,9 +15,12 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@cap/api-contracts": "workspace:*",
     "@cap/shared-types": "workspace:*",
+    "@cap/theme": "workspace:*",
     "@tanstack/react-query": "^5.67.1",
     "crypto-js": "^4.2.0",
+    "comlink": "^4.4.2",
     "date-fns": "^4.1.0",
     "idb": "^8.0.2",
     "zustand": "^5.0.9"
@@ -33,7 +36,7 @@
     "@types/node": "^24.10.4",
     "@vitejs/plugin-react": "^5.1.4",
     "@vitest/coverage-v8": "^4.0.16",
-    "typescript": "^7.0.2",
+    "typescript": "~5.9.3",
     "vitest": "^4.0.16"
   }
 }

@@ -6,6 +6,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { HttpMethodEnum, OptimisticUpdateTypeEnum } from '@cap/shared-types'
 import {
   HttpError,
   FetchResponse,
@@ -246,16 +247,16 @@ function useOptimisticUpdates(entityType?: string) {
  */
 function getMethodForUpdateType(type: OptimisticUpdateType): string {
   switch (type) {
-    case 'create':
-      return 'POST'
-    case 'update':
-      return 'PUT'
-    case 'delete':
-      return 'DELETE'
-    case 'custom':
-      return 'POST'
+    case OptimisticUpdateTypeEnum.CREATE:
+      return HttpMethodEnum.POST
+    case OptimisticUpdateTypeEnum.UPDATE:
+      return HttpMethodEnum.PUT
+    case OptimisticUpdateTypeEnum.DELETE:
+      return HttpMethodEnum.DELETE
+    case OptimisticUpdateTypeEnum.CUSTOM:
+      return HttpMethodEnum.POST
     default:
-      return 'POST'
+      return HttpMethodEnum.POST
   }
 }
 

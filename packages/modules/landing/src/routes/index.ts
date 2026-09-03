@@ -1,2 +1,2 @@
-export { default as HomeRoutes } from './routes'
-export { default } from './routes'
+export { landingRouteConfig, landingRoutes, LandingRoutes, default } from './routes'
+export { LandingPath, Path } from './path'

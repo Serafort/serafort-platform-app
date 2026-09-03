@@ -1,13 +1,62 @@
-import React, { useState, useRef } from 'react';
-import { Box, Typography, Grid, Card, CardContent, TextField, Button, Avatar, alpha, useTheme, Stack, Switch, Divider, Tabs, Tab, Chip, CircularProgress, Alert, FormControlLabel, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { Save, Business, Palette, Security, Language, ArrowBack, Info, Mail, Groups } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
-import { Path } from '@cap/module-auth/routes/path';
+import React, { useState, useRef } from 'react'
+import {
+  Box,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  TextField,
+  Button,
+  Avatar,
+  alpha,
+  useTheme,
+  Stack,
+  Switch,
+  Divider,
+  Tabs,
+  Tab,
+  Chip,
+  CircularProgress,
+  Alert,
+  FormControlLabel,
+  InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '@mui/material'
+import Save from '@mui/icons-material/Save'
+import Business from '@mui/icons-material/Business'
+import Palette from '@mui/icons-material/Palette'
+import Security from '@mui/icons-material/Security'
+import Language from '@mui/icons-material/Language'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import Info from '@mui/icons-material/Info'
+import Mail from '@mui/icons-material/Mail'
+import Groups from '@mui/icons-material/Groups'
+import CloudUpload from '@mui/icons-material/CloudUpload'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import { useTranslation } from 'react-i18next'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { Path } from '@cap/module-auth/routes/path'
 
-import { useOrganization, useUpdateOrganization, useVerifyDomain, useUploadOrganizationLogo, adminKeys } from '@idaas/authentication-core/hooks/useAdminQuery';
-import { useQueryClient } from '@tanstack/react-query';
+import {
+  useOrganization,
+  useUpdateOrganization,
+  useVerifyDomain,
+  useUploadOrganizationLogo,
+  adminKeys,
+} from '@idaas/authentication-core/hooks/useAdminQuery'
+import { useQueryClient } from '@tanstack/react-query'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -29,7 +78,6 @@ export default function OrganizationProfile() {
   const { t } = useTranslation('common')
   const navigate = useNavigate()
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
   const { id } = useParams()
   const [tab, setTab] = useState(0)
 
@@ -89,10 +137,10 @@ export default function OrganizationProfile() {
       },
       {
         onSuccess: () => {
-          enqueueSnackbar(t('auth.admin.successUpdateOrg'), { variant: 'success' })
+          toast.success(t('auth.admin.successUpdateOrg'))
         },
         onError: (error: any) => {
-          enqueueSnackbar(error.message || t('auth.admin.errorUpdateOrg'), { variant: 'error' })
+          toast.error(error.message || t('auth.admin.errorUpdateOrg'))
         },
       },
     )
@@ -103,9 +151,7 @@ export default function OrganizationProfile() {
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 50 * 1024) {
-      enqueueSnackbar(t('auth.admin.logoTooLarge') || 'PNG, SVG or WebP â€“ max 50 KB', {
-        variant: 'error',
-      })
+      toast.error(t('auth.admin.logoTooLarge') || 'PNG, SVG or WebP â€“ max 50 KB')
       return
     }
 
@@ -114,10 +160,10 @@ export default function OrganizationProfile() {
       {
         onSuccess: (response) => {
           setFormData((prev: any) => ({ ...prev, logo_url: response.data.logo_url }))
-          enqueueSnackbar(t('auth.admin.logoUploaded'), { variant: 'success' })
+          toast.success(t('auth.admin.logoUploaded'))
         },
         onError: (err: any) => {
-          enqueueSnackbar(err.message || t('auth.admin.logoUploadFailed'), { variant: 'error' })
+          toast.error(err.message || t('auth.admin.logoUploadFailed'))
         },
       },
     )
@@ -133,15 +179,13 @@ export default function OrganizationProfile() {
       { domain: pendingDomain.trim() },
       {
         onSuccess: () => {
-          enqueueSnackbar(`${t('auth.admin.startedVerification')} ${pendingDomain}`, {
-            variant: 'success',
-          })
+          toast.success(`${t('auth.admin.startedVerification')} ${pendingDomain}`)
           queryClient.invalidateQueries({ queryKey: adminKeys.organizations })
           setDomainDialogOpen(false)
           setPendingDomain('')
         },
         onError: (err: any) => {
-          enqueueSnackbar(err.message || t('auth.admin.failedVerifyDomain'), { variant: 'error' })
+          toast.error(err.message || t('auth.admin.failedVerifyDomain'))
         },
       },
     )
@@ -307,13 +351,12 @@ export default function OrganizationProfile() {
               }}
             >
               <Card
-                className='glass-effect'
-                sx={{
-                  bgcolor: 'transparent',
-                  boxShadow: 'none',
+                sx={(theme: any) => ({
                   width: '100%',
                   mb: 3,
-                }}
+                  border: '1px solid ' + theme.palette.divider,
+                  ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+                })}
               >
                 <CardContent sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
@@ -521,12 +564,11 @@ export default function OrganizationProfile() {
               {process.env.NODE_ENV === 'development' && (
                 <Box sx={{ width: '100%' }}>
                   <Card
-                    className='glass-effect'
-                    sx={{
-                      bgcolor: 'transparent',
-                      boxShadow: 'none',
+                    sx={(theme: any) => ({
                       mt: 3,
-                    }}
+                      border: '1px solid ' + theme.palette.divider,
+                      ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+                    })}
                   >
                     <CardContent sx={{ p: 3 }}>
                       <Typography
@@ -566,11 +608,10 @@ export default function OrganizationProfile() {
           {/* Side Panel */}
           <Grid size={{ xs: 12, md: 4 }}>
             <Card
-              className='glass-effect'
-              sx={{
-                bgcolor: 'transparent',
-                boxShadow: 'none',
-              }}
+              sx={(theme: any) => ({
+                border: '1px solid ' + theme.palette.divider,
+                ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+              })}
             >
               <CardContent sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -664,13 +705,12 @@ export default function OrganizationProfile() {
             }}
           >
             <Card
-              className='glass-effect'
-              sx={{
-                bgcolor: 'transparent',
+              sx={(theme: any) => ({
                 borderRadius: 4,
-                boxShadow: 'none',
                 height: '100%',
-              }}
+                border: '1px solid ' + theme.palette.divider,
+                ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+              })}
             >
               <CardContent sx={{ p: 3 }}>
                 <Typography
@@ -914,23 +954,23 @@ export default function OrganizationProfile() {
                       'Manage IP restrictions, MFA enforcement logic, and granular access rules.'}
                   </Typography>
                 </Box>
-                  <Button
-                    variant='outlined'
-                    color='info'
-                    size='small'
-                    startIcon={<Security />}
-                    onClick={() => {
-                      const numericId = Number(id)
-                      if (!id || id === 'NaN' || isNaN(numericId) || numericId <= 0) {
-                        enqueueSnackbar(t('auth.admin.invalidOrgId', 'Invalid organization ID for navigation'), { variant: 'error' })
-                        return
-                      }
-                      navigate(Path.admin.policies.replace(':id', id))
-                    }}
-                    sx={{ fontWeight: 700, borderRadius: 2 }}
-                  >
-                    {t('auth.admin.managePolicies') || 'Manage Policies'}
-                  </Button>
+                <Button
+                  variant='outlined'
+                  color='info'
+                  size='small'
+                  startIcon={<Security />}
+                  onClick={() => {
+                    const numericId = Number(id)
+                    if (!id || id === 'NaN' || isNaN(numericId) || numericId <= 0) {
+                      toast(t('auth.admin.invalidOrgId', 'Invalid organization ID for navigation'))
+                      return
+                    }
+                    navigate(Path.admin.policies.replace(':id', id))
+                  }}
+                  sx={{ fontWeight: 700, borderRadius: 2 }}
+                >
+                  {t('auth.admin.managePolicies') || 'Manage Policies'}
+                </Button>
               </Box>
             </Stack>
           </CardContent>
@@ -938,7 +978,13 @@ export default function OrganizationProfile() {
       </TabPanel>
 
       <TabPanel value={tab} index={3}>
-        <Card className='glass-effect' sx={{ borderRadius: 4, boxShadow: 'none' }}>
+        <Card
+          sx={(theme: any) => ({
+            borderRadius: 4,
+            border: '1px solid ' + theme.palette.divider,
+            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+          })}
+        >
           <CardContent sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
               <Typography variant='h6' sx={{ fontWeight: 800, textTransform: 'uppercase' }}>
@@ -1031,7 +1077,13 @@ export default function OrganizationProfile() {
       </TabPanel>
 
       <TabPanel value={tab} index={4}>
-        <Card className='glass-effect' sx={{ borderRadius: 4, boxShadow: 'none' }}>
+        <Card
+          sx={(theme: any) => ({
+            borderRadius: 4,
+            border: '1px solid ' + theme.palette.divider,
+            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+          })}
+        >
           <CardContent sx={{ p: 3 }}>
             <Box
               sx={{ display: 'flex', justifyContent: 'space-between', mb: 4, alignItems: 'center' }}
@@ -1048,7 +1100,13 @@ export default function OrganizationProfile() {
               </Button>
             </Box>
 
-            <TableContainer className='glass-effect' sx={{ borderRadius: 3, boxShadow: 'none' }}>
+            <TableContainer
+              sx={(theme: any) => ({
+                borderRadius: 3,
+                border: '1px solid ' + theme.palette.divider,
+                ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+              })}
+            >
               <Table>
                 <TableHead sx={{ bgcolor: 'action.hover' }}>
                   <TableRow>
@@ -1139,4 +1197,3 @@ export default function OrganizationProfile() {
     </Box>
   )
 }
-

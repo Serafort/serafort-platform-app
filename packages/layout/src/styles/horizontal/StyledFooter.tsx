@@ -1,43 +1,47 @@
-import type { Theme } from '@mui/material/styles'
-import styled from '@emotion/styled'
+import { styled } from '@mui/material/styles'
+import {
+  footerTokens,
+  getFooterElevationShadow,
+  getFooterBorderBlockStart,
+  getFooterZIndex,
+} from '@cap/theme'
 import type { CSSObject } from '@emotion/styled'
 import { horizontalLayoutClasses } from '../../utils/layoutClasses'
-// themeConfig values inlined to avoid circular import (layoutPadding:24, compactContentWidth:1440)
+
 type StyledFooterProps = {
-  theme: Theme
   overrideStyles?: CSSObject
   layoutPadding: string
   compactContentWidth: number
 }
 
-const StyledFooter = styled.footer<StyledFooterProps>`
-  &.${horizontalLayoutClasses.footerFixed} {
-    position: sticky;
-    inset-block-end: 0;
-    z-index: var(--footer-z-index);
-    background-color: var(--mui-palette-background-paper);
-    ${({ theme }) => `
-    box-shadow: 0 3px 12px 0px rgb(var(--mui-mainColorChannels-${theme.palette.mode}Shadow) / 0.14);
-        `}
+const StyledFooter = styled('footer')<StyledFooterProps>(
+  ({ theme, layoutPadding, compactContentWidth, overrideStyles }) => ({
+    [`&.${horizontalLayoutClasses.footerFixed}`]: {
+      position: footerTokens.positioning.sticky,
+      insetBlockEnd: footerTokens.positioning.insetBlockEnd,
+      zIndex: getFooterZIndex(theme),
+      backgroundColor: theme.palette.background.paper,
+      boxShadow: getFooterElevationShadow(theme),
 
-    [data-skin='bordered'] & {
-      box-shadow: none;
-      border-block-start: 1px solid var(--border-color);
-    }
-  }
+      '[data-skin="bordered"] &': {
+        boxShadow: footerTokens.borderedSkin.boxShadow,
+        borderBlockStart: getFooterBorderBlockStart(theme),
+      },
+    },
 
-  &.${horizontalLayoutClasses.footerContentCompact}
-    .${horizontalLayoutClasses.footerContentWrapper} {
-    margin-inline: auto;
-    max-inline-size: ${({ compactContentWidth }) => compactContentWidth}px;
-  }
+    [`&.${horizontalLayoutClasses.footerContentCompact} .${horizontalLayoutClasses.footerContentWrapper}`]:
+      {
+        marginInline: footerTokens.layout.compactMarginInline,
+        maxInlineSize: `${compactContentWidth}px`,
+      },
 
-  .${horizontalLayoutClasses.footerContentWrapper} {
-    padding-block: 16px;
-    padding-inline: ${({ layoutPadding }) => layoutPadding};
-  }
+    [`& .${horizontalLayoutClasses.footerContentWrapper}`]: {
+      paddingBlock: footerTokens.layout.paddingBlock,
+      paddingInline: layoutPadding,
+    },
 
-  ${({ overrideStyles }) => overrideStyles}
-`
+    ...(overrideStyles as any),
+  }),
+)
 
 export default StyledFooter

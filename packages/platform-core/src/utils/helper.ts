@@ -1,12 +1,35 @@
 import { differenceInYears, parseISO } from 'date-fns'
 import type { DemoName } from '../types/core-types'
 import type { SystemMode, Settings } from '@cap/shared-types'
-import themeConfig from '@cap/shared-types/theme'
+import { themeConfig } from '@cap/theme'
 import demoConfigs from '../configs/demoConfigs'
 import { getCookie, getJsonCookie } from './cookieUtils'
 
 export const isObjectEmpty = (objectName: object) => {
   return objectName && Object.keys(objectName).length === 0 && objectName.constructor === Object
+}
+
+/**
+ * Open-redirect guard for user-supplied `redirectUrl` / `returnTo` values.
+ *
+ * Returns the value only when it is a same-origin *path*: it must start with a
+ * single `/` (not `//` or `/\`), contain no scheme/authority, and contain no
+ * control characters or whitespace. Anything else (absolute URLs,
+ * protocol-relative URLs, `javascript:` payloads, header-splitting attempts)
+ * yields `null` so callers fall back to a safe default instead of navigating
+ * off-site.
+ */
+export const safeRedirectPath = (value: unknown): string | null => {
+  if (typeof value !== 'string') return null
+  const v = value.trim()
+  if (!v.startsWith('/')) return null
+  if (v.startsWith('//') || v.startsWith('/\\')) return null
+  if (/^\/[^/\\]*:/.test(v)) return null // e.g. "/http:evil"
+  for (let i = 0; i < v.length; i++) {
+    const code = v.charCodeAt(i)
+    if (code <= 0x20 || code === 0x7f) return null // control chars / whitespace
+  }
+  return v
 }
 
 export const isKeyIn = (obj: object, key: string) => {
