@@ -301,12 +301,7 @@ export function useAppealBan(
 }
 
 export function useSocialExchange(
-  options?: UseMutationOptions<
-    FetchResponse<any>,
-    HttpError,
-    { code: string },
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<any>, HttpError, { code: string }, unknown>,
 ) {
   return useMutation({
     mutationFn: ({ code }) => authService.social.exchange(code),

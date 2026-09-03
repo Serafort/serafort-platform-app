@@ -120,9 +120,9 @@ export const oidcService = {
     return apiClient.post(ENDPOINTS.auth.oidc.register, data)
   },
 
-  backchannelLogout: async (
-    data: { logout_token: string },
-  ): Promise<FetchResponse<{ message?: string }>> => {
+  backchannelLogout: async (data: {
+    logout_token: string
+  }): Promise<FetchResponse<{ message?: string }>> => {
     return apiClient.post(ENDPOINTS.auth.oidc.backchannelLogout, data)
   },
 

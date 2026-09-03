@@ -20,12 +20,7 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import {
-  FetchResponse,
-  IUserResponseEmailResetPassword,
-  secureTokenManager,
-  useAppStore,
-} from '@cap/platform-core'
+import { FetchResponse, useAppStore } from '@cap/platform-core'
 import { LiquidGlassCard } from '@cap/theme'
 import type { ResetPasswordRequest } from '../../types/api.types'
 import { useResetPassword } from '../../hooks/useAuthQuery'
@@ -40,7 +35,7 @@ import { ResetPasswordSchema, ResetPasswordSchemaType } from '../../utils/schema
 import { useActionLock } from '../../hooks/useActionLock'
 import Path from '../path'
 
-const SUPPORT_EMAIL = 'support@example.com'
+const SUPPORT_EMAIL = 'support@serafort.com'
 
 export default function ResetPassword() {
   const { t } = useTranslation('auth')
@@ -104,7 +99,7 @@ export default function ResetPassword() {
         } else {
           setSignatureError(
             response.data?.message ||
-              t('resetPassword.linkExpired', 'The password reset link has expired or is invalid.'),
+            t('resetPassword.linkExpired', 'The password reset link has expired or is invalid.'),
           )
         }
       } catch (err: any) {
@@ -112,8 +107,8 @@ export default function ResetPassword() {
         setLoading(false)
         setSignatureError(
           err.response?.data?.message ||
-            err.response?.data?.detail ||
-            t('resetPassword.verificationFailed', 'Failed to verify reset link.'),
+          err.response?.data?.detail ||
+          t('resetPassword.verificationFailed', 'Failed to verify reset link.'),
         )
       }
     }
@@ -139,9 +134,9 @@ export default function ResetPassword() {
     onError: (err: any) => {
       setError(
         err.response?.data?.detail ||
-          err.response?.data?.message ||
-          err.message ||
-          t('resetPassword.errorGeneric', 'An error occurred. Please try again.'),
+        err.response?.data?.message ||
+        err.message ||
+        t('resetPassword.errorGeneric', 'An error occurred. Please try again.'),
       )
     },
   })

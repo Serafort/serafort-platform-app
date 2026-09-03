@@ -189,9 +189,7 @@ export const LockedStep: React.FC<LockedStepProps> = ({
               <Button
                 type='submit'
                 variant='contained'
-                disabled={
-                  appealMutation.isPending || !appealEmail.trim() || !appealReason.trim()
-                }
+                disabled={appealMutation.isPending || !appealEmail.trim() || !appealReason.trim()}
                 sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 700 }}
               >
                 {appealMutation.isPending ? (

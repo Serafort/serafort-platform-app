@@ -283,8 +283,7 @@ export function useVerifyMfaInteraction(
   >,
 ) {
   return useMutation({
-    mutationFn: (data: OIDCMfaVerifyDTO) =>
-      oidcService.verifyMfaInteraction(uid || '', data),
+    mutationFn: (data: OIDCMfaVerifyDTO) => oidcService.verifyMfaInteraction(uid || '', data),
     ...options,
   })
 }
