@@ -81,8 +81,7 @@ class IdaasFacadeImpl implements IIdaasFacade {
     logout: () => authenticationService.signout(),
     forgotPassword: (request: IForgetPassword) => authenticationService.forgotPassword(request),
     resetPassword: (request: IResetPassword) => authenticationService.resetPassword(request),
-    verifyEmail: (request: VerifyEmailRequest) =>
-      authenticationService.verifyEmail(request.search),
+    verifyEmail: (request: VerifyEmailRequest) => authenticationService.verifyEmail(request.search),
     resendVerification: (request: ResendVerificationRequest) =>
       authenticationService.resendVerification(request.email),
   }

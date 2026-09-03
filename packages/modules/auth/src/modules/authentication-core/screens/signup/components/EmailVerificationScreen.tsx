@@ -107,7 +107,7 @@ export default function EmailVerificationScreen() {
     return () => {
       isMounted = false
     }
-  }, [targetEmail, signature, t, navigate])
+  }, [targetEmail, signature, location.search, t, navigate])
 
   if (verifying) {
     return (

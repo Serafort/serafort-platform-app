@@ -35,6 +35,7 @@ import { ENDPOINTS } from '@cap/platform-core'
 
 import { QUERY_KEYS } from '../services/query'
 import authService from '../services/auth.service'
+import { normalizeAuthUser } from '../utils/normalizeAuthUser'
 import { useAuthStore } from '../store'
 
 // ============================================================================
@@ -98,8 +99,11 @@ export function useSignin(
           expiresAt,
         })
 
-        // Extract user data - backend might return user data directly or in a 'user' field
-        const userData = body.user || body
+        // Extract user data - backend might return user data directly or in a
+        // 'user' field. Normalising also derives a single `role` from the
+        // `roles` array that /api/v1/auth/login returns, which the layout's
+        // role checks and the post-login redirect both read.
+        const userData = normalizeAuthUser<any>(body.user || body)
 
         // Normalize user role if it's an object for compatibility with layout role checks
         if (userData && typeof userData.role === 'object' && userData.role !== null) {

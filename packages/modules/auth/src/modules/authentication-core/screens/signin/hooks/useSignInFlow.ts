@@ -17,6 +17,7 @@ import { LoginRequest } from '../../../types/api.types'
 import { LoginSchema } from '../../../utils/schema'
 import { useActionLock } from '../../../hooks/useActionLock'
 import { resolveRedirectPathForUser } from '../../../utils/resolveRedirect'
+import { normalizeAuthUser } from '../../../utils/normalizeAuthUser'
 
 // [SECURITY] F-09: previously pre-filled from VITE_DEV_LOGIN_EMAIL/PASSWORD.
 // The `import.meta.env.DEV` guard here only compiled out this *usage* in
@@ -144,7 +145,10 @@ export function useSignInFlow() {
         msg: t('auth.login.login_successful', 'Login successful!'),
       })
 
-      const userData = response?.data?.user || response?.data
+      // /api/v1/auth/login describes the user with a `roles` array of names and
+      // carries no `role` field. Normalising first derives one, so the redirect
+      // does not silently fall through to the default for every user.
+      const userData = normalizeAuthUser<any>(body?.user ?? body)
       const userRole = userData?.role as unknown as Roles | undefined
       const redirectPath = resolveRedirectPathForUser(userRole)
 
