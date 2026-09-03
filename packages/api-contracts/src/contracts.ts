@@ -360,8 +360,7 @@ export const API_CONTRACTS = {
     verifyEmail: defineEndpoint({
       id: "auth.verifyEmail",
       method: "POST",
-      resolve: (signature?: string) => ENDPOINTS.auth.verifyEmail(signature),
-      request: contractType<{ email: string; token?: string; signature?: string }>(),
+      resolve: (search?: string) => ENDPOINTS.auth.verifyEmail(search),
       response: contractType<
         ApiResponse<{
           message: string;

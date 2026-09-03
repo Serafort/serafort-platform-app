@@ -185,12 +185,16 @@ const authService = {
   },
 
   /**
-   * Verify an email address from a mailed link. The signature stays in the query
-   * string because the backend validates it against the request URL; the address
-   * travels in the body so it never appears in a URL path.
+   * Verify an email address from a mailed link.
+   *
+   * Takes the link's query string verbatim — `location.search`, signature and
+   * all. The backend signs that query including the address and validates it
+   * against the request URL, so it is what says which address is being verified;
+   * passing the address separately in the body would not be covered by the
+   * signature and is ignored.
    */
-  verifyEmail: (email: string, signature: string): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.auth.verifyEmail(signature), { email, signature })
+  verifyEmail: (search: string): Promise<FetchResponse<any>> => {
+    return apiClient.post(ENDPOINTS.auth.verifyEmail(search))
   },
 
   /**

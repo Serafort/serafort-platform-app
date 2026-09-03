@@ -34,18 +34,18 @@ export const API_ENDPOINTS = {
     session: "/api/auth/session",
     csrfToken: "/api/auth/csrf-token",
     /**
-     * Verify an email address. POST, with the address in the body — the old
-     * `GET /verification/email/:email` was removed because it put the address in
-     * the URL path, where it leaks into logs and referrers (backend finding H-9).
+     * Verify an email address. POST — the old `GET /verification/email/:email`
+     * was removed because it put the address in the URL path, where it leaks
+     * into logs and referrers (backend finding H-9).
      *
-     * A signature from a mailed verification link stays in the query string:
-     * the backend validates it against the request URL, so it cannot move into
-     * the body. Codes entered by hand travel in the body as `token` instead.
+     * Takes the query string from the mailed link and forwards it unchanged.
+     * The backend signs that query — the address included — and validates the
+     * signature against the request URL, so it identifies the address being
+     * verified and cannot be rebuilt from parts or moved into the body without
+     * breaking the signature.
      */
-    verifyEmail: (signature?: string) =>
-      signature
-        ? `/api/auth/verification/email/verify?signature=${signature}`
-        : "/api/auth/verification/email/verify",
+    verifyEmail: (search?: string) =>
+      `/api/auth/verification/email/verify${search ?? ""}`,
     verifyResetPassword: (email: string | number, signature: string | number) => {
       const sigStr = String(signature ?? "");
       const query = sigStr.startsWith("?")

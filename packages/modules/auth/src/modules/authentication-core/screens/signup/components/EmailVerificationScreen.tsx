@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams, useLocation, Link } from 'react-router-dom'
 import {
   Box,
   Button,
@@ -32,6 +32,7 @@ export default function EmailVerificationScreen() {
   const navigate = useNavigate()
   const params = useParams<{ email?: string }>()
   const [searchParams] = useSearchParams()
+  const location = useLocation()
 
   const targetEmail = useMemo(() => {
     const raw = params.email || searchParams.get('email') || ''
@@ -68,7 +69,11 @@ export default function EmailVerificationScreen() {
 
       try {
         if (isMounted) setVerifying(true)
-        const res = await authService.verifyEmail(targetEmail, signature)
+        // Forward the link's query string exactly as it arrived. The backend
+        // signature covers it verbatim, so re-serialising it here — via
+        // searchParams.toString(), say — could reorder or re-encode a
+        // parameter and read as a tampered link.
+        const res = await authService.verifyEmail(location.search)
 
         if (!isMounted) return
         setVerifying(false)

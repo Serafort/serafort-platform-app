@@ -266,12 +266,12 @@ export function useVerifyEmail(
   options?: UseMutationOptions<
     FetchResponse<VerifyEmailResponse>,
     HttpError,
-    { email: string; signature: string },
+    { search: string },
     unknown
   >,
 ) {
   return useMutation({
-    mutationFn: ({ email, signature }) => authService.verifyEmail(email, signature),
+    mutationFn: ({ search }) => authService.verifyEmail(search),
     ...options,
   })
 }
@@ -291,14 +291,13 @@ export function useResendVerification(
 }
 
 export function useVerifyEmailToken(
-  email: string,
-  signature: string,
+  search: string,
   options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
-    queryKey: ['auth', 'verify-email-token', email, signature],
-    queryFn: () => authService.verifyEmail(email, signature),
-    enabled: !!email && !!signature,
+    queryKey: ['auth', 'verify-email-token', search],
+    queryFn: () => authService.verifyEmail(search),
+    enabled: !!search,
     retry: false,
     ...options,
   })

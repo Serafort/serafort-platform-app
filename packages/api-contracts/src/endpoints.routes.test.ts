@@ -93,26 +93,36 @@ const KNOWN_UNWIRED = new Set([
 interface RegistryPath {
   /** Dotted key into API_ENDPOINTS, e.g. "auth.mfa.setup" — names the failure. */
   key: string;
-  path: string;
+  /**
+   * Every shape this leaf can resolve to. A plain string leaf has one. A builder
+   * has two, because its arguments are not all the same kind of thing: most
+   * interpolate a value into the path, so `(id) => \`/api/user/tokens/${id}\``
+   * has to compare against `/api/user/tokens/:id`, but some take a whole query
+   * string to append, and those only match once the argument is empty. Matching
+   * on either shape keeps both kinds honest without the registry having to
+   * declare which is which.
+   */
+  candidates: string[];
 }
 
-/**
- * Walk the registry and resolve every leaf to a concrete path. Builder leaves are
- * invoked with placeholders, so `(id) => \`/api/user/tokens/${id}\`` resolves the
- * same shape the backend declares as `/api/user/tokens/:id`.
- */
+function resolveLeaf(value: string | ((...a: unknown[]) => string)): string[] {
+  if (typeof value === "string") return [value];
+  const withParams = Array.from({ length: value.length }, () => ":param");
+  const withEmpty = Array.from({ length: value.length }, () => "");
+  return [value(...withParams), value(...withEmpty)];
+}
+
+/** Walk the registry and resolve every leaf to the paths it can produce. */
 function collectRegistryPaths(
   value: unknown,
   key = "",
   acc: RegistryPath[] = [],
 ): RegistryPath[] {
-  if (typeof value === "string") {
-    acc.push({ key, path: value });
-    return acc;
-  }
-  if (typeof value === "function") {
-    const args = Array.from({ length: value.length }, () => ":param");
-    acc.push({ key, path: (value as (...a: unknown[]) => string)(...args) });
+  if (typeof value === "string" || typeof value === "function") {
+    acc.push({
+      key,
+      candidates: resolveLeaf(value as string | ((...a: unknown[]) => string)),
+    });
     return acc;
   }
   if (value !== null && typeof value === "object") {
@@ -132,7 +142,7 @@ function normalize(path: string): string {
 }
 
 const registryPaths = collectRegistryPaths(API_ENDPOINTS).filter((entry) =>
-  AUTH_SURFACE.test(normalize(entry.path)),
+  entry.candidates.some((candidate) => AUTH_SURFACE.test(normalize(candidate))),
 );
 
 const authRoutes = backendRoutes.filter((route) =>
@@ -172,8 +182,8 @@ describe("API_ENDPOINTS drift guard", () => {
 
   it("resolves every registry auth path to a route the backend serves", () => {
     const dead = registryPaths
-      .filter((entry) => !isServed(entry.path))
-      .map((entry) => `${entry.key} -> ${entry.path}`);
+      .filter((entry) => !entry.candidates.some(isServed))
+      .map((entry) => `${entry.key} -> ${entry.candidates.join(" | ")}`);
 
     expect(
       dead,
@@ -183,7 +193,9 @@ describe("API_ENDPOINTS drift guard", () => {
   });
 
   it("has no unlisted gaps in backend auth coverage", () => {
-    const covered = new Set(registryPaths.map((entry) => normalize(entry.path)));
+    const covered = new Set(
+      registryPaths.flatMap((entry) => entry.candidates.map(normalize)),
+    );
 
     const uncovered = authRoutes
       .filter((route) => {
