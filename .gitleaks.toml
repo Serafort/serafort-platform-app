@@ -14,6 +14,12 @@ paths = [
   '''(^|/)(app/)?playwright-report/''',
   '''(^|/)(app/)?test-results/''',
   '''(^|/)docs/''',
+  # Demo/mock token literals in auth UI screens (e.g. `verification_token:
+  # 'cap-verify-...'`, an example `generatedToken`). These render placeholder
+  # data; real tokens arrive at runtime from router state / the API. Matched by
+  # basename so history from before the monorepo restructure is covered too.
+  '''(^|/)DomainVerification\.tsx$''',
+  '''(^|/)APITokenDisplayUsage\.tsx$''',
 ]
 # VITE_SENTRY_DSN and similar placeholders in the example env files, plus the
 # generic "looks like a key but is a name" false positives that a monorepo full

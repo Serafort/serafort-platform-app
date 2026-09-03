@@ -188,6 +188,11 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      # codeql-action/analyze reads the workflow run over the API; without
+      # actions:read it fails on PRs with "Resource not accessible by
+      # integration" and reports a configuration error.
+      actions: read
+      packages: read
     steps:
       - uses: actions/checkout@v4
       - uses: github/codeql-action/init@v3
@@ -201,6 +206,21 @@ jobs:
       - uses: github/codeql-action/analyze@v3
         with:
           category: /language:javascript-typescript
+          # This repo is private and GitHub Advanced Security is not enabled,
+          # so uploading to the code-scanning dashboard fails with "Resource
+          # not accessible by integration". Write the SARIF locally and keep it
+          # as an artifact instead; the job still fails on analysis errors, so
+          # it remains a real merge gate. Flip back to upload: true once GHAS
+          # is enabled in Settings > Code security.
+          upload: false
+          output: codeql-results
+      - name: Upload CodeQL SARIF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-results
+          path: codeql-results
+          if-no-files-found: warn
 
   secret-scan:
     name: Secret scan (gitleaks)

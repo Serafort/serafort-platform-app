@@ -50,7 +50,8 @@
       "morgan": "^1.11.0",
       "js-yaml@^4": "^4.3.1",
       "vite": "^7.3.5",
-      "@vitest/browser": "^4.1.10"
+      "@vitest/browser": "^4.1.10",
+      "browserslist": ">=4.28.7"
     },
     "auditConfig": {
       "//": "extract-zip: no fixed release exists (advisory 'patched: <0.0.0'); reached only through the @lhci/cli > lighthouse > puppeteer-core dev chain, never shipped. js-yaml 3.x: EOL, no 3.15.1 release; reached only through @lhci/cli (dev). The blocking `audit:ci` gate runs with --prod and does not see either path.",
