@@ -14,10 +14,16 @@
  * `/api/user/*`, `/api/mfa/*`, `/api/organizations/*`, the admin tree on both
  * `/api/admin/*` and `/api/v1/admin/*`, and their `/api/v1` counterparts. The
  * product trees that merely sit behind the same auth boundary — blockchain,
- * civil registry, NFC access control, automation, backup, the anonymous guest
- * endpoints — are out of scope by `OUT_OF_SCOPE` below; they are not identity
- * routes and asserting on them would fail for reasons unrelated to what this
- * guard is meant to catch.
+ * civil registry, automation, backup, the anonymous guest endpoints — are out
+ * of scope by `OUT_OF_SCOPE` below; they are not identity routes and asserting
+ * on them would fail for reasons unrelated to what this guard is meant to
+ * catch.
+ *
+ * NFC access control was in that list until the registry gained real entries
+ * for it. It is now in scope: physical access control decides who gets through
+ * a door on the strength of a card mapped to a user, which is an identity
+ * decision, and a card-revocation route that silently 404s is exactly the class
+ * of failure this guard exists to catch.
  */
 
 import { describe, it, expect } from "vitest";
@@ -44,7 +50,7 @@ const AUTH_SURFACE =
  * all, and wiring them is a separate piece of work from this guard's subject.
  */
 const OUT_OF_SCOPE =
-  /^\/api\/(v1\/)?admin\/(backup|guest|docs|sandbox|civil-registry|contact-messages)(\/|$)|\/nfc\/|^\/api\/(v1\/)?admin\/events(\/|$)/;
+  /^\/api\/(v1\/)?admin\/(backup|guest|docs|sandbox|civil-registry|contact-messages)(\/|$)|^\/api\/(v1\/)?admin\/events(\/|$)/;
 
 /**
  * Exemptions matched on the URL rather than the Adonis route name, for the two
