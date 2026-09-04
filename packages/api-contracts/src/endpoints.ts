@@ -722,8 +722,26 @@ export const API_ENDPOINTS = {
         `/api/admin/organizations/${orgId}/nfc/cards/${cardId}`,
       accessPoints: (orgId: string | number) =>
         `/api/admin/organizations/${orgId}/nfc/access-points`,
+      accessPointById: (orgId: string | number, pointId: string | number) =>
+        `/api/admin/organizations/${orgId}/nfc/access-points/${pointId}`,
+      /**
+       * POST. Issues a new reader bearer token and invalidates the old one
+       * immediately — a reader in the field stops authenticating the moment
+       * this returns. The raw token is in the response exactly once; only its
+       * prefix is readable afterwards.
+       */
+      regenerateAccessPointToken: (
+        orgId: string | number,
+        pointId: string | number,
+      ) =>
+        `/api/admin/organizations/${orgId}/nfc/access-points/${pointId}/regenerate-token`,
       logs: (orgId: string | number) =>
         `/api/admin/organizations/${orgId}/nfc/logs`,
+      /**
+       * Called by the reader hardware, not the browser: it authenticates with
+       * the reader's bearer token in the body and carries no user session.
+       * Present here for completeness of the contract, never called by the SPA.
+       */
       scan: "/api/v1/access-control/scan",
     },
   },
@@ -883,6 +901,15 @@ export const API_QUERY_KEYS = {
       index: ["admin", "queues"] as const,
       jobs: (queue: string, state: string) =>
         ["admin", "queues", queue, "jobs", state] as const,
+    },
+    accessControl: {
+      all: ["admin", "access-control"] as const,
+      cards: (orgId: string | number, params?: unknown) =>
+        ["admin", "access-control", orgId, "cards", params] as const,
+      accessPoints: (orgId: string | number) =>
+        ["admin", "access-control", orgId, "access-points"] as const,
+      logs: (orgId: string | number, params?: unknown) =>
+        ["admin", "access-control", orgId, "logs", params] as const,
     },
     impersonationLogs: ["admin", "impersonation-logs"] as const,
     appeals: {
