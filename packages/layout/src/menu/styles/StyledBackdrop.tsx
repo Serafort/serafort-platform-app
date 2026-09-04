@@ -10,7 +10,7 @@ const StyledBackdrop = styled.div<StyledBackdropProps>`
   inset-block-start: 0;
   inset-inline-end: 0;
   inset-block-end: 0;
-  z-index: ${({ theme }: any) => (theme?.zIndex?.drawer ? theme.zIndex.drawer - 1 : 1199)};
+  z-index: 1;
   background-color: ${({ backdropColor, theme }) =>
     backdropColor || getVerticalNavBackdropColor(theme as any)};
   touch-action: none;
