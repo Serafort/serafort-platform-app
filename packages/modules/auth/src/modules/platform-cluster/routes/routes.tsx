@@ -32,6 +32,15 @@ const SecurityHealthCheck = React.lazy(() => import('../screens/monitoring/Secur
 const SystemHealthDashboard = React.lazy(
   () => import('../screens/monitoring/SystemHealthDashboard'),
 )
+const AuditChainInspector = React.lazy(() => import('../screens/monitoring/AuditChainInspector'))
+const BlockchainAnchorStatus = React.lazy(
+  () => import('../screens/monitoring/BlockchainAnchorStatus'),
+)
+const QueueTelemetryDashboard = React.lazy(
+  () => import('../screens/monitoring/QueueTelemetryDashboard'),
+)
+const AnomalyDashboard = React.lazy(() => import('../screens/monitoring/AnomalyDashboard'))
+const AlertTriageQueue = React.lazy(() => import('../screens/monitoring/AlertTriageQueue'))
 
 const BrowserNotSupported = React.lazy(() => import('../screens/system/BrowserNotSupported'))
 const CsrfErrorScreen = React.lazy(() => import('../screens/system/CsrfErrorScreen'))
@@ -61,6 +70,18 @@ export const platformClusterRouteConfig: AuthRouteConfig[] = [
   createAdminRoute(Path.monitor.real_time_v2, <RealTimeAuthEventsMonitorV2 />),
   createAdminRoute(Path.monitor.health, <SecurityHealthCheck />),
   createAdminRoute(Path.monitor.security_health, <SystemHealthDashboard />),
+
+  // Audit-chain, anchor and queue views are platform-scoped on the backend: an
+  // organization admin reaching them gets a 403 the screens render as an
+  // explanation. They stay `createAdminRoute` rather than gaining a new
+  // platform-only route guard, so the refusal is stated once, by the authority
+  // that actually enforces it, instead of being duplicated in the router where
+  // it could drift.
+  createAdminRoute(Path.monitor.auditChain, <AuditChainInspector />),
+  createAdminRoute(Path.monitor.anchors, <BlockchainAnchorStatus />),
+  createAdminRoute(Path.monitor.queues, <QueueTelemetryDashboard />),
+  createAdminRoute(Path.monitor.anomalies, <AnomalyDashboard />),
+  createAdminRoute(Path.monitor.alerts, <AlertTriageQueue />),
 
   // --- System routes (public by design: pre-auth error / status screens) ---
   { path: Path.system.browserNotSupported, element: <BrowserNotSupported />, layout: 'noLayout' },

@@ -28,12 +28,31 @@ export interface DetailedHealthResponse {
   }
 }
 
+/**
+ * What `/api/health/queue` actually returns: one dependency status for the
+ * `sync-directory` queue.
+ *
+ * The count fields below were aspirational — the endpoint has never returned
+ * them, so anything reading `waitingCount` here was reading `undefined`. They
+ * are kept optional for callers that still reference them, but the real source
+ * of job counts is `queueTelemetryService.getQueues()`.
+ */
 export interface QueueHealthResponse {
-  status: 'healthy' | 'degraded' | 'unhealthy'
-  waitingCount: number
-  activeCount: number
-  failedCount: number
-  completedCount: number
+  id?: string
+  name?: string
+  description?: string
+  status: 'healthy' | 'degraded' | 'outage' | 'unhealthy'
+  responseTime?: string
+  version?: string
+  /** @deprecated Never populated by this endpoint — use the queue telemetry API. */
+  waitingCount?: number
+  /** @deprecated Never populated by this endpoint — use the queue telemetry API. */
+  activeCount?: number
+  /** @deprecated Never populated by this endpoint — use the queue telemetry API. */
+  failedCount?: number
+  /** @deprecated Never populated by this endpoint — use the queue telemetry API. */
+  completedCount?: number
+  /** @deprecated Never populated by this endpoint — use the queue telemetry API. */
   delayedCount?: number
   latencyMs?: number
 }
@@ -77,8 +96,13 @@ const healthService = {
     return apiClient.get(ENDPOINTS.health.startup)
   },
 
+  /**
+   * Liveness for the directory-sync queue only — the backend answers a single
+   * `DependencyStatus`, not job counts. For per-queue waiting/active/failed
+   * figures use `queueTelemetryService.getQueues()`.
+   */
   getQueueStatus: (): Promise<FetchResponse<QueueHealthResponse>> => {
-    return apiClient.get<QueueHealthResponse>('/api/health/queue')
+    return apiClient.get<QueueHealthResponse>(ENDPOINTS.health.queue)
   },
 
   getSecurityHealth: (): Promise<FetchResponse<SecurityHealthResponse>> => {

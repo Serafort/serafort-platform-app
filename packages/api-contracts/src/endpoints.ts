@@ -17,6 +17,12 @@ export const API_ENDPOINTS = {
     ready: "/api/health/ready",
     detailed: "/api/health/detailed",
     startup: "/api/health/startup",
+    /**
+     * Admin-gated liveness for the directory-sync queue only — a single
+     * `DependencyStatus`, not job counts. For per-queue waiting/active/failed
+     * figures use `admin.queues.index`.
+     */
+    queue: "/api/health/queue",
   },
   metrics: {
     basic: "/api/metrics",
@@ -497,6 +503,46 @@ export const API_ENDPOINTS = {
       auditStatistics: "/api/admin/audit/statistics",
       statistics: "/api/admin/statistics/audit",
     },
+
+    /**
+     * The tamper-evident audit hash chain (backend Finding 2d / SEC-06).
+     *
+     * Distinct from `auditLogs` above, which reads the entries themselves:
+     * these describe the *integrity* of that log — the hash chain head, the
+     * checkpoint history that evidences ongoing monitoring, an on-demand
+     * verification run, and the blockchain anchor ledger.
+     *
+     * Platform-scoped on the backend: `audit_logs` is one global chain with no
+     * `organization_id`, so an organization admin (and a super-admin who pinned
+     * a tenant with `X-Tenant-ID`) gets 403 `E_PLATFORM_SCOPE_REQUIRED` rather
+     * than a partial answer. Callers must handle that.
+     */
+    auditChain: {
+      status: "/api/admin/audit/chain/status",
+      checkpoints: "/api/admin/audit/chain/checkpoints",
+      /** POST, and throttled to 5 per 5 minutes — a full walk reads every
+       *  audit row, so this is a deliberate action, not a poll. */
+      verify: "/api/admin/audit/chain/verify",
+      anchors: "/api/admin/audit/chain/anchors",
+    },
+
+    /**
+     * BullMQ queue telemetry. `health.queue` reports one up/down for the
+     * directory-sync queue; these report per-queue job counts across the whole
+     * registry and allow requeueing a failed job.
+     *
+     * Platform-scoped on the backend for the same reason as `auditChain`:
+     * queues are shared infrastructure carrying cross-tenant payloads. Job
+     * `data` is never returned.
+     */
+    queues: {
+      index: "/api/admin/queues",
+      jobs: (queue: string) => `/api/admin/queues/${queue}/jobs`,
+      retryJob: (queue: string, jobId: string | number) =>
+        `/api/admin/queues/${queue}/jobs/${jobId}/retry`,
+      retryFailed: (queue: string) =>
+        `/api/admin/queues/${queue}/retry-failed`,
+    },
     email: {
       templates: "/api/admin/email/templates",
       templateById: (id: string) => `/api/admin/email/templates/${id}`,
@@ -841,6 +887,20 @@ export const API_QUERY_KEYS = {
     auditLogs: {
       all: ["admin", "audit-logs"] as const,
       index: ["admin", "audit-logs"] as const,
+    },
+    auditChain: {
+      all: ["admin", "audit-chain"] as const,
+      status: ["admin", "audit-chain", "status"] as const,
+      checkpoints: (page: number) =>
+        ["admin", "audit-chain", "checkpoints", page] as const,
+      anchors: (params?: unknown) =>
+        ["admin", "audit-chain", "anchors", params] as const,
+    },
+    queues: {
+      all: ["admin", "queues"] as const,
+      index: ["admin", "queues"] as const,
+      jobs: (queue: string, state: string) =>
+        ["admin", "queues", queue, "jobs", state] as const,
     },
     accessControl: {
       all: ["admin", "access-control"] as const,
