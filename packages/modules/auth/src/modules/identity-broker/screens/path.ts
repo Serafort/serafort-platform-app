@@ -20,6 +20,7 @@ const Path = {
   samlSSOInitiation: '/auth/sso/login',
 
   providerSelection: '/auth/sso/select-provider',
+  caepEventConsole: '/admin/identity/shared-signals',
   ssfConfiguration: '/auth/sso/ssf-config',
 }
 export default Path

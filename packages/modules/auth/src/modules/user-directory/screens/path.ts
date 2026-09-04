@@ -16,6 +16,9 @@ const Path = {
       reset_password_dialog: '/admin/reset-password-dialog',
       list: '/admin/users',
     },
+    compliance: {
+      reports: '/admin/compliance/reports',
+    },
   },
   profile: {
     view: '/profile',
@@ -28,6 +31,8 @@ const Path = {
     delete: '/user/delete',
     email_change_status: '/user/email-change-status',
     initiate_email_change: '/user/initiate-email-change',
+    privacy: '/account/privacy',
+    erasure: '/account/privacy/erasure',
   },
 }
 export default Path

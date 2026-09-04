@@ -103,6 +103,44 @@
       "no_providers": "No SSO providers configured.",
       "secure_badge": "Secure Badge",
       "trusted_auth": "Trusted Authentication Protocol"
+    },
+    "caep": {
+      "title": "Shared signals console",
+      "subtitle": "Broadcast CAEP and RISC security events to every registered relying party, and review what has been sent.",
+      "stream_off_title": "Stream is disabled",
+      "stream_off_body": "The shared signals stream is switched off in the SSF configuration. Broadcasts are still recorded in the audit trail but no receiver is configured to act on them.",
+      "broadcast_title": "Broadcast a signal",
+      "broadcast_help": "Sent to every active OIDC client. Recorded in the audit trail with the reason you give.",
+      "event_type": "Event type",
+      "subject": "Subject",
+      "subject_help": "Who the signal is about — an identifier the receivers can resolve, such as the email or subject id.",
+      "reason": "Reason",
+      "reason_help": "Recorded in the audit trail. Write what a colleague reading this in six months would need.",
+      "broadcast": "Broadcast",
+      "test": "Send test signal",
+      "broadcast_failed": "The signal could not be broadcast. An event type and a subject are both required.",
+      "recorded_not_delivered": "Recorded — delivery simulated",
+      "broadcast_sent": "Signal broadcast",
+      "simulated_body": "The backend recorded and audited this signal, but marks each recipient as simulated: live push dispatch is not switched on, so no relying party has acted on it.",
+      "sent_body": "Sent to {{count}} registered clients.",
+      "test_sent": "Test signal recorded.",
+      "inbound_title": "Inbound signals",
+      "inbound_none_title": "Not yet receiving",
+      "inbound_none_body": "This deployment transmits shared signals but does not receive them: there is no inbound RISC/CAEP endpoint, so third-party account-compromised or account-disabled signals are not accepted or stored. An empty inspector here would read as “no incoming threats” rather than “not listening”.",
+      "history_title": "Signal history",
+      "history_help": "From the audit trail, so it records what was requested rather than what arrived.",
+      "history_empty": "No signals broadcast yet.",
+      "when": "When",
+      "kind": "Kind",
+      "kind_broadcast": "Broadcast",
+      "kind_test": "Test",
+      "recipients": "Recipients",
+      "help": {
+        "session-revoked": "Tells receivers to end the subject's sessions. Use after a compromise or a forced sign-out.",
+        "credential-change": "Tells receivers a credential changed — a password reset or a new authenticator.",
+        "account-disabled": "Tells receivers the account is disabled. Broader than a session revocation: it asks them to stop accepting the subject entirely.",
+        "risky-login": "Tells receivers a sign-in looked risky, so they can step up or re-evaluate their own session."
+      }
     }
   }
 }
