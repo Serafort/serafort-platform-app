@@ -99,8 +99,8 @@ const NavSearch = () => {
     <KBarProvider actions={searchActions}>
       <ComponentWithUseKBar
         triggerClick
-        sx={{ display: 'flex', cursor: 'pointer' }}
-        {...((settings.layout === 'horizontal' || isBreakpointReached) && {
+        sx={{ display: 'flex', flex: 1, minWidth: 0, cursor: 'pointer' }}
+        {...(isBreakpointReached && {
           icon: (
             <IconButton aria-label='Open search' sx={{ color: 'text.primary' }}>
               <Search />
@@ -108,7 +108,30 @@ const NavSearch = () => {
           ),
         })}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: searchTokens.header.gap }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: searchTokens.header.gap,
+            inlineSize: '100%',
+            paddingInline: '0.5rem 1rem',
+            // A box-shadow blurs around every edge of the shape, including
+            // left/right, no matter what the y-offset is - a border only
+            // ever renders on the edge it's named for, so it's the only way
+            // to get a shadow-like cue confined to just the bottom.
+            borderBottom: (theme) =>
+              theme.palette.mode === 'dark'
+                ? '2px solid rgba(0, 0, 0, 0.5)'
+                : '2px solid rgba(15, 23, 42, 0.12)',
+            transition: 'border-color 150ms ease',
+            '&:hover': {
+              borderBottomColor: (theme) =>
+                theme.palette.mode === 'dark'
+                  ? 'rgba(0, 0, 0, 0.7)'
+                  : 'rgba(15, 23, 42, 0.22)',
+            },
+          }}
+        >
           <IconButton aria-label='Open search' sx={{ color: 'text.primary' }}>
             <Search />
           </IconButton>

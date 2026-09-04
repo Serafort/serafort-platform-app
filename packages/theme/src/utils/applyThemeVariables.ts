@@ -144,10 +144,20 @@ export const generateThemeVariables = (
     effects["--glass-border-width"] = glass.borderWidth || "0px";
     effects["--glass-opacity"] = glass.opacity ?? 0;
 
-    // Computed glass variables
-    effects["--effect-bg"] = glassStyles.background;
-    effects["--effect-backdrop"] = glassStyles.backdropFilter;
-    effects["--effect-border"] = glassStyles.border;
+    // The --glass-* tokens above stay unconditional - they back per-component
+    // opt-in glass (e.g. a card explicitly styled as glass regardless of the
+    // active global effect). --effect-* is different: it's what every Paper/
+    // Card surface renders by default, so it must only carry glass values
+    // when glass is the *active global effect* - otherwise a tenant with
+    // glassmorphism.enabled left on from a prior preset, but a different (or
+    // no) globalType selected, would still paint every surface glassy.
+    // Mirrors the same globalType-gated pattern the brutalism/bento/organic
+    // blocks below already use for --effect-bg.
+    if (theme.effects.globalType === "glass") {
+      effects["--effect-bg"] = glassStyles.background;
+      effects["--effect-backdrop"] = glassStyles.backdropFilter;
+      effects["--effect-border"] = glassStyles.border;
+    }
   } else {
     effects["--glass-enabled"] = "0";
   }

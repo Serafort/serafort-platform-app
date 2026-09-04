@@ -3,7 +3,12 @@ import Box from '@mui/material/Box'
 import { useTheme } from '@mui/material/styles'
 import classnames from 'classnames'
 import { useTranslation } from 'react-i18next'
-import { horizontalLayoutClasses, layoutMenuTokens, getNavbarIconButtonHoverBg } from '@cap/theme'
+import {
+  horizontalLayoutClasses,
+  layoutMenuTokens,
+  getNavbarIconButtonHoverBg,
+  LayoutSwitcher,
+} from '@cap/theme'
 import HorizontalNavToggle from '../../components/horizontal/NavToggle'
 import { useHorizontalNav } from '../contexts/horizontalNavContext'
 import LanguageDropdown from '../shared/LanguageDropdown'
@@ -63,11 +68,17 @@ const NavbarContent = () => {
           display: 'flex',
           alignItems: 'center',
           gap: layoutMenuTokens.navbarContent.gap,
+          // Grows to fill the row between the logo and the right-side icon
+          // cluster, so NavSearch's own flex: 1 has room to stretch into.
+          flex: 1,
+          minWidth: 0,
         }}
       >
         <HorizontalNavToggle />
-        {/* Hide Logo on Smaller screens */}
-        {!isBreakpointReached && <Logo />}
+        {/* Hide Logo on Smaller screens. Full horizontal lockup from the brand
+            kit (mark + wordmark baked into the image, swapped for light/dark
+            by SerafortLogo itself) - no separate text span needed. */}
+        {!isBreakpointReached && <Logo variant='lockup' showText={false} iconHeight='2rem' />}
         <NavSearch />
       </Box>
 
@@ -96,6 +107,7 @@ const NavbarContent = () => {
         >
           <LanguageDropdown />
           <ModeDropdown />
+          <LayoutSwitcher />
           <ShortcutsDropdown shortcuts={shortcuts} />
           <NotificationsDropdown notifications={[]} />
         </Box>

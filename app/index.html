@@ -2,13 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0d0d12" />
-    <!-- Fonts: Inter & JetBrains Mono -->
+
+    <!-- Favicons (Serafort brand kit) -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/brand/logo/icon-color.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/brand/favicon/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/brand/favicon/app-icon-180.png" />
+    <meta name="theme-color" content="#031433" />
+
+    <!-- Fonts: Inter (body), Space Grotesk (display), JetBrains Mono (code) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <!-- Security Headers (Audit Finding 4.8) -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -24,10 +34,12 @@
     />
     <!-- Anti-flash: critical styles applied before any JS runs to prevent FOUC -->
     <style>
-      /* Prevent white flash on dark-mode users before MUI theme loads */
+      /* Prevent white flash on dark-mode users before MUI theme loads.
+         #031433 is the Serafort brand ink -- keep in sync with
+         semanticSurfaces.dark.canvas in @cap/theme. */
       html.dark,
       html.dark body {
-        background-color: #0d0d12;
+        background-color: #031433;
         color-scheme: dark;
       }
       html.light,
@@ -48,7 +60,9 @@
     <script>
       ;(function () {
         try {
-          var cookieName = 'GLDeveloper-1'
+          // Must match themeConfig.settingsCookieName in @cap/theme, which is
+          // what getSettingsFromCookie() reads after React boots.
+          var cookieName = 'serafort-settings'
           var match = document.cookie.match(new RegExp('(?:^|; )' + cookieName + '=([^;]*)'))
           var settings = match ? JSON.parse(decodeURIComponent(match[1])) : null
           var mode = settings && settings.mode ? settings.mode : 'light'
@@ -62,8 +76,34 @@
     </script>
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="description" content="CAP — Multi-tenant SaaS platform boilerplate built with React 19, TypeScript, and Material UI. Modular, themeable, and production-ready." />
-    <title>CAP Platform</title>
+    <meta
+      name="description"
+      content="Serafort — continuous identity verification and adaptive access control. Multi-tenant platform built with React 19, TypeScript, and Material UI."
+    />
+
+    <!-- Open Graph (Serafort brand kit) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Serafort" />
+    <meta property="og:title" content="Serafort — Every identity, verified in real time." />
+    <meta
+      property="og:description"
+      content="Continuous identity verification and adaptive access control for security teams who can't wait for the audit to find the problem."
+    />
+    <meta property="og:url" content="https://serafort.com/" />
+    <meta property="og:image" content="https://serafort.com/brand/social/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Serafort — Every identity, verified in real time." />
+    <meta
+      name="twitter:description"
+      content="Continuous identity verification and adaptive access control for security teams."
+    />
+    <meta name="twitter:image" content="https://serafort.com/brand/social/og-image.png" />
+
+    <title>Serafort</title>
   </head>
 
   <body>

@@ -74,7 +74,7 @@ For complex automated tasks (e.g., pricing analysis, tenant report aggregation, 
 
 ## 2. Anti-Dark Patterns & UX Ethics
 
-The CAP framework strictly rejects manipulative dark patterns in favor of transparent, respectful user experiences.
+TheSerafort strictly rejects manipulative dark patterns in favor of transparent, respectful user experiences.
 
 ### Confirmshaming Prevention
 
@@ -102,7 +102,7 @@ Never manipulate users into taking an action through guilt-inducing, passive-agg
 
 ## 3. Cognitive UX Laws & Engineering Architecture
 
-The CAP Framework adheres strictly to cognitive psychology heuristics and user experience laws. For the comprehensive directory, see [`laws_of_ux.md`](./laws_of_ux.md).
+TheSerafort adheres strictly to cognitive psychology heuristics and user experience laws. For the comprehensive directory, see [`laws_of_ux.md`](./laws_of_ux.md).
 
 ### Core Cognitive Laws in UI Architecture
 

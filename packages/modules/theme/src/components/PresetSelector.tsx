@@ -9,6 +9,8 @@ interface PresetSelectorProps {
 }
 
 const presetIcons: Record<ThemePresetId, string> = {
+  serafort: "🛡️",
+  "serafort-dark": "🌌",
   default: "🎨",
   "flat-design": "📄",
   "material-design": "🤖",

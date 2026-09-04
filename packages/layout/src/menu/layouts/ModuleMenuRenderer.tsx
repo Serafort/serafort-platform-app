@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { MenuItem, SubMenu, MenuSection } from '../vertical-menu'
+import { MenuItem, SubMenu, CollapsibleMenuSection } from '../vertical-menu'
+import { SubMenu as HorizontalDropdownSection } from '../horizontal-menu'
 import type { NavVariant, Dictionary } from '@cap/shared-types'
 import { useNavigationMenu } from '@cap/platform-core'
 import { MenuTreeAdapter, ProcessedNavItem } from '../adapters/MenuTreeAdapter'
@@ -53,17 +54,25 @@ const ModuleMenuRenderer: React.FC<Props> = ({ variant, dictionary }) => {
       )
     }
 
+    // Collapsible sections make sense for a persistent sidebar with many
+    // areas (vertical/admin) - one long list becomes a scannable, organized
+    // one. The horizontal top-nav renders sections as its own top-level
+    // SubMenu instead: a menu-bar button sitting under the navbar that opens
+    // its section's items as a dropdown panel on click, rather than a static
+    // header with every item spilled out inline beneath it.
+    const SectionComponent = variant === 'horizontal' ? HorizontalDropdownSection : CollapsibleMenuSection
+
     return sections.map((section, idx) => {
       if (section.label) {
         return (
-          <MenuSection key={section.id || `section_${idx}`} label={section.label}>
+          <SectionComponent key={section.id || `section_${idx}`} label={section.label}>
             {section.items.map(renderProcessedItem)}
-          </MenuSection>
+          </SectionComponent>
         )
       }
       return section.items.map(renderProcessedItem)
     })
-  }, [sortedItems, dictionary, t])
+  }, [sortedItems, dictionary, t, variant])
 
   return <>{renderedSections}</>
 }

@@ -38,7 +38,7 @@ interface AppDB extends DBSchema {
 }
 
 class StorageManager {
-  private static dbName = "cap-platform-scraper-db";
+  private static dbName = "serafort-scraper-db";
   private static dbVersion = 1;
   private static db: IDBPDatabase<AppDB> | null = null;
 
@@ -482,7 +482,7 @@ export default StorageManager;
 
 // Storage keys
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: "cap-platform-auth-tokens",
+  AUTH_TOKEN: "serafort-auth-tokens",
   /** @deprecated Refresh tokens are handled via HttpOnly cookies and MUST NOT be stored in localStorage */
   REFRESH_TOKEN: undefined,
   USER_DATA: "user_data",

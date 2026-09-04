@@ -1,6 +1,6 @@
 import React from 'react'
 import classnames from 'classnames'
-import { styled, useColorScheme, useTheme, alpha } from '@mui/material/styles'
+import { styled, useTheme, alpha } from '@mui/material/styles'
 import type { Mode, SystemMode } from '@cap/shared-types'
 import VerticalNav, { NavHeader, NavCollapseIcons } from '../../menu/vertical-menu'
 import Logo from '../../assets/svg/Logo'
@@ -32,25 +32,27 @@ const StyledBoxForShadow = styled('div')(({ theme }) => ({
 }))
 
 const Navigation: React.FC<{
+  /** Kept for API compatibility; the painted theme is what decides `isDark`. */
   mode: Mode
   systemMode: SystemMode
   children: (
     scrollMenu: (container: HTMLElement | null, isPerfectScrollbar: boolean) => void,
   ) => React.ReactNode
-}> = ({ mode, systemMode, children }) => {
+}> = ({ children }) => {
   const [isScrolled, setIsScrolled] = React.useState(false)
   const theme = useTheme()
-  const { mode: muiMode, systemMode: muiSystemMode } = useColorScheme()
   const verticalNavOptions = useVerticalNav()
   const { updateSettings, settings } = useSettings()
   const { isCollapsed, isHovered, collapseVerticalNav, isBreakpointReached } = verticalNavOptions
   const isSemiDark = settings.semiDark
   const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'))
-  let isDark
 
-  const isServer = typeof window === 'undefined'
-  if (isServer) isDark = mode === 'system' ? systemMode === 'dark' : mode === 'dark'
-  else isDark = muiMode === 'system' ? muiSystemMode === 'dark' : muiMode === 'dark'
+  // The composed theme is the authority for what is actually painted. MUI's
+  // useColorScheme() was the previous source and is inert here: the theme is
+  // built by composeMuiTheme without `colorSchemes`/`cssVariables`, so it never
+  // reports a mode and `isDark` was stuck at false - which left the sidebar
+  // rendering its light treatment even in dark mode.
+  const isDark = theme.palette.mode === 'dark'
 
   const scrollMenu = React.useCallback(
     (container: HTMLElement | null, isPerfectScrollbar: boolean) => {
@@ -92,7 +94,16 @@ const Navigation: React.FC<{
     >
       {/* Nav Header including Logo & nav toggle icons  */}
       <NavHeader>
-        <Logo />
+        {/*
+          Collapsed the drawer is only `collapsedWidth` wide, so it gets the
+          standalone mark; expanded (or hovered open) there is room for the full
+          wordmark lockup. `onDark` covers semiDark, where the nav renders dark
+          while the app theme is still light.
+        */}
+        <Logo
+          variant={isCollapsed && !isHovered ? 'icon' : 'lockup'}
+          onDark={isDark || isSemiDark}
+        />
         {!(isCollapsed && !isHovered) && (
           <NavCollapseIcons
             lockedIcon={

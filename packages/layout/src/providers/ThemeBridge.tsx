@@ -12,6 +12,7 @@ import {
   useThemeEditorStore,
   headerTokens,
   footerTokens,
+  DEFAULT_THEME_CONFIG,
 } from '@cap/theme'
 import type { TenantThemeConfig } from '@cap/theme'
 import type { Settings, Mode, SystemMode } from '@cap/shared-types'
@@ -111,13 +112,29 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
+  // `useTenant()`'s `theme` field is the tenant's lightweight branding
+  // override ({ primaryColor, logoUrl } - see TenantConfig['theme'] in
+  // platform-core), not a full TenantThemeConfig (tokens/effects/components).
+  // It's still truthy whenever a tenant loaded, so `tenantTheme || DEFAULT`
+  // never actually reaches the default: composeMuiThemeMemoized tolerates
+  // this by falling back field-by-field (tokens, effects, ... each default
+  // independently when missing), which is why the JS palette still renders
+  // correctly. applyThemeVariablesSync has no such per-field fallback - fed
+  // this shape, it doesn't recognise `.tokens`, silently no-ops, and every
+  // --color-*/--effect-* custom property stays unset for the entire session.
+  // Resolve once, up front, so both consumers see the same real config.
+  const resolvedThemeConfig: TenantThemeConfig =
+    activeConfig && 'tokens' in activeConfig
+      ? (activeConfig as TenantThemeConfig)
+      : DEFAULT_THEME_CONFIG
+
   const theme = useMemo(() => {
-    const compiled = generateTheme(activeConfig as any, settings, isDark)
-    if (typeof window !== 'undefined' && activeConfig) {
-      applyThemeVarsBatched(activeConfig as any)
+    const compiled = generateTheme(resolvedThemeConfig, settings, isDark)
+    if (typeof window !== 'undefined') {
+      applyThemeVarsBatched(resolvedThemeConfig)
     }
     return compiled
-  }, [activeConfig, settings, isDark, applyThemeVarsBatched])
+  }, [resolvedThemeConfig, settings, isDark, applyThemeVarsBatched])
 
   const handleUpdateTheme = useCallback(
     async (updates: any) => {

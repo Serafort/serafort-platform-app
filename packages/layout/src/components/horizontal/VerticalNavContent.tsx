@@ -13,7 +13,8 @@ const VerticalNavContent = ({ children }: ChildrenType) => {
   return (
     <>
       <NavHeader>
-        <Logo />
+        {/* Mobile overlay drawer - always at full width, so use the lockup. */}
+        <Logo variant='lockup' />
         <NavCollapseIcons
           lockedIcon={<i className='tabler-circle-dot text-xl' />}
           unlockedIcon={<i className='tabler-circle text-xl' />}

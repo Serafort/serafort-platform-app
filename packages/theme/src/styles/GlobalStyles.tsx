@@ -2,6 +2,7 @@ import { GlobalStyles as MuiGlobalStyles } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import type { Theme } from "@mui/material/styles";
 import { zIndexScale } from "../assets/themes/definitions/zIndex";
+import { brandCssVariables } from "../tokens/brand";
 
 declare module "@mui/material/styles" {
   interface PaletteColor {
@@ -13,6 +14,12 @@ const GlobalStyles = () => {
   return (
     <MuiGlobalStyles
       styles={(theme: Theme) => ({
+        // Serafort brand role layer. These are the house brand and are constant
+        // across tenants, so they are emitted here rather than through the
+        // per-tenant `applyThemeVariables` pipeline. See tokens/brand.ts.
+        ":root": brandCssVariables(
+          theme.palette.mode === "dark" ? "dark" : "light",
+        ),
         html: {
           scrollbarGutter: "stable",
           WebkitFontSmoothing: "antialiased",
@@ -42,8 +49,8 @@ const GlobalStyles = () => {
           } !important`,
           boxShadow:
             theme.palette.mode === "light"
-              ? "0 8px 32px 0 rgba(31, 38, 135, 0.15) !important"
-              : "0 8px 32px 0 rgba(0, 0, 0, 0.5) !important",
+              ? "0 8px 32px 0 rgba(3, 36, 87, 0.15) !important"
+              : "0 8px 32px 0 rgba(3, 20, 51, 0.55) !important",
         },
         ".liquid-glass-effect": {
           backdropFilter: "blur(24px) saturate(180%) !important",
@@ -51,7 +58,7 @@ const GlobalStyles = () => {
           backgroundColor:
             theme.palette.mode === "light"
               ? `${alpha("#ffffff", 0.82)} !important`
-              : `${alpha("#17171F", 0.75)} !important`,
+              : `${alpha("#032457", 0.75)} !important`,
           border: `1px solid ${
             theme.palette.mode === "light"
               ? "rgba(255, 255, 255, 0.6)"
@@ -75,8 +82,8 @@ const GlobalStyles = () => {
           "100%": { transform: "translateX(100%)" },
         },
         "@keyframes pulseGlow": {
-          "0%, 100%": { boxShadow: "0 0 12px rgba(16, 185, 129, 0.35)" },
-          "50%": { boxShadow: "0 0 24px rgba(16, 185, 129, 0.65)" },
+          "0%, 100%": { boxShadow: "0 0 12px rgba(22, 163, 74, 0.35)" },
+          "50%": { boxShadow: "0 0 24px rgba(22, 163, 74, 0.65)" },
         },
         ".animate-scale-in": {
           animation: "scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -88,7 +95,7 @@ const GlobalStyles = () => {
           position: "relative",
           overflow: "hidden",
           backgroundColor:
-            "var(--state-loading-skeleton-base, var(--surface-subtle, #1E1E28))",
+            "var(--state-loading-skeleton-base, var(--surface-subtle, #0A1B3D))",
           "&::after": {
             content: '""',
             position: "absolute",
@@ -98,18 +105,18 @@ const GlobalStyles = () => {
             left: 0,
             transform: "translateX(-100%)",
             backgroundImage:
-              "linear-gradient(90deg, transparent, var(--state-loading-skeleton-highlight, var(--surface-paper, #17171F)), transparent)",
+              "linear-gradient(90deg, transparent, var(--state-loading-skeleton-highlight, var(--surface-paper, #032457)), transparent)",
             animation:
               "shimmer var(--state-loading-shimmer-duration, 1.5s ease-in-out infinite)",
           },
         },
         ".state-success-glow": {
           animation: "pulseGlow 2s ease-in-out infinite",
-          border: "1px solid rgba(16, 185, 129, 0.5) !important",
+          border: "1px solid rgba(22, 163, 74, 0.5) !important",
         },
         ".state-error-inline": {
-          backgroundColor: "rgba(239, 68, 68, 0.08) !important",
-          border: "1px solid rgba(239, 68, 68, 0.25) !important",
+          backgroundColor: "rgba(220, 38, 38, 0.08) !important",
+          border: "1px solid rgba(220, 38, 38, 0.25) !important",
           borderRadius: "var(--radius-md, 8px)",
           padding: "8px 12px",
         },
@@ -165,31 +172,31 @@ const GlobalStyles = () => {
             },
           },
           "& .MuiButton-containedPrimary": {
-            background: `rgba(${theme.palette.primary.mainChannel || "212 175 55"} / 0.15) !important`,
+            background: `rgba(${theme.palette.primary.mainChannel || "4 123 250"} / 0.15) !important`,
             color: theme.palette.primary.main + " !important",
             "&:hover": {
-              background: `rgba(${theme.palette.primary.mainChannel || "212 175 55"} / 0.25) !important`,
+              background: `rgba(${theme.palette.primary.mainChannel || "4 123 250"} / 0.25) !important`,
             },
           },
           "& .MuiButton-containedInfo": {
-            background: `rgba(${theme.palette.info.mainChannel || "47 79 79"} / 0.15) !important`,
+            background: `rgba(${theme.palette.info.mainChannel || "4 123 250"} / 0.15) !important`,
             color: theme.palette.info.main + " !important",
             "&:hover": {
-              background: `rgba(${theme.palette.info.mainChannel || "47 79 79"} / 0.25) !important`,
+              background: `rgba(${theme.palette.info.mainChannel || "4 123 250"} / 0.25) !important`,
             },
           },
           "& .MuiButton-containedError": {
-            background: `rgba(${theme.palette.error.mainChannel || "220 53 69"} / 0.15) !important`,
+            background: `rgba(${theme.palette.error.mainChannel || "220 38 38"} / 0.15) !important`,
             color: theme.palette.error.main + " !important",
             "&:hover": {
-              background: `rgba(${theme.palette.error.mainChannel || "220 53 69"} / 0.25) !important`,
+              background: `rgba(${theme.palette.error.mainChannel || "220 38 38"} / 0.25) !important`,
             },
           },
           "& .MuiButton-containedSuccess": {
-            background: `rgba(${theme.palette.success.mainChannel || "40 167 69"} / 0.15) !important`,
+            background: `rgba(${theme.palette.success.mainChannel || "22 163 74"} / 0.15) !important`,
             color: theme.palette.success.main + " !important",
             "&:hover": {
-              background: `rgba(${theme.palette.success.mainChannel || "40 167 69"} / 0.25) !important`,
+              background: `rgba(${theme.palette.success.mainChannel || "22 163 74"} / 0.25) !important`,
             },
           },
         },

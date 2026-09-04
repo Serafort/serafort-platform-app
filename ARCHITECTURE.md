@@ -1,6 +1,6 @@
 # CAP Multi-Tenant SaaS Framework — Master Architecture Reference
 
-This document provides complete architectural context, framework design principles, package hierarchy rules, module contribution contracts, and design system specifications for developers and AI agents working on the **CAP Platform Framework**.
+This document provides complete architectural context, framework design principles, package hierarchy rules, module contribution contracts, and design system specifications for developers and AI agents working on the **Serafort Platform Framework**.
 
 ---
 
