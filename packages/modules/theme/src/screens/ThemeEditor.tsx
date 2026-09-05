@@ -145,6 +145,23 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     severity: "success" | "error" | "info";
   }>({ open: false, message: "", severity: "success" });
 
+  const isOpen = customOpen !== undefined ? customOpen : isEditing;
+
+  // Escape closes the drawer. The temporary Drawer this used to be got that
+  // for free from its Modal; the persistent one below has no Modal, so the
+  // shortcut is wired by hand. Declared up here, above the loading early
+  // return, because hooks cannot live after a conditional return.
+  React.useEffect(() => {
+    if (!asDrawer || !isOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      themeEditorStore.discardDraft();
+      onClose?.();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [asDrawer, isOpen, onClose]);
+
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
@@ -314,8 +331,6 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     if (onClose) onClose();
   };
 
-  const isOpen = customOpen !== undefined ? customOpen : isEditing;
-
   // Shared source of truth for the tab strip - rendered as MUI `Tabs` on the
   // full-page (wide) layout, where a single scrollable row is the familiar,
   // space-efficient pattern (Jakob's Law), but as a wrapping button group in
@@ -336,8 +351,12 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     <Container
       maxWidth={asDrawer ? false : "xl"}
       sx={{
-        py: 3,
-        px: asDrawer ? 2 : undefined,
+        // theme.spacing is on a 4px unit here (composeMuiTheme maps it to
+        // `calc(0.25rem * N)`), so these are 20px block / 16px inline in the
+        // drawer - the old py:3 px:2 came out at 12px/8px, which read as the
+        // content being jammed against the panel edge.
+        py: asDrawer ? 5 : 3,
+        px: asDrawer ? 4 : undefined,
         width: asDrawer ? 560 : undefined,
         maxWidth: "100%",
       }}
@@ -548,19 +567,32 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
 
   if (asDrawer) {
     return (
+      // `persistent`, not the default `temporary`: a temporary Drawer is a
+      // Modal, and its backdrop dims the very UI this panel exists to
+      // restyle - you cannot judge a theme through a grey wash. Persistent
+      // drops the Modal entirely (no backdrop, no focus trap, no scroll
+      // lock), so the app behind stays legible and usable while colors,
+      // effects and radii land on it live. The paper is still
+      // position: fixed and the docked root is zero-width, so nothing in
+      // the page shifts when it opens.
       <Drawer
         anchor="right"
+        variant="persistent"
         open={isOpen}
-        onClose={handleDiscard}
         PaperProps={{
           sx: {
             width: { xs: "100%", sm: 560 },
             p: 1,
-            backdropFilter: "blur(10px)",
+            // Opaque surface + elevation, since there is no longer a
+            // backdrop separating this panel from the live page behind it.
+            bgcolor: "background.paper",
+            boxShadow: 8,
           },
         }}
       >
-        {content}
+        {/* Without a Modal wrapper the children would otherwise stay mounted
+            (and keep fetching the tenant theme) while parked off-canvas. */}
+        {isOpen ? content : null}
       </Drawer>
     );
   }
