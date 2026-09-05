@@ -22,75 +22,21 @@ import {
   type PromptAnalysisResult,
   getWcagComplianceBadge,
 } from "../services/aiThemePromptService";
-
-/*
- * A NOTE ON SPACING NUMBERS IN THIS FILE
- *
- * composeMuiTheme overrides theme.spacing to `var(--spacing-N, calc(0.25rem *
- * N))`, and no numeric `--spacing-N` variables are emitted (only the named
- * xs/sm/md/lg/xl ones), so every sx spacing value here resolves against a
- * **4px** unit - half of MUI's usual 8px. `p: 4` is 16px, not 32px; `gap: 7`
- * is 28px. The values below are therefore roughly double what the same design
- * would use in a stock MUI app; they are chosen to land on the spacing the
- * design system actually asks for (4-8px between tightly coupled controls,
- * 24-32px between independent sections).
- *
- * Border-radius numbers are unaffected - those multiply theme.shape
- * .borderRadius (the tenant's own `md` radius token, 8px by default), so
- * `borderRadius: 1.5` is 12px and follows the tenant to 0 under a brutalist
- * preset.
- */
+import {
+  AutoGrid,
+  ChoiceChip,
+  SectionLabel,
+  SwatchReadout,
+  clamp2,
+  ellipsis,
+  useFocusRingSx,
+  useSurfaceSx,
+} from "./studioUi";
 
 export interface AiThemeStudioPanelProps {
   currentTheme: TenantThemeConfig;
   onThemeGenerated: (theme: TenantThemeConfig) => void;
 }
-
-/**
- * Small-caps section heading. Structure is carried by typography and
- * whitespace rather than by yet another nested card, so each section has one
- * obvious focal point instead of four competing borders.
- */
-const SectionLabel: React.FC<{
-  children: React.ReactNode;
-  action?: React.ReactNode;
-}> = ({ children, action }) => (
-  <Box
-    sx={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      gap: 2,
-      mb: 3,
-    }}
-  >
-    <Typography
-      variant="overline"
-      sx={{
-        fontWeight: 600,
-        letterSpacing: "0.08em",
-        lineHeight: 1,
-        color: "text.secondary",
-      }}
-    >
-      {children}
-    </Typography>
-    {action}
-  </Box>
-);
-
-const ellipsis = {
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
-} as const;
-
-const clamp2 = {
-  display: "-webkit-box",
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: "vertical",
-  overflow: "hidden",
-} as const;
 
 export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
   currentTheme,
@@ -160,13 +106,8 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
     handleGenerate(suggestion.prompt);
   };
 
-  // Surface recipe shared by the composer, the result panel and the cards, so
-  // every boundary in here reads as the same kind of object.
-  const surface = {
-    border: `1px solid ${theme.palette.divider}`,
-    borderRadius: 1.5,
-    bgcolor: "background.paper",
-  } as const;
+  const surface = useSurfaceSx();
+  const focusRing = useFocusRingSx();
 
   const canGenerate = Boolean(prompt.trim()) && !isGenerating;
 
@@ -388,55 +329,15 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
             {/* 180px min keeps these four on an even 2x2 in the drawer
                 rather than 3 + a lone orphan; on the full-page layout there
                 is room for all four across. */}
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                gap: 3,
-              }}
-            >
+            <AutoGrid min={180} gap={3}>
               {swatches.map((swatch) => (
-                <Box
+                <SwatchReadout
                   key={swatch.label}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                    minWidth: 0,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      inlineSize: 28,
-                      blockSize: 28,
-                      borderRadius: 0.75,
-                      bgcolor: swatch.hex,
-                      border: `1px solid ${theme.palette.divider}`,
-                      flexShrink: 0,
-                    }}
-                  />
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography
-                      variant="caption"
-                      sx={{ display: "block", fontWeight: 600, ...ellipsis }}
-                    >
-                      {swatch.label}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{
-                        display: "block",
-                        fontFamily: "monospace",
-                        ...ellipsis,
-                      }}
-                    >
-                      {swatch.hex}
-                    </Typography>
-                  </Box>
-                </Box>
+                  label={swatch.label}
+                  hex={swatch.hex}
+                />
               ))}
-            </Box>
+            </AutoGrid>
           </Box>
         </Box>
       )}
@@ -460,32 +361,14 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
           spacing={1.5}
           sx={{ flexWrap: "wrap", mb: 4 }}
         >
-          {categories.map((cat) => {
-            const selected = selectedCategory === cat;
-            return (
-              <Chip
-                key={cat}
-                label={cat}
-                clickable
-                aria-pressed={selected}
-                onClick={() => setSelectedCategory(cat)}
-                sx={{
-                  blockSize: 34,
-                  borderRadius: 1,
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  border: `1px solid ${selected ? "transparent" : theme.palette.divider}`,
-                  bgcolor: selected ? "primary.main" : "transparent",
-                  color: selected ? "primary.contrastText" : "text.secondary",
-                  "&:hover": {
-                    bgcolor: selected
-                      ? "primary.dark"
-                      : alpha(theme.palette.primary.main, 0.06),
-                  },
-                }}
-              />
-            );
-          })}
+          {categories.map((cat) => (
+            <ChoiceChip
+              key={cat}
+              label={cat}
+              selected={selectedCategory === cat}
+              onClick={() => setSelectedCategory(cat)}
+            />
+          ))}
         </Stack>
 
         {filteredSuggestions.length === 0 ? (
@@ -502,13 +385,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
             </Typography>
           </Box>
         ) : (
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: 3,
-            }}
-          >
+          <AutoGrid min={220} gap={3}>
             {filteredSuggestions.map((suggestion) => (
               <Box
                 key={suggestion.id}
@@ -539,10 +416,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
                     opacity: 1,
                     transform: "none",
                   },
-                  "&:focus-visible": {
-                    outline: `2px solid ${theme.palette.primary.main}`,
-                    outlineOffset: 2,
-                  },
+                  "&:focus-visible": focusRing,
                   "&:disabled": { cursor: "default", opacity: 0.6 },
                 }}
               >
@@ -631,7 +505,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
                 </Box>
               </Box>
             ))}
-          </Box>
+          </AutoGrid>
         )}
       </Box>
 
@@ -669,10 +543,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
                     duration: 150,
                   }),
                   "&:hover:not(:disabled)": { bgcolor: "action.hover" },
-                  "&:focus-visible": {
-                    outline: `2px solid ${theme.palette.primary.main}`,
-                    outlineOffset: 2,
-                  },
+                  "&:focus-visible": focusRing,
                   "&:disabled": { cursor: "default", opacity: 0.6 },
                 }}
               >

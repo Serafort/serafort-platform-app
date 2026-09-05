@@ -1,5 +1,10 @@
 import React from "react";
-import { Box, Typography, Paper, TextField } from "@mui/material";
+import { Box, TextField, Typography, useTheme } from "@mui/material";
+import {
+  PanelHeader,
+  SectionLabel,
+  useSurfaceSx,
+} from "./studioUi";
 
 interface SpacingEditorProps {
   spacing: Record<string, string>;
@@ -9,21 +14,21 @@ interface SpacingEditorProps {
 }
 
 const spacingLabels: Record<string, string> = {
-  xs: "Extra Small",
+  xs: "Extra small",
   sm: "Small",
-  md: "Medium (Default)",
+  md: "Medium",
   lg: "Large",
-  xl: "Extra Large",
-  "2xl": "2x Extra Large",
+  xl: "Extra large",
+  "2xl": "2× extra large",
 };
 
 const borderRadiusLabels: Record<string, string> = {
-  none: "None (0px)",
-  sm: "Small (4px)",
-  md: "Medium (8px)",
-  lg: "Large (12px)",
-  xl: "Extra Large (16px)",
-  full: "Full (pill shape)",
+  none: "None",
+  sm: "Small",
+  md: "Medium",
+  lg: "Large",
+  xl: "Extra large",
+  full: "Full",
 };
 
 export const SpacingEditor: React.FC<SpacingEditorProps> = ({
@@ -32,6 +37,9 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
   onSpacingChange,
   onBorderRadiusChange,
 }) => {
+  const theme = useTheme();
+  const surface = useSurfaceSx();
+
   const handleSpacingChange = (key: string, value: string) => {
     onSpacingChange({ ...spacing, [key]: value });
   };
@@ -40,125 +48,101 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
     onBorderRadiusChange({ ...borderRadius, [key]: value });
   };
 
-  return (
-    <Paper sx={{ p: 3 }}>
-      <Typography variant="h6" sx={{ mb: 1 }}>
-        Spacing & Border Radius
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Customize spacing scale and border radius values
-      </Typography>
-
-      {/*
-        Container-responsive grid (see PresetSelector/AiThemeStudioPanel for
-        the same fix) - keeps these two columns from staying side-by-side
-        and cramped when this panel renders inside the narrow theme-editor
-        drawer on a wide monitor.
-      */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          gap: 3,
-        }}
+  /** Name on the left, the value you edit on the right - one row per token. */
+  const TokenRow: React.FC<{
+    label: string;
+    value: string;
+    placeholder: string;
+    onValueChange: (value: string) => void;
+    adornment?: React.ReactNode;
+    isFirst: boolean;
+  }> = ({ label, value, placeholder, onValueChange, adornment, isFirst }) => (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 3,
+        paddingInline: 4,
+        paddingBlock: 2.5,
+        borderBlockStart: isFirst
+          ? "none"
+          : `1px solid ${theme.palette.divider}`,
+      }}
+    >
+      <Typography
+        variant="body2"
+        sx={{ flex: 1, minWidth: 0, fontWeight: 500 }}
       >
-        <Box>
-          <Typography variant="subtitle2" sx={{ mb: 2 }}>
-            Spacing Scale
-          </Typography>
-          {Object.entries(spacingLabels).map(([key, label]) => (
-            <Box key={key} sx={{ mb: 2 }}>
-              <Typography variant="body2" sx={{ mb: 0.5 }}>
-                {label}
-              </Typography>
-              <TextField
-                size="small"
-                value={spacing[key] || "1rem"}
-                onChange={(e) => handleSpacingChange(key, e.target.value)}
-                placeholder="1rem"
-                sx={{ width: 150 }}
-              />
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ ml: 1 }}
-              >
-                (e.g., 8px, 1rem, 0.5em)
-              </Typography>
-            </Box>
-          ))}
-        </Box>
+        {label}
+      </Typography>
+      {adornment}
+      <TextField
+        size="small"
+        value={value}
+        onChange={(e) => onValueChange(e.target.value)}
+        placeholder={placeholder}
+        aria-label={label}
+        sx={{ inlineSize: 104 }}
+        slotProps={{
+          input: { sx: { fontFamily: "monospace", fontSize: "0.8125rem" } },
+        }}
+      />
+    </Box>
+  );
 
-        <Box>
-          <Typography variant="subtitle2" sx={{ mb: 2 }}>
-            Border Radius
-          </Typography>
-          {Object.entries(borderRadiusLabels).map(([key, label]) => (
-            <Box key={key} sx={{ mb: 2 }}>
-              <Typography variant="body2" sx={{ mb: 0.5 }}>
-                {label}
-              </Typography>
-              <TextField
-                size="small"
-                value={borderRadius[key] || "0px"}
-                onChange={(e) => handleBorderRadiusChange(key, e.target.value)}
-                placeholder="8px"
-                sx={{ width: 150 }}
-              />
-              <Box
-                sx={{
-                  display: "inline-block",
-                  width: 32,
-                  height: 32,
-                  ml: 2,
-                  backgroundColor: "primary.main",
-                  borderRadius: borderRadius[key] || "0px",
-                  verticalAlign: "middle",
-                }}
-              />
-            </Box>
-          ))}
-        </Box>
-      </Box>
+  return (
+    <Box>
+      <PanelHeader
+        title="Spacing & radius"
+        description="The scale everything else is built from. Any CSS length works — 8px, 1rem, 0.5em."
+      />
 
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="subtitle2" sx={{ mb: 2 }}>
-          Preview
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            flexWrap: "wrap",
-            p: 3,
-            backgroundColor: "background.default",
-            borderRadius: 1,
-          }}
-        >
-          {(["none", "sm", "md", "lg", "xl", "full"] as const).map((key) => (
-            <Box
+      <Box sx={{ mb: 7 }}>
+        <SectionLabel>Spacing scale</SectionLabel>
+        <Box sx={{ ...surface, overflow: "hidden" }}>
+          {Object.entries(spacingLabels).map(([key, label], index) => (
+            <TokenRow
               key={key}
-              sx={{
-                width: 48,
-                height: 48,
-                backgroundColor: "primary.main",
-                borderRadius: borderRadius[key] || "0px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Typography
-                variant="caption"
-                sx={{ color: "primary.contrastText" }}
-              >
-                {key}
-              </Typography>
-            </Box>
+              label={label}
+              value={spacing[key] || ""}
+              placeholder="1rem"
+              onValueChange={(value) => handleSpacingChange(key, value)}
+              isFirst={index === 0}
+            />
           ))}
         </Box>
       </Box>
-    </Paper>
+
+      <Box>
+        <SectionLabel>Corner radius</SectionLabel>
+        <Box sx={{ ...surface, overflow: "hidden" }}>
+          {Object.entries(borderRadiusLabels).map(([key, label], index) => (
+            <TokenRow
+              key={key}
+              label={label}
+              value={borderRadius[key] || ""}
+              placeholder="8px"
+              onValueChange={(value) => handleBorderRadiusChange(key, value)}
+              isFirst={index === 0}
+              adornment={
+                // The shape itself, at the value you typed - faster to read
+                // than the number, and it updates as you type.
+                <Box
+                  aria-hidden
+                  sx={{
+                    inlineSize: 28,
+                    blockSize: 28,
+                    flexShrink: 0,
+                    bgcolor: "primary.main",
+                    borderRadius: borderRadius[key] || "0px",
+                  }}
+                />
+              }
+            />
+          ))}
+        </Box>
+      </Box>
+    </Box>
   );
 };
 
