@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Paper, Grid, Button, Chip } from "@mui/material";
+import { Box, Typography, Paper, Button, Chip } from "@mui/material";
 import type { ThemePresetId } from "@cap/theme";
 import { PRESET_LIST } from "@cap/theme";
 
@@ -41,10 +41,23 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
         Start with a predefined theme and customize it further
       </Typography>
 
-      <Grid container spacing={2}>
+      {/*
+        A CSS grid with `auto-fit`/`minmax` sizes columns to this Paper's
+        own rendered width - unlike MUI's `Grid` breakpoints (`sm`/`md`),
+        which key off the browser viewport and stayed 3-up (squeezed) even
+        when this panel is mounted inside the ~560px theme-editor drawer on
+        a wide monitor. See AiThemeStudioPanel for the same fix.
+      */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: 2,
+        }}
+      >
         {PRESET_LIST.map((preset) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={preset.id}>
             <Button
+              key={preset.id}
               onClick={() => onSelect(preset.id)}
               variant={currentPreset === preset.id ? "contained" : "outlined"}
               sx={{
@@ -115,9 +128,8 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                 />
               )}
             </Button>
-          </Grid>
         ))}
-      </Grid>
+      </Box>
 
       <Box
         sx={{

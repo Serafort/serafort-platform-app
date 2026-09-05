@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Paper, TextField, Grid } from "@mui/material";
+import { Box, Typography, Paper, TextField } from "@mui/material";
 
 interface SpacingEditorProps {
   spacing: Record<string, string>;
@@ -49,8 +49,20 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
         Customize spacing scale and border radius values
       </Typography>
 
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 6 }}>
+      {/*
+        Container-responsive grid (see PresetSelector/AiThemeStudioPanel for
+        the same fix) - keeps these two columns from staying side-by-side
+        and cramped when this panel renders inside the narrow theme-editor
+        drawer on a wide monitor.
+      */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gap: 3,
+        }}
+      >
+        <Box>
           <Typography variant="subtitle2" sx={{ mb: 2 }}>
             Spacing Scale
           </Typography>
@@ -75,9 +87,9 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
               </Typography>
             </Box>
           ))}
-        </Grid>
+        </Box>
 
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Box>
           <Typography variant="subtitle2" sx={{ mb: 2 }}>
             Border Radius
           </Typography>
@@ -106,8 +118,8 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
               />
             </Box>
           ))}
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       <Box sx={{ mt: 4 }}>
         <Typography variant="subtitle2" sx={{ mb: 2 }}>

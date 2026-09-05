@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   Typography,
-  Grid,
   TextField,
   InputAdornment,
   Chip,
@@ -201,9 +200,22 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
         Customize the color scheme for your organization's theme.
       </Typography>
 
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Box
+      {/*
+        Container-responsive grid (see PresetSelector/AiThemeStudioPanel for
+        the same fix) instead of MUI `Grid`'s viewport-keyed breakpoints,
+        which stayed 2-up even when this panel renders inside the narrow
+        theme-editor drawer on a wide monitor. The mode-toggle row spans
+        every column explicitly since it's the one full-width item among
+        four card-width ones.
+      */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: 2,
+        }}
+      >
+        <Box
             sx={{
               p: 2,
               border: "1px solid",
@@ -230,17 +242,16 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
               onColorChange={(value) => handleColorChange("secondary", value)}
             />
           </Box>
-        </Grid>
 
-        <Grid size={{ xs: 12 }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-              flexWrap: "wrap",
-            }}
-          >
+        <Box
+          sx={{
+            gridColumn: "1 / -1",
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            flexWrap: "wrap",
+          }}
+        >
             <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
               Editing surface &amp; text colors for:
             </Typography>
@@ -272,11 +283,9 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
               back to its Light value - set Dark explicitly if the light value
               would not suit a dark screen (e.g. white on white).
             </Typography>
-          </Box>
-        </Grid>
+        </Box>
 
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Box
+        <Box
             sx={{
               p: 2,
               border: "1px solid",
@@ -315,10 +324,8 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
               }
             />
           </Box>
-        </Grid>
 
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Box
+        <Box
             sx={{
               p: 2,
               border: "1px solid",
@@ -349,10 +356,8 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
               }
             />
           </Box>
-        </Grid>
 
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Box
+        <Box
             sx={{
               p: 2,
               border: "1px solid",
@@ -387,8 +392,7 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
               onColorChange={(value) => handleColorChange("info", value)}
             />
           </Box>
-        </Grid>
-      </Grid>
+      </Box>
     </Box>
   );
 };

@@ -316,13 +316,29 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
 
   const isOpen = customOpen !== undefined ? customOpen : isEditing;
 
+  // Shared source of truth for the tab strip - rendered as MUI `Tabs` on the
+  // full-page (wide) layout, where a single scrollable row is the familiar,
+  // space-efficient pattern (Jakob's Law), but as a wrapping button group in
+  // the drawer, where that same scrollable row was clipping "Components" mid
+  // -word and hiding "Spacing" behind a scroll gesture entirely - Hick's Law
+  // and Miller's Law both favor every one of these 6 sections staying
+  // visible at a glance over a technically-more-compact hidden-overflow row.
+  const tabItems: Array<{ label: string; icon?: React.ReactElement }> = [
+    { label: "AI Studio", icon: <AutoAwesomeIcon sx={{ fontSize: 18 }} /> },
+    { label: "Presets" },
+    { label: "Colors" },
+    { label: "Effects" },
+    { label: "Components" },
+    { label: "Spacing" },
+  ];
+
   const content = (
     <Container
       maxWidth={asDrawer ? false : "xl"}
       sx={{
         py: 3,
         px: asDrawer ? 2 : undefined,
-        width: asDrawer ? 500 : undefined,
+        width: asDrawer ? 560 : undefined,
         maxWidth: "100%",
       }}
     >
@@ -332,6 +348,8 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          flexWrap: "wrap",
+          rowGap: 1,
         }}
       >
         <Box>
@@ -342,12 +360,16 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
             Real-time multi-tenant theme builder
           </Typography>
         </Box>
+        {/* minHeight/width: 44 on every control here meets the 44x44
+            minimum touch target Fitts's Law calls for - these are the most
+            frequently reached-for actions in the whole panel. */}
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           <Button
             size="small"
             variant="outlined"
             startIcon={<RefreshIcon />}
             onClick={handleReset}
+            sx={{ minHeight: 44 }}
           >
             Reset
           </Button>
@@ -357,11 +379,16 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
             startIcon={<SaveIcon />}
             onClick={handleSave}
             disabled={isSaving}
+            sx={{ minHeight: 44 }}
           >
             {isSaving ? "Saving..." : "Save"}
           </Button>
           {asDrawer && (
-            <IconButton onClick={handleDiscard} size="small" aria-label="close">
+            <IconButton
+              onClick={handleDiscard}
+              aria-label="close"
+              sx={{ width: 44, height: 44 }}
+            >
               <CloseIcon />
             </IconButton>
           )}
@@ -370,25 +397,58 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, lg: asDrawer ? 12 : 8 }}>
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <Tabs
-              value={activeTab}
-              onChange={handleTabChange}
-              variant="scrollable"
-              scrollButtons="auto"
+          {asDrawer ? (
+            <Box
+              role="tablist"
+              aria-label="Theme editor sections"
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 1,
+                mb: 2,
+              }}
             >
-              <Tab
-                icon={<AutoAwesomeIcon sx={{ fontSize: 18 }} />}
-                iconPosition="start"
-                label="AI Studio"
-              />
-              <Tab label="Presets" />
-              <Tab label="Colors" />
-              <Tab label="Effects" />
-              <Tab label="Components" />
-              <Tab label="Spacing" />
-            </Tabs>
-          </Box>
+              {tabItems.map((item, index) => (
+                <Button
+                  key={item.label}
+                  role="tab"
+                  aria-selected={activeTab === index}
+                  onClick={() => setActiveTab(index)}
+                  variant={activeTab === index ? "contained" : "outlined"}
+                  color={activeTab === index ? "primary" : "inherit"}
+                  size="small"
+                  startIcon={item.icon}
+                  sx={{
+                    flex: "1 1 auto",
+                    minWidth: 104,
+                    minHeight: 40,
+                    textTransform: "none",
+                    fontWeight: 700,
+                  }}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </Box>
+          ) : (
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <Tabs
+                value={activeTab}
+                onChange={handleTabChange}
+                variant="scrollable"
+                scrollButtons="auto"
+              >
+                {tabItems.map((item) => (
+                  <Tab
+                    key={item.label}
+                    icon={item.icon}
+                    iconPosition="start"
+                    label={item.label}
+                  />
+                ))}
+              </Tabs>
+            </Box>
+          )}
 
           <TabPanel value={activeTab} index={0}>
             <AiThemeStudioPanel
@@ -494,7 +554,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
         onClose={handleDiscard}
         PaperProps={{
           sx: {
-            width: { xs: "100%", sm: 520 },
+            width: { xs: "100%", sm: 560 },
             p: 1,
             backdropFilter: "blur(10px)",
           },

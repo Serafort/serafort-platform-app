@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Chip,
-  Grid,
   Stack,
   TextField,
   Typography,
@@ -285,10 +284,34 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
 
             <Divider sx={{ my: 2, opacity: 0.5 }} />
 
-            {/* Color Swatch Preview */}
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 6, sm: 3 }}>
+            {/*
+              Color Swatch Preview - a CSS grid with `auto-fit`/`minmax`
+              responds to *this card's* rendered width, unlike MUI's `Grid`
+              breakpoints (`xs`/`sm`), which key off the browser viewport.
+              This panel is mounted both full-page and inside a fixed
+              ~560px drawer (see ThemeEditor's `asDrawer`); a viewport-based
+              4-up grid stayed 4-up even in the narrow drawer on a wide
+              monitor, squeezing every swatch into a sliver. auto-fit
+              degrades to 2 or 1 columns exactly when the available width
+              actually runs out, in either context.
+            */}
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
+                gap: 2,
+              }}
+            >
+              {(
+                [
+                  { label: "Primary", hex: lastAnalysis.primaryHex },
+                  { label: "Secondary", hex: lastAnalysis.secondaryHex },
+                  { label: "Background", hex: lastAnalysis.backgroundHex },
+                  { label: "Surface", hex: lastAnalysis.surfaceHex },
+                ] as const
+              ).map((swatch) => (
                 <Paper
+                  key={swatch.label}
                   elevation={0}
                   sx={{
                     p: 1.5,
@@ -304,145 +327,29 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
                       width: 28,
                       height: 28,
                       borderRadius: 1,
-                      bgcolor: lastAnalysis.primaryHex,
+                      bgcolor: swatch.hex,
                       border: "1px solid rgba(0,0,0,0.1)",
+                      flexShrink: 0,
                     }}
                   />
-                  <Box>
+                  <Box sx={{ minWidth: 0 }}>
                     <Typography
                       variant="caption"
                       sx={{ fontWeight: 700, display: "block" }}
                     >
-                      Primary
+                      {swatch.label}
                     </Typography>
                     <Typography
                       variant="caption"
                       color="text.secondary"
                       sx={{ fontFamily: "monospace" }}
                     >
-                      {lastAnalysis.primaryHex}
+                      {swatch.hex}
                     </Typography>
                   </Box>
                 </Paper>
-              </Grid>
-
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    border: "1px solid " + theme.palette.divider,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 1,
-                      bgcolor: lastAnalysis.secondaryHex,
-                      border: "1px solid rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 700, display: "block" }}
-                    >
-                      Secondary
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ fontFamily: "monospace" }}
-                    >
-                      {lastAnalysis.secondaryHex}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </Grid>
-
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    border: "1px solid " + theme.palette.divider,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 1,
-                      bgcolor: lastAnalysis.backgroundHex,
-                      border: "1px solid rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 700, display: "block" }}
-                    >
-                      Background
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ fontFamily: "monospace" }}
-                    >
-                      {lastAnalysis.backgroundHex}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </Grid>
-
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    border: "1px solid " + theme.palette.divider,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 1,
-                      bgcolor: lastAnalysis.surfaceHex,
-                      border: "1px solid rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 700, display: "block" }}
-                    >
-                      Surface
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ fontFamily: "monospace" }}
-                    >
-                      {lastAnalysis.surfaceHex}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </Grid>
-            </Grid>
+              ))}
+            </Box>
           </CardContent>
         </Card>
       )}
@@ -474,11 +381,19 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
             </Typography>
           </Box>
 
-          {/* Category Filter Chips */}
+          {/*
+            Category Filter Chips - wraps onto multiple rows instead of
+            scrolling horizontally. A hidden-overflow row let 2 of the 5
+            categories go unseen unless a user discovered the scroll
+            gesture (Hick's Law: choices need to be visible to be weighed);
+            there are few enough categories that showing all of them
+            up front costs only a little vertical space.
+          */}
           <Stack
             direction="row"
+            useFlexGap
             spacing={1}
-            sx={{ mb: 3, overflowX: "auto", pb: 0.5 }}
+            sx={{ mb: 3, flexWrap: "wrap" }}
           >
             {categories.map((cat) => (
               <Chip
@@ -493,11 +408,21 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
             ))}
           </Stack>
 
-          {/* Suggestion Cards */}
-          <Grid container spacing={2}>
+          {/*
+            Suggestion Cards - same container-responsive grid as the swatch
+            preview above, instead of a viewport-keyed 2-up `md` grid that
+            stayed 2-up (and cramped) inside the narrow drawer.
+          */}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              gap: 2,
+            }}
+          >
             {filteredSuggestions.map((suggestion) => (
-              <Grid size={{ xs: 12, md: 6 }} key={suggestion.id}>
                 <Paper
+                  key={suggestion.id}
                   elevation={0}
                   onClick={() => handleSelectSuggestion(suggestion)}
                   sx={{
@@ -582,9 +507,8 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
                     ))}
                   </Stack>
                 </Paper>
-              </Grid>
             ))}
-          </Grid>
+          </Box>
         </CardContent>
       </Card>
 
