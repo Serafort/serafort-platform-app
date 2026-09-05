@@ -35,11 +35,14 @@ import type {
 } from "@cap/theme";
 import {
   DEFAULT_TENANT_THEME,
+  THEME_PRESETS,
+  getPresetMode,
   mergeThemeWithPreset,
   useThemeEditorStore,
   themeEditorStore,
 } from "@cap/theme";
 import type { ThemePresetId } from "@cap/theme";
+import { useSettings } from "@cap/platform-store";
 import { useTenantTheme, useUpdateTenantTheme } from "../hooks/useThemeQuery";
 
 interface TabPanelProps {
@@ -79,6 +82,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
   const updateMutation = useUpdateTenantTheme(organizationId);
 
   const { isEditing, draftConfig } = useThemeEditorStore();
+  const { settings, updateSettings } = useSettings();
 
   const activeInitialTheme =
     initialTheme || serverThemeData?.data?.themeConfig || DEFAULT_TENANT_THEME;
@@ -276,8 +280,29 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
         ...mergeThemeWithPreset(prev || DEFAULT_TENANT_THEME, presetId),
         organizationId,
       }));
+
+      // A preset is authored for one mode, and its surface, text and border
+      // colours are dropped by composeMuiTheme when they do not suit the mode
+      // the app is currently in - see getPresetMode. Move the app to the
+      // preset's own mode so the result matches the card that was clicked,
+      // and say so, because a mode flip the user did not ask for should never
+      // be silent.
+      const presetMode = getPresetMode(presetId);
+      const switchedMode = settings.mode !== presetMode;
+      if (switchedMode) {
+        updateSettings({ mode: presetMode });
+      }
+
+      const presetName = THEME_PRESETS[presetId]?.name ?? "Preset";
+      setSnackbar({
+        open: true,
+        message: switchedMode
+          ? `${presetName} applied — switched to ${presetMode} mode.`
+          : `${presetName} applied.`,
+        severity: "success",
+      });
     },
-    [organizationId, updateThemeState],
+    [organizationId, settings.mode, updateSettings, updateThemeState],
   );
 
   if (isLoadingServerTheme && !initialTheme) {

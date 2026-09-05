@@ -3,6 +3,7 @@ import type { TenantThemeConfig } from "../types";
 import { DEFAULT_THEME_CONFIG } from "../types";
 import { THEME_PRESETS } from "../types/presets";
 import type { ThemePresetId } from "../types/presets";
+import { LIGHT_SURFACE_THRESHOLD, lightnessOf } from "./colorLightness";
 
 export const mergeDeep = <T extends Record<string, unknown>>(
   target: T,
@@ -32,6 +33,29 @@ const isObject = (item: unknown): item is Record<string, unknown> => {
   return item !== null && typeof item === "object" && !Array.isArray(item);
 };
 
+/**
+ * The light/dark mode a preset was authored for, read from the background it
+ * shows on its own card.
+ *
+ * composeMuiTheme's `resolveChromeColor` only accepts a background, surface,
+ * text or border colour whose lightness suits the *current* mode - a guard
+ * that stops a light-authored tenant palette from wrecking dark mode. The same
+ * guard silently drops every chrome colour of a dark preset applied while the
+ * app is in light mode, leaving only the brand colours changed: from the
+ * user's seat, the preset did nothing. Rather than force both modes onto the
+ * tokens (which would strand a partially-specified preset with, say, a near
+ * black background and the default near black text), callers move the app to
+ * the mode the preset expects. Anything the preset leaves unspecified then
+ * falls back to that mode's own readable default.
+ */
+export const getPresetMode = (presetId: ThemePresetId): "light" | "dark" => {
+  const lightness = lightnessOf(
+    THEME_PRESETS[presetId]?.preview?.backgroundColor || "",
+  );
+  if (lightness === null) return "light";
+  return lightness > LIGHT_SURFACE_THRESHOLD ? "light" : "dark";
+};
+
 export const applyPreset = (presetId: ThemePresetId): TenantThemeConfig => {
   const preset = THEME_PRESETS[presetId];
   if (!preset) {
@@ -41,6 +65,7 @@ export const applyPreset = (presetId: ThemePresetId): TenantThemeConfig => {
   return produce(DEFAULT_THEME_CONFIG, (draft: TenantThemeConfig) => {
     draft.preset = presetId;
     draft.name = preset.name;
+    draft.metadata = { ...draft.metadata, mode: getPresetMode(presetId) };
 
     if (preset.tokens) {
       if (preset.tokens.colors) {
@@ -114,8 +139,19 @@ export const mergeThemeWithPreset = (
 ): TenantThemeConfig => {
   const presetTheme = applyPreset(presetId);
 
-  return produce(currentTheme, (draft) => {
+  // The caller may hand us a partial config - the theme editor opens with an
+  // empty draft and only fills it in on the first edit, so selecting a preset
+  // as the very first action used to arrive here as `{}` and throw on
+  // `draft.tokens.colors`, which surfaced as the preset click doing nothing at
+  // all. Backfill every branch this merge writes into before entering produce.
+  const base = mergeDeep(
+    structuredClone(DEFAULT_THEME_CONFIG) as unknown as Record<string, unknown>,
+    (currentTheme || {}) as unknown as Record<string, unknown>,
+  ) as unknown as TenantThemeConfig;
+
+  return produce(base, (draft) => {
     draft.preset = presetId;
+    draft.metadata = { ...draft.metadata, mode: presetTheme.metadata?.mode };
 
     // Merge all tokens from the preset-derived theme
     Object.assign(draft.tokens.colors, presetTheme.tokens.colors);

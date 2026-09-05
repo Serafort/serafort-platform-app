@@ -59,9 +59,17 @@ export const themeEditorStore = {
   },
 
   startEditing(initialConfig: TenantThemeConfig) {
+    // Callers that just want the editor open - the customize FAB, the widget
+    // marketplace - have no config in hand and pass `{} as TenantThemeConfig`.
+    // Stored as-is, that empty object is truthy everywhere a draft is tested
+    // for, so the editor treated it as a real draft and handed it to code that
+    // reasonably expects `tokens` to exist. A draft that carries no tokens is
+    // not a draft; keep it null so the tenant's own config stays in play until
+    // the first genuine edit.
+    const hasConfig = Boolean(initialConfig?.tokens);
     state = {
       isEditing: true,
-      draftConfig: structuredClone(initialConfig),
+      draftConfig: hasConfig ? structuredClone(initialConfig) : null,
     };
     syncDOMVariables(state.draftConfig);
     notify();

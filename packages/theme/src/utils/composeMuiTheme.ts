@@ -7,6 +7,7 @@ import { DEFAULT_THEME_CONFIG } from "../types";
 import darkTheme from "../assets/themes/dark";
 import lightTheme from "../assets/themes/light";
 import { createBaseMuiTheme } from "./createBaseMuiTheme";
+import { LIGHT_SURFACE_THRESHOLD, lightnessOf } from "./colorLightness";
 
 interface ComposeMuiThemeOptions {
   currentMode: SystemMode;
@@ -22,33 +23,6 @@ const toNumber = (value: string | number | undefined, fallback: number) => {
   return Number.isNaN(parsed) ? fallback : parsed;
 };
 
-/**
- * Relative lightness of a colour, 0 (black) to 1 (white). Accepts the hex and
- * rgb()/rgba() forms the token layer produces; anything else returns null so
- * the caller can fall back rather than guess.
- */
-const lightnessOf = (color: string): number | null => {
-  if (!color) return null;
-
-  let r: number, g: number, b: number;
-  const hex = color.trim();
-
-  if (/^#[0-9a-f]{3}$/i.test(hex)) {
-    r = parseInt(hex[1] + hex[1], 16);
-    g = parseInt(hex[2] + hex[2], 16);
-    b = parseInt(hex[3] + hex[3], 16);
-  } else if (/^#[0-9a-f]{6,8}$/i.test(hex)) {
-    r = parseInt(hex.slice(1, 3), 16);
-    g = parseInt(hex.slice(3, 5), 16);
-    b = parseInt(hex.slice(5, 7), 16);
-  } else {
-    const m = hex.match(/rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/i);
-    if (!m) return null;
-    [r, g, b] = [Number(m[1]), Number(m[2]), Number(m[3])];
-  }
-
-  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-};
 
 /**
  * Resolve a "chrome" colour - background, surface, text, border - for the
@@ -89,7 +63,7 @@ const resolveChromeColor = (
   if (lightness === null) return tokenValue; // unparseable: trust the author
 
   const wantsLight = inverted ? mode === "dark" : mode === "light";
-  const isLight = lightness > 0.5;
+  const isLight = lightness > LIGHT_SURFACE_THRESHOLD;
 
   return isLight === wantsLight ? tokenValue : fallback;
 };
