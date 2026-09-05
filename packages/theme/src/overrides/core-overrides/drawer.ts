@@ -11,11 +11,15 @@ const drawer = (skin: Skin): Theme["components"] => ({
       }),
     },
     styleOverrides: {
-      paper: {
+      // `--mui-customShadows-lg` is never defined (no CSS-variables theming
+      // here), and an invalid var() falls back to `none` rather than to the
+      // theme - so this override was quietly removing the drawer's elevation
+      // instead of setting it.
+      paper: ({ theme }) => ({
         ...(skin !== "bordered" && {
-          boxShadow: "var(--mui-customShadows-lg)",
+          boxShadow: (theme as Theme).customShadows.lg,
         }),
-      },
+      }),
     },
   },
 });

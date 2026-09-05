@@ -174,11 +174,16 @@ export const generateThemeVariables = (
     // Computed neumorphism variables
     const neuShadow = computeNeumorphismBoxShadow(neu);
     effects["--neu-shadow"] = neuShadow;
-    effects["--effect-shadow"] = neuShadow;
+
+    // Gated on the active global effect for the same reason as --effect-bg
+    // above: a tenant left with neumorphism.enabled from an earlier preset but
+    // a different globalType would otherwise stamp the neu shadow on every
+    // surface in the app - including a glass one.
+    if (theme.effects.globalType === "neu") {
+      effects["--effect-shadow"] = neuShadow;
+    }
   } else {
     effects["--neu-enabled"] = "0";
-    // Fallback for effect shadow if neumorphism is disabled
-    effects["--effect-shadow"] = "0 2px 8px rgba(0, 0, 0, 0.1)";
   }
 
   if (theme.effects?.brutalism?.enabled) {

@@ -7,12 +7,17 @@ const dialog = (skin: Skin): Theme["components"] => ({
       paper: ({ theme }) => ({
         borderRadius:
           "var(--form-modal-radius, var(--radius-xl, var(--mui-shape-customBorderRadius-lg, 16px)))",
-        backgroundColor:
-          "var(--surface-paper, var(--mui-palette-background-paper))",
+        // Same chain as MuiCard/MuiPaper: --effect-bg/--effect-backdrop are
+        // what the active global effect (glass, brutalism, bento, organic)
+        // paints a surface with, and the chain has to end at a real theme
+        // value because `--mui-*` names never exist outside MUI's CSS
+        // variables mode, which this app does not use.
+        backgroundColor: `var(--surface-paper, var(--effect-bg, ${theme.palette.background.paper}))`,
+        backdropFilter: "var(--effect-backdrop, none)",
         maxWidth: "var(--form-modal-max-width, 480px)",
         ...(skin !== "bordered"
           ? {
-              boxShadow: "var(--mui-customShadows-lg)",
+              boxShadow: `var(--effect-shadow, ${(theme as Theme).customShadows.lg})`,
             }
           : {
               boxShadow: "none",

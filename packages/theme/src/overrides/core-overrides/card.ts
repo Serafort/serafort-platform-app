@@ -10,17 +10,27 @@ const card = (skin: Skin): Theme["components"] => {
         }),
       },
       styleOverrides: {
-        root: ({ ownerState }) => ({
+        // Every `--mui-*` name below used to sit at the end of a fallback
+        // chain, but this app builds its theme with a plain createTheme, so
+        // MUI's CSS-variable mode is off and none of them are ever defined -
+        // and an invalid var() resolves to the property's initial value, not
+        // to the theme. That is why cards rendered transparent and unshadowed.
+        // Each chain now ends at a real value read from the theme, which
+        // composeMuiTheme rebuilds per mode.
+        root: ({ ownerState, theme }) => ({
           borderRadius:
             "var(--bento-radius, var(--comp-card-border-radius, var(--radius-lg, 12px)))",
-          backgroundColor:
-            "var(--surface-paper, var(--effect-bg, var(--mui-palette-background-paper)))",
-          borderColor:
-            "var(--surface-border, var(--glass-border, var(--mui-palette-divider)))",
-          backdropFilter: "var(--glass-blur, var(--effect-backdrop, none))",
+          backgroundColor: `var(--surface-paper, var(--effect-bg, ${theme.palette.background.paper}))`,
+          borderColor: `var(--surface-border, var(--glass-border, ${theme.palette.divider}))`,
+          // `--glass-blur` is a raw length (16px) - it backs per-component
+          // opt-in glass, where it is wrapped in blur() at the point of use.
+          // Reading it here handed backdrop-filter a bare length, which is not
+          // a filter function, so the declaration was dropped and glass cards
+          // never actually frosted anything. `--effect-backdrop` is the
+          // ready-made `blur(...)` the effect layer emits for exactly this.
+          backdropFilter: "var(--effect-backdrop, none)",
           ...(ownerState.variant !== "outlined" && {
-            boxShadow:
-              "var(--glass-shadow, var(--effect-shadow, var(--comp-card-box-shadow, var(--mui-customShadows-md))))",
+            boxShadow: `var(--glass-shadow, var(--effect-shadow, var(--comp-card-box-shadow, ${(theme as Theme).customShadows.md})))`,
           }),
         }),
       },
