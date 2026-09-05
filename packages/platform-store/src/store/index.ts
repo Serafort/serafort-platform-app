@@ -59,6 +59,11 @@ export type {
   WidgetStudioSlice,
 };
 export { DEFAULT_SLOT_SIZE };
+export {
+  SETTINGS_COOKIE_NAME,
+  readSettingsCookie,
+  writeSettingsCookie,
+} from "./slices/settingsCookie";
 
 // Hydration tracking
 let hasHydrated = false;
@@ -111,8 +116,10 @@ const secureStorage = {
 
     const storageKey =
       (import.meta as any).env?.VITE_STORAGE_KEY ||
-      (typeof process !== "undefined" ? process.env?.VITE_STORAGE_KEY : undefined) ||
-      "cap-platform-storage";
+      (typeof process !== "undefined"
+        ? process.env?.VITE_STORAGE_KEY
+        : undefined) ||
+      "serafort-storage";
     if (name === storageKey) {
       try {
         const masterKey =
@@ -140,8 +147,10 @@ const secureStorage = {
     if (typeof localStorage === "undefined") return;
     const storageKey =
       (import.meta as any).env?.VITE_STORAGE_KEY ||
-      (typeof process !== "undefined" ? process.env?.VITE_STORAGE_KEY : undefined) ||
-      "cap-platform-storage";
+      (typeof process !== "undefined"
+        ? process.env?.VITE_STORAGE_KEY
+        : undefined) ||
+      "serafort-storage";
     if (name === storageKey) {
       // Fail closed: never fall back to a hardcoded key. A predictable key gives
       // zero at-rest protection for the persisted store and must not ship.
@@ -192,8 +201,7 @@ export const useAppStore = create<AppStore>()(
         ...createWidgetStudioSlice(...(args as [any, any, any])),
       })),
       {
-        name:
-          (import.meta as any).env?.VITE_STORAGE_KEY || "cap-platform-storage",
+        name: (import.meta as any).env?.VITE_STORAGE_KEY || "serafort-storage",
         storage: createJSONStorage(() => secureStorage as any),
         onRehydrateStorage: (_state) => {
           if (import.meta.env.DEV)
@@ -271,7 +279,7 @@ export const useAppStore = create<AppStore>()(
       },
     ),
     {
-      name: (import.meta as any).env?.VITE_APP_NAME || "cap-platform-store",
+      name: (import.meta as any).env?.VITE_APP_NAME || "serafort-store",
       enabled: import.meta.env.DEV,
       anonymousActionType: "zustand/action",
       serialize: { options: true },

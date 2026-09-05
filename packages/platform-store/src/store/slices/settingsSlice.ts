@@ -7,6 +7,7 @@ import type {
   Layout,
   LayoutComponentWidth,
 } from "@cap/shared-types";
+import { readSettingsCookie, writeSettingsCookie } from "./settingsCookie";
 
 export interface Settings {
   mode: Mode;
@@ -52,7 +53,18 @@ const defaultSettings: Settings = {
   navbarContentWidth: "compact",
   contentWidth: "compact",
   footerContentWidth: "compact",
-  primaryColor: "#D4AF37",
+  primaryColor: "#047BFA", // Serafort brand blue
+};
+
+/**
+ * The persisted store is the source of truth, but it hydrates asynchronously
+ * from encrypted storage. Seeding from the cookie means the very first render
+ * already matches what the anti-flash script painted, instead of rendering
+ * light and then snapping to dark once hydration lands.
+ */
+const initialSettings = (): Settings => {
+  const fromCookie = readSettingsCookie<Settings>();
+  return { ...defaultSettings, ...fromCookie };
 };
 
 export const createSettingsSlice: StateCreator<
@@ -65,26 +77,42 @@ export const createSettingsSlice: StateCreator<
   [],
   SettingsSlice
 > = (set, get) => ({
-  mode: defaultSettings.mode,
-  settings: defaultSettings,
+  mode: initialSettings().mode,
+  settings: initialSettings(),
   isSettingsChanged: false,
   layoutOverride: "none",
 
   updateSettings: (newSettings: Partial<Settings>) => {
+    // Drop keys whose value is `undefined`. Callers legitimately build partial
+    // updates by optional chaining - `{ mode: config.theme?.mode }` in
+    // tenantContext's applyTenantConfig, for one - and spreading an explicit
+    // `undefined` overwrites a real setting instead of leaving it alone. That
+    // is how a tenant config with no `mode` used to silently wipe the user's
+    // colour mode, forcing the whole shell back to light.
+    const patch = Object.fromEntries(
+      Object.entries(newSettings).filter(([, value]) => value !== undefined),
+    ) as Partial<Settings>;
+
+    if (Object.keys(patch).length === 0) return;
+
     set((state) => {
       // Sync root mode if it's being updated in settings
-      if (newSettings.mode) {
-        state.mode = newSettings.mode;
+      if (patch.mode) {
+        state.mode = patch.mode;
       }
 
       // Update settings
-      state.settings = { ...state.settings, ...newSettings };
+      state.settings = { ...state.settings, ...patch };
 
       // Update change detection
       const keys = Object.keys(defaultSettings) as (keyof Settings)[];
       state.isSettingsChanged = keys.some(
         (k) => defaultSettings[k] !== state.settings[k],
       );
+
+      // Mirror to the cookie so the next load's anti-flash script and the
+      // synchronous getMode()/getSkin() helpers see the same values.
+      writeSettingsCookie(state.settings);
     });
   },
 
@@ -93,6 +121,7 @@ export const createSettingsSlice: StateCreator<
       settings: defaultSettings,
       isSettingsChanged: false,
     });
+    writeSettingsCookie(defaultSettings);
   },
 
   updatePageSettings: (newSettings: Partial<Settings>) => {

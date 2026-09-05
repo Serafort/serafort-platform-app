@@ -1,4 +1,4 @@
-# CAP Framework — Codebase Functionality Specification
+#Serafort — Codebase Functionality Specification
 
 > **Platform:** CAP Multi-Tenant SaaS Modular Platform  
 > **Tech Stack:** React 19, TypeScript 5.8, Material-UI v7 (MUI), Zustand 5, Vite 6, TanStack React Query v5, Swapy DnD, TailwindCSS v4, Vitest, Playwright  

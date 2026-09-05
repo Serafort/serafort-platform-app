@@ -2,7 +2,7 @@ import { createTheme, darken, lighten } from "@mui/material/styles";
 import type { Theme } from "@mui/material/styles";
 import type { Direction, Settings, SystemMode } from "@cap/shared-types";
 import getComponentOverrides from "../overrides";
-import type { TenantThemeConfig } from "../types";
+import type { TenantThemeConfig, ColorToken } from "../types";
 import { DEFAULT_THEME_CONFIG } from "../types";
 import darkTheme from "../assets/themes/dark";
 import lightTheme from "../assets/themes/light";
@@ -20,6 +20,78 @@ const toNumber = (value: string | number | undefined, fallback: number) => {
 
   const parsed = Number.parseInt(value || "", 10);
   return Number.isNaN(parsed) ? fallback : parsed;
+};
+
+/**
+ * Relative lightness of a colour, 0 (black) to 1 (white). Accepts the hex and
+ * rgb()/rgba() forms the token layer produces; anything else returns null so
+ * the caller can fall back rather than guess.
+ */
+const lightnessOf = (color: string): number | null => {
+  if (!color) return null;
+
+  let r: number, g: number, b: number;
+  const hex = color.trim();
+
+  if (/^#[0-9a-f]{3}$/i.test(hex)) {
+    r = parseInt(hex[1] + hex[1], 16);
+    g = parseInt(hex[2] + hex[2], 16);
+    b = parseInt(hex[3] + hex[3], 16);
+  } else if (/^#[0-9a-f]{6,8}$/i.test(hex)) {
+    r = parseInt(hex.slice(1, 3), 16);
+    g = parseInt(hex.slice(3, 5), 16);
+    b = parseInt(hex.slice(5, 7), 16);
+  } else {
+    const m = hex.match(/rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/i);
+    if (!m) return null;
+    [r, g, b] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  }
+
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+};
+
+/**
+ * Resolve a "chrome" colour - background, surface, text, border - for the
+ * active mode.
+ *
+ * `ColorToken` carries optional `light`/`dark` fields precisely so a tenant
+ * (or DEFAULT_THEME_CONFIG) can author a real per-mode value; when one is set
+ * for the active mode, it wins outright - no inference, the author said so.
+ *
+ * Most tenant configs still only set `.value` though (that's all today's
+ * `ColorPaletteEditor` chrome swatches write, and it's the whole shape of any
+ * config authored before per-mode tokens existed). For those, a token is
+ * honoured only when its lightness suits the active mode; otherwise the
+ * mode's own static theme value wins. Applying `.value` verbatim in both
+ * modes regardless of fit is what used to leave dark mode half-applied -
+ * `palette.mode` flipped to `dark` and every component keying off it
+ * switched over, while the surfaces stayed light, so the shell rendered white
+ * text on a white sidebar. The heuristic prevents that for single-value
+ * configs; deliberately dark presets (glassmorphism, godlio-premium) keep
+ * their surfaces in dark mode, and a light-mode brand background keeps its
+ * own in light mode - but neither can strand the shell in an unreadable
+ * half-state.
+ */
+const resolveChromeColor = (
+  token: ColorToken | undefined,
+  fallback: string,
+  mode: SystemMode,
+  /** Text sits opposite its surface, so its expected lightness is inverted. */
+  inverted = false,
+): string => {
+  const explicit = mode === "dark" ? token?.dark : token?.light;
+  if (explicit) return explicit;
+
+  const tokenValue = token?.value;
+  if (!tokenValue) return fallback;
+
+  const lightness = lightnessOf(tokenValue);
+  if (lightness === null) return tokenValue; // unparseable: trust the author
+
+  const wantsLight = inverted ? mode === "dark" : mode === "light";
+  const isLight = lightness > 0.5;
+
+  return isLight === wantsLight ? tokenValue : fallback;
 };
 
 const derivePaletteColorGroup = (mainColor: string, contrastText = "#FFF") => ({
@@ -58,17 +130,34 @@ export const composeMuiTheme = ({
     baseStaticTheme.palette.primary.main;
   const secondaryMain =
     tokens.colors.secondary?.value || baseStaticTheme.palette.secondary.main;
-  const backgroundDefault =
-    tokens.colors.background?.value ||
-    baseStaticTheme.palette.background.default;
-  const surfaceColor =
-    tokens.colors.surface?.value || baseStaticTheme.palette.background.paper;
-  const borderColor =
-    tokens.colors.border?.value || baseStaticTheme.palette.divider;
-  const textPrimary =
-    tokens.colors.text?.value || baseStaticTheme.palette.text.primary;
-  const textSecondary =
-    tokens.colors.textMuted?.value || baseStaticTheme.palette.text.secondary;
+  // Chrome colours must suit the active mode - see resolveChromeColor.
+  const backgroundDefault = resolveChromeColor(
+    tokens.colors.background,
+    baseStaticTheme.palette.background.default,
+    currentMode,
+  );
+  const surfaceColor = resolveChromeColor(
+    tokens.colors.surface,
+    baseStaticTheme.palette.background.paper,
+    currentMode,
+  );
+  const borderColor = resolveChromeColor(
+    tokens.colors.border,
+    baseStaticTheme.palette.divider,
+    currentMode,
+  );
+  const textPrimary = resolveChromeColor(
+    tokens.colors.text,
+    baseStaticTheme.palette.text.primary,
+    currentMode,
+    true,
+  );
+  const textSecondary = resolveChromeColor(
+    tokens.colors.textMuted,
+    baseStaticTheme.palette.text.secondary,
+    currentMode,
+    true,
+  );
   const errorMain =
     tokens.colors.error?.value || baseStaticTheme.palette.error.main;
   const successMain =

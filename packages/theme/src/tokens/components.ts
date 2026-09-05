@@ -41,29 +41,28 @@ export interface StateComponentTokens {
 export const stateComponentTokens: StateComponentTokens = {
   empty: {
     iconSize: "48px",
-    iconColor: "var(--color-text-tertiary, #94A3B8)",
+    iconColor: "var(--color-text-tertiary, #96A2B9)",
     titleTypography:
       "var(--font-heading, clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem))",
-    canvasDashedBorder:
-      "1px dashed var(--surface-border, rgba(255, 255, 255, 0.08))",
+    canvasDashedBorder: "1px dashed var(--surface-border, #1B2F5C)",
   },
   loading: {
-    skeletonBase: "var(--surface-subtle, #1E1E28)",
-    skeletonHighlight: "var(--surface-paper, #17171F)",
+    skeletonBase: "var(--surface-subtle, #0A1B3D)",
+    skeletonHighlight: "var(--surface-paper, #032457)",
     shimmerDuration: "1.5s ease-in-out infinite",
     actionLockDuration: 120, // 120ms
-    spinnerTrack: "var(--surface-border, rgba(255, 255, 255, 0.08))",
+    spinnerTrack: "var(--surface-border, #1B2F5C)",
   },
   error: {
-    fieldBorder: "1px solid var(--color-error-500, #EF4444)",
-    fieldFocusRing: "0 0 0 3px rgba(239, 68, 68, 0.2)",
-    badgeBackground: "rgba(239, 68, 68, 0.12)",
-    messageColor: "var(--color-error-600, #DC2626)",
+    fieldBorder: "1px solid var(--color-error-500, #DC2626)",
+    fieldFocusRing: "0 0 0 3px rgba(220, 38, 38, 0.2)",
+    badgeBackground: "rgba(220, 38, 38, 0.12)",
+    messageColor: "var(--color-error-600, #B91C1C)",
   },
   success: {
-    iconCheckColor: "var(--color-success-500, #10B981)",
-    glowHighlight: "0 0 12px rgba(16, 185, 129, 0.35)",
-    bannerBackground: "rgba(16, 185, 129, 0.08)",
+    iconCheckColor: "var(--color-success-500, #16A34A)",
+    glowHighlight: "0 0 12px rgba(22, 163, 74, 0.35)",
+    bannerBackground: "rgba(22, 163, 74, 0.08)",
   },
 };
 
@@ -75,10 +74,10 @@ export const formTokens = {
     height: "48px", // Mobile-accessible touch target
     radius: "var(--radius-md, 8px)",
     paddingInline: "16px",
-    background: "var(--surface-subtle, #1E1E28)",
-    border: "1px solid var(--surface-border, rgba(255, 255, 255, 0.08))",
-    focusBorder: "1px solid var(--color-brand-500, #6366F1)",
-    focusRing: "0 0 0 3px rgba(99, 102, 241, 0.15)",
+    background: "var(--surface-subtle, #0A1B3D)",
+    border: "1px solid var(--surface-border, #1B2F5C)",
+    focusBorder: "1px solid var(--color-brand-500, #047BFA)",
+    focusRing: "0 0 0 3px rgba(4, 123, 250, 0.18)",
     floatingLabelScale: "0.75",
     floatingLabelTranslate: "translate(14px, -9px)",
   },
@@ -86,14 +85,14 @@ export const formTokens = {
     heightPrimary: "44px",
     heightLarge: "52px",
     radius: "var(--radius-md, 8px)",
-    primaryBg: "var(--color-brand-600, #4F46E5)",
-    primaryHoverBg: "var(--color-brand-700, #4338CA)",
-    primaryActiveBg: "var(--color-brand-800, #3730A3)",
+    primaryBg: "var(--color-brand-600, #044BC4)",
+    primaryHoverBg: "var(--color-brand-700, #0437A2)",
+    primaryActiveBg: "var(--color-brand-800, #032E7B)",
     disabledOpacity: "0.45",
   },
   modal: {
     backdropFilter: "blur(8px)",
-    backdropBg: "rgba(0, 0, 0, 0.65)",
+    backdropBg: "rgba(3, 20, 51, 0.65)",
     radius: "var(--radius-xl, 16px)",
     maxWidth: "480px",
   },

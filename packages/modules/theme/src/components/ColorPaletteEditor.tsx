@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -6,7 +6,11 @@ import {
   TextField,
   InputAdornment,
   Chip,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material";
+import LightModeIcon from "@mui/icons-material/LightModeOutlined";
+import DarkModeIcon from "@mui/icons-material/DarkModeOutlined";
 import type { ColorToken } from "@cap/theme";
 import { getWcagComplianceBadge } from "../services/aiThemePromptService";
 
@@ -29,19 +33,31 @@ const colorLabels: Record<string, string> = {
   info: "Info",
 };
 
+type PreviewMode = "light" | "dark";
+
 const ColorSwatch = ({
   color,
   label,
   onColorChange,
   contrastTarget,
+  /**
+   * When set, this swatch edits `color[modeKey]` (falling back to
+   * `color.value` for display when unset) instead of `color.value` directly -
+   * see composeMuiTheme's resolveChromeColor, which reads `.light`/`.dark`
+   * before `.value`.
+   */
+  modeKey,
 }: {
   color: ColorToken;
   label: string;
   onColorChange: (value: string) => void;
   contrastTarget?: string;
+  modeKey?: PreviewMode;
 }) => {
+  const displayValue = (modeKey ? color[modeKey] : undefined) ?? color.value;
+  const isInherited = Boolean(modeKey) && color[modeKey!] === undefined;
   const contrastBadge = contrastTarget
-    ? getWcagComplianceBadge(color.value, contrastTarget)
+    ? getWcagComplianceBadge(displayValue, contrastTarget)
     : null;
   return (
     <Box sx={{ mb: 2 }}>
@@ -69,12 +85,12 @@ const ColorSwatch = ({
             sx={{
               position: "absolute",
               inset: 0,
-              backgroundColor: color.value,
+              backgroundColor: displayValue,
             }}
           />
           <input
             type="color"
-            value={color.value}
+            value={displayValue}
             onChange={(e) => onColorChange(e.target.value)}
             aria-label={`Pick color for ${label}`}
             style={{
@@ -89,7 +105,7 @@ const ColorSwatch = ({
         </Box>
         <TextField
           size="small"
-          value={color.value}
+          value={displayValue}
           onChange={(e) => onColorChange(e.target.value)}
           placeholder="#000000"
           sx={{ flex: 1 }}
@@ -121,14 +137,24 @@ const ColorSwatch = ({
           {color.description}
         </Typography>
       )}
-      {contrastBadge && (
-        <Chip
-          size="small"
-          label={contrastBadge.label}
-          color={contrastBadge.color}
-          sx={{ mt: 1, height: 20, fontSize: "0.7rem" }}
-        />
-      )}
+      <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
+        {contrastBadge && (
+          <Chip
+            size="small"
+            label={contrastBadge.label}
+            color={contrastBadge.color}
+            sx={{ height: 20, fontSize: "0.7rem" }}
+          />
+        )}
+        {isInherited && (
+          <Chip
+            size="small"
+            variant="outlined"
+            label={`Same as light - not set for ${modeKey}`}
+            sx={{ height: 20, fontSize: "0.7rem" }}
+          />
+        )}
+      </Box>
     </Box>
   );
 };
@@ -137,6 +163,12 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
   colors,
   onChange,
 }) => {
+  // Which mode the chrome swatches (background/surface/text/textMuted/border)
+  // are currently editing. Brand and semantic colors have no mode dimension -
+  // a brand blue is a brand blue in both modes - so they ignore this toggle
+  // and always edit `.value` directly.
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("light");
+
   const handleColorChange = (key: string, value: string) => {
     onChange({
       ...colors,
@@ -146,6 +178,19 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
       },
     });
   };
+
+  const handleChromeColorChange = (key: string, value: string) => {
+    onChange({
+      ...colors,
+      [key]: {
+        ...colors[key],
+        [previewMode]: value,
+      },
+    });
+  };
+
+  const chromeContrastTarget =
+    colors.background?.[previewMode] ?? colors.background?.value ?? "#f8fafc";
 
   return (
     <Box>
@@ -187,6 +232,49 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
           </Box>
         </Grid>
 
+        <Grid size={{ xs: 12 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              flexWrap: "wrap",
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
+              Editing surface &amp; text colors for:
+            </Typography>
+            <ToggleButtonGroup
+              size="small"
+              exclusive
+              value={previewMode}
+              onChange={(_e, next: PreviewMode | null) => {
+                if (next) setPreviewMode(next);
+              }}
+              aria-label="Preview mode for surface and text colors"
+            >
+              <ToggleButton value="light" aria-label="Light mode">
+                <LightModeIcon fontSize="small" sx={{ mr: 0.5 }} />
+                Light
+              </ToggleButton>
+              <ToggleButton value="dark" aria-label="Dark mode">
+                <DarkModeIcon fontSize="small" sx={{ mr: 0.5 }} />
+                Dark
+              </ToggleButton>
+            </ToggleButtonGroup>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ flexBasis: "100%" }}
+            >
+              Background, Surface, Border, Text and Text Muted can differ
+              between light and dark mode. A swatch left unset for a mode falls
+              back to its Light value - set Dark explicitly if the light value
+              would not suit a dark screen (e.g. white on white).
+            </Typography>
+          </Box>
+        </Grid>
+
         <Grid size={{ xs: 12, md: 6 }}>
           <Box
             sx={{
@@ -205,17 +293,26 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
             <ColorSwatch
               color={colors.background || { value: "#f8fafc" }}
               label={colorLabels.background}
-              onColorChange={(value) => handleColorChange("background", value)}
+              modeKey={previewMode}
+              onColorChange={(value) =>
+                handleChromeColorChange("background", value)
+              }
             />
             <ColorSwatch
               color={colors.surface || { value: "#ffffff" }}
               label={colorLabels.surface}
-              onColorChange={(value) => handleColorChange("surface", value)}
+              modeKey={previewMode}
+              onColorChange={(value) =>
+                handleChromeColorChange("surface", value)
+              }
             />
             <ColorSwatch
               color={colors.border || { value: "#e2e8f0" }}
               label={colorLabels.border}
-              onColorChange={(value) => handleColorChange("border", value)}
+              modeKey={previewMode}
+              onColorChange={(value) =>
+                handleChromeColorChange("border", value)
+              }
             />
           </Box>
         </Grid>
@@ -238,14 +335,18 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
             <ColorSwatch
               color={colors.text || { value: "#0f172a" }}
               label={colorLabels.text}
-              contrastTarget={colors.background?.value || "#f8fafc"}
-              onColorChange={(value) => handleColorChange("text", value)}
+              modeKey={previewMode}
+              contrastTarget={chromeContrastTarget}
+              onColorChange={(value) => handleChromeColorChange("text", value)}
             />
             <ColorSwatch
               color={colors.textMuted || { value: "#64748b" }}
               label={colorLabels.textMuted}
-              contrastTarget={colors.background?.value || "#f8fafc"}
-              onColorChange={(value) => handleColorChange("textMuted", value)}
+              modeKey={previewMode}
+              contrastTarget={chromeContrastTarget}
+              onColorChange={(value) =>
+                handleChromeColorChange("textMuted", value)
+              }
             />
           </Box>
         </Grid>

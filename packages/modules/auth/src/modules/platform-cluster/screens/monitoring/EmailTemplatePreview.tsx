@@ -41,14 +41,14 @@ export default function EmailTemplatePreview() {
       version: 'v2.4',
       lastEdited: '2 days ago',
       html: `
-        <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <h1 style="color: #0f172a; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Welcome to CAP Platform!</h1>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">Hello {{name}},</p>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">Your multi-tenant account is ready. Click below to verify your email and access your dashboard.</p>
+        <div style="font-family: Inter, "Segoe UI", system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #C7D1E3;">
+          <h1 style="color: #031433; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Welcome to Serafort!</h1>
+          <p style="color: #454F68; font-size: 15px; line-height: 1.6;">Hello {{name}},</p>
+          <p style="color: #454F68; font-size: 15px; line-height: 1.6;">Your multi-tenant account is ready. Click below to verify your email and access your dashboard.</p>
           <div style="text-align: center; margin: 32px 0;">
-            <a href="{{verification_url}}" style="background: #2563eb; color: #ffffff; padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; display: inline-block;">Verify Account</a>
+            <a href="{{verification_url}}" style="background: #047BFA; color: #ffffff; padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; display: inline-block;">Verify Account</a>
           </div>
-          <p style="color: #94a3b8; font-size: 13px;">If you did not request this, please ignore this message.</p>
+          <p style="color: #64708A; font-size: 13px;">If you did not request this, please ignore this message.</p>
         </div>
       `,
     },
@@ -58,13 +58,13 @@ export default function EmailTemplatePreview() {
       version: 'v1.8',
       lastEdited: '1 week ago',
       html: `
-        <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <h1 style="color: #0f172a; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Password Reset Request</h1>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">A request was made to reset your password. Use the link below to set a new password:</p>
+        <div style="font-family: Inter, "Segoe UI", system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #C7D1E3;">
+          <h1 style="color: #031433; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Password Reset Request</h1>
+          <p style="color: #454F68; font-size: 15px; line-height: 1.6;">A request was made to reset your password. Use the link below to set a new password:</p>
           <div style="text-align: center; margin: 32px 0;">
-            <a href="{{reset_url}}" style="background: #dc2626; color: #ffffff; padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; display: inline-block;">Reset Password</a>
+            <a href="{{reset_url}}" style="background: #DC2626; color: #ffffff; padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; display: inline-block;">Reset Password</a>
           </div>
-          <p style="color: #94a3b8; font-size: 13px;">Link expires in 15 minutes.</p>
+          <p style="color: #64708A; font-size: 13px;">Link expires in 15 minutes.</p>
         </div>
       `,
     },
@@ -74,13 +74,13 @@ export default function EmailTemplatePreview() {
       version: 'v3.1',
       lastEdited: '5 hours ago',
       html: `
-        <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <h1 style="color: #0f172a; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Two-Factor Authentication Code</h1>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">Your one-time security code is:</p>
+        <div style="font-family: Inter, "Segoe UI", system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #C7D1E3;">
+          <h1 style="color: #031433; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Two-Factor Authentication Code</h1>
+          <p style="color: #454F68; font-size: 15px; line-height: 1.6;">Your one-time security code is:</p>
           <div style="text-align: center; margin: 24px 0;">
-            <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; background: #f1f5f9; padding: 12px 24px; border-radius: 8px; color: #0f172a;">849 201</span>
+            <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; background: #ECF0F7; padding: 12px 24px; border-radius: 8px; color: #031433;">849 201</span>
           </div>
-          <p style="color: #94a3b8; font-size: 13px;">Do not share this code with anyone.</p>
+          <p style="color: #64708A; font-size: 13px;">Do not share this code with anyone.</p>
         </div>
       `,
     },
@@ -304,7 +304,7 @@ export default function EmailTemplatePreview() {
                       fontSize: '12px',
                       whiteSpace: 'pre-wrap',
                       wordBreak: 'break-all',
-                      color: '#0f172a',
+                      color: '#031433',
                     }}
                   >
                     {templateHtml}

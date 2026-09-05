@@ -1,11 +1,14 @@
+/**
+ * Serafort dark surfaces, keyed to brand ink (#031433) and navy (#032457).
+ */
 const surface = {
-  100: "#1A1A1A",
-  200: "#2A2A2A",
-  300: "#333333",
-  400: "#4A4A4A",
-  500: "#666666",
-  600: "#858585",
-  main: "#333333",
+  100: "#020E24",
+  200: "#031433", // brand ink
+  300: "#032457", // brand navy
+  400: "#0A1B3D",
+  500: "#12295A",
+  600: "#1B2F5C",
+  main: "#032457",
 };
 
 export { surface };

@@ -187,7 +187,8 @@ const SAMLSSOInitiation = () => {
     <Box
       className='animate-scale-in'
       sx={{
-        background: `linear-gradient(135deg, ${alpha('#D4AF37', 0.9)} 0%, ${alpha('#8A6D3B', 0.95)} 100%)`,
+        // Serafort brand gradient: deep blue into ink.
+        background: `linear-gradient(135deg, ${alpha('#0437A2', 0.95)} 0%, ${alpha('#031433', 0.98)} 100%)`,
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',

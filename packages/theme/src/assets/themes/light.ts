@@ -1,39 +1,43 @@
 import { createTheme, alpha } from "@mui/material/styles";
 
 import { colors as functional } from "./palette/functional";
+import { brandTypography } from "../../tokens/brand";
 
-// Define light-mode specific palette tokens locally to override the dark BaseTheme defaults
+const displayFont = brandTypography.display.stack;
+
+// Light-mode palette, keyed to the Serafort brand kit
+// (`serafort_brand/brand-kit/tokens`). See `tokens/brand.ts` for the source.
 const lightPrimary = {
-  100: "#F3E5F5",
-  200: "#E1BEE7",
-  300: "#CE93D8",
-  400: "#BA68C8",
-  500: "#82368C", // Primary Main
-  600: "#7B1FA2",
-  main: "#82368C",
+  100: "#CDE5FE",
+  200: "#9BCAFC",
+  300: "#69B0FC",
+  400: "#06A0FC", // brand sky
+  500: "#047BFA", // brand blue - primary main
+  600: "#044BC4", // brand royal blue
+  main: "#047BFA",
 };
 
 const lightSecondary = {
-  main: "#07AEB5",
-  light: "#4DB6AC",
-  dark: "#00796B",
-  contrastText: "#FFF",
+  main: "#032457", // brand navy
+  light: "#0437A2", // brand deep blue
+  dark: "#031433", // brand ink
+  contrastText: "#FFFFFF",
 };
 
 const lightSurface = {
   100: "#FFFFFF",
   200: "#FFFFFF",
-  300: "#F8FAFC",
-  400: "#F1F5F9",
-  500: "#E2E8F0",
-  600: "#CBD5E1",
-  main: "#F8FAFC",
+  300: "#F6F8FC", // fog 50
+  400: "#ECF0F7", // fog 100
+  500: "#DAE1EE",
+  600: "#C7D1E3", // mist 300
+  main: "#F6F8FC",
 };
 
 const lightSurfaceMixed = {
-  main: "#6C757D",
-  500: "#6C757D",
-  600: "#495057",
+  main: "#64708A",
+  500: "#64708A", // slate 500
+  600: "#454F68", // slate 600
 };
 
 const lightTheme = createTheme({
@@ -60,19 +64,20 @@ const lightTheme = createTheme({
       paper: lightSurface[100],
     },
     text: {
-      primary: "#1A1A1A",
+      primary: "#031433", // brand ink
       secondary: lightSurfaceMixed[500],
-      disabled: alpha("#1A1A1A", 0.5),
+      disabled: alpha("#031433", 0.5),
     },
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: { fontSize: "2.5rem", fontWeight: 600 },
-    h2: { fontSize: "2rem", fontWeight: 600 },
-    h3: { fontSize: "1.75rem", fontWeight: 600 },
-    h4: { fontSize: "1.5rem", fontWeight: 600 },
-    h5: { fontSize: "1.25rem", fontWeight: 600 },
-    h6: { fontSize: "1rem", fontWeight: 600 },
+    // Brand kit: Inter for body, Space Grotesk for display/headings.
+    fontFamily: brandTypography.body.stack,
+    h1: { fontFamily: displayFont, fontSize: "2.5rem", fontWeight: 700 },
+    h2: { fontFamily: displayFont, fontSize: "2rem", fontWeight: 700 },
+    h3: { fontFamily: displayFont, fontSize: "1.75rem", fontWeight: 500 },
+    h4: { fontFamily: displayFont, fontSize: "1.5rem", fontWeight: 500 },
+    h5: { fontFamily: displayFont, fontSize: "1.25rem", fontWeight: 500 },
+    h6: { fontFamily: displayFont, fontSize: "1rem", fontWeight: 500 },
     subtitle1: { fontSize: "1rem", fontWeight: 400 },
     subtitle2: { fontSize: "0.875rem", fontWeight: 500 },
     body1: { fontSize: "1rem", fontWeight: 400 },
@@ -112,7 +117,7 @@ const lightTheme = createTheme({
       styleOverrides: {
         body: {
           backgroundColor: lightSurface[300],
-          color: "#1A1A1A",
+          color: "#031433",
         },
       },
     },
@@ -120,8 +125,8 @@ const lightTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: "#FFFFFF",
-          boxShadow: "0px 1px 3px rgba(0,0,0,0.05)",
-          color: "#1A1A1A",
+          boxShadow: "0px 1px 3px rgba(3, 20, 51, 0.06)",
+          color: "#031433",
         },
       },
     },
@@ -397,7 +402,7 @@ const lightTheme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          backgroundColor: "#1A1A1A",
+          backgroundColor: "#031433",
           color: "#FFFFFF",
           borderRadius: 6,
           fontSize: "0.75rem",
@@ -492,7 +497,7 @@ const lightTheme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         head: {
-          color: "#1A1A1A",
+          color: "#031433",
           fontWeight: 700,
           borderBottom: `1px solid ${alpha(lightSurfaceMixed[600], 0.1)}`,
         },
@@ -574,7 +579,7 @@ const lightTheme = createTheme({
       styleOverrides: {
         root: {
           "& .MuiSnackbarContent-root": {
-            backgroundColor: "#1A1A1A",
+            backgroundColor: "#031433",
             color: "#FFFFFF",
             borderRadius: 12,
           },
@@ -650,7 +655,7 @@ const lightTheme = createTheme({
       styleOverrides: {
         root: {
           "& .MuiBackdrop-root": {
-            backgroundColor: alpha("#1A1A1A", 0.5),
+            backgroundColor: alpha("#031433", 0.5),
           },
         },
       },

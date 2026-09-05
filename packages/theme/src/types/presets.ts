@@ -3,6 +3,8 @@ import type { EffectConfig } from "./effects";
 import type { ComponentStyles } from "./componentStyles";
 
 export type ThemePresetId =
+  | "serafort"
+  | "serafort-dark"
   | "flat-design"
   | "material-design"
   | "neumorphism"
@@ -44,14 +46,77 @@ export interface ThemePreset {
 }
 
 export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
+  // ── Serafort house style (brand-kit aligned) ──────────────────────────────
+  serafort: {
+    id: "serafort",
+    name: "Serafort",
+    description:
+      "Serafort house style: brand blue on blue-tinted fog, Space Grotesk headings",
+    preview: {
+      primaryColor: "#047BFA",
+      secondaryColor: "#06CBFD",
+      backgroundColor: "#F6F8FC",
+    },
+    tokens: {
+      colors: {
+        primary: { value: "#047BFA", description: "Serafort blue" },
+        secondary: { value: "#06CBFD", description: "Serafort cyan accent" },
+        background: { value: "#F6F8FC", description: "Fog 50" },
+        surface: { value: "#FFFFFF", description: "White surface" },
+        text: { value: "#031433", description: "Brand ink" },
+        textMuted: { value: "#454F68", description: "Slate 600" },
+        border: { value: "#C7D1E3", description: "Mist 300" },
+      },
+      typography: {
+        fontFamily: {
+          sans: '"Inter", "Segoe UI", system-ui, sans-serif',
+          display: '"Space Grotesk", "Segoe UI", system-ui, sans-serif',
+        },
+      },
+      borderRadius: { md: "8px" },
+    },
+    effects: { globalType: "standard" },
+    components: { button: { style: "standard" } },
+  },
+  "serafort-dark": {
+    id: "serafort-dark",
+    name: "Serafort Dark",
+    description:
+      "Serafort on the ink ground: navy surfaces with the cyan wing accent",
+    preview: {
+      primaryColor: "#06A0FC",
+      secondaryColor: "#06CBFD",
+      backgroundColor: "#031433",
+    },
+    tokens: {
+      colors: {
+        primary: { value: "#06A0FC", description: "Serafort sky" },
+        secondary: { value: "#06CBFD", description: "Serafort cyan accent" },
+        background: { value: "#031433", description: "Brand ink" },
+        surface: { value: "#032457", description: "Brand navy" },
+        text: { value: "#FFFFFF", description: "White" },
+        textMuted: { value: "#C7D1E3", description: "Mist 300" },
+        border: { value: "#1B2F5C", description: "Dark border" },
+      },
+      typography: {
+        fontFamily: {
+          sans: '"Inter", "Segoe UI", system-ui, sans-serif',
+          display: '"Space Grotesk", "Segoe UI", system-ui, sans-serif',
+        },
+      },
+      borderRadius: { md: "8px" },
+    },
+    effects: { globalType: "standard" },
+    components: {},
+  },
   default: {
     id: "default",
     name: "Default",
     description: "Clean, minimal design with balanced proportions",
     preview: {
-      primaryColor: "#6366f1",
-      secondaryColor: "#8b5cf6",
-      backgroundColor: "#f8fafc",
+      primaryColor: "#047BFA",
+      secondaryColor: "#06CBFD",
+      backgroundColor: "#F6F8FC",
     },
     tokens: {},
     effects: { globalType: "standard" },

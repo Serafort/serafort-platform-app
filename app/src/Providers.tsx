@@ -8,9 +8,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 type DevtoolsProps = { initialIsOpen?: boolean }
 const ReactQueryDevtools: React.ComponentType<DevtoolsProps> = import.meta.env.DEV
   ? React.lazy(() =>
-      import('@tanstack/react-query-devtools').then((m) => ({
-        default: m.ReactQueryDevtools,
-      })),
+      import('@tanstack/react-query-devtools')
+        .then((m) => ({
+          default: m.ReactQueryDevtools,
+        }))
+        .catch((err) => {
+          console.warn('[ReactQueryDevtools] Failed to load devtools bundle:', err)
+          return { default: () => null }
+        }),
     )
   : () => null
 import { I18nextProvider } from 'react-i18next'

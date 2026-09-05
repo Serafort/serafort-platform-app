@@ -34,7 +34,7 @@ import {
 const AppBar = styled(MuiAppBar)(({ theme }: { theme: Theme }) => ({
   backgroundColor: theme.palette.background.paper,
   maxWidth: navbarTokens.layout.appBarMaxWidth,
-  zIndex: theme.zIndex.drawer + navbarTokens.layout.zIndexOffset,
+  zIndex: theme.zIndex.appBar,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
