@@ -33,29 +33,6 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
     for (let i = 0; i < data.header.length; i += 1)
       properties.push(data.header[i].key);
 
-    // const hideActionMode = this.props?.hideActionMode ?? false
-    // const loading = this.props?.loading ?? false
-    // const TableOptions = this.props?.TableOptions ?? function () {}
-    // const rowsPerPage = this.props?.rowsPerPage ?? 10
-    // const page = this.props?.page ?? 0
-    // const onClick = this.props?.onClick ?? function () {}
-
-    // const rows = { data: data?.body }
-
-    // const options = []
-    // for (let i = 0; i < data?.headers?.length; i += 1)
-    //   if (data?.header[i]?.options)
-    //     options.push({
-    //       key: data?.headers[i]?.key,
-    //       options: data?.headers[i]?.options,
-    //     })
-    // if (this.state.idDelete) {
-    //   for (let i = 0; i < rows.data.length; i += 1) {
-    //     if (rows.data[i].id === this.state.idDelete) rows.data.splice(i, 1)
-    //   }
-    //   this.state.idDelete = ''
-    // }
-
     return (
       <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
         <TableHead>
