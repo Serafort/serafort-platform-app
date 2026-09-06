@@ -6,21 +6,14 @@ import {
   IconButton,
   Tabs,
   Tab,
-  TextField,
-  InputAdornment,
-  Chip,
-  Card,
-  CardContent,
-  Button,
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   Snackbar,
   Alert,
   Tooltip,
-  Divider,
   Stack,
+  Button,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
@@ -34,8 +27,6 @@ import ShoppingCart from "@mui/icons-material/ShoppingCart";
 import WbSunny from "@mui/icons-material/WbSunny";
 import ViewArray from "@mui/icons-material/ViewArray";
 import TabIcon from "@mui/icons-material/Tab";
-import CheckCircle from "@mui/icons-material/CheckCircle";
-import DashboardCustomize from "@mui/icons-material/DashboardCustomize";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { useDraggable } from "@dnd-kit/core";
@@ -49,6 +40,19 @@ import {
 } from "../../store/widgetMarketplaceStore";
 import { themeEditorStore } from "../../store/themeEditorStore";
 import { aiWidgetGeneratorService } from "../../services/aiWidgetGeneratorService";
+import { effectSurfaceBackground } from "../../utils/effectSurfaceCss";
+import {
+  CONTROL_HEIGHT,
+  RADIUS,
+  accentStrip,
+  hairline,
+  iconTile,
+  panelCard,
+  panelCardInteractive,
+  primaryAction,
+  sectionLabel,
+  suggestionPill,
+} from "../../styles/panelStyles";
 import type { TenantThemeConfig } from "../../types";
 
 export interface WidgetCatalogItem {
@@ -117,332 +121,104 @@ const WIDGET_CATALOG: WidgetCatalogItem[] = [
   },
 ];
 
+const CATEGORIES = [
+  { key: "all", label: "All" },
+  { key: "analytics", label: "Analytics" },
+  { key: "commerce", label: "Commerce" },
+  { key: "containers", label: "Containers" },
+  { key: "tools", label: "Tools" },
+] as const;
+
+/** What a widget costs on the grid, in the grid's own terms. */
+const describeFootprint = (item: WidgetCatalogItem): string =>
+  `${item.defaultSpan >= 12 ? "Full width" : `${item.defaultSpan} columns`} · ${
+    item.defaultHeight
+  }px tall`;
+
 /**
- * Render interactive live mini previews for catalog widgets
+ * A skeleton of a layout's shape. Deliberately abstract: the previews these
+ * replace showed invented data - a $128,450 revenue figure, two named
+ * customers, a San Francisco forecast - on every card, which is a lot of
+ * fiction to scroll past when all you are choosing is a widget.
  */
-const renderWidgetLivePreview = (widgetId: string) => {
-  switch (widgetId) {
-    case "dashboard-widget-revenueChart":
-      return (
-        <Box
-          sx={{
-            p: 1.5,
-            bgcolor: (theme) =>
-              theme.palette.mode === "dark"
-                ? "rgba(0,0,0,0.3)"
-                : "rgba(250,250,250,1)",
-            borderRadius: 2,
-            border: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 0.75,
-            }}
-          >
-            <Typography
-              variant="caption"
-              fontWeight={700}
-              color="text.secondary"
-            >
-              Total Revenue Stream
-            </Typography>
-            <Chip
-              label="+14.2%"
-              size="small"
-              color="success"
-              sx={{ height: 18, fontSize: "0.65rem" }}
-            />
-          </Box>
-          <Typography
-            variant="h6"
-            fontWeight={800}
-            color="primary.main"
-            sx={{ lineHeight: 1.2 }}
-          >
-            $128,450
-          </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "flex-end",
-              gap: 0.75,
-              height: 36,
-              mt: 1.25,
-            }}
-          >
-            {[40, 65, 45, 80, 95, 75, 100].map((h, i) => (
-              <Box
-                key={i}
-                sx={{
-                  flex: 1,
-                  height: `${h}%`,
-                  bgcolor: i === 6 ? "primary.main" : "primary.light",
-                  borderRadius: 0.75,
-                  transition: "all 0.2s",
-                  "&:hover": { bgcolor: "primary.dark" },
-                }}
-              />
-            ))}
-          </Box>
-        </Box>
-      );
+const LayoutSketch: React.FC<{ kind: "split" | "tabs" | "bento" }> = ({
+  kind,
+}) => {
+  const block = {
+    borderRadius: RADIUS.control,
+    bgcolor: "action.hover",
+    flexGrow: 1,
+  } as const;
 
-    case "dashboard-widget-recentOrders":
-      return (
-        <Box
-          sx={{
-            p: 1.5,
-            bgcolor: (theme) =>
-              theme.palette.mode === "dark"
-                ? "rgba(0,0,0,0.3)"
-                : "rgba(250,250,250,1)",
-            borderRadius: 2,
-            border: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Typography
-            variant="caption"
-            fontWeight={700}
-            color="text.secondary"
-            display="block"
-            mb={0.75}
-          >
-            Live Transaction Stream
-          </Typography>
-          <Stack spacing={0.75}>
-            {[
-              {
-                id: "#ORD-9402",
-                user: "Alex M.",
-                status: "Paid",
-                color: "success",
-                val: "$240",
-              },
-              {
-                id: "#ORD-9401",
-                user: "Sarah K.",
-                status: "Pending",
-                color: "warning",
-                val: "$110",
-              },
-            ].map((ord) => (
-              <Box
-                key={ord.id}
-                sx={{
-                  display: "flex",
-                  justify: "space-between",
-                  alignItems: "center",
-                  p: 0.75,
-                  px: 1,
-                  borderRadius: 1.5,
-                  bgcolor: "action.hover",
-                }}
-              >
-                <Typography variant="caption" fontWeight={600}>
-                  {ord.id} • {ord.user}
-                </Typography>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Typography variant="caption" fontWeight={700}>
-                    {ord.val}
-                  </Typography>
-                  <Chip
-                    label={ord.status}
-                    color={ord.color as any}
-                    size="small"
-                    sx={{ height: 16, fontSize: "0.6rem" }}
-                  />
-                </Stack>
-              </Box>
-            ))}
-          </Stack>
-        </Box>
-      );
-
-    case "dashboard-widget-weather":
-      return (
-        <Box
-          sx={{
-            p: 1.5,
-            bgcolor: (theme) =>
-              theme.palette.mode === "dark"
-                ? "rgba(0,0,0,0.3)"
-                : "rgba(250,250,250,1)",
-            borderRadius: 2,
-            border: "1px solid",
-            borderColor: "divider",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Box>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              fontWeight={600}
-            >
-              San Francisco, CA
-            </Typography>
-            <Typography variant="h6" fontWeight={800} sx={{ lineHeight: 1.2 }}>
-              72°F
-            </Typography>
-            <Typography variant="caption" color="warning.main" fontWeight={600}>
-              Sunny • H: 76° L: 58°
-            </Typography>
-          </Box>
-          <WbSunny sx={{ fontSize: 36, color: "warning.main" }} />
-        </Box>
-      );
-
-    case "dashboard-widget-splitPane":
-      return (
-        <Box
-          sx={{
-            p: 1.5,
-            bgcolor: (theme) =>
-              theme.palette.mode === "dark"
-                ? "rgba(0,0,0,0.3)"
-                : "rgba(250,250,250,1)",
-            borderRadius: 2,
-            border: "1px dashed",
-            borderColor: "info.main",
-          }}
-        >
-          <Typography
-            variant="caption"
-            fontWeight={700}
-            color="info.main"
-            display="block"
-            mb={0.75}
-          >
-            Split Canvas Wireframe
-          </Typography>
-          <Box sx={{ display: "flex", gap: 1, height: 48 }}>
+  return (
+    <Box
+      sx={(theme) => ({
+        height: 96,
+        p: 2.5,
+        borderRadius: RADIUS.control,
+        backgroundColor: theme.palette.background.default,
+        border: `1px solid ${hairline(theme)}`,
+        display: "flex",
+        flexDirection: kind === "tabs" ? "column" : "row",
+        gap: 2,
+      })}
+    >
+      {kind === "split" && (
+        <>
+          <Box sx={block} />
+          <Box sx={block} />
+        </>
+      )}
+      {kind === "bento" && (
+        <>
+          <Box sx={block} />
+          <Box sx={block} />
+          <Box sx={block} />
+        </>
+      )}
+      {kind === "tabs" && (
+        <>
+          <Box sx={{ display: "flex", gap: 1.5, flexShrink: 0 }}>
             <Box
               sx={{
-                flex: 1,
-                bgcolor: "action.hover",
-                borderRadius: 1.5,
-                p: 1,
-                border: "1px dashed",
-                borderColor: "divider",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                width: 54,
+                height: 12,
+                borderRadius: RADIUS.tag,
+                bgcolor: "primary.main",
+                opacity: 0.55,
               }}
-            >
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontWeight={600}
-              >
-                Left Panel Slot
-              </Typography>
-            </Box>
+            />
             <Box
               sx={{
-                flex: 1,
+                width: 42,
+                height: 12,
+                borderRadius: RADIUS.tag,
                 bgcolor: "action.hover",
-                borderRadius: 1.5,
-                p: 1,
-                border: "1px dashed",
-                borderColor: "divider",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
               }}
-            >
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontWeight={600}
-              >
-                Right Panel Slot
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-      );
-
-    case "dashboard-widget-tabbedCanvas":
-      return (
-        <Box
-          sx={{
-            p: 1.5,
-            bgcolor: (theme) =>
-              theme.palette.mode === "dark"
-                ? "rgba(0,0,0,0.3)"
-                : "rgba(250,250,250,1)",
-            borderRadius: 2,
-            border: "1px dashed",
-            borderColor: "success.main",
-          }}
-        >
-          <Box sx={{ display: "flex", gap: 1, mb: 0.75 }}>
-            <Chip
-              label="Analytics Tab"
-              color="success"
-              size="small"
-              sx={{ height: 18, fontSize: "0.65rem" }}
             />
-            <Chip
-              label="Orders Tab"
-              variant="outlined"
-              size="small"
-              sx={{ height: 18, fontSize: "0.65rem" }}
+            <Box
+              sx={{
+                width: 36,
+                height: 12,
+                borderRadius: RADIUS.tag,
+                bgcolor: "action.hover",
+              }}
             />
           </Box>
-          <Box
-            sx={{
-              height: 36,
-              bgcolor: "action.hover",
-              borderRadius: 1.5,
-              border: "1px dashed",
-              borderColor: "divider",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              fontWeight={600}
-            >
-              Active Tab Content Pane
-            </Typography>
-          </Box>
-        </Box>
-      );
-
-    default:
-      return (
-        <Box
-          sx={{
-            p: 1.5,
-            bgcolor: "action.hover",
-            borderRadius: 2,
-            border: "1px dashed",
-            borderColor: "divider",
-            textAlign: "center",
-          }}
-        >
-          <Typography variant="caption" color="text.secondary">
-            System Module Live Widget
-          </Typography>
-        </Box>
-      );
-  }
+          <Box sx={block} />
+        </>
+      )}
+    </Box>
+  );
 };
 
 /**
- * Draggable Catalog Item Card with Live Preview
+ * One row in the catalog.
+ *
+ * The whole row is the drag handle (dnd-kit listeners sit on the row), so the
+ * grip is a hint that appears on hover rather than a control of its own - the
+ * card used to carry a permanent grip, an Add button and a full live preview,
+ * three affordances for two actions.
  */
 const DraggableCatalogCard: React.FC<{
   item: WidgetCatalogItem;
@@ -466,10 +242,9 @@ const DraggableCatalogCard: React.FC<{
     : undefined;
 
   return (
-    <Card
+    <Box
       ref={setNodeRef}
       style={style}
-      variant="outlined"
       draggable
       {...attributes}
       {...listeners}
@@ -485,113 +260,117 @@ const DraggableCatalogCard: React.FC<{
         );
         e.dataTransfer.effectAllowed = "copy";
       }}
-      sx={{
-        borderRadius: 3,
+      sx={(theme) => ({
+        ...panelCardInteractive(theme),
+        display: "flex",
+        alignItems: "center",
+        gap: 3,
+        p: 3,
         cursor: isDragging ? "grabbing" : "grab",
-        transition: isDragging ? "none" : "all 0.2s ease-in-out",
         opacity: isDragging ? 0.6 : 1,
-        borderColor: isDragging ? "primary.main" : "divider",
-        boxShadow: isDragging ? 8 : 0,
-        "&:hover": {
-          boxShadow: 3,
-          borderColor: "primary.main",
-        },
-      }}
+        ...(isDragging && {
+          borderColor: theme.palette.primary.main,
+          boxShadow: theme.shadows[8],
+        }),
+        "&:hover .marketplace-grip": { opacity: 1 },
+      })}
     >
-      <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+      <Tooltip title="Drag anywhere on the row onto a canvas slot">
         <Box
-          sx={{
+          className="marketplace-grip"
+          sx={(theme) => ({
             display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            mb: 1,
-          }}
+            ml: -1.5,
+            color: "text.disabled",
+            opacity: 0,
+            transition: theme.transitions.create("opacity", { duration: 150 }),
+          })}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-            {/* Drag Handle Icon */}
-            <Tooltip title="Drag anywhere on card to drop onto canvas slot">
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  p: 0.5,
-                  borderRadius: 1,
-                  color: "primary.main",
-                }}
-              >
-                <DragIndicatorIcon fontSize="small" />
-              </Box>
-            </Tooltip>
-            <Box
-              sx={{
-                p: 1,
-                borderRadius: 2,
-                bgcolor: (theme) =>
-                  theme.palette.mode === "dark"
-                    ? "rgba(255,255,255,0.05)"
-                    : "rgba(0,0,0,0.03)",
-                display: "flex",
-              }}
-            >
-              {item.icon}
-            </Box>
-            <Box>
-              <Typography variant="subtitle2" fontWeight={700}>
-                {item.title}
-              </Typography>
-              <Stack
-                direction="row"
-                spacing={0.75}
-                alignItems="center"
-                mt={0.25}
-              >
-                <Chip
-                  label={item.category}
-                  size="small"
-                  variant="outlined"
-                  sx={{ height: 20, fontSize: "0.675rem" }}
-                />
-                {item.isContainer && (
-                  <Chip
-                    label="Container Canvas"
-                    color="info"
-                    size="small"
-                    sx={{ height: 20, fontSize: "0.675rem" }}
-                  />
-                )}
-              </Stack>
-            </Box>
-          </Box>
-          <Button
-            size="small"
-            variant="contained"
-            startIcon={<AddIcon />}
-            onPointerDown={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              onAdd(item.id, item.title);
-            }}
-            sx={{ borderRadius: 2 }}
-          >
-            Add
-          </Button>
+          <DragIndicatorIcon sx={{ fontSize: 16 }} />
         </Box>
+      </Tooltip>
 
+      <Box
+        sx={(theme) => ({
+          ...iconTile(theme, 40),
+          "& > svg": { fontSize: 20 },
+        })}
+      >
+        {item.icon}
+      </Box>
+
+      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+        <Stack direction="row" spacing={1.75} alignItems="center">
+          <Typography
+            sx={{
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {item.title}
+          </Typography>
+          {item.isContainer && (
+            <Box
+              sx={(theme) => ({
+                flexShrink: 0,
+                height: 18,
+                px: 1.5,
+                borderRadius: RADIUS.tag,
+                bgcolor: "action.hover",
+                color: theme.palette.text.secondary,
+                fontSize: "0.65625rem",
+                fontWeight: 600,
+                lineHeight: "18px",
+              })}
+            >
+              Container
+            </Box>
+          )}
+        </Stack>
         <Typography
           variant="body2"
           color="text.secondary"
-          sx={{ fontSize: "0.8125rem", mb: 1.5 }}
+          sx={{
+            fontSize: "0.78125rem",
+            lineHeight: 1.45,
+            // Two lines, not one: a single truncated line cut most of these
+            // descriptions off mid-word, and the row has the height for it.
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: 2,
+            overflow: "hidden",
+          }}
         >
           {item.description}
         </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ fontSize: "0.6875rem", opacity: 0.85 }}
+        >
+          {describeFootprint(item)}
+        </Typography>
+      </Box>
 
-        {/* Live Mini Preview */}
-        <Box sx={{ mt: 1 }}>{renderWidgetLivePreview(item.id)}</Box>
-      </CardContent>
-    </Card>
+      <Button
+        size="small"
+        variant="contained"
+        onPointerDown={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          onAdd(item.id, item.title);
+        }}
+        sx={{ ...primaryAction, flexShrink: 0, px: 4 }}
+      >
+        Add
+      </Button>
+    </Box>
   );
 };
 
@@ -684,7 +463,36 @@ export const WidgetMarketplaceDrawer: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const registeredWidgets = globalWidgetRegistry.getAll();
+  // The registry list obeys the search box too. It used to ignore it, so a
+  // query that matched nothing in the catalogue still left fourteen unrelated
+  // rows sitting under "Nothing matches that".
+  const registeredWidgets = globalWidgetRegistry
+    .getAll()
+    .filter(
+      (desc) =>
+        !searchQuery.trim() ||
+        `${desc.id} ${desc.titleKey}`
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()),
+    );
+
+  const resultLabel =
+    filteredCatalog.length === fullCatalog.length
+      ? `${fullCatalog.length} widgets`
+      : `${filteredCatalog.length} of ${fullCatalog.length} widgets`;
+
+  const activeCanvasValue = availableCanvasKeys.includes(activePageId)
+    ? activePageId
+    : "dashboard";
+
+  const canvasLabel = (key: string) =>
+    key === "dashboard" ? "Main Dashboard Canvas" : key;
+
+  const tabs = [
+    { label: "Widgets", icon: <WidgetsIcon sx={{ fontSize: 17 }} />, count: String(fullCatalog.length) },
+    { label: "Layouts", icon: <ViewQuiltIcon sx={{ fontSize: 17 }} />, count: "3" },
+    { label: "Inspector", icon: <TuneIcon sx={{ fontSize: 17 }} />, count: "" },
+  ];
 
   return (
     <>
@@ -700,258 +508,342 @@ export const WidgetMarketplaceDrawer: React.FC = () => {
           },
         }}
         PaperProps={{
-          sx: {
+          sx: (theme) => ({
             pointerEvents: "auto",
             width: { xs: "100%", sm: 540 },
             p: 0,
-            background: (theme) =>
-              theme.palette.mode === "dark"
-                ? "rgba(18, 24, 38, 0.95)"
-                : "rgba(255, 255, 255, 0.95)",
-            backdropFilter: "blur(16px)",
-            boxShadow: "-8px 0 32px rgba(0,0,0,0.15)",
-          },
+            // Follows the active effect rather than a hard-coded translucent
+            // white: this panel used to paint `rgba(255,255,255,0.95)` with a
+            // fixed 16px blur in every theme, so a dark tenant or any style
+            // preset stopped at its edge.
+            ...effectSurfaceBackground(theme.palette.background.paper),
+            borderLeft: `1px solid ${hairline(theme)}`,
+            boxShadow: theme.shadows[8],
+          }),
         }}
       >
-        {/* Header */}
-        <Box sx={{ p: 2.5, pb: 1.5, borderBottom: 1, borderColor: "divider" }}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 1.5,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <DashboardCustomize color="primary" />
-              <Typography variant="h6" fontWeight={700}>
-                Widget & Canvas Marketplace
+        {/* ---- Header ---- */}
+        <Box sx={{ px: 5, pt: 5, pb: 4, flexShrink: 0 }}>
+          <Stack direction="row" spacing={3} alignItems="flex-start">
+            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+              <Typography
+                sx={{
+                  fontSize: "1.0625rem",
+                  fontWeight: 700,
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1.3,
+                }}
+              >
+                Widget marketplace
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontSize: "0.8125rem" }}
+              >
+                Drag a widget onto the canvas, or add it to the destination
+                below.
               </Typography>
             </Box>
             <IconButton
-              size="small"
               onClick={handleClose}
               aria-label="close drawer"
+              sx={{
+                width: CONTROL_HEIGHT,
+                height: CONTROL_HEIGHT,
+                mt: -2.5,
+                mr: -2.5,
+                borderRadius: RADIUS.control,
+                color: "text.secondary",
+              }}
             >
-              <CloseIcon fontSize="small" />
+              <CloseIcon sx={{ fontSize: 18 }} />
             </IconButton>
-          </Box>
+          </Stack>
 
-          {/* Active Target Canvas Selector */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mt: 1 }}>
-            <FormControl size="small" fullWidth>
-              <InputLabel id="target-canvas-select-label">
-                Target Canvas
-              </InputLabel>
+          {/* Destination. Context, not a form field: it used to be an
+              outlined Select with a floating "Target Canvas" label, which
+              reads as something you must fill in before you may continue. */}
+          <Stack direction="row" spacing={2.5} alignItems="center" sx={{ mt: 4 }}>
+            <Typography
+              sx={{ ...sectionLabel, color: "text.secondary", whiteSpace: "nowrap" }}
+            >
+              Adding to
+            </Typography>
+            <FormControl size="small" sx={{ flexGrow: 1, minWidth: 0 }}>
               <Select
-                labelId="target-canvas-select-label"
-                value={
-                  availableCanvasKeys.includes(activePageId)
-                    ? activePageId
-                    : "dashboard"
-                }
-                label="Target Canvas"
+                value={activeCanvasValue}
                 onChange={(e) =>
                   widgetMarketplaceStore.setActivePageId(e.target.value)
                 }
+                aria-label="Target canvas"
+                sx={(theme) => ({
+                  minHeight: CONTROL_HEIGHT,
+                  borderRadius: RADIUS.control,
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  backgroundColor: theme.palette.background.default,
+                  "& .MuiSelect-select": {
+                    py: 0,
+                    minHeight: CONTROL_HEIGHT,
+                    display: "flex",
+                    alignItems: "center",
+                  },
+                })}
               >
                 {availableCanvasKeys.map((key) => (
-                  <MenuItem key={key} value={key}>
-                    {key === "dashboard" ? "Main Dashboard Canvas" : key}
+                  <MenuItem key={key} value={key} sx={{ fontSize: "0.875rem" }}>
+                    {canvasLabel(key)}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
             <Tooltip title="Open Theme Customizer">
               <IconButton
-                color="primary"
                 onClick={handleOpenThemeCustomizer}
-                sx={{
-                  border: (theme) => `1px solid ${theme.palette.divider}`,
-                  borderRadius: 2,
-                }}
+                aria-label="Open Theme Customizer"
+                sx={(theme) => ({
+                  width: CONTROL_HEIGHT,
+                  height: CONTROL_HEIGHT,
+                  flexShrink: 0,
+                  border: `1px solid ${hairline(theme)}`,
+                  borderRadius: RADIUS.control,
+                  color: "primary.main",
+                })}
               >
-                <PaletteIcon fontSize="small" />
+                <PaletteIcon sx={{ fontSize: 18 }} />
               </IconButton>
             </Tooltip>
-          </Box>
+          </Stack>
         </Box>
 
-        {/* Navigation Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}>
-          <Tabs
-            value={activeTab}
-            onChange={(_, val) => widgetMarketplaceStore.setActiveTab(val)}
-            textColor="primary"
-            indicatorColor="primary"
-          >
+        {/* ---- Tabs ---- */}
+        <Tabs
+          value={activeTab}
+          onChange={(_, val) => widgetMarketplaceStore.setActiveTab(val)}
+          sx={(theme) => ({
+            px: 3,
+            flexShrink: 0,
+            borderBottom: `1px solid ${hairline(theme)}`,
+            minHeight: CONTROL_HEIGHT,
+            "& .MuiTab-root": {
+              minHeight: CONTROL_HEIGHT,
+              px: 3,
+              gap: 1.75,
+              fontSize: "0.84375rem",
+              fontWeight: 500,
+              textTransform: "none",
+              color: "text.secondary",
+              "&.Mui-selected": { fontWeight: 600 },
+            },
+          })}
+        >
+          {tabs.map((tab) => (
             <Tab
-              icon={<WidgetsIcon fontSize="small" />}
-              label="Widgets"
+              key={tab.label}
+              icon={tab.icon}
               iconPosition="start"
+              label={
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <span>{tab.label}</span>
+                  {tab.count && (
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "0.6875rem",
+                        fontWeight: 600,
+                        color: "text.secondary",
+                      }}
+                    >
+                      {tab.count}
+                    </Typography>
+                  )}
+                </Stack>
+              }
             />
-            <Tab
-              icon={<ViewQuiltIcon fontSize="small" />}
-              label="Layout Presets"
-              iconPosition="start"
-            />
-            <Tab
-              icon={<TuneIcon fontSize="small" />}
-              label="Inspector"
-              iconPosition="start"
-            />
-          </Tabs>
-        </Box>
+          ))}
+        </Tabs>
 
-        {/* Tab 0: Widgets Catalog */}
+        {/* ---- Tab 0: Widgets ---- */}
         {activeTab === 0 && (
-          <Box sx={{ p: 2.5, overflowY: "auto", flex: 1 }}>
-            {/* GenAI On-the-Fly Prompt Banner */}
-            <Card
-              variant="outlined"
-              sx={{
-                mb: 2.5,
-                p: 2,
-                borderRadius: 3,
-                bgcolor: (theme) =>
-                  theme.palette.mode === "dark"
-                    ? "rgba(144, 202, 249, 0.05)"
-                    : "rgba(25, 118, 210, 0.03)",
-                borderColor: "primary.main",
-                boxShadow: (theme) =>
-                  `0 0 12px ${theme.palette.primary.main}22`,
-              }}
-            >
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+          <Box sx={{ p: 5, overflowY: "auto", flex: 1 }}>
+            {/* Generator. One quiet strip: it used to be an accent-bordered
+                card with a coloured glow, which made the thing you might use
+                occasionally the loudest thing above the catalogue. */}
+            <Box sx={(theme) => ({ ...accentStrip(theme), p: 3.5, mb: 4.5 })}>
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                sx={{ mb: 2.5 }}
               >
-                <AutoAwesomeIcon color="primary" fontSize="small" />
-                <Typography
-                  variant="subtitle2"
-                  fontWeight={700}
-                  color="primary.main"
-                >
-                  GenAI Widget Generator
+                <AutoAwesomeIcon sx={{ fontSize: 16, color: "primary.main" }} />
+                <Typography sx={{ fontSize: "0.8125rem", fontWeight: 600 }}>
+                  Describe a widget and generate it
                 </Typography>
-              </Box>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ fontSize: "0.8125rem", mb: 1.5 }}
-              >
-                Describe any widget prompt to dynamically synthesize and
-                register a custom widget on the fly.
-              </Typography>
-              <Box sx={{ display: "flex", gap: 1, mb: 1.5 }}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder="e.g. 'Server CPU & Memory Gauges' or 'MRR Q3 Chart'..."
+              </Stack>
+
+              <Stack direction="row" spacing={2}>
+                <Box
+                  component="input"
                   value={aiPrompt}
-                  onChange={(e) => setAiPrompt(e.target.value)}
-                  onKeyDown={(e) => {
+                  placeholder="Server CPU and memory gauges"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setAiPrompt(e.target.value)
+                  }
+                  onKeyDown={(e: React.KeyboardEvent) => {
                     if (e.key === "Enter") handleGenerateAiWidget();
                   }}
+                  sx={(theme) => ({
+                    flexGrow: 1,
+                    minWidth: 0,
+                    height: CONTROL_HEIGHT,
+                    px: 3,
+                    font: "inherit",
+                    fontSize: "0.84375rem",
+                    color: theme.palette.text.primary,
+                    backgroundColor: theme.palette.background.paper,
+                    border: `1px solid ${theme.palette.divider}`,
+                    borderRadius: RADIUS.control,
+                    outline: "none",
+                    "&::placeholder": {
+                      color: theme.palette.text.secondary,
+                      opacity: 1,
+                    },
+                    "&:focus": {
+                      borderColor: theme.palette.primary.main,
+                    },
+                  })}
                 />
                 <Button
                   variant="contained"
-                  size="small"
                   onClick={() => handleGenerateAiWidget()}
                   disabled={isGenerating || !aiPrompt.trim()}
-                  startIcon={<AutoAwesomeIcon fontSize="small" />}
-                  sx={{ borderRadius: 2, whiteSpace: "nowrap", px: 2 }}
+                  sx={{ ...primaryAction, flexShrink: 0, px: 4 }}
                 >
-                  {isGenerating ? "Generating..." : "Generate"}
+                  {isGenerating ? "Generating…" : "Generate"}
                 </Button>
-              </Box>
-              <Stack
-                direction="row"
-                spacing={0.75}
-                alignItems="center"
-                sx={{ overflowX: "auto" }}
-              >
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  fontWeight={600}
-                >
-                  Prompts:
-                </Typography>
-                <Chip
-                  label="🚀 MRR Chart"
-                  size="small"
-                  clickable
-                  variant="outlined"
-                  onClick={() =>
-                    handleGenerateAiWidget("MRR & Revenue Sales Chart")
-                  }
-                />
-                <Chip
-                  label="⚡ CPU & Memory"
-                  size="small"
-                  clickable
-                  variant="outlined"
-                  onClick={() =>
-                    handleGenerateAiWidget("Server CPU & Memory Gauges")
-                  }
-                />
-                <Chip
-                  label="📊 User Growth"
-                  size="small"
-                  clickable
-                  variant="outlined"
-                  onClick={() =>
-                    handleGenerateAiWidget("User Active Growth Metrics")
-                  }
-                />
               </Stack>
-            </Card>
 
-            {/* Search & Filter bar */}
-            <Box sx={{ mb: 2 }}>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search widgets, titles, tags..."
-                value={searchQuery}
-                onChange={(e) =>
-                  widgetMarketplaceStore.setSearchQuery(e.target.value)
-                }
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{ mb: 1.5 }}
-              />
-              <Stack
-                direction="row"
-                spacing={0.75}
-                sx={{ overflowX: "auto", pb: 0.5 }}
-              >
-                {["all", "analytics", "commerce", "containers", "tools"].map(
-                  (cat) => (
-                    <Chip
-                      key={cat}
-                      label={cat.charAt(0).toUpperCase() + cat.slice(1)}
-                      size="small"
-                      color={selectedCategory === cat ? "primary" : "default"}
-                      variant={selectedCategory === cat ? "filled" : "outlined"}
-                      onClick={() =>
-                        widgetMarketplaceStore.setSelectedCategory(cat)
-                      }
-                      clickable
-                    />
-                  ),
-                )}
-              </Stack>
+              {/* Suggestions, without the emoji: the app draws its icons, and
+                  a rocket on a chip is not one of them. */}
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mt: 2.5 }}>
+                {[
+                  { label: "MRR chart", prompt: "MRR & Revenue Sales Chart" },
+                  {
+                    label: "CPU & memory",
+                    prompt: "Server CPU & Memory Gauges",
+                  },
+                  {
+                    label: "User growth",
+                    prompt: "User Active Growth Metrics",
+                  },
+                ].map((suggestion) => (
+                  <Box
+                    component="button"
+                    type="button"
+                    key={suggestion.label}
+                    onClick={() => handleGenerateAiWidget(suggestion.prompt)}
+                    sx={(theme) => ({
+                      ...suggestionPill(theme),
+                      px: 2.5,
+                      font: "inherit",
+                      fontSize: "0.75rem",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                    })}
+                  >
+                    {suggestion.label}
+                  </Box>
+                ))}
+              </Box>
             </Box>
 
-            {/* Catalog Grid with Live Previews and Drag & Drop */}
-            <Stack spacing={2}>
+            {/* Search & filters */}
+            <Stack spacing={3} sx={{ mb: 4 }}>
+              <Stack
+                direction="row"
+                spacing={2.5}
+                alignItems="center"
+                sx={(theme) => ({
+                  height: CONTROL_HEIGHT,
+                  px: 3,
+                  borderRadius: RADIUS.control,
+                  border: `1px solid ${theme.palette.divider}`,
+                  backgroundColor: theme.palette.background.default,
+                })}
+              >
+                <SearchIcon sx={{ fontSize: 17, color: "text.secondary" }} />
+                <Box
+                  component="input"
+                  value={searchQuery}
+                  placeholder="Search widgets"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    widgetMarketplaceStore.setSearchQuery(e.target.value)
+                  }
+                  sx={(theme) => ({
+                    flexGrow: 1,
+                    minWidth: 0,
+                    border: 0,
+                    background: "none",
+                    font: "inherit",
+                    fontSize: "0.875rem",
+                    color: "text.primary",
+                    outline: "none",
+                    "&::placeholder": {
+                      color: theme.palette.text.secondary,
+                      opacity: 1,
+                    },
+                  })}
+                />
+              </Stack>
+
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+                {CATEGORIES.map((cat) => {
+                  const isSelected = selectedCategory === cat.key;
+                  return (
+                    <Box
+                      component="button"
+                      type="button"
+                      key={cat.key}
+                      aria-pressed={isSelected}
+                      onClick={() =>
+                        widgetMarketplaceStore.setSelectedCategory(cat.key)
+                      }
+                      sx={(theme) => ({
+                        ...suggestionPill(theme),
+                        height: 32,
+                        px: 3,
+                        font: "inherit",
+                        fontSize: "0.78125rem",
+                        fontWeight: 500,
+                        cursor: "pointer",
+                        ...(isSelected && {
+                          backgroundColor: theme.palette.primary.main,
+                          borderColor: theme.palette.primary.main,
+                          color: theme.palette.primary.contrastText,
+                          fontWeight: 600,
+                          "&:hover": {
+                            backgroundColor: theme.palette.primary.dark,
+                            borderColor: theme.palette.primary.dark,
+                            color: theme.palette.primary.contrastText,
+                          },
+                        }),
+                      })}
+                    >
+                      {cat.label}
+                    </Box>
+                  );
+                })}
+              </Box>
+
+              <Typography sx={{ ...sectionLabel, color: "text.secondary" }}>
+                {resultLabel}
+              </Typography>
+            </Stack>
+
+            {/* Catalog */}
+            <Stack spacing={2.5}>
               {filteredCatalog.map((item) => (
                 <DraggableCatalogCard
                   key={item.id}
@@ -960,45 +852,76 @@ export const WidgetMarketplaceDrawer: React.FC = () => {
                 />
               ))}
 
-              {/* Registered system modules info */}
-              {registeredWidgets.length > 0 && (
-                <Box sx={{ pt: 1 }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    fontWeight={600}
-                    textTransform="uppercase"
-                  >
-                    Registered System Widgets ({registeredWidgets.length})
+              {filteredCatalog.length === 0 && (
+                <Box
+                  sx={(theme) => ({
+                    px: 4,
+                    py: 8,
+                    textAlign: "center",
+                    borderRadius: RADIUS.card,
+                    border: `1px dashed ${theme.palette.divider}`,
+                  })}
+                >
+                  <Typography sx={{ fontSize: "0.875rem", fontWeight: 600 }}>
+                    Nothing matches that
                   </Typography>
-                  <Stack spacing={1} mt={1}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ fontSize: "0.8125rem", mt: 1 }}
+                  >
+                    Try another word, or describe the widget you want and
+                    generate it.
+                  </Typography>
+                </Box>
+              )}
+
+              {/* Registered system modules */}
+              {registeredWidgets.length > 0 && (
+                <Box sx={{ pt: 3 }}>
+                  <Typography
+                    sx={{ ...sectionLabel, color: "text.secondary", mb: 2.5 }}
+                  >
+                    Registered system widgets ({registeredWidgets.length})
+                  </Typography>
+                  <Stack spacing={2}>
                     {registeredWidgets.map((desc) => (
                       <Box
                         key={desc.id}
-                        sx={{
-                          p: 1.25,
-                          borderRadius: 2,
-                          border: "1px solid",
-                          borderColor: "divider",
+                        sx={(theme) => ({
+                          ...panelCard(theme),
+                          p: 3,
                           display: "flex",
-                          justifyContent: "space-between",
                           alignItems: "center",
-                        }}
+                          gap: 3,
+                        })}
                       >
-                        <Box>
-                          <Typography variant="body2" fontWeight={600}>
+                        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                          <Typography
+                            sx={{ fontSize: "0.8125rem", fontWeight: 600 }}
+                          >
                             {desc.id}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontSize: "0.75rem" }}
+                          >
                             {desc.titleKey}
                           </Typography>
                         </Box>
                         <IconButton
-                          size="small"
-                          color="primary"
+                          aria-label={`Add ${desc.id}`}
                           onClick={() => handleAddWidget(desc.id, desc.id)}
+                          sx={{
+                            width: CONTROL_HEIGHT,
+                            height: CONTROL_HEIGHT,
+                            flexShrink: 0,
+                            borderRadius: RADIUS.control,
+                            color: "primary.main",
+                          }}
                         >
-                          <AddIcon fontSize="small" />
+                          <AddIcon sx={{ fontSize: 18 }} />
                         </IconButton>
                       </Box>
                     ))}
@@ -1009,182 +932,195 @@ export const WidgetMarketplaceDrawer: React.FC = () => {
           </Box>
         )}
 
-        {/* Tab 1: Layout Presets */}
+        {/* ---- Tab 1: Layout presets ---- */}
         {activeTab === 1 && (
-          <Box sx={{ p: 2.5, overflowY: "auto", flex: 1 }}>
-            <Typography variant="body2" color="text.secondary" mb={2}>
-              Choose a pre-packaged canvas grid layout for target canvas:{" "}
-              <strong>{activePageId}</strong>
+          <Box sx={{ p: 5, overflowY: "auto", flex: 1 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: "0.8125rem", mb: 4 }}
+            >
+              A layout drops a ready-made arrangement onto{" "}
+              <Box component="strong" sx={{ color: "text.primary" }}>
+                {canvasLabel(activeCanvasValue)}
+              </Box>
+              .
             </Typography>
 
-            <Stack spacing={2}>
-              <Card variant="outlined" sx={{ borderRadius: 3 }}>
-                <CardContent sx={{ p: 2 }}>
-                  <Typography variant="subtitle2" fontWeight={700} mb={0.5}>
-                    Dual-Pane Split Canvas
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    mb={1.5}
-                    sx={{ fontSize: "0.8125rem" }}
+            <Stack spacing={3}>
+              {[
+                {
+                  title: "Dual-pane split canvas",
+                  description:
+                    "Two canvases side by side, each holding its own widgets.",
+                  sketch: "split" as const,
+                  onInsert: () =>
+                    handleAddWidget(
+                      "dashboard-widget-splitPane",
+                      "Split Pane Canvas",
+                    ),
+                },
+                {
+                  title: "Multi-tab canvas",
+                  description:
+                    "One frame, several tabbed views of the same space.",
+                  sketch: "tabs" as const,
+                  onInsert: () =>
+                    handleAddWidget(
+                      "dashboard-widget-tabbedCanvas",
+                      "Multi-Tab Canvas",
+                    ),
+                },
+                {
+                  title: "Three-column bento grid",
+                  description:
+                    "Revenue, orders and weather side by side — the standard dashboard.",
+                  sketch: "bento" as const,
+                  onInsert: () => {
+                    handleAddWidget(
+                      "dashboard-widget-revenueChart",
+                      "Revenue Analytics",
+                    );
+                    handleAddWidget(
+                      "dashboard-widget-recentOrders",
+                      "Recent Orders",
+                    );
+                    handleAddWidget("dashboard-widget-weather", "Weather");
+                  },
+                },
+              ].map((preset) => (
+                <Box
+                  key={preset.title}
+                  sx={(theme) => ({ ...panelCard(theme), p: 3.5 })}
+                >
+                  <Stack
+                    direction="row"
+                    spacing={3}
+                    alignItems="center"
+                    sx={{ mb: 3 }}
                   >
-                    Horizontal split layout containing left & right widget
-                    canvases.
-                  </Typography>
-
-                  {/* Wireframe Preview */}
-                  <Box sx={{ mb: 2 }}>
-                    {renderWidgetLivePreview("dashboard-widget-splitPane")}
-                  </Box>
-
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    startIcon={<ViewQuiltIcon />}
-                    onClick={() =>
-                      handleAddWidget(
-                        "dashboard-widget-splitPane",
-                        "Split Pane Canvas",
-                      )
-                    }
-                  >
-                    Insert Split Canvas
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card variant="outlined" sx={{ borderRadius: 3 }}>
-                <CardContent sx={{ p: 2 }}>
-                  <Typography variant="subtitle2" fontWeight={700} mb={0.5}>
-                    Multi-Tab Canvas
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    mb={1.5}
-                    sx={{ fontSize: "0.8125rem" }}
-                  >
-                    Tabbed layout switching between Analytics and Order
-                    canvases.
-                  </Typography>
-
-                  {/* Wireframe Preview */}
-                  <Box sx={{ mb: 2 }}>
-                    {renderWidgetLivePreview("dashboard-widget-tabbedCanvas")}
-                  </Box>
-
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    startIcon={<TabIcon />}
-                    onClick={() =>
-                      handleAddWidget(
-                        "dashboard-widget-tabbedCanvas",
-                        "Multi-Tab Canvas",
-                      )
-                    }
-                  >
-                    Insert Tabbed Canvas
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card variant="outlined" sx={{ borderRadius: 3 }}>
-                <CardContent sx={{ p: 2 }}>
-                  <Typography variant="subtitle2" fontWeight={700} mb={0.5}>
-                    3-Column Bento Grid
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    mb={1.5}
-                    sx={{ fontSize: "0.8125rem" }}
-                  >
-                    Standard dashboard layout featuring Revenue, Orders, and
-                    Weather side-by-side.
-                  </Typography>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    startIcon={<CheckCircle />}
-                    onClick={() => {
-                      handleAddWidget(
-                        "dashboard-widget-revenueChart",
-                        "Revenue Analytics",
-                      );
-                      handleAddWidget(
-                        "dashboard-widget-recentOrders",
-                        "Recent Orders",
-                      );
-                      handleAddWidget("dashboard-widget-weather", "Weather");
-                    }}
-                  >
-                    Load Bento Grid
-                  </Button>
-                </CardContent>
-              </Card>
+                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                      <Typography
+                        sx={{ fontSize: "0.875rem", fontWeight: 600 }}
+                      >
+                        {preset.title}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ fontSize: "0.78125rem" }}
+                      >
+                        {preset.description}
+                      </Typography>
+                    </Box>
+                    <Button
+                      variant="contained"
+                      onClick={preset.onInsert}
+                      sx={{ ...primaryAction, flexShrink: 0, px: 4 }}
+                    >
+                      Insert
+                    </Button>
+                  </Stack>
+                  <LayoutSketch kind={preset.sketch} />
+                </Box>
+              ))}
             </Stack>
           </Box>
         )}
 
-        {/* Tab 2: Canvas Inspector */}
+        {/* ---- Tab 2: Canvas inspector ---- */}
         {activeTab === 2 && (
-          <Box sx={{ p: 2.5, overflowY: "auto", flex: 1 }}>
-            <Typography variant="subtitle2" fontWeight={700} mb={1}>
-              Active Canvas: {activePageId}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" mb={2}>
-              Manage slots, layout sizes, and add empty panel slots.
-            </Typography>
-
-            <Stack spacing={2}>
-              <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<AddIcon />}
-                onClick={() => {
-                  addPanel(activePageId);
-                  setSnackbar({
-                    open: true,
-                    message: `Added new panel slot to ${activePageId}`,
-                    severity: "info",
-                  });
-                }}
-              >
-                Add Empty Panel Slot
-              </Button>
-
-              <Divider sx={{ my: 1 }} />
-
-              <Box
-                sx={{
-                  p: 2,
-                  borderRadius: 3,
-                  border: "1px solid",
-                  borderColor: "divider",
-                }}
-              >
-                <Typography variant="subtitle2" fontWeight={700} mb={0.5}>
-                  Theme Customizer Quick-Link
-                </Typography>
+          <Box sx={{ p: 5, overflowY: "auto", flex: 1 }}>
+            <Stack spacing={5}>
+              <Box>
                 <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  mb={1.5}
-                  sx={{ fontSize: "0.8125rem" }}
+                  sx={{ ...sectionLabel, color: "text.secondary", mb: 2.5 }}
                 >
-                  Modify colors, glassmorphism, neumorphism, fonts, and presets
-                  in real time.
+                  Canvas
                 </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<PaletteIcon />}
-                  onClick={handleOpenThemeCustomizer}
+                <Box sx={(theme) => ({ ...panelCard(theme), overflow: "hidden" })}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={3}
+                    sx={(theme) => ({
+                      px: 3.5,
+                      py: 2.5,
+                      borderBottom: `1px solid ${hairline(theme)}`,
+                    })}
+                  >
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: "0.8125rem" }}
+                    >
+                      Name
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontSize: "0.8125rem", fontWeight: 500 }}
+                    >
+                      {canvasLabel(activeCanvasValue)}
+                    </Typography>
+                  </Stack>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={3}
+                    sx={{ px: 3.5, py: 2.5 }}
+                  >
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: "0.8125rem" }}
+                    >
+                      Canvases available
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontSize: "0.8125rem", fontWeight: 500 }}
+                    >
+                      {availableCanvasKeys.length}
+                    </Typography>
+                  </Stack>
+                </Box>
+              </Box>
+
+              <Box>
+                <Typography
+                  sx={{ ...sectionLabel, color: "text.secondary", mb: 2.5 }}
                 >
-                  Open Theme Builder
-                </Button>
+                  Actions
+                </Typography>
+                <Stack spacing={2.5}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={() => {
+                      addPanel(activeCanvasValue);
+                      setSnackbar({
+                        open: true,
+                        message: `Added new panel slot to ${activeCanvasValue}`,
+                        severity: "info",
+                      });
+                    }}
+                    sx={primaryAction}
+                  >
+                    Add an empty panel slot
+                  </Button>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<PaletteIcon />}
+                    onClick={handleOpenThemeCustomizer}
+                    sx={primaryAction}
+                  >
+                    Open the theme customizer
+                  </Button>
+                </Stack>
               </Box>
             </Stack>
           </Box>
