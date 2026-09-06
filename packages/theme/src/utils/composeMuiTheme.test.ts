@@ -437,4 +437,35 @@ describe("composeMuiTheme", () => {
       expect(dark.palette.text.primary).toBe("#FFFFFF");
     });
   });
+
+  describe("spacing", () => {
+    const theme = () =>
+      composeMuiTheme({
+        currentMode: "light" as SystemMode,
+        settings: baseSettings,
+        tenantTheme: null,
+      });
+
+    it("keeps a custom property for whole steps so a tenant scale can override them", () => {
+      expect(theme().spacing(5)).toBe("var(--spacing-5, calc(0.25rem * 5))");
+      expect(theme().spacing(0)).toBe("var(--spacing-0, calc(0.25rem * 0))");
+    });
+
+    it("never puts a fraction inside a custom property name", () => {
+      // `--spacing-2.5` is not a valid custom-property name: the dot ends the
+      // ident. That makes `var(--spacing-2.5, ...)` an invalid *reference*
+      // rather than a value with a fallback, so the whole declaration is
+      // invalid at computed-value time and the property resolves to 0 - which
+      // is what `p: 2.5` and `gap: 1.5` did everywhere in the app.
+      for (const factor of [0.5, 1.5, 2.5, 3.5]) {
+        const value = theme().spacing(factor);
+        expect(value, `spacing(${factor})`).not.toContain("var(");
+        expect(value).toBe(`calc(0.25rem * ${factor})`);
+      }
+    });
+
+    it("still accepts a named step", () => {
+      expect(theme().spacing("md")).toBe("var(--spacing-md)");
+    });
+  });
 });

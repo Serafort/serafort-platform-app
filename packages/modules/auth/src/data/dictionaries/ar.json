@@ -143,7 +143,8 @@
     "light": "فاتح",
     "dark": "داكن",
     "system": "النظام",
-    "switchMode": "تبديل مظهر النظام - حالياً"
+    "switchMode": "تبديل مظهر النظام - حالياً",
+    "themeBuilder": "منشئ السمات"
   },
   "language": {
     "selectLanguage": "اختر اللغة",

@@ -4,7 +4,8 @@ import { PreviewCard } from "./PreviewCard";
 import { PreviewButton } from "./PreviewButton";
 import { PreviewInput } from "./PreviewInput";
 import { PreviewNavbar } from "./PreviewNavbar";
-import type { TenantThemeConfig } from "@cap/theme";
+import type { EffectType, TenantThemeConfig } from "@cap/theme";
+import { EFFECT_TYPES } from "@cap/theme";
 import { AutoGrid, PanelHeader, SectionLabel, useSurfaceSx } from "../studioUi";
 
 interface LivePreviewProps {
@@ -16,24 +17,30 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
   const surface = useSurfaceSx();
   const effects = theme.effects || ({} as any);
   const components = theme.components || ({} as any);
-  const globalEffectType = effects.globalType || "standard";
+  const globalEffectType: EffectType = effects.globalType || "standard";
+  const effectLabel = EFFECT_TYPES.find(
+    (option) => option.value === globalEffectType,
+  )?.label;
 
+  // The preview used to show a glass row and a neumorphic row side by side
+  // whenever either config had `enabled` set, whatever the selected effect
+  // actually was - so it advertised effects that were not applied and stayed
+  // silent about the six it had no variant for. Each row now shows the plain
+  // baseline next to whatever effect is genuinely active, and the effect side
+  // is drawn from the same --effect-* variables the app paints with.
   const getEffectStyle = (
     componentKey: keyof typeof components,
-  ): "standard" | "glass" | "neu" => {
+  ): "standard" | "effect" => {
     const component = components[componentKey];
     const style =
       component?.style === "global"
         ? globalEffectType
         : component?.style || "standard";
-    if (style === "glass" || style === "neu") {
-      return style;
-    }
-    return "standard";
+    return style === "standard" ? "standard" : "effect";
   };
 
-  const glass = effects.glassmorphism?.enabled ? "glass" : "standard";
-  const neu = effects.neumorphism?.enabled ? "neu" : "standard";
+  const activeVariant: "standard" | "effect" =
+    globalEffectType === "standard" ? "standard" : "effect";
 
   return (
     <Box sx={{ ...surface, p: 5 }}>
@@ -57,7 +64,10 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
       >
         <Box>
           <SectionLabel>Navigation</SectionLabel>
-          <PreviewNavbar effectStyle={getEffectStyle("navbar")} />
+          <PreviewNavbar
+            effectStyle={getEffectStyle("navbar")}
+            label={effectLabel}
+          />
         </Box>
 
         <Box>
@@ -66,8 +76,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
               viewport, so the preview stays honest inside the editor drawer. */}
           <AutoGrid min={150} gap={3}>
             <PreviewCard variant="standard" />
-            <PreviewCard variant={glass} />
-            <PreviewCard variant={neu} />
+            <PreviewCard variant={activeVariant} label={effectLabel} />
           </AutoGrid>
         </Box>
 
@@ -76,8 +85,10 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
             <SectionLabel>Buttons</SectionLabel>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <PreviewButton effectStyle="standard" />
-              <PreviewButton effectStyle={glass} />
-              <PreviewButton effectStyle={neu} />
+              <PreviewButton
+                effectStyle={getEffectStyle("button")}
+                label={effectLabel}
+              />
             </Box>
           </Box>
 
@@ -85,8 +96,10 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
             <SectionLabel>Inputs</SectionLabel>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <PreviewInput effectStyle="standard" />
-              <PreviewInput effectStyle={glass} />
-              <PreviewInput effectStyle={neu} />
+              <PreviewInput
+                effectStyle={getEffectStyle("input")}
+                label={effectLabel}
+              />
             </Box>
           </Box>
         </AutoGrid>

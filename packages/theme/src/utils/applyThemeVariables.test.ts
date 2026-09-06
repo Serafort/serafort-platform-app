@@ -49,3 +49,125 @@ describe("generateThemeVariables - glass effect", () => {
     expect(effects["--effect-bg"]).toBeUndefined();
   });
 });
+
+/**
+ * Every effect has to reach the surfaces, not just the two that were wired by
+ * hand. `--effect-*` is what the Paper/Card/Dialog overrides and the layout
+ * chrome all read, so an effect that emits none of it is an effect the user
+ * selects and never sees.
+ */
+describe("generateThemeVariables - every effect reaches the surfaces", () => {
+  // `prefix` is the effect's own CSS-variable namespace, which is not always
+  // its UIEffect name (brutalism writes --brutal-*).
+  const presetsByEffect = [
+    { preset: "pure-brutalism", effect: "brutalism", prefix: "brutal" },
+    { preset: "neo-brutalism", effect: "brutalism", prefix: "brutal" },
+    { preset: "liquid-organic", effect: "organic", prefix: "organic" },
+    { preset: "immersive-3d", effect: "immersive", prefix: "immersive" },
+    { preset: "modern-skeuomorphic", effect: "neu", prefix: "neu" },
+    { preset: "godlio-premium", effect: "glass", prefix: "glass" },
+  ] as const;
+
+  it.each(presetsByEffect)(
+    "$preset applies its $effect config, not just its name",
+    ({ preset, effect, prefix }) => {
+      const config = applyPreset(preset);
+      expect(config.effects.globalType).toBe(effect);
+
+      const { effects } = generateThemeVariables(config);
+
+      // The preset's own sub-config has to survive the merge. It used not to:
+      // applyPreset merged only glassmorphism and neumorphism, so these
+      // presets set globalType and dropped everything behind it.
+      expect(effects[`--${prefix}-enabled`]).toBe("1");
+
+      // ... and the active-surface variables have to be emitted for it.
+      const surfaceVars = Object.keys(effects).filter((key) =>
+        key.startsWith("--effect-"),
+      );
+      expect(surfaceVars.length).toBeGreaterThan(1);
+      expect(effects["--effect-type"]).toBe(effect);
+    },
+  );
+
+  it("emits surface variables for liquid-glass", () => {
+    // liquid-glass was in the UIEffect union and in SurfaceEffectFactory, but
+    // generateThemeVariables had no branch for it at all - selecting it left
+    // every --effect-* unset and changed nothing on screen.
+    const { effects } = generateThemeVariables({
+      ...applyPreset("glassmorphism"),
+      effects: {
+        ...applyPreset("glassmorphism").effects,
+        globalType: "liquid-glass",
+        liquidGlass: { enabled: true, blur: "24px", opacity: 0.85 },
+      },
+    });
+
+    expect(effects["--effect-backdrop"]).toBe("blur(24px) saturate(180%)");
+    expect(effects["--effect-bg"]).toBeDefined();
+    expect(effects["--effect-shadow"]).toBeDefined();
+  });
+
+  it("gives blur-based effects an ambient canvas to blur", () => {
+    // backdrop-filter over a flat page colour is invisible; the wash is what
+    // makes a correctly applied glass preset actually read as glass.
+    const glass = generateThemeVariables(applyPreset("glassmorphism"));
+    expect(glass.effects["--effect-canvas-image"]).toContain("radial-gradient");
+
+    const flat = generateThemeVariables(applyPreset("flat-design"));
+    expect(flat.effects["--effect-canvas-image"]).toBeUndefined();
+  });
+
+  it("drops the chrome underlay only while an effect owns the surface", () => {
+    expect(
+      generateThemeVariables(applyPreset("glassmorphism")).effects[
+        "--effect-underlay"
+      ],
+    ).toBe("transparent");
+    expect(
+      generateThemeVariables(applyPreset("flat-design")).effects[
+        "--effect-underlay"
+      ],
+    ).toBeUndefined();
+  });
+});
+
+describe("applyPreset - one effect is live at a time", () => {
+  it("disables the previous effect when another preset is applied", () => {
+    // Both flags used to be able to sit `enabled` at once - the variable
+    // emitter gates on `enabled`, so a stale one painted its effect over the
+    // top of the selected one.
+    const brutal = applyPreset("pure-brutalism");
+    expect(brutal.effects.brutalism?.enabled).toBe(true);
+    expect(brutal.effects.glassmorphism.enabled).toBe(false);
+    expect(brutal.effects.neumorphism.enabled).toBe(false);
+
+    const glass = applyPreset("glassmorphism");
+    expect(glass.effects.glassmorphism.enabled).toBe(true);
+    expect(glass.effects.brutalism?.enabled).toBe(false);
+  });
+
+  it("leaves every effect off for a preset with no surface effect", () => {
+    const flat = applyPreset("flat-design");
+    expect(flat.effects.globalType).toBe("standard");
+    expect(flat.effects.glassmorphism.enabled).toBe(false);
+    expect(flat.effects.neumorphism.enabled).toBe(false);
+    expect(flat.effects.brutalism?.enabled).toBe(false);
+  });
+});
+
+describe("generateThemeVariables - non-blur effects clear the chrome's blur", () => {
+  it("sets --effect-backdrop to none for brutalism", () => {
+    // The navbar defaults to its own 8px frosting behind
+    // `var(--effect-backdrop, ...)`. An effect that emits nothing for this
+    // variable inherits that frosting, which for brutalism is the opposite of
+    // the intent.
+    const { effects } = generateThemeVariables(applyPreset("pure-brutalism"));
+    expect(effects["--effect-backdrop"]).toBe("none");
+  });
+
+  it("still emits a real filter for glass", () => {
+    const { effects } = generateThemeVariables(applyPreset("glassmorphism"));
+    expect(effects["--effect-backdrop"]).toBe("blur(16px)");
+  });
+});

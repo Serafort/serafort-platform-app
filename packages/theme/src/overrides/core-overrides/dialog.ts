@@ -12,7 +12,7 @@ const dialog = (skin: Skin): Theme["components"] => ({
         // paints a surface with, and the chain has to end at a real theme
         // value because `--mui-*` names never exist outside MUI's CSS
         // variables mode, which this app does not use.
-        backgroundColor: `var(--surface-paper, var(--effect-bg, ${theme.palette.background.paper}))`,
+        backgroundColor: `var(--effect-bg, var(--surface-paper, ${theme.palette.background.paper}))`,
         backdropFilter: "var(--effect-backdrop, none)",
         maxWidth: "var(--form-modal-max-width, 480px)",
         ...(skin !== "bordered"

@@ -91,16 +91,16 @@ export const NeumorphismPanel: React.FC<NeumorphismPanelProps> = ({
           />
 
           <SliderField
-            label="Altitude"
-            value={config.altitude || 15}
-            displayValue={`${config.altitude || 15}°`}
-            hint="Angle of the light source"
+            label="Light angle"
+            value={config.altitude ?? 45}
+            displayValue={`${config.altitude ?? 45}°`}
+            hint="Elevation of the light above the horizon: 0° lights the surface from the side, 90° from directly above, 45° gives the classic diagonal"
             min={0}
-            max={45}
+            max={90}
             marks={[
               { value: 0, label: "0°" },
-              { value: 22.5, label: "22.5°" },
               { value: 45, label: "45°" },
+              { value: 90, label: "90°" },
             ]}
             onChange={(value) => handleChange("altitude", value)}
           />

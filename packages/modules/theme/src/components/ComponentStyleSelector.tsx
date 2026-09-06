@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import type { ComponentStyles, ComponentEffectStyle } from "@cap/theme";
 import type { EffectType } from "@cap/theme";
+import { EFFECT_TYPES } from "@cap/theme";
 import {
   ChoiceChip,
   PanelHeader,
@@ -39,17 +40,19 @@ const componentLabels: Record<keyof ComponentStyles, string> = {
   nav: "Sidebars",
 };
 
+// Both pickers are derived from EFFECT_TYPES rather than hand-listed. They
+// used to offer three of the eight effects between them, so brutalism, bento,
+// organic, immersive and liquid-glass were selectable only by picking a preset
+// that happened to use one - and never overridable per component at all.
+const globalOptions: Array<{ value: EffectType; label: string }> =
+  EFFECT_TYPES.map(({ value, label }) => ({ value, label }));
+
 const effectOptions: Array<{ value: ComponentEffectStyle; label: string }> = [
   { value: "global", label: "Use global" },
-  { value: "glass", label: "Glass" },
-  { value: "neu", label: "Neumorphic" },
-  { value: "standard", label: "Standard" },
-];
-
-const globalOptions: Array<{ value: EffectType; label: string }> = [
-  { value: "standard", label: "Standard" },
-  { value: "glass", label: "Glassmorphism" },
-  { value: "neu", label: "Neumorphism" },
+  ...EFFECT_TYPES.map(({ value, label }) => ({
+    value: value as ComponentEffectStyle,
+    label,
+  })),
 ];
 
 export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
@@ -60,6 +63,10 @@ export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
 }) => {
   const theme = useTheme();
   const surface = useSurfaceSx();
+
+  const activeEffectMeta = EFFECT_TYPES.find(
+    (option) => option.value === globalEffectType,
+  );
 
   const handleComponentChange = (
     key: keyof ComponentStyles,
@@ -95,6 +102,15 @@ export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
             />
           ))}
         </Stack>
+        {activeEffectMeta && (
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", mt: 2 }}
+          >
+            {activeEffectMeta.description}
+          </Typography>
+        )}
       </Box>
 
       <SectionLabel

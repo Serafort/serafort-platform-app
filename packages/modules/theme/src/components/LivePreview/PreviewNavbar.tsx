@@ -3,7 +3,8 @@ import { Box, Typography, Avatar } from "@mui/material";
 import styled from "@emotion/styled";
 
 interface PreviewNavbarProps {
-  effectStyle?: "standard" | "glass" | "neu";
+  effectStyle?: "standard" | "effect";
+  label?: string;
 }
 
 const StandardNavbar = styled.nav`
@@ -16,26 +17,23 @@ const StandardNavbar = styled.nav`
   border-radius: 8px 8px 0 0;
 `;
 
-const GlassNavbar = styled.nav`
+/*
+ * The effect surface is read from the same --effect-* custom properties the
+ * app itself paints with, rather than a hand-written glass and neumorphic
+ * variant. Those two were the only effects the preview could show, and they
+ * showed fixed values - not the blur, tint or shadow the user had just set.
+ */
+const EffectNavbar = styled.nav`
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px 8px 0 0;
-`;
-
-const NeuNavbar = styled.nav`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background: #e0e5ec;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: var(--effect-bg, var(--color-surface, #ffffff));
+  backdrop-filter: var(--effect-backdrop, none);
+  -webkit-backdrop-filter: var(--effect-backdrop, none);
+  border: var(--effect-border, 1px solid var(--color-border, #e2e8f0));
+  border-radius: var(--effect-radius, 8px) var(--effect-radius, 8px) 0 0;
+  box-shadow: var(--effect-shadow, none);
 `;
 
 const NavLink = styled.span<{ active?: boolean }>`
@@ -56,13 +54,10 @@ const NavLink = styled.span<{ active?: boolean }>`
 
 export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
   effectStyle = "standard",
+  label,
 }) => {
   const NavbarComponent =
-    effectStyle === "glass"
-      ? GlassNavbar
-      : effectStyle === "neu"
-        ? NeuNavbar
-        : StandardNavbar;
+    effectStyle === "effect" ? EffectNavbar : StandardNavbar;
 
   return (
     <Box>
@@ -71,12 +66,7 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
         color="text.secondary"
         sx={{ mb: 1, display: "block" }}
       >
-        {effectStyle === "glass"
-          ? "Glass"
-          : effectStyle === "neu"
-            ? "Neumorphic"
-            : "Standard"}{" "}
-        Navbar
+        {label ?? (effectStyle === "effect" ? "Effect" : "Standard")} Navbar
       </Typography>
       <NavbarComponent>
         <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>

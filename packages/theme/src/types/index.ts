@@ -1,5 +1,6 @@
 import type { PrimitiveTokens } from "./designTokens";
 import type { EffectConfig } from "./effects";
+import { DEFAULT_EFFECT_CONFIG } from "./effects";
 import type { ComponentStyles } from "./componentStyles";
 import type { ThemePresetId } from "./presets";
 
@@ -331,23 +332,22 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
       tooltip: 1500,
     },
   },
+  // Spread from DEFAULT_EFFECT_CONFIG rather than listing effects by hand.
+  // This object is the base every preset is merged onto (see applyPreset), and
+  // for as long as it carried only `glassmorphism` and `neumorphism` a preset
+  // built on brutalism, bento, organic, immersive or liquid-glass had nowhere
+  // to merge its config into - it set `globalType` and lost everything else,
+  // so the effect announced itself and then painted nothing.
   effects: {
-    globalType: "standard",
+    ...DEFAULT_EFFECT_CONFIG,
     glassmorphism: {
-      enabled: false,
-      blur: "16px",
+      ...DEFAULT_EFFECT_CONFIG.glassmorphism,
       background: "rgba(255, 255, 255, 0.1)",
       borderColor: "rgba(255, 255, 255, 0.2)",
-      borderWidth: "1px",
-      opacity: 0.8,
     },
     neumorphism: {
-      enabled: false,
+      ...DEFAULT_EFFECT_CONFIG.neumorphism,
       backgroundColor: "#e0e5ec",
-      intensity: 0.15,
-      distance: 5,
-      altitude: 10,
-      borderRadius: "12px",
     },
   },
   components: {

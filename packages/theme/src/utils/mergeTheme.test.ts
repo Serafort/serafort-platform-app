@@ -174,11 +174,24 @@ describe("validateTheme", () => {
       organizationId: "org-123",
       effects: {
         neumorphism: {
-          altitude: 50,
+          altitude: 100,
         },
       },
     });
     expect(result.some((e) => e.includes("Neumorphism altitude"))).toBe(true);
+  });
+
+  it("accepts a light angle anywhere in the quadrant", () => {
+    // `altitude` is the light's elevation above the horizon, so the whole
+    // 0-90 quadrant is meaningful. It was capped at 45 while the geometry
+    // underneath was measuring from somewhere else entirely.
+    for (const altitude of [0, 45, 60, 90]) {
+      const result = validateTheme({
+        organizationId: "org-123",
+        effects: { neumorphism: { altitude } },
+      });
+      expect(result.some((e) => e.includes("Neumorphism altitude"))).toBe(false);
+    }
   });
 });
 

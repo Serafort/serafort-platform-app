@@ -1,5 +1,5 @@
 /**
- * I18n Registry for Landing Module
+ * I18n Registry for Theme Module
  *
  * Registers module-specific dictionaries and re-exports canonical
  * i18n functions from @cap/platform-core.
@@ -16,7 +16,7 @@ export const themeDictionaries = {
   ar,
 };
 
-// Register landing dictionaries in the framework-wide i18n registry
+// Register theme dictionaries in the framework-wide i18n registry
 registerDictionary(themeDictionaries as any);
 
 export {

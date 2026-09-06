@@ -3,7 +3,8 @@ import { Box, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 
 interface PreviewInputProps {
-  effectStyle?: "standard" | "glass" | "neu";
+  effectStyle?: "standard" | "effect";
+  label?: string;
 }
 
 const StandardInput = styled.input`
@@ -27,73 +28,45 @@ const StandardInput = styled.input`
   }
 `;
 
-const GlassInput = styled.input`
+/*
+ * The effect surface is read from the same --effect-* custom properties the
+ * app itself paints with, rather than a hand-written glass and neumorphic
+ * variant. Those two were the only effects the preview could show, and they
+ * showed fixed values - not the blur, tint or shadow the user had just set.
+ */
+const EffectInput = styled.input`
   width: 100%;
   padding: 0.625rem 1rem;
   font-size: 0.875rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  color: rgba(255, 255, 255, 0.95);
+  background: var(--effect-bg, var(--color-surface, #ffffff));
+  backdrop-filter: var(--effect-backdrop, none);
+  -webkit-backdrop-filter: var(--effect-backdrop, none);
+  border: var(--effect-border, 1px solid var(--color-border, #e2e8f0));
+  border-radius: var(--effect-radius, 8px);
+  box-shadow: var(--effect-shadow, none);
+  color: var(--color-text, #0f172a);
   transition: all 0.2s ease;
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--color-textMuted, #64748b);
   }
 
   &:focus {
     outline: none;
-    border-color: rgba(139, 92, 246, 0.8);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
-  }
-`;
-
-const NeuInput = styled.input`
-  width: 100%;
-  padding: 0.625rem 1rem;
-  font-size: 0.875rem;
-  background: #e0e5ec;
-  border: none;
-  border-radius: 8px;
-  color: #374151;
-  box-shadow:
-    inset 4px 4px 8px rgba(0, 0, 0, 0.1),
-    inset -4px -4px 8px rgba(255, 255, 255, 0.8);
-  transition: all 0.2s ease;
-
-  &::placeholder {
-    color: #9ca3af;
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow:
-      inset 2px 2px 4px rgba(0, 0, 0, 0.1),
-      inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+    border-color: var(--color-primary, #6366f1);
   }
 `;
 
 export const PreviewInput: React.FC<PreviewInputProps> = ({
   effectStyle = "standard",
+  label,
 }) => {
-  const InputComponent =
-    effectStyle === "glass"
-      ? GlassInput
-      : effectStyle === "neu"
-        ? NeuInput
-        : StandardInput;
+  const InputComponent = effectStyle === "effect" ? EffectInput : StandardInput;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Typography variant="caption" color="text.secondary">
-        {effectStyle === "glass"
-          ? "Glass"
-          : effectStyle === "neu"
-            ? "Neumorphic"
-            : "Standard"}{" "}
-        Input
+        {label ?? (effectStyle === "effect" ? "Effect" : "Standard")} Input
       </Typography>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
         <InputComponent placeholder="Default input placeholder" />

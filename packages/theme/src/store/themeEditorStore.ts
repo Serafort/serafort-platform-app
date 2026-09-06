@@ -13,8 +13,40 @@ let state: ThemeEditorState = {
 
 const listeners = new Set<() => void>();
 
+/**
+ * The custom properties the live preview writes inline on <html>. Inline
+ * declarations beat the stylesheet ThemeBridge injects, so they have to be
+ * removed again when the draft goes away - otherwise a discarded edit left
+ * its colours and its border colour painted over the real theme until the
+ * next reload.
+ */
+const PREVIEW_VARIABLES = [
+  "--mui-palette-primary-main",
+  "--mui-palette-secondary-main",
+  "--mui-palette-background-default",
+  "--mui-palette-background-paper",
+  "--border-color",
+  "--border-radius",
+] as const;
+
+/** Tokens are authored with their unit ("12px"), but a bare number is tolerated. */
+function withLengthUnit(value: string | number): string {
+  const asString = String(value).trim();
+  return /^-?\d*\.?\d+$/.test(asString) ? `${asString}px` : asString;
+}
+
+function clearDOMVariables() {
+  if (typeof document === "undefined") return;
+  const root = document.documentElement;
+  PREVIEW_VARIABLES.forEach((name) => root.style.removeProperty(name));
+}
+
 function syncDOMVariables(draftConfig: TenantThemeConfig | null) {
-  if (typeof document === "undefined" || !draftConfig?.tokens?.colors) return;
+  if (typeof document === "undefined") return;
+  if (!draftConfig?.tokens?.colors) {
+    clearDOMVariables();
+    return;
+  }
   const colors = draftConfig.tokens.colors;
   const root = document.documentElement;
   if (colors.primary?.value)
@@ -37,9 +69,11 @@ function syncDOMVariables(draftConfig: TenantThemeConfig | null) {
   if (colors.border?.value)
     root.style.setProperty("--border-color", colors.border.value);
   if (draftConfig.tokens.borderRadius?.md) {
+    // `${md}px` on a token that already reads "12px" produced "12pxpx", which
+    // the browser discards - so the radius preview silently did nothing.
     root.style.setProperty(
       "--border-radius",
-      `${draftConfig.tokens.borderRadius.md}px`,
+      withLengthUnit(draftConfig.tokens.borderRadius.md),
     );
   }
 }
@@ -95,6 +129,7 @@ export const themeEditorStore = {
       isEditing: false,
       draftConfig: null,
     };
+    clearDOMVariables();
     notify();
   },
 };

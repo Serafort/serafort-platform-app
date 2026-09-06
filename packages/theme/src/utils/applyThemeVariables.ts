@@ -3,11 +3,16 @@ import type {
   CSSVariableMap,
   AppliedThemeVariables,
 } from "../types";
+import type { UIEffect } from "@cap/shared-types";
 import {
   computeNeumorphismBoxShadow,
+  computeOrganicRadius,
   getGlassmorphismStyles,
+  getLiquidGlassStyles,
   getBrutalismStyles,
   getBentoStyles,
+  getOrganicStyles,
+  getImmersiveStyles,
   hexToRgba,
   rgbaToHex,
 } from "./computeEffects";
@@ -133,152 +138,270 @@ export const generateThemeVariables = (
     }
   }
 
-  if (theme.effects?.glassmorphism?.enabled) {
-    const glass = theme.effects.glassmorphism;
-    const glassStyles = getGlassmorphismStyles(glass);
+  // ==========================================================================
+  // EFFECTS
+  // ==========================================================================
+  //
+  // Two families of variables come out of here.
+  //
+  // `--glass-*`, `--neu-*`, `--brutal-*`, ... are per-effect namespaces. They
+  // back opt-in usage - a component explicitly styled as glass regardless of
+  // what the rest of the app is doing - so they are emitted for whichever
+  // effect the tenant has configured.
+  //
+  // `--effect-*` is the *active* surface treatment: what every Paper, Card,
+  // Dialog, navbar, sidebar and footer paints itself with by default. Exactly
+  // one effect may own it, so it is selected from `globalType` alone. It used
+  // to be written by six near-identical hand-copied blocks, each gated on both
+  // `enabled` and `globalType`, and `liquid-glass` was never given one at all
+  // - so choosing it changed nothing. Both families now come from the same
+  // per-effect builders, which is why adding an effect to the registry is
+  // enough to make it apply.
+  const effectConfig = theme.effects;
+  const globalType: UIEffect = effectConfig?.globalType || "standard";
 
+  /** What the active surface treatment resolves to, per effect. */
+  const activeEffectBuilders: Record<
+    Exclude<UIEffect, "standard">,
+    () => CSSVariableMap
+  > = {
+    glass: (): CSSVariableMap => {
+      const config = effectConfig?.glassmorphism;
+      if (!config) return {};
+      const styles = getGlassmorphismStyles(config);
+      return {
+        "--effect-bg": styles.background,
+        "--effect-backdrop": styles.backdropFilter,
+        "--effect-border": styles.border,
+      };
+    },
+    "liquid-glass": (): CSSVariableMap => {
+      const config = effectConfig?.liquidGlass;
+      if (!config) return {};
+      const styles = getLiquidGlassStyles(config);
+      return {
+        "--effect-bg": styles.background,
+        "--effect-backdrop": styles.backdropFilter,
+        "--effect-border": styles.border,
+        "--effect-shadow": styles.boxShadow,
+      };
+    },
+    neu: (): CSSVariableMap => {
+      const config = effectConfig?.neumorphism;
+      if (!config) return {};
+      const vars: CSSVariableMap = {
+        "--effect-shadow": computeNeumorphismBoxShadow(config),
+        // Relief only. The whole illusion is that the surface is the same
+        // material as the ground, pushed up out of it; an outline around it
+        // reads as a separate object sitting on top and cancels the effect.
+        "--effect-border": "none",
+      };
+      // Neumorphism only reads as extruded when the surface and the ground
+      // behind it are the same colour - the relief is made entirely of the two
+      // shadows, so a panel that contrasts with its canvas just looks like a
+      // panel with strange shadows. The Neumorphism preset sets its page
+      // background and its surface to the same value for exactly this reason,
+      // but selecting `neu` as the global effect on some other palette does
+      // not, so the effect publishes its ground as well as its surface and the
+      // content canvas follows it (see StyledMain).
+      if (config.backgroundColor) {
+        vars["--effect-bg"] = config.backgroundColor;
+        vars["--effect-canvas-bg"] = config.backgroundColor;
+      }
+      if (config.borderRadius) vars["--effect-radius"] = config.borderRadius;
+      return vars;
+    },
+    brutalism: (): CSSVariableMap => {
+      const config = effectConfig?.brutalism;
+      if (!config) return {};
+      const styles = getBrutalismStyles(config);
+      return {
+        ...(config.backgroundColor
+          ? { "--effect-bg": config.backgroundColor }
+          : {}),
+        "--effect-border": styles.border,
+        "--effect-shadow": styles.boxShadow,
+        "--effect-radius": "0px",
+      };
+    },
+    bento: (): CSSVariableMap => {
+      const config = effectConfig?.bento;
+      if (!config) return {};
+      const styles = getBentoStyles(config);
+      return {
+        ...(config.background ? { "--effect-bg": config.background } : {}),
+        "--effect-border": styles.border,
+        "--effect-shadow": config.shadow || "none",
+        "--effect-radius": config.borderRadius || "24px",
+      };
+    },
+    organic: (): CSSVariableMap => {
+      const config = effectConfig?.organic;
+      if (!config) return {};
+      const styles = getOrganicStyles(config);
+      return {
+        ...(config.backgroundColor
+          ? { "--effect-bg": config.backgroundColor }
+          : {}),
+        "--effect-radius": styles.borderRadius,
+        "--effect-border": styles.border,
+      };
+    },
+    immersive: (): CSSVariableMap => {
+      const config = effectConfig?.immersive;
+      if (!config) return {};
+      const styles = getImmersiveStyles(config);
+      return {
+        "--effect-perspective": styles.perspective as string,
+        "--effect-shadow": styles.boxShadow as string,
+      };
+    },
+  };
+
+  // -- Per-effect namespaces (opt-in usage) ---------------------------------
+  const glassConfig = effectConfig?.glassmorphism;
+  if (glassConfig?.enabled) {
     effects["--glass-enabled"] = "1";
-    effects["--glass-blur"] = glass.blur || "0px";
-    effects["--glass-bg"] = glass.background || "transparent";
-    effects["--glass-border"] = glass.borderColor || "transparent";
-    effects["--glass-border-width"] = glass.borderWidth || "0px";
-    effects["--glass-opacity"] = glass.opacity ?? 0;
-
-    // The --glass-* tokens above stay unconditional - they back per-component
-    // opt-in glass (e.g. a card explicitly styled as glass regardless of the
-    // active global effect). --effect-* is different: it's what every Paper/
-    // Card surface renders by default, so it must only carry glass values
-    // when glass is the *active global effect* - otherwise a tenant with
-    // glassmorphism.enabled left on from a prior preset, but a different (or
-    // no) globalType selected, would still paint every surface glassy.
-    // Mirrors the same globalType-gated pattern the brutalism/bento/organic
-    // blocks below already use for --effect-bg.
-    if (theme.effects.globalType === "glass") {
-      effects["--effect-bg"] = glassStyles.background;
-      effects["--effect-backdrop"] = glassStyles.backdropFilter;
-      effects["--effect-border"] = glassStyles.border;
-    }
+    effects["--glass-blur"] = glassConfig.blur || "0px";
+    effects["--glass-bg"] = glassConfig.background || "transparent";
+    effects["--glass-border"] = glassConfig.borderColor || "transparent";
+    effects["--glass-border-width"] = glassConfig.borderWidth || "0px";
+    effects["--glass-opacity"] = glassConfig.opacity ?? 0;
   } else {
     effects["--glass-enabled"] = "0";
   }
 
-  if (theme.effects?.neumorphism?.enabled) {
-    const neu = theme.effects.neumorphism;
+  const liquidConfig = effectConfig?.liquidGlass;
+  if (liquidConfig?.enabled) {
+    const liquidStyles = getLiquidGlassStyles(liquidConfig);
+    effects["--liquid-glass-enabled"] = "1";
+    effects["--liquid-glass-blur"] = liquidConfig.blur || "0px";
+    effects["--liquid-glass-bg"] = liquidStyles.background;
+    effects["--liquid-glass-border"] = liquidStyles.border;
+    effects["--liquid-glass-shadow"] = liquidStyles.boxShadow;
+    effects["--liquid-glass-refraction"] = `${liquidConfig.refraction ?? 40}`;
+  } else {
+    effects["--liquid-glass-enabled"] = "0";
+  }
+
+  const neuConfig = effectConfig?.neumorphism;
+  if (neuConfig?.enabled) {
     effects["--neu-enabled"] = "1";
-    effects["--neu-bg"] = neu.backgroundColor || "transparent";
-    effects["--neu-intensity"] = neu.intensity ?? 0;
-    effects["--neu-distance"] = neu.distance ?? 0;
-    effects["--neu-altitude"] = neu.altitude ?? 0;
-    effects["--neu-radius"] = neu.borderRadius || "0px";
-
-    // Computed neumorphism variables
-    const neuShadow = computeNeumorphismBoxShadow(neu);
-    effects["--neu-shadow"] = neuShadow;
-
-    // Gated on the active global effect for the same reason as --effect-bg
-    // above: a tenant left with neumorphism.enabled from an earlier preset but
-    // a different globalType would otherwise stamp the neu shadow on every
-    // surface in the app - including a glass one.
-    if (theme.effects.globalType === "neu") {
-      effects["--effect-shadow"] = neuShadow;
-    }
+    effects["--neu-bg"] = neuConfig.backgroundColor || "transparent";
+    effects["--neu-intensity"] = neuConfig.intensity ?? 0;
+    effects["--neu-distance"] = neuConfig.distance ?? 0;
+    effects["--neu-altitude"] = neuConfig.altitude ?? 0;
+    effects["--neu-radius"] = neuConfig.borderRadius || "0px";
+    effects["--neu-shadow"] = computeNeumorphismBoxShadow(neuConfig);
   } else {
     effects["--neu-enabled"] = "0";
   }
 
-  if (theme.effects?.brutalism?.enabled) {
-    const brutal = theme.effects.brutalism;
-    const brutalStyles = getBrutalismStyles(brutal);
-
+  const brutalConfig = effectConfig?.brutalism;
+  if (brutalConfig?.enabled) {
+    const brutalStyles = getBrutalismStyles(brutalConfig);
     effects["--brutal-enabled"] = "1";
-    effects["--brutal-border-width"] = brutal.borderWidth || "0px";
-    effects["--brutal-border-color"] = brutal.borderColor || "transparent";
-    effects["--brutal-shadow-offset"] = brutal.shadowOffset || "0px";
-    effects["--brutal-shadow-color"] = brutal.shadowColor || "transparent";
-    effects["--brutal-bg"] = brutal.backgroundColor || "transparent";
-
-    // Computed brutalism variables
+    effects["--brutal-border-width"] = brutalConfig.borderWidth || "0px";
+    effects["--brutal-border-color"] = brutalConfig.borderColor || "transparent";
+    effects["--brutal-shadow-offset"] = brutalConfig.shadowOffset || "0px";
+    effects["--brutal-shadow-color"] = brutalConfig.shadowColor || "transparent";
+    effects["--brutal-bg"] = brutalConfig.backgroundColor || "transparent";
     effects["--brutal-shadow"] = brutalStyles.boxShadow;
     effects["--brutal-border"] = brutalStyles.border;
-
-    if (theme.effects.globalType === "brutalism") {
-      effects["--effect-bg"] = brutal.backgroundColor || "transparent";
-      effects["--effect-border"] = brutalStyles.border;
-      effects["--effect-shadow"] = brutalStyles.boxShadow;
-    }
   } else {
     effects["--brutal-enabled"] = "0";
   }
 
-  if (theme.effects?.bento?.enabled) {
-    const bento = theme.effects.bento;
-    const bentoStyles = getBentoStyles(bento);
-
+  const bentoConfig = effectConfig?.bento;
+  if (bentoConfig?.enabled) {
+    const bentoStyles = getBentoStyles(bentoConfig);
     effects["--bento-enabled"] = "1";
-    effects["--bento-radius"] = bento.borderRadius || "0px";
-    effects["--bento-spacing"] = bento.spacing || "0px";
-    effects["--bento-bg"] = bento.background || "transparent";
-    effects["--bento-border-width"] = bento.borderWidth || "0px";
-    effects["--bento-border-color"] = bento.borderColor || "transparent";
-    effects["--bento-shadow"] = bento.shadow || "none";
-
-    // Computed bento variables
+    effects["--bento-radius"] = bentoConfig.borderRadius || "0px";
+    effects["--bento-spacing"] = bentoConfig.spacing || "0px";
+    effects["--bento-bg"] = bentoConfig.background || "transparent";
+    effects["--bento-border-width"] = bentoConfig.borderWidth || "0px";
+    effects["--bento-border-color"] = bentoConfig.borderColor || "transparent";
+    effects["--bento-shadow"] = bentoConfig.shadow || "none";
     effects["--bento-border"] = bentoStyles.border;
-
-    if (theme.effects.globalType === "bento") {
-      effects["--effect-bg"] = bento.background || "transparent";
-      effects["--effect-border"] = bentoStyles.border;
-      effects["--effect-shadow"] = bento.shadow || "none";
-      effects["--effect-radius"] = bento.borderRadius || "0px";
-    }
   } else {
     effects["--bento-enabled"] = "0";
   }
 
-  if (theme.effects?.organic?.enabled) {
-    const organic = theme.effects.organic;
+  const organicConfig = effectConfig?.organic;
+  if (organicConfig?.enabled) {
     effects["--organic-enabled"] = "1";
-    effects["--organic-curvature"] = `${organic.curvature ?? 80}`;
-    effects["--organic-fluidity"] = `${organic.fluidity ?? 50}`;
-    effects["--organic-bg"] = organic.backgroundColor || "transparent";
-    effects["--organic-border-color"] = organic.borderColor || "transparent";
-    effects["--organic-border-width"] = organic.borderWidth || "0px";
-
-    if (theme.effects.globalType === "organic") {
-      const radius =
-        (organic.curvature ?? 80) > 50
-          ? `${organic.curvature ?? 80}% ${100 - (organic.curvature ?? 80)}%`
-          : `${organic.curvature ?? 80}px`;
-      effects["--effect-bg"] = organic.backgroundColor || "transparent";
-      effects["--effect-radius"] = radius;
-      effects["--effect-border"] =
-        `${organic.borderWidth || "0px"} solid ${organic.borderColor || "transparent"}`;
-    }
+    effects["--organic-curvature"] = `${organicConfig.curvature ?? 80}`;
+    effects["--organic-fluidity"] = `${organicConfig.fluidity ?? 50}`;
+    effects["--organic-bg"] = organicConfig.backgroundColor || "transparent";
+    effects["--organic-border-color"] =
+      organicConfig.borderColor || "transparent";
+    effects["--organic-border-width"] = organicConfig.borderWidth || "0px";
+    effects["--organic-radius"] = computeOrganicRadius(
+      organicConfig.curvature ?? 80,
+      organicConfig.fluidity ?? 50,
+    );
   } else {
     effects["--organic-enabled"] = "0";
   }
 
-  if (theme.effects?.immersive?.enabled) {
-    const immersive = theme.effects.immersive;
+  const immersiveConfig = effectConfig?.immersive;
+  if (immersiveConfig?.enabled) {
     effects["--immersive-enabled"] = "1";
-    effects["--immersive-perspective"] = immersive.perspective || "1000px";
-    effects["--immersive-rotate-x"] = immersive.rotationX || "0deg";
-    effects["--immersive-rotate-y"] = immersive.rotationY || "0deg";
-    effects["--immersive-depth"] = `${immersive.depth ?? 20}`;
+    effects["--immersive-perspective"] =
+      immersiveConfig.perspective || "1000px";
+    effects["--immersive-rotate-x"] = immersiveConfig.rotationX || "0deg";
+    effects["--immersive-rotate-y"] = immersiveConfig.rotationY || "0deg";
+    effects["--immersive-depth"] = `${immersiveConfig.depth ?? 20}`;
     effects["--immersive-shadow-color"] =
-      immersive.shadowColor || "rgba(0,0,0,0.2)";
-
-    if (theme.effects.globalType === "immersive") {
-      const depth = immersive.depth ?? 20;
-      const shadowColor = immersive.shadowColor || "rgba(0,0,0,0.2)";
-      effects["--effect-perspective"] = immersive.perspective || "1000px";
-      effects["--effect-shadow"] =
-        `0 ${depth / 4}px ${depth / 2}px ${shadowColor}`;
-    }
+      immersiveConfig.shadowColor || "rgba(0,0,0,0.2)";
   } else {
     effects["--immersive-enabled"] = "0";
   }
 
+  // -- The one active surface treatment -------------------------------------
+  effects["--effect-type"] = globalType;
+  if (globalType !== "standard") {
+    // Surfaces read `var(--effect-backdrop, <their own default>)`, and several
+    // pieces of chrome default to a blur of their own (the navbar's 8px
+    // frosting, for one). Only the two blur-based effects set this variable,
+    // so without an explicit `none` every other effect inherited that leftover
+    // frosting - brutalism, whose entire point is a hard flat edge, rendered
+    // blurred. Builders that do blur overwrite this immediately below.
+    effects["--effect-backdrop"] = "none";
+    Object.assign(effects, activeEffectBuilders[globalType]?.() || {});
+
+    // Chrome built from stacked containers - the sidebar is a fixed outer
+    // container wrapping an inner scroll surface - has to nominate exactly one
+    // layer to carry the effect. The inner one wins, because a backdrop-filter
+    // can only blur what is actually behind its own element, and an opaque
+    // outer container sitting directly behind it is all it would ever see.
+    // The outer layers read this to drop out of the way while an effect owns
+    // the surface; with no effect active it is unset and they paint as before.
+    effects["--effect-underlay"] = "transparent";
+  }
+
+  // -- Ambient canvas -------------------------------------------------------
+  //
+  // `backdrop-filter: blur()` over a flat single-colour page is a no-op you
+  // can stare straight at: there is nothing behind the panel for the blur to
+  // smear, so a correctly applied glass preset still reads as "not glass".
+  // A soft wash built from the tenant's own brand tokens gives the blur
+  // something to reveal, and the layout paints it behind the content area
+  // (see StyledMain). Only the two blur-based effects ask for it; for every
+  // other effect the variable stays unset and the canvas is a flat colour.
+  if (globalType === "glass" || globalType === "liquid-glass") {
+    const primary = theme.tokens?.colors?.primary?.value || "#047BFA";
+    const secondary =
+      theme.tokens?.colors?.secondary?.value ||
+      theme.tokens?.colors?.info?.value ||
+      primary;
+    effects["--effect-canvas-image"] = [
+      `radial-gradient(at 18% 12%, ${hexToRgba(primary, 0.28)} 0px, transparent 55%)`,
+      `radial-gradient(at 82% 8%, ${hexToRgba(secondary, 0.22)} 0px, transparent 50%)`,
+      `radial-gradient(at 70% 88%, ${hexToRgba(primary, 0.18)} 0px, transparent 55%)`,
+      `radial-gradient(at 8% 78%, ${hexToRgba(secondary, 0.16)} 0px, transparent 50%)`,
+    ].join(", ");
+  }
   const components: CSSVariableMap = {};
   if (theme.components) {
     for (const [compName, config] of Object.entries(theme.components)) {

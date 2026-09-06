@@ -3,6 +3,8 @@ import type { TenantThemeConfig } from "../types";
 import { DEFAULT_THEME_CONFIG } from "../types";
 import { THEME_PRESETS } from "../types/presets";
 import type { ThemePresetId } from "../types/presets";
+import { EFFECT_CONFIG_KEYS, normalizeEffectConfig } from "../types/effects";
+import type { EffectConfig } from "../types/effects";
 import { LIGHT_SURFACE_THRESHOLD, lightnessOf } from "./colorLightness";
 
 export const mergeDeep = <T extends Record<string, unknown>>(
@@ -56,6 +58,41 @@ export const getPresetMode = (presetId: ThemePresetId): "light" | "dark" => {
   return lightness > LIGHT_SURFACE_THRESHOLD ? "light" : "dark";
 };
 
+/**
+ * Merge an effect config over a draft's, one sub-record at a time, then
+ * reconcile every `enabled` flag against the resulting `globalType`.
+ *
+ * The two call sites below used to name `glassmorphism` and `neumorphism`
+ * explicitly and merge nothing else, which is why `pure-brutalism`,
+ * `neo-brutalism`, `liquid-organic`, `immersive-3d` and
+ * `modern-skeuomorphic` all applied as a bare `globalType` with a
+ * still-disabled config behind it - `generateThemeVariables` gates each
+ * effect's CSS variables on `enabled`, so those presets emitted no
+ * `--effect-*` at all and the screen did not change. Iterating
+ * EFFECT_CONFIG_KEYS means a newly added effect is merged for free.
+ */
+const mergeEffectConfig = (
+  target: EffectConfig,
+  source: Partial<EffectConfig> | undefined,
+): EffectConfig => {
+  if (!source) return normalizeEffectConfig(target);
+
+  if (source.globalType) {
+    target.globalType = source.globalType;
+  }
+
+  for (const key of EFFECT_CONFIG_KEYS) {
+    const incoming = source[key];
+    if (!incoming) continue;
+    (target[key] as unknown) = {
+      ...(target[key] as object),
+      ...(incoming as object),
+    };
+  }
+
+  return normalizeEffectConfig(target);
+};
+
 export const applyPreset = (presetId: ThemePresetId): TenantThemeConfig => {
   const preset = THEME_PRESETS[presetId];
   if (!preset) {
@@ -106,23 +143,7 @@ export const applyPreset = (presetId: ThemePresetId): TenantThemeConfig => {
       }
     }
 
-    if (preset.effects) {
-      if (preset.effects.globalType) {
-        draft.effects.globalType = preset.effects.globalType;
-      }
-      if (preset.effects.glassmorphism) {
-        draft.effects.glassmorphism = {
-          ...draft.effects.glassmorphism,
-          ...preset.effects.glassmorphism,
-        };
-      }
-      if (preset.effects.neumorphism) {
-        draft.effects.neumorphism = {
-          ...draft.effects.neumorphism,
-          ...preset.effects.neumorphism,
-        };
-      }
-    }
+    mergeEffectConfig(draft.effects, preset.effects);
 
     if (preset.components) {
       draft.components = {
@@ -178,9 +199,10 @@ export const mergeThemeWithPreset = (
       );
     }
 
-    draft.effects = {
-      ...presetTheme.effects,
-    };
+    // Replace rather than merge: a preset defines one coherent effect, and
+    // carrying the previous preset's sub-configs forward is what produced
+    // mixed states (glass blur still enabled underneath a brutalism preset).
+    draft.effects = normalizeEffectConfig({ ...presetTheme.effects });
 
     if (presetTheme.components) {
       draft.components = {
@@ -223,23 +245,7 @@ export const createThemeFromPartial = (
       }
     }
 
-    if (partial.effects) {
-      if (partial.effects.globalType) {
-        draft.effects.globalType = partial.effects.globalType;
-      }
-      if (partial.effects.glassmorphism) {
-        draft.effects.glassmorphism = {
-          ...draft.effects.glassmorphism,
-          ...partial.effects.glassmorphism,
-        };
-      }
-      if (partial.effects.neumorphism) {
-        draft.effects.neumorphism = {
-          ...draft.effects.neumorphism,
-          ...partial.effects.neumorphism,
-        };
-      }
-    }
+    mergeEffectConfig(draft.effects, partial.effects);
 
     if (partial.components) {
       draft.components = { ...draft.components, ...partial.components };
@@ -275,8 +281,12 @@ export const validateTheme = (theme: Partial<TenantThemeConfig>): string[] => {
     if (distance !== undefined && (distance < 0 || distance > 20)) {
       errors.push("Neumorphism distance must be between 0 and 20");
     }
-    if (altitude !== undefined && (altitude < 0 || altitude > 45)) {
-      errors.push("Neumorphism altitude must be between 0 and 45");
+    // 0-90, the full quadrant: `altitude` is the light's elevation above the
+    // horizon, so 0 lights the surface from the side and 90 from directly
+    // above. It was capped at 45 while the geometry underneath was measuring
+    // the angle from somewhere else entirely.
+    if (altitude !== undefined && (altitude < 0 || altitude > 90)) {
+      errors.push("Neumorphism altitude must be between 0 and 90");
     }
   }
 

@@ -1,5 +1,9 @@
 import type { Theme } from '@mui/material/styles'
-import { menuTokens, getVerticalNavBackdropColor, getVerticalNavContainerShadow } from '@cap/theme'
+import {
+  menuTokens,
+  getVerticalNavBackdropColor,
+  getVerticalNavContainerShadow,
+} from '@cap/theme'
 import type { VerticalNavState } from '../../../menu/contexts/verticalNavContext'
 import { menuClasses, verticalNavClasses } from '../../../menu/utils/menuClasses'
 
@@ -34,7 +38,13 @@ const navigationCustomStyles = (verticalNavOptions: VerticalNavState, theme: The
         easing: 'ease-in-out',
       }),
       borderInlineEnd: `1px solid ${theme.palette.divider}`,
-      backgroundColor: theme.palette.background.paper,
+      // The sidebar is the largest chrome surface in the shell, and it painted
+      // the paper colour flat, so no style preset could touch it. It now drops
+      // to transparent whenever an effect is active (--effect-underlay) and
+      // lets the inner StyledVerticalNavBgColorContainer carry the effect: the
+      // translucent layer has to be the innermost one, or its backdrop-filter
+      // would only ever blur this container sitting directly behind it.
+      backgroundColor: `var(--effect-underlay, ${theme.palette.background.paper})`,
       ...getVerticalNavContainerShadow(theme, (theme as any).settings?.skin),
       '[data-skin="bordered"] &': {
         boxShadow: 'none',

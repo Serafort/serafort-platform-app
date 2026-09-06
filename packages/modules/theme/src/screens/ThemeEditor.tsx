@@ -11,7 +11,7 @@ import {
   Snackbar,
   Drawer,
   IconButton,
-  CircularProgress,
+  Stack,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -21,25 +21,34 @@ import { AiThemeStudioPanel } from "../components/AiThemeStudioPanel";
 import { ColorPaletteEditor } from "../components/ColorPaletteEditor";
 import { GlassmorphismPanel } from "../components/EffectControls/GlassmorphismPanel";
 import { NeumorphismPanel } from "../components/EffectControls/NeumorphismPanel";
+import { EffectSettingsPanel } from "../components/EffectControls/EffectSettingsPanel";
 import { ComponentStyleSelector } from "../components/ComponentStyleSelector";
 import { SpacingEditor } from "../components/SpacingEditor";
 import { PresetSelector } from "../components/PresetSelector";
+import { ChoiceChip, PanelHeader } from "../components/studioUi";
 import { LivePreview } from "../components/LivePreview";
 import type {
   TenantThemeConfig,
   ColorToken,
+  EffectConfig,
   GlassmorphismConfig,
   NeumorphismConfig,
   ComponentStyles,
   EffectType,
 } from "@cap/theme";
 import {
+  applyThemeVariablesSync,
   DEFAULT_TENANT_THEME,
+  EFFECT_CONFIG_KEYS,
+  EFFECT_TYPES,
+  normalizeEffectConfig,
   THEME_PRESETS,
   getPresetMode,
   mergeThemeWithPreset,
   useThemeEditorStore,
   themeEditorStore,
+  savedThemeStore,
+  useSavedTheme,
 } from "@cap/theme";
 import type { ThemePresetId } from "@cap/theme";
 import { useSettings } from "@cap/platform-store";
@@ -74,18 +83,26 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
   open: customOpen,
   onClose,
 }) => {
-  const { data: serverThemeData, isLoading: isLoadingServerTheme } =
-    useTenantTheme(organizationId, {
-      enabled: !initialTheme, // Only fetch if no initialTheme provided
-    });
+  const { data: serverThemeData } = useTenantTheme(organizationId, {
+    enabled: !initialTheme, // Only fetch if no initialTheme provided
+  });
 
   const updateMutation = useUpdateTenantTheme(organizationId);
 
   const { isEditing, draftConfig } = useThemeEditorStore();
   const { settings, updateSettings } = useSettings();
 
+  // Reopening the editor has to show the theme the app is currently wearing.
+  // The locally saved theme sits between the server's copy and the defaults:
+  // it is what ThemeBridge renders from when the tenant record carries no
+  // full theme, which is every time the themes API is unavailable.
+  const savedTheme = useSavedTheme();
+
   const activeInitialTheme =
-    initialTheme || serverThemeData?.data?.themeConfig || DEFAULT_TENANT_THEME;
+    initialTheme ||
+    serverThemeData?.data?.themeConfig ||
+    savedTheme ||
+    DEFAULT_TENANT_THEME;
   const rawTheme = draftConfig || activeInitialTheme;
 
   const theme: TenantThemeConfig = React.useMemo(() => {
@@ -112,18 +129,28 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
           ...(rawTheme?.tokens?.typography || {}),
         },
       },
-      effects: {
-        ...DEFAULT_TENANT_THEME.effects,
-        ...(rawTheme?.effects || {}),
-        glassmorphism: {
-          ...DEFAULT_TENANT_THEME.effects?.glassmorphism,
-          ...(rawTheme?.effects?.glassmorphism || {}),
-        },
-        neumorphism: {
-          ...DEFAULT_TENANT_THEME.effects?.neumorphism,
-          ...(rawTheme?.effects?.neumorphism || {}),
-        },
-      },
+      // Every effect sub-config is backfilled from the defaults, not just
+      // glassmorphism and neumorphism: a theme saved with a partial brutalism
+      // or organic config used to reach the panels with half its fields
+      // undefined, and the sliders snapped to zero on first touch.
+      effects: EFFECT_CONFIG_KEYS.reduce(
+        (merged, key) => ({
+          ...merged,
+          [key]: {
+            ...(DEFAULT_TENANT_THEME.effects as unknown as Record<
+              string,
+              object
+            >)[key],
+            ...((rawTheme?.effects as unknown as
+              | Record<string, object>
+              | undefined)?.[key] || {}),
+          },
+        }),
+        {
+          ...DEFAULT_TENANT_THEME.effects,
+          ...(rawTheme?.effects || {}),
+        } as EffectConfig,
+      ),
       components: {
         ...DEFAULT_TENANT_THEME.components,
         ...(rawTheme?.components || {}),
@@ -140,6 +167,8 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     },
     [draftConfig, theme],
   );
+
+  const activeEffectType: EffectType = theme.effects?.globalType || "standard";
 
   const [activeTab, setActiveTab] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -192,14 +221,16 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     (glassmorphism: GlassmorphismConfig) => {
       updateThemeState((prev) => ({
         ...prev,
-        effects: {
+        effects: normalizeEffectConfig({
           ...DEFAULT_TENANT_THEME.effects,
           ...prev?.effects,
           glassmorphism,
-          globalType: glassmorphism.enabled
-            ? "glass"
-            : prev?.effects?.globalType || "none",
-        },
+          // "standard", not "none": "none" is not a member of UIEffect, so
+          // turning an effect off used to write a value nothing recognises -
+          // no builder matched it and the surfaces kept the last effect's
+          // variables until something else reset them.
+          globalType: glassmorphism.enabled ? "glass" : "standard",
+        }),
       }));
     },
     [updateThemeState],
@@ -209,14 +240,12 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     (neumorphism: NeumorphismConfig) => {
       updateThemeState((prev) => ({
         ...prev,
-        effects: {
+        effects: normalizeEffectConfig({
           ...DEFAULT_TENANT_THEME.effects,
           ...prev?.effects,
           neumorphism,
-          globalType: neumorphism.enabled
-            ? "neu"
-            : prev?.effects?.globalType || "none",
-        },
+          globalType: neumorphism.enabled ? "neu" : "standard",
+        }),
       }));
     },
     [updateThemeState],
@@ -236,11 +265,26 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     (globalType: EffectType) => {
       updateThemeState((prev) => ({
         ...prev,
-        effects: {
+        // normalizeEffectConfig turns on the config the new effect reads and
+        // turns the previous one off. Without it, switching effect left the
+        // old one's `enabled` flag set, which is the flag the CSS-variable
+        // emitter gates on - so the app announced the new effect and kept
+        // painting a mix of both.
+        effects: normalizeEffectConfig({
           ...DEFAULT_TENANT_THEME.effects,
           ...prev?.effects,
           globalType,
-        },
+        }),
+      }));
+    },
+    [updateThemeState],
+  );
+
+  const handleEffectsChange = useCallback(
+    (effects: EffectConfig) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        effects: normalizeEffectConfig({ ...prev?.effects, ...effects }),
       }));
     },
     [updateThemeState],
@@ -305,44 +349,85 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     [organizationId, settings.mode, updateSettings, updateThemeState],
   );
 
-  if (isLoadingServerTheme && !initialTheme) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", p: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // The editor never blocks on the themes API. It used to return a bare
+  // spinner while that query was in flight, and with the API unreachable that
+  // covered its whole retry budget - the panel was a spinner for the entire
+  // time, which is exactly when saving locally matters most. There is always
+  // something to edit (server theme, then the locally saved one, then the
+  // defaults), and the moment the user touches a control a draft exists and
+  // takes precedence over anything that lands late.
 
   const handleSave = async () => {
     setIsSaving(true);
+
+    // Stamp the mode the theme was authored in, so a saved theme describes
+    // itself rather than depending on whatever mode the app happens to be in
+    // when it is next read.
+    const themeToSave: TenantThemeConfig = {
+      ...theme,
+      organizationId: theme.organizationId || organizationId,
+      metadata: {
+        ...theme.metadata,
+        mode: settings.mode === "dark" ? "dark" : "light",
+        updatedAt: new Date().toISOString(),
+      },
+    };
+
+    // Persist locally *before* talking to the server, and unconditionally.
+    // Saving used to be the server call alone: on failure the optimistic
+    // update rolled the CSS variables back, and on success the draft was
+    // discarded and the app fell back to `DEFAULT_THEME_CONFIG`, because the
+    // tenant record carries branding fields but never a full theme. Either
+    // way, pressing Save threw the theme away. The local record is what the
+    // app renders from - see savedThemeStore and ThemeBridge - so it has to
+    // land whether or not the backend is reachable.
+    const persisted = savedThemeStore.save(themeToSave);
+
+    let serverError: unknown = null;
     try {
       if (onSave) {
-        await onSave(theme);
+        await onSave(themeToSave);
       } else {
         await updateMutation.mutateAsync({
-          themeConfig: theme,
-          isDark: theme.metadata?.mode === "dark",
+          themeConfig: themeToSave,
+          isDark: themeToSave.metadata?.mode === "dark",
         });
       }
-      themeEditorStore.discardDraft();
-      setSnackbar({
-        open: true,
-        message: "Theme saved successfully!",
-        severity: "success",
-      });
-      if (onClose) onClose();
     } catch (error) {
+      serverError = error;
+    }
+
+    // The failed mutation reverts the CSS variables to its snapshot, so
+    // re-assert the theme that was actually saved.
+    if (serverError) applyThemeVariablesSync(themeToSave);
+
+    themeEditorStore.discardDraft();
+    setIsSaving(false);
+
+    if (!persisted) {
       setSnackbar({
         open: true,
-        message: "Failed to save theme. Please try again.",
+        message:
+          "Theme applied, but it could not be stored on this device. It will be lost on reload.",
         severity: "error",
       });
-    } finally {
-      setIsSaving(false);
+    } else {
+      setSnackbar({
+        open: true,
+        message: serverError
+          ? "Theme saved on this device. It could not reach the server, so other devices still see the previous theme."
+          : "Theme saved successfully!",
+        severity: serverError ? "info" : "success",
+      });
     }
+
+    if (onClose) onClose();
   };
 
   const handleReset = () => {
+    // Drop the saved record too, otherwise closing the editor without saving
+    // would restore the theme the user just asked to be rid of.
+    savedThemeStore.clear();
     updateThemeState(() => ({ ...DEFAULT_TENANT_THEME, organizationId }));
     setSnackbar({
       open: true,
@@ -518,32 +603,69 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
           </TabPanel>
 
           <TabPanel value={activeTab} index={3}>
-            <Grid container spacing={3}>
-              <Grid size={{ xs: 12, md: asDrawer ? 12 : 6 }}>
-                <GlassmorphismPanel
-                  config={
-                    theme.effects?.glassmorphism ||
-                    DEFAULT_TENANT_THEME.effects.glassmorphism
-                  }
-                  onChange={handleGlassmorphismChange}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: asDrawer ? 12 : 6 }}>
-                <NeumorphismPanel
-                  config={
-                    theme.effects?.neumorphism ||
-                    DEFAULT_TENANT_THEME.effects.neumorphism
-                  }
-                  onChange={handleNeumorphismChange}
-                />
-              </Grid>
-            </Grid>
+            {/*
+              The global effect and its settings belong together. This tab used
+              to show the Glassmorphism and Neumorphism panels side by side and
+              nothing else, which meant the other six effects had no controls at
+              all, and that turning glass "on" here was a different act from
+              selecting it as the global effect over in Components - two
+              switches for one decision, and the app followed whichever was
+              touched last. Choosing an effect here is the single decision, and
+              the panel below configures whatever was chosen.
+            */}
+            <Box sx={{ mb: 6 }}>
+              <PanelHeader
+                title="Surface effect"
+                description="How every panel in the app is drawn: its fill, edge, blur and shadow."
+              />
+              <Stack
+                direction="row"
+                useFlexGap
+                spacing={1.5}
+                sx={{ flexWrap: "wrap" }}
+              >
+                {EFFECT_TYPES.map((option) => (
+                  <ChoiceChip
+                    key={option.value}
+                    label={option.label}
+                    selected={activeEffectType === option.value}
+                    onClick={() => handleGlobalEffectChange(option.value)}
+                  />
+                ))}
+              </Stack>
+            </Box>
+
+            {activeEffectType === "glass" && (
+              <GlassmorphismPanel
+                config={
+                  theme.effects?.glassmorphism ||
+                  DEFAULT_TENANT_THEME.effects.glassmorphism
+                }
+                onChange={handleGlassmorphismChange}
+              />
+            )}
+            {activeEffectType === "neu" && (
+              <NeumorphismPanel
+                config={
+                  theme.effects?.neumorphism ||
+                  DEFAULT_TENANT_THEME.effects.neumorphism
+                }
+                onChange={handleNeumorphismChange}
+              />
+            )}
+            {activeEffectType !== "glass" && activeEffectType !== "neu" && (
+              <EffectSettingsPanel
+                effectType={activeEffectType}
+                effects={theme.effects || DEFAULT_TENANT_THEME.effects}
+                onChange={handleEffectsChange}
+              />
+            )}
           </TabPanel>
 
           <TabPanel value={activeTab} index={4}>
             <ComponentStyleSelector
               components={theme.components || DEFAULT_TENANT_THEME.components}
-              globalEffectType={theme.effects?.globalType || "none"}
+              globalEffectType={activeEffectType}
               onChange={handleComponentsChange}
               onGlobalChange={handleGlobalEffectChange}
             />
@@ -573,56 +695,73 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
         )}
       </Grid>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          variant="filled"
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Container>
+  );
+
+  // Deliberately outside `content`. In drawer mode the panel unmounts its
+  // children the moment it closes, and Save closes it - so the confirmation
+  // was mounted and unmounted in the same tick and no one ever saw whether
+  // their theme had been saved, or why it hadn't.
+  const feedback = (
+    <Snackbar
+      open={snackbar.open}
+      autoHideDuration={4000}
+      onClose={() => setSnackbar({ ...snackbar, open: false })}
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+    >
+      <Alert
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        severity={snackbar.severity}
+        variant="filled"
+      >
+        {snackbar.message}
+      </Alert>
+    </Snackbar>
   );
 
   if (asDrawer) {
     return (
-      // `persistent`, not the default `temporary`: a temporary Drawer is a
-      // Modal, and its backdrop dims the very UI this panel exists to
-      // restyle - you cannot judge a theme through a grey wash. Persistent
-      // drops the Modal entirely (no backdrop, no focus trap, no scroll
-      // lock), so the app behind stays legible and usable while colors,
-      // effects and radii land on it live. The paper is still
-      // position: fixed and the docked root is zero-width, so nothing in
-      // the page shifts when it opens.
-      <Drawer
-        anchor="right"
-        variant="persistent"
-        open={isOpen}
-        PaperProps={{
-          sx: {
-            width: { xs: "100%", sm: 560 },
-            p: 1,
-            // Opaque surface + elevation, since there is no longer a
-            // backdrop separating this panel from the live page behind it.
-            bgcolor: "background.paper",
-            boxShadow: 8,
-          },
-        }}
-      >
-        {/* Without a Modal wrapper the children would otherwise stay mounted
-            (and keep fetching the tenant theme) while parked off-canvas. */}
-        {isOpen ? content : null}
-      </Drawer>
+      <>
+        {/*
+          `persistent`, not the default `temporary`: a temporary Drawer is a
+          Modal, and its backdrop dims the very UI this panel exists to
+          restyle - you cannot judge a theme through a grey wash. Persistent
+          drops the Modal entirely (no backdrop, no focus trap, no scroll
+          lock), so the app behind stays legible and usable while colors,
+          effects and radii land on it live. The paper is still
+          position: fixed and the docked root is zero-width, so nothing in
+          the page shifts when it opens.
+        */}
+        <Drawer
+          anchor="right"
+          variant="persistent"
+          open={isOpen}
+          PaperProps={{
+            sx: {
+              width: { xs: "100%", sm: 560 },
+              p: 1,
+              // Opaque surface + elevation, since there is no longer a
+              // backdrop separating this panel from the live page behind it.
+              bgcolor: "background.paper",
+              boxShadow: 8,
+            },
+          }}
+        >
+          {/* Without a Modal wrapper the children would otherwise stay mounted
+              (and keep fetching the tenant theme) while parked off-canvas. */}
+          {isOpen ? content : null}
+        </Drawer>
+        {feedback}
+      </>
     );
   }
 
-  return content;
+  return (
+    <>
+      {content}
+      {feedback}
+    </>
+  );
 };
 
 export default ThemeEditor;
