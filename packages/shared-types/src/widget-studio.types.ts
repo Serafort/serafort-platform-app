@@ -113,6 +113,15 @@ export interface WidgetRenderNode {
  * The `component` field must match a registered widgetId in globalWidgetRegistry.
  */
 export interface WidgetDefinition {
+  /**
+   * Shape version of this record, independent of `version` (which is the
+   * widget's own SemVer and is authored by whoever generated it).
+   *
+   * Drafts are persisted in the browser, so definitions written by an older
+   * build outlive that build. Absent means "before versioning existed" - see
+   * DSL_SCHEMA_VERSION and migrateWidgetDsl in @cap/module-widget-studio.
+   */
+  schemaVersion?: number;
   /** Unique widget instance identifier (UUID) */
   id: string;
   /** Human-readable display name */
@@ -133,7 +142,11 @@ export interface WidgetDefinition {
     /** Row height in pixels */
     height: 200 | 280 | 340 | 400;
   };
-  /** Optional data source configuration */
+  /**
+   * Where the widget gets its data. The provider must be one the platform
+   * knows how to serve - an arbitrary string here is a request the renderer
+   * cannot honour, so it is validated rather than passed through.
+   */
   dataSource?: {
     provider: string;
     config?: Record<string, unknown>;
@@ -141,7 +154,14 @@ export interface WidgetDefinition {
   /** Runtime behavior configuration */
   behavior?: {
     autoRefresh?: boolean;
+    /** Seconds between refreshes; only meaningful when autoRefresh is true. */
     refreshInterval?: number;
+    /**
+     * Whether the widget responds to interaction. Written by the sanitizer
+     * since before this was declared, which is why a definition can carry it
+     * without any producer having set it deliberately.
+     */
+    interactive?: boolean;
   };
   /** Per-tenant overrides (color, branding, etc.) */
   tenantOverrides?: Record<string, unknown>;
@@ -214,6 +234,20 @@ export interface WidgetStudioDraft {
   createdAt: string;
   /** Ordered audit trail for this widget */
   auditTrail: WidgetAuditEntry[];
+  /**
+   * The draft this one was refined from, if any. A refinement is a new draft
+   * rather than a mutation, so the earlier version stays inspectable.
+   */
+  parentDraftId?: string;
+  /** 1 for an original draft, 2 for its first refinement, and so on. */
+  revision?: number;
+  /** The instruction that produced this revision, e.g. "make it wider". */
+  refinement?: string;
+  /**
+   * The backend run that produced this draft, when one did. It is what makes
+   * the server's own audit trail fetchable for this widget.
+   */
+  runId?: number;
 }
 
 // ============================================
@@ -223,16 +257,31 @@ export interface WidgetStudioDraft {
 /** A single audit log entry for a widget lifecycle event */
 export interface WidgetAuditEntry {
   widgetId: string;
-  /** User identifier who triggered this action */
+  /**
+   * User identifier who triggered this action, or "unknown" when the session
+   * carries no id. Never a placeholder that reads like a real value.
+   */
   createdBy: string;
   /** ISO timestamp */
   generatedAt: string;
-  /** AI model used (e.g. "gemini-2.0-flash") */
+  /** AI model used (e.g. "gemini-3.6-flash") */
   model: string;
   /** Widget DSL version at time of this action */
   version: string;
   /** Lifecycle action taken */
   action: WidgetLifecycle;
+  /**
+   * Who wrote this entry.
+   *
+   * "client" entries are a local record of what this browser believes it did:
+   * useful for the panel, worthless as evidence, because the browser also
+   * chooses what to write. "server" entries come from the backend's own run
+   * record. A compliance trail is only ever the server's; the distinction is
+   * carried explicitly so the two cannot be confused.
+   */
+  source: "client" | "server";
+  /** Backend run this entry belongs to, when there was one. */
+  runId?: number;
 }
 
 // ============================================

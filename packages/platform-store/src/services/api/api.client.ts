@@ -434,7 +434,9 @@ class TokenRefreshManager {
       );
 
       if (!response.ok) {
-        throw new Error(`Refresh failed with status ${response.status}`);
+        const error = new Error(`Refresh failed with status ${response.status}`);
+        (error as unknown as { status: number }).status = response.status;
+        throw error;
       }
 
       const data: RefreshResponseDto = await response.json();
@@ -529,10 +531,19 @@ class TokenRefreshManager {
           throw error;
         }
 
+        const status =
+          (error as { status?: number }).status ??
+          (typeof (error as Error)?.message === "string" &&
+          (error as Error).message.includes("status 400")
+            ? 400
+            : (error as Error).message.includes("status 401")
+              ? 401
+              : (error as Error).message.includes("status 403")
+                ? 403
+                : undefined);
+
         const isAuthFailure =
-          (error as { status?: number }).status === 400 ||
-          (error as { status?: number }).status === 401 ||
-          (error as { status?: number }).status === 403;
+          status === 400 || status === 401 || status === 403;
 
         if (isAuthFailure) {
           this.handleRefreshFailure();

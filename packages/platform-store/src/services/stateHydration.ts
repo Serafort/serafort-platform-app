@@ -1,5 +1,5 @@
 /* cspell:ignore notif */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAppStore, useHasHydrated } from "./../store";
 import {
   localStorageManager,
@@ -13,76 +13,99 @@ export interface HydrationStatus {
   error: Error | null;
 }
 
+// Module-level singleton to coalesce concurrent and subsequent hydration checks
+let initialHydrationPromise: Promise<void> | null = null;
+let isInitialHydrationComplete = false;
+
 /**
  * Hook to manage state hydration
  */
 export const useStateHydration = (): HydrationStatus => {
-  const [status, setStatus] = useState<HydrationStatus>({
-    isHydrated: false,
-    isHydrating: true,
-    error: null,
-  });
-
-  const refreshAuth = useAppStore((state) => state.refreshAuth);
-  const guestSession = useAppStore((state) => state.guestSession);
-  const createGuestSession = useAppStore((state) => state.createGuestSession);
-  const isAuthenticated = useAppStore((state) => state.isAuthenticated);
   const hasZustandHydrated = useHasHydrated();
+  const [status, setStatus] = useState<HydrationStatus>(() => ({
+    isHydrated: isInitialHydrationComplete,
+    isHydrating: !isInitialHydrationComplete,
+    error: null,
+  }));
+
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     if (!hasZustandHydrated) {
       return; // Wait for Zustand to hydrate its persisted state before acting
     }
 
-    const hydrateState = async () => {
-      try {
-        setStatus((prev) => ({ ...prev, isHydrating: true }));
+    if (isInitialHydrationComplete) {
+      setStatus({
+        isHydrated: true,
+        isHydrating: false,
+        error: null,
+      });
+      return;
+    }
 
-        // 1. Check for authentication using the persisted Zustand state
-        console.log(
-          "[useStateHydration] Checking auth state:",
-          isAuthenticated,
-        );
+    if (!initialHydrationPromise) {
+      initialHydrationPromise = (async () => {
+        try {
+          const store = useAppStore.getState();
 
-        if (isAuthenticated) {
-          // If Zustand thinks we are authenticated, attempt to refresh tokens
-          console.log(
-            "[useStateHydration] Auth state found, refreshing auth...",
-          );
-          await refreshAuth();
-        } else {
-          // Create guest session if no auth
-          if (!guestSession) {
-            createGuestSession();
+          // 1. Check for authentication using the persisted Zustand state
+          if (import.meta.env.DEV) {
+            console.log(
+              "[useStateHydration] Checking auth state:",
+              store.isAuthenticated,
+            );
           }
+
+          if (store.isAuthenticated) {
+            // If Zustand thinks we are authenticated, attempt to refresh tokens
+            if (import.meta.env.DEV) {
+              console.log(
+                "[useStateHydration] Auth state found, refreshing auth...",
+              );
+            }
+            await store.refreshAuth();
+          } else {
+            // Create guest session if no auth
+            if (!store.guestSession) {
+              store.createGuestSession();
+            }
+          }
+
+          isInitialHydrationComplete = true;
+        } catch (error) {
+          console.error("State hydration error:", error);
+          throw error;
         }
+      })();
+    }
 
-        // 2. Restore other state from storage (if needed)
-        // This is handled automatically by Zustand persist middleware
+    initialHydrationPromise
+      .then(() => {
+        if (isMountedRef.current) {
+          setStatus({
+            isHydrated: true,
+            isHydrating: false,
+            error: null,
+          });
+        }
+      })
+      .catch((error) => {
+        if (isMountedRef.current) {
+          setStatus({
+            isHydrated: false,
+            isHydrating: false,
+            error: error as Error,
+          });
+        }
+      });
 
-        setStatus({
-          isHydrated: true,
-          isHydrating: false,
-          error: null,
-        });
-      } catch (error) {
-        console.error("State hydration error:", error);
-        setStatus({
-          isHydrated: false,
-          isHydrating: false,
-          error: error as Error,
-        });
-      }
+    return () => {
+      isMountedRef.current = false;
     };
-
-    hydrateState();
-  }, [
-    refreshAuth,
-    guestSession,
-    createGuestSession,
-    isAuthenticated,
-    hasZustandHydrated,
-  ]);
+  }, [hasZustandHydrated]);
 
   return status;
 };
