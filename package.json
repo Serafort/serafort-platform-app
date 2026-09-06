@@ -16,6 +16,8 @@
     "test:e2e": "pnpm --filter @cap/app run test:e2e",
     "cspell": "cspell --no-progress --show-suggestions --relative --dot --gitignore \"**\"",
     "audit:ci": "pnpm audit --audit-level=high --prod",
+    "release:package": "node scripts/package-release.mjs",
+    "release:build": "pnpm --filter @cap/app run build && node scripts/package-release.mjs",
     "generate:module": "plop"
   },
   "dependencies": {
