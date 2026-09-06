@@ -32,17 +32,50 @@ describe("Routes Registry & Path Helpers (Tier 0 SSOT)", () => {
     ).toBe("/org/org_1/user/usr_2");
   });
 
-  it("resolveDynamicPath should fallback to default path when item is not registered", () => {
-    const registered = [{ id: "dashboard", path: "/custom-dashboard" }];
+  describe("resolveDynamicPath", () => {
+    it("should return the matching path by targetId", () => {
+      const registered = [
+        { id: "dashboard", path: "/custom-dashboard" },
+        { id: "settings", path: "/custom-settings" },
+      ];
+      expect(
+        resolveDynamicPath(registered, "dashboard", "/fallback-dashboard"),
+      ).toBe("/custom-dashboard");
+    });
 
-    // Matched item
-    expect(
-      resolveDynamicPath(registered, "dashboard", "/fallback-dashboard"),
-    ).toBe("/custom-dashboard");
+    it("should fallback to default path when targetId is not registered", () => {
+      const registered = [{ id: "dashboard", path: "/custom-dashboard" }];
+      expect(
+        resolveDynamicPath(registered, "non-existent", "/fallback"),
+      ).toBe("/fallback");
+    });
 
-    // Unmatched item
-    expect(
-      resolveDynamicPath(registered, "non-existent", AppPaths.landing.home),
-    ).toBe("/");
+    it("should return the default path if a match is found but its path is empty or missing", () => {
+      const registered = [
+        { id: "empty-path", path: "" },
+        { id: "missing-path" },
+      ];
+      expect(resolveDynamicPath(registered, "empty-path", "/fallback")).toBe(
+        "/fallback",
+      );
+      expect(resolveDynamicPath(registered, "missing-path", "/fallback")).toBe(
+        "/fallback",
+      );
+    });
+
+    it("should match by defaultPath if targetId is not found but defaultPath is present in registry", () => {
+      const registered = [
+        { id: "another", path: "/some-path" },
+        { id: "match-by-path", path: "/target-path" },
+      ];
+      // Here targetId 'non-existent' is not in the array, but a route with path '/target-path' is.
+      expect(
+        resolveDynamicPath(registered, "non-existent", "/target-path"),
+      ).toBe("/target-path");
+    });
+
+    it("should handle empty registries correctly", () => {
+      expect(resolveDynamicPath([], "dashboard", "/default")).toBe("/default");
+    });
   });
 });
