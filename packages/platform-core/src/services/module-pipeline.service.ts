@@ -48,6 +48,19 @@ const pathUtil = {
   },
 }
 
+const checkExists = async (p: string): Promise<boolean> => {
+  const fsP = getFsPromises()
+  if (fsP?.stat) {
+    try {
+      await fsP.stat(p)
+      return true
+    } catch {
+      return false
+    }
+  }
+  return false
+}
+
 const checkExistsSync = (p: string): boolean => {
   const fsSync = getFsSync()
   if (fsSync?.existsSync) {
@@ -83,6 +96,14 @@ const safeReaddir = async (dirPath: string, opts?: any): Promise<any[]> => {
     return fsP.readdir(dirPath, opts)
   }
   return []
+}
+
+const safeReadFile = async (filePath: string, encoding: string): Promise<string> => {
+  const fsP = getFsPromises()
+  if (fsP?.readFile) {
+    return fsP.readFile(filePath, encoding)
+  }
+  return ''
 }
 
 const safeReadFileSync = (filePath: string, encoding: string): string => {
@@ -486,39 +507,51 @@ export default ${inferredId.replace(/-/g, '_')}Module
     ]
 
     try {
-      if (checkExistsSync(this.modulesDir)) {
+      if (await checkExists(this.modulesDir)) {
         const dirs: any[] = await safeReaddir(this.modulesDir, { withFileTypes: true })
-        for (const dir of dirs) {
-          const dirName = typeof dir === 'string' ? dir : dir.name
-          const isDir = typeof dir === 'string' ? true : dir.isDirectory?.()
-          if (isDir && dirName !== 'auth' && dirName !== 'landing') {
-            const pkgPath = pathUtil.join(this.modulesDir, dirName, 'package.json')
-            let version = '1.0.0'
-            let description = 'Auto-registered custom module'
-            if (checkExistsSync(pkgPath)) {
-              try {
-                const pkgContent = safeReadFileSync(pkgPath, 'utf8')
-                if (pkgContent) {
-                  const pkg = JSON.parse(pkgContent)
-                  version = pkg.version || version
-                  description = pkg.description || description
+
+        const customModules = await Promise.all(
+          dirs.map(async (dir) => {
+            const dirName = typeof dir === 'string' ? dir : dir.name
+            const isDir = typeof dir === 'string' ? true : dir.isDirectory?.()
+
+            if (isDir && dirName !== 'auth' && dirName !== 'landing') {
+              const pkgPath = pathUtil.join(this.modulesDir, dirName, 'package.json')
+              let version = '1.0.0'
+              let description = 'Auto-registered custom module'
+
+              if (await checkExists(pkgPath)) {
+                try {
+                  const pkgContent = await safeReadFile(pkgPath, 'utf8')
+                  if (pkgContent) {
+                    const pkg = JSON.parse(pkgContent)
+                    version = pkg.version || version
+                    description = pkg.description || description
+                  }
+                } catch {
+                  // fallback
                 }
-              } catch {
-                // fallback
+              }
+
+              return {
+                id: dirName,
+                name: dirName,
+                version,
+                description,
+                status: 'active',
+                routeCount: 2,
+                navCount: 1,
+                installedAt: new Date().toISOString(),
+                isCore: false,
               }
             }
-            modules.push({
-              id: dirName,
-              name: dirName,
-              version,
-              description,
-              status: 'active',
-              routeCount: 2,
-              navCount: 1,
-              installedAt: new Date().toISOString(),
-              isCore: false,
-            })
-          }
+            return null
+          }),
+        )
+
+        // Filter out nulls and add to main modules array
+        for (const mod of customModules) {
+          if (mod) modules.push(mod)
         }
       }
     } catch (err) {
