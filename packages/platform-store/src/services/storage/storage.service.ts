@@ -127,18 +127,25 @@ class StorageManager {
       const db = await this.initDB();
       const results = await db.getAll(storeName as any);
 
-      // Decrypt all results
-      const decryptedResults = await Promise.all(
-        results.map(async (r) => {
-          try {
-            const json = await this.decryptData(r.data);
-            return JSON.parse(json);
-          } catch (err: unknown) {
-            console.error("Failed to decrypt data:", err);
-            return r.data; // Fallback for unencrypted data
-          }
-        }),
-      );
+      // Decrypt all results using concurrency control (batching) to avoid event loop blockage
+      const decryptedResults: any[] = [];
+      const CONCURRENCY_LIMIT = 50;
+
+      for (let i = 0; i < results.length; i += CONCURRENCY_LIMIT) {
+        const batch = results.slice(i, i + CONCURRENCY_LIMIT);
+        const batchDecrypted = await Promise.all(
+          batch.map(async (r) => {
+            try {
+              const json = await this.decryptData(r.data);
+              return JSON.parse(json);
+            } catch (err: unknown) {
+              console.error("Failed to decrypt data:", err);
+              return r.data; // Fallback for unencrypted data
+            }
+          }),
+        );
+        decryptedResults.push(...batchDecrypted);
+      }
 
       return decryptedResults;
     } catch (error) {
