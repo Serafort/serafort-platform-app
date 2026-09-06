@@ -8,8 +8,19 @@
  * 4. Tenant validation (theme-compatible, no dangerous overrides)
  */
 import type { WidgetDefinition, ValidationOutput } from "@cap/shared-types";
+import { globalWidgetRegistry } from "@cap/platform-core";
+import { sanitizeWidgetDsl } from "./sanitizer";
+import { DSL_SCHEMA_VERSION } from "./dslSchema";
 
-/** Approved widget registry — mirrors globalWidgetRegistry entries */
+/**
+ * Widget metadata used when describing the catalogue to an agent.
+ *
+ * This is prompt material, NOT the security list. It used to be both, under a
+ * comment calling it a mirror of `globalWidgetRegistry` - a hand-copy that had
+ * already fallen behind the registry it mirrored, listing six ids where the
+ * running app registers fourteen. `getApprovedWidgetIds()` below asks the
+ * registry instead, because the registry is what can actually render.
+ */
 export const APPROVED_WIDGETS = [
   {
     id: "dashboard-widget-weather",
@@ -60,6 +71,36 @@ export const APPROVED_WIDGETS = [
   },
 ];
 
+/**
+ * The components a DSL may name: whatever is registered right now.
+ *
+ * A component that is not in the registry cannot be rendered, so naming one is
+ * an error however plausible it looks. The static catalogue is the fallback
+ * for environments where nothing has registered yet (unit tests, SSR), where
+ * an empty registry would otherwise reject everything.
+ */
+export function getApprovedWidgetIds(): string[] {
+  const registered = globalWidgetRegistry.getAll().map((d) => d.id);
+  return registered.length > 0 ? registered : APPROVED_WIDGETS.map((w) => w.id);
+}
+
+/**
+ * Data sources the platform can actually serve.
+ *
+ * `dataSource` has been on `WidgetDefinition` from the start but nothing ever
+ * looked at it, so a model could name any provider it liked and the widget
+ * would be accepted with a binding that resolves to nothing at render time.
+ * Naming a provider that does not exist is a defect, not a preference.
+ */
+export const DATA_SOURCE_PROVIDERS = [
+  "static",
+  "rest",
+  "dashboard-metrics",
+  "tenant-analytics",
+] as const;
+
+export type DataSourceProvider = (typeof DATA_SOURCE_PROVIDERS)[number];
+
 /** Patterns that should never appear in DSL values (security enforcement) */
 const DANGEROUS_PATTERNS: RegExp[] = [
   /eval\s*\(/i,
@@ -87,7 +128,7 @@ const REQUIRED_FIELDS: (keyof WidgetDefinition)[] = [
  */
 export function validateWidgetDsl(
   dsl: Partial<WidgetDefinition>,
-  approvedWidgetIds = APPROVED_WIDGETS.map((w) => w.id),
+  approvedWidgetIds = getApprovedWidgetIds(),
 ): ValidationOutput {
   const schemaErrors: string[] = [];
   const securityErrors: string[] = [];
@@ -159,6 +200,28 @@ export function validateWidgetDsl(
     }
   }
 
+  // ---- 3b. Data Source Validation ----
+  if (dsl.dataSource) {
+    const provider = dsl.dataSource.provider;
+    if (typeof provider !== "string" || !provider.trim()) {
+      schemaErrors.push("dataSource.provider is required when dataSource is set");
+    } else if (
+      !(DATA_SOURCE_PROVIDERS as readonly string[]).includes(provider)
+    ) {
+      componentErrors.push(
+        `Data source "${provider}" is not a provider this platform serves`,
+      );
+    }
+    if (
+      dsl.dataSource.config !== undefined &&
+      (typeof dsl.dataSource.config !== "object" ||
+        dsl.dataSource.config === null ||
+        Array.isArray(dsl.dataSource.config))
+    ) {
+      schemaErrors.push("dataSource.config must be an object");
+    }
+  }
+
   // ---- 4. Tenant Validation ----
   if (dsl.tenantOverrides) {
     const overrideStr = JSON.stringify(dsl.tenantOverrides);
@@ -206,4 +269,83 @@ export function runValidationAgent(
   }
 
   return result;
+}
+
+/** A one-line summary of what failed, for the pipeline's Validation step. */
+export function describeValidationFailure(result: ValidationOutput): string {
+  const all = [
+    ...result.securityErrors,
+    ...result.componentErrors,
+    ...result.schemaErrors,
+    ...result.tenantErrors,
+  ];
+  if (all.length === 0) return "Validation failed";
+  return all.length === 1 ? all[0] : `${all[0]} (+${all.length - 1} more)`;
+}
+
+const mintWidgetId = (): string => {
+  // randomUUID needs a secure context; a dev server on a LAN address is not
+  // one, and a thrown error here would take the whole run down.
+  try {
+    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+      return crypto.randomUUID();
+    }
+  } catch {
+    /* fall through */
+  }
+  return `widget-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+};
+
+export interface ResolvedDsl {
+  dsl: WidgetDefinition;
+  validation: ValidationOutput;
+}
+
+/**
+ * Turn a model's raw DSL into something safe to store and render - or say why
+ * it is not.
+ *
+ * The distinction that matters is which fields we are entitled to fill in:
+ *
+ * - `id`, `name` and `version` are bookkeeping. If the model omits them we
+ *   mint them, and that is not a defect.
+ * - `component` and `layout` are the model's decisions. The caller used to
+ *   invent `{ width: 8, height: 280 }` before spreading the model's object
+ *   over it, and `sanitizeWidgetDsl` substitutes "core-dynamic-layout" for a
+ *   missing component - so a DSL that named nothing renderable arrived looking
+ *   perfectly valid, and the gate (which never ran anyway) would have had
+ *   nothing left to catch.
+ *
+ * Validation therefore runs on the prepared-but-not-yet-coerced object, and
+ * sanitisation runs after, where its coercions are a no-op on anything that
+ * passed.
+ */
+export function resolveGeneratedDsl(
+  raw: unknown,
+  options: { fallbackName?: string } = {},
+): ResolvedDsl {
+  const source = (
+    raw && typeof raw === "object" ? raw : {}
+  ) as Partial<WidgetDefinition>;
+
+  const prepared: Partial<WidgetDefinition> = {
+    ...source,
+    id: source.id || mintWidgetId(),
+    name: source.name || options.fallbackName || "Generated widget",
+    version: source.version || "1.0.0",
+  };
+
+  const validation = validateWidgetDsl(prepared);
+  const sanitized = sanitizeWidgetDsl(prepared);
+
+  return {
+    dsl: {
+      ...sanitized,
+      // The sanitiser predates both fields and drops anything it does not
+      // know about, so they are carried across explicitly.
+      ...(prepared.dataSource ? { dataSource: prepared.dataSource } : {}),
+      schemaVersion: DSL_SCHEMA_VERSION,
+    },
+    validation,
+  };
 }

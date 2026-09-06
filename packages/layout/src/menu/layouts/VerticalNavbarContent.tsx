@@ -17,7 +17,7 @@ import UserDropdown from '../shared/UserDropdown'
 import Logo from '../../assets/svg/Logo'
 import { useVerticalNav } from '../contexts/verticalNavContext'
 
-import { layoutMenuTokens, getNavbarIconButtonHoverBg, LayoutSwitcher } from '@cap/theme'
+import { layoutMenuTokens, getNavbarIconButtonHoverBg } from '@cap/theme'
 import { verticalLayoutClasses } from '../../utils/layoutClasses'
 
 const NavbarContent = () => {
@@ -107,7 +107,6 @@ const NavbarContent = () => {
         >
           <LanguageDropdown />
           <ModeDropdown />
-          <LayoutSwitcher />
           <ShortcutsDropdown shortcuts={shortcuts} />
           <NotificationsDropdown notifications={[]} />
         </Box>

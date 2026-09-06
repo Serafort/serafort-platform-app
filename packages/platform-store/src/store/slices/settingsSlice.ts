@@ -6,6 +6,7 @@ import type {
   Skin,
   Layout,
   LayoutComponentWidth,
+  UIEffect,
 } from "@cap/shared-types";
 import { readSettingsCookie, writeSettingsCookie } from "./settingsCookie";
 
@@ -18,6 +19,18 @@ export interface Settings {
   contentWidth: LayoutComponentWidth;
   footerContentWidth: LayoutComponentWidth;
   primaryColor: string;
+  /**
+   * Per-user override of the tenant theme's global surface effect.
+   *
+   * This interface deliberately mirrors `Settings` in @cap/shared-types rather
+   * than importing it (see the note on `defaultSettings` below), and it had
+   * fallen a field behind: `composeMuiTheme` has always read `settings.effect`
+   * and overridden the tenant config's `globalType` with it, but the store
+   * that supplies `settings` had no such field, so the override was
+   * unreachable from the app. Left undefined the tenant theme's own effect
+   * stands, which is the default.
+   */
+  effect?: UIEffect;
 }
 
 export type LayoutOverride =

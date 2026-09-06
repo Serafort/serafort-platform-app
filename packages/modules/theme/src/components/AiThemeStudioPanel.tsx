@@ -2,28 +2,18 @@ import React, { useState } from "react";
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
-  Grid,
+  CircularProgress,
   Stack,
   TextField,
   Typography,
   alpha,
   useTheme,
-  Divider,
-  CircularProgress,
-  Paper,
-  Tooltip,
 } from "@mui/material";
 import AutoAwesome from "@mui/icons-material/AutoAwesome";
-import Sparkles from "@mui/icons-material/AutoFixHigh";
-import Palette from "@mui/icons-material/Palette";
-import History from "@mui/icons-material/History";
-import Tune from "@mui/icons-material/Tune";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 import Check from "@mui/icons-material/Check";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import History from "@mui/icons-material/History";
 import type { TenantThemeConfig } from "@cap/theme";
 import {
   aiThemePromptService,
@@ -32,6 +22,16 @@ import {
   type PromptAnalysisResult,
   getWcagComplianceBadge,
 } from "../services/aiThemePromptService";
+import {
+  AutoGrid,
+  ChoiceChip,
+  SectionLabel,
+  SwatchReadout,
+  clamp2,
+  ellipsis,
+  useFocusRingSx,
+  useSurfaceSx,
+} from "./studioUi";
 
 export interface AiThemeStudioPanelProps {
   currentTheme: TenantThemeConfig;
@@ -106,546 +106,461 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
     handleGenerate(suggestion.prompt);
   };
 
+  const surface = useSurfaceSx();
+  const focusRing = useFocusRingSx();
+
+  const canGenerate = Boolean(prompt.trim()) && !isGenerating;
+
+  const contrastBadge = lastAnalysis
+    ? getWcagComplianceBadge(lastAnalysis.textHex, lastAnalysis.backgroundHex)
+    : null;
+
+  const swatches = lastAnalysis
+    ? ([
+        { label: "Primary", hex: lastAnalysis.primaryHex },
+        { label: "Secondary", hex: lastAnalysis.secondaryHex },
+        { label: "Background", hex: lastAnalysis.backgroundHex },
+        { label: "Surface", hex: lastAnalysis.surfaceHex },
+      ] as const)
+    : [];
+
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {/* Banner / Header */}
-      <Card
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 7 }}>
+      {/*
+        Composer. The prompt *is* this tab, so it opens the panel directly
+        rather than sitting under a tinted banner restating what the
+        placeholder already demonstrates. One focal point, no preamble.
+      */}
+      <Box
         sx={{
-          borderRadius: 3,
-          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)} 0%, ${alpha(
-            theme.palette.info.main,
-            0.04,
-          )} 100%)`,
-          border: "1px solid " + alpha(theme.palette.primary.main, 0.25),
+          ...surface,
+          overflow: "hidden",
+          transition: theme.transitions.create(["border-color", "box-shadow"], {
+            duration: 150,
+          }),
+          "&:focus-within": {
+            borderColor: "primary.main",
+            boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.15)}`,
+          },
         }}
       >
-        <CardContent sx={{ p: 3 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
-            <Box
-              sx={{
-                width: 36,
-                height: 36,
-                borderRadius: "10px",
-                bgcolor: "primary.main",
-                color: "primary.contrastText",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <AutoAwesome sx={{ fontSize: 20 }} />
-            </Box>
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                Natural Language Theme Studio
-              </Typography>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ fontWeight: 600 }}
-              >
-                Describe any visual aesthetic, brand identity, or mood to
-                synthesize a complete tenant design system.
-              </Typography>
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-
-      {/* Main Prompt Input Area */}
-      <Card
-        sx={{ borderRadius: 3, border: "1px solid " + theme.palette.divider }}
-      >
-        <CardContent sx={{ p: 3 }}>
+        <TextField
+          fullWidth
+          multiline
+          minRows={3}
+          maxRows={10}
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={(e) => {
+            // ⌘/Ctrl + Enter submits, the convention every other prompt box
+            // the user has met already follows. Plain Enter stays a newline so
+            // multi-clause descriptions are still writable.
+            if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && canGenerate) {
+              e.preventDefault();
+              handleGenerate();
+            }
+          }}
+          placeholder="Describe a look — e.g. calm fintech console, deep navy primary, soft neutral surfaces, gently rounded cards"
+          aria-label="Theme description prompt"
+          slotProps={{
+            input: {
+              sx: {
+                p: 4,
+                alignItems: "flex-start",
+                fontSize: "0.9375rem",
+                lineHeight: 1.6,
+                // The bordered shell above owns the outline; the field inside
+                // it must not draw a second one.
+                "& fieldset": { border: "none" },
+              },
+            },
+          }}
+        />
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 3,
+            flexWrap: "wrap",
+            paddingInline: 4,
+            paddingBlock: 3,
+            borderBlockStart: `1px solid ${theme.palette.divider}`,
+            bgcolor: alpha(theme.palette.text.primary, 0.02),
+          }}
+        >
+          {/* The placeholder already demonstrates what to write, so this slot
+              teaches the shortcut instead of repeating the advice. Matches the
+              app's existing ⌘K search affordance. */}
           <Typography
-            variant="subtitle2"
+            variant="caption"
             sx={{
-              fontWeight: 800,
-              mb: 1.5,
               display: "flex",
               alignItems: "center",
               gap: 1,
+              color: "text.disabled",
+              minWidth: 0,
+              ...ellipsis,
             }}
           >
-            <Sparkles fontSize="small" color="primary" />
-            Enter Theme Prompt
-          </Typography>
-
-          <TextField
-            fullWidth
-            multiline
-            rows={3}
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="e.g., Cyberpunk dark HUD with neon cyan primary, magenta secondary, deep void background and glowing glass borders..."
-            slotProps={{
-              input: {
-                sx: {
-                  borderRadius: 2,
-                  bgcolor: alpha(theme.palette.background.paper, 0.6),
-                },
-              },
-            }}
-          />
-
-          <Box
-            sx={{
-              mt: 2,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: 1.5,
-            }}
-          >
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ fontWeight: 500 }}
-            >
-              Tip: Include colors, mode (dark/light), effects (glass, brutalist,
-              soft neu), and border geometry.
-            </Typography>
-
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={
-                isGenerating ? (
-                  <CircularProgress size={18} color="inherit" />
-                ) : (
-                  <AutoAwesome />
-                )
-              }
-              onClick={() => handleGenerate()}
-              disabled={!prompt.trim() || isGenerating}
+            <Box
+              component="kbd"
               sx={{
-                borderRadius: 2,
-                px: 3,
-                py: 1,
-                fontWeight: 800,
-                textTransform: "none",
-                bgcolor: "info.main",
-                boxShadow: `0 4px 14px ${alpha(theme.palette.info.main, 0.4)}`,
-                "&:hover": { bgcolor: "info.dark" },
+                paddingInline: 1.5,
+                paddingBlock: 0.5,
+                borderRadius: 0.5,
+                border: `1px solid ${theme.palette.divider}`,
+                fontFamily: "inherit",
+                fontSize: "0.6875rem",
+                lineHeight: 1.6,
               }}
             >
-              {isGenerating ? "Synthesizing..." : "Generate & Apply Theme"}
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
+              ⌘ ↵
+            </Box>
+            to generate
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => handleGenerate()}
+            disabled={!canGenerate}
+            startIcon={
+              isGenerating ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : (
+                <AutoAwesome sx={{ fontSize: 18 }} />
+              )
+            }
+            sx={{
+              // Stays pinned to the end even if the row wraps on a narrow
+              // drawer, rather than drifting to the start under the hint.
+              marginInlineStart: "auto",
+              minHeight: 44,
+              paddingInline: 5,
+              borderRadius: 1,
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
+              "&:hover": { boxShadow: "none" },
+            }}
+          >
+            {isGenerating ? "Synthesizing…" : "Generate theme"}
+          </Button>
+        </Box>
+      </Box>
 
-      {/* Synthesis Breakdown Card */}
+      {/* Result of the last synthesis */}
       {lastAnalysis && (
-        <Card
-          sx={{
-            borderRadius: 3,
-            border: "1px solid " + alpha(theme.palette.success.main, 0.3),
-            bgcolor: alpha(theme.palette.success.main, 0.02),
-          }}
-        >
-          <CardContent sx={{ p: 3 }}>
+        <Box sx={{ ...surface, overflow: "hidden" }}>
+          {/* The generated palette is its own headline - no green "success"
+              wash needed to say the same thing in a duller way. */}
+          <Box
+            sx={{
+              blockSize: 4,
+              background: `linear-gradient(90deg, ${lastAnalysis.primaryHex}, ${lastAnalysis.secondaryHex})`,
+            }}
+          />
+          <Box sx={{ p: 5 }}>
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
+                gap: 2,
+                flexWrap: "wrap",
                 mb: 2,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Check color="success" sx={{ fontSize: 20 }} />
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: 800, color: "text.primary" }}
-                >
-                  {synthesisSource === "heuristic"
-                    ? "Local Heuristic Synthesis: "
-                    : "AI LLM Synthesis Active: "}
-                  {lastAnalysis.detectedMood}
-                </Typography>
+              <Box
+                sx={{
+                  display: "grid",
+                  placeItems: "center",
+                  inlineSize: 22,
+                  blockSize: 22,
+                  borderRadius: "50%",
+                  bgcolor: alpha(theme.palette.success.main, 0.14),
+                  color: "success.main",
+                  flexShrink: 0,
+                }}
+              >
+                <Check sx={{ fontSize: 14 }} />
               </Box>
-              <Chip
-                label={
-                  synthesisSource === "heuristic"
-                    ? `Heuristic (${lastAnalysis.presetMatch})`
-                    : `LLM (${lastAnalysis.presetMatch})`
-                }
-                size="small"
-                color={synthesisSource === "heuristic" ? "default" : "primary"}
-                variant="outlined"
-                sx={{ fontWeight: 700, textTransform: "capitalize" }}
-              />
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, flex: 1, minWidth: 0, ...ellipsis }}
+              >
+                Applied · {lastAnalysis.detectedMood}
+              </Typography>
             </Box>
 
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            <Stack
+              direction="row"
+              useFlexGap
+              spacing={1.5}
+              sx={{ flexWrap: "wrap", mb: 3 }}
+            >
+              <Chip
+                size="small"
+                variant="outlined"
+                label={
+                  synthesisSource === "heuristic"
+                    ? `Local synthesis · ${lastAnalysis.presetMatch}`
+                    : `AI synthesis · ${lastAnalysis.presetMatch}`
+                }
+                sx={{ fontWeight: 500, textTransform: "capitalize" }}
+              />
+              {contrastBadge && (
+                <Chip
+                  size="small"
+                  variant="outlined"
+                  color={contrastBadge.color}
+                  label={`Body text ${contrastBadge.label}`}
+                  sx={{ fontWeight: 500 }}
+                />
+              )}
+            </Stack>
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 4, lineHeight: 1.6 }}
+            >
               {lastAnalysis.explanation}
             </Typography>
 
-            <Divider sx={{ my: 2, opacity: 0.5 }} />
-
-            {/* Color Swatch Preview */}
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    border: "1px solid " + theme.palette.divider,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 1,
-                      bgcolor: lastAnalysis.primaryHex,
-                      border: "1px solid rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 700, display: "block" }}
-                    >
-                      Primary
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ fontFamily: "monospace" }}
-                    >
-                      {lastAnalysis.primaryHex}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </Grid>
-
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    border: "1px solid " + theme.palette.divider,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 1,
-                      bgcolor: lastAnalysis.secondaryHex,
-                      border: "1px solid rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 700, display: "block" }}
-                    >
-                      Secondary
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ fontFamily: "monospace" }}
-                    >
-                      {lastAnalysis.secondaryHex}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </Grid>
-
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    border: "1px solid " + theme.palette.divider,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 1,
-                      bgcolor: lastAnalysis.backgroundHex,
-                      border: "1px solid rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 700, display: "block" }}
-                    >
-                      Background
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ fontFamily: "monospace" }}
-                    >
-                      {lastAnalysis.backgroundHex}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </Grid>
-
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    border: "1px solid " + theme.palette.divider,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 1,
-                      bgcolor: lastAnalysis.surfaceHex,
-                      border: "1px solid rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 700, display: "block" }}
-                    >
-                      Surface
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ fontFamily: "monospace" }}
-                    >
-                      {lastAnalysis.surfaceHex}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
+            {/* 180px min keeps these four on an even 2x2 in the drawer
+                rather than 3 + a lone orphan; on the full-page layout there
+                is room for all four across. */}
+            <AutoGrid min={180} gap={3}>
+              {swatches.map((swatch) => (
+                <SwatchReadout
+                  key={swatch.label}
+                  label={swatch.label}
+                  hex={swatch.hex}
+                />
+              ))}
+            </AutoGrid>
+          </Box>
+        </Box>
       )}
 
-      {/* Curated Prompt Suggestions */}
-      <Card
-        sx={{ borderRadius: 3, border: "1px solid " + theme.palette.divider }}
-      >
-        <CardContent sx={{ p: 3 }}>
+      {/* Curated starting points */}
+      <Box>
+        <SectionLabel
+          action={
+            <Typography variant="caption" color="text.secondary">
+              {filteredSuggestions.length}{" "}
+              {filteredSuggestions.length === 1 ? "style" : "styles"}
+            </Typography>
+          }
+        >
+          Style inspiration
+        </SectionLabel>
+
+        <Stack
+          direction="row"
+          useFlexGap
+          spacing={1.5}
+          sx={{ flexWrap: "wrap", mb: 4 }}
+        >
+          {categories.map((cat) => (
+            <ChoiceChip
+              key={cat}
+              label={cat}
+              selected={selectedCategory === cat}
+              onClick={() => setSelectedCategory(cat)}
+            />
+          ))}
+        </Stack>
+
+        {filteredSuggestions.length === 0 ? (
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 2,
+              p: 8,
+              textAlign: "center",
+              border: `1px dashed ${theme.palette.divider}`,
+              borderRadius: 1.5,
             }}
           >
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 800,
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <Palette fontSize="small" color="primary" />
-              Curated Style Inspiration
+            <Typography variant="body2" color="text.secondary">
+              No styles in this category yet — describe your own above.
             </Typography>
           </Box>
-
-          {/* Category Filter Chips */}
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{ mb: 3, overflowX: "auto", pb: 0.5 }}
-          >
-            {categories.map((cat) => (
-              <Chip
-                key={cat}
-                label={cat}
-                clickable
-                onClick={() => setSelectedCategory(cat)}
-                color={selectedCategory === cat ? "primary" : "default"}
-                variant={selectedCategory === cat ? "filled" : "outlined"}
-                sx={{ fontWeight: 700, fontSize: "0.75rem" }}
-              />
-            ))}
-          </Stack>
-
-          {/* Suggestion Cards */}
-          <Grid container spacing={2}>
+        ) : (
+          <AutoGrid min={220} gap={3}>
             {filteredSuggestions.map((suggestion) => (
-              <Grid size={{ xs: 12, md: 6 }} key={suggestion.id}>
-                <Paper
-                  elevation={0}
-                  onClick={() => handleSelectSuggestion(suggestion)}
+              <Box
+                key={suggestion.id}
+                component="button"
+                type="button"
+                disabled={isGenerating}
+                onClick={() => handleSelectSuggestion(suggestion)}
+                sx={{
+                  ...surface,
+                  display: "block",
+                  inlineSize: "100%",
+                  p: 0,
+                  font: "inherit",
+                  color: "inherit",
+                  textAlign: "start",
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  transition: theme.transitions.create(
+                    ["border-color", "transform", "box-shadow"],
+                    { duration: 150 },
+                  ),
+                  "&:hover:not(:disabled)": {
+                    borderColor: "primary.main",
+                    transform: "translateY(-2px)",
+                    boxShadow: theme.shadows[4],
+                  },
+                  "&:hover:not(:disabled) .suggestion-go": {
+                    opacity: 1,
+                    transform: "none",
+                  },
+                  "&:focus-visible": focusRing,
+                  "&:disabled": { cursor: "default", opacity: 0.6 },
+                }}
+              >
+                {/*
+                  A miniature of the theme itself - the palette's own
+                  background carrying primary/secondary bars - reads far faster
+                  than three loose dots, and gives every card a distinct
+                  silhouette to remember it by.
+                */}
+                <Box
                   sx={{
-                    p: 2,
-                    borderRadius: 2.5,
-                    border: "1px solid " + theme.palette.divider,
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      borderColor: "primary.main",
-                      bgcolor: alpha(theme.palette.primary.main, 0.03),
-                      transform: "translateY(-2px)",
-                      boxShadow: "0 8px 16px -4px rgba(0,0,0,0.08)",
-                    },
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    blockSize: 56,
+                    paddingInline: 3,
+                    bgcolor: suggestion.previewColors.background,
+                    borderBlockEnd: `1px solid ${theme.palette.divider}`,
                   }}
                 >
                   <Box
                     sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      mb: 1,
+                      inlineSize: 38,
+                      blockSize: 8,
+                      borderRadius: 4,
+                      bgcolor: suggestion.previewColors.primary,
                     }}
-                  >
-                    <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                  />
+                  <Box
+                    sx={{
+                      inlineSize: 20,
+                      blockSize: 8,
+                      borderRadius: 4,
+                      bgcolor: suggestion.previewColors.secondary,
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ p: 4 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        flex: 1,
+                        minWidth: 0,
+                        ...ellipsis,
+                      }}
+                    >
                       {suggestion.title}
                     </Typography>
-                    <Stack direction="row" spacing={0.5}>
-                      <Box
-                        sx={{
-                          width: 14,
-                          height: 14,
-                          borderRadius: "50%",
-                          bgcolor: suggestion.previewColors.primary,
-                        }}
-                      />
-                      <Box
-                        sx={{
-                          width: 14,
-                          height: 14,
-                          borderRadius: "50%",
-                          bgcolor: suggestion.previewColors.secondary,
-                        }}
-                      />
-                      <Box
-                        sx={{
-                          width: 14,
-                          height: 14,
-                          borderRadius: "50%",
-                          bgcolor: suggestion.previewColors.background,
-                          border: "1px solid #ccc",
-                        }}
-                      />
-                    </Stack>
+                    <ArrowForward
+                      className="suggestion-go"
+                      sx={{
+                        fontSize: 16,
+                        color: "primary.main",
+                        opacity: 0,
+                        transform: "translateX(-4px)",
+                        transition: theme.transitions.create(
+                          ["opacity", "transform"],
+                          { duration: 150 },
+                        ),
+                      }}
+                    />
                   </Box>
-
                   <Typography
                     variant="caption"
                     color="text.secondary"
-                    sx={{ display: "block", mb: 1.5, lineHeight: 1.4 }}
+                    sx={{ ...clamp2, mt: 1, lineHeight: 1.5 }}
                   >
                     {suggestion.prompt}
                   </Typography>
-
-                  <Stack
-                    direction="row"
-                    spacing={0.5}
-                    flexWrap="wrap"
-                    gap={0.5}
-                  >
-                    {suggestion.tags.map((tag) => (
-                      <Chip
-                        key={tag}
-                        label={tag}
-                        size="small"
-                        sx={{
-                          fontSize: "0.6875rem",
-                          height: 20,
-                          fontWeight: 600,
-                        }}
-                      />
-                    ))}
-                  </Stack>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-        </CardContent>
-      </Card>
-
-      {/* Prompt History */}
-      {promptHistory.length > 0 && (
-        <Card
-          sx={{ borderRadius: 3, border: "1px solid " + theme.palette.divider }}
-        >
-          <CardContent sx={{ p: 3 }}>
-            <Typography
-              variant="subtitle2"
-              sx={{
-                fontWeight: 800,
-                mb: 1.5,
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <History fontSize="small" color="action" />
-              Recent Prompt History
-            </Typography>
-            <Stack spacing={1}>
-              {promptHistory.map((histPrompt, idx) => (
-                <Box
-                  key={idx}
-                  onClick={() => {
-                    setPrompt(histPrompt);
-                    handleGenerate(histPrompt);
-                  }}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    bgcolor: "action.hover",
-                    cursor: "pointer",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    "&:hover": {
-                      bgcolor: alpha(theme.palette.primary.main, 0.08),
-                    },
-                  }}
-                >
+                  {/* Tags as one quiet line: they label the card, they aren't
+                      four more things to click. */}
                   <Typography
-                    variant="body2"
+                    variant="caption"
                     sx={{
-                      fontWeight: 500,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      pr: 2,
+                      display: "block",
+                      mt: 2,
+                      color: "text.disabled",
+                      ...ellipsis,
                     }}
                   >
-                    {histPrompt}
+                    {suggestion.tags.join(" · ")}
                   </Typography>
-                  <ArrowForward fontSize="small" color="action" />
                 </Box>
-              ))}
-            </Stack>
-          </CardContent>
-        </Card>
+              </Box>
+            ))}
+          </AutoGrid>
+        )}
+      </Box>
+
+      {/* Recent prompts */}
+      {promptHistory.length > 0 && (
+        <Box>
+          <SectionLabel>Recent prompts</SectionLabel>
+          <Stack spacing={1}>
+            {promptHistory.map((histPrompt) => (
+              <Box
+                key={histPrompt}
+                component="button"
+                type="button"
+                disabled={isGenerating}
+                onClick={() => {
+                  setPrompt(histPrompt);
+                  handleGenerate(histPrompt);
+                }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2.5,
+                  inlineSize: "100%",
+                  minHeight: 44,
+                  paddingInline: 3,
+                  paddingBlock: 2,
+                  border: "none",
+                  borderRadius: 1,
+                  bgcolor: "transparent",
+                  font: "inherit",
+                  color: "inherit",
+                  textAlign: "start",
+                  cursor: "pointer",
+                  transition: theme.transitions.create("background-color", {
+                    duration: 150,
+                  }),
+                  "&:hover:not(:disabled)": { bgcolor: "action.hover" },
+                  "&:focus-visible": focusRing,
+                  "&:disabled": { cursor: "default", opacity: 0.6 },
+                }}
+              >
+                <History sx={{ fontSize: 16, color: "text.disabled" }} />
+                <Typography
+                  variant="body2"
+                  sx={{ flex: 1, minWidth: 0, ...ellipsis }}
+                >
+                  {histPrompt}
+                </Typography>
+                <ArrowForward
+                  sx={{ fontSize: 16, color: "text.disabled", flexShrink: 0 }}
+                />
+              </Box>
+            ))}
+          </Stack>
+        </Box>
       )}
     </Box>
   );

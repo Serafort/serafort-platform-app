@@ -58,7 +58,8 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System",
-    "switchMode": "Switch theme mode - currently"
+    "switchMode": "Switch theme mode - currently",
+    "themeBuilder": "Theme Builder"
   },
   "language": {
     "selectLanguage": "Select Language",

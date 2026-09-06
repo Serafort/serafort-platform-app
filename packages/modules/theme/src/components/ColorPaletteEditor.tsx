@@ -1,18 +1,23 @@
 import React, { useState } from "react";
 import {
   Box,
-  Typography,
-  Grid,
-  TextField,
-  InputAdornment,
   Chip,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
+  Typography,
+  useTheme,
 } from "@mui/material";
 import LightModeIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeIcon from "@mui/icons-material/DarkModeOutlined";
 import type { ColorToken } from "@cap/theme";
 import { getWcagComplianceBadge } from "../services/aiThemePromptService";
+import {
+  AutoGrid,
+  PanelHeader,
+  SectionLabel,
+  useSurfaceSx,
+} from "./studioUi";
 
 interface ColorPaletteEditorProps {
   colors: Record<string, ColorToken>;
@@ -25,7 +30,7 @@ const colorLabels: Record<string, string> = {
   background: "Background",
   surface: "Surface",
   text: "Text",
-  textMuted: "Text Muted",
+  textMuted: "Text muted",
   border: "Border",
   success: "Success",
   warning: "Warning",
@@ -47,114 +52,117 @@ const ColorSwatch = ({
    * before `.value`.
    */
   modeKey,
+  isFirst,
 }: {
   color: ColorToken;
   label: string;
   onColorChange: (value: string) => void;
   contrastTarget?: string;
   modeKey?: PreviewMode;
+  isFirst: boolean;
 }) => {
+  const theme = useTheme();
   const displayValue = (modeKey ? color[modeKey] : undefined) ?? color.value;
   const isInherited = Boolean(modeKey) && color[modeKey!] === undefined;
   const contrastBadge = contrastTarget
     ? getWcagComplianceBadge(displayValue, contrastTarget)
     : null;
+
   return (
-    <Box sx={{ mb: 2 }}>
-      <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
-        {label}
-      </Typography>
-      <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 3,
+        paddingInline: 4,
+        paddingBlock: 3,
+        borderBlockStart: isFirst
+          ? "none"
+          : `1px solid ${theme.palette.divider}`,
+      }}
+    >
+      {/* The well is the picker: clicking anywhere on the color opens it. */}
+      <Box
+        component="label"
+        title={`Pick ${label}`}
+        sx={{
+          position: "relative",
+          inlineSize: 40,
+          blockSize: 40,
+          borderRadius: 1,
+          border: `1px solid ${theme.palette.divider}`,
+          flexShrink: 0,
+          overflow: "hidden",
+          cursor: "pointer",
+          "&:hover": { borderColor: "primary.main" },
+          "&:focus-within": {
+            borderColor: "primary.main",
+            boxShadow: `0 0 0 3px ${theme.palette.primary.main}26`,
+          },
+        }}
+      >
         <Box
-          component="label"
-          title="Pick color"
-          sx={{
-            position: "relative",
-            width: 48,
-            height: 48,
-            borderRadius: 1,
-            border: "1px solid",
-            borderColor: "divider",
-            flexShrink: 0,
-            overflow: "hidden",
-            cursor: "pointer",
-            "&:hover": { borderColor: "primary.main" },
-          }}
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              inset: 0,
-              backgroundColor: displayValue,
-            }}
-          />
-          <input
-            type="color"
-            value={displayValue}
-            onChange={(e) => onColorChange(e.target.value)}
-            aria-label={`Pick color for ${label}`}
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              opacity: 0,
-              cursor: "pointer",
-            }}
-          />
-        </Box>
-        <TextField
-          size="small"
+          sx={{ position: "absolute", inset: 0, backgroundColor: displayValue }}
+        />
+        <input
+          type="color"
           value={displayValue}
           onChange={(e) => onColorChange(e.target.value)}
-          placeholder="#000000"
-          sx={{ flex: 1 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Box
-                  component="span"
-                  sx={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: 0.5,
-                    background: `linear-gradient(45deg, #fff 45%, #000 45%, #000 55%, #fff 55%)`,
-                    backgroundSize: "8px 8px",
-                    opacity: 0.3,
-                  }}
-                />
-              </InputAdornment>
-            ),
+          aria-label={`Pick color for ${label}`}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            opacity: 0,
+            cursor: "pointer",
           }}
         />
       </Box>
-      {color.description && (
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ mt: 0.5, display: "block" }}
-        >
-          {color.description}
+
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+          {label}
         </Typography>
-      )}
-      <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
-        {contrastBadge && (
-          <Chip
-            size="small"
-            label={contrastBadge.label}
-            color={contrastBadge.color}
-            sx={{ height: 20, fontSize: "0.7rem" }}
-          />
-        )}
-        {isInherited && (
-          <Chip
-            size="small"
-            variant="outlined"
-            label={`Same as light - not set for ${modeKey}`}
-            sx={{ height: 20, fontSize: "0.7rem" }}
-          />
+        {(contrastBadge || isInherited) && (
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1.5,
+              mt: 1,
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
+            {contrastBadge && (
+              <Chip
+                size="small"
+                label={contrastBadge.label}
+                color={contrastBadge.color}
+                variant="outlined"
+                sx={{ blockSize: 20, fontSize: "0.6875rem" }}
+              />
+            )}
+            {isInherited && (
+              <Typography variant="caption" color="text.disabled">
+                inherits light
+              </Typography>
+            )}
+          </Box>
         )}
       </Box>
+
+      <TextField
+        size="small"
+        value={displayValue}
+        onChange={(e) => onColorChange(e.target.value)}
+        placeholder="#000000"
+        aria-label={`${label} hex value`}
+        sx={{ inlineSize: 108 }}
+        slotProps={{
+          input: { sx: { fontFamily: "monospace", fontSize: "0.8125rem" } },
+        }}
+      />
     </Box>
   );
 };
@@ -168,82 +176,51 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
   // a brand blue is a brand blue in both modes - so they ignore this toggle
   // and always edit `.value` directly.
   const [previewMode, setPreviewMode] = useState<PreviewMode>("light");
+  const surface = useSurfaceSx();
 
   const handleColorChange = (key: string, value: string) => {
-    onChange({
-      ...colors,
-      [key]: {
-        ...colors[key],
-        value,
-      },
-    });
+    onChange({ ...colors, [key]: { ...colors[key], value } });
   };
 
   const handleChromeColorChange = (key: string, value: string) => {
-    onChange({
-      ...colors,
-      [key]: {
-        ...colors[key],
-        [previewMode]: value,
-      },
-    });
+    onChange({ ...colors, [key]: { ...colors[key], [previewMode]: value } });
   };
 
   const chromeContrastTarget =
     colors.background?.[previewMode] ?? colors.background?.value ?? "#f8fafc";
 
+  const brandTarget = colors.background?.value || "#f8fafc";
+
   return (
     <Box>
-      <Typography variant="h6" sx={{ mb: 3 }}>
-        Color Palette
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Customize the color scheme for your organization's theme.
-      </Typography>
+      <PanelHeader
+        title="Color palette"
+        description="Brand and semantic colors are shared by both modes. Surface and text colors can differ."
+      />
 
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Box
-            sx={{
-              p: 2,
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-            }}
-          >
-            <Typography
-              variant="subtitle2"
-              sx={{ mb: 2, color: "text.secondary" }}
-            >
-              Brand Colors
-            </Typography>
-            <ColorSwatch
-              color={colors.primary || { value: "#6366f1" }}
-              label={colorLabels.primary}
-              contrastTarget={colors.background?.value || "#f8fafc"}
-              onColorChange={(value) => handleColorChange("primary", value)}
-            />
-            <ColorSwatch
-              color={colors.secondary || { value: "#8b5cf6" }}
-              label={colorLabels.secondary}
-              contrastTarget={colors.background?.value || "#f8fafc"}
-              onColorChange={(value) => handleColorChange("secondary", value)}
-            />
-          </Box>
-        </Grid>
+      <Box sx={{ mb: 7 }}>
+        <SectionLabel>Brand</SectionLabel>
+        <Box sx={{ ...surface, overflow: "hidden" }}>
+          <ColorSwatch
+            isFirst
+            color={colors.primary || { value: "#6366f1" }}
+            label={colorLabels.primary}
+            contrastTarget={brandTarget}
+            onColorChange={(value) => handleColorChange("primary", value)}
+          />
+          <ColorSwatch
+            isFirst={false}
+            color={colors.secondary || { value: "#8b5cf6" }}
+            label={colorLabels.secondary}
+            contrastTarget={brandTarget}
+            onColorChange={(value) => handleColorChange("secondary", value)}
+          />
+        </Box>
+      </Box>
 
-        <Grid size={{ xs: 12 }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-              flexWrap: "wrap",
-            }}
-          >
-            <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
-              Editing surface &amp; text colors for:
-            </Typography>
+      <Box sx={{ mb: 7 }}>
+        <SectionLabel
+          action={
             <ToggleButtonGroup
               size="small"
               exclusive
@@ -251,46 +228,36 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
               onChange={(_e, next: PreviewMode | null) => {
                 if (next) setPreviewMode(next);
               }}
-              aria-label="Preview mode for surface and text colors"
+              aria-label="Mode being edited for surface and text colors"
+              sx={{ "& .MuiToggleButton-root": { paddingInline: 2.5 } }}
             >
               <ToggleButton value="light" aria-label="Light mode">
-                <LightModeIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <LightModeIcon sx={{ fontSize: 16, mr: 1 }} />
                 Light
               </ToggleButton>
               <ToggleButton value="dark" aria-label="Dark mode">
-                <DarkModeIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <DarkModeIcon sx={{ fontSize: 16, mr: 1 }} />
                 Dark
               </ToggleButton>
             </ToggleButtonGroup>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ flexBasis: "100%" }}
-            >
-              Background, Surface, Border, Text and Text Muted can differ
-              between light and dark mode. A swatch left unset for a mode falls
-              back to its Light value - set Dark explicitly if the light value
-              would not suit a dark screen (e.g. white on white).
-            </Typography>
-          </Box>
-        </Grid>
+          }
+        >
+          Surface & text
+        </SectionLabel>
 
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Box
-            sx={{
-              p: 2,
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-            }}
-          >
-            <Typography
-              variant="subtitle2"
-              sx={{ mb: 2, color: "text.secondary" }}
-            >
-              Surface Colors
-            </Typography>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: "block", mb: 3, lineHeight: 1.5 }}
+        >
+          A swatch left unset for a mode falls back to its light value — set
+          dark explicitly where the light one would not survive a dark screen.
+        </Typography>
+
+        <AutoGrid min={260} gap={3}>
+          <Box sx={{ ...surface, overflow: "hidden" }}>
             <ColorSwatch
+              isFirst
               color={colors.background || { value: "#f8fafc" }}
               label={colorLabels.background}
               modeKey={previewMode}
@@ -299,6 +266,7 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
               }
             />
             <ColorSwatch
+              isFirst={false}
               color={colors.surface || { value: "#ffffff" }}
               label={colorLabels.surface}
               modeKey={previewMode}
@@ -307,32 +275,17 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
               }
             />
             <ColorSwatch
+              isFirst={false}
               color={colors.border || { value: "#e2e8f0" }}
               label={colorLabels.border}
               modeKey={previewMode}
-              onColorChange={(value) =>
-                handleChromeColorChange("border", value)
-              }
+              onColorChange={(value) => handleChromeColorChange("border", value)}
             />
           </Box>
-        </Grid>
 
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Box
-            sx={{
-              p: 2,
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-            }}
-          >
-            <Typography
-              variant="subtitle2"
-              sx={{ mb: 2, color: "text.secondary" }}
-            >
-              Text Colors
-            </Typography>
+          <Box sx={{ ...surface, overflow: "hidden" }}>
             <ColorSwatch
+              isFirst
               color={colors.text || { value: "#0f172a" }}
               label={colorLabels.text}
               modeKey={previewMode}
@@ -340,6 +293,7 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
               onColorChange={(value) => handleChromeColorChange("text", value)}
             />
             <ColorSwatch
+              isFirst={false}
               color={colors.textMuted || { value: "#64748b" }}
               label={colorLabels.textMuted}
               modeKey={previewMode}
@@ -349,46 +303,38 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
               }
             />
           </Box>
-        </Grid>
+        </AutoGrid>
+      </Box>
 
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Box
-            sx={{
-              p: 2,
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-            }}
-          >
-            <Typography
-              variant="subtitle2"
-              sx={{ mb: 2, color: "text.secondary" }}
-            >
-              Semantic Colors
-            </Typography>
-            <ColorSwatch
-              color={colors.success || { value: "#22c55e" }}
-              label={colorLabels.success}
-              onColorChange={(value) => handleColorChange("success", value)}
-            />
-            <ColorSwatch
-              color={colors.warning || { value: "#f59e0b" }}
-              label={colorLabels.warning}
-              onColorChange={(value) => handleColorChange("warning", value)}
-            />
-            <ColorSwatch
-              color={colors.error || { value: "#ef4444" }}
-              label={colorLabels.error}
-              onColorChange={(value) => handleColorChange("error", value)}
-            />
-            <ColorSwatch
-              color={colors.info || { value: "#3b82f6" }}
-              label={colorLabels.info}
-              onColorChange={(value) => handleColorChange("info", value)}
-            />
-          </Box>
-        </Grid>
-      </Grid>
+      <Box>
+        <SectionLabel>Semantic</SectionLabel>
+        <Box sx={{ ...surface, overflow: "hidden" }}>
+          <ColorSwatch
+            isFirst
+            color={colors.success || { value: "#22c55e" }}
+            label={colorLabels.success}
+            onColorChange={(value) => handleColorChange("success", value)}
+          />
+          <ColorSwatch
+            isFirst={false}
+            color={colors.warning || { value: "#f59e0b" }}
+            label={colorLabels.warning}
+            onColorChange={(value) => handleColorChange("warning", value)}
+          />
+          <ColorSwatch
+            isFirst={false}
+            color={colors.error || { value: "#ef4444" }}
+            label={colorLabels.error}
+            onColorChange={(value) => handleColorChange("error", value)}
+          />
+          <ColorSwatch
+            isFirst={false}
+            color={colors.info || { value: "#3b82f6" }}
+            label={colorLabels.info}
+            onColorChange={(value) => handleColorChange("info", value)}
+          />
+        </Box>
+      </Box>
     </Box>
   );
 };

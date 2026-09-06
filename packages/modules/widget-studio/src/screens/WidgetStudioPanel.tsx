@@ -1,15 +1,13 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Drawer,
   Box,
   Typography,
   Stack,
   IconButton,
-  Divider,
   Button,
   Tabs,
   Tab,
-  Badge,
   Alert,
 } from "@mui/material";
 import CloseRounded from "@mui/icons-material/CloseRounded";
@@ -17,16 +15,37 @@ import AutoFixHighRounded from "@mui/icons-material/AutoFixHighRounded";
 import HistoryRounded from "@mui/icons-material/HistoryRounded";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import PublishRounded from "@mui/icons-material/PublishRounded";
-import { useWidgetStudio } from "@cap/platform-store";
+import StopRounded from "@mui/icons-material/StopRounded";
+import { useWidgetStudio, useAppStore } from "@cap/platform-store";
+import { stopPipelineRun } from "../agents/pipeline";
 import {
   useGenerateWidget,
   usePublishWidget,
+  useWidgetAuditTrail,
 } from "../hooks/useWidgetStudioQuery";
 import PromptInput from "../components/PromptInput";
 import AgentPipelineTracker from "../components/AgentPipelineTracker";
 import DslPreviewCard from "../components/DslPreviewCard";
 import PublishConfirmDialog from "../components/PublishConfirmDialog";
 import { sanitizePrompt } from "../agents/sanitizer";
+import { migrateWidgetDsl } from "../agents/dslSchema";
+import {
+  applyStructuralRefinement,
+  buildRefinementRequest,
+  detectStructuralIntent,
+} from "../agents/refineDraft";
+import RefineInput from "../components/RefineInput";
+import {
+  CONTROL_HEIGHT,
+  RADIUS,
+  accentStrip,
+  hairline,
+  iconTile,
+  panelCardInteractive,
+  panelCardSelected,
+  primaryAction,
+  sectionLabel,
+} from "../theme/studioStyles";
 
 const DRAWER_WIDTH = 400;
 
@@ -37,6 +56,12 @@ const DRAWER_WIDTH = 400;
  * Tabs:
  *   • Generate — prompt input + live pipeline tracker
  *   • History  — list of past drafts
+ *
+ * Styling comes from ../theme/studioStyles, which is the panel's whole visual
+ * vocabulary: hairline cards, one accent, 44px controls, 8/12px radii. The
+ * gradient header, gradient publish button and glow rings this replaced were
+ * hard-wired to primary+secondary, so they ignored the tenant theme and every
+ * style preset the theme editor can apply.
  */
 export const WidgetStudioPanel: React.FC = () => {
   const {
@@ -51,13 +76,44 @@ export const WidgetStudioPanel: React.FC = () => {
     getActiveDraft,
   } = useWidgetStudio();
 
+  const activeRunId = useAppStore((state) => state.activeRunId);
+
   const [tab, setTab] = useState(0);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [isStopping, setIsStopping] = useState(false);
+  const [refineNotice, setRefineNotice] = useState<string | null>(null);
 
   const generateMutation = useGenerateWidget();
   const publishMutation = usePublishWidget();
+  const setWidgetDsl = useAppStore((state) => state.setWidgetDsl);
+  const widgetDraftsRef = useRef(widgetDrafts);
+  widgetDraftsRef.current = widgetDrafts;
 
   const activeDraft = getActiveDraft();
+
+  // The server's trail when this draft came from a run, the local one
+  // otherwise. Server entries replace rather than join the local ones: a
+  // record that is attested end to end is worth more than a longer one that
+  // is half hearsay.
+  const serverAudit = useWidgetAuditTrail(activeDraft?.runId);
+  const auditTrail = serverAudit.entries.length
+    ? serverAudit.entries
+    : (activeDraft?.auditTrail ?? []);
+
+  /**
+   * Bring stored definitions up to the current schema, once, when the panel
+   * opens. Drafts are persisted, so a definition written by an older build is
+   * read back by this one; migrating on open (and writing the result back)
+   * means the rest of the panel only ever sees the current shape.
+   */
+  useEffect(() => {
+    if (!widgetStudioPanelOpen) return;
+    for (const draft of widgetDraftsRef.current) {
+      if (!draft.dsl) continue;
+      const { dsl, migrated } = migrateWidgetDsl(draft.dsl);
+      if (migrated) setWidgetDsl(draft.id, dsl);
+    }
+  }, [widgetStudioPanelOpen, setWidgetDsl]);
 
   // ─── Generate Handler ───────────────────────────────────────────────────
 
@@ -77,6 +133,83 @@ export const WidgetStudioPanel: React.FC = () => {
       });
     },
     [createWidgetDraft, generateMutation],
+  );
+
+  // ─── Stop Handler ──────────────────────────────────────────────────────
+
+  /**
+   * A run lives on the server, so there has to be a way out of one that is
+   * taking too long or has gone quiet. Without this the panel could sit on
+   * "Running" indefinitely and the only exit was reloading the page.
+   */
+  const handleStop = useCallback(async () => {
+    if (!activeRunId) return;
+    setIsStopping(true);
+    try {
+      await stopPipelineRun(activeRunId, activeDraftId ?? undefined);
+    } finally {
+      setIsStopping(false);
+    }
+  }, [activeRunId, activeDraftId]);
+
+  // ─── Refine Handler ────────────────────────────────────────────────────
+
+  /**
+   * Refining produces a new draft rather than editing this one, so the
+   * version you had a moment ago stays in History. A size change is applied
+   * here and now; anything else is a new run seeded with this definition.
+   */
+  const handleRefine = useCallback(
+    (instruction: string) => {
+      if (!activeDraft?.dsl || !activeDraftId) return;
+      const nextRevision = (activeDraft.revision ?? 1) + 1;
+
+      const intent = detectStructuralIntent(instruction);
+      if (intent) {
+        const { dsl, changed, error } = applyStructuralRefinement(
+          activeDraft.dsl,
+          intent,
+        );
+        if (!changed) {
+          setRefineNotice("That is already as far as the grid goes.");
+          return;
+        }
+        if (!dsl) {
+          setRefineNotice(error || "That change did not validate.");
+          return;
+        }
+        setRefineNotice(null);
+        createWidgetDraft(activeDraft.prompt, {
+          parentDraftId: activeDraftId,
+          revision: nextRevision,
+          refinement: instruction,
+          dsl,
+          lifecycle: "approved",
+        });
+        return;
+      }
+
+      setRefineNotice(null);
+      const request = buildRefinementRequest({
+        originalPrompt: activeDraft.prompt,
+        instruction,
+        dsl: activeDraft.dsl,
+        parentDraftId: activeDraftId,
+      });
+      const draftId = createWidgetDraft(request.prompt, {
+        parentDraftId: activeDraftId,
+        revision: nextRevision,
+        refinement: instruction,
+      });
+      generateMutation.mutate({
+        draftId,
+        prompt: request.prompt,
+        baseDsl: request.baseDsl,
+        parentDraftId: request.parentDraftId,
+        refinement: request.refinement,
+      });
+    },
+    [activeDraft, activeDraftId, createWidgetDraft, generateMutation],
   );
 
   // ─── Publish Handler ───────────────────────────────────────────────────
@@ -125,112 +258,125 @@ export const WidgetStudioPanel: React.FC = () => {
       >
         {/* ---- Header ---- */}
         <Box
-          sx={{
-            px: 2.5,
-            py: 2,
-            background: (theme) =>
-              `linear-gradient(135deg, ${theme.palette.primary.main}18, ${theme.palette.secondary.main}12)`,
-            borderBottom: "1px solid",
-            borderColor: "divider",
-          }}
+          sx={(theme) => ({
+            px: 5,
+            pt: 5,
+            pb: 4,
+            borderBottom: `1px solid ${hairline(theme)}`,
+          })}
         >
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Box
+          <Stack direction="row" spacing={3} alignItems="flex-start">
+            <Box sx={(theme) => iconTile(theme, 40)}>
+              <AutoFixHighRounded
+                sx={{ fontSize: 20, color: "primary.main" }}
+              />
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography
                 sx={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 2,
-                  background: (theme) =>
-                    `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: (theme) =>
-                    `0 2px 8px ${theme.palette.primary.main}44`,
+                  fontSize: "1.0625rem",
+                  fontWeight: 700,
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1.3,
                 }}
               >
-                <AutoFixHighRounded sx={{ color: "white", fontSize: 20 }} />
-              </Box>
-              <Box>
-                <Typography
-                  variant="subtitle1"
-                  fontWeight={800}
-                  sx={{ lineHeight: 1.1 }}
-                >
-                  AI Widget Studio
-                </Typography>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ fontSize: "0.68rem" }}
-                >
-                  Powered by Gemini
-                </Typography>
-              </Box>
-            </Stack>
+                Widget Studio
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontSize: "0.8125rem" }}
+              >
+                Describe a widget; the agents build and check it.
+              </Typography>
+            </Box>
             <IconButton
               id="widget-studio-close-btn"
-              size="small"
               onClick={closeWidgetStudioPanel}
               aria-label="Close Widget Studio"
+              sx={{
+                width: CONTROL_HEIGHT,
+                height: CONTROL_HEIGHT,
+                mt: -2.5,
+                mr: -2.5,
+                borderRadius: RADIUS.control,
+                color: "text.secondary",
+              }}
             >
-              <CloseRounded fontSize="small" />
+              <CloseRounded sx={{ fontSize: 18 }} />
             </IconButton>
           </Stack>
         </Box>
 
-        {/* ---- Tabs ---- */}
+        {/* ---- Tabs ----
+            Underline tabs rather than the old full-width pair: the count sits
+            inline instead of in a Badge, which used to clip against the tab
+            label at this width. */}
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
-          sx={{ borderBottom: "1px solid", borderColor: "divider", px: 1 }}
-          variant="fullWidth"
+          sx={(theme) => ({
+            px: 3,
+            borderBottom: `1px solid ${hairline(theme)}`,
+            minHeight: CONTROL_HEIGHT,
+            "& .MuiTab-root": {
+              minHeight: CONTROL_HEIGHT,
+              px: 3,
+              gap: 1.75,
+              fontSize: "0.84375rem",
+              fontWeight: 500,
+              textTransform: "none",
+              color: "text.secondary",
+              "&.Mui-selected": { fontWeight: 600 },
+            },
+          })}
         >
           <Tab
             id="widget-studio-tab-generate"
             label="Generate"
-            icon={<AutoFixHighRounded sx={{ fontSize: 16 }} />}
+            icon={<AutoFixHighRounded sx={{ fontSize: 17 }} />}
             iconPosition="start"
-            sx={{ fontSize: "0.75rem", minHeight: 44 }}
           />
           <Tab
             id="widget-studio-tab-history"
+            iconPosition="start"
+            icon={<HistoryRounded sx={{ fontSize: 17 }} />}
             label={
-              <Badge
-                badgeContent={widgetDrafts.length}
-                color="primary"
-                max={99}
-              >
-                <Stack direction="row" spacing={0.5} alignItems="center">
-                  <HistoryRounded sx={{ fontSize: 16 }} />
-                  <span>History</span>
-                </Stack>
-              </Badge>
+              <Stack direction="row" spacing={1.5} alignItems="center">
+                <span>History</span>
+                {widgetDrafts.length > 0 && (
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: "0.6875rem",
+                      fontWeight: 600,
+                      color: "text.secondary",
+                    }}
+                  >
+                    {widgetDrafts.length}
+                  </Typography>
+                )}
+              </Stack>
             }
-            sx={{ fontSize: "0.75rem", minHeight: 44 }}
           />
         </Tabs>
 
         {/* ---- Tab Content ---- */}
-        <Box sx={{ flex: 1, overflow: "hidden auto", p: 2 }}>
+        <Box sx={{ flex: 1, overflow: "hidden auto", p: 5 }}>
           {/* ---- Generate Tab ---- */}
           {tab === 0 && (
-            <Stack spacing={2.5}>
+            <Stack spacing={4.5}>
               {/* Generation error banner */}
               {hasGenerationError && (
                 <Alert
                   severity="error"
-                  sx={{ borderRadius: 2 }}
+                  sx={{ borderRadius: RADIUS.control }}
                   action={
                     <Button
                       color="inherit"
                       size="small"
                       onClick={() => generateMutation.reset()}
+                      sx={{ textTransform: "none" }}
                     >
                       Dismiss
                     </Button>
@@ -245,12 +391,13 @@ export const WidgetStudioPanel: React.FC = () => {
               {hasPublishError && (
                 <Alert
                   severity="error"
-                  sx={{ borderRadius: 2 }}
+                  sx={{ borderRadius: RADIUS.control }}
                   action={
                     <Button
                       color="inherit"
                       size="small"
                       onClick={() => publishMutation.reset()}
+                      sx={{ textTransform: "none" }}
                     >
                       Dismiss
                     </Button>
@@ -261,15 +408,12 @@ export const WidgetStudioPanel: React.FC = () => {
                 </Alert>
               )}
 
-              {/* Prompt Input */}
-              <Box>
+              {/* Prompt input, in the panel's one tinted strip */}
+              <Box sx={(theme) => ({ ...accentStrip(theme), p: 3.5 })}>
                 <Typography
-                  variant="caption"
-                  fontWeight={700}
-                  color="text.secondary"
-                  sx={{ mb: 1, display: "block" }}
+                  sx={{ ...sectionLabel, mb: 2.5, color: "text.secondary" }}
                 >
-                  DESCRIBE YOUR WIDGET
+                  Describe your widget
                 </Typography>
                 <PromptInput
                   onSubmit={handleSubmitPrompt}
@@ -280,32 +424,56 @@ export const WidgetStudioPanel: React.FC = () => {
 
               {/* Agent Pipeline Tracker */}
               {activeDraft && (
-                <>
-                  <Divider />
-                  <Box>
+                <Box>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mb: 2.5 }}
+                  >
                     <Typography
-                      variant="caption"
-                      fontWeight={700}
-                      color="text.secondary"
-                      sx={{ mb: 1, display: "block" }}
+                      sx={{ ...sectionLabel, color: "text.secondary", flex: 1 }}
                     >
-                      AGENT PIPELINE
+                      Agent pipeline
                     </Typography>
-                    <AgentPipelineTracker agents={activeDraft.agents} />
-                  </Box>
-                </>
+                    {widgetStudioRunning && activeRunId !== null && (
+                      <Button
+                        id="widget-studio-stop-btn"
+                        size="small"
+                        color="inherit"
+                        startIcon={<StopRounded />}
+                        onClick={handleStop}
+                        disabled={isStopping}
+                        sx={{
+                          ...primaryAction,
+                          minHeight: 32,
+                          px: 2.5,
+                          fontSize: "0.75rem",
+                          color: "text.secondary",
+                        }}
+                      >
+                        {isStopping ? "Stopping…" : "Stop"}
+                      </Button>
+                    )}
+                  </Stack>
+                  <AgentPipelineTracker agents={activeDraft.agents} />
+                </Box>
               )}
 
               {/* DSL Preview + Publish */}
               {activeDraft?.dsl && (
                 <>
-                  <Divider />
-                  <Box>
-                    <DslPreviewCard
-                      dsl={activeDraft.dsl}
-                      lifecycle={activeDraft.lifecycle}
-                    />
-                  </Box>
+                  <DslPreviewCard
+                    dsl={activeDraft.dsl}
+                    lifecycle={activeDraft.lifecycle}
+                    auditTrail={auditTrail}
+                  />
+
+                  <RefineInput
+                    onRefine={handleRefine}
+                    disabled={widgetStudioRunning}
+                    notice={refineNotice}
+                  />
 
                   {canPublish && (
                     <Button
@@ -314,24 +482,18 @@ export const WidgetStudioPanel: React.FC = () => {
                       fullWidth
                       startIcon={<PublishRounded />}
                       onClick={() => setPublishDialogOpen(true)}
-                      sx={{
-                        borderRadius: 2,
-                        py: 1,
-                        background: (theme) =>
-                          `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                        boxShadow: (theme) =>
-                          `0 4px 16px ${theme.palette.primary.main}44`,
-                        "&:hover": { transform: "translateY(-1px)" },
-                        transition: "all 0.15s ease",
-                      }}
+                      sx={primaryAction}
                     >
-                      Publish to Dashboard
+                      Publish to dashboard
                     </Button>
                   )}
 
                   {activeDraft.lifecycle === "published" && (
-                    <Alert severity="success" sx={{ borderRadius: 2 }}>
-                      ✓ Widget published to your dashboard!
+                    <Alert
+                      severity="success"
+                      sx={{ borderRadius: RADIUS.control }}
+                    >
+                      Widget published to your dashboard.
                     </Alert>
                   )}
                 </>
@@ -341,53 +503,61 @@ export const WidgetStudioPanel: React.FC = () => {
 
           {/* ---- History Tab ---- */}
           {tab === 1 && (
-            <Stack spacing={1}>
+            <Stack spacing={2.5}>
               {widgetDrafts.length === 0 ? (
-                <Box sx={{ textAlign: "center", py: 4 }}>
-                  <HistoryRounded
-                    sx={{ fontSize: 48, color: "text.disabled", mb: 1 }}
-                  />
-                  <Typography variant="body2" color="text.secondary">
-                    No widgets generated yet
+                <Box
+                  sx={(theme) => ({
+                    px: 4,
+                    py: 8,
+                    textAlign: "center",
+                    borderRadius: RADIUS.card,
+                    border: `1px dashed ${theme.palette.divider}`,
+                  })}
+                >
+                  <Typography sx={{ fontSize: "0.875rem", fontWeight: 600 }}>
+                    No widgets yet
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ fontSize: "0.8125rem", mt: 1 }}
+                  >
+                    Anything you generate is kept here, so you can come back to
+                    a draft and publish it later.
                   </Typography>
                 </Box>
               ) : (
-                [...widgetDrafts].reverse().map((draft) => (
-                  <Box
-                    key={draft.id}
-                    id={`widget-studio-draft-${draft.id}`}
-                    onClick={() => {
-                      setActiveDraft(draft.id);
-                      setTab(0);
-                    }}
-                    sx={{
-                      p: 1.5,
-                      borderRadius: 2,
-                      border: "1px solid",
-                      borderColor:
-                        activeDraftId === draft.id ? "primary.main" : "divider",
-                      bgcolor:
-                        activeDraftId === draft.id
-                          ? "primary.main"
-                          : "transparent",
-                      ...(activeDraftId === draft.id && {
-                        bgcolor: (theme) => `${theme.palette.primary.main}10`,
-                      }),
-                      cursor: "pointer",
-                      transition: "all 0.15s ease",
-                      "&:hover": {
-                        borderColor: "primary.main",
-                        bgcolor: (theme) => `${theme.palette.primary.main}08`,
-                      },
-                    }}
-                  >
-                    <Stack direction="row" alignItems="flex-start" spacing={1}>
+                [...widgetDrafts].reverse().map((draft) => {
+                  const isActive = activeDraftId === draft.id;
+                  const statusColor =
+                    draft.lifecycle === "published"
+                      ? "success.main"
+                      : draft.lifecycle === "draft"
+                        ? "warning.main"
+                        : "primary.main";
+
+                  return (
+                    <Box
+                      key={draft.id}
+                      id={`widget-studio-draft-${draft.id}`}
+                      onClick={() => {
+                        setActiveDraft(draft.id);
+                        setTab(0);
+                      }}
+                      sx={(theme) => ({
+                        ...panelCardInteractive(theme),
+                        ...(isActive ? panelCardSelected(theme) : null),
+                        p: 3.5,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2.5,
+                      })}
+                    >
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Typography
-                          variant="caption"
-                          fontWeight={700}
                           sx={{
-                            display: "block",
+                            fontSize: "0.875rem",
+                            fontWeight: 600,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
@@ -397,53 +567,54 @@ export const WidgetStudioPanel: React.FC = () => {
                         </Typography>
                         <Stack
                           direction="row"
-                          spacing={0.75}
+                          spacing={1.75}
                           alignItems="center"
                           sx={{ mt: 0.5 }}
                         >
-                          <Typography
-                            variant="caption"
-                            color="text.disabled"
-                            sx={{ fontSize: "0.65rem" }}
-                          >
-                            {new Date(draft.createdAt).toLocaleString()}
-                          </Typography>
                           <Box
                             sx={{
-                              width: 4,
-                              height: 4,
+                              width: 6,
+                              height: 6,
                               borderRadius: "50%",
-                              bgcolor:
-                                draft.lifecycle === "published"
-                                  ? "success.main"
-                                  : draft.lifecycle === "draft"
-                                    ? "warning.main"
-                                    : "primary.main",
+                              bgcolor: statusColor,
+                              flexShrink: 0,
                             }}
                           />
                           <Typography
-                            variant="caption"
-                            color="text.disabled"
-                            sx={{ fontSize: "0.65rem" }}
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontSize: "0.75rem" }}
                           >
                             {draft.lifecycle}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontSize: "0.75rem", opacity: 0.85 }}
+                          >
+                            · {new Date(draft.createdAt).toLocaleString()}
                           </Typography>
                         </Stack>
                       </Box>
                       <IconButton
-                        size="small"
                         onClick={(e) => {
                           e.stopPropagation();
                           deleteWidgetDraft(draft.id);
                         }}
-                        aria-label="Delete draft"
-                        sx={{ flexShrink: 0 }}
+                        aria-label={`Delete draft: ${draft.prompt}`}
+                        sx={{
+                          width: CONTROL_HEIGHT,
+                          height: CONTROL_HEIGHT,
+                          flexShrink: 0,
+                          borderRadius: RADIUS.control,
+                          color: "text.secondary",
+                        }}
                       >
-                        <DeleteOutlineRounded sx={{ fontSize: 16 }} />
+                        <DeleteOutlineRounded sx={{ fontSize: 18 }} />
                       </IconButton>
-                    </Stack>
-                  </Box>
-                ))
+                    </Box>
+                  );
+                })
               )}
             </Stack>
           )}

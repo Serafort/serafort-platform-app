@@ -9,6 +9,7 @@ export * from "./hooks";
 export * from "./styled";
 export * from "./styles";
 export * from "./store/themeEditorStore";
+export * from "./store/savedThemeStore";
 export * from "./store/widgetMarketplaceStore";
 export * from "./store/widgetInspectorStore";
 

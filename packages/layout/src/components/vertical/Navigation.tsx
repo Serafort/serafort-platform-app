@@ -7,6 +7,7 @@ import Logo from '../../assets/svg/Logo'
 import { useVerticalNav } from '../../menu/contexts/verticalNavContext'
 import { useSettings } from '@cap/platform-store'
 import navigationCustomStyles from '../../styles/core/vertical/navigationCustomStyles'
+import { effectSurfaceVars, useComponentStyle, useComponentEffectConfig } from '@cap/theme'
 import Close from '@mui/icons-material/Close'
 import RadioButtonChecked from '@mui/icons-material/RadioButtonChecked'
 import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked'
@@ -47,6 +48,14 @@ const Navigation: React.FC<{
   const isSemiDark = settings.semiDark
   const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'))
 
+  // Same scoped-variable route as the navbar: the sidebar follows the global
+  // effect through :root, and only an explicit per-component override needs to
+  // publish its own --effect-* values here. See effectSurfaceVars.
+  const navStyle = useComponentStyle('nav')
+  const navEffect = useComponentEffectConfig('nav')
+  const scopedEffectVars =
+    navStyle?.style && navStyle.style !== 'global' ? effectSurfaceVars(navEffect, theme) : {}
+
   // The composed theme is the authority for what is actually painted. MUI's
   // useColorScheme() was the previous source and is inert here: the theme is
   // built by composeMuiTheme without `colorSchemes`/`cssVariables`, so it never
@@ -81,7 +90,10 @@ const Navigation: React.FC<{
   return (
     // Sidebar Vertical Menu
     <VerticalNav
-      customStyles={navigationCustomStyles(verticalNavOptions, theme)}
+      customStyles={{
+        ...navigationCustomStyles(verticalNavOptions, theme),
+        ...scopedEffectVars,
+      }}
       breakpoint='md'
       collapsedWidth={71}
       backgroundColor={theme.palette.background.paper}

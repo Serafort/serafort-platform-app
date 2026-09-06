@@ -113,9 +113,12 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     id: "default",
     name: "Default",
     description: "Clean, minimal design with balanced proportions",
+    // The card's swatches have to be the colours the preset actually applies,
+    // or it advertises a theme the user does not get. This one shows the
+    // defaults, whose secondary is the brand navy, not the cyan accent.
     preview: {
       primaryColor: "#047BFA",
-      secondaryColor: "#06CBFD",
+      secondaryColor: "#032457",
       backgroundColor: "#F6F8FC",
     },
     tokens: {},
@@ -160,9 +163,17 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     tokens: {
       colors: {
         primary: { value: "#6200ee", description: "Material Purple" },
+        secondary: { value: "#03dac6", description: "Material Teal" },
         background: { value: "#fafafa" },
         surface: { value: "#ffffff" },
+        text: { value: "#1c1b1f", description: "Material on-surface" },
+        textMuted: {
+          value: "#49454f",
+          description: "Material on-surface variant",
+        },
+        border: { value: "#e7e0ec", description: "Material outline variant" },
       },
+      borderRadius: { md: "12px" },
     },
     effects: { globalType: "standard" }, // Standard logic handles typical Material shadows
     components: {},
@@ -195,7 +206,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
         backgroundColor: "#e0e5ec",
         intensity: 0.15,
         distance: 6,
-        altitude: 10,
+        altitude: 45,
         borderRadius: "16px",
       },
     },
@@ -247,15 +258,21 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
       "Raw, unpolished aesthetic focused on content and functionality",
     preview: {
       primaryColor: "#ff1493",
-      secondaryColor: "#00ff00",
+      secondaryColor: "#00b300",
       backgroundColor: "#ffffff",
     },
     tokens: {
       colors: {
-        primary: { value: "#ff1493" },
+        primary: { value: "#ff1493", description: "Raw magenta" },
+        secondary: { value: "#00b300", description: "Raw green" },
         background: { value: "#ffffff" },
+        surface: {
+          value: "#ffffff",
+          description: "No separation from the page",
+        },
         border: { value: "#000000" },
         text: { value: "#000000" },
+        textMuted: { value: "#333333" },
       },
       borderRadius: { md: "0px" },
     },
@@ -287,10 +304,19 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     },
     tokens: {
       colors: {
-        primary: { value: "#000000" },
+        primary: { value: "#000000", description: "Ink" },
+        secondary: { value: "#666666", description: "Graphite" },
         background: { value: "#ffffff" },
+        surface: {
+          value: "#ffffff",
+          description: "No separation from the page",
+        },
+        text: { value: "#111111" },
+        textMuted: { value: "#737373" },
+        border: { value: "#e5e5e5", description: "Hairline only" },
       },
       spacing: { lg: "3rem" },
+      borderRadius: { md: "2px" },
     },
     effects: { globalType: "standard" },
     components: {},
@@ -330,11 +356,18 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     },
     tokens: {
       colors: {
-        primary: { value: "#00ffff" },
-        secondary: { value: "#ff00ff" },
-        background: { value: "#050510" },
-        border: { value: "#00ffff" },
+        primary: { value: "#00ffff", description: "Neon cyan" },
+        secondary: { value: "#ff00ff", description: "Neon magenta" },
+        background: { value: "#050510", description: "Void" },
+        surface: { value: "#0b0b20", description: "Panel above the void" },
+        text: { value: "#d8faff", description: "Cyan-tinted readout" },
+        textMuted: { value: "#7a8bb5" },
+        // Full-strength neon on every divider in the app is a wall of glare.
+        // The HUD reads as a HUD when the neon is reserved for the accents and
+        // the panel edges are a dimmed version of the same hue.
+        border: { value: "#123a52", description: "Dimmed cyan edge" },
       },
+      borderRadius: { md: "2px" },
     },
     effects: { globalType: "standard" },
     components: {},
@@ -380,14 +413,20 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
       "90s-2000s nostalgia with bright gradients and pixelated vibes",
     preview: {
       primaryColor: "#ff00ff",
-      secondaryColor: "#00ffff",
+      secondaryColor: "#00ccff",
       backgroundColor: "#ccffff",
     },
     tokens: {
       colors: {
-        primary: { value: "#ff00ff" },
-        background: { value: "#ccffff" },
+        primary: { value: "#ff00ff", description: "Y2K magenta" },
+        secondary: { value: "#00ccff", description: "Bubble cyan" },
+        background: { value: "#ccffff", description: "Aqua wash" },
+        surface: { value: "#ffffff" },
+        text: { value: "#1a0033", description: "Deep violet ink" },
+        textMuted: { value: "#5c4a7a" },
+        border: { value: "#8fd8e8" },
       },
+      borderRadius: { md: "14px" },
     },
     effects: { globalType: "standard" },
     components: {},
@@ -404,9 +443,15 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     },
     tokens: {
       colors: {
-        primary: { value: "#6366f1" },
-        background: { value: "#111827" },
+        primary: { value: "#6366f1", description: "Indigo" },
+        secondary: { value: "#4f46e5", description: "Deeper indigo" },
+        background: { value: "#111827", description: "Deep space" },
+        surface: { value: "#1b2437", description: "Layer above the ground" },
+        text: { value: "#f3f4f6" },
+        textMuted: { value: "#9ca3af" },
+        border: { value: "#2b3648" },
       },
+      borderRadius: { md: "14px" },
     },
     effects: {
       globalType: "immersive",
@@ -429,14 +474,19 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     preview: {
       primaryColor: "#ffde59",
       secondaryColor: "#ff5757",
-      backgroundColor: "#ffffff",
+      backgroundColor: "#fffdf5",
     },
     tokens: {
       colors: {
-        primary: { value: "#ffde59" },
-        background: { value: "#ffffff" },
-        border: { value: "#000000" },
+        primary: { value: "#ffde59", description: "Canary" },
+        secondary: { value: "#ff5757", description: "Coral" },
+        background: { value: "#fffdf5", description: "Warm paper" },
+        surface: { value: "#ffffff" },
+        text: { value: "#000000" },
+        textMuted: { value: "#4a4a4a" },
+        border: { value: "#000000", description: "Always full black" },
       },
+      borderRadius: { md: "4px" },
     },
     effects: {
       globalType: "brutalism",
@@ -462,13 +512,23 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     preview: {
       primaryColor: "#4f46e5",
       secondaryColor: "#f59e0b",
-      backgroundColor: "#f9fafb",
+      backgroundColor: "#f3f4f6",
     },
     tokens: {
       colors: {
-        primary: { value: "#4f46e5" },
-        background: { value: "#f9fafb" },
+        primary: { value: "#4f46e5", description: "Indigo" },
+        secondary: { value: "#f59e0b", description: "Amber" },
+        // Page and panel are deliberately the same colour: a neumorphic relief
+        // is made entirely of its two shadows, so a panel that contrasts with
+        // the ground behind it stops reading as extruded. This preset used to
+        // set the page to #f9fafb while its relief was built for #f3f4f6.
+        background: { value: "#f3f4f6" },
+        surface: { value: "#f3f4f6" },
+        text: { value: "#1f2937" },
+        textMuted: { value: "#6b7280" },
+        border: { value: "#e5e7eb" },
       },
+      borderRadius: { md: "20px", lg: "32px" },
     },
     effects: {
       globalType: "neu",
@@ -477,7 +537,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
         backgroundColor: "#f3f4f6",
         intensity: 0.12,
         distance: 8,
-        altitude: 15,
+        altitude: 45,
         borderRadius: "32px",
       },
     },
@@ -495,10 +555,15 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     },
     tokens: {
       colors: {
-        primary: { value: "#635bff" },
-        background: { value: "#050505" },
+        primary: { value: "#635bff", description: "Electric indigo" },
+        secondary: { value: "#00d4ff", description: "Ice blue" },
+        background: { value: "#050505", description: "Obsidian" },
         surface: { value: "rgba(15, 15, 15, 0.7)" },
+        text: { value: "#f5f5f7" },
+        textMuted: { value: "#a1a1aa" },
+        border: { value: "rgba(255, 255, 255, 0.12)" },
       },
+      borderRadius: { md: "14px" },
     },
     effects: {
       globalType: "glass",

@@ -1,14 +1,13 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Slider,
-  TextField,
-  Switch,
-  FormControlLabel,
-  Paper,
-} from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 import type { GlassmorphismConfig } from "@cap/theme";
+import {
+  EmptyHint,
+  FieldLabel,
+  SliderField,
+  SwitchHeader,
+  useSurfaceSx,
+} from "../studioUi";
 
 interface GlassmorphismPanelProps {
   config: GlassmorphismConfig;
@@ -19,6 +18,8 @@ export const GlassmorphismPanel: React.FC<GlassmorphismPanelProps> = ({
   config,
   onChange,
 }) => {
+  const surface = useSurfaceSx();
+
   const handleChange = <K extends keyof GlassmorphismConfig>(
     key: K,
     value: GlassmorphismConfig[K],
@@ -26,162 +27,160 @@ export const GlassmorphismPanel: React.FC<GlassmorphismPanelProps> = ({
     onChange({ ...config, [key]: value });
   };
 
+  const blur = parseInt(config.blur || "16") || 16;
+  const borderWidth = parseInt(config.borderWidth || "1") || 1;
+
   return (
-    <Paper sx={{ p: 3 }}>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mb: 3,
-        }}
-      >
-        <Box>
-          <Typography variant="h6">Glassmorphism</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Frosted glass effect with blur and transparency
-          </Typography>
+    <Box sx={{ ...surface, p: 5 }}>
+      <SwitchHeader
+        title="Glassmorphism"
+        description="Frosted panels: a blurred view of whatever sits behind, with a bright hairline edge."
+        checked={Boolean(config.enabled)}
+        onChange={(checked) => handleChange("enabled", checked)}
+      />
+
+      {!config.enabled ? (
+        <Box sx={{ mt: 4 }}>
+          <EmptyHint>Turn glassmorphism on to tune blur and tint.</EmptyHint>
         </Box>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={config.enabled}
-              onChange={(e) => handleChange("enabled", e.target.checked)}
-            />
-          }
-          label="Enable"
-          labelPlacement="start"
-        />
-      </Box>
+      ) : (
+        <Box sx={{ mt: 6 }}>
+          <SliderField
+            label="Blur"
+            value={blur}
+            displayValue={`${blur}px`}
+            min={0}
+            max={50}
+            marks={[
+              { value: 0, label: "0" },
+              { value: 16, label: "16" },
+              { value: 32, label: "32" },
+              { value: 50, label: "50" },
+            ]}
+            onChange={(value) => handleChange("blur", `${value}px`)}
+          />
 
-      {!config.enabled && (
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ fontStyle: "italic" }}
-        >
-          Enable glassmorphism to customize its properties
-        </Typography>
-      )}
+          <SliderField
+            label="Opacity"
+            value={(config.opacity ?? 0.8) * 100}
+            displayValue={`${((config.opacity ?? 0.8) * 100).toFixed(0)}%`}
+            min={0}
+            max={100}
+            marks={[
+              { value: 0, label: "0%" },
+              { value: 50, label: "50%" },
+              { value: 100, label: "100%" },
+            ]}
+            onChange={(value) => handleChange("opacity", value / 100)}
+          />
 
-      {config.enabled && (
-        <Box sx={{ mt: 3 }}>
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-              Blur Intensity: {config.blur || "16px"}
-            </Typography>
-            <Slider
-              value={parseInt(config.blur || "16") || 16}
-              onChange={(_, value) => handleChange("blur", `${value}px`)}
-              min={0}
-              max={50}
-              step={1}
-              marks={[
-                { value: 0, label: "0px" },
-                { value: 16, label: "16px" },
-                { value: 32, label: "32px" },
-                { value: 50, label: "50px" },
-              ]}
-            />
-          </Box>
+          <SliderField
+            label="Border width"
+            value={borderWidth}
+            displayValue={`${borderWidth}px`}
+            min={0}
+            max={5}
+            marks={[
+              { value: 0, label: "0" },
+              { value: 2, label: "2" },
+              { value: 5, label: "5" },
+            ]}
+            onChange={(value) => handleChange("borderWidth", `${value}px`)}
+          />
 
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-              Opacity: {((config.opacity ?? 0.8) * 100).toFixed(0)}%
-            </Typography>
-            <Slider
-              value={(config.opacity ?? 0.8) * 100}
-              onChange={(_, value) =>
-                handleChange("opacity", (value as number) / 100)
-              }
-              min={0}
-              max={100}
-              step={1}
-              marks={[
-                { value: 0, label: "0%" },
-                { value: 50, label: "50%" },
-                { value: 100, label: "100%" },
-              ]}
-            />
-          </Box>
-
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-              Background Color
-            </Typography>
+          <Box sx={{ mb: 5 }}>
+            <FieldLabel hint="rgba() so the blur behind it stays visible">
+              Tint
+            </FieldLabel>
             <TextField
               fullWidth
               size="small"
               value={config.background || ""}
               onChange={(e) => handleChange("background", e.target.value)}
               placeholder="rgba(255, 255, 255, 0.1)"
+              slotProps={{ input: { sx: { fontFamily: "monospace" } } }}
             />
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ mt: 0.5, display: "block" }}
-            >
-              Use rgba() format for transparency
-            </Typography>
           </Box>
 
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-              Border Color
-            </Typography>
+          <Box sx={{ mb: 6 }}>
+            <FieldLabel>Border color</FieldLabel>
             <TextField
               fullWidth
               size="small"
               value={config.borderColor || ""}
               onChange={(e) => handleChange("borderColor", e.target.value)}
               placeholder="rgba(255, 255, 255, 0.2)"
+              slotProps={{ input: { sx: { fontFamily: "monospace" } } }}
             />
           </Box>
 
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-              Border Width: {config.borderWidth || "1px"}
-            </Typography>
-            <Slider
-              value={parseInt(config.borderWidth || "1") || 1}
-              onChange={(_, value) => handleChange("borderWidth", `${value}px`)}
-              min={0}
-              max={5}
-              step={1}
-              marks={[
-                { value: 0, label: "0px" },
-                { value: 1, label: "1px" },
-                { value: 2, label: "2px" },
-                { value: 5, label: "5px" },
-              ]}
-            />
-          </Box>
-
+          {/*
+            The preview needs something behind it or there is nothing to
+            frost - the previous version put near-white text on a 10%-white
+            tint over white paper, which was invisible in light mode. A fixed
+            colored ground makes the blur and the edge legible in either mode.
+          */}
+          <FieldLabel>Preview</FieldLabel>
           <Box
             sx={{
-              mt: 4,
-              p: 3,
-              background: config.background,
-              backdropFilter: `blur(${config.blur})`,
-              WebkitBackdropFilter: `blur(${config.blur})`,
-              border: `${config.borderWidth} solid ${config.borderColor}`,
-              borderRadius: 2,
-              opacity: config.opacity,
+              position: "relative",
+              overflow: "hidden",
+              borderRadius: 1.5,
+              p: 5,
+              background:
+                "linear-gradient(135deg, #1e3a8a 0%, #7e22ce 50%, #be185d 100%)",
             }}
           >
-            <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.9)" }}>
-              Glassmorphism Preview
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{ color: "rgba(255,255,255,0.7)" }}
+            {/* Detail behind the glass, so the blur has something to act on */}
+            <Box
+              aria-hidden
+              sx={{
+                position: "absolute",
+                insetBlockStart: -20,
+                insetInlineEnd: -10,
+                inlineSize: 120,
+                blockSize: 120,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.35)",
+              }}
+            />
+            <Box
+              sx={{
+                position: "relative",
+                p: 4,
+                borderRadius: 1.5,
+                background: config.background,
+                backdropFilter: `blur(${config.blur || "16px"})`,
+                WebkitBackdropFilter: `blur(${config.blur || "16px"})`,
+                border: `${config.borderWidth || "1px"} solid ${config.borderColor}`,
+                opacity: config.opacity ?? 0.8,
+              }}
             >
-              This is how your cards will look with glassmorphism enabled
-            </Typography>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 600, color: "#fff" }}
+              >
+                Frosted surface
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: "rgba(255,255,255,0.8)" }}
+              >
+                How cards read with glassmorphism on
+              </Typography>
+            </Box>
           </Box>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", mt: 2 }}
+          >
+            Preview ground is fixed so the effect stays readable in both modes;
+            your own surfaces use the tenant background.
+          </Typography>
         </Box>
       )}
-    </Paper>
+    </Box>
   );
 };
 

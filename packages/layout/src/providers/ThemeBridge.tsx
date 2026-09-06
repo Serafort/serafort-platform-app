@@ -10,8 +10,11 @@ import {
   ThemeSettingsProvider,
   applyThemeVariablesSync,
   useThemeEditorStore,
+  useSavedTheme,
   headerTokens,
   footerTokens,
+  effectCanvasCss,
+  normalizeEffectConfig,
   DEFAULT_THEME_CONFIG,
 } from '@cap/theme'
 import type { TenantThemeConfig } from '@cap/theme'
@@ -73,7 +76,16 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
   const draftConfig = useThemeEditorStore((s) => s.draftConfig)
   const deferredDraft = React.useDeferredValue(draftConfig)
 
-  const activeConfig = isEditing && deferredDraft ? deferredDraft : tenantConfig
+  // The theme the user last pressed Save on. `useTenant()`'s config is the
+  // tenant's branding record, so without this the app had nowhere to read a
+  // saved theme back from and Save effectively reverted the app to the
+  // defaults - see savedThemeStore.
+  const savedTheme = useSavedTheme()
+
+  const persistedConfig =
+    tenantConfig && 'tokens' in tenantConfig ? tenantConfig : (savedTheme ?? tenantConfig)
+
+  const activeConfig = isEditing && deferredDraft ? deferredDraft : persistedConfig
 
   const { settings } = useSettings()
 
@@ -123,10 +135,31 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
   // this shape, it doesn't recognise `.tokens`, silently no-ops, and every
   // --color-*/--effect-* custom property stays unset for the entire session.
   // Resolve once, up front, so both consumers see the same real config.
-  const resolvedThemeConfig: TenantThemeConfig =
+  //
+  // `settings.effect` is folded in here rather than only inside
+  // composeMuiTheme. That function applies it to the theme object it returns,
+  // but applyThemeVariablesSync was handed the raw config, so the JS theme and
+  // the --effect-* custom properties could disagree about which effect was
+  // active - the components that read the theme object would paint one effect
+  // while every surface reading the variables painted another.
+  const baseThemeConfig: TenantThemeConfig =
     activeConfig && 'tokens' in activeConfig
       ? (activeConfig as TenantThemeConfig)
       : DEFAULT_THEME_CONFIG
+
+  const resolvedThemeConfig: TenantThemeConfig = useMemo(
+    () =>
+      settings.effect && settings.effect !== baseThemeConfig.effects?.globalType
+        ? {
+            ...baseThemeConfig,
+            effects: normalizeEffectConfig({
+              ...baseThemeConfig.effects,
+              globalType: settings.effect,
+            }),
+          }
+        : baseThemeConfig,
+    [baseThemeConfig, settings.effect],
+  )
 
   const theme = useMemo(() => {
     const compiled = generateTheme(resolvedThemeConfig, settings, isDark)
@@ -135,6 +168,19 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
     }
     return compiled
   }, [resolvedThemeConfig, settings, isDark, applyThemeVarsBatched])
+
+  // The page ground, handed to index.html's anti-flash block. That block's
+  // `html.dark body` rule cannot be overridden from here - it is more
+  // specific than anything the runtime can write, and with `injectFirst`
+  // emotion's stylesheet sits above it in the cascade anyway - so it reads a
+  // variable instead. The anti-flash script seeds the same variable inline
+  // from the saved theme before React boots; this rewrites it from the
+  // composed palette, which is the mode-resolved value and the one that has
+  // to win when the user switches mode mid-session.
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    document.documentElement.style.setProperty('--canvas-bg', theme.palette.background.default)
+  }, [theme])
 
   const handleUpdateTheme = useCallback(
     async (updates: any) => {
@@ -178,6 +224,7 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
                   '--border-color': theme.palette.divider,
                   '--border-radius': `${theme.shape.borderRadius}px`,
 
+
                   // Derived Background Variables
                   '--background-color-rgb':
                     'var(--color-background-h) var(--color-background-s) var(--color-background-l)',
@@ -193,6 +240,20 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
                   // Layout Constants
                   '--header-height': headerTokens.layout.minBlockSize,
                 },
+                // The ambient wash for blur-based effects goes on <body> as
+                // well as on the content area, so that fixed chrome - the
+                // sidebar, a floating navbar - blurs it too rather than
+                // blurring whatever happens to sit directly behind it. It
+                // resolves to `none` for every effect that does not ask for
+                // one.
+                //
+                // Only the background-*image* is set here. index.html's
+                // anti-flash block carries `html.light body {
+                // background-color: #ffffff }`, whose specificity a bare
+                // `body` rule cannot beat, so the page ground is not ours to
+                // set from here - and it does not need to be, since the wash
+                // is what the blur reveals.
+                body: effectCanvasCss,
               })}
             />
             {children}

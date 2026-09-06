@@ -1,5 +1,17 @@
+import { alpha } from "@mui/material/styles";
 import type { Theme } from "@mui/material/styles";
+
 const themeConfig = { disableRipple: false };
+
+/** Palette colors that get per-color button variants. */
+const PALETTE_COLORS = [
+  "primary",
+  "secondary",
+  "error",
+  "warning",
+  "info",
+  "success",
+] as const;
 
 const iconStyles = (size?: string) => ({
   "& > *:nth-of-type(1)": {
@@ -290,187 +302,62 @@ const button: Theme["components"] = {
           },
         },
       },
-      {
-        props: { variant: "contained", color: "primary" },
-        style: {
-          "&:not(.Mui-disabled)": {
-            boxShadow:
-              "var(--comp-button-box-shadow, var(--mui-customShadows-primary-sm))",
-          },
-          "&:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-primary-dark)",
+      // Contained: MUI already paints the base fill from the palette, so
+      // these entries only add the pressed and disabled treatments on top of
+      // it. Generated from PALETTE_COLORS rather than written out six times
+      // each - the hand-copied version had drifted (one tonal entry below was
+      // still labelled `outlined`).
+      ...PALETTE_COLORS.map((color) => ({
+        props: { variant: "contained" as const, color },
+        // `variants[].style` is typed against MUI's BaseTheme, which lacks
+        // this app's augmented members, so the palette is read through a cast
+        // rather than by annotating the parameter (annotating it fails with
+        // TS2322 against Interpolation<{ theme: BaseTheme }>).
+        style: ({ theme }: { theme: unknown }) => {
+          const swatch = (theme as Theme).palette[color];
+          return {
+            "&:not(.Mui-disabled)": {
+              boxShadow: "var(--comp-button-box-shadow, none)",
             },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-primary-contrastText) !important",
-            backgroundColor: "var(--mui-palette-primary-main)",
-          },
-        },
-      },
-      {
-        props: { variant: "contained", color: "secondary" },
-        style: {
-          "&:not(.Mui-disabled)": {
-            boxShadow: "var(--mui-customShadows-secondary-sm)",
-          },
-          "&:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-secondary-dark)",
+            "&:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
+              {
+                backgroundColor: swatch.dark,
+              },
+            // Disabled keeps the button's own fill; the root rule's opacity is
+            // what communicates the disabled state.
+            "&.Mui-disabled": {
+              color: swatch.contrastText,
+              backgroundColor: swatch.main,
             },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-secondary-contrastText)",
-            backgroundColor: "var(--mui-palette-secondary-main)",
-          },
+          };
         },
-      },
-      {
-        props: { variant: "contained", color: "error" },
-        style: {
-          "&:not(.Mui-disabled)": {
-            boxShadow: "var(--mui-customShadows-error-sm)",
-          },
-          "&:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-error-dark)",
+      })),
+
+      // Tonal: a soft tint of the palette color, with that color as the text.
+      // This now sits under its own `tonal` variant (already registered in
+      // ButtonPropsVariantOverrides). It previously sat under `contained`,
+      // where it both overrode the real contained fill and referenced
+      // `--mui-palette-*` variables that only exist when MUI's cssVariables
+      // mode is enabled - this app composes a plain createTheme, so those
+      // resolved to nothing and left every contained button in the app with a
+      // transparent background and inherited text color.
+      ...PALETTE_COLORS.map((color) => ({
+        props: { variant: "tonal" as const, color },
+        style: ({ theme }: { theme: unknown }) => {
+          const swatch = (theme as Theme).palette[color];
+          return {
+            backgroundColor: alpha(swatch.main, 0.12),
+            color: swatch.main,
+            "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
+              {
+                backgroundColor: alpha(swatch.main, 0.2),
+              },
+            "&.Mui-disabled": {
+              color: swatch.main,
             },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-error-contrastText)  !important",
-            backgroundColor: "var(--mui-palette-error-main)",
-          },
+          };
         },
-      },
-      {
-        props: { variant: "contained", color: "warning" },
-        style: {
-          "&:not(.Mui-disabled)": {
-            boxShadow: "var(--mui-customShadows-warning-sm)",
-          },
-          "&:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-warning-dark)",
-            },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-warning-contrastText)",
-            backgroundColor: "var(--mui-palette-warning-main)",
-          },
-        },
-      },
-      {
-        props: { variant: "contained", color: "info" },
-        style: {
-          "&:not(.Mui-disabled)": {
-            boxShadow: "var(--mui-customShadows-info-sm)",
-          },
-          "&:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-info-dark)",
-            },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-info-contrastText)",
-            backgroundColor: "var(--mui-palette-info-main)",
-          },
-        },
-      },
-      {
-        props: { variant: "contained", color: "success" },
-        style: {
-          "&:not(.Mui-disabled)": {
-            boxShadow: "var(--mui-customShadows-success-sm)",
-          },
-          "&:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-success-dark)",
-            },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-success-contrastText)",
-            backgroundColor: "var(--mui-palette-success-main)",
-          },
-        },
-      },
-      {
-        props: { variant: "contained", color: "primary" },
-        style: {
-          backgroundColor: "var(--mui-palette-primary-lightOpacity)",
-          color: "var(--mui-palette-primary-main)",
-          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-primary-mainOpacity)",
-            },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-primary-main)",
-          },
-        },
-      },
-      {
-        props: { variant: "contained", color: "secondary" },
-        style: {
-          backgroundColor: "var(--mui-palette-secondary-lightOpacity)",
-          color: "var(--mui-palette-secondary-main)",
-          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-secondary-mainOpacity)",
-            },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-secondary-main)",
-          },
-        },
-      },
-      {
-        props: { variant: "contained", color: "error" },
-        style: {
-          backgroundColor: "var(--mui-palette-error-lightOpacity)",
-          color: "var(--mui-palette-error-main)",
-          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-error-mainOpacity)",
-            },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-error-main)",
-          },
-        },
-      },
-      {
-        props: { variant: "contained", color: "warning" },
-        style: {
-          backgroundColor: "var(--mui-palette-warning-lightOpacity)",
-          color: "var(--mui-palette-warning-main)",
-          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-warning-mainOpacity)",
-            },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-warning-main)",
-          },
-        },
-      },
-      {
-        props: { variant: "contained", color: "info" },
-        style: {
-          backgroundColor: "var(--mui-palette-info-lightOpacity)",
-          color: "var(--mui-palette-info-main)",
-          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-info-mainOpacity)",
-            },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-info-main)",
-          },
-        },
-      },
-      {
-        props: { variant: "outlined", color: "success" },
-        style: {
-          backgroundColor: "var(--mui-palette-success-lightOpacity)",
-          color: "var(--mui-palette-success-main)",
-          "&:not(.Mui-disabled):hover, &:not(.Mui-disabled):active, &.Mui-focusVisible:not(:has(span.MuiTouchRipple-root))":
-            {
-              backgroundColor: "var(--mui-palette-success-mainOpacity)",
-            },
-          "&.Mui-disabled": {
-            color: "var(--mui-palette-success-main)",
-          },
-        },
-      },
+      })),
     ],
   },
 };

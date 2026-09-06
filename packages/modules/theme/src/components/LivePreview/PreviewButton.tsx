@@ -5,8 +5,10 @@ import type { EffectType } from "@cap/theme";
 
 interface PreviewButtonProps {
   variant?: "primary" | "secondary" | "outline";
-  effectStyle?: "standard" | "glass" | "neu";
+  effectStyle?: "standard" | "effect";
+  /** Named for the caption only; the styling comes from --effect-*. */
   effectType?: EffectType;
+  label?: string;
 }
 
 const StandardButton = styled.button<{ variant?: string }>`
@@ -55,7 +57,13 @@ const StandardButton = styled.button<{ variant?: string }>`
   }
 `;
 
-const GlassButton = styled.button<{ variant?: string }>`
+/*
+ * The effect surface is read from the same --effect-* custom properties the
+ * app itself paints with, rather than a hand-written glass and neumorphic
+ * variant. Those two were the only effects the preview could show, and they
+ * showed fixed values - not the blur, tint or shadow the user had just set.
+ */
+const EffectButton = styled.button<{ variant?: string }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -63,54 +71,22 @@ const GlassButton = styled.button<{ variant?: string }>`
   padding: 0.625rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 500;
-  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  background: rgba(139, 92, 246, 0.3);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(139, 92, 246, 0.5);
-  color: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const NeuButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  background: #e0e5ec;
-  border: none;
-  color: #374151;
-  box-shadow:
-    4px 4px 8px rgba(0, 0, 0, 0.15),
-    -4px -4px 8px rgba(255, 255, 255, 0.8);
+  color: var(--color-text, #0f172a);
+  background: var(--effect-bg, var(--color-surface, #ffffff));
+  backdrop-filter: var(--effect-backdrop, none);
+  -webkit-backdrop-filter: var(--effect-backdrop, none);
+  border: var(--effect-border, 1px solid var(--color-border, #e2e8f0));
+  border-radius: var(--effect-radius, 8px);
+  box-shadow: var(--effect-shadow, 0 4px 16px rgba(0, 0, 0, 0.1));
 
   &:hover {
     transform: translateY(-1px);
   }
 
   &:active {
-    box-shadow:
-      inset 4px 4px 8px rgba(0, 0, 0, 0.1),
-      inset -4px -4px 8px rgba(255, 255, 255, 0.8);
     transform: translateY(0);
   }
 `;
@@ -118,23 +94,15 @@ const NeuButton = styled.button`
 export const PreviewButton: React.FC<PreviewButtonProps> = ({
   variant = "primary",
   effectStyle = "standard",
+  label,
 }) => {
   const ButtonComponent =
-    effectStyle === "glass"
-      ? GlassButton
-      : effectStyle === "neu"
-        ? NeuButton
-        : StandardButton;
+    effectStyle === "effect" ? EffectButton : StandardButton;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Typography variant="caption" color="text.secondary">
-        {effectStyle === "glass"
-          ? "Glass"
-          : effectStyle === "neu"
-            ? "Neumorphic"
-            : "Standard"}{" "}
-        Button
+        {label ?? (effectStyle === "effect" ? "Effect" : "Standard")} Button
       </Typography>
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
         <ButtonComponent variant={variant}>Primary</ButtonComponent>

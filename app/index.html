@@ -36,15 +36,24 @@
     <style>
       /* Prevent white flash on dark-mode users before MUI theme loads.
          #031433 is the Serafort brand ink -- keep in sync with
-         semanticSurfaces.dark.canvas in @cap/theme. */
+         semanticSurfaces.dark.canvas in @cap/theme.
+
+         The literals are fallbacks only. --canvas-bg is set twice: by the
+         script below from the theme the user saved (so a reload does not
+         flash Serafort's colours before the saved theme lands), and then by
+         ThemeBridge from the composed palette. Going through a variable
+         rather than overriding these rules is deliberate - `html.dark body`
+         outranks anything the runtime can reasonably write, and with
+         `injectFirst` emotion's stylesheet sits above this block anyway, so
+         an override would lose both contests. */
       html.dark,
       html.dark body {
-        background-color: #031433;
+        background-color: var(--canvas-bg, #031433);
         color-scheme: dark;
       }
       html.light,
       html.light body {
-        background-color: #ffffff;
+        background-color: var(--canvas-bg, #ffffff);
         color-scheme: light;
       }
       /* Prevent layout shift during Zustand hydration */
@@ -71,6 +80,23 @@
           }
           document.documentElement.classList.add(mode)
           document.body && (document.body.style.colorScheme = mode)
+
+          // The theme the user saved (savedThemeStore in @cap/theme). Applying
+          // its page colour here is what stops a saved theme from flashing the
+          // Serafort default on every reload. Only the mode it was authored in
+          // is honoured - a dark theme's canvas under a light shell would be
+          // worse than the fallback.
+          var savedRaw = window.localStorage.getItem('serafort-theme-config')
+          var saved = savedRaw ? JSON.parse(savedRaw) : null
+          var config = saved && saved.config
+          var savedMode = (config && config.metadata && config.metadata.mode) || 'light'
+          var canvas =
+            config && config.tokens && config.tokens.colors && config.tokens.colors.background
+              ? config.tokens.colors.background.value
+              : null
+          if (canvas && savedMode === mode) {
+            document.documentElement.style.setProperty('--canvas-bg', canvas)
+          }
         } catch (e) {}
       })()
     </script>

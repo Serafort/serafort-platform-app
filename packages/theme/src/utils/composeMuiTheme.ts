@@ -1,4 +1,9 @@
-import { createTheme, darken, lighten } from "@mui/material/styles";
+import {
+  createTheme,
+  darken,
+  getContrastRatio,
+  lighten,
+} from "@mui/material/styles";
 import type { Theme } from "@mui/material/styles";
 import type { Direction, Settings, SystemMode } from "@cap/shared-types";
 import getComponentOverrides from "../overrides";
@@ -7,6 +12,7 @@ import { DEFAULT_THEME_CONFIG } from "../types";
 import darkTheme from "../assets/themes/dark";
 import lightTheme from "../assets/themes/light";
 import { createBaseMuiTheme } from "./createBaseMuiTheme";
+import { LIGHT_SURFACE_THRESHOLD, lightnessOf } from "./colorLightness";
 
 interface ComposeMuiThemeOptions {
   currentMode: SystemMode;
@@ -22,33 +28,6 @@ const toNumber = (value: string | number | undefined, fallback: number) => {
   return Number.isNaN(parsed) ? fallback : parsed;
 };
 
-/**
- * Relative lightness of a colour, 0 (black) to 1 (white). Accepts the hex and
- * rgb()/rgba() forms the token layer produces; anything else returns null so
- * the caller can fall back rather than guess.
- */
-const lightnessOf = (color: string): number | null => {
-  if (!color) return null;
-
-  let r: number, g: number, b: number;
-  const hex = color.trim();
-
-  if (/^#[0-9a-f]{3}$/i.test(hex)) {
-    r = parseInt(hex[1] + hex[1], 16);
-    g = parseInt(hex[2] + hex[2], 16);
-    b = parseInt(hex[3] + hex[3], 16);
-  } else if (/^#[0-9a-f]{6,8}$/i.test(hex)) {
-    r = parseInt(hex.slice(1, 3), 16);
-    g = parseInt(hex.slice(3, 5), 16);
-    b = parseInt(hex.slice(5, 7), 16);
-  } else {
-    const m = hex.match(/rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/i);
-    if (!m) return null;
-    [r, g, b] = [Number(m[1]), Number(m[2]), Number(m[3])];
-  }
-
-  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-};
 
 /**
  * Resolve a "chrome" colour - background, surface, text, border - for the
@@ -89,12 +68,39 @@ const resolveChromeColor = (
   if (lightness === null) return tokenValue; // unparseable: trust the author
 
   const wantsLight = inverted ? mode === "dark" : mode === "light";
-  const isLight = lightness > 0.5;
+  const isLight = lightness > LIGHT_SURFACE_THRESHOLD;
 
   return isLight === wantsLight ? tokenValue : fallback;
 };
 
-const derivePaletteColorGroup = (mainColor: string, contrastText = "#FFF") => ({
+/**
+ * Text colour to place on top of a palette colour.
+ *
+ * Every group used to be built with a hard-coded `"#FFF"`, which is only ever
+ * right for a mid-to-dark brand colour. Presets are free to pick bright ones,
+ * and five of them did: white on Cyberpunk HUD's cyan is a contrast ratio of
+ * 1.25, on Neo-Brutalism's canary yellow 1.33, on Dark UI's cyan 1.81 - button
+ * labels that are, in practice, not there. The threshold is MUI's own default
+ * of 3, so a colour that already reads acceptably against white keeps white
+ * and brand-standard buttons are left exactly as they were.
+ */
+const CONTRAST_THRESHOLD = 3;
+
+const contrastTextFor = (background: string): string => {
+  try {
+    return getContrastRatio(background, "#FFFFFF") >= CONTRAST_THRESHOLD
+      ? "#FFFFFF"
+      : "#0A0A0A";
+  } catch {
+    // Unparseable colour: keep the previous behaviour rather than guess.
+    return "#FFFFFF";
+  }
+};
+
+const derivePaletteColorGroup = (
+  mainColor: string,
+  contrastText = contrastTextFor(mainColor),
+) => ({
   light: lighten(mainColor, 0.2),
   main: mainColor,
   dark: darken(mainColor, 0.12),
@@ -178,6 +184,15 @@ export const composeMuiTheme = ({
       direction,
       spacing: (factor: number | string) => {
         if (typeof factor === "string") return `var(--spacing-${factor})`;
+        // A CSS custom property name cannot contain a dot, so
+        // `var(--spacing-2.5, calc(0.25rem * 2.5))` is not an invalid *value*
+        // that falls back - it is an invalid reference, which makes the whole
+        // declaration invalid at computed-value time. Every fractional sx
+        // spacing in the app (`p: 2.5`, `gap: 1.5`, `mt: 0.5`) therefore
+        // computed to 0 rather than to 10px, 6px, 2px. Fractions skip the
+        // variable and go straight to the calc; whole numbers keep the
+        // variable so a tenant's spacing scale can still override them.
+        if (!Number.isInteger(factor)) return `calc(0.25rem * ${factor})`;
         return `var(--spacing-${factor}, calc(0.25rem * ${factor}))`;
       },
       shadows: [
@@ -209,12 +224,12 @@ export const composeMuiTheme = ({
       ] as Theme["shadows"],
       palette: {
         mode: currentMode,
-        primary: derivePaletteColorGroup(primaryMain, "#FFF"),
-        secondary: derivePaletteColorGroup(secondaryMain, "#FFF"),
-        error: derivePaletteColorGroup(errorMain, "#FFF"),
-        success: derivePaletteColorGroup(successMain, "#FFF"),
-        warning: derivePaletteColorGroup(warningMain, "#FFF"),
-        info: derivePaletteColorGroup(infoMain, "#FFF"),
+        primary: derivePaletteColorGroup(primaryMain),
+        secondary: derivePaletteColorGroup(secondaryMain),
+        error: derivePaletteColorGroup(errorMain),
+        success: derivePaletteColorGroup(successMain),
+        warning: derivePaletteColorGroup(warningMain),
+        info: derivePaletteColorGroup(infoMain),
         background: {
           default: backgroundDefault,
           paper: surfaceColor,
@@ -350,8 +365,14 @@ export const composeMuiThemeMemoized = (
   const bgVal = colors?.background?.value || "";
   const surfaceVal = colors?.surface?.value || "";
   const fontVal = tenantTheme?.tokens?.typography?.fontFamily?.sans || "";
+  // The whole effect config, not just its name: the theme object carries it
+  // through as `theme.tenantTheme` for SurfaceEffectFactory, so tuning a
+  // preset's blur or shadow has to miss the cache. Keyed on the name alone,
+  // every adjustment in the theme editor's Effects tab returned the first
+  // theme built for that effect and appeared to do nothing.
+  const effectVal = JSON.stringify(tenantTheme?.effects || {});
 
-  const key = `${tenantTheme?.id || "default"}_${currentMode}_${direction}_${settings.skin}_${settings.effect || "none"}_${primaryVal}_${secondaryVal}_${bgVal}_${surfaceVal}_${fontVal}`;
+  const key = `${tenantTheme?.id || "default"}_${currentMode}_${direction}_${settings.skin}_${settings.effect || "none"}_${effectVal}_${primaryVal}_${secondaryVal}_${bgVal}_${surfaceVal}_${fontVal}`;
 
   const cached = themeCache.get(key);
   if (cached) {
