@@ -1,0 +1,285 @@
+name: Release
+
+# Production packaging pipeline for @cap/app.
+#
+# ci.yml proves a *commit* is mergeable. This workflow proves an *artifact* is
+# shippable: it re-runs the blocking quality gates, builds the app against the
+# real production environment, verifies the resulting bundle, and emits one
+# checksummed tarball (plus manifest and dependency inventory) that ops can
+# publish to the static host.
+#
+#   Trigger                     Result
+#   -------------------------   --------------------------------------------
+#   push tag v*                 packaged + attached to a GitHub Release
+#   workflow_dispatch           packaged + kept as a workflow artifact
+#   workflow_call               packaged (for a future deploy workflow)
+#
+# The pipeline deliberately stops at "prepared for production": it never
+# publishes to a host. Deployment stays a human-approved step until the target
+# platform and its credentials are provisioned
+# (analysis/production-readiness-runbook.md §"Deploy @cap/app static build").
+#
+# Configuration (Settings > Secrets and variables > Actions, or on the
+# environment named below):
+#
+#   Variable  VITE_API_URL                  required, must be https://
+#   Variable  VITE_API_PREFIX               optional, default /api
+#   Variable  VITE_API_VERSION              optional, default v1
+#   Variable  VITE_API_TIMEOUT              optional, default 15000
+#   Variable  VITE_APP_NAME                 optional, default Serafort
+#   Variable  VITE_APP_DESCRIPTION          optional
+#   Variable  VITE_TENANT_ID                optional, default default
+#   Variable  VITE_SENTRY_ENVIRONMENT       optional, defaults to the job's environment
+#   Variable  VITE_SENTRY_TRACES_SAMPLE_RATE optional, default 0.1
+#   Secret    VITE_SENTRY_DSN               required for production (build warns if unset)
+#   Secret    VITE_STORAGE_ENCRYPTION_KEY   required, 32-byte hex
+#
+# Every VITE_* value is inlined verbatim into the public browser bundle — see
+# the warning at the top of .env.production.example. Never put a real secret in
+# one of them; they are stored as Actions secrets only to keep them out of the
+# repository, not because the browser cannot read them.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment whose variables/secrets to build against
+        type: choice
+        options: [production, staging]
+        default: production
+      version:
+        description: "Version label for the package (default: 0.0.0-dev+<sha>)"
+        type: string
+        required: false
+      strict:
+        description: Fail the package on warnings (source maps in the bundle, dirty tree)
+        type: boolean
+        default: true
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        default: production
+      version:
+        type: string
+        required: false
+    outputs:
+      package-name:
+        description: Base name of the produced package (also the artifact name)
+        value: ${{ jobs.package.outputs.package-name }}
+      sha256:
+        description: SHA-256 of the produced tarball
+        value: ${{ jobs.package.outputs.sha256 }}
+
+concurrency:
+  group: release-${{ github.ref }}
+  # Never cancel a release in flight: a half-finished packaging run leaves an
+  # ambiguous artifact history.
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # ── 1. Nothing is packaged from an unverified tree ─────────────────────────
+  # A tag can point at any commit, including one that never went through a PR,
+  # so the blocking gates from ci.yml are re-run here rather than assumed.
+  verify:
+    name: verify (gates)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Type-check
+        run: pnpm -r run type-check
+      - name: Unit tests
+        run: pnpm -r run test
+      - name: Circular dependencies
+        run: pnpm run lint:circular
+      - name: Dependency audit (prod, high+)
+        run: pnpm run audit:ci
+
+  # ── 2. Build against the real production env, then package ─────────────────
+  package:
+    name: package (@cap/app)
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'production' }}
+    outputs:
+      version: ${{ steps.package.outputs.version }}
+      package-name: ${{ steps.package.outputs.package-name }}
+      sha256: ${{ steps.package.outputs.sha256 }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          # The packaging script resolves the version from the exact tag; a
+          # shallow checkout without tags would silently fall back to a dev
+          # version string.
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-node-pnpm
+
+      - name: Resolve release version
+        id: meta
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            version="${GITHUB_REF_NAME#v}"
+          elif [ -n "${INPUT_VERSION}" ]; then
+            version="${INPUT_VERSION}"
+          else
+            version="0.0.0-dev+$(git rev-parse --short HEAD)"
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "Packaging version ${version}"
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+
+      - name: Compose .env.production
+        # Values arrive as env vars rather than being interpolated into the
+        # script body, so a value containing shell metacharacters cannot alter
+        # this step. envDir is the workspace root (app/vite.config.ts), which is
+        # why the file lands here and not in app/.
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_API_PREFIX: ${{ vars.VITE_API_PREFIX }}
+          VITE_API_VERSION: ${{ vars.VITE_API_VERSION }}
+          VITE_API_TIMEOUT: ${{ vars.VITE_API_TIMEOUT }}
+          VITE_APP_NAME: ${{ vars.VITE_APP_NAME }}
+          VITE_APP_DESCRIPTION: ${{ vars.VITE_APP_DESCRIPTION }}
+          VITE_TENANT_ID: ${{ vars.VITE_TENANT_ID }}
+          VITE_SENTRY_ENVIRONMENT: ${{ vars.VITE_SENTRY_ENVIRONMENT }}
+          VITE_SENTRY_TRACES_SAMPLE_RATE: ${{ vars.VITE_SENTRY_TRACES_SAMPLE_RATE }}
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          VITE_STORAGE_ENCRYPTION_KEY: ${{ secrets.VITE_STORAGE_ENCRYPTION_KEY }}
+          APP_VERSION: ${{ steps.meta.outputs.version }}
+          TARGET_ENV: ${{ inputs.environment || 'production' }}
+        run: |
+          set -euo pipefail
+
+          # api.client.ts throws at startup on an empty or non-HTTPS API URL in a
+          # production build. Fail here instead, where the message is actionable.
+          if [ -z "${VITE_API_URL}" ]; then
+            echo "::error::VITE_API_URL is not set. Add it as an Actions variable on the '${TARGET_ENV}' environment (or repository-wide)."
+            exit 1
+          fi
+          case "${VITE_API_URL}" in
+            https://*) ;;
+            *)
+              echo "::error::VITE_API_URL must be an absolute https:// URL (got '${VITE_API_URL}')."
+              exit 1
+              ;;
+          esac
+
+          if [ -z "${VITE_STORAGE_ENCRYPTION_KEY}" ]; then
+            echo "::error::VITE_STORAGE_ENCRYPTION_KEY is not set. Generate one with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
+            exit 1
+          fi
+          if [ -z "${VITE_SENTRY_DSN}" ]; then
+            echo "::warning::VITE_SENTRY_DSN is empty — this build ships with error monitoring disabled."
+          fi
+
+          {
+            echo "NODE_ENV=production"
+            echo "VITE_API_URL=${VITE_API_URL}"
+            echo "VITE_API_PREFIX=${VITE_API_PREFIX:-/api}"
+            echo "VITE_API_VERSION=${VITE_API_VERSION:-v1}"
+            echo "VITE_API_TIMEOUT=${VITE_API_TIMEOUT:-15000}"
+            echo "VITE_APP_NAME=${VITE_APP_NAME:-Serafort}"
+            echo "VITE_APP_DESCRIPTION=${VITE_APP_DESCRIPTION:-TrustKey Platform}"
+            echo "VITE_APP_VERSION=${APP_VERSION}"
+            echo "VITE_TENANT_ID=${VITE_TENANT_ID:-default}"
+            echo "VITE_STORAGE_ENCRYPTION_KEY=${VITE_STORAGE_ENCRYPTION_KEY}"
+            echo "VITE_SENTRY_DSN=${VITE_SENTRY_DSN}"
+            echo "VITE_SENTRY_ENVIRONMENT=${VITE_SENTRY_ENVIRONMENT:-$TARGET_ENV}"
+            echo "VITE_SENTRY_TRACES_SAMPLE_RATE=${VITE_SENTRY_TRACES_SAMPLE_RATE:-0.1}"
+          } > .env.production
+
+          echo "Wrote .env.production for '${TARGET_ENV}' ($(wc -l < .env.production) keys)."
+
+      - name: Build production bundle
+        run: pnpm --filter @cap/app run build
+
+      - name: Package and verify
+        id: package
+        env:
+          RELEASE_VERSION: ${{ steps.meta.outputs.version }}
+          # The packager asserts this origin is actually inlined in the bundle,
+          # which is what proves the production env reached the build.
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          # Tagged releases are always strict; a manual run can opt out to
+          # inspect a package that would otherwise be rejected.
+          STRICT: ${{ (github.ref_type == 'tag' || inputs.strict) && 'true' || 'false' }}
+        run: |
+          if [ "${STRICT}" = "true" ]; then
+            node scripts/package-release.mjs --strict
+          else
+            node scripts/package-release.mjs
+          fi
+
+      - name: Remove build-time environment file
+        if: always()
+        run: rm -f .env.production
+
+      - name: Upload production package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.package-name }}
+          path: |
+            release/*.tar.gz
+            release/*.SHA256SUMS
+            release/*.manifest.json
+          retention-days: 90
+          if-no-files-found: error
+
+  # ── 3. Tagged builds become a GitHub Release ───────────────────────────────
+  publish:
+    name: publish release (${{ github.ref_name }})
+    needs: package
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download production package
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.package.outputs.package-name }}
+          path: release
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.package.outputs.version }}
+          SHA256: ${{ needs.package.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          # A version carrying a pre-release suffix (1.4.0-rc.1) must never be
+          # marked "latest" on the releases page.
+          prerelease=""
+          case "${VERSION}" in *-*) prerelease="--prerelease" ;; esac
+
+          notes_file="$(mktemp)"
+          {
+            echo "Static production build of \`@cap/app\`, packaged by the release pipeline."
+            echo
+            echo "| | |"
+            echo "| --- | --- |"
+            echo "| Version | \`${VERSION}\` |"
+            echo "| Commit | \`${GITHUB_SHA}\` |"
+            echo "| Tarball SHA-256 | \`${SHA256}\` |"
+            echo
+            echo "Unpack and publish \`dist/\` to the static host; \`DEPLOY.txt\` inside the"
+            echo "archive carries the host requirements (\`_headers\`, SPA fallback, caching)."
+          } > "$notes_file"
+
+          gh release create "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "${GITHUB_REF_NAME}" \
+            --notes-file "$notes_file" \
+            --generate-notes \
+            ${prerelease} \
+            release/*.tar.gz release/*.SHA256SUMS release/*.manifest.json
