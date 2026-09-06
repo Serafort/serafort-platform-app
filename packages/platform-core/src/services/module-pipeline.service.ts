@@ -543,7 +543,7 @@ export default ${inferredId.replace(/-/g, '_')}Module
                 navCount: 1,
                 installedAt: new Date().toISOString(),
                 isCore: false,
-              }
+              } as ModuleStatusInfo
             }
             return null
           }),
