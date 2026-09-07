@@ -300,7 +300,7 @@ const mintWidgetId = (): string => {
     return `widget-${Date.now()}-${hex}`;
   }
 
-  throw new Error('Secure random source unavailable; cannot create elevation token');
+  throw new Error('Secure random source unavailable; cannot generate a widget id');
 };
 
 export interface ResolvedDsl {
