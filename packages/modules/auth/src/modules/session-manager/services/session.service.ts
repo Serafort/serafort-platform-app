@@ -57,7 +57,7 @@ export function normalizeUserSession(raw: any): UserSession {
   const isCurrent = Boolean(raw.current || raw.isCurrentSession || raw.is_current)
 
   return {
-    id: raw.id ? String(raw.id) : String(raw.token || Math.random()),
+    id: raw.id ? String(raw.id) : String(raw.token || crypto.randomUUID()),
     userId: raw.userId || raw.user_id,
     deviceName:
       raw.deviceName || raw.device_name || raw.deviceInfo || `${browser} on ${deviceType}`,
