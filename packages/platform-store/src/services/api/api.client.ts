@@ -655,12 +655,29 @@ export class FetchClient {
     }
 
     if (!headers.has("X-Request-ID")) {
-      headers.set(
-        "X-Request-ID",
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`,
-      );
+      let requestId: string;
+      if (
+        typeof crypto !== "undefined" &&
+        typeof crypto.randomUUID === "function"
+      ) {
+        requestId = crypto.randomUUID();
+      } else if (
+        typeof crypto !== "undefined" &&
+        typeof crypto.getRandomValues === "function"
+      ) {
+        const arr = new Uint8Array(16);
+        crypto.getRandomValues(arr);
+        requestId =
+          "req_" +
+          Array.from(arr)
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+      } else {
+        throw new Error(
+          "Secure random number generation is not supported in this environment.",
+        );
+      }
+      headers.set("X-Request-ID", requestId);
     }
 
     if (currentImpersonationSession) {
