@@ -369,9 +369,9 @@ class StorageManager {
         "applications",
       ];
 
-      for (const storeName of storeNames) {
-        await db.clear(storeName as any);
-      }
+      await Promise.all(
+        storeNames.map((storeName) => db.clear(storeName as any)),
+      );
     } catch (error) {
       console.error("Clear all IndexedDB error:", error);
       throw error;
