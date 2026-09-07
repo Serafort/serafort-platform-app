@@ -7,28 +7,70 @@ import { EFFECT_CONFIG_KEYS, normalizeEffectConfig } from "../types/effects";
 import type { EffectConfig } from "../types/effects";
 import { LIGHT_SURFACE_THRESHOLD, lightnessOf } from "./colorLightness";
 
+/**
+ * Depth past which a `mergeDeep` input is treated as malformed rather than
+ * legitimately nested. `TenantThemeConfig` bottoms out well inside single
+ * digits (`tokens.typography.fontSize.*` is the deepest branch), so anything
+ * beyond this is a cyclic or pathological object and is left untouched.
+ */
+const MAX_MERGE_DEPTH = 32;
+
+/** Keys that must never be written through a merge (prototype pollution). */
+const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
+const mergeInto = (
+  target: Record<string, unknown>,
+  source: Record<string, unknown> | undefined,
+  depth: number,
+  seen: WeakSet<object>,
+): void => {
+  if (!isObject(target) || !isObject(source)) return;
+  // A source that references itself - directly or through a shared subtree -
+  // would otherwise recurse until the stack blows. Bail the moment a node is
+  // re-entered; the depth cap is the backstop for anything this misses.
+  if (seen.has(source)) return;
+  seen.add(source);
+  if (depth >= MAX_MERGE_DEPTH) return;
+
+  for (const key of Object.keys(source)) {
+    if (UNSAFE_KEYS.has(key)) continue;
+    const incoming = source[key];
+    if (isObject(incoming)) {
+      if (!isObject(target[key])) target[key] = {};
+      mergeInto(
+        target[key] as Record<string, unknown>,
+        incoming,
+        depth + 1,
+        seen,
+      );
+    } else {
+      target[key] = incoming;
+    }
+  }
+};
+
+/**
+ * Recursively merge each source into `target`, mutating and returning it.
+ * Objects are merged key by key; every other value (including arrays) is
+ * replaced. Guarded against cyclic inputs and prototype-polluting keys - see
+ * `mergeInto`.
+ */
 export const mergeDeep = <T extends Record<string, unknown>>(
   target: T,
   ...sources: Partial<T>[]
 ): T => {
-  if (!sources.length) return target;
-  const source = sources.shift();
-
-  if (isObject(target) && isObject(source)) {
-    for (const key in source) {
-      if (isObject(source[key])) {
-        if (!target[key]) Object.assign(target, { [key]: {} });
-        mergeDeep(
-          target[key] as Record<string, unknown>,
-          source[key] as Record<string, unknown>,
-        );
-      } else {
-        Object.assign(target, { [key]: source[key] });
-      }
-    }
+  for (const source of sources) {
+    // A fresh visited-set per source: a cycle lives within one source tree,
+    // and two sources legitimately sharing a reference must both be applied.
+    mergeInto(
+      target as Record<string, unknown>,
+      source as Record<string, unknown>,
+      0,
+      new WeakSet(),
+    );
   }
 
-  return mergeDeep(target, ...sources);
+  return target;
 };
 
 const isObject = (item: unknown): item is Record<string, unknown> => {

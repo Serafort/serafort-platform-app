@@ -1,4 +1,3 @@
-export { default as BaseTheme } from "./Base";
 export { default as darkTheme } from "./dark";
 export { default as lightTheme } from "./light";
 export * from "./palette";
