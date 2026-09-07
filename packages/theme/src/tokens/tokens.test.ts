@@ -34,7 +34,7 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(primitiveColors.alpha.black[60]).toBe("rgba(0,0,0,0.60)");
     });
 
-    it("defines base-4 spacing scale from space.0 to space.16", () => {
+    it("defines a contiguous base-4 spacing scale from space.0 to space.16", () => {
       expect(spacingTokens[0]).toBe("0px");
       expect(spacingTokens[1]).toBe("4px");
       expect(spacingTokens[2]).toBe("8px");
@@ -43,6 +43,21 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(spacingTokens[8]).toBe("32px");
       expect(spacingTokens[12]).toBe("48px");
       expect(spacingTokens[16]).toBe("64px");
+
+      // Previously-missing intermediate steps.
+      expect(spacingTokens[5]).toBe("20px");
+      expect(spacingTokens[7]).toBe("28px");
+      expect(spacingTokens[9]).toBe("36px");
+      expect(spacingTokens[10]).toBe("40px");
+      expect(spacingTokens[11]).toBe("44px");
+      expect(spacingTokens[13]).toBe("52px");
+      expect(spacingTokens[14]).toBe("56px");
+      expect(spacingTokens[15]).toBe("60px");
+
+      // Every step is n * 4px with no gaps.
+      for (let n = 0; n <= 16; n += 1) {
+        expect(spacingTokens[n as keyof typeof spacingTokens]).toBe(`${n * 4}px`);
+      }
     });
 
     it("defines radius scale from none to full", () => {
@@ -179,6 +194,9 @@ describe("Design Token Architecture Hierarchy", () => {
 
       expect(cssVars["--color-brand-500"]).toBe("#047BFA");
       expect(cssVars["--space-4"]).toBe("16px");
+      expect(cssVars["--space-5"]).toBe("20px");
+      expect(cssVars["--space-11"]).toBe("44px");
+      expect(cssVars["--space-14"]).toBe("56px");
       expect(cssVars["--radius-md"]).toBe("8px");
       expect(cssVars["--touch-target-min"]).toBe("44px");
       expect(cssVars["--motion-duration-quick"]).toBe("120ms");

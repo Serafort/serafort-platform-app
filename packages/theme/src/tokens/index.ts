@@ -133,15 +133,23 @@ export function tokensToCssVariables(
     "--alpha-black-12": primitiveColors.alpha.black[12],
     "--alpha-black-60": primitiveColors.alpha.black[60],
 
-    // Tier 1: Spacing
+    // Tier 1: Spacing (contiguous base-4 scale, space.0 -> space.16)
     "--space-0": spacingTokens[0],
     "--space-1": spacingTokens[1],
     "--space-2": spacingTokens[2],
     "--space-3": spacingTokens[3],
     "--space-4": spacingTokens[4],
+    "--space-5": spacingTokens[5],
     "--space-6": spacingTokens[6],
+    "--space-7": spacingTokens[7],
     "--space-8": spacingTokens[8],
+    "--space-9": spacingTokens[9],
+    "--space-10": spacingTokens[10],
+    "--space-11": spacingTokens[11],
     "--space-12": spacingTokens[12],
+    "--space-13": spacingTokens[13],
+    "--space-14": spacingTokens[14],
+    "--space-15": spacingTokens[15],
     "--space-16": spacingTokens[16],
 
     // Tier 1: Radii

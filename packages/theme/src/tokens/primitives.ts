@@ -84,7 +84,12 @@ export const primitiveColors = {
 export type PrimitiveColors = typeof primitiveColors;
 
 /**
- * Spacing Scale (Base-4 scale: space.0 -> space.16)
+ * Spacing Scale (contiguous base-4 scale: space.0 -> space.16, step = n * 4px).
+ *
+ * The scale is deliberately dense: every integer step from 0 to 16 is present
+ * so `sx={{ p: 5 }}`, `gap: 7`, `mt: 9` etc. resolve against a real
+ * `--spacing-<n>` custom property instead of falling through to ad-hoc
+ * `calc(0.25rem * n)` maths (see the `spacing()` resolver in composeMuiTheme).
  */
 export const spacingTokens = {
   0: "0px",
@@ -92,9 +97,17 @@ export const spacingTokens = {
   2: "8px",
   3: "12px",
   4: "16px",
+  5: "20px",
   6: "24px",
+  7: "28px",
   8: "32px",
+  9: "36px",
+  10: "40px",
+  11: "44px",
   12: "48px",
+  13: "52px",
+  14: "56px",
+  15: "60px",
   16: "64px",
 } as const;
 
