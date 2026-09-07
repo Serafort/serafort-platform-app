@@ -62,11 +62,12 @@ export default function ModuleManagementDashboard() {
   }, [fetchModules])
 
   const filteredModules = useMemo(() => {
+    const lowerSearchTerm = searchTerm.toLowerCase()
     return modules.filter((mod) => {
       const matchesSearch =
-        mod.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        mod.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (mod.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+        mod.id.toLowerCase().includes(lowerSearchTerm) ||
+        mod.name.toLowerCase().includes(lowerSearchTerm) ||
+        (mod.description || '').toLowerCase().includes(lowerSearchTerm)
 
       if (!matchesSearch) return false
 
