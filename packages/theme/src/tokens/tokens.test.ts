@@ -10,6 +10,7 @@ import {
 import {
   semanticSurfaces,
   fluidTypographyTokens,
+  fluidSpacingTokens,
   effectPresetTokens,
   getSemanticColors,
 } from "./semantics";
@@ -125,6 +126,19 @@ describe("Design Token Architecture Hierarchy", () => {
       );
     });
 
+    it("defines a viewport-responsive fluid spacing scale", () => {
+      expect(fluidSpacingTokens.gutterInline).toBe(
+        "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+      );
+      expect(fluidSpacingTokens.sectionGap).toBe(
+        "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+      );
+      // Every entry is a clamp() with a vw term so it actually scales.
+      for (const value of Object.values(fluidSpacingTokens)) {
+        expect(value).toMatch(/^clamp\(.+,.+vw.*,.+\)$/);
+      }
+    });
+
     it("defines visual effect presets (Glassmorphism, Liquid Glass, Neumorphism, Brutalism, Bento)", () => {
       expect(effectPresetTokens.glass.bg).toBe("rgba(3, 36, 87, 0.65)"); // navy
       expect(effectPresetTokens.glass.blur).toBe("blur(16px)");
@@ -206,6 +220,12 @@ describe("Design Token Architecture Hierarchy", () => {
         "clamp(2.25rem, 1.75rem + 3vw, 3.75rem)",
       );
       expect(cssVars["--font-h1"]).toBe("clamp(2rem, 1.5rem + 2.5vw, 3.25rem)");
+      expect(cssVars["--space-fluid-gutter-inline"]).toBe(
+        "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+      );
+      expect(cssVars["--space-fluid-section-gap"]).toBe(
+        "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+      );
       expect(cssVars["--glass-blur"]).toBe("blur(16px)");
       expect(cssVars["--liquid-glass-blur"]).toBe("blur(24px) saturate(180%)");
       expect(cssVars["--form-input-height"]).toBe("48px");

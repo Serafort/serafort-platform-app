@@ -21,6 +21,7 @@ import {
 import {
   semanticSurfaces,
   fluidTypographyTokens,
+  fluidSpacingTokens,
   effectPresetTokens,
 } from "./semantics";
 import { stateComponentTokens, formTokens } from "./components";
@@ -36,6 +37,7 @@ export interface ThemeTokenDictionary {
   semantics: {
     surfaces: typeof semanticSurfaces;
     typography: typeof fluidTypographyTokens;
+    fluidSpacing: typeof fluidSpacingTokens;
     effects: typeof effectPresetTokens;
   };
   components: {
@@ -55,6 +57,7 @@ export const defaultThemeTokens: ThemeTokenDictionary = {
   semantics: {
     surfaces: semanticSurfaces,
     typography: fluidTypographyTokens,
+    fluidSpacing: fluidSpacingTokens,
     effects: effectPresetTokens,
   },
   components: {
@@ -74,6 +77,8 @@ export function tokensToCssVariables(
     customTokens?.semantics?.surfaces?.[mode] || semanticSurfaces[mode];
   const effects = customTokens?.semantics?.effects || effectPresetTokens;
   const typo = customTokens?.semantics?.typography || fluidTypographyTokens;
+  const fluidSpace =
+    customTokens?.semantics?.fluidSpacing || fluidSpacingTokens;
   const form = customTokens?.components?.form || formTokens;
   const state = customTokens?.components?.state || stateComponentTokens;
 
@@ -186,6 +191,14 @@ export function tokensToCssVariables(
     "--surface-paper": surfaces.paper,
     "--surface-subtle": surfaces.subtle,
     "--surface-border": surfaces.border,
+
+    // Tier 2: Fluid Spacing (viewport-responsive, clamp-based)
+    "--space-fluid-gutter-inline": fluidSpace.gutterInline,
+    "--space-fluid-gutter-block": fluidSpace.gutterBlock,
+    "--space-fluid-section-gap": fluidSpace.sectionGap,
+    "--space-fluid-stack-gap": fluidSpace.stackGap,
+    "--space-fluid-card-padding": fluidSpace.cardPadding,
+    "--space-fluid-cluster-gap": fluidSpace.clusterGap,
 
     // Tier 2: Fluid Typography
     "--font-display": typo.display,

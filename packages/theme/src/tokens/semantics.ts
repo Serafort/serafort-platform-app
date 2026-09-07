@@ -46,6 +46,31 @@ export const fluidTypographyTokens = {
   caption: "clamp(0.75rem, 0.72rem + 0.1vw, 0.8125rem)", // Help text, badges
 } as const;
 
+/**
+ * Fluid spacing scale
+ * -------------------
+ * The fixed `spacingTokens` (4px base grid) are right for component-internal
+ * rhythm, but page-level gutters, the gap between major sections and card
+ * padding should breathe with the viewport the way `fluidTypographyTokens`
+ * already lets type do. Each value is a `clamp(min, preferred, max)` where
+ * `preferred` mixes a rem floor with a `vw` term, so layouts tighten on a
+ * phone and open up on a wide monitor without a media query.
+ */
+export const fluidSpacingTokens = {
+  /** Inline (left/right) padding for page containers and content wells. */
+  gutterInline: "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+  /** Block (top/bottom) padding for page containers. */
+  gutterBlock: "clamp(1.5rem, 1rem + 2.5vw, 3.5rem)",
+  /** Vertical rhythm between major page sections. */
+  sectionGap: "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+  /** Gap between stacked cards / list blocks. */
+  stackGap: "clamp(0.75rem, 0.6rem + 0.8vw, 1.25rem)",
+  /** Internal padding of a content card or panel. */
+  cardPadding: "clamp(1rem, 0.8rem + 1vw, 1.75rem)",
+  /** Inline gap between items in a horizontal toolbar / action row. */
+  clusterGap: "clamp(0.5rem, 0.4rem + 0.4vw, 0.875rem)",
+} as const;
+
 export const effectPresetTokens = {
   glass: {
     bg: "rgba(3, 36, 87, 0.65)", // navy @ 65%
@@ -138,6 +163,7 @@ export const getSemanticColors = (mode: "light" | "dark"): SemanticColors => ({
 export interface SemanticTokenDictionary {
   surfaces: typeof semanticSurfaces;
   typography: typeof fluidTypographyTokens;
+  fluidSpacing: typeof fluidSpacingTokens;
   effects: typeof effectPresetTokens;
   states: typeof uiStateTokens;
 }
@@ -145,6 +171,7 @@ export interface SemanticTokenDictionary {
 export const semanticTokens: SemanticTokenDictionary = {
   surfaces: semanticSurfaces,
   typography: fluidTypographyTokens,
+  fluidSpacing: fluidSpacingTokens,
   effects: effectPresetTokens,
   states: uiStateTokens,
 };
