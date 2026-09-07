@@ -20,7 +20,8 @@
     "release:build": "pnpm --filter @cap/app run build && node scripts/package-release.mjs",
     "generate:module": "plop",
     "lint:boundaries": "node scripts/check-tier-boundaries.mjs",
-    "lint:architecture": "pnpm lint:boundaries && pnpm lint:circular"
+    "lint:architecture": "pnpm lint:boundaries && pnpm lint:boundaries:eslint && pnpm lint:circular",
+    "lint:boundaries:eslint": "eslint --quiet --config eslint.config.js \"packages/**/src/**/*.{ts,tsx}\" \"app/src/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@mui/utils": "^7.3.9",
@@ -35,7 +36,11 @@
     "madge": "^8.0.0",
     "plop": "^4.0.1",
     "typescript": "^5.7.3",
-    "vite-plugin-pwa": "^1.2.0"
+    "vite-plugin-pwa": "^1.2.0",
+    "eslint-plugin-boundaries": "^7.2.0",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint": "^9.39.4",
+    "typescript-eslint": "^8.58.1"
   },
   "pnpm": {
     "overrides": {

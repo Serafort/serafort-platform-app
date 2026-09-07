@@ -37,7 +37,7 @@ When adding code or creating packages, respect the **6-Tier Architecture**:
 5. **Tier 4 (`@cap/modules/*`)**: Feature modules (`@cap/module-auth`, `@cap/module-landing`, `@cap/module-theme`). Export a `CAPModule` contract.
 6. **Tier 5 (`@cap/app`)**: Shell app container.
 
-> **Enforcement note:** `eslint.config.js` defines a more granular `Layers` grouping and `layerConfigs` with `import/no-restricted-imports` rules, but those configs are **not currently wired into any active ESLint config** (the root config exports only `baseConfig`; package-level configs don't apply them). Treat the tiers as the target model and the coupling report (`docs/MODULE_COUPLING_REPORT.md`) as the record of reality — don't assume lint will catch a cross-tier import today.
+> **Enforcement note (updated):** this used to be true, but no longer is. Run `pnpm lint:architecture` before opening a PR that touches package boundaries - it runs `pnpm lint:boundaries` (a standalone specifier scan across all packages), `pnpm lint:boundaries:eslint` (`eslint-plugin-boundaries`, which resolves imports to real files so it also catches a relative-path escape a bare specifier scan can't see), and `pnpm lint:circular` together. See CLAUDE.md §2 for the current tier table and rationale.
 
 ---
 
