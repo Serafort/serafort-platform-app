@@ -39,7 +39,8 @@ import LinkIcon from '@mui/icons-material/Link'
 import { useSettings } from '@cap/platform-store'
 import { buildLayoutSurfaceEffect } from '../../utils/buildLayoutSurfaceEffect'
 import { themeConfig, zIndexScale, dropdownTokens, getTenantThemeEffects } from '@cap/theme'
-import { i18n as i18nConfig, getSearchItems } from '@cap/platform-core'
+import { i18n as i18nConfig } from '@cap/shared-types'
+import { getSearchItems } from '@cap/platform-core'
 
 export type ShortcutsType = {
   url: string

@@ -16,9 +16,12 @@ import {
   effectCanvasCss,
   normalizeEffectConfig,
   DEFAULT_THEME_CONFIG,
+  DirectionProvider,
 } from '@cap/theme'
 import type { TenantThemeConfig } from '@cap/theme'
-import type { Settings, Mode, SystemMode } from '@cap/shared-types'
+import type { Settings, Mode, SystemMode, Direction } from '@cap/shared-types'
+import { getLangDirection } from '@cap/shared-types'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Hook to resolve mode including system prefers-color-scheme
@@ -50,9 +53,11 @@ export const generateTheme = (
   tenantConfig: TenantThemeConfig | null,
   settings: Settings,
   isDark: boolean,
+  direction: Direction = 'ltr',
 ) => {
   return composeMuiThemeMemoized({
     currentMode: isDark ? 'dark' : 'light',
+    direction,
     settings,
     tenantTheme: tenantConfig,
   })
@@ -91,6 +96,12 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
 
   const resolvedMode = useResolvedSystemMode(settings.mode)
   const isDark = resolvedMode === 'dark'
+
+  // Writing direction follows the active language, not a separate setting.
+  // `langDirection` in @cap/shared-types is the single source of truth.
+  const { i18n: i18nInstance } = useTranslation()
+  const activeLocale = i18nInstance?.language ?? 'en'
+  const direction = getLangDirection(activeLocale)
 
   // CSS custom property application is coalesced through requestAnimationFrame
   // so rapid config changes (e.g. slider drags in the ThemeEditor) produce a
@@ -162,12 +173,12 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
   )
 
   const theme = useMemo(() => {
-    const compiled = generateTheme(resolvedThemeConfig, settings, isDark)
+    const compiled = generateTheme(resolvedThemeConfig, settings, isDark, direction)
     if (typeof window !== 'undefined') {
       applyThemeVarsBatched(resolvedThemeConfig)
     }
     return compiled
-  }, [resolvedThemeConfig, settings, isDark, applyThemeVarsBatched])
+  }, [resolvedThemeConfig, settings, isDark, direction, applyThemeVarsBatched])
 
   // The page ground, handed to index.html's anti-flash block. That block's
   // `html.dark body` rule cannot be overridden from here - it is more
@@ -206,6 +217,7 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <StyledEngineProvider injectFirst>
+      <DirectionProvider direction={direction} locale={activeLocale}>
       <ThemeSettingsProvider settings={settings}>
         <TenantThemeProvider
           theme={activeConfig as any}
@@ -260,6 +272,7 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
           </MuiThemeProvider>
         </TenantThemeProvider>
       </ThemeSettingsProvider>
+      </DirectionProvider>
     </StyledEngineProvider>
   )
 }

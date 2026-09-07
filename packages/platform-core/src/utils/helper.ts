@@ -5,9 +5,10 @@ import { themeConfig } from '@cap/theme'
 import demoConfigs from '../configs/demoConfigs'
 import { getCookie, getJsonCookie } from './cookieUtils'
 
-export const isObjectEmpty = (objectName: object) => {
-  return objectName && Object.keys(objectName).length === 0 && objectName.constructor === Object
-}
+// Moved to @cap/shared-types (Tier 0) so the layout engine and route guards can
+// share it without importing this Tier 3 facade. Re-exported here to preserve
+// the existing `@cap/platform-core` public surface.
+export { isObjectEmpty } from '@cap/shared-types'
 
 /**
  * Open-redirect guard for user-supplied `redirectUrl` / `returnTo` values.

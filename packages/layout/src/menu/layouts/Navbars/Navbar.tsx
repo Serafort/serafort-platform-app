@@ -20,7 +20,8 @@ import { styled } from '@mui/material/styles'
 import MenuIcon from '@mui/icons-material/Menu'
 import SearchIcon from '@mui/icons-material/Search'
 import { AuthButtons, AuthProfile } from '../../../components/auth'
-import { useAuth, isObjectEmpty, useNavigationMenu } from '@cap/platform-core'
+import { isObjectEmpty } from '@cap/shared-types'
+import { useAuth, useNavigationMenu } from '@cap/platform-core'
 import { Logo, ModeDropdown } from '../../shared'
 import {
   navbarTokens,

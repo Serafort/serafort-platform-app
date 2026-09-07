@@ -65,11 +65,11 @@ export const AppPaths = {
   },
 
   auth: {
-    login: "/auth/login",
-    signin: "/auth/login",
-    signinV2: "/auth/login-v2",
-    signup: "/auth/register",
-    signupV2: "/auth/register-v2",
+    login: "/auth/sign-in",
+    signin: "/auth/sign-in",
+    signinV2: "/auth/sign-in-v2",
+    signup: "/auth/sign-up",
+    signupV2: "/auth/sign-up-v2",
     registration: "/auth/register",
     signupSuccess: "/auth/register/success",
     registrationSuccess: "/auth/register/success",

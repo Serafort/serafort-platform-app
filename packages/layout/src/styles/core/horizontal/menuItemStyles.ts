@@ -6,7 +6,7 @@ import {
   getHorizontalSubmenuContentStyles,
 } from '@cap/theme'
 import type { MenuItemStyles, MenuItemStylesParams } from '../../../menu/types'
-import type { Settings } from '@cap/platform-core'
+import type { Settings } from '@cap/shared-types'
 import { menuClasses } from '../../../menu/utils/menuClasses'
 
 const menuItemStyles = (settings: Settings, theme: Theme): MenuItemStyles => ({

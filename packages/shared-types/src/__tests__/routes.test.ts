@@ -7,8 +7,9 @@ describe("Routes Registry & Path Helpers (Tier 0 SSOT)", () => {
     expect(AppPaths.landing.about).toBe("/about");
     expect(AppPaths.landing.pricing).toBe("/pricing");
     expect(AppPaths.landing.contact).toBe("/contact");
-    expect(AppPaths.auth.login).toBe("/auth/login");
-    expect(AppPaths.auth.signup).toBe("/auth/register");
+    expect(AppPaths.auth.login).toBe("/auth/sign-in");
+    expect(AppPaths.auth.signin).toBe("/auth/sign-in");
+    expect(AppPaths.auth.signup).toBe("/auth/sign-up");
     expect(AppPaths.account.overview).toBe("/account/overview");
     expect(AppPaths.admin.users).toBe("/admin/users");
     expect(AppPaths.admin.dashboard).toBe("/admin/dashboard");

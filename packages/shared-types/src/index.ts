@@ -20,5 +20,9 @@ export * from "./admin-api.types";
 
 export * from "./routes";
 
+// i18n locale config + module dictionary registry (Tier 0 Foundation)
+export * from "./i18n/i18n";
+export * from "./i18n/registry";
+
 // AI Widget Studio — Widget DSL and agent pipeline types
 export * from "./widget-studio.types";
