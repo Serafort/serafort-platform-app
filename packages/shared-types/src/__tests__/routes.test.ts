@@ -32,17 +32,52 @@ describe("Routes Registry & Path Helpers (Tier 0 SSOT)", () => {
     ).toBe("/org/org_1/user/usr_2");
   });
 
-  it("resolveDynamicPath should fallback to default path when item is not registered", () => {
-    const registered = [{ id: "dashboard", path: "/custom-dashboard" }];
+  describe("resolveDynamicPath", () => {
+    it("should return the path of the item matching the targetId", () => {
+      const registered = [{ id: "dashboard", path: "/custom-dashboard" }];
+      expect(
+        resolveDynamicPath(registered, "dashboard", "/fallback"),
+      ).toBe("/custom-dashboard");
+    });
 
-    // Matched item
-    expect(
-      resolveDynamicPath(registered, "dashboard", "/fallback-dashboard"),
-    ).toBe("/custom-dashboard");
+    it("should fallback to defaultPath if no item matches targetId or defaultPath", () => {
+      const registered = [{ id: "dashboard", path: "/custom-dashboard" }];
+      expect(
+        resolveDynamicPath(registered, "settings", "/fallback"),
+      ).toBe("/fallback");
+    });
 
-    // Unmatched item
-    expect(
-      resolveDynamicPath(registered, "non-existent", AppPaths.landing.home),
-    ).toBe("/");
+    it("should match an item by defaultPath if targetId is not found", () => {
+      const registered = [
+        { id: "dashboard", path: "/custom-dashboard" },
+        { id: "settings", path: "/custom-settings" }
+      ];
+      expect(
+        resolveDynamicPath(registered, "unknown", "/custom-settings"),
+      ).toBe("/custom-settings");
+    });
+
+    it("should fallback to defaultPath if the matched item has no path", () => {
+      const registered = [{ id: "dashboard" }];
+      expect(
+        resolveDynamicPath(registered, "dashboard", "/fallback"),
+      ).toBe("/fallback");
+    });
+
+    it("should return defaultPath when registeredItems is empty", () => {
+      expect(
+        resolveDynamicPath([], "dashboard", "/fallback"),
+      ).toBe("/fallback");
+    });
+
+    it("should return the first match when multiple items match", () => {
+      const registered = [
+        { id: "dashboard", path: "/first-match" },
+        { id: "dashboard", path: "/second-match" }
+      ];
+      expect(
+        resolveDynamicPath(registered, "dashboard", "/fallback"),
+      ).toBe("/first-match");
+    });
   });
 });
