@@ -80,12 +80,11 @@ export class WorkerApiClientProxy {
     config: FetchRequestConfig = {},
   ): Promise<FetchResponse<T>> {
     // Correlation key for matching the worker's response back to this promise.
-    // Not security-sensitive, but use the CSPRNG when available (consistent with
-    // api.client.ts) and keep a timestamp-based fallback for exotic runtimes.
-    const requestId =
-      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-        ? `req_${crypto.randomUUID()}`
-        : `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
+    // Not security-sensitive, but use the CSPRNG (consistent with api.client.ts).
+    if (typeof crypto === "undefined" || typeof crypto.randomUUID !== "function") {
+      throw new Error("Secure random number generation is not supported in this environment");
+    }
+    const requestId = `req_${crypto.randomUUID()}`;
 
     let body: string | undefined = undefined;
     if (config.data) {

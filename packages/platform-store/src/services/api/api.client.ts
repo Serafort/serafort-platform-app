@@ -644,12 +644,10 @@ export class FetchClient {
     }
 
     if (!headers.has("X-Request-ID")) {
-      headers.set(
-        "X-Request-ID",
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`,
-      );
+      if (typeof crypto === "undefined" || typeof crypto.randomUUID !== "function") {
+        throw new Error("Secure random number generation is not supported in this environment");
+      }
+      headers.set("X-Request-ID", crypto.randomUUID());
     }
 
     if (currentImpersonationSession) {
