@@ -1,5 +1,5 @@
 import { differenceInYears, parseISO } from 'date-fns'
-import type { DemoName } from '../types/core-types'
+import type { DemoName } from '@cap/shared-types'
 import type { SystemMode, Settings } from '@cap/shared-types'
 import { themeConfig } from '@cap/theme'
 import demoConfigs from '../configs/demoConfigs'

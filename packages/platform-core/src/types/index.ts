@@ -25,7 +25,7 @@ export type {
 export type { Settings } from '@cap/shared-types'
 
 // Platform-core specific types
-export type { DemoName } from './core-types'
+export type { DemoName } from '@cap/shared-types'
 
 export * from './app-types'
 export * from './tenant'
