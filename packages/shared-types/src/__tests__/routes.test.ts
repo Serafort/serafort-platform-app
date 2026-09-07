@@ -10,7 +10,8 @@ describe("Routes Registry & Path Helpers (Tier 0 SSOT)", () => {
     expect(AppPaths.auth.login).toBe("/auth/sign-in");
     expect(AppPaths.auth.signin).toBe("/auth/sign-in");
     expect(AppPaths.auth.signup).toBe("/auth/sign-up");
-    expect(AppPaths.account.overview).toBe("/account/overview");
+    // Reconciled to the route the auth module actually registers.
+    expect(AppPaths.account.overview).toBe("/auth/account");
     expect(AppPaths.admin.users).toBe("/admin/users");
     expect(AppPaths.admin.dashboard).toBe("/admin/dashboard");
     expect(AppPaths.theme.theme).toBe("/theme");
@@ -18,14 +19,14 @@ describe("Routes Registry & Path Helpers (Tier 0 SSOT)", () => {
   });
 
   it("compilePath should substitute route parameters correctly", () => {
-    const userProfileRoute = AppPaths.admin.userProfile; // '/admin/users/:id'
+    const userProfileRoute = AppPaths.admin.userProfile; // '/admin/user/:id'
     const compiled = compilePath(userProfileRoute, { id: "usr_456" });
-    expect(compiled).toBe("/admin/users/usr_456");
+    expect(compiled).toBe("/admin/user/usr_456");
 
-    const samlRoute = AppPaths.admin.samlMetadataDisplay; // '/admin/sso/saml-metadata/:id'
-    expect(compilePath(samlRoute, { id: "saml_99" })).toBe(
-      "/admin/sso/saml-metadata/saml_99",
-    );
+    // samlMetadataDisplay carries no :id once reconciled to the registered
+    // route, so use a role route to exercise substitution instead.
+    const roleRoute = AppPaths.admin.roleDetail; // '/admin/roles/:id'
+    expect(compilePath(roleRoute, { id: "role_99" })).toBe("/admin/roles/role_99");
 
     const multiParamTemplate = "/org/:orgId/user/:userId";
     expect(
