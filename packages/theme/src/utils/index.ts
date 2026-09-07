@@ -1,5 +1,7 @@
 export * from "./applyThemeVariables";
 export * from "./computeEffects";
+export * from "./directionalRadius";
+export * from "./elevation";
 export * from "./mergeTheme";
 export * from "./composeMuiTheme";
 export * from "./themeObjectStyles";
