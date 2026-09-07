@@ -127,18 +127,31 @@ class StorageManager {
       const db = await this.initDB();
       const results = await db.getAll(storeName as any);
 
-      // Decrypt all results
-      const decryptedResults = await Promise.all(
-        results.map(async (r) => {
+      // Decrypt all results with concurrency control to prevent CPU saturation
+      const CONCURRENCY_LIMIT = 10;
+      const decryptedResults = new Array(results.length);
+      let currentIndex = 0;
+
+      const worker = async () => {
+        while (currentIndex < results.length) {
+          const i = currentIndex++;
+          const r = results[i];
           try {
             const json = await this.decryptData(r.data);
-            return JSON.parse(json);
+            decryptedResults[i] = JSON.parse(json);
           } catch (err: unknown) {
             console.error("Failed to decrypt data:", err);
-            return r.data; // Fallback for unencrypted data
+            decryptedResults[i] = r.data; // Fallback for unencrypted data
           }
-        }),
-      );
+        }
+      };
+
+      const workers = [];
+      for (let i = 0; i < Math.min(CONCURRENCY_LIMIT, results.length); i++) {
+        workers.push(worker());
+      }
+
+      await Promise.all(workers);
 
       return decryptedResults;
     } catch (error) {
