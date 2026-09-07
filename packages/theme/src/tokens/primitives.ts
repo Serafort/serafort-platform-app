@@ -130,6 +130,40 @@ export const radiusTokens = {
 export type RadiusTokens = typeof radiusTokens;
 
 /**
+ * Border Width Scale
+ *
+ * `hairline` is the everyday 1px rule. `thin` (1.5px) reads as a deliberate
+ * outline without the weight of `medium`; `thick`/`heavy` are for emphasis
+ * frames and brutalist edges.
+ */
+export const borderWidthTokens = {
+  none: "0",
+  hairline: "1px",
+  thin: "1.5px",
+  medium: "2px",
+  thick: "3px",
+  heavy: "4px",
+} as const;
+
+export type BorderWidthTokens = typeof borderWidthTokens;
+
+/**
+ * Border Style Scale — the CSS line styles the design language uses, named so
+ * a component can say `borderStyle: "var(--border-style-dashed)"` rather than
+ * hardcoding the keyword (and so an empty-state dashed frame and a divider
+ * dotted rule stay consistent wherever they appear).
+ */
+export const borderStyleTokens = {
+  none: "none",
+  solid: "solid",
+  dashed: "dashed",
+  dotted: "dotted",
+  double: "double",
+} as const;
+
+export type BorderStyleTokens = typeof borderStyleTokens;
+
+/**
  * Motion Tokens (durations & easings)
  */
 export const motionTokens = {
@@ -175,6 +209,8 @@ export interface PrimitiveTokenDictionary {
   colors: PrimitiveColors;
   spacing: SpacingTokens;
   radius: RadiusTokens;
+  borderWidth: BorderWidthTokens;
+  borderStyle: BorderStyleTokens;
   motion: MotionTokens;
   touch: TouchTargetTokens;
   zIndex: ZIndexTokens;
@@ -184,6 +220,8 @@ export const primitiveTokens: PrimitiveTokenDictionary = {
   colors: primitiveColors,
   spacing: spacingTokens,
   radius: radiusTokens,
+  borderWidth: borderWidthTokens,
+  borderStyle: borderStyleTokens,
   motion: motionTokens,
   touch: touchTargetTokens,
   zIndex: zIndexTokens,

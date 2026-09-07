@@ -15,11 +15,14 @@ import {
   primitiveColors,
   spacingTokens,
   radiusTokens,
+  borderWidthTokens,
+  borderStyleTokens,
   motionTokens,
   zIndexTokens,
 } from "./primitives";
 import {
   semanticSurfaces,
+  semanticBorders,
   fluidTypographyTokens,
   fluidSpacingTokens,
   effectPresetTokens,
@@ -31,11 +34,14 @@ export interface ThemeTokenDictionary {
     colors: typeof primitiveColors;
     spacing: typeof spacingTokens;
     radius: typeof radiusTokens;
+    borderWidth: typeof borderWidthTokens;
+    borderStyle: typeof borderStyleTokens;
     motion: typeof motionTokens;
     zIndex: typeof zIndexTokens;
   };
   semantics: {
     surfaces: typeof semanticSurfaces;
+    borders: typeof semanticBorders;
     typography: typeof fluidTypographyTokens;
     fluidSpacing: typeof fluidSpacingTokens;
     effects: typeof effectPresetTokens;
@@ -51,11 +57,14 @@ export const defaultThemeTokens: ThemeTokenDictionary = {
     colors: primitiveColors,
     spacing: spacingTokens,
     radius: radiusTokens,
+    borderWidth: borderWidthTokens,
+    borderStyle: borderStyleTokens,
     motion: motionTokens,
     zIndex: zIndexTokens,
   },
   semantics: {
     surfaces: semanticSurfaces,
+    borders: semanticBorders,
     typography: fluidTypographyTokens,
     fluidSpacing: fluidSpacingTokens,
     effects: effectPresetTokens,
@@ -75,6 +84,8 @@ export function tokensToCssVariables(
 ): Record<string, string> {
   const surfaces =
     customTokens?.semantics?.surfaces?.[mode] || semanticSurfaces[mode];
+  const borders =
+    customTokens?.semantics?.borders?.[mode] || semanticBorders[mode];
   const effects = customTokens?.semantics?.effects || effectPresetTokens;
   const typo = customTokens?.semantics?.typography || fluidTypographyTokens;
   const fluidSpace =
@@ -156,6 +167,25 @@ export function tokensToCssVariables(
     "--space-14": spacingTokens[14],
     "--space-15": spacingTokens[15],
     "--space-16": spacingTokens[16],
+
+    // Tier 1: Border width & style scales
+    "--border-width-none": borderWidthTokens.none,
+    "--border-width-hairline": borderWidthTokens.hairline,
+    "--border-width-thin": borderWidthTokens.thin,
+    "--border-width-medium": borderWidthTokens.medium,
+    "--border-width-thick": borderWidthTokens.thick,
+    "--border-width-heavy": borderWidthTokens.heavy,
+    "--border-style-solid": borderStyleTokens.solid,
+    "--border-style-dashed": borderStyleTokens.dashed,
+    "--border-style-dotted": borderStyleTokens.dotted,
+    "--border-style-double": borderStyleTokens.double,
+
+    // Tier 2: Semantic border roles (mode-resolved)
+    "--border-subtle": borders.subtle,
+    "--border-muted": borders.muted,
+    "--border-default": borders.default,
+    "--border-strong": borders.strong,
+    "--border-focus": borders.focus,
 
     // Tier 1: Radii
     "--radius-none": radiusTokens.none,

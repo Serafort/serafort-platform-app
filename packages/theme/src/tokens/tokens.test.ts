@@ -3,12 +3,15 @@ import {
   primitiveColors,
   spacingTokens,
   radiusTokens,
+  borderWidthTokens,
+  borderStyleTokens,
   motionTokens,
   zIndexTokens,
   primitiveTokens,
 } from "./primitives";
 import {
   semanticSurfaces,
+  semanticBorders,
   fluidTypographyTokens,
   fluidSpacingTokens,
   effectPresetTokens,
@@ -71,6 +74,15 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(radiusTokens.full).toBe("9999px");
     });
 
+    it("defines border width and style scales", () => {
+      expect(borderWidthTokens.hairline).toBe("1px");
+      expect(borderWidthTokens.thin).toBe("1.5px");
+      expect(borderWidthTokens.heavy).toBe("4px");
+      expect(borderStyleTokens.dashed).toBe("dashed");
+      expect(borderStyleTokens.dotted).toBe("dotted");
+      expect(borderStyleTokens.double).toBe("double");
+    });
+
     it("defines motion duration and easing scales", () => {
       expect(motionTokens.duration.quick).toBe("120ms");
       expect(motionTokens.duration.base).toBe("240ms");
@@ -124,6 +136,19 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(fluidTypographyTokens.caption).toBe(
         "clamp(0.75rem, 0.72rem + 0.1vw, 0.8125rem)",
       );
+    });
+
+    it("defines a per-mode semantic border sub-palette", () => {
+      expect(semanticBorders.light.subtle).toBe("rgba(3, 20, 51, 0.06)");
+      expect(semanticBorders.dark.subtle).toBe("rgba(255, 255, 255, 0.05)");
+      // Every role is present in both modes.
+      const roles = ["subtle", "muted", "default", "strong", "focus"] as const;
+      for (const role of roles) {
+        expect(typeof semanticBorders.light[role]).toBe("string");
+        expect(typeof semanticBorders.dark[role]).toBe("string");
+      }
+      // Focus carries the brand colour, not a neutral.
+      expect(semanticBorders.light.focus).toBe("#047BFA");
     });
 
     it("defines a viewport-responsive fluid spacing scale", () => {
@@ -212,6 +237,10 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(cssVars["--space-11"]).toBe("44px");
       expect(cssVars["--space-14"]).toBe("56px");
       expect(cssVars["--radius-md"]).toBe("8px");
+      expect(cssVars["--border-width-hairline"]).toBe("1px");
+      expect(cssVars["--border-style-dashed"]).toBe("dashed");
+      expect(cssVars["--border-subtle"]).toBe("rgba(255, 255, 255, 0.05)"); // dark default
+      expect(cssVars["--border-focus"]).toBeDefined();
       expect(cssVars["--touch-target-min"]).toBe("44px");
       expect(cssVars["--motion-duration-quick"]).toBe("120ms");
       expect(cssVars["--z-index-modal"]).toBe("1000");

@@ -71,6 +71,44 @@ export const fluidSpacingTokens = {
   clusterGap: "clamp(0.5rem, 0.4rem + 0.4vw, 0.875rem)",
 } as const;
 
+/**
+ * Semantic border sub-palette
+ * ---------------------------
+ * A single `border` colour token could not express the difference between a
+ * barely-there row divider, an input's resting edge, and a focused control.
+ * These five roles do, and they are defined per mode so a hairline reads
+ * correctly on both the fog-white and the ink-navy canvas.
+ */
+export interface BorderRoleTokens {
+  /** Faintest rule - dividers between dense rows. */
+  subtle: string;
+  /** Resting edge of inputs and quiet cards. */
+  muted: string;
+  /** Standard visible container border. */
+  default: string;
+  /** Emphasised edge - a selected card, a callout. */
+  strong: string;
+  /** Keyboard focus / active control - carries the brand colour. */
+  focus: string;
+}
+
+export const semanticBorders: Record<"light" | "dark", BorderRoleTokens> = {
+  light: {
+    subtle: "rgba(3, 20, 51, 0.06)",
+    muted: "rgba(3, 20, 51, 0.12)",
+    default: brandRoles.light.border, // mist 300
+    strong: "rgba(3, 20, 51, 0.32)",
+    focus: brandRoles.light.accentStrong, // Serafort blue
+  },
+  dark: {
+    subtle: "rgba(255, 255, 255, 0.05)",
+    muted: "rgba(255, 255, 255, 0.10)",
+    default: brandRoles.dark.border,
+    strong: "rgba(255, 255, 255, 0.28)",
+    focus: brandRoles.dark.accent, // cyan
+  },
+};
+
 export const effectPresetTokens = {
   glass: {
     bg: "rgba(3, 36, 87, 0.65)", // navy @ 65%
@@ -162,6 +200,7 @@ export const getSemanticColors = (mode: "light" | "dark"): SemanticColors => ({
 
 export interface SemanticTokenDictionary {
   surfaces: typeof semanticSurfaces;
+  borders: typeof semanticBorders;
   typography: typeof fluidTypographyTokens;
   fluidSpacing: typeof fluidSpacingTokens;
   effects: typeof effectPresetTokens;
@@ -170,6 +209,7 @@ export interface SemanticTokenDictionary {
 
 export const semanticTokens: SemanticTokenDictionary = {
   surfaces: semanticSurfaces,
+  borders: semanticBorders,
   typography: fluidTypographyTokens,
   fluidSpacing: fluidSpacingTokens,
   effects: effectPresetTokens,
