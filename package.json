@@ -55,10 +55,17 @@
       "js-yaml@^4": "^4.3.1",
       "vite": "^7.3.5",
       "@vitest/browser": "^4.1.10",
-      "browserslist": ">=4.28.7"
+      "browserslist": ">=4.28.7",
+      "js-yaml@^3": "^3.15.2",
+      "@babel/core": "^7.29.7",
+      "body-parser": "^1.20.6",
+      "valibot": "^1.4.2",
+      "@humanfs/node": "^0.16.8",
+      "esbuild": "^0.28.2",
+      "uuid": "^11.1.1"
     },
     "auditConfig": {
-      "//": "extract-zip: no fixed release exists (advisory 'patched: <0.0.0'); reached only through the @lhci/cli > lighthouse > puppeteer-core dev chain, never shipped. js-yaml 3.x: EOL, no 3.15.1 release; reached only through @lhci/cli (dev). The blocking `audit:ci` gate runs with --prod and does not see either path.",
+      "//": "extract-zip: no fixed release exists upstream (advisory patched_version is null); reached only through the @lhci/cli > lighthouse > puppeteer-core dev chain (never shipped to production). js-yaml 3.x: was EOL with no 3.15.x release when this comment was first written, but the maintainers have since published 3.15.0-3.15.2 (2026-06 through 2026-08); pinned via the `js-yaml@^3` override above instead of ignored. The blocking `audit:ci` gate runs with --prod and does not see either path.",
       "ignoreGhsas": [
         "GHSA-jmr9-qjv8-65gv"
       ]
