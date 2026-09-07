@@ -93,6 +93,14 @@ const safeReadFileSync = (filePath: string, encoding: string): string => {
   return ''
 }
 
+const safeReadFile = async (filePath: string, encoding: string): Promise<string> => {
+  const fsP = getFsPromises()
+  if (fsP?.readFile) {
+    return fsP.readFile(filePath, encoding)
+  }
+  return ''
+}
+
 // In-memory store for background pipeline jobs
 const activeJobs = new Map<string, ModulePipelineJob>()
 
@@ -488,26 +496,28 @@ export default ${inferredId.replace(/-/g, '_')}Module
     try {
       if (checkExistsSync(this.modulesDir)) {
         const dirs: any[] = await safeReaddir(this.modulesDir, { withFileTypes: true })
-        for (const dir of dirs) {
+
+        const modulePromises = dirs.map(async (dir) => {
           const dirName = typeof dir === 'string' ? dir : dir.name
           const isDir = typeof dir === 'string' ? true : dir.isDirectory?.()
+
           if (isDir && dirName !== 'auth' && dirName !== 'landing') {
             const pkgPath = pathUtil.join(this.modulesDir, dirName, 'package.json')
             let version = '1.0.0'
             let description = 'Auto-registered custom module'
-            if (checkExistsSync(pkgPath)) {
-              try {
-                const pkgContent = safeReadFileSync(pkgPath, 'utf8')
-                if (pkgContent) {
-                  const pkg = JSON.parse(pkgContent)
-                  version = pkg.version || version
-                  description = pkg.description || description
-                }
-              } catch {
-                // fallback
+
+            try {
+              const pkgContent = await safeReadFile(pkgPath, 'utf8')
+              if (pkgContent) {
+                const pkg = JSON.parse(pkgContent)
+                version = pkg.version || version
+                description = pkg.description || description
               }
+            } catch {
+              // fallback
             }
-            modules.push({
+
+            return {
               id: dirName,
               name: dirName,
               version,
@@ -517,7 +527,15 @@ export default ${inferredId.replace(/-/g, '_')}Module
               navCount: 1,
               installedAt: new Date().toISOString(),
               isCore: false,
-            })
+            }
+          }
+          return null
+        })
+
+        const results = await Promise.all(modulePromises)
+        for (const res of results) {
+          if (res) {
+            modules.push(res)
           }
         }
       }
