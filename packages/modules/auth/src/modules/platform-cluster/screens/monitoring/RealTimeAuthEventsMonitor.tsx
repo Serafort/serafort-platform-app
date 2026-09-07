@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useRef, useMemo, useDeferredValue } from 'react'
 import { useTranslation } from 'react-i18next'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
@@ -227,8 +227,9 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
   }
 
   // Filtered Events
+  const deferredSearchQuery = useDeferredValue(searchQuery)
   const filteredEvents = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase()
+    const query = deferredSearchQuery.trim().toLowerCase()
     const isAllFilter = selectedFilter === 'all'
 
     if (!query && isAllFilter) {
@@ -247,7 +248,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
         ev.userName.toLowerCase().includes(query)
       )
     })
-  }, [events, selectedFilter, searchQuery])
+  }, [events, selectedFilter, deferredSearchQuery])
 
   // Currently Selected Event Detail
   const selectedEvent = useMemo(() => {
