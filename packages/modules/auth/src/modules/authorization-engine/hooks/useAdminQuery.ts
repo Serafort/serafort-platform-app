@@ -742,14 +742,15 @@ export function useCheckDomain(
   options?: UseMutationOptions<
     FetchResponse<DomainVerification>,
     HttpError,
-    { domainId: number; organizationId: number },
+    // Keyed by domain name: the backend looks the pending verification up by
+    // domain, so a verification id would not identify it.
+    { domain: string },
     unknown
   >,
 ) {
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
   return useMutation({
-    mutationFn: ({ domainId, organizationId }) =>
-      adminService.checkDomain(organizationId, domainId),
+    mutationFn: ({ domain }) => adminService.checkDomain(domain),
     ...options,
     onSuccess: (...args) => {
       customOnSuccess?.(...args)

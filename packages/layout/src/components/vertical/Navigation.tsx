@@ -1,12 +1,13 @@
 import React from 'react'
 import classnames from 'classnames'
-import { styled, useColorScheme, useTheme, alpha } from '@mui/material/styles'
+import { styled, useTheme, alpha } from '@mui/material/styles'
 import type { Mode, SystemMode } from '@cap/shared-types'
 import VerticalNav, { NavHeader, NavCollapseIcons } from '../../menu/vertical-menu'
 import Logo from '../../assets/svg/Logo'
 import { useVerticalNav } from '../../menu/contexts/verticalNavContext'
 import { useSettings } from '@cap/platform-store'
 import navigationCustomStyles from '../../styles/core/vertical/navigationCustomStyles'
+import { effectSurfaceVars, useComponentStyle, useComponentEffectConfig } from '@cap/theme'
 import Close from '@mui/icons-material/Close'
 import RadioButtonChecked from '@mui/icons-material/RadioButtonChecked'
 import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked'
@@ -32,25 +33,35 @@ const StyledBoxForShadow = styled('div')(({ theme }) => ({
 }))
 
 const Navigation: React.FC<{
+  /** Kept for API compatibility; the painted theme is what decides `isDark`. */
   mode: Mode
   systemMode: SystemMode
   children: (
     scrollMenu: (container: HTMLElement | null, isPerfectScrollbar: boolean) => void,
   ) => React.ReactNode
-}> = ({ mode, systemMode, children }) => {
+}> = ({ children }) => {
   const [isScrolled, setIsScrolled] = React.useState(false)
   const theme = useTheme()
-  const { mode: muiMode, systemMode: muiSystemMode } = useColorScheme()
   const verticalNavOptions = useVerticalNav()
   const { updateSettings, settings } = useSettings()
   const { isCollapsed, isHovered, collapseVerticalNav, isBreakpointReached } = verticalNavOptions
   const isSemiDark = settings.semiDark
   const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'))
-  let isDark
 
-  const isServer = typeof window === 'undefined'
-  if (isServer) isDark = mode === 'system' ? systemMode === 'dark' : mode === 'dark'
-  else isDark = muiMode === 'system' ? muiSystemMode === 'dark' : muiMode === 'dark'
+  // Same scoped-variable route as the navbar: the sidebar follows the global
+  // effect through :root, and only an explicit per-component override needs to
+  // publish its own --effect-* values here. See effectSurfaceVars.
+  const navStyle = useComponentStyle('nav')
+  const navEffect = useComponentEffectConfig('nav')
+  const scopedEffectVars =
+    navStyle?.style && navStyle.style !== 'global' ? effectSurfaceVars(navEffect, theme) : {}
+
+  // The composed theme is the authority for what is actually painted. MUI's
+  // useColorScheme() was the previous source and is inert here: the theme is
+  // built by composeMuiTheme without `colorSchemes`/`cssVariables`, so it never
+  // reports a mode and `isDark` was stuck at false - which left the sidebar
+  // rendering its light treatment even in dark mode.
+  const isDark = theme.palette.mode === 'dark'
 
   const scrollMenu = React.useCallback(
     (container: HTMLElement | null, isPerfectScrollbar: boolean) => {
@@ -79,7 +90,10 @@ const Navigation: React.FC<{
   return (
     // Sidebar Vertical Menu
     <VerticalNav
-      customStyles={navigationCustomStyles(verticalNavOptions, theme)}
+      customStyles={{
+        ...navigationCustomStyles(verticalNavOptions, theme),
+        ...scopedEffectVars,
+      }}
       breakpoint='md'
       collapsedWidth={71}
       backgroundColor={theme.palette.background.paper}
@@ -92,7 +106,16 @@ const Navigation: React.FC<{
     >
       {/* Nav Header including Logo & nav toggle icons  */}
       <NavHeader>
-        <Logo />
+        {/*
+          Collapsed the drawer is only `collapsedWidth` wide, so it gets the
+          standalone mark; expanded (or hovered open) there is room for the full
+          wordmark lockup. `onDark` covers semiDark, where the nav renders dark
+          while the app theme is still light.
+        */}
+        <Logo
+          variant={isCollapsed && !isHovered ? 'icon' : 'lockup'}
+          onDark={isDark || isSemiDark}
+        />
         {!(isCollapsed && !isHovered) && (
           <NavCollapseIcons
             lockedIcon={

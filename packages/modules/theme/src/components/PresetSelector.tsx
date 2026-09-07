@@ -1,7 +1,15 @@
 import React from "react";
-import { Box, Typography, Paper, Grid, Button, Chip } from "@mui/material";
+import { Box, Chip, Typography, useTheme } from "@mui/material";
 import type { ThemePresetId } from "@cap/theme";
 import { PRESET_LIST } from "@cap/theme";
+import {
+  AutoGrid,
+  PanelHeader,
+  clamp2,
+  ellipsis,
+  useFocusRingSx,
+  useSurfaceSx,
+} from "./studioUi";
 
 interface PresetSelectorProps {
   currentPreset?: ThemePresetId;
@@ -9,6 +17,8 @@ interface PresetSelectorProps {
 }
 
 const presetIcons: Record<ThemePresetId, string> = {
+  serafort: "🛡️",
+  "serafort-dark": "🌌",
   default: "🎨",
   "flat-design": "📄",
   "material-design": "🤖",
@@ -30,107 +40,127 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
   currentPreset,
   onSelect,
 }) => {
-  return (
-    <Paper sx={{ p: 3 }}>
-      <Typography variant="h6" sx={{ mb: 1 }}>
-        Style Presets
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Start with a predefined theme and customize it further
-      </Typography>
+  const theme = useTheme();
+  const surface = useSurfaceSx();
+  const focusRing = useFocusRingSx();
 
-      <Grid container spacing={2}>
-        {PRESET_LIST.map((preset) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={preset.id}>
-            <Button
+  return (
+    <Box>
+      <PanelHeader
+        title="Style presets"
+        description="A complete starting point. Applying one replaces your current settings — you can keep tuning afterwards."
+      />
+
+      {/*
+        Same card shape as the AI Studio's suggestions: a miniature of the
+        theme on its own background, then the name and a two-line description
+        so every card is the same height. The two tabs offer the same kind of
+        thing, so they should look like the same kind of thing.
+      */}
+      <AutoGrid min={220} gap={3}>
+        {PRESET_LIST.map((preset) => {
+          const isActive = currentPreset === preset.id;
+          return (
+            <Box
+              key={preset.id}
+              component="button"
+              type="button"
               onClick={() => onSelect(preset.id)}
-              variant={currentPreset === preset.id ? "contained" : "outlined"}
+              aria-pressed={isActive}
               sx={{
-                p: 2,
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                textAlign: "left",
-                border: currentPreset === preset.id ? 2 : 1,
+                ...surface,
+                display: "block",
+                inlineSize: "100%",
+                p: 0,
+                font: "inherit",
+                color: "inherit",
+                textAlign: "start",
+                overflow: "hidden",
+                cursor: "pointer",
+                borderColor: isActive
+                  ? theme.palette.primary.main
+                  : theme.palette.divider,
+                boxShadow: isActive
+                  ? `0 0 0 1px ${theme.palette.primary.main}`
+                  : "none",
+                transition: theme.transitions.create(
+                  ["border-color", "transform", "box-shadow"],
+                  { duration: 150 },
+                ),
+                "&:hover": {
+                  borderColor: "primary.main",
+                  transform: "translateY(-2px)",
+                  boxShadow: theme.shadows[4],
+                },
+                "&:focus-visible": focusRing,
               }}
             >
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  width: "100%",
-                  mb: 1,
+                  gap: 1.5,
+                  blockSize: 56,
+                  paddingInline: 3,
+                  bgcolor: preset.preview.backgroundColor,
+                  borderBlockEnd: `1px solid ${theme.palette.divider}`,
                 }}
               >
-                <Typography variant="h5" sx={{ mr: 1 }}>
-                  {presetIcons[preset.id]}
-                </Typography>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                  {preset.name}
-                </Typography>
-              </Box>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 1.5 }}
-              >
-                {preset.description}
-              </Typography>
-              <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
                 <Box
                   sx={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: "4px 0 0 4px",
-                    backgroundColor: preset.preview.primaryColor,
+                    inlineSize: 38,
+                    blockSize: 8,
+                    borderRadius: 4,
+                    bgcolor: preset.preview.primaryColor,
                   }}
                 />
                 <Box
                   sx={{
-                    width: 24,
-                    height: 24,
-                    backgroundColor: preset.preview.secondaryColor,
-                  }}
-                />
-                <Box
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    backgroundColor: preset.preview.backgroundColor,
-                    borderRadius: "0 4px 4px 0",
-                    border: "1px solid",
-                    borderColor: "divider",
+                    inlineSize: 20,
+                    blockSize: 8,
+                    borderRadius: 4,
+                    bgcolor: preset.preview.secondaryColor,
                   }}
                 />
               </Box>
-              {currentPreset === preset.id && (
-                <Chip
-                  size="small"
-                  label="Active"
-                  color="primary"
-                  sx={{ mt: 1.5 }}
-                />
-              )}
-            </Button>
-          </Grid>
-        ))}
-      </Grid>
 
-      <Box
-        sx={{
-          mt: 3,
-          p: 2,
-          backgroundColor: "background.default",
-          borderRadius: 1,
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          <strong>Tip:</strong> Applying a preset will replace your current
-          settings. You can always customize the theme after selecting a preset.
-        </Typography>
-      </Box>
-    </Paper>
+              <Box sx={{ p: 4 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Box component="span" aria-hidden sx={{ fontSize: "1rem" }}>
+                    {presetIcons[preset.id]}
+                  </Box>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: 600, flex: 1, minWidth: 0, ...ellipsis }}
+                  >
+                    {preset.name}
+                  </Typography>
+                  {isActive && (
+                    <Chip
+                      size="small"
+                      color="primary"
+                      label="Active"
+                      sx={{
+                        blockSize: 20,
+                        fontSize: "0.6875rem",
+                        fontWeight: 600,
+                      }}
+                    />
+                  )}
+                </Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ ...clamp2, mt: 1, lineHeight: 1.5 }}
+                >
+                  {preset.description}
+                </Typography>
+              </Box>
+            </Box>
+          );
+        })}
+      </AutoGrid>
+    </Box>
   );
 };
 

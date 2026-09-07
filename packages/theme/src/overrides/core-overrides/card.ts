@@ -10,17 +10,36 @@ const card = (skin: Skin): Theme["components"] => {
         }),
       },
       styleOverrides: {
-        root: ({ ownerState }) => ({
+        // Every `--mui-*` name below used to sit at the end of a fallback
+        // chain, but this app builds its theme with a plain createTheme, so
+        // MUI's CSS-variable mode is off and none of them are ever defined -
+        // and an invalid var() resolves to the property's initial value, not
+        // to the theme. That is why cards rendered transparent and unshadowed.
+        // Each chain now ends at a real value read from the theme, which
+        // composeMuiTheme rebuilds per mode.
+        root: ({ ownerState, theme }) => ({
+          // Per-component override first, then whatever radius the active
+          // effect asks for, then the plain token. `--bento-radius` used to
+          // head this chain, from when bento was the only effect with a radius
+          // of its own - which left a neumorphic or brutalist card ignoring the
+          // radius its own effect had just set.
           borderRadius:
-            "var(--bento-radius, var(--comp-card-border-radius, var(--radius-lg, 12px)))",
-          backgroundColor:
-            "var(--surface-paper, var(--effect-bg, var(--mui-palette-background-paper)))",
-          borderColor:
-            "var(--surface-border, var(--glass-border, var(--mui-palette-divider)))",
-          backdropFilter: "var(--glass-blur, var(--effect-backdrop, none))",
+            "var(--comp-card-border-radius, var(--effect-radius, var(--radius-lg, 12px)))",
+          // --effect-bg goes first. It is the active effect, chosen by the
+          // user; --surface-paper is a static design token, so with it ahead
+          // in the chain any build that defines it would pin every card to an
+          // opaque surface and no effect could ever be seen on a card again.
+          backgroundColor: `var(--effect-bg, var(--surface-paper, ${theme.palette.background.paper}))`,
+          borderColor: `var(--glass-border, var(--surface-border, ${theme.palette.divider}))`,
+          // `--glass-blur` is a raw length (16px) - it backs per-component
+          // opt-in glass, where it is wrapped in blur() at the point of use.
+          // Reading it here handed backdrop-filter a bare length, which is not
+          // a filter function, so the declaration was dropped and glass cards
+          // never actually frosted anything. `--effect-backdrop` is the
+          // ready-made `blur(...)` the effect layer emits for exactly this.
+          backdropFilter: "var(--effect-backdrop, none)",
           ...(ownerState.variant !== "outlined" && {
-            boxShadow:
-              "var(--glass-shadow, var(--effect-shadow, var(--comp-card-box-shadow, var(--mui-customShadows-md))))",
+            boxShadow: `var(--glass-shadow, var(--effect-shadow, var(--comp-card-box-shadow, ${(theme as Theme).customShadows.md})))`,
           }),
         }),
       },

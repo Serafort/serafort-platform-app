@@ -61,6 +61,32 @@ function synthesizeElevationToken(method: 'passkey' | 'totp'): string {
   throw new Error('Secure random source unavailable; cannot create elevation token')
 }
 
+/**
+ * Normalizes a step-up verification response into `StepUpVerificationResult`.
+ *
+ * `apiClient` throws on any non-2xx, so reaching here means the request
+ * succeeded; we still honour an explicit negative verdict in the body if the
+ * backend sends one. The elevation token and expiry are synthesized only when
+ * the backend omits them.
+ */
+function toStepUpResult(
+  res: FetchResponse<any>,
+  method: 'passkey' | 'totp',
+): FetchResponse<StepUpVerificationResult> {
+  const success = res.data?.verified !== false && res.data?.success !== false
+  const serverToken: string | undefined = res.data?.elevationToken || res.data?.token
+  const expiresAt =
+    typeof res.data?.expiresAt === 'number' ? res.data.expiresAt : Date.now() + ELEVATION_TTL_MS
+  return {
+    ...res,
+    data: {
+      success,
+      elevationToken: serverToken || synthesizeElevationToken(method),
+      expiresAt,
+    },
+  }
+}
+
 export interface MfaMethodSummary {
   type: 'totp' | 'sms' | 'passkey'
   enabled: boolean
@@ -121,13 +147,26 @@ export const mfaService = {
     )
   },
 
+  /**
+   * Spend a recovery code to clear the login challenge, before a session
+   * exists.
+   *
+   * `mfa_token` is required. The backend resolves the account strictly from
+   * that signed challenge token, issued once the password step passed; it used
+   * to accept a bare `userId` or `email`, which made the recovery code the only
+   * factor needed to sign in (backend finding F-01). The identifiers are still
+   * sent for older backends but no longer stand on their own.
+   */
   recoveryVerify: async (payload: {
+    mfaToken?: string
+    mfa_token?: string
     userId?: string | number
     user_id?: string | number
     email?: string
     code: string
   }): Promise<FetchResponse<MfaLoginCompletionResponse>> => {
     const formattedPayload = {
+      mfa_token: payload.mfa_token || payload.mfaToken,
       userId: payload.userId || payload.user_id,
       email: payload.email,
       code: payload.code,
@@ -290,20 +329,23 @@ export const mfaService = {
       // Step-up verification using OTP code. `apiClient` throws on any non-2xx
       // response, so reaching this point means the request succeeded; we still
       // honour an explicit negative verdict in the body if the backend sends one.
-      const res = await apiClient.post<any>(ENDPOINTS.auth.mfa.verify, { code })
-      const success = res.data?.verified !== false && res.data?.success !== false
-      const serverToken: string | undefined = res.data?.elevationToken || res.data?.token
-      const token = serverToken || synthesizeElevationToken('totp')
-      const expiresAt =
-        typeof res.data?.expiresAt === 'number' ? res.data.expiresAt : Date.now() + ELEVATION_TTL_MS
-      return {
-        ...res,
-        data: {
-          success,
-          elevationToken: token,
-          expiresAt,
-        },
-      }
+      //
+      // This used to post to `auth.mfa.verify`, which confirms *enrollment*: it
+      // looks for a pending secret in Redis and answers 422 once the user is
+      // enrolled, so step-up could never succeed for the only users who can
+      // reach it. `stepUp.totp` is the route that promotes the session.
+      const res = await apiClient.post<any>(ENDPOINTS.auth.mfa.stepUp.totp, { code })
+      return toStepUpResult(res, 'totp')
+    },
+
+    /**
+     * Step up with a recovery code, for someone who has lost their
+     * authenticator but is already signed in. Spends the code — each one works
+     * once.
+     */
+    verifyRecovery: async (code: string): Promise<FetchResponse<StepUpVerificationResult>> => {
+      const res = await apiClient.post<any>(ENDPOINTS.auth.mfa.stepUp.recovery, { code })
+      return toStepUpResult(res, 'totp')
     },
   },
 }

@@ -1,5 +1,15 @@
-import type { TenantThemeConfig, ThemePresetId, ColorToken } from "@cap/theme";
-import { DEFAULT_TENANT_THEME, THEME_PRESETS, applyPreset } from "@cap/theme";
+import type {
+  TenantThemeConfig,
+  ThemePresetId,
+  ColorToken,
+  EffectType,
+} from "@cap/theme";
+import {
+  DEFAULT_TENANT_THEME,
+  THEME_PRESETS,
+  applyPreset,
+  normalizeEffectConfig,
+} from "@cap/theme";
 import { themeService } from "./theme.service";
 
 export interface PromptAnalysisResult {
@@ -15,13 +25,11 @@ export interface PromptAnalysisResult {
   textMutedHex: string;
   borderHex: string;
   borderRadius: string;
-  effectType:
-    | "standard"
-    | "glass"
-    | "neu"
-    | "brutalism"
-    | "organic"
-    | "immersive";
+  /**
+   * Was its own hand-written subset of UIEffect, missing bento and
+   * liquid-glass, so the analyser could never resolve a prompt to either.
+   */
+  effectType: EffectType;
   explanation: string;
 }
 
@@ -482,7 +490,12 @@ class AiThemePromptService {
           lg: analysis.borderRadius === "0px" ? "0px" : "16px",
         },
       },
-      effects: {
+      // normalizeEffectConfig turns on the config the chosen effect reads and
+      // turns every other one off. The two blocks below only ever set the
+      // glassmorphism and neumorphism flags, so a prompt that resolved to
+      // brutalism, organic or immersive produced a theme naming that effect
+      // with its config still disabled - and the app painted nothing.
+      effects: normalizeEffectConfig({
         ...base.effects,
         globalType: analysis.effectType,
         glassmorphism: {
@@ -504,7 +517,7 @@ class AiThemePromptService {
           enabled: analysis.effectType === "neu",
           backgroundColor: analysis.backgroundHex,
         },
-      },
+      }),
       metadata: {
         ...base.metadata,
         preset: analysis.presetMatch,
@@ -604,10 +617,10 @@ class AiThemePromptService {
               } as ColorToken,
             },
           },
-          effects: {
+          effects: normalizeEffectConfig({
             ...base.effects,
             globalType: serverConfig.effects?.globalType || "standard",
-          },
+          }),
           metadata: {
             ...base.metadata,
             mode: serverConfig.metadata?.mode || "light",

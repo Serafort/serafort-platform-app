@@ -4,6 +4,7 @@
  */
 
 import { primitiveColors } from "./primitives";
+import { brandNeutrals, brandRoles } from "./brand";
 
 export interface SurfaceTokens {
   canvas: string;
@@ -14,16 +15,16 @@ export interface SurfaceTokens {
 
 export const semanticSurfaces = {
   dark: {
-    canvas: "#0D0D12",
-    paper: "#17171F",
-    subtle: "#1E1E28",
-    border: "rgba(255, 255, 255, 0.08)",
+    canvas: brandRoles.dark.bg, // Serafort ink
+    paper: brandRoles.dark.surface, // Serafort navy
+    subtle: brandRoles.dark.bgSubtle,
+    border: brandRoles.dark.border,
   },
   light: {
-    canvas: "#FFFFFF",
-    paper: "#F8FAFC",
-    subtle: "#F1F5F9",
-    border: "rgba(0, 0, 0, 0.08)",
+    canvas: brandRoles.light.bg,
+    paper: brandNeutrals.fog50,
+    subtle: brandNeutrals.fog100,
+    border: brandNeutrals.mist300,
   },
 } as const;
 
@@ -47,25 +48,25 @@ export const fluidTypographyTokens = {
 
 export const effectPresetTokens = {
   glass: {
-    bg: "rgba(23, 23, 31, 0.65)",
+    bg: "rgba(3, 36, 87, 0.65)", // navy @ 65%
     blur: "blur(16px)",
     border: "1px solid rgba(255, 255, 255, 0.12)",
-    shadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+    shadow: "0 8px 32px 0 rgba(3, 20, 51, 0.45)",
   },
   liquidGlass: {
     bg: "rgba(255, 255, 255, 0.12)",
     blur: "blur(24px) saturate(180%)",
     border: "1px solid rgba(255, 255, 255, 0.2)",
     shadow:
-      "inset 0 1px 1px 0 rgba(255, 255, 255, 0.4), 0 12px 36px 0 rgba(0, 0, 0, 0.35)",
+      "inset 0 1px 1px 0 rgba(255, 255, 255, 0.4), 0 12px 36px 0 rgba(3, 20, 51, 0.35)",
   },
   neu: {
-    flat: "6px 6px 12px #101016, -6px -6px 12px #1e1e28",
-    pressed: "inset 4px 4px 8px #101016, inset -4px -4px 8px #1e1e28",
+    flat: "6px 6px 12px #020E24, -6px -6px 12px #0A1B3D",
+    pressed: "inset 4px 4px 8px #020E24, inset -4px -4px 8px #0A1B3D",
   },
   brutal: {
-    borderWidth: "2px solid #000000",
-    offsetShadow: "4px 4px 0px #000000",
+    borderWidth: "2px solid #031433", // brandColors.ink
+    offsetShadow: "4px 4px 0px #031433",
   },
   bento: {
     gap: "16px",
@@ -78,24 +79,24 @@ export const effectPresetTokens = {
  */
 export const uiStateTokens = {
   loading: {
-    skeletonBaseDark: "#1E1E28",
-    skeletonHighlightDark: "#282836",
-    skeletonBaseLight: "#E2E8F0",
-    skeletonHighlightLight: "#F1F5F9",
+    skeletonBaseDark: "#0A1B3D",
+    skeletonHighlightDark: "#12295A",
+    skeletonBaseLight: "#DAE1EE",
+    skeletonHighlightLight: "#ECF0F7",
     shimmerDuration: "1.5s",
   },
   success: {
-    glowColor: "rgba(16, 185, 129, 0.4)",
-    borderGlow: "1px solid rgba(16, 185, 129, 0.5)",
+    glowColor: "rgba(22, 163, 74, 0.4)",
+    borderGlow: "1px solid rgba(22, 163, 74, 0.5)",
   },
   error: {
-    inlineBackground: "rgba(239, 68, 68, 0.08)",
-    inlineBorder: "1px solid rgba(239, 68, 68, 0.25)",
-    modalGlow: "0 0 24px rgba(239, 68, 68, 0.25)",
+    inlineBackground: "rgba(220, 38, 38, 0.08)",
+    inlineBorder: "1px solid rgba(220, 38, 38, 0.25)",
+    modalGlow: "0 0 24px rgba(220, 38, 38, 0.25)",
   },
   empty: {
-    dashedBorder: "1px dashed rgba(255, 255, 255, 0.16)",
-    dashedBorderLight: "1px dashed rgba(0, 0, 0, 0.16)",
+    dashedBorder: "1px dashed rgba(199, 209, 227, 0.24)",
+    dashedBorderLight: "1px dashed rgba(3, 20, 51, 0.16)",
     padding: "32px 24px",
     borderRadius: "12px",
   },
@@ -103,6 +104,7 @@ export const uiStateTokens = {
 
 export interface SemanticColors {
   primary: string;
+  accent: string;
   primaryHover: string;
   primaryActive: string;
   secondary: string;
@@ -117,6 +119,7 @@ export interface SemanticColors {
 
 export const getSemanticColors = (mode: "light" | "dark"): SemanticColors => ({
   primary: primitiveColors.brand[500],
+  accent: primitiveColors.accent[500],
   primaryHover: primitiveColors.brand[600],
   primaryActive: primitiveColors.brand[700],
   secondary: primitiveColors.slate[500],

@@ -333,4 +333,139 @@ describe("composeMuiTheme", () => {
       expect((theme as any).tenantTheme).toBeDefined();
     });
   });
+
+  describe("per-mode chrome tokens", () => {
+    // Regression coverage for the "dark mode never reaches the app shell" bug:
+    // ColorToken.light/.dark were declared but never consumed, so a chrome
+    // colour authored for light mode leaked into dark mode verbatim.
+    const chromeTenantTheme = {
+      mode: "light" as const,
+      skin: "default" as const,
+      semiDark: false,
+      primaryColor: "#1976d2",
+      secondaryColor: "#ffb300",
+      tokens: {
+        colors: {
+          background: { value: "#FFFFFF", light: "#FFFFFF", dark: "#0B1220" },
+          surface: { value: "#F5F5F5", light: "#F5F5F5", dark: "#151C2C" },
+          text: { value: "#111111", light: "#111111", dark: "#F5F5F5" },
+        },
+        spacing: {},
+        borderRadius: {},
+        typography: {},
+        shadows: {},
+      },
+    };
+
+    it("prefers the explicit per-mode token over `.value` in light mode", () => {
+      const theme = composeMuiTheme({
+        currentMode: "light" as SystemMode,
+        settings: baseSettings,
+        tenantTheme: chromeTenantTheme as any,
+      });
+
+      expect(theme.palette.background.default).toBe("#FFFFFF");
+      expect(theme.palette.background.paper).toBe("#F5F5F5");
+      expect(theme.palette.text.primary).toBe("#111111");
+    });
+
+    it("prefers the explicit per-mode token over `.value` in dark mode", () => {
+      const theme = composeMuiTheme({
+        currentMode: "dark" as SystemMode,
+        settings: baseSettings,
+        tenantTheme: chromeTenantTheme as any,
+      });
+
+      // Not "#FFFFFF" (the light `.value`) and not light-heuristic-filtered
+      // away either - the authored dark override wins outright.
+      expect(theme.palette.background.default).toBe("#0B1220");
+      expect(theme.palette.background.paper).toBe("#151C2C");
+      expect(theme.palette.text.primary).toBe("#F5F5F5");
+    });
+
+    it("falls back to the lightness heuristic when only `.value` is set", () => {
+      const legacyTenantTheme = {
+        mode: "light" as const,
+        skin: "default" as const,
+        semiDark: false,
+        primaryColor: "#1976d2",
+        secondaryColor: "#ffb300",
+        tokens: {
+          // Every config authored before per-mode tokens existed looks like
+          // this: no `.light`/`.dark`, `.value` only.
+          colors: { background: { value: "#FFFFFF" } },
+          spacing: {},
+          borderRadius: {},
+          typography: {},
+          shadows: {},
+        },
+      };
+
+      const light = composeMuiTheme({
+        currentMode: "light" as SystemMode,
+        settings: baseSettings,
+        tenantTheme: legacyTenantTheme as any,
+      });
+      const dark = composeMuiTheme({
+        currentMode: "dark" as SystemMode,
+        settings: baseSettings,
+        tenantTheme: legacyTenantTheme as any,
+      });
+
+      // Light: "#FFFFFF" fits light mode, so the tenant's value is honoured.
+      expect(light.palette.background.default).toBe("#FFFFFF");
+      // Dark: "#FFFFFF" does not fit dark mode, so the mode's own static
+      // background wins instead of a white page in dark mode.
+      expect(dark.palette.background.default).not.toBe("#FFFFFF");
+    });
+
+    it("resolves DEFAULT_THEME_CONFIG's own chrome tokens correctly in both modes", () => {
+      const light = composeMuiTheme({
+        currentMode: "light" as SystemMode,
+        settings: baseSettings,
+        tenantTheme: null,
+      });
+      const dark = composeMuiTheme({
+        currentMode: "dark" as SystemMode,
+        settings: baseSettings,
+        tenantTheme: null,
+      });
+
+      expect(light.palette.background.default).toBe("#F6F8FC");
+      expect(light.palette.text.primary).toBe("#031433");
+      expect(dark.palette.background.default).toBe("#031433");
+      expect(dark.palette.text.primary).toBe("#FFFFFF");
+    });
+  });
+
+  describe("spacing", () => {
+    const theme = () =>
+      composeMuiTheme({
+        currentMode: "light" as SystemMode,
+        settings: baseSettings,
+        tenantTheme: null,
+      });
+
+    it("keeps a custom property for whole steps so a tenant scale can override them", () => {
+      expect(theme().spacing(5)).toBe("var(--spacing-5, calc(0.25rem * 5))");
+      expect(theme().spacing(0)).toBe("var(--spacing-0, calc(0.25rem * 0))");
+    });
+
+    it("never puts a fraction inside a custom property name", () => {
+      // `--spacing-2.5` is not a valid custom-property name: the dot ends the
+      // ident. That makes `var(--spacing-2.5, ...)` an invalid *reference*
+      // rather than a value with a fallback, so the whole declaration is
+      // invalid at computed-value time and the property resolves to 0 - which
+      // is what `p: 2.5` and `gap: 1.5` did everywhere in the app.
+      for (const factor of [0.5, 1.5, 2.5, 3.5]) {
+        const value = theme().spacing(factor);
+        expect(value, `spacing(${factor})`).not.toContain("var(");
+        expect(value).toBe(`calc(0.25rem * ${factor})`);
+      }
+    });
+
+    it("still accepts a named step", () => {
+      expect(theme().spacing("md")).toBe("var(--spacing-md)");
+    });
+  });
 });

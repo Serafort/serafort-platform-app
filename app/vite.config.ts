@@ -69,6 +69,28 @@ export default defineConfig({
             devOptions: {
               enabled: true,
             },
+            // Serafort brand kit (serafort_brand/brand-kit/web/site.webmanifest).
+            // Keep name/colours in sync with app/index.html and @cap/theme.
+            manifest: {
+              name: 'Serafort',
+              short_name: 'Serafort',
+              description: 'Secure Identities. Stronger Futures.',
+              start_url: '/',
+              scope: '/',
+              display: 'standalone',
+              background_color: '#031433',
+              theme_color: '#031433',
+              icons: [
+                { src: '/icons/pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+                { src: '/icons/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+                {
+                  src: '/icons/maskable-icon.png',
+                  sizes: '512x512',
+                  type: 'image/png',
+                  purpose: 'maskable',
+                },
+              ],
+            },
             workbox: {
               maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // 6 MiB — covers largest vendor chunk
               runtimeCaching: [
@@ -207,6 +229,7 @@ export default defineConfig({
       'react-router-dom',
       'react-use',
       '@tanstack/react-query',
+      '@tanstack/react-query-devtools',
       '@tanstack/react-table',
       '@tanstack/react-virtual',
       '@tanstack/match-sorter-utils',
@@ -220,7 +243,12 @@ export default defineConfig({
   },
   optimizeDeps: {
     force: true, // Force Vite to clear its cache and re-bundle @mui/system
-    include: ['@tanstack/react-query', 'react-toastify', 'recharts'],
+    include: [
+      '@tanstack/react-query',
+      '@tanstack/react-query-devtools',
+      'react-toastify',
+      'recharts',
+    ],
     // Exclude workspace source packages — they are TypeScript source-linked
     exclude: [
       '@cap/layout',

@@ -434,7 +434,9 @@ class TokenRefreshManager {
       );
 
       if (!response.ok) {
-        throw new Error(`Refresh failed with status ${response.status}`);
+        const error = new Error(`Refresh failed with status ${response.status}`);
+        (error as unknown as { status: number }).status = response.status;
+        throw error;
       }
 
       const data: RefreshResponseDto = await response.json();
@@ -529,10 +531,19 @@ class TokenRefreshManager {
           throw error;
         }
 
+        const status =
+          (error as { status?: number }).status ??
+          (typeof (error as Error)?.message === "string" &&
+          (error as Error).message.includes("status 400")
+            ? 400
+            : (error as Error).message.includes("status 401")
+              ? 401
+              : (error as Error).message.includes("status 403")
+                ? 403
+                : undefined);
+
         const isAuthFailure =
-          (error as { status?: number }).status === 400 ||
-          (error as { status?: number }).status === 401 ||
-          (error as { status?: number }).status === 403;
+          status === 400 || status === 401 || status === 403;
 
         if (isAuthFailure) {
           this.handleRefreshFailure();
@@ -644,12 +655,29 @@ export class FetchClient {
     }
 
     if (!headers.has("X-Request-ID")) {
-      headers.set(
-        "X-Request-ID",
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`,
-      );
+      let requestId: string;
+      if (
+        typeof crypto !== "undefined" &&
+        typeof crypto.randomUUID === "function"
+      ) {
+        requestId = crypto.randomUUID();
+      } else if (
+        typeof crypto !== "undefined" &&
+        typeof crypto.getRandomValues === "function"
+      ) {
+        const arr = new Uint8Array(16);
+        crypto.getRandomValues(arr);
+        requestId =
+          "req_" +
+          Array.from(arr)
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+      } else {
+        throw new Error(
+          "Secure random number generation is not supported in this environment.",
+        );
+      }
+      headers.set("X-Request-ID", requestId);
     }
 
     if (currentImpersonationSession) {

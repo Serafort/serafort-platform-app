@@ -10,10 +10,20 @@
  * These tests close that loop against a committed snapshot of
  * `node ace list:routes` (refresh it with `node scripts/sync-route-snapshot.mjs`).
  *
- * Scope is deliberately the authentication surface — `/api/auth/*`, `/api/user/*`
- * and `/api/v1/auth/*`. The admin, SCIM and blockchain trees have not been
- * audited against the backend yet, so asserting on them here would fail for
- * reasons unrelated to what this guard is meant to catch.
+ * Scope is the authentication and identity surface: `/api/auth/*`,
+ * `/api/user/*`, `/api/mfa/*`, `/api/organizations/*`, the admin tree on both
+ * `/api/admin/*` and `/api/v1/admin/*`, and their `/api/v1` counterparts. The
+ * product trees that merely sit behind the same auth boundary — blockchain,
+ * civil registry, automation, backup, the anonymous guest endpoints — are out
+ * of scope by `OUT_OF_SCOPE` below; they are not identity routes and asserting
+ * on them would fail for reasons unrelated to what this guard is meant to
+ * catch.
+ *
+ * NFC access control was in that list until the registry gained real entries
+ * for it. It is now in scope: physical access control decides who gets through
+ * a door on the strength of a card mapped to a user, which is an identity
+ * decision, and a card-revocation route that silently 404s is exactly the class
+ * of failure this guard exists to catch.
  */
 
 import { describe, it, expect } from "vitest";
@@ -30,7 +40,57 @@ interface BackendRoute {
 
 const backendRoutes: BackendRoute[] = routeSnapshot.routes;
 
-const AUTH_SURFACE = /^\/api\/(auth|user|v1\/auth)(\/|$)/;
+const AUTH_SURFACE =
+  /^\/api\/(auth|user|mfa|admin|organizations|scim|v1\/(auth|user|admin|scim))(\/|$)/;
+
+/**
+ * Carved out of `AUTH_SURFACE`: routes that live under an identity prefix but
+ * are not identity routes. They are product features that happen to be mounted
+ * inside the admin tree, or anonymous-visitor endpoints with no principal at
+ * all, and wiring them is a separate piece of work from this guard's subject.
+ */
+const OUT_OF_SCOPE =
+  /^\/api\/(v1\/)?admin\/(backup|guest|docs|sandbox|civil-registry|contact-messages)(\/|$)|^\/api\/(v1\/)?admin\/events(\/|$)/;
+
+/**
+ * Exemptions matched on the URL rather than the Adonis route name, for the two
+ * cases a name cannot reach.
+ *
+ * The `/api/mfa/*` mount is declared without `.as()`, so every route there
+ * shares the empty name and no name-keyed set can single one out. The SCIM
+ * trees are named, but there are 32 of them across two mounts and listing each
+ * would say the same thing 32 times.
+ */
+const EXEMPT_PATTERNS: { pattern: RegExp; reason: string }[] = [
+  {
+    // Mounted a second time at `/api/mfa` for older clients, on the same
+    // `totp_controller` methods the registry already reaches through
+    // `auth.mfa.setup`, `auth.mfa.verify` and `auth.mfa.stepUp.recovery`.
+    pattern: /^\/api\/mfa\/totp\/(enroll|recovery)$/,
+    reason: "duplicate mount of the /api/auth/mfa TOTP routes",
+  },
+  {
+    // SCIM 2.0 is an inbound provisioning API: an identity provider calls it
+    // with a bearer token issued to the connector, guarded by `scimAuth()`
+    // rather than the user session. The browser configures SCIM through
+    // `admin.scim.*`; it never speaks SCIM itself.
+    pattern: /^\/(api\/)?scim\/v2(\/|$)/,
+    reason: "inbound SCIM provisioning API, called by the IdP not the browser",
+  },
+  {
+    // `/api/v1/*` is canonical for auth, but not for admin: several v1 admin
+    // routes are gated more weakly than the legacy twins that reach the same
+    // controllers — `alert-rules` and `threat-intel` carry no `admin()` at all,
+    // and the v1 RBAC policy routes drop the `mfa()` step-up plus
+    // `requirePermission('org:manage')` the legacy mount enforces. The registry
+    // therefore targets the legacy admin tree, and the v1 twins stay uncovered
+    // on purpose. A v1 admin route the registry *does* target is covered
+    // normally and never reaches this list. Revisit once the v1 admin mount
+    // carries the same middleware as the legacy one.
+    pattern: /^\/api\/v1\/admin\//,
+    reason: "v1 admin twin, deliberately not called — see the admin exception",
+  },
+];
 
 /**
  * Backend routes that exist but which no browser client should call, so the
@@ -45,6 +105,55 @@ const NOT_BROWSER_CALLABLE = new Set([
   "api.auth.oidc.par",
   "api.auth.oidc.register",
   "api.auth.saml.sso",
+  // Server-rendered sign-in view for the OIDC interaction flow. The SPA renders
+  // its own sign-in screen and never fetches this.
+  "api.auth.login.view",
+  // The user agent posts here by itself, from the `report-uri` in the
+  // Content-Security-Policy header. Application code never calls it, and a
+  // registry entry would imply it should.
+  "api.admin.security.csp",
+]);
+
+/**
+ * Backend routes that are pure aliases of a route the registry already covers —
+ * same controller method, different path. The backend keeps them for older
+ * clients; adding a second registry key for the same handler would just create
+ * two ways to spell one call.
+ */
+const DUPLICATE_ALIAS = new Set([
+  // → totp_controller.verifyLogin, covered as `auth.mfa.verifyLogin`.
+  "api.auth.mfa.totp.verify",
+  "api.auth.mfa.totp.verifyLogin",
+  // → totp_controller.recoveryVerify, covered as `auth.mfa.recoveryVerify`.
+  "api.auth.mfa.totp.recoveryVerify",
+]);
+
+/**
+ * `/api/v1/auth/*` routes that share a name with something the frontend already
+ * calls but are **not** twins of it. Each was checked against the legacy handler
+ * and rejected; the registry stays on the legacy route. Recorded here so the
+ * coverage test does not read them as gaps, and so nobody repeats the check.
+ *
+ * - `mfa.totpSetup` / `mfa.totpVerify` — a separate implementation, not a
+ *   delegation. Setup answers `{ secret, qrCodeUrl, backupCodes }` against the
+ *   legacy `{ qrDataUrl, manualEntry }`, and returns the raw TOTP seed to the
+ *   browser where the legacy route keeps it in Redis.
+ * - `verifyEmail` — expects `email` + an encrypted `token` in the body. The
+ *   mailed link is a *signed URL* for the legacy route, and its signature is
+ *   validated against the request URL, so it cannot be moved into a body.
+ * - `verifyResetPassword` — despite the name this performs the reset rather
+ *   than verifying the link, so its twin is `auth.resetPassword`, not
+ *   `auth.verifyResetPassword`. It is also weaker than the legacy reset: it
+ *   reads then deletes the token in two steps where the legacy path consumes it
+ *   atomically, and it calls `revokeAllUserTokens` rather than the
+ *   `revokeAllForUser` the legacy controller moved to under finding T0-8,
+ *   leaving opaque bearer tokens valid after a password reset.
+ */
+const V1_NOT_A_TWIN = new Set([
+  "api.v1.auth.mfa.totpSetup",
+  "api.v1.auth.mfa.totpVerify",
+  "api.v1.auth.verifyEmail",
+  "api.v1.auth.verifyResetPassword",
 ]);
 
 /**
@@ -66,25 +175,27 @@ const SUPERSEDED_BY_V1 = new Set([
   "api.auth.passkey.register.start",
   "api.auth.oidc.deviceVerifyAlias",
   "api.user.mfaMethods.alias",
+  // `admin.security.health` reads the v1 route: same controller, and it sits
+  // with the rest of the v1 security block the dashboard already calls.
+  "api.admin.security.health",
+  // `user.emailPreferences` reads `/api/v1/user/email-preferences`. The legacy
+  // mount's PATCH has no v1 counterpart and no caller.
+  "api.user.emailPreferences.show",
+  "api.user.emailPreferences.update",
+  "api.user.emailPreferences.patch",
 ]);
 
 /**
  * Backend auth routes the frontend does not reach yet. Every entry here is a
  * known gap being worked through; deleting an entry as it gets wired is the
  * point, so this list should only ever shrink.
+ *
+ * Empty as of the pass that wired `auth.me` and the authenticated recovery-code
+ * step-up. Keep it empty: a genuinely new gap belongs here with a note on what
+ * has to happen to close it, not in one of the exemption sets above — those say
+ * "never", this says "not yet".
  */
-const KNOWN_UNWIRED = new Set([
-  "api.auth.login.view",
-  "api.auth.mfa.totp.recovery",
-  "api.auth.mfa.totp.recoveryVerify",
-  "api.auth.mfa.totp.verify",
-  "api.auth.mfa.totp.verifyLogin",
-  "api.v1.auth.me",
-  "api.v1.auth.mfa.totpSetup",
-  "api.v1.auth.mfa.totpVerify",
-  "api.v1.auth.verifyEmail",
-  "api.v1.auth.verifyResetPassword",
-]);
+const KNOWN_UNWIRED = new Set<string>([]);
 
 interface RegistryPath {
   /** Dotted key into API_ENDPOINTS, e.g. "auth.mfa.setup" — names the failure. */
@@ -137,13 +248,16 @@ function normalize(path: string): string {
   return collapsed.length > 1 ? collapsed.replace(/\/$/, "") : collapsed;
 }
 
+function inScope(path: string): boolean {
+  const normalized = normalize(path);
+  return AUTH_SURFACE.test(normalized) && !OUT_OF_SCOPE.test(normalized);
+}
+
 const registryPaths = collectRegistryPaths(API_ENDPOINTS).filter((entry) =>
-  entry.candidates.some((candidate) => AUTH_SURFACE.test(normalize(candidate))),
+  entry.candidates.some(inScope),
 );
 
-const authRoutes = backendRoutes.filter((route) =>
-  AUTH_SURFACE.test(route.pattern),
-);
+const authRoutes = backendRoutes.filter((route) => inScope(route.pattern));
 
 /** Exact patterns the backend serves, plus the shorter form of every optional
  *  trailing param (`/sessions/:id?` also answers `/sessions`). */
@@ -198,15 +312,22 @@ describe("API_ENDPOINTS drift guard", () => {
         if (route.pattern.endsWith("/*")) return false;
         if (NOT_BROWSER_CALLABLE.has(route.name)) return false;
         if (SUPERSEDED_BY_V1.has(route.name)) return false;
+        if (DUPLICATE_ALIAS.has(route.name)) return false;
+        if (V1_NOT_A_TWIN.has(route.name)) return false;
+        if (EXEMPT_PATTERNS.some((e) => e.pattern.test(normalize(route.pattern))))
+          return false;
         return !covered.has(normalize(route.pattern));
       })
-      .map((route) => route.name)
-      .filter((name) => !KNOWN_UNWIRED.has(name));
+      .filter((route) => !KNOWN_UNWIRED.has(route.name))
+      // The `/api/mfa` mount declares no route names, so reporting the name
+      // alone would print a bare "" that names nothing. Fall back to the URL.
+      .map((route) => route.name || `${route.method} ${route.pattern}`);
 
     expect(
       [...new Set(uncovered)].sort(),
       "backend auth routes with no registry entry — wire them, or add to " +
-        "KNOWN_UNWIRED / NOT_BROWSER_CALLABLE / SUPERSEDED_BY_V1 with a reason",
+        "KNOWN_UNWIRED / NOT_BROWSER_CALLABLE / SUPERSEDED_BY_V1 / " +
+        "DUPLICATE_ALIAS / V1_NOT_A_TWIN / EXEMPT_PATTERNS with a reason",
     ).toEqual([]);
   });
 });

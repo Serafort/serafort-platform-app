@@ -21,26 +21,29 @@ import {
 } from "@cap/platform-core";
 import type { WidgetDefinition } from "@cap/shared-types";
 import { useAppStore } from "@cap/platform-store";
-import { connectPipelineStream } from "../services/widgetAgentClient";
+import {
+  attachPipelineRun,
+  failPipelineRun,
+  requestPipelineRun,
+  type PipelineRunOptions,
+  type PipelineRunResponse,
+} from "../agents/pipeline";
+import {
+  adoptServerAuditEntries,
+  buildClientAuditEntry,
+} from "../agents/auditTrail";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-export interface GenerateWidgetRequest {
-  draftId: string;
-  prompt: string;
-  providerType?: string;
-  model?: string;
-  autoPublish?: boolean;
-  pageId?: string;
-}
+/**
+ * The mutation takes the same options the pipeline does, so a refinement's
+ * extra fields (baseDsl, parentDraftId, refinement) do not need a second
+ * shape to travel in.
+ */
+export type GenerateWidgetRequest = PipelineRunOptions;
 
-export interface GenerateWidgetResponse {
-  success: boolean;
-  runId: number;
-  status: string;
-  sseUrl: string;
-  error?: string;
-}
+/** The wire shape is defined once, in ../agents/pipeline. */
+export type GenerateWidgetResponse = PipelineRunResponse;
 
 export interface PublishWidgetRequest {
   runId?: number;
@@ -55,6 +58,8 @@ export interface PublishWidgetResponse {
   widgetId?: string;
   slotId?: string;
   error?: string;
+  /** Audit entries the backend recorded for this publish, when it sends them. */
+  audit?: unknown;
 }
 
 export interface WidgetRunResponse {
@@ -80,6 +85,7 @@ export const WIDGET_STUDIO_KEYS = {
   runs: () => ["widget-studio", "runs"] as const,
   run: (runId: number) => ["widget-studio", "runs", runId] as const,
   artifacts: () => ["widget-studio", "artifacts"] as const,
+  audit: (runId: number) => ["widget-studio", "runs", runId, "audit"] as const,
   dashboardLayouts: () => ["dashboard", "layouts"] as const,
 };
 
@@ -113,50 +119,18 @@ export function useGenerateWidget(
       store.setWidgetStudioRunning(true);
       store.setWidgetLifecycle(payload.draftId, "draft");
 
-      return apiClient.post<GenerateWidgetResponse>(
-        "/api/v1/widgets/generate",
-        {
-          draftId: payload.draftId,
-          prompt: payload.prompt,
-          userId: 1, // resolved server-side from auth token
-          providerType: store.selectedProvider || "gemini",
-          model: payload.model || store.selectedModel,
-          autoPublish: payload.autoPublish ?? false,
-          pageId: payload.pageId ?? "dashboard",
-          runAsync: true,
-        },
-      );
+      return requestPipelineRun(payload);
     },
     onSuccess: (...args) => {
       const [response, variables] = args;
-      const data = response.data;
-      if (data?.success && data.runId) {
-        // Connect to the SSE stream now that we have a runId
-        connectPipelineStream({
-          runId: data.runId,
-          draftId: variables.draftId,
-          prompt: variables.prompt,
-          autoPublish: variables.autoPublish,
-        });
-      } else {
-        // Generation failed to initialize
-        const store = useAppStore.getState();
-        store.updateWidgetAgent(variables.draftId, "requirement", {
-          status: "error",
-          error: data?.error || "Failed to initialize agent pipeline",
-        });
-        store.setWidgetStudioRunning(false);
-      }
+      // Connects the SSE stream, or records the failure - the same way every
+      // other caller does.
+      attachPipelineRun(response.data, variables);
       customOnSuccess?.(...args);
     },
     onError: (...args) => {
       const [error, variables] = args;
-      const store = useAppStore.getState();
-      store.updateWidgetAgent(variables.draftId, "requirement", {
-        status: "error",
-        error: error.message || "Network error",
-      });
-      store.setWidgetStudioRunning(false);
+      failPipelineRun(variables.draftId, error.message || "Network error");
       customOnError?.(...args);
     },
     onSettled: (...args) => {
@@ -206,6 +180,26 @@ export function usePublishWidget(
           status: "done",
           completedAt: new Date().toISOString(),
         });
+
+        // Publishing from the panel used to leave no trace at all: this hook
+        // is the path the Publish button takes, and it recorded a lifecycle
+        // change without recording who made it.
+        const attested = adoptServerAuditEntries(response.data.audit, {
+          runId: variables.runId,
+          widgetId: variables.dsl.id,
+        });
+        const entries = attested.length
+          ? attested
+          : [
+              buildClientAuditEntry({
+                dsl: variables.dsl,
+                action: "published",
+                runId: variables.runId,
+              }),
+            ];
+        for (const entry of entries) {
+          store.appendAuditEntry(variables.draftId, entry);
+        }
 
         // Also add to local Zustand layout store for instant feedback
         const dsl = variables.dsl;
@@ -270,4 +264,46 @@ export function useWidgetRun(
     staleTime: 1000 * 30, // 30 seconds
     ...options,
   });
+}
+
+// ─── useWidgetAuditTrail ────────────────────────────────────────────────────
+
+export interface WidgetAuditResponse {
+  success: boolean;
+  runId: number;
+  audit: unknown;
+}
+
+/**
+ * The server's own record of a run.
+ *
+ * This is the half of the audit story the client cannot write for itself: the
+ * user id the request authenticated as, the model the run was dispatched
+ * with, timestamps the database recorded. Entries are adopted as
+ * `source: "server"`, which is what lets the panel call a trail attested
+ * instead of labelling it as a local note.
+ */
+export function useWidgetAuditTrail(
+  runId: number | undefined,
+  options?: Omit<
+    UseQueryOptions<FetchResponse<WidgetAuditResponse>, HttpError>,
+    "queryKey" | "queryFn"
+  >,
+) {
+  const query = useQuery({
+    queryKey: WIDGET_STUDIO_KEYS.audit(runId ?? 0),
+    queryFn: () =>
+      apiClient.get<WidgetAuditResponse>(`/api/v1/widgets/runs/${runId}/audit`),
+    enabled: runId !== undefined && runId > 0,
+    staleTime: 1000 * 60,
+    // A missing trail is not worth three attempts: the run either recorded
+    // one or it did not.
+    retry: false,
+    ...options,
+  });
+
+  return {
+    ...query,
+    entries: adoptServerAuditEntries(query.data?.data?.audit, { runId }),
+  };
 }

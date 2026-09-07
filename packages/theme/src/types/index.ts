@@ -1,5 +1,6 @@
 import type { PrimitiveTokens } from "./designTokens";
 import type { EffectConfig } from "./effects";
+import { DEFAULT_EFFECT_CONFIG } from "./effects";
 import type { ComponentStyles } from "./componentStyles";
 import type { ThemePresetId } from "./presets";
 
@@ -208,18 +209,53 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
   organizationId: "default",
   name: "Default Theme",
   tokens: {
+    // Serafort brand kit (serafort_brand/brand-kit/tokens) - keep in sync
+    // with DEFAULT_PRIMITIVE_TOKENS in designTokens.ts.
+    //
+    // background/surface/text/textMuted/border carry explicit `light`/`dark`
+    // values rather than one `.value` for both: composeMuiTheme's
+    // resolveChromeColor() reads those first, mirroring the platform's own
+    // `light.ts`/`dark.ts` statics exactly rather than inferring a fit from
+    // `.value`'s lightness. `.value` still holds the light-mode colour, so
+    // legacy consumers that only ever read `.value` (the WCAG contrast badge
+    // in ColorPaletteEditor, for instance) keep working.
     colors: {
-      primary: { value: "#2563EB" },
-      secondary: { value: "#64748B" },
-      background: { value: "#F8FAFC" },
-      surface: { value: "#ffffff" },
-      text: { value: "#0f172a" },
-      textMuted: { value: "#64748b" },
-      border: { value: "#e2e8f0" },
-      success: { value: "#22c55e" },
-      warning: { value: "#f59e0b" },
-      error: { value: "#ef4444" },
-      info: { value: "#3b82f6" },
+      primary: { value: "#047BFA", description: "Serafort blue" },
+      secondary: { value: "#032457", description: "Serafort navy" },
+      background: {
+        value: "#F6F8FC",
+        light: "#F6F8FC", // fog 50
+        dark: "#031433", // brand ink
+        description: "Page background",
+      },
+      surface: {
+        value: "#FFFFFF",
+        light: "#FFFFFF",
+        dark: "#032457", // brand navy
+        description: "Card/surface background",
+      },
+      text: {
+        value: "#031433",
+        light: "#031433", // brand ink
+        dark: "#FFFFFF",
+        description: "Primary text",
+      },
+      textMuted: {
+        value: "#64708A",
+        light: "#64708A", // slate 500
+        dark: "#C7D1E3", // mist 300
+        description: "Muted text",
+      },
+      border: {
+        value: "#C7D1E3",
+        light: "#C7D1E3", // mist 300
+        dark: "#1B2F5C",
+        description: "Border color",
+      },
+      success: { value: "#16A34A" },
+      warning: { value: "#D97706" },
+      error: { value: "#DC2626" },
+      info: { value: "#047BFA" },
     },
     spacing: {
       xs: "0.25rem",
@@ -296,23 +332,22 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
       tooltip: 1500,
     },
   },
+  // Spread from DEFAULT_EFFECT_CONFIG rather than listing effects by hand.
+  // This object is the base every preset is merged onto (see applyPreset), and
+  // for as long as it carried only `glassmorphism` and `neumorphism` a preset
+  // built on brutalism, bento, organic, immersive or liquid-glass had nowhere
+  // to merge its config into - it set `globalType` and lost everything else,
+  // so the effect announced itself and then painted nothing.
   effects: {
-    globalType: "standard",
+    ...DEFAULT_EFFECT_CONFIG,
     glassmorphism: {
-      enabled: false,
-      blur: "16px",
+      ...DEFAULT_EFFECT_CONFIG.glassmorphism,
       background: "rgba(255, 255, 255, 0.1)",
       borderColor: "rgba(255, 255, 255, 0.2)",
-      borderWidth: "1px",
-      opacity: 0.8,
     },
     neumorphism: {
-      enabled: false,
+      ...DEFAULT_EFFECT_CONFIG.neumorphism,
       backgroundColor: "#e0e5ec",
-      intensity: 0.15,
-      distance: 5,
-      altitude: 10,
-      borderRadius: "12px",
     },
   },
   components: {

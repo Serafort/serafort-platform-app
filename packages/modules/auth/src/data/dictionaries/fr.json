@@ -109,7 +109,7 @@
     "emailTesting": "Email Testing",
     "mfaAnalytics": "MFA Analytics",
     "securityStatus": "Security Status",
-    "activityTimeline": "Activity Timeline",
+    "activityTimeline": "Journal d'activité",
     "linkedAccounts": "Comptes liés",
     "apiTokens": "Jetons API",
     "security": "Méthodes de sécurité",
@@ -143,7 +143,8 @@
     "light": "Clair",
     "dark": "Sombre",
     "system": "Système",
-    "switchMode": "Changer le mode du thème - actuellement"
+    "switchMode": "Changer le mode du thème - actuellement",
+    "themeBuilder": "Créateur de thème"
   },
   "language": {
     "selectLanguage": "Choisir la langue",

@@ -5,10 +5,12 @@
  * Tier 3: Component Overrides (State & element-bound contracts)
  */
 
+export * from "./brand";
 export * from "./primitives";
 export * from "./semantics";
 export * from "./components";
 
+import { brandCssVariables, brandTypography } from "./brand";
 import {
   primitiveColors,
   spacingTokens,
@@ -113,6 +115,10 @@ export function tokensToCssVariables(
     "--color-error-600": primitiveColors.error[600],
     "--color-error-700": primitiveColors.error[700],
 
+    "--color-accent-400": primitiveColors.accent[400],
+    "--color-accent-500": primitiveColors.accent[500],
+    "--color-accent-600": primitiveColors.accent[600],
+
     "--color-info-500": primitiveColors.info[500],
     "--color-info-600": primitiveColors.info[600],
     "--color-info-700": primitiveColors.info[700],
@@ -189,6 +195,11 @@ export function tokensToCssVariables(
     "--font-body": typo.body,
     "--font-caption": typo.caption,
 
+    // Tier 2: Brand Font Families
+    "--font-family-display": brandTypography.display.stack,
+    "--font-family-body": brandTypography.body.stack,
+    "--font-family-mono": brandTypography.mono.stack,
+
     // Tier 2: Effect Presets
     "--glass-bg": effects.glass.bg,
     "--glass-blur": effects.glass.blur,
@@ -257,6 +268,10 @@ export function tokensToCssVariables(
     "--state-success-icon-color": state.success.iconCheckColor,
     "--state-success-glow-highlight": state.success.glowHighlight,
     "--state-success-banner-bg": state.success.bannerBackground,
+
+    // Tier 0: Serafort brand role layer (--sf-*), so markup lifted straight
+    // from the brand kit renders on-brand inside the app shell.
+    ...brandCssVariables(mode),
   };
 
   return vars;

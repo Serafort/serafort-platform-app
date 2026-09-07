@@ -18,6 +18,13 @@ const Path = {
     real_time_v2: '/admin/monitoring/real-time-events-v2',
     health: '/admin/monitoring/health',
     security_health: '/admin/monitoring/security-health',
+    // Audit-log *integrity*, as distinct from `exportAudit` which reads the
+    // entries themselves.
+    auditChain: '/admin/monitoring/audit-chain',
+    anchors: '/admin/monitoring/anchors',
+    queues: '/admin/monitoring/queues',
+    anomalies: '/admin/monitoring/anomalies',
+    alerts: '/admin/monitoring/alerts',
   },
   system: {
     browserNotSupported: '/system/browser-not-supported',

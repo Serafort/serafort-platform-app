@@ -232,9 +232,12 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
     const query = deferredSearchQuery.trim().toLowerCase()
     const isAllFilter = selectedFilter === 'all'
 
+    if (!query && isAllFilter) {
+      return events
+    }
+
     return events.filter((ev) => {
-      const matchesFilter = isAllFilter || ev.type === selectedFilter
-      if (!matchesFilter) return false
+      if (!isAllFilter && ev.type !== selectedFilter) return false
       if (!query) return true
 
       return (

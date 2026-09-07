@@ -2,10 +2,14 @@ import { describe, it, expect } from "vitest";
 import {
   mergeDeep,
   applyPreset,
+  getPresetMode,
+  mergeThemeWithPreset,
   validateTheme,
   createThemeFromPartial,
 } from "./mergeTheme";
 import { THEME_PRESETS } from "../types/presets";
+import { DEFAULT_THEME_CONFIG } from "../types";
+import type { TenantThemeConfig } from "../types";
 
 describe("mergeDeep", () => {
   it("should return target when no sources provided", () => {
@@ -170,11 +174,24 @@ describe("validateTheme", () => {
       organizationId: "org-123",
       effects: {
         neumorphism: {
-          altitude: 50,
+          altitude: 100,
         },
       },
     });
     expect(result.some((e) => e.includes("Neumorphism altitude"))).toBe(true);
+  });
+
+  it("accepts a light angle anywhere in the quadrant", () => {
+    // `altitude` is the light's elevation above the horizon, so the whole
+    // 0-90 quadrant is meaningful. It was capped at 45 while the geometry
+    // underneath was measuring from somewhere else entirely.
+    for (const altitude of [0, 45, 60, 90]) {
+      const result = validateTheme({
+        organizationId: "org-123",
+        effects: { neumorphism: { altitude } },
+      });
+      expect(result.some((e) => e.includes("Neumorphism altitude"))).toBe(false);
+    }
   });
 });
 
@@ -206,5 +223,61 @@ describe("createThemeFromPartial", () => {
       "org-123",
     );
     expect(result.tokens.colors.primary).toBeDefined();
+  });
+});
+
+describe("mergeThemeWithPreset", () => {
+  it("applies a preset onto an incomplete config instead of throwing", () => {
+    // The theme editor opens with an empty draft and only fills it in on the
+    // first edit, so selecting a preset as the very first action used to
+    // arrive here as `{}` and throw on `draft.tokens.colors` - which the user
+    // saw as the preset card doing nothing at all.
+    const result = mergeThemeWithPreset({} as TenantThemeConfig, "dark-ui");
+
+    expect(result.preset).toBe("dark-ui");
+    expect(result.tokens.colors.primary.value).toBe(
+      THEME_PRESETS["dark-ui"].tokens.colors!.primary!.value,
+    );
+    expect(result.tokens.colors.background.value).toBe(
+      THEME_PRESETS["dark-ui"].tokens.colors!.background!.value,
+    );
+  });
+
+  it("drops per-mode overrides the previous theme had for a chrome colour", () => {
+    // An explicit `.light`/`.dark` beats `.value` in resolveChromeColor, so a
+    // leftover one would keep painting the old surface under the new preset.
+    const previous = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: {
+        ...DEFAULT_THEME_CONFIG.tokens,
+        colors: {
+          ...DEFAULT_THEME_CONFIG.tokens.colors,
+          background: { value: "#ffffff", light: "#ffffff", dark: "#031433" },
+        },
+      },
+    } as TenantThemeConfig;
+
+    const result = mergeThemeWithPreset(previous, "dark-ui");
+
+    expect(result.tokens.colors.background.value).toBe("#09090b");
+    expect(result.tokens.colors.background.dark).toBeUndefined();
+    expect(result.tokens.colors.background.light).toBeUndefined();
+  });
+});
+
+describe("getPresetMode", () => {
+  it("reads dark from a preset previewed on a dark background", () => {
+    expect(getPresetMode("dark-ui")).toBe("dark");
+    expect(getPresetMode("serafort-dark")).toBe("dark");
+  });
+
+  it("reads light from a preset previewed on a light background", () => {
+    expect(getPresetMode("serafort")).toBe("light");
+    expect(getPresetMode("default")).toBe("light");
+  });
+
+  it("records the mode on the config a preset produces", () => {
+    expect(applyPreset("dark-ui").metadata?.mode).toBe("dark");
+    expect(applyPreset("serafort").metadata?.mode).toBe("light");
   });
 });

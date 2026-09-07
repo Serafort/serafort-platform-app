@@ -677,22 +677,26 @@ export class AdminService {
     );
   }
 
+  /**
+   * Domain verification is tenant-level: the organization travels in the body,
+   * and the backend falls back to looking it up by the domain when no id is
+   * given. The organization-scoped URLs these used to build were never served.
+   */
   async verifyDomain(
     orgId: number,
     domain: string,
   ): Promise<FetchResponse<import("../types").DomainVerification>> {
-    return apiClient.post(ENDPOINTS.admin.organizations.domains(orgId), {
+    return apiClient.post(ENDPOINTS.admin.domains.verify, {
       domain,
+      organizationId: orgId || undefined,
     });
   }
 
+  /** By domain name — the backend keys the pending verification on it. */
   async checkDomain(
-    orgId: number,
-    domainId: number,
+    domain: string,
   ): Promise<FetchResponse<import("../types").DomainVerification>> {
-    return apiClient.get(
-      ENDPOINTS.admin.organizations.domainsCheck(orgId, domainId),
-    );
+    return apiClient.post(ENDPOINTS.admin.domains.check, { domain });
   }
 
   async listOrganizations(params?: {

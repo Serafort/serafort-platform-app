@@ -108,7 +108,6 @@ export {
 } from './menu/shared'
 
 // ── Configurations ─────────────────────────────────────────────
-export { default as adminMenu } from './menu/adminMenu'
 
 // ── Auth & Status Components ───────────────────────────────────
 export * from './components/auth'

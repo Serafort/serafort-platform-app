@@ -7,27 +7,25 @@ import type {
   WidgetAuditEntry,
 } from "@cap/shared-types";
 import { useAppStore } from "@cap/platform-store";
-import { apiClient } from "@cap/platform-core";
-import { sanitizeWidgetDsl } from "../agents/sanitizer";
+import {
+  describeValidationFailure,
+  resolveGeneratedDsl,
+} from "../agents/ValidationAgent";
+import {
+  adoptServerAuditEntries,
+  buildClientAuditEntry,
+} from "../agents/auditTrail";
+import type {
+  PipelineRunOptions,
+  PipelineRunResponse,
+} from "../agents/pipeline";
 
-export interface BackendGenerateRequest {
-  draftId: string;
-  prompt: string;
+/** Kept as aliases: the wire shape is defined once, in ../agents/pipeline. */
+export type BackendGenerateRequest = PipelineRunOptions & {
   userId?: string | number;
-  providerType?: string;
-  model?: string;
   apiKey?: string;
-  autoPublish?: boolean;
-  pageId?: string;
-}
-
-export interface BackendGenerateResponse {
-  success: boolean;
-  runId: number;
-  status: string;
-  sseUrl: string;
-  error?: string;
-}
+};
+export type BackendGenerateResponse = PipelineRunResponse;
 
 export interface SSEPipelineEvent {
   runId: number;
@@ -40,6 +38,8 @@ export interface SSEPipelineEvent {
   error?: string;
   dsl?: WidgetDefinition;
   stages?: Record<string, unknown>;
+  /** Audit entries authored by the backend for this run, when it sends them. */
+  audit?: unknown;
 }
 
 export interface ConnectStreamOptions {
@@ -50,7 +50,25 @@ export interface ConnectStreamOptions {
   autoPublish?: boolean;
   onComplete?: (dsl?: WidgetDefinition) => void;
   onError?: (err: string) => void;
+  /** How many times to reconnect before giving up (default 4). */
+  maxRetries?: number;
+  /** First backoff step in ms; doubles each attempt (default 1000). */
+  retryBaseMs?: number;
+  /** Silence for this long is treated as a dropped connection (default 45s). */
+  idleTimeoutMs?: number;
 }
+
+/** Reconnection budget. A run is minutes long; a blip is seconds. */
+export const STREAM_DEFAULTS = {
+  maxRetries: 4,
+  retryBaseMs: 1000,
+  /**
+   * An agent can legitimately think for a while, so this is deliberately
+   * generous: it is here to end a run that will never speak again, not to
+   * police pace.
+   */
+  idleTimeoutMs: 45_000,
+} as const;
 
 /**
  * Resolve the API base URL from Vite environment.
@@ -69,10 +87,19 @@ export function getApiBaseUrl(): string {
   return "http://localhost:3333";
 }
 
-const activeStreams = new Map<number, EventSource>();
+/**
+ * Live runs, keyed by run id. The value is a controller rather than the
+ * EventSource itself: a stream can now be between attempts, with no socket
+ * open but a retry pending, and closing it has to cancel that too.
+ */
+interface StreamController {
+  close: () => void;
+}
+
+const activeStreams = new Map<number, StreamController>();
 
 /**
- * Disconnect an active SSE stream by run ID.
+ * Disconnect an active SSE stream by run ID, cancelling any pending retry.
  */
 export function disconnectStream(runId: number): void {
   const stream = activeStreams.get(runId);
@@ -102,10 +129,126 @@ export function connectPipelineStream(
   const sseUrl = `${baseUrl}/api/v1/sse/agent-runs/${runId}`;
 
   let finalDsl: WidgetDefinition | undefined;
-  const eventSource = new EventSource(sseUrl);
-  activeStreams.set(runId, eventSource);
 
-  eventSource.onmessage = (msgEvent) => {
+  /**
+   * The security gate, on the one path a DSL can reach the store by.
+   *
+   * `validateWidgetDsl` is described in ValidationAgent.ts as "Agent 4/6 -
+   * Security Layer 3 (Core Security Gate)", but until now nothing called it
+   * outside its own tests: generated DSL went through `sanitizeWidgetDsl`
+   * straight into the store and on to the renderer, so an unregistered
+   * component, an off-grid size or a malformed version was accepted in the
+   * running app while the unit tests said otherwise.
+   *
+   * Returns the DSL when it is safe to store, or null after recording why not.
+   */
+  const commitDsl = (
+    rawDsl: unknown,
+    opts: { draftId: string; fallbackName: string },
+  ): WidgetDefinition | null => {
+    const { dsl, validation } = resolveGeneratedDsl(rawDsl, {
+      fallbackName: opts.fallbackName,
+    });
+
+    if (!validation.isValid) {
+      store.updateWidgetAgent(opts.draftId, "validation", {
+        status: "error",
+        error: describeValidationFailure(validation),
+        completedAt: new Date().toISOString(),
+        output: validation,
+      });
+      return null;
+    }
+
+    store.setWidgetDsl(opts.draftId, dsl);
+    return dsl;
+  };
+
+  const maxRetries = options.maxRetries ?? STREAM_DEFAULTS.maxRetries;
+  const retryBaseMs = options.retryBaseMs ?? STREAM_DEFAULTS.retryBaseMs;
+  const idleTimeoutMs = options.idleTimeoutMs ?? STREAM_DEFAULTS.idleTimeoutMs;
+
+  let source: EventSource | null = null;
+  let idleTimer: ReturnType<typeof setTimeout> | undefined;
+  let retryTimer: ReturnType<typeof setTimeout> | undefined;
+  let attempt = 0;
+  let settled = false;
+  let lastEventId: string | undefined;
+
+  const clearTimers = () => {
+    if (idleTimer) clearTimeout(idleTimer);
+    if (retryTimer) clearTimeout(retryTimer);
+    idleTimer = undefined;
+    retryTimer = undefined;
+  };
+
+  /** Tear everything down. `settled` stops any in-flight retry from firing. */
+  const teardown = () => {
+    settled = true;
+    clearTimers();
+    source?.close();
+    source = null;
+    activeStreams.delete(runId);
+    store.setActiveRunId(null);
+  };
+
+  const finish = (dsl?: WidgetDefinition) => {
+    teardown();
+    store.setWidgetStudioRunning(false);
+    onComplete?.(dsl);
+  };
+
+  const fail = (message: string) => {
+    teardown();
+    store.setWidgetStudioRunning(false);
+    onError?.(message);
+  };
+
+  /**
+   * A dropped or silent connection is not the end of a run: the run lives on
+   * the server and keeps going. Reconnect with a doubling backoff, and only
+   * give up once the budget is spent - one transient blip used to end the run
+   * with "Connection to server stream interrupted" and leave the draft frozen
+   * at whichever agent it had reached.
+   */
+  const reconnect = (reason: string) => {
+    if (settled) return;
+    clearTimers();
+    source?.close();
+    source = null;
+
+    if (attempt >= maxRetries) {
+      fail(`${reason} after ${maxRetries} reconnection attempts`);
+      return;
+    }
+
+    const delay = retryBaseMs * 2 ** attempt;
+    attempt += 1;
+    retryTimer = setTimeout(() => {
+      retryTimer = undefined;
+      open();
+    }, delay);
+  };
+
+  /**
+   * Silence is indistinguishable from a half-open socket, which is the case
+   * `onerror` never fires for - the run stalls and `widgetStudioRunning`
+   * stays true forever. Treat a long enough silence as a dropped connection.
+   */
+  const armIdleWatchdog = () => {
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      idleTimer = undefined;
+      reconnect("The run stopped sending updates");
+    }, idleTimeoutMs);
+  };
+
+  const handleMessage = (msgEvent: MessageEvent) => {
+    // Any traffic means the connection is healthy: reset the backoff and the
+    // watchdog before doing anything with the payload.
+    attempt = 0;
+    armIdleWatchdog();
+    if (msgEvent.lastEventId) lastEventId = msgEvent.lastEventId;
     try {
       const payload: SSEPipelineEvent = JSON.parse(msgEvent.data);
 
@@ -139,18 +282,20 @@ export function connectPipelineStream(
             ) {
               const compOut = payload.output as Record<string, unknown>;
               if (compOut?.dsl) {
-                const sanitized = sanitizeWidgetDsl({
-                  id: (compOut.dsl as any)?.id || crypto.randomUUID(),
-                  name: prompt.slice(0, 60),
-                  version: "1.0.0",
-                  component: compOut.widgetId,
-                  props: compOut.suggestedProps ?? {},
-                  layout: { width: 8, height: 280 },
-                  behavior: { autoRefresh: false },
-                  ...(compOut.dsl as any),
+                const accepted = commitDsl(compOut.dsl, {
+                  draftId,
+                  fallbackName: prompt.slice(0, 60),
                 });
-                finalDsl = sanitized;
-                store.setWidgetDsl(draftId, sanitized);
+                if (accepted) {
+                  finalDsl = accepted;
+                } else {
+                  // Nothing downstream can rescue a widget that will not
+                  // render, and leaving the stream open would let the idle
+                  // watchdog try to reconnect a run we have already given up
+                  // on.
+                  fail("The generated widget failed validation");
+                  return;
+                }
               }
             } else if (agentId === "validation" && payload.status === "done") {
               store.setWidgetLifecycle(draftId, "validated");
@@ -171,43 +316,54 @@ export function connectPipelineStream(
         }
 
         case "run_completed": {
-          eventSource.close();
-          activeStreams.delete(runId);
           if (payload.dsl) {
-            finalDsl = sanitizeWidgetDsl(payload.dsl);
-            store.setWidgetDsl(draftId, finalDsl);
+            const accepted = commitDsl(payload.dsl, {
+              draftId,
+              fallbackName: prompt.slice(0, 60),
+            });
+            if (!accepted) {
+              // The run finished but its widget cannot be rendered. The
+              // lifecycle is deliberately not advanced: `canPublish` in the
+              // panel gates on it, so staying put is what blocks publishing.
+              fail("The generated widget failed validation");
+              return;
+            }
+            finalDsl = accepted;
           }
 
           if (autoPublish) {
             store.setWidgetLifecycle(draftId, "published");
             if (finalDsl) {
-              const auditEntry: WidgetAuditEntry = {
+              // The backend's own record wins when it sends one: it is the
+              // only half of this trail that is evidence.
+              const attested = adoptServerAuditEntries(payload.audit, {
+                runId,
                 widgetId: finalDsl.id,
-                createdBy: String(userId),
-                generatedAt: new Date().toISOString(),
-                model: store.selectedModel || "gemini-2.0-flash",
-                version: finalDsl.version || "1.0.0",
-                action: "published",
-              };
-              store.appendAuditEntry(draftId, auditEntry);
+              });
+              const entries = attested.length
+                ? attested
+                : [
+                    buildClientAuditEntry({
+                      dsl: finalDsl,
+                      action: "published",
+                      runId,
+                    }),
+                  ];
+              for (const entry of entries) {
+                store.appendAuditEntry(draftId, entry);
+              }
             }
           } else {
             store.setWidgetLifecycle(draftId, "approved");
           }
 
-          store.setWidgetStudioRunning(false);
-          onComplete?.(finalDsl);
+          finish(finalDsl);
           break;
         }
 
         case "run_failed":
         case "run_cancelled": {
-          eventSource.close();
-          activeStreams.delete(runId);
-          const errorMsg =
-            payload.error || "Agent pipeline execution failed on backend";
-          store.setWidgetStudioRunning(false);
-          onError?.(errorMsg);
+          fail(payload.error || "Agent pipeline execution failed on backend");
           break;
         }
 
@@ -219,99 +375,36 @@ export function connectPipelineStream(
     }
   };
 
-  eventSource.onerror = (err) => {
-    console.error("[widgetAgentClient] SSE stream error:", err);
-    eventSource.close();
-    activeStreams.delete(runId);
-    store.setWidgetStudioRunning(false);
-    onError?.("Connection to server stream interrupted");
-  };
+  /**
+   * Open (or re-open) the stream. `lastEventId` is passed back so a server
+   * that supports resumption can pick up where it left off; one that ignores
+   * it simply replays from its own position.
+   */
+  function open() {
+    if (settled) return;
+    const url = lastEventId
+      ? `${sseUrl}?lastEventId=${encodeURIComponent(lastEventId)}`
+      : sseUrl;
+
+    source = new EventSource(url);
+    source.onmessage = handleMessage;
+    source.onerror = () => {
+      reconnect("Connection to the run was interrupted");
+    };
+    armIdleWatchdog();
+  }
+
+  activeStreams.set(runId, { close: teardown });
+  store.setActiveRunId(runId);
+  open();
 
   // Return unsubscribe / abort function
-  return () => {
-    eventSource.close();
-    activeStreams.delete(runId);
-  };
+  return teardown;
 }
 
 /**
- * Triggers the multi-agent pipeline on the backend and streams live events into the Zustand store.
+ * Starting and cancelling a run live in ../agents/pipeline, so there is one
+ * request builder rather than three. They are exported from the package
+ * barrel (src/index.ts) directly from that module: re-exporting them here
+ * made services/ and agents/ import each other at runtime, a real value cycle.
  */
-export async function executeBackendAgentPipeline(
-  options: BackendGenerateRequest,
-): Promise<{ success: boolean; dsl?: WidgetDefinition; error?: string }> {
-  const store = useAppStore.getState();
-  const {
-    draftId,
-    prompt,
-    userId = "anonymous",
-    autoPublish = false,
-  } = options;
-
-  store.setWidgetStudioRunning(true);
-  store.setWidgetLifecycle(draftId, "draft");
-
-  try {
-    const response = await apiClient.post<BackendGenerateResponse>(
-      "/api/v1/widgets/generate",
-      {
-        draftId,
-        prompt,
-        userId: Number.isNaN(Number(userId)) ? 1 : Number(userId),
-        providerType: store.selectedProvider || "gemini",
-        model: store.selectedModel,
-        autoPublish,
-        pageId: "dashboard",
-        runAsync: true,
-      },
-    );
-
-    const data = response.data;
-    if (!data?.success || !data.runId) {
-      const errorMsg =
-        data?.error || "Failed to initialize agent pipeline run on server";
-      store.updateWidgetAgent(draftId, "requirement", {
-        status: "error",
-        error: errorMsg,
-      });
-      store.setWidgetStudioRunning(false);
-      return { success: false, error: errorMsg };
-    }
-
-    return new Promise((resolve) => {
-      connectPipelineStream({
-        runId: data.runId,
-        draftId,
-        prompt,
-        userId,
-        autoPublish,
-        onComplete: (dsl) => resolve({ success: true, dsl }),
-        onError: (error) => resolve({ success: false, error }),
-      });
-    });
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    store.updateWidgetAgent(draftId, "requirement", {
-      status: "error",
-      error: errorMsg,
-    });
-    store.setWidgetStudioRunning(false);
-    return { success: false, error: errorMsg };
-  }
-}
-
-/**
- * Cancel an active pipeline run on the backend.
- */
-export async function cancelBackendAgentPipeline(
-  runId: number,
-): Promise<{ success: boolean }> {
-  try {
-    const response = await apiClient.post<{ success: boolean }>(
-      `/api/v1/widgets/runs/${runId}/cancel`,
-    );
-    return response.data || { success: false };
-  } catch {
-    return { success: false };
-  }
-}

@@ -1,4 +1,4 @@
-# CAP Framework — Module Development & Plug-in Architecture Guide
+#Serafort — Module Development & Plug-in Architecture Guide
 
 This guide details how human engineers and AI coding agents build, register, and extend feature modules in the **CAP Multi-Tenant SaaS Framework**.
 

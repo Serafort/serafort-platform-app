@@ -1,54 +1,69 @@
 /**
  * Tier 1: Primitive Tokens
  * Fixed values: scales, raw palettes, durations, easings, z-index scales
+ *
+ * The colour ramps below are derived from the Serafort brand kit — see
+ * `brand.ts` for the upstream values. Ramp stops that map 1:1 onto a brand
+ * token reference it directly; the in-between stops are interpolated so the
+ * scale stays monotonic for MUI's light/dark/contrast calculations.
  */
 
+import { brandColors, brandNeutrals, brandSemantics } from "./brand";
+
 export const primitiveColors = {
+  // Blue-tinted neutrals keyed to `brandColors.ink`.
   slate: {
-    50: "#F8FAFC",
-    100: "#F1F5F9",
-    200: "#E2E8F0",
-    300: "#CBD5E1",
-    400: "#94A3B8",
-    500: "#64748B",
-    600: "#475569",
-    700: "#334155",
-    800: "#1E293B",
-    900: "#0F172A",
-    950: "#020617",
+    50: brandNeutrals.fog50,
+    100: brandNeutrals.fog100,
+    200: "#DAE1EE",
+    300: brandNeutrals.mist300,
+    400: "#96A2B9",
+    500: brandNeutrals.slate500,
+    600: brandNeutrals.slate600,
+    700: "#303A52",
+    800: brandNeutrals.slate800,
+    900: "#0F1A33",
+    950: brandColors.ink,
   },
+  // Serafort blues. 500 is the primary action colour, 950 the ink ground.
   brand: {
-    50: "#EEF2FF",
-    100: "#E0E7FF",
-    200: "#C7D2FE",
-    300: "#A5B4FC",
-    400: "#818CF8",
-    500: "#6366F1",
-    600: "#4F46E5",
-    700: "#4338CA",
-    800: "#3730A3",
-    900: "#312E81",
-    950: "#1E1B4B",
+    50: "#E6F2FE",
+    100: "#CDE5FE",
+    200: "#9BCAFC",
+    300: "#69B0FC",
+    400: brandColors.sky,
+    500: brandColors.blue,
+    600: brandColors.royalBlue,
+    700: brandColors.deepBlue,
+    800: "#032E7B",
+    900: brandColors.navy,
+    950: brandColors.ink,
+  },
+  // Cyan accent from the wing mark — used for highlights and dark-mode CTAs.
+  accent: {
+    400: "#4FDCFD",
+    500: brandColors.cyan,
+    600: brandColors.sky,
   },
   success: {
-    500: "#10B981",
-    600: "#059669",
-    700: "#047857",
+    500: brandSemantics.success,
+    600: "#15803D",
+    700: "#166534",
   },
   warning: {
-    500: "#F59E0B",
-    600: "#D97706",
-    700: "#B45309",
+    500: brandSemantics.warning,
+    600: "#B45309",
+    700: "#92400E",
   },
   error: {
-    500: "#EF4444",
-    600: "#DC2626",
-    700: "#B91C1C",
+    500: brandSemantics.error,
+    600: "#B91C1C",
+    700: "#991B1B",
   },
   info: {
-    500: "#3B82F6",
-    600: "#2563EB",
-    700: "#1D4ED8",
+    500: brandSemantics.info,
+    600: brandColors.royalBlue,
+    700: brandColors.deepBlue,
   },
   alpha: {
     white: {

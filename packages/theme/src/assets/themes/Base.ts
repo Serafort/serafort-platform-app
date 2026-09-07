@@ -22,22 +22,22 @@ const BaseTheme = createTheme({
     success: functional.success,
     surface: surface,
     surfaceMixed: surfaceMixed,
-    divider: primary[600],
+    divider: surface[600],
     action: {
-      hover: alpha(primary[600], 0.08),
-      selected: alpha(primary[600], 0.16),
-      disabled: alpha(primary[600], 0.3),
-      disabledBackground: alpha(primary[600], 0.12),
-      focus: alpha(primary[600], 0.12),
+      hover: alpha(primary[400], 0.12),
+      selected: alpha(primary[400], 0.2),
+      disabled: alpha(surfaceMixed[300], 0.3),
+      disabledBackground: alpha(surfaceMixed[300], 0.12),
+      focus: alpha(primary[400], 0.16),
     },
     background: {
-      default: surface[300],
-      paper: surface[200],
+      default: surface[200],
+      paper: surface[300],
     },
     text: {
-      primary: primary[600],
-      secondary: surfaceMixed[500],
-      disabled: alpha(primary[600], 0.5),
+      primary: "#FFFFFF",
+      secondary: surfaceMixed[300],
+      disabled: alpha("#FFFFFF", 0.45),
     },
   },
   typography: {
@@ -86,8 +86,8 @@ const BaseTheme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: surface[300],
-          color: primary[600],
+          backgroundColor: surface[200],
+          color: "#FFFFFF",
         },
       },
     },
@@ -96,7 +96,7 @@ const BaseTheme = createTheme({
         root: {
           backgroundColor: surface[300],
           boxShadow: "none",
-          borderBottom: `1px solid ${alpha(primary[600], 0.1)}`,
+          borderBottom: `1px solid ${surface[600]}`,
         },
       },
     },
@@ -378,7 +378,7 @@ const BaseTheme = createTheme({
     MuiDivider: {
       styleOverrides: {
         root: {
-          borderColor: alpha(primary[600], 0.1),
+          borderColor: surface[600],
         },
       },
     },
@@ -437,7 +437,7 @@ const BaseTheme = createTheme({
       styleOverrides: {
         paper: {
           backgroundColor: surface[300],
-          borderRight: `1px solid ${alpha(primary[600], 0.1)}`,
+          borderRight: `1px solid ${surface[600]}`,
         },
       },
     },
@@ -467,13 +467,13 @@ const BaseTheme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         head: {
-          color: primary[600],
+          color: "#FFFFFF",
           fontWeight: 700,
-          borderBottom: `1px solid ${alpha(primary[600], 0.1)}`,
+          borderBottom: `1px solid ${surface[600]}`,
         },
         root: {
           padding: "16px",
-          borderColor: alpha(primary[600], 0.05),
+          borderColor: alpha(surface[600], 0.6),
         },
       },
     },
@@ -500,7 +500,7 @@ const BaseTheme = createTheme({
     MuiSkeleton: {
       styleOverrides: {
         root: {
-          backgroundColor: alpha(primary[600], 0.08),
+          backgroundColor: alpha("#FFFFFF", 0.08),
           borderRadius: 8,
         },
       },
@@ -530,7 +530,7 @@ const BaseTheme = createTheme({
           color: primary[500],
         },
         iconHover: {
-          color: primary[600],
+          color: primary[400],
         },
       },
     },
@@ -577,7 +577,7 @@ const BaseTheme = createTheme({
     MuiBreadcrumbs: {
       styleOverrides: {
         separator: {
-          color: alpha(primary[600], 0.3),
+          color: alpha("#FFFFFF", 0.4),
         },
       },
     },
@@ -585,7 +585,7 @@ const BaseTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: surface[300],
-          borderTop: `1px solid ${alpha(primary[600], 0.1)}`,
+          borderTop: `1px solid ${surface[600]}`,
         },
       },
     },

@@ -10,11 +10,18 @@ import {
   ThemeSettingsProvider,
   applyThemeVariablesSync,
   useThemeEditorStore,
+  useSavedTheme,
   headerTokens,
   footerTokens,
+  effectCanvasCss,
+  normalizeEffectConfig,
+  DEFAULT_THEME_CONFIG,
+  DirectionProvider,
 } from '@cap/theme'
 import type { TenantThemeConfig } from '@cap/theme'
-import type { Settings, Mode, SystemMode } from '@cap/shared-types'
+import type { Settings, Mode, SystemMode, Direction } from '@cap/shared-types'
+import { getLangDirection } from '@cap/shared-types'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Hook to resolve mode including system prefers-color-scheme
@@ -46,9 +53,11 @@ export const generateTheme = (
   tenantConfig: TenantThemeConfig | null,
   settings: Settings,
   isDark: boolean,
+  direction: Direction = 'ltr',
 ) => {
   return composeMuiThemeMemoized({
     currentMode: isDark ? 'dark' : 'light',
+    direction,
     settings,
     tenantTheme: tenantConfig,
   })
@@ -72,12 +81,27 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
   const draftConfig = useThemeEditorStore((s) => s.draftConfig)
   const deferredDraft = React.useDeferredValue(draftConfig)
 
-  const activeConfig = isEditing && deferredDraft ? deferredDraft : tenantConfig
+  // The theme the user last pressed Save on. `useTenant()`'s config is the
+  // tenant's branding record, so without this the app had nowhere to read a
+  // saved theme back from and Save effectively reverted the app to the
+  // defaults - see savedThemeStore.
+  const savedTheme = useSavedTheme()
+
+  const persistedConfig =
+    tenantConfig && 'tokens' in tenantConfig ? tenantConfig : (savedTheme ?? tenantConfig)
+
+  const activeConfig = isEditing && deferredDraft ? deferredDraft : persistedConfig
 
   const { settings } = useSettings()
 
   const resolvedMode = useResolvedSystemMode(settings.mode)
   const isDark = resolvedMode === 'dark'
+
+  // Writing direction follows the active language, not a separate setting.
+  // `langDirection` in @cap/shared-types is the single source of truth.
+  const { i18n: i18nInstance } = useTranslation()
+  const activeLocale = i18nInstance?.language ?? 'en'
+  const direction = getLangDirection(activeLocale)
 
   // CSS custom property application is coalesced through requestAnimationFrame
   // so rapid config changes (e.g. slider drags in the ThemeEditor) produce a
@@ -111,13 +135,63 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
+  // `useTenant()`'s `theme` field is the tenant's lightweight branding
+  // override ({ primaryColor, logoUrl } - see TenantConfig['theme'] in
+  // platform-core), not a full TenantThemeConfig (tokens/effects/components).
+  // It's still truthy whenever a tenant loaded, so `tenantTheme || DEFAULT`
+  // never actually reaches the default: composeMuiThemeMemoized tolerates
+  // this by falling back field-by-field (tokens, effects, ... each default
+  // independently when missing), which is why the JS palette still renders
+  // correctly. applyThemeVariablesSync has no such per-field fallback - fed
+  // this shape, it doesn't recognise `.tokens`, silently no-ops, and every
+  // --color-*/--effect-* custom property stays unset for the entire session.
+  // Resolve once, up front, so both consumers see the same real config.
+  //
+  // `settings.effect` is folded in here rather than only inside
+  // composeMuiTheme. That function applies it to the theme object it returns,
+  // but applyThemeVariablesSync was handed the raw config, so the JS theme and
+  // the --effect-* custom properties could disagree about which effect was
+  // active - the components that read the theme object would paint one effect
+  // while every surface reading the variables painted another.
+  const baseThemeConfig: TenantThemeConfig =
+    activeConfig && 'tokens' in activeConfig
+      ? (activeConfig as TenantThemeConfig)
+      : DEFAULT_THEME_CONFIG
+
+  const resolvedThemeConfig: TenantThemeConfig = useMemo(
+    () =>
+      settings.effect && settings.effect !== baseThemeConfig.effects?.globalType
+        ? {
+            ...baseThemeConfig,
+            effects: normalizeEffectConfig({
+              ...baseThemeConfig.effects,
+              globalType: settings.effect,
+            }),
+          }
+        : baseThemeConfig,
+    [baseThemeConfig, settings.effect],
+  )
+
   const theme = useMemo(() => {
-    const compiled = generateTheme(activeConfig as any, settings, isDark)
-    if (typeof window !== 'undefined' && activeConfig) {
-      applyThemeVarsBatched(activeConfig as any)
+    const compiled = generateTheme(resolvedThemeConfig, settings, isDark, direction)
+    if (typeof window !== 'undefined') {
+      applyThemeVarsBatched(resolvedThemeConfig)
     }
     return compiled
-  }, [activeConfig, settings, isDark, applyThemeVarsBatched])
+  }, [resolvedThemeConfig, settings, isDark, direction, applyThemeVarsBatched])
+
+  // The page ground, handed to index.html's anti-flash block. That block's
+  // `html.dark body` rule cannot be overridden from here - it is more
+  // specific than anything the runtime can write, and with `injectFirst`
+  // emotion's stylesheet sits above it in the cascade anyway - so it reads a
+  // variable instead. The anti-flash script seeds the same variable inline
+  // from the saved theme before React boots; this rewrites it from the
+  // composed palette, which is the mode-resolved value and the one that has
+  // to win when the user switches mode mid-session.
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    document.documentElement.style.setProperty('--canvas-bg', theme.palette.background.default)
+  }, [theme])
 
   const handleUpdateTheme = useCallback(
     async (updates: any) => {
@@ -143,6 +217,7 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <StyledEngineProvider injectFirst>
+      <DirectionProvider direction={direction} locale={activeLocale}>
       <ThemeSettingsProvider settings={settings}>
         <TenantThemeProvider
           theme={activeConfig as any}
@@ -161,6 +236,7 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
                   '--border-color': theme.palette.divider,
                   '--border-radius': `${theme.shape.borderRadius}px`,
 
+
                   // Derived Background Variables
                   '--background-color-rgb':
                     'var(--color-background-h) var(--color-background-s) var(--color-background-l)',
@@ -176,12 +252,27 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
                   // Layout Constants
                   '--header-height': headerTokens.layout.minBlockSize,
                 },
+                // The ambient wash for blur-based effects goes on <body> as
+                // well as on the content area, so that fixed chrome - the
+                // sidebar, a floating navbar - blurs it too rather than
+                // blurring whatever happens to sit directly behind it. It
+                // resolves to `none` for every effect that does not ask for
+                // one.
+                //
+                // Only the background-*image* is set here. index.html's
+                // anti-flash block carries `html.light body {
+                // background-color: #ffffff }`, whose specificity a bare
+                // `body` rule cannot beat, so the page ground is not ours to
+                // set from here - and it does not need to be, since the wash
+                // is what the blur reveals.
+                body: effectCanvasCss,
               })}
             />
             {children}
           </MuiThemeProvider>
         </TenantThemeProvider>
       </ThemeSettingsProvider>
+      </DirectionProvider>
     </StyledEngineProvider>
   )
 }

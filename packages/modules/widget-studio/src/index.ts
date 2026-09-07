@@ -35,7 +35,53 @@ export {
   publishDraft,
   cancelPipelineRun,
 } from "./agents/AgentOrchestrator";
-export { validateWidgetDsl, APPROVED_WIDGETS } from "./agents/ValidationAgent";
+export {
+  validateWidgetDsl,
+  getApprovedWidgetIds,
+  resolveGeneratedDsl,
+  describeValidationFailure,
+  APPROVED_WIDGETS,
+} from "./agents/ValidationAgent";
+export {
+  DSL_SCHEMA_VERSION,
+  migrateWidgetDsl,
+  stampSchemaVersion,
+} from "./agents/dslSchema";
+export {
+  buildClientAuditEntry,
+  adoptServerAuditEntries,
+  isAttestedTrail,
+  resolveActor,
+} from "./agents/auditTrail";
+export {
+  detectStructuralIntent,
+  applyStructuralRefinement,
+  buildRefinementPrompt,
+  buildRefinementRequest,
+} from "./agents/refineDraft";
+export { DATA_SOURCE_PROVIDERS } from "./agents/ValidationAgent";
+export {
+  resolveDataSource,
+  describeBindingProblem,
+  dataSourceKey,
+  DataSourceError,
+  type DataSourceBinding,
+  type DataSourceResult,
+} from "./data/dataSourceRuntime";
+export { useWidgetData } from "./hooks/useWidgetData";
+export type { DataSourceProvider } from "./agents/ValidationAgent";
+export { default as RefineInput } from "./components/RefineInput";
+export {
+  startPipelineRun,
+  requestPipelineRun,
+  attachPipelineRun,
+  buildGeneratePayload,
+  executeBackendAgentPipeline,
+  cancelBackendAgentPipeline,
+  type PipelineRunOptions,
+  type PipelineRunResponse,
+  type PipelineRunResult,
+} from "./agents/pipeline";
 export {
   sanitizePrompt,
   extractJson,

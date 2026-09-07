@@ -1375,5 +1375,94 @@
     "copy": "Copier",
     "copied": "Copié !",
     "or": "OU"
+  },
+  "user": {
+    "privacy": {
+      "title": "Confidentialité",
+      "subtitle": "Ce que vous avez accepté, et les droits que vous pouvez exercer sur les données vous concernant.",
+      "consent_failed": "Cette préférence n'a pas pu être enregistrée.",
+      "consent_title": "Vos consentements",
+      "consent_help": "Chaque choix est enregistré avec sa date. Les e-mails transactionnels — codes de connexion, alertes de sécurité — ne relèvent pas du consentement et ne peuvent pas être désactivés ici.",
+      "recorded_from": "Enregistré depuis {{ip}}",
+      "decided_on": "Dernière modification le {{date}}",
+      "never_asked": "Aucune décision enregistrée",
+      "rights_title": "Vos données",
+      "export_title": "Télécharger vos données",
+      "export_body": "Préparé en arrière-plan. Vous recevrez un e-mail dès que ce sera prêt.",
+      "export": "Demander un export",
+      "export_queued": "Export lancé. Vous recevrez un e-mail dès qu'il sera prêt.",
+      "erasure_title": "Effacer vos données",
+      "erasure_body": "Définitif et irréversible. Il vous sera demandé de confirmer par écrit et de saisir à nouveau votre mot de passe.",
+      "erasure": "Continuer",
+      "policy_versions_title": "Modifications de la politique",
+      "policy_versions_body": "Ce système enregistre vos choix et leur date, mais ne versionne pas encore la politique à laquelle ils se rapportaient : il ne peut donc pas vous dire si elle a changé depuis. Les demandes de nouveau consentement apparaîtront ici lorsque ce sera le cas.",
+      "purpose": {
+        "marketing": {
+          "title": "Marketing",
+          "body": "Annonces produit et offres, envoyées directement."
+        },
+        "analytics": {
+          "title": "Analytique",
+          "body": "Mesure d'usage, pour améliorer le produit. Sans ciblage publicitaire."
+        },
+        "data_sharing": {
+          "title": "Partage de données",
+          "body": "Partage de vos données avec des tiers au-delà de ce qu’exigent un contrat ou la loi."
+        },
+        "newsletter": {
+          "title": "Newsletter",
+          "body": "La newsletter périodique. Distincte des e-mails transactionnels, qui ne sont pas facultatifs."
+        }
+      }
+    },
+    "erasure": {
+      "title": "Effacer vos données",
+      "subtitle": "Cette action est irréversible. Lisez ce qui va se passer, puis confirmez deux fois — par écrit, puis avec votre mot de passe.",
+      "submitted_title": "Demande d'effacement reçue",
+      "submitted_body": "Votre demande est traitée en arrière-plan. Vous allez être déconnecté sous peu et ne pourrez plus vous reconnecter.",
+      "back": "Retour à la confidentialité",
+      "step_consequences": "Ce qui va se passer",
+      "consequence_signin": "Vous serez déconnecté et ne pourrez plus vous reconnecter.",
+      "consequence_profile": "Votre profil, vos préférences et vos comptes liés sont supprimés.",
+      "consequence_sessions": "Toutes les sessions et tous les identifiants actifs — clés d’accès, authentificateurs, jetons — sont révoqués.",
+      "consequence_retained": "Les enregistrements que la loi nous impose de conserver, comme les entrées d'audit de sécurité, sont conservés sous forme anonymisée.",
+      "acknowledge": "Je comprends que cette action est définitive et irréversible.",
+      "continue": "Continuer",
+      "cancel": "Annuler",
+      "back_step": "Retour",
+      "step_phrase": "Confirmer par écrit",
+      "phrase_help": "Saisissez exactement {{phrase}} pour confirmer que cette action est délibérée.",
+      "step_password": "Confirmer qu'il s'agit bien de vous",
+      "password_help": "Votre mot de passe est vérifié avant toute suppression.",
+      "password": "Mot de passe actuel",
+      "hard_delete": "Supprimer entièrement mes enregistrements au lieu de les anonymiser",
+      "hard_delete_help": "L'anonymisation satisfait déjà votre droit à l'effacement tout en préservant les pistes d'audit de sécurité. Ne choisissez la suppression totale que si elle vous est nécessaire.",
+      "failed": "La demande n'a pas pu être envoyée. Si le mot de passe était incorrect, réessayez — les tentatives répétées sont limitées.",
+      "final_warning": "C'est la dernière étape. Il n'y a pas de retour en arrière.",
+      "submit": "Effacer mes données",
+      "footer": "Vous préférez conserver le compte sans l'utiliser ? La désactivation suspend l'accès sans détruire vos données."
+    }
+  },
+  "admin": {
+    "compliance": {
+      "title": "Rapports de conformité",
+      "subtitle": "Le registre des activités de traitement (article 30) et le résumé de conservation des données.",
+      "article30": "Registre des activités de traitement",
+      "article30_help": "RGPD article 30. Ce qui est traité, pourquoi, et sur quelle base légale.",
+      "article30_static": "Ce registre est défini dans le backend plutôt que configuré : il ne change qu'avec un déploiement. Revoyez-le à chaque évolution de ce que la plateforme traite.",
+      "download_csv": "Télécharger le CSV",
+      "no_activities": "Aucune activité de traitement n'est enregistrée.",
+      "activity": "Activité",
+      "purpose": "Finalité",
+      "legal_basis": "Base légale",
+      "retention": "Conservation des données",
+      "no_policy": "Aucune politique de conservation rapportée.",
+      "placeholder_title": "Valeurs de substitution",
+      "placeholder_body": "Le point de terminaison de conservation renvoie des valeurs fixes au lieu d'interroger la base. N'utilisez pas ces chiffres comme preuve d'audit tant qu'il ne rapporte pas des comptes réels.",
+      "total_users": "Utilisateurs au total",
+      "active_users": "Actifs",
+      "stale_users": "Inactifs",
+      "scheduled_purges": "Purges planifiées"
+    }
   }
 }

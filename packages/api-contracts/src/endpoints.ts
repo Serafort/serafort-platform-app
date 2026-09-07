@@ -17,6 +17,12 @@ export const API_ENDPOINTS = {
     ready: "/api/health/ready",
     detailed: "/api/health/detailed",
     startup: "/api/health/startup",
+    /**
+     * Admin-gated liveness for the directory-sync queue only — a single
+     * `DependencyStatus`, not job counts. For per-queue waiting/active/failed
+     * figures use `admin.queues.index`.
+     */
+    queue: "/api/health/queue",
   },
   metrics: {
     basic: "/api/metrics",
@@ -34,9 +40,20 @@ export const API_ENDPOINTS = {
     /**
      * Current session, not the current user. Stays on the legacy tree: the
      * nearest v1 route, `/api/v1/auth/me`, returns the user and is served by a
-     * different controller, so it is not a twin of this.
+     * different controller, so it is not a twin of this — see `me` below.
      */
     session: "/api/auth/session",
+    /**
+     * The authenticated user, with role, permissions, org memberships and
+     * profile eagerly loaded. The companion to `session`, not a replacement:
+     * `session` describes the session, this describes who owns it.
+     *
+     * The handler emits its payload twice — once inside the `successResponse`
+     * envelope and once spread across the top level — so callers may read
+     * either `data.data` or `data`. Prefer `data.data`: the flat copy exists
+     * for older clients and is the half that will be dropped.
+     */
+    me: "/api/v1/auth/me",
     checkPermission: "/api/v1/auth/check-permission",
     csrfToken: "/api/auth/csrf-token",
     /**
@@ -129,13 +146,39 @@ export const API_ENDPOINTS = {
       loginFinish: "/api/v1/auth/passkey/authenticate/verify",
     },
     mfa: {
+      /**
+       * Enrollment stays on the legacy tree. `/api/v1/auth/mfa/totp/setup`
+       * looks like a twin but is a separate implementation: it answers
+       * `{ secret, qrCodeUrl, backupCodes }` where this answers
+       * `{ qrDataUrl, manualEntry }`, and it hands the raw TOTP seed to the
+       * browser, which this route deliberately keeps server-side in Redis.
+       */
       setup: "/api/auth/mfa/setup",
       verify: "/api/auth/mfa/verify",
       disable: "/api/auth/mfa/disable",
       recoveryCodes: "/api/auth/mfa/recovery-codes",
+      /** Spend a recovery code to satisfy the login challenge, unauthenticated:
+       *  the account comes from the signed MFA challenge token. */
       recoveryVerify: "/api/auth/mfa/recovery-verify",
       verifyLogin: "/api/auth/mfa/verify-login",
       regenerateBackupCodes: "/api/auth/mfa/regenerate-backup-codes",
+      /**
+       * Step-up for a session that is *already* signed in: both routes promote
+       * the current session to MFA-verified, which is what `middleware.mfa()`
+       * gates the sensitive admin actions on.
+       *
+       * Not to be confused with `verifyLogin` / `recoveryVerify` above. Those
+       * clear the login challenge for a caller who has no session yet and must
+       * present the signed MFA challenge token; these take the account from the
+       * session and need only the code.
+       */
+      stepUp: {
+        /** `totp_controller.verify` — the enrollment routes will not do: they
+         *  need a pending secret in Redis and fail once enrollment is done. */
+        totp: "/api/mfa/totp/verify",
+        /** `totp_controller.useRecoveryCode`. */
+        recovery: "/api/auth/mfa/totp/recovery",
+      },
       sms: {
         sendCode: "/api/auth/mfa/sms/send-code",
         verify: "/api/auth/mfa/sms/verify",
@@ -172,7 +215,14 @@ export const API_ENDPOINTS = {
     linkedAccounts: "/api/user/linked-accounts",
     linkAccount: "/api/user/link-account",
     unlinkAccount: (id: string | number) => `/api/user/linked-accounts/${id}`,
-    emailPreferences: "/api/user/email-preferences",
+    /**
+     * GET reads the preferences, PUT replaces them. On the v1 tree per the
+     * usual rule — the admin exception does not apply, this is a user route and
+     * both mounts reach the same controller behind `auth()` alone. The legacy
+     * mount also answered PATCH; v1 does not, so partial updates have to send
+     * the whole object.
+     */
+    emailPreferences: "/api/v1/user/email-preferences",
     tokens: {
       index: "/api/user/tokens",
       store: "/api/user/tokens",
@@ -333,8 +383,16 @@ export const API_ENDPOINTS = {
       impersonate: (id: number) => `/api/admin/users/${id}/impersonate`,
       unlock: (id: number) => `/api/admin/users/${id}/unlock`,
       sessions: (id: number) => `/api/admin/users/${id}/sessions`,
-      dataExports: (id: number) => `/api/admin/users/${id}/data-exports`,
-      requestDataExport: (id: number) => `/api/admin/users/${id}/data-exports`,
+      suspend: (id: number) => `/api/admin/users/${id}/suspend`,
+      /** PATCH — set the account status directly, where `ban`/`unsuspend`
+       *  above are the two named transitions. */
+      updateStatus: (id: number) => `/api/admin/users/${id}/status`,
+      // Only ever mounted on v1 — the legacy paths these used to name were
+      // never served, so both calls 404'd. An exception to keeping admin on the
+      // legacy tree, and a safe one: the v1 routes carry `admin()`.
+      dataExports: (id: number) => `/api/v1/admin/users/${id}/data-exports`,
+      requestDataExport: (id: number) =>
+        `/api/v1/admin/users/${id}/data-exports`,
     },
     appeals: {
       index: "/api/admin/appeals",
@@ -413,9 +471,12 @@ export const API_ENDPOINTS = {
         `/api/admin/organizations/${orgId}/invitations/${invitationId}/revoke`,
       policies: (id: number) => `/api/admin/organizations/${id}/policies`,
       impersonate: (id: number) => `/api/admin/organizations/${id}/impersonate`,
-      domains: (id: number) => `/api/admin/organizations/${id}/domains`,
-      domainsCheck: (id: number, domainId: number) =>
-        `/api/admin/organizations/${id}/domains/${domainId}/check`,
+      /** Tenant branding: GET reads the saved styles, POST replaces them. */
+      styles: (id: number) => `/api/admin/organizations/${id}/styles`,
+      // Organization-scoped domain routes were removed: the backend serves
+      // domain verification only at the tenant level, as `admin.domains.verify`
+      // and `admin.domains.check`. Nothing ever answered
+      // `/api/admin/organizations/:id/domains`.
     },
     provisioning: {
       index: "/api/admin/provisioning",
@@ -433,8 +494,54 @@ export const API_ENDPOINTS = {
       index: "/api/admin/audit-logs",
       export: "/api/admin/audit-logs/export",
       security: "/api/admin/security-logs",
+      /** The same security events as `security` above, served from under the
+       *  audit-log controller rather than the top-level alias. */
+      securityLogs: "/api/admin/audit-logs/security-logs",
       impersonation: "/api/admin/impersonation-logs",
+      /** Aggregates over the audit log itself. Distinct from `statistics`,
+       *  which is the platform statistics controller's audit summary. */
+      auditStatistics: "/api/admin/audit/statistics",
       statistics: "/api/admin/statistics/audit",
+    },
+
+    /**
+     * The tamper-evident audit hash chain (backend Finding 2d / SEC-06).
+     *
+     * Distinct from `auditLogs` above, which reads the entries themselves:
+     * these describe the *integrity* of that log — the hash chain head, the
+     * checkpoint history that evidences ongoing monitoring, an on-demand
+     * verification run, and the blockchain anchor ledger.
+     *
+     * Platform-scoped on the backend: `audit_logs` is one global chain with no
+     * `organization_id`, so an organization admin (and a super-admin who pinned
+     * a tenant with `X-Tenant-ID`) gets 403 `E_PLATFORM_SCOPE_REQUIRED` rather
+     * than a partial answer. Callers must handle that.
+     */
+    auditChain: {
+      status: "/api/admin/audit/chain/status",
+      checkpoints: "/api/admin/audit/chain/checkpoints",
+      /** POST, and throttled to 5 per 5 minutes — a full walk reads every
+       *  audit row, so this is a deliberate action, not a poll. */
+      verify: "/api/admin/audit/chain/verify",
+      anchors: "/api/admin/audit/chain/anchors",
+    },
+
+    /**
+     * BullMQ queue telemetry. `health.queue` reports one up/down for the
+     * directory-sync queue; these report per-queue job counts across the whole
+     * registry and allow requeueing a failed job.
+     *
+     * Platform-scoped on the backend for the same reason as `auditChain`:
+     * queues are shared infrastructure carrying cross-tenant payloads. Job
+     * `data` is never returned.
+     */
+    queues: {
+      index: "/api/admin/queues",
+      jobs: (queue: string) => `/api/admin/queues/${queue}/jobs`,
+      retryJob: (queue: string, jobId: string | number) =>
+        `/api/admin/queues/${queue}/jobs/${jobId}/retry`,
+      retryFailed: (queue: string) =>
+        `/api/admin/queues/${queue}/retry-failed`,
     },
     email: {
       templates: "/api/admin/email/templates",
@@ -448,8 +555,15 @@ export const API_ENDPOINTS = {
       mfa: "/api/admin/statistics/mfa",
       sessionStatistics: "/api/admin/statistics/session-statistics",
       trends: "/api/admin/statistics/trends",
+      recentJobs: "/api/admin/statistics/recent-jobs",
     },
     impersonationLogs: "/api/admin/impersonation-logs",
+    /**
+     * The security dashboard's own summary views. These stay on `/api/v1` — the
+     * v1 security block, unlike `alert-rules` and `threat-intel` below, does
+     * apply `admin()`, and `resolveAnomaly` / `dismissAlert` have no legacy
+     * equivalent at all.
+     */
     security: {
       health: "/api/v1/admin/security/health",
       stats: "/api/v1/admin/security/stats",
@@ -459,21 +573,65 @@ export const API_ENDPOINTS = {
       alerts: "/api/v1/admin/security/alerts",
       dismissAlert: (id: string | number) =>
         `/api/v1/admin/security/alerts/${id}/dismiss`,
+      /** Diagnostic: reports which security headers the backend is sending. */
+      headersTest: "/api/admin/security/headers-test",
     },
+
+    /**
+     * The full alert queue, behind the summary in `security.alerts`. Every
+     * route is admin-gated under `/api/admin`.
+     */
+    alerts: {
+      index: "/api/admin/alerts",
+      byId: (id: string | number) => `/api/admin/alerts/${id}`,
+      update: (id: string | number) => `/api/admin/alerts/${id}`,
+      destroy: (id: string | number) => `/api/admin/alerts/${id}`,
+      acknowledge: (id: string | number) => `/api/admin/alerts/${id}/acknowledge`,
+      resolve: (id: string | number) => `/api/admin/alerts/${id}/resolve`,
+      bulkResolve: "/api/admin/alerts/bulk-resolve",
+      countBySeverity: "/api/admin/alerts/count-by-severity",
+    },
+
+    /** Anomaly detection: the queue, the detector, and its baseline. */
+    anomalies: {
+      index: "/api/admin/anomalies",
+      byId: (id: string | number) => `/api/admin/anomalies/${id}`,
+      update: (id: string | number) => `/api/admin/anomalies/${id}`,
+      updateStatus: (id: string | number) => `/api/admin/anomalies/${id}/status`,
+      falsePositive: (id: string | number) =>
+        `/api/admin/anomalies/${id}/false-positive`,
+      baseline: "/api/admin/anomalies/baseline",
+      refreshBaseline: "/api/admin/anomalies/baseline/refresh",
+      detect: "/api/admin/anomalies/detect",
+      score: "/api/admin/anomalies/score",
+      stats: "/api/admin/anomalies/stats",
+    },
+    /**
+     * SIEM alert rules and threat intelligence stay on `/api/admin/*` — the one
+     * place this registry does not prefer the `/api/v1` twin.
+     *
+     * Both v1 groups are mounted with `middleware.auth()` and no
+     * `middleware.admin()`, so any signed-in user can read and mutate them
+     * there; the legacy groups sit inside the `/api/admin` group that does
+     * apply `admin()`. The v1 handlers are one-line delegations to the legacy
+     * ones, so the responses are identical and only the gate differs.
+     *
+     * Move these back to v1 once the backend routes carry `admin()`.
+     */
     alertRules: {
-      index: "/api/v1/admin/alert-rules",
-      store: "/api/v1/admin/alert-rules",
-      update: (id: string | number) => `/api/v1/admin/alert-rules/${id}`,
-      destroy: (id: string | number) => `/api/v1/admin/alert-rules/${id}`,
+      index: "/api/admin/alert-rules",
+      store: "/api/admin/alert-rules",
+      update: (id: string | number) => `/api/admin/alert-rules/${id}`,
+      destroy: (id: string | number) => `/api/admin/alert-rules/${id}`,
     },
     threatIntel: {
-      metrics: "/api/v1/admin/threat-intel/metrics",
-      score: "/api/v1/admin/threat-intel/score",
-      heatmap: "/api/v1/admin/threat-intel/heatmap",
-      indicators: "/api/v1/admin/threat-intel/indicators",
-      lookupIp: (ip: string) => `/api/v1/admin/threat-intel/ip/${ip}`,
+      metrics: "/api/admin/threat-intel/metrics",
+      score: "/api/admin/threat-intel/score",
+      heatmap: "/api/admin/threat-intel/heatmap",
+      indicators: "/api/admin/threat-intel/indicators",
+      lookupIp: (ip: string) => `/api/admin/threat-intel/ip/${ip}`,
       lookupDomain: (domain: string) =>
-        `/api/v1/admin/threat-intel/domain/${domain}`,
+        `/api/admin/threat-intel/domain/${domain}`,
     },
     docs: "/api/admin/docs",
     sandboxExecute: "/api/admin/sandbox/execute",
@@ -511,6 +669,34 @@ export const API_ENDPOINTS = {
         `/api/admin/rbac/members/${id}/overrides/${pid}`,
     },
     accessPolicies: "/api/admin/rbac/access-policies",
+    /**
+     * The policy engine behind the access-policy canvas: turn a policy graph
+     * into a rule set and back, try it against a scenario, and read the
+     * defaults.
+     *
+     * These stay on `/api/admin` rather than the `/api/v1/admin` twins for a
+     * sharper reason than the rest of the admin tree: the legacy mount gates
+     * them with `mfa()` step-up plus `requirePermission('org:manage')`, and the
+     * v1 mount reaches the identical controller with `admin()` alone. Calling
+     * v1 here would route policy mutation around the step-up prompt.
+     */
+    policies: {
+      simulate: "/api/admin/rbac/policies/simulate",
+      compile: "/api/admin/rbac/policies/compile",
+      decompile: "/api/admin/rbac/policies/decompile",
+      evaluate: "/api/admin/rbac/policies/evaluate",
+      default: "/api/admin/rbac/policies/default",
+    },
+  },
+
+  /**
+   * Tenant-scoped organization settings, mounted outside the admin tree on
+   * purpose: `middleware.admin()` is deliberately absent so an organization's
+   * own admins can manage their session policy without platform admin rights.
+   */
+  organizations: {
+    sessionPolicy: (id: string | number) =>
+      `/api/organizations/${id}/session-policy`,
   },
 
   adminMembers: {
@@ -536,8 +722,26 @@ export const API_ENDPOINTS = {
         `/api/admin/organizations/${orgId}/nfc/cards/${cardId}`,
       accessPoints: (orgId: string | number) =>
         `/api/admin/organizations/${orgId}/nfc/access-points`,
+      accessPointById: (orgId: string | number, pointId: string | number) =>
+        `/api/admin/organizations/${orgId}/nfc/access-points/${pointId}`,
+      /**
+       * POST. Issues a new reader bearer token and invalidates the old one
+       * immediately — a reader in the field stops authenticating the moment
+       * this returns. The raw token is in the response exactly once; only its
+       * prefix is readable afterwards.
+       */
+      regenerateAccessPointToken: (
+        orgId: string | number,
+        pointId: string | number,
+      ) =>
+        `/api/admin/organizations/${orgId}/nfc/access-points/${pointId}/regenerate-token`,
       logs: (orgId: string | number) =>
         `/api/admin/organizations/${orgId}/nfc/logs`,
+      /**
+       * Called by the reader hardware, not the browser: it authenticates with
+       * the reader's bearer token in the body and carries no user session.
+       * Present here for completeness of the contract, never called by the SPA.
+       */
       scan: "/api/v1/access-control/scan",
     },
   },
@@ -683,6 +887,29 @@ export const API_QUERY_KEYS = {
     auditLogs: {
       all: ["admin", "audit-logs"] as const,
       index: ["admin", "audit-logs"] as const,
+    },
+    auditChain: {
+      all: ["admin", "audit-chain"] as const,
+      status: ["admin", "audit-chain", "status"] as const,
+      checkpoints: (page: number) =>
+        ["admin", "audit-chain", "checkpoints", page] as const,
+      anchors: (params?: unknown) =>
+        ["admin", "audit-chain", "anchors", params] as const,
+    },
+    queues: {
+      all: ["admin", "queues"] as const,
+      index: ["admin", "queues"] as const,
+      jobs: (queue: string, state: string) =>
+        ["admin", "queues", queue, "jobs", state] as const,
+    },
+    accessControl: {
+      all: ["admin", "access-control"] as const,
+      cards: (orgId: string | number, params?: unknown) =>
+        ["admin", "access-control", orgId, "cards", params] as const,
+      accessPoints: (orgId: string | number) =>
+        ["admin", "access-control", orgId, "access-points"] as const,
+      logs: (orgId: string | number, params?: unknown) =>
+        ["admin", "access-control", orgId, "logs", params] as const,
     },
     impersonationLogs: ["admin", "impersonation-logs"] as const,
     appeals: {

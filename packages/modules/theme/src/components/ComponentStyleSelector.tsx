@@ -1,15 +1,23 @@
 import React from "react";
 import {
   Box,
-  Typography,
-  Paper,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
   Chip,
+  MenuItem,
+  Select,
+  Stack,
+  Typography,
+  useTheme,
 } from "@mui/material";
 import type { ComponentStyles, ComponentEffectStyle } from "@cap/theme";
 import type { EffectType } from "@cap/theme";
+import { EFFECT_TYPES } from "@cap/theme";
+import {
+  ChoiceChip,
+  PanelHeader,
+  SectionLabel,
+  ellipsis,
+  useSurfaceSx,
+} from "./studioUi";
 
 interface ComponentStyleSelectorProps {
   components: ComponentStyles;
@@ -21,34 +29,30 @@ interface ComponentStyleSelectorProps {
 const componentLabels: Record<keyof ComponentStyles, string> = {
   button: "Buttons",
   card: "Cards",
-  input: "Input Fields",
-  navbar: "Navigation Bar",
+  input: "Input fields",
+  navbar: "Navigation bar",
   footer: "Footer",
   modal: "Modals",
   drawer: "Drawers",
   stepper: "Steppers",
   table: "Tables",
   tabs: "Tabs",
-  nav: "Navigation Sidebars",
+  nav: "Sidebars",
 };
 
-const effectOptions: {
-  value: ComponentEffectStyle;
-  label: string;
-  description: string;
-}[] = [
-  {
-    value: "global",
-    label: "Use Global",
-    description: "Inherits global effect setting",
-  },
-  { value: "glass", label: "Glass", description: "Glassmorphism effect" },
-  { value: "neu", label: "Neumorphic", description: "Soft 3D shadow effect" },
-  {
-    value: "standard",
-    label: "Standard",
-    description: "Traditional flat design",
-  },
+// Both pickers are derived from EFFECT_TYPES rather than hand-listed. They
+// used to offer three of the eight effects between them, so brutalism, bento,
+// organic, immersive and liquid-glass were selectable only by picking a preset
+// that happened to use one - and never overridable per component at all.
+const globalOptions: Array<{ value: EffectType; label: string }> =
+  EFFECT_TYPES.map(({ value, label }) => ({ value, label }));
+
+const effectOptions: Array<{ value: ComponentEffectStyle; label: string }> = [
+  { value: "global", label: "Use global" },
+  ...EFFECT_TYPES.map(({ value, label }) => ({
+    value: value as ComponentEffectStyle,
+    label,
+  })),
 ];
 
 export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
@@ -57,100 +61,136 @@ export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
   onChange,
   onGlobalChange,
 }) => {
+  const theme = useTheme();
+  const surface = useSurfaceSx();
+
+  const activeEffectMeta = EFFECT_TYPES.find(
+    (option) => option.value === globalEffectType,
+  );
+
   const handleComponentChange = (
     key: keyof ComponentStyles,
     style: ComponentEffectStyle,
   ) => {
     onChange({
       ...components,
-      [key]: {
-        ...components[key],
-        style,
-      },
+      [key]: { ...components[key], style },
     });
   };
 
-  return (
-    <Paper sx={{ p: 3 }}>
-      <Typography variant="h6" sx={{ mb: 1 }}>
-        Component Styles
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Override the global effect for individual components or use global
-        setting
-      </Typography>
+  const keys = Object.keys(components) as Array<keyof ComponentStyles>;
+  const overriddenCount = keys.filter(
+    (key) => components[key]?.style && components[key].style !== "global",
+  ).length;
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="subtitle2" sx={{ mb: 2 }}>
-          Global Effect Type
-        </Typography>
-        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-          {(["standard", "glass", "neu"] as EffectType[]).map((type) => (
-            <Chip
-              key={type}
-              label={
-                type === "standard"
-                  ? "Standard"
-                  : type === "glass"
-                    ? "Glassmorphism"
-                    : "Neumorphism"
-              }
-              onClick={() => onGlobalChange(type)}
-              variant={globalEffectType === type ? "filled" : "outlined"}
-              color={globalEffectType === type ? "primary" : "default"}
-              sx={{ textTransform: "capitalize" }}
+  return (
+    <Box>
+      <PanelHeader
+        title="Component styles"
+        description="Everything follows the global effect unless you override it here."
+      />
+
+      <Box sx={{ mb: 7 }}>
+        <SectionLabel>Global effect</SectionLabel>
+        <Stack direction="row" useFlexGap spacing={1.5} sx={{ flexWrap: "wrap" }}>
+          {globalOptions.map((option) => (
+            <ChoiceChip
+              key={option.value}
+              label={option.label}
+              selected={globalEffectType === option.value}
+              onClick={() => onGlobalChange(option.value)}
             />
           ))}
-        </Box>
+        </Stack>
+        {activeEffectMeta && (
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", mt: 2 }}
+          >
+            {activeEffectMeta.description}
+          </Typography>
+        )}
       </Box>
 
-      <Typography variant="subtitle2" sx={{ mb: 2 }}>
-        Per-Component Overrides
-      </Typography>
+      <SectionLabel
+        action={
+          overriddenCount > 0 ? (
+            <Typography variant="caption" color="text.secondary">
+              {overriddenCount} overridden
+            </Typography>
+          ) : undefined
+        }
+      >
+        Per component
+      </SectionLabel>
 
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {(Object.keys(components) as Array<keyof ComponentStyles>).map(
-          (key) => (
+      {/*
+        One compact row per component instead of eleven radio groups of four.
+        Forty-four radios for what is a single choice per row was most of this
+        tab's height, and made the handful of actual overrides impossible to
+        spot - the select shows the current value in place, and the badge marks
+        the rows that no longer follow the global setting.
+      */}
+      <Box sx={{ ...surface, overflow: "hidden" }}>
+        {keys.map((key, index) => {
+          const value = components[key]?.style ?? "global";
+          const isOverridden = value !== "global";
+          return (
             <Box
               key={key}
               sx={{
-                p: 2,
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                minHeight: 52,
+                paddingInline: 4,
+                paddingBlock: 2,
+                borderBlockStart:
+                  index === 0
+                    ? "none"
+                    : `1px solid ${theme.palette.divider}`,
               }}
             >
-              <Typography variant="body2" sx={{ mb: 1.5, fontWeight: 500 }}>
-                {componentLabels[key]}
+              <Typography
+                variant="body2"
+                sx={{ flex: 1, minWidth: 0, fontWeight: 500, ...ellipsis }}
+              >
+                {componentLabels[key] ?? key}
               </Typography>
-              <RadioGroup
-                row
-                value={components[key].style}
+              {isOverridden && (
+                <Chip
+                  size="small"
+                  label="Override"
+                  sx={{ blockSize: 20, fontSize: "0.6875rem", fontWeight: 600 }}
+                />
+              )}
+              <Select
+                size="small"
+                value={value}
                 onChange={(e) =>
                   handleComponentChange(
                     key,
                     e.target.value as ComponentEffectStyle,
                   )
                 }
+                aria-label={`${componentLabels[key] ?? key} effect style`}
+                sx={{
+                  minInlineSize: 132,
+                  "& .MuiSelect-select": { paddingBlock: 1.5 },
+                }}
               >
                 {effectOptions.map((option) => (
-                  <FormControlLabel
-                    key={option.value}
-                    value={option.value}
-                    control={<Radio size="small" />}
-                    label={
-                      <Box>
-                        <Typography variant="body2">{option.label}</Typography>
-                      </Box>
-                    }
-                  />
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
                 ))}
-              </RadioGroup>
+              </Select>
             </Box>
-          ),
-        )}
+          );
+        })}
       </Box>
-    </Paper>
+    </Box>
   );
 };
 

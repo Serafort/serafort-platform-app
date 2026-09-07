@@ -5,3 +5,6 @@ export {
   userDirectoryService as default,
 } from './userDirectory.service'
 export * from './userDirectory.service'
+
+export { default as complianceService } from './compliance.service'
+export * from './compliance.service'
