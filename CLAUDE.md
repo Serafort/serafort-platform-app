@@ -73,20 +73,38 @@ boundary gate, because they couple siblings.
 ### Architecture gates
 
 ```bash
-pnpm lint:boundaries    # tier violations across all 14 packages (authoritative)
-pnpm lint:circular      # madge cycle check, with @cap/* path resolution
-pnpm lint:architecture  # both of the above
+pnpm lint:boundaries          # tier violations across all 14 packages, bare-specifier scan
+pnpm lint:boundaries:eslint   # same tier table, via eslint-plugin-boundaries + real import resolution
+pnpm lint:circular            # madge cycle check, with @cap/* path resolution
+pnpm lint:architecture        # all three of the above
 ```
 
-`pnpm lint:boundaries` walks every package's sources directly rather than
-relying on ESLint, because only some packages carry an ESLint config and
-`pnpm -r run lint` fails repo-wide for unrelated pre-existing reasons. The
-matching ESLint rules in `eslint.config.js` (`boundaryConfigs`) are applied via
-`files` globs for editor feedback.
+Two independent checks enforce the same tier table on purpose, not out of
+redundancy. `pnpm lint:boundaries` (`scripts/check-tier-boundaries.mjs`) walks
+every package's sources directly and regex-matches bare `@cap/x` import
+specifiers; it runs standalone with no ESLint dependency, which matters
+because only some packages carry a working ESLint config and `pnpm -r run
+lint` fails repo-wide for unrelated pre-existing reasons.
 
-`lint:circular` reads `tsconfig.madge.json` for the `@cap/*` path map. Without
-it madge resolves only relative imports and can detect intra-package cycles
-alone -- which is how two cross-package cycles previously passed a green check.
+But a specifier-string regex cannot see a **relative-path escape** across a
+package boundary - e.g. a file in `packages/layout/src` importing
+`../../../platform-core/src/foo` instead of `from '@cap/platform-core'`. Only
+that second form would be caught by the script above. `pnpm
+lint:boundaries:eslint` closes that gap: it runs `eslint-plugin-boundaries`
+against the *same* tier table (`eslint.config.js` imports `TIERS`/
+`PACKAGE_DIRS` from `scripts/check-tier-boundaries.mjs` rather than copying
+them, so the two can never disagree), but the plugin resolves every import to
+its real file first, so a relative escape gets classified by the file it
+actually points at and flagged all the same. This is invoked with
+`--config eslint.config.js` explicitly rather than relying on ESLint's normal
+config discovery, because most packages have their own self-contained
+`eslint.config.js` for ordinary linting that would otherwise take over instead.
+
+`lint:circular` reads `tsconfig.madge.json` for the `@cap/*` path map (the same
+file `lint:boundaries:eslint`'s import resolver uses to resolve `@cap/x` to
+its `src/`, not its built `dist/`). Without it madge resolves only relative
+imports and can detect intra-package cycles alone -- which is how two
+cross-package cycles previously passed a green check.
 
 ### Critical Architectural Mandates
 1. **Zero Hardcoded Menus/Routes**: The shell (`@cap/app`) and layout engine (`@cap/layout`) contain ZERO hardcoded menu structures or route lists. Feature modules self-declare routes (`ModuleRouteConfig[]`), navigation items (`NavItemConfig[]`), and command-palette items (`SearchItemConfig[]`) via their `CAPModule` contract.

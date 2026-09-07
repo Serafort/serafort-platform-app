@@ -6,22 +6,32 @@
  * with a strictly lower tier ordinal. Same-tier imports are reported as
  * warnings (they are legal but couple siblings); upward imports are errors.
  *
- * Why this exists as a script rather than only an ESLint rule: only 6 of the
- * workspace's packages carry an ESLint config, and `pnpm -r run lint` fails
- * repo-wide for unrelated pre-existing reasons, so an ESLint-only gate silently
- * skips most of the tree. This walks every package's sources directly and is
- * safe to run in CI.
+ * Why this exists as a standalone script rather than only an ESLint rule:
+ * only some workspace packages carry an ESLint config, `pnpm -r run lint`
+ * fails repo-wide for unrelated pre-existing reasons, and this script's own
+ * import scan catches bare-specifier violations directly without depending on
+ * ESLint's module resolution at all. It runs safely in CI on its own.
+ *
+ * `eslint.config.js` imports TIERS/PACKAGE_DIRS from this file to drive
+ * `eslint-plugin-boundaries`, which is a genuinely complementary second gate:
+ * it resolves each import to a real file before checking the tier, so it also
+ * catches a relative-path escape across a package boundary (e.g. a file in
+ * packages/layout/src doing `import x from '../../../platform-core/src/foo'`
+ * instead of `from '@cap/platform-core'`) - a violation this script's
+ * specifier-string regex cannot see. Keep the two gates on ONE tier map by
+ * always importing it here rather than copying it.
  *
  * Ordinals are derived from the real dependency DAG. To add a package, give it
  * an ordinal above everything it must import.
  */
 import { readdirSync, statSync, readFileSync, existsSync } from 'node:fs'
 import { join, resolve, relative, sep } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 const ROOT = resolve(import.meta.dirname, '..')
 
 /** Canonical tier ordinals. Higher may import lower; never the reverse. */
-const TIERS = {
+export const TIERS = {
   '@cap/shared-types': 0,      // Tier 0  Foundation
   '@cap/api-contracts': 1,     // Tier 1  Contracts
   '@cap/platform-store': 2,    // Tier 1  Core domain (state)
@@ -39,7 +49,7 @@ const TIERS = {
 }
 
 /** Package name -> source directory. */
-const PACKAGE_DIRS = {
+export const PACKAGE_DIRS = {
   '@cap/shared-types': 'packages/shared-types/src',
   '@cap/api-contracts': 'packages/api-contracts/src',
   '@cap/platform-store': 'packages/platform-store/src',
@@ -72,41 +82,56 @@ function walk(dir, out = []) {
   return out
 }
 
-const errors = []
-const warnings = []
+/**
+ * Runs the scan and prints results. Guarded below so that importing this
+ * module for its TIERS/PACKAGE_DIRS data (eslint.config.js does exactly this)
+ * never triggers a filesystem scan or a process.exit call as a side effect.
+ */
+function main() {
+  const errors = []
+  const warnings = []
 
-for (const [pkg, srcDir] of Object.entries(PACKAGE_DIRS)) {
-  const ordinal = TIERS[pkg]
-  for (const file of walk(join(ROOT, srcDir))) {
-    const text = readFileSync(file, 'utf8')
-    for (const m of text.matchAll(SPECIFIER)) {
-      const target = m[1]
-      if (target === pkg) continue
-      const targetOrdinal = TIERS[target]
-      if (targetOrdinal === undefined) continue // unknown//provisioned package
-      const line = text.slice(0, m.index).split('\n').length
-      const where = `${relative(ROOT, file).split(sep).join('/')}:${line}`
-      if (targetOrdinal > ordinal) {
-        errors.push(`  ${where}\n      ${pkg} (tier ${ordinal}) imports ${target} (tier ${targetOrdinal})`)
-      } else if (targetOrdinal === ordinal) {
-        warnings.push(`  ${where}  ${pkg} imports same-tier ${target}`)
+  for (const [pkg, srcDir] of Object.entries(PACKAGE_DIRS)) {
+    const ordinal = TIERS[pkg]
+    for (const file of walk(join(ROOT, srcDir))) {
+      const text = readFileSync(file, 'utf8')
+      for (const m of text.matchAll(SPECIFIER)) {
+        const target = m[1]
+        if (target === pkg) continue
+        const targetOrdinal = TIERS[target]
+        if (targetOrdinal === undefined) continue // unknown//provisioned package
+        const line = text.slice(0, m.index).split('\n').length
+        const where = `${relative(ROOT, file).split(sep).join('/')}:${line}`
+        if (targetOrdinal > ordinal) {
+          errors.push(`  ${where}\n      ${pkg} (tier ${ordinal}) imports ${target} (tier ${targetOrdinal})`)
+        } else if (targetOrdinal === ordinal) {
+          warnings.push(`  ${where}  ${pkg} imports same-tier ${target}`)
+        }
       }
     }
   }
+
+  if (warnings.length) {
+    console.log(`\nSame-tier imports (legal, but they couple siblings): ${warnings.length}`)
+    for (const w of warnings.slice(0, 10)) console.log(w)
+    if (warnings.length > 10) console.log(`  ...and ${warnings.length - 10} more`)
+  }
+
+  if (errors.length) {
+    console.error(`\n✖ Tier boundary violations: ${errors.length}\n`)
+    for (const e of errors) console.error(e)
+    console.error('\nA package may only import packages in a lower tier.')
+    console.error('See the tier table in CLAUDE.md and scripts/check-tier-boundaries.mjs.\n')
+    process.exit(1)
+  }
+
+  console.log('\n✔ No tier boundary violations found.\n')
 }
 
-if (warnings.length) {
-  console.log(`\nSame-tier imports (legal, but they couple siblings): ${warnings.length}`)
-  for (const w of warnings.slice(0, 10)) console.log(w)
-  if (warnings.length > 10) console.log(`  ...and ${warnings.length - 10} more`)
+// Only run when executed directly (`node scripts/check-tier-boundaries.mjs`),
+// not when imported as a module for its exports. pathToFileURL (rather than a
+// hand-built `file://` string) is what makes this comparison work on Windows,
+// where a drive-letter path needs the third slash: `file:///C:/...`.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
 }
-
-if (errors.length) {
-  console.error(`\n✖ Tier boundary violations: ${errors.length}\n`)
-  for (const e of errors) console.error(e)
-  console.error('\nA package may only import packages in a lower tier.')
-  console.error('See the tier table in CLAUDE.md and scripts/check-tier-boundaries.mjs.\n')
-  process.exit(1)
-}
-
-console.log('\n✔ No tier boundary violations found.\n')
