@@ -76,6 +76,8 @@ export {
   requestPipelineRun,
   attachPipelineRun,
   buildGeneratePayload,
+  executeBackendAgentPipeline,
+  cancelBackendAgentPipeline,
   type PipelineRunOptions,
   type PipelineRunResponse,
   type PipelineRunResult,

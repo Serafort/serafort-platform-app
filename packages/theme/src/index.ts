@@ -38,3 +38,7 @@ export { default as themeConfig, type ThemeConfig } from "./config/themeConfig";
 // @cap/platform-core re-exports them, so its public API is unchanged.
 export * from "./contexts/ContainerSizeContext";
 export * from "./registry/WidgetRegistry";
+
+// Writing-direction (LTR/RTL) provider
+export { DirectionProvider } from "./direction/DirectionProvider";
+export type { DirectionProviderProps } from "./direction/DirectionProvider";
