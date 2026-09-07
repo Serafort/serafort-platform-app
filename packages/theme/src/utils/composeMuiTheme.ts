@@ -179,7 +179,14 @@ export const composeMuiTheme = ({
 
   const theme = createTheme(
     baseStaticTheme,
-    createBaseMuiTheme(updatedSettings, currentMode, direction),
+    createBaseMuiTheme(updatedSettings, currentMode, direction, {
+      primary: primaryMain,
+      secondary: secondaryMain,
+      error: errorMain,
+      warning: warningMain,
+      info: infoMain,
+      success: successMain,
+    }),
     {
       direction,
       spacing: (factor: number | string) => {
@@ -365,6 +372,15 @@ export const composeMuiThemeMemoized = (
   const bgVal = colors?.background?.value || "";
   const surfaceVal = colors?.surface?.value || "";
   const fontVal = tenantTheme?.tokens?.typography?.fontFamily?.sans || "";
+  // Status colours feed the coloured elevation rings (theme.customShadows.*),
+  // so a tenant that overrides only, say, their error colour must not be
+  // served a theme built for the previous one.
+  const statusVal = [
+    colors?.error?.value,
+    colors?.warning?.value,
+    colors?.info?.value,
+    colors?.success?.value,
+  ].join("|");
   // The whole effect config, not just its name: the theme object carries it
   // through as `theme.tenantTheme` for SurfaceEffectFactory, so tuning a
   // preset's blur or shadow has to miss the cache. Keyed on the name alone,
@@ -372,7 +388,7 @@ export const composeMuiThemeMemoized = (
   // theme built for that effect and appeared to do nothing.
   const effectVal = JSON.stringify(tenantTheme?.effects || {});
 
-  const key = `${tenantTheme?.id || "default"}_${currentMode}_${direction}_${settings.skin}_${settings.effect || "none"}_${effectVal}_${primaryVal}_${secondaryVal}_${bgVal}_${surfaceVal}_${fontVal}`;
+  const key = `${tenantTheme?.id || "default"}_${currentMode}_${direction}_${settings.skin}_${settings.effect || "none"}_${effectVal}_${primaryVal}_${secondaryVal}_${bgVal}_${surfaceVal}_${fontVal}_${statusVal}`;
 
   const cached = themeCache.get(key);
   if (cached) {
