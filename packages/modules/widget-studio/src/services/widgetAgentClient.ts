@@ -403,11 +403,8 @@ export function connectPipelineStream(
 }
 
 /**
- * Starting and cancelling a run moved to ../agents/pipeline, so there is one
- * request builder rather than three. Re-exported here because both names are
- * part of this module's public API.
+ * Starting and cancelling a run live in ../agents/pipeline, so there is one
+ * request builder rather than three. They are exported from the package
+ * barrel (src/index.ts) directly from that module: re-exporting them here
+ * made services/ and agents/ import each other at runtime, a real value cycle.
  */
-export {
-  executeBackendAgentPipeline,
-  cancelBackendAgentPipeline,
-} from "../agents/pipeline";

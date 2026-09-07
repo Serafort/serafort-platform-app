@@ -11,7 +11,8 @@ import SearchResults from './SearchResults'
 import StyledKBarAnimator from './StyledKBarAnimator'
 import type { ChildrenType } from '@cap/shared-types'
 import { useSettings } from '@cap/platform-store'
-import { i18n as i18nConfig, getSearchItems } from '@cap/platform-core'
+import { i18n as i18nConfig } from '@cap/shared-types'
+import { getSearchItems } from '@cap/platform-core'
 import { useVerticalNav } from '../../hooks/useVerticalNav'
 import {
   zIndexScale,

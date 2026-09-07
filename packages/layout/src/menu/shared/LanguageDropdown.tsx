@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import Translate from '@mui/icons-material/Translate'
-import { i18n as i18nConfig, getAvailableLocales } from '@cap/platform-core'
+import { i18n as i18nConfig, getAvailableLocales } from '@cap/shared-types'
 type Locale = (typeof i18nConfig)['locales'][number]
 import { useTranslation } from 'react-i18next'
 import { useSettings } from '@cap/platform-store'

@@ -9,7 +9,7 @@ import {
 
 // Type Imports
 import type { MenuItemStyles, MenuItemStylesParams } from '../../../menu/types'
-import type { Settings } from '@cap/platform-core'
+import type { Settings } from '@cap/shared-types'
 import type { VerticalNavState } from '../../../menu/contexts/verticalNavContext'
 
 // Util Imports

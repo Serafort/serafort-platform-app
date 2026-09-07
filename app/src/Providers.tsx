@@ -97,8 +97,17 @@ if (!i18next.isInitialized) {
 
   i18next.use(LanguageDetector).init({
     interpolation: { escapeValue: false },
-    lng: i18n.defaultLocale,
+    // No hardcoded `lng`: setting it makes LanguageDetector a no-op, which is
+    // why a chosen language (and with it the RTL writing direction) used to
+    // reset to English on every reload. `fallbackLng` still covers the case
+    // where nothing is stored and nothing can be detected.
     fallbackLng: i18n.defaultLocale,
+    supportedLngs: [...i18n.locales],
+    detection: {
+      order: ['querystring', 'localStorage', 'cookie', 'navigator'],
+      lookupQuerystring: 'lng',
+      caches: ['localStorage'],
+    },
     defaultNS: 'common',
     fallbackNS: 'common',
     resources: initialResources,
