@@ -16,8 +16,27 @@ function getNodeModule<T = any>(moduleName: string): T | null {
     return null
   }
   try {
-    const req = typeof eval !== 'undefined' ? eval('require') : null
-    return req ? req(moduleName) : null
+    if (typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function') {
+      const mod = process.getBuiltinModule(moduleName)
+      if (mod) return mod as unknown as T
+    }
+    // Use bundler-specific escape hatches to avoid static analysis
+    // @ts-ignore
+    const req = typeof __non_webpack_require__ !== 'undefined'
+      // @ts-ignore
+      ? __non_webpack_require__
+      : typeof require !== 'undefined'
+        ? require
+        : null
+
+    // Obfuscate the require call to bypass aggressive static analysis in some bundlers
+    // by not calling it directly as `require(moduleName)`
+    if (req) {
+      const requireFunc = req
+      return requireFunc(moduleName)
+    }
+
+    return null
   } catch {
     return null
   }
