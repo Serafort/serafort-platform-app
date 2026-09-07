@@ -16,6 +16,7 @@ import {
   hexToRgba,
   rgbaToHex,
 } from "./computeEffects";
+import { brandMeshGradient } from "./gradients";
 
 export { hexToRgba, rgbaToHex };
 
@@ -395,12 +396,7 @@ export const generateThemeVariables = (
       theme.tokens?.colors?.secondary?.value ||
       theme.tokens?.colors?.info?.value ||
       primary;
-    effects["--effect-canvas-image"] = [
-      `radial-gradient(at 18% 12%, ${hexToRgba(primary, 0.28)} 0px, transparent 55%)`,
-      `radial-gradient(at 82% 8%, ${hexToRgba(secondary, 0.22)} 0px, transparent 50%)`,
-      `radial-gradient(at 70% 88%, ${hexToRgba(primary, 0.18)} 0px, transparent 55%)`,
-      `radial-gradient(at 8% 78%, ${hexToRgba(secondary, 0.16)} 0px, transparent 50%)`,
-    ].join(", ");
+    effects["--effect-canvas-image"] = brandMeshGradient(primary, secondary);
   }
   const components: CSSVariableMap = {};
   if (theme.components) {
