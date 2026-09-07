@@ -32,17 +32,46 @@ describe("Routes Registry & Path Helpers (Tier 0 SSOT)", () => {
     ).toBe("/org/org_1/user/usr_2");
   });
 
-  it("resolveDynamicPath should fallback to default path when item is not registered", () => {
-    const registered = [{ id: "dashboard", path: "/custom-dashboard" }];
+  describe("resolveDynamicPath", () => {
+    it("should match by targetId and return the custom path", () => {
+      const registered = [{ id: "dashboard", path: "/custom-dashboard" }];
+      expect(
+        resolveDynamicPath(registered, "dashboard", "/fallback-dashboard"),
+      ).toBe("/custom-dashboard");
+    });
 
-    // Matched item
-    expect(
-      resolveDynamicPath(registered, "dashboard", "/fallback-dashboard"),
-    ).toBe("/custom-dashboard");
+    it("should match by defaultPath and return the custom path", () => {
+      const registered = [{ id: "other", path: "/fallback-dashboard" }];
+      expect(
+        resolveDynamicPath(registered, "dashboard", "/fallback-dashboard"),
+      ).toBe("/fallback-dashboard");
+    });
 
-    // Unmatched item
-    expect(
-      resolveDynamicPath(registered, "non-existent", AppPaths.landing.home),
-    ).toBe("/");
+    it("should fallback to defaultPath when there is no match", () => {
+      const registered = [{ id: "other", path: "/other-path" }];
+      expect(
+        resolveDynamicPath(registered, "dashboard", "/fallback-dashboard"),
+      ).toBe("/fallback-dashboard");
+    });
+
+    it("should fallback to defaultPath when the matched item has no path defined", () => {
+      const registered = [{ id: "dashboard" }]; // No path
+      expect(
+        resolveDynamicPath(registered, "dashboard", "/fallback-dashboard"),
+      ).toBe("/fallback-dashboard");
+    });
+
+    it("should handle empty registered items gracefully", () => {
+      expect(
+        resolveDynamicPath([], "dashboard", "/fallback-dashboard"),
+      ).toBe("/fallback-dashboard");
+    });
+
+    it("should handle items with neither id nor path", () => {
+      const registered = [{}];
+      expect(
+        resolveDynamicPath(registered, "dashboard", "/fallback-dashboard"),
+      ).toBe("/fallback-dashboard");
+    });
   });
 });
