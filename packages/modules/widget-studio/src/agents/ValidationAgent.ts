@@ -293,7 +293,14 @@ const mintWidgetId = (): string => {
   } catch {
     /* fall through */
   }
-  return `widget-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const bytes = crypto.getRandomValues(new Uint8Array(4));
+    const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    return `widget-${Date.now()}-${hex}`;
+  }
+
+  throw new Error('Secure random source unavailable; cannot create elevation token');
 };
 
 export interface ResolvedDsl {
