@@ -16,7 +16,7 @@ function getNodeModule<T = any>(moduleName: string): T | null {
     return null
   }
   try {
-    const req = typeof eval !== 'undefined' ? eval('require') : null
+    const req = typeof module !== 'undefined' && module.require ? module.require : (typeof require !== 'undefined' ? require : null)
     return req ? req(moduleName) : null
   } catch {
     return null
