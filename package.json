@@ -11,14 +11,16 @@
     "dev": "pnpm --filter @cap/app run dev",
     "build": "pnpm -r run build",
     "lint": "pnpm -r run lint",
-    "lint:circular": "npx madge --circular --extensions ts,tsx --exclude dist ./app/src ./packages/api-contracts/src ./packages/auth-contracts/src ./packages/layout/src ./packages/modules/auth/src ./packages/modules/landing/src ./packages/modules/theme/src ./packages/platform-core/src ./packages/platform-store/src ./packages/shared-types/src ./packages/theme/src",
-    "lint:circular:graph": "npx madge --circular --image graph.svg --extensions ts,tsx --exclude dist ./app/src ./packages/api-contracts/src ./packages/auth-contracts/src ./packages/layout/src ./packages/modules/auth/src ./packages/modules/landing/src ./packages/modules/theme/src ./packages/platform-core/src ./packages/platform-store/src ./packages/shared-types/src ./packages/theme/src",
+    "lint:circular": "npx madge --circular --extensions ts,tsx --exclude dist ./app/src ./packages/shared-types/src ./packages/api-contracts/src ./packages/platform-store/src ./packages/theme/src ./packages/auth-contracts/src ./packages/authorization/src ./packages/platform-core/src ./packages/layout/src ./packages/modules/auth/src ./packages/modules/dashboard/src ./packages/modules/landing/src ./packages/modules/theme/src ./packages/modules/widget-studio/src",
+    "lint:circular:graph": "npx madge --circular --image graph.svg --extensions ts,tsx --exclude dist ./app/src ./packages/shared-types/src ./packages/api-contracts/src ./packages/platform-store/src ./packages/theme/src ./packages/auth-contracts/src ./packages/authorization/src ./packages/platform-core/src ./packages/layout/src ./packages/modules/auth/src ./packages/modules/dashboard/src ./packages/modules/landing/src ./packages/modules/theme/src ./packages/modules/widget-studio/src",
     "test:e2e": "pnpm --filter @cap/app run test:e2e",
     "cspell": "cspell --no-progress --show-suggestions --relative --dot --gitignore \"**\"",
     "audit:ci": "pnpm audit --audit-level=high --prod",
     "release:package": "node scripts/package-release.mjs",
     "release:build": "pnpm --filter @cap/app run build && node scripts/package-release.mjs",
-    "generate:module": "plop"
+    "generate:module": "plop",
+    "lint:boundaries": "node scripts/check-tier-boundaries.mjs",
+    "lint:architecture": "pnpm lint:boundaries && pnpm lint:circular"
   },
   "dependencies": {
     "@mui/utils": "^7.3.9",

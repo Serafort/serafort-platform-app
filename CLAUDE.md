@@ -32,23 +32,61 @@ node .claude/skills/run-serafort-app/driver.mjs shot /dashboard /tmp/nav.png --s
 
 ---
 
-## 2. Monorepo 6-Tier Architecture & Layer Rules
+## 2. Monorepo Tier Architecture & Layer Rules
 
 Upper tiers consume lower tiers. **Lower tiers MUST NEVER import from higher tiers.**
 
+This table is derived from the real dependency graph and is enforced by
+`pnpm lint:boundaries`. `scripts/check-tier-boundaries.mjs` holds the
+authoritative ordinals; keep it and this table in sync.
+
 ```
-Tier 5: Shell App             [@cap/app]
-                                  │
-Tier 4: Feature Modules       [@cap/module-auth, @cap/module-landing, @cap/module-theme, @cap/module-dashboard, @cap/module-widget-studio]
-                                  │
-Tier 3: Platform Façade       [@cap/platform-core]
-                                  │
-Tier 2: Platform Services     [@cap/layout, @cap/authorization, @cap/auth-contracts]
-                                  │
-Tier 1: Core Domain           [@cap/platform-store, @cap/theme, @cap/api-contracts]
-                                  │
+Tier 6: Shell App             [@cap/app]
+                                  |
+Tier 5: Feature Modules       [@cap/module-auth, @cap/module-landing, @cap/module-theme,
+                               @cap/module-dashboard, @cap/module-widget-studio]
+                                  |
+Tier 4: Shell / Layout Engine [@cap/layout]
+                                  |
+Tier 3: Platform Facade       [@cap/platform-core]
+                                  |
+Tier 2: Platform Services     [@cap/authorization, @cap/auth-contracts]
+                                  |
+Tier 1: Core Domain           [@cap/theme] -> [@cap/platform-store] -> [@cap/api-contracts]
+                                  |
 Tier 0: Foundation            [@cap/shared-types]
 ```
+
+**@cap/layout sits ABOVE @cap/platform-core (tier 4, not tier 2).** This is
+deliberate. The layout engine renders navigation and command-palette results
+from whatever modules the app assembled, so it must read the module registry
+(`getSearchItems`, `useNavigationMenu`) and the session/tenant context
+(`useAuth`, `useGuest`, `useTenant`) that the tier 3 facade owns. That is the
+"zero hardcoded menus" mandate working as designed: a shell that renders
+module-declared nav cannot sit beneath the package that assembles modules.
+Nothing at or below tier 3 imports `@cap/layout`, so the ordering is acyclic.
+
+**Tier 1 is internally ordered**: `@cap/api-contracts` -> `@cap/platform-store`
+-> `@cap/theme`. Same-tier imports are legal but reported as warnings by the
+boundary gate, because they couple siblings.
+
+### Architecture gates
+
+```bash
+pnpm lint:boundaries    # tier violations across all 14 packages (authoritative)
+pnpm lint:circular      # madge cycle check, with @cap/* path resolution
+pnpm lint:architecture  # both of the above
+```
+
+`pnpm lint:boundaries` walks every package's sources directly rather than
+relying on ESLint, because only some packages carry an ESLint config and
+`pnpm -r run lint` fails repo-wide for unrelated pre-existing reasons. The
+matching ESLint rules in `eslint.config.js` (`boundaryConfigs`) are applied via
+`files` globs for editor feedback.
+
+`lint:circular` reads `tsconfig.madge.json` for the `@cap/*` path map. Without
+it madge resolves only relative imports and can detect intra-package cycles
+alone -- which is how two cross-package cycles previously passed a green check.
 
 ### Critical Architectural Mandates
 1. **Zero Hardcoded Menus/Routes**: The shell (`@cap/app`) and layout engine (`@cap/layout`) contain ZERO hardcoded menu structures or route lists. Feature modules self-declare routes (`ModuleRouteConfig[]`), navigation items (`NavItemConfig[]`), and command-palette items (`SearchItemConfig[]`) via their `CAPModule` contract.

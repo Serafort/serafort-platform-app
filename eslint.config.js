@@ -4,24 +4,38 @@ import importPlugin from "eslint-plugin-import";
 // Workspace architectural layers.
 // Note: several @cap/module-* and @cap/civil-registry packages listed below are provisioned
 // ahead of package creation to reserve their architectural layer boundaries.
+// Workspace architectural layers, ordered by the real dependency DAG.
+//
+// The authoritative gate is `pnpm lint:boundaries`
+// (scripts/check-tier-boundaries.mjs): only some packages carry an ESLint
+// config and `pnpm -r run lint` fails repo-wide for unrelated reasons, so an
+// ESLint-only boundary check silently skips most of the tree. Keep the two in
+// sync - the script's TIERS map is the source of truth.
+//
+// Note: several @cap/module-* and @cap/civil-registry packages listed below are
+// provisioned ahead of package creation to reserve their architectural layer.
 const Layers = {
-  FOUNDATION: ["@cap/shared-types", "@cap/api-contracts"],
-  LAYER_1: ["@cap/auth-contracts", "@cap/theme"],
+  FOUNDATION: ["@cap/shared-types"],
+  LAYER_1: ["@cap/api-contracts"],
   LAYER_2: ["@cap/platform-store"],
-  LAYER_3: ["@cap/platform-core"],
-  LAYER_4: ["@cap/layout", "@cap/civil-registry"],
-  LAYER_5: [
+  LAYER_3: ["@cap/theme"],
+  LAYER_4: ["@cap/auth-contracts", "@cap/authorization"],
+  LAYER_5: ["@cap/platform-core"],
+  LAYER_6: ["@cap/layout", "@cap/civil-registry"],
+  LAYER_7: [
     "@cap/module-admin",
     "@cap/module-auth",
+    "@cap/module-dashboard",
     "@cap/module-landing",
     "@cap/module-theme",
+    "@cap/module-widget-studio",
     "@cap/module-kyc",
     "@cap/module-digital-id",
     "@cap/module-blockchain-idaas",
     "@cap/module-monitoring-alerts",
     "@cap/module-user",
   ],
-  LAYER_6: ["@cap/app"],
+  LAYER_8: ["@cap/app"],
   ID_AAS: [
     "@idaas/authentication-core",
     "@idaas/authorization-engine",
@@ -34,72 +48,37 @@ const Layers = {
   ],
 };
 
-const restrictedLayers = [
-  {
-    group: Layers.LAYER_6,
-    message: "@cap/app can only depend on layers below it",
-  },
-  {
-    group: Layers.LAYER_5,
-    message: "Modules cannot depend on @cap/app (layer 6)",
-  },
-  {
-    group: Layers.LAYER_4,
-    message: "Layout cannot depend on modules (layer 5+) or @cap/app (layer 6)",
-  },
-  {
-    group: Layers.LAYER_3,
-    message:
-      "Platform-core cannot depend on layout (layer 4+), modules (layer 5), or @cap/app (layer 6)",
-  },
-  {
-    group: Layers.LAYER_2,
-    message:
-      "Platform primitives cannot depend on platform-core (layer 3+), layout, modules, or @cap/app",
-  },
-  {
-    group: Layers.LAYER_1,
-    message: "Layer 1 packages cannot depend on platform primitives (layer 2+)",
-  },
-  {
-    group: Layers.FOUNDATION,
-    message:
-      "Foundation packages cannot depend on any other workspace packages",
-  },
+/** Ordered low -> high, so a layer may import only from earlier entries. */
+const ORDERED = [
+  Layers.FOUNDATION,
+  Layers.LAYER_1,
+  Layers.LAYER_2,
+  Layers.LAYER_3,
+  Layers.LAYER_4,
+  Layers.LAYER_5,
+  Layers.LAYER_6,
+  Layers.LAYER_7,
+  Layers.LAYER_8,
 ];
 
-function createLayerRules(currentLayer) {
-  const allowedGroups = [
-    ...Layers.FOUNDATION,
-    ...Layers.LAYER_1,
-    ...Layers.LAYER_2,
-  ];
+/** Everything strictly above `index` - i.e. what this layer must not import. */
+const above = (index) => ORDERED.slice(index + 1).flat();
 
-  if (currentLayer >= 2) allowedGroups.push(...Layers.LAYER_2);
-  if (currentLayer >= 3) allowedGroups.push(...Layers.LAYER_3);
-  if (currentLayer >= 4) allowedGroups.push(...Layers.LAYER_4);
-  if (currentLayer >= 5) allowedGroups.push(...Layers.LAYER_5);
-
+/**
+ * Boundary rule for one layer: forbid importing anything above it.
+ * `index` is the layer's position in ORDERED.
+ */
+function boundaryRuleFor(index, label) {
+  const forbidden = above(index);
+  if (forbidden.length === 0) return {};
   return {
     "import/no-restricted-imports": [
       "error",
       {
         patterns: [
           {
-            group: Layers.LAYER_3,
-            message: `Layer ${currentLayer} cannot depend on @cap/platform-core (layer 3 barrel)`,
-          },
-          {
-            group: Layers.LAYER_4,
-            message: `Layer ${currentLayer} cannot depend on layout or domain packages (layer 4)`,
-          },
-          {
-            group: Layers.LAYER_5,
-            message: `Layer ${currentLayer} cannot depend on feature modules (layer 5)`,
-          },
-          {
-            group: Layers.LAYER_6,
-            message: `Layer ${currentLayer} cannot depend on @cap/app (layer 6)`,
+            group: forbidden,
+            message: `${label} may only import packages in a lower tier. See scripts/check-tier-boundaries.mjs.`,
           },
         ],
       },
@@ -135,146 +114,30 @@ export const baseConfig = tseslint.config({
   },
 });
 
-export const layerConfigs = {
-  foundation: {
-    name: "cap/layer-foundation",
-    rules: {
-      "import/no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: [
-                ...Layers.LAYER_1,
-                ...Layers.LAYER_2,
-                ...Layers.LAYER_3,
-                ...Layers.LAYER_4,
-                ...Layers.LAYER_5,
-                ...Layers.LAYER_6,
-              ],
-              message:
-                "Foundation packages (@cap/shared-types, @cap/api-contracts) cannot depend on other workspace packages",
-            },
-          ],
-        },
-      ],
-    },
-  },
-  layer1: {
-    name: "cap/layer-1",
-    rules: {
-      "import/no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: [
-                ...Layers.LAYER_2,
-                ...Layers.LAYER_3,
-                ...Layers.LAYER_4,
-                ...Layers.LAYER_5,
-                ...Layers.LAYER_6,
-              ],
-              message:
-                "Layer 1 packages cannot depend on platform primitives or higher layers",
-            },
-          ],
-        },
-      ],
-    },
-  },
-  layer2: {
-    name: "cap/layer-2",
-    rules: {
-      "import/no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: [
-                ...Layers.LAYER_3,
-                ...Layers.LAYER_4,
-                ...Layers.LAYER_5,
-                ...Layers.LAYER_6,
-              ],
-              message:
-                "Layer 2 packages cannot depend on platform-core, layout, modules, or app",
-            },
-          ],
-        },
-      ],
-    },
-  },
-  layer3: {
-    name: "cap/layer-3",
-    rules: {
-      "import/no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: [...Layers.LAYER_4, ...Layers.LAYER_5, ...Layers.LAYER_6],
-              message: "Platform-core cannot depend on layout, modules, or app",
-            },
-          ],
-        },
-      ],
-    },
-  },
-  layer4: {
-    name: "cap/layer-4",
-    rules: {
-      "import/no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: [...Layers.LAYER_5, ...Layers.LAYER_6],
-              message: "Layout/Civil-registry cannot depend on modules or app",
-            },
-          ],
-        },
-      ],
-    },
-  },
-  layer5: {
-    name: "cap/layer-5",
-    rules: {
-      "import/no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: Layers.LAYER_6,
-              message: "Modules cannot depend on @cap/app",
-            },
-          ],
-        },
-      ],
-    },
-  },
-  idaas: {
-    name: "cap/idaas",
-    rules: {
-      "import/no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: [
-                ...Layers.LAYER_3,
-                ...Layers.LAYER_4,
-                ...Layers.LAYER_5,
-                ...Layers.LAYER_6,
-              ],
-              message:
-                "@idaas packages cannot depend on platform packages or app",
-            },
-          ],
-        },
-      ],
-    },
-  },
-};
+/**
+ * Per-layer boundary configs, keyed by package source glob so they actually
+ * apply. Previously these were declared but never attached to any `files`
+ * pattern, which is why upward imports went undetected for so long.
+ */
+const LAYER_GLOBS = [
+  { index: 0, label: "@cap/shared-types (tier 0)", files: ["packages/shared-types/src/**/*.{ts,tsx}"] },
+  { index: 1, label: "@cap/api-contracts (tier 1)", files: ["packages/api-contracts/src/**/*.{ts,tsx}"] },
+  { index: 2, label: "@cap/platform-store (tier 1)", files: ["packages/platform-store/src/**/*.{ts,tsx}"] },
+  { index: 3, label: "@cap/theme (tier 1)", files: ["packages/theme/src/**/*.{ts,tsx}"] },
+  { index: 4, label: "Platform services (tier 2)", files: ["packages/auth-contracts/src/**/*.{ts,tsx}", "packages/authorization/src/**/*.{ts,tsx}"] },
+  { index: 5, label: "@cap/platform-core (tier 3)", files: ["packages/platform-core/src/**/*.{ts,tsx}"] },
+  { index: 6, label: "@cap/layout (tier 4)", files: ["packages/layout/src/**/*.{ts,tsx}"] },
+  { index: 7, label: "Feature modules (tier 5)", files: ["packages/modules/*/src/**/*.{ts,tsx}"] },
+];
 
-export default baseConfig;
+export const boundaryConfigs = LAYER_GLOBS.map(({ index, label, files }) => ({
+  name: `cap/boundary/${label}`,
+  files,
+  plugins: { import: importPlugin },
+  rules: boundaryRuleFor(index, label),
+})).filter((c) => Object.keys(c.rules).length > 0);
+
+/** Back-compat alias for consumers that imported the old shape. */
+export const layerConfigs = boundaryConfigs;
+
+export default [...baseConfig, ...boundaryConfigs];
