@@ -228,17 +228,20 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
 
   // Filtered Events
   const filteredEvents = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    const isAll = selectedFilter === 'all'
+
     return events.filter((ev) => {
-      const matchesFilter = selectedFilter === 'all' || ev.type === selectedFilter
-      const query = searchQuery.trim().toLowerCase()
-      const matchesQuery =
-        !query ||
+      if (!isAll && ev.type !== selectedFilter) return false
+      if (!query) return true
+
+      return (
         ev.id.toLowerCase().includes(query) ||
         ev.email.toLowerCase().includes(query) ||
         ev.ip.toLowerCase().includes(query) ||
         ev.device.toLowerCase().includes(query) ||
         ev.userName.toLowerCase().includes(query)
-      return matchesFilter && matchesQuery
+      )
     })
   }, [events, selectedFilter, searchQuery])
 
