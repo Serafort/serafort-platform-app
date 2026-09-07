@@ -331,7 +331,7 @@ class StorageManager {
    */
   static clearAllUserData(): void {
     try {
-      // Explicitly remove legacy plaintext session keys (from deprecated session-management.service.ts)
+      // Explicitly remove legacy plaintext session keys (from deprecated session-management service)
       // These are scrubbed first so even if the broad clear() below throws, the most sensitive data is gone.
       const legacyKeys = ["app_session", "active_sessions", "last_activity"];
       for (const key of legacyKeys) {
