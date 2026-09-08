@@ -23,6 +23,7 @@ import { GlassmorphismPanel } from "../components/EffectControls/GlassmorphismPa
 import { NeumorphismPanel } from "../components/EffectControls/NeumorphismPanel";
 import { EffectSettingsPanel } from "../components/EffectControls/EffectSettingsPanel";
 import { ComponentStyleSelector } from "../components/ComponentStyleSelector";
+import { NavigationLayoutField } from "../components/NavigationLayoutField";
 import { SpacingEditor } from "../components/SpacingEditor";
 import { PresetSelector } from "../components/PresetSelector";
 import { ChoiceChip, PanelHeader } from "../components/studioUi";
@@ -51,6 +52,7 @@ import {
   useSavedTheme,
 } from "@cap/theme";
 import type { ThemePresetId } from "@cap/theme";
+import type { Layout } from "@cap/shared-types";
 import { useSettings } from "@cap/platform-store";
 import { useTenantTheme, useUpdateTenantTheme } from "../hooks/useThemeQuery";
 
@@ -344,6 +346,18 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
       }));
     },
     [updateThemeState],
+  );
+
+  const handleLayoutChange = useCallback(
+    (layout: Layout) => {
+      // Two writes, one decision - the same pattern handlePresetSelect uses
+      // for `mode`. The draft carries `layout` so it is saved with the theme
+      // (and exported with it); `updateSettings` re-renders the live shell
+      // now, since LayoutWrapper reads `settings.layout`, not the draft.
+      updateThemeState((prev) => ({ ...prev, layout }));
+      updateSettings({ layout });
+    },
+    [updateThemeState, updateSettings],
   );
 
   const handlePresetSelect = useCallback(
@@ -691,6 +705,10 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
           </TabPanel>
 
           <TabPanel value={activeTab} index={4}>
+            <NavigationLayoutField
+              value={theme.layout || settings.layout || "vertical"}
+              onChange={handleLayoutChange}
+            />
             <ComponentStyleSelector
               components={theme.components || DEFAULT_TENANT_THEME.components}
               globalEffectType={activeEffectType}
