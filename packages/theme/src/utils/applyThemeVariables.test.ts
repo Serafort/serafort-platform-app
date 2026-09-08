@@ -251,3 +251,83 @@ describe("generateThemeVariables - border width & style", () => {
     ).toBe(false);
   });
 });
+
+describe("generateThemeVariables - semantic border roles", () => {
+  it("emits --border-<role> from tokens.semanticBorders", () => {
+    const { borderRadius } = generateThemeVariables(DEFAULT_THEME_CONFIG);
+
+    expect(borderRadius["--border-subtle"]).toBe("rgba(3, 20, 51, 0.06)");
+    expect(borderRadius["--border-default"]).toBe("#C7D1E3");
+    expect(borderRadius["--border-focus"]).toBe("#047BFA");
+  });
+
+  it("passes a tenant override through verbatim", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: {
+        ...DEFAULT_THEME_CONFIG.tokens,
+        semanticBorders: { focus: "#FF00AA", strong: "#001122" },
+      },
+    };
+    const { borderRadius } = generateThemeVariables(config);
+    expect(borderRadius["--border-focus"]).toBe("#FF00AA");
+    expect(borderRadius["--border-strong"]).toBe("#001122");
+  });
+
+  it("emits no --border-<role> when the map is absent", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: { ...DEFAULT_THEME_CONFIG.tokens, semanticBorders: undefined },
+    };
+    const { borderRadius } = generateThemeVariables(config);
+    expect(
+      Object.keys(borderRadius).some(
+        (k) =>
+          k.startsWith("--border-") &&
+          !k.startsWith("--border-width-") &&
+          !k.startsWith("--border-style-"),
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("generateThemeVariables - opacity scale", () => {
+  it("emits the full unitless --opacity-* ramp", () => {
+    const { effects } = generateThemeVariables(DEFAULT_THEME_CONFIG);
+
+    expect(effects["--opacity-0"]).toBe("0");
+    expect(effects["--opacity-40"]).toBe("0.4");
+    expect(effects["--opacity-100"]).toBe("1");
+  });
+});
+
+describe("generateThemeVariables - brand gradients", () => {
+  it("always emits the brand sheen and mesh, derived from brand colours", () => {
+    const { effects } = generateThemeVariables(applyPreset("flat-design"));
+
+    expect(effects["--gradient-brand-sheen"]).toContain("linear-gradient(135deg");
+    expect(effects["--gradient-brand-mesh"]).toContain("radial-gradient");
+  });
+
+  it("scales every mesh lobe's alpha by tokens.gradients.meshIntensity", () => {
+    const base = generateThemeVariables(DEFAULT_THEME_CONFIG).effects[
+      "--gradient-brand-mesh"
+    ];
+    const dialled = generateThemeVariables({
+      ...DEFAULT_THEME_CONFIG,
+      tokens: {
+        ...DEFAULT_THEME_CONFIG.tokens,
+        gradients: { meshIntensity: 0.5 },
+      },
+    }).effects["--gradient-brand-mesh"];
+
+    expect(dialled).not.toBe(base);
+    // 0.28 * 0.5 = 0.14 - the first lobe's alpha at half intensity.
+    expect(dialled).toContain("0.14");
+  });
+
+  it("feeds the same mesh into the glass ambient canvas", () => {
+    const { effects } = generateThemeVariables(applyPreset("glassmorphism"));
+    expect(effects["--effect-canvas-image"]).toBe(effects["--gradient-brand-mesh"]);
+  });
+});

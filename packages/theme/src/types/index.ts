@@ -305,6 +305,18 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
       dashed: "dashed",
       dotted: "dotted",
     },
+    // From semanticBorders.light in tokens/semantics.ts - kept in sync here so
+    // the default tenant theme emits `--border-<role>` at runtime.
+    semanticBorders: {
+      subtle: "rgba(3, 20, 51, 0.06)",
+      muted: "rgba(3, 20, 51, 0.12)",
+      default: "#C7D1E3",
+      strong: "rgba(3, 20, 51, 0.32)",
+      focus: "#047BFA",
+    },
+    gradients: {
+      meshIntensity: 1,
+    },
     typography: {
       fontFamily: {
         sans: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",

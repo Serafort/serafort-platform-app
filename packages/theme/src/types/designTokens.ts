@@ -27,6 +27,18 @@ export interface PrimitiveTokens {
   borderWidth?: Record<string, string>;
   /** Border line styles - solid, dashed, dotted, etc. keyed by name. */
   borderStyle?: Record<string, string>;
+  /**
+   * Semantic border-role colours (subtle / muted / default / strong / focus).
+   * One flat map, emitted as `--border-<role>`; like `--color-*` it is not
+   * mode-split at the CSS-variable layer (a role reads the same value in light
+   * and dark), so pick values that survive both grounds.
+   */
+  semanticBorders?: Record<string, string>;
+  /** Knobs for the brand gradient recipes emitted as `--gradient-brand-*`. */
+  gradients?: {
+    /** Alpha multiplier for every lobe of the four-lobe brand mesh wash. */
+    meshIntensity?: number;
+  };
   typography: {
     fontFamily: Record<string, string>;
     fontSize: Record<string, string>;
@@ -105,6 +117,16 @@ export const DEFAULT_PRIMITIVE_TOKENS: PrimitiveTokens = {
     solid: "solid",
     dashed: "dashed",
     dotted: "dotted",
+  },
+  semanticBorders: {
+    subtle: "rgba(3, 20, 51, 0.06)",
+    muted: "rgba(3, 20, 51, 0.12)",
+    default: "#C7D1E3",
+    strong: "rgba(3, 20, 51, 0.32)",
+    focus: "#047BFA",
+  },
+  gradients: {
+    meshIntensity: 1,
   },
   typography: {
     fontFamily: {
