@@ -91,7 +91,7 @@ export default function RoleDetailView() {
   const { id } = useParams()
   const [tab, setTab] = useState(0)
 
-  // â”€â”€ Data Fetching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Data Fetching ──────────────────────────────────────────────────────────
   const roleId = Number(id)
   const isNew = id === 'new'
   const {
@@ -105,7 +105,7 @@ export default function RoleDetailView() {
   const role = roleResponse?.data
   const allPermissions = useMemo(() => permissionsResponse?.data || [], [permissionsResponse])
 
-  // â”€â”€ Mutations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Mutations ────────────────────────────────────────────────────────────
   const updateRole = useUpdateRole({
     onSuccess: () => toast.success(t('auth.admin.roleUpdated')),
     onError: (err: any) => toast.error(err.message || t('auth.admin.errorUpdateRole')),
@@ -137,7 +137,7 @@ export default function RoleDetailView() {
     onError: (err: any) => toast.error(err.message || t('auth.admin.errorDeleteRole')),
   })
 
-  // â”€â”€ Local State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Local State ──────────────────────────────────────────────────────────
   const [editData, setEditData] = useState({ name: '', description: '' })
   const [lastRoleId, setLastRoleId] = useState<number | null>(null)
   const [openParentDialog, setOpenParentDialog] = useState(false)
@@ -150,7 +150,7 @@ export default function RoleDetailView() {
     setLastRoleId(role.id)
   }
 
-  // â”€â”€ Helper Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Helper Logic ─────────────────────────────────────────────────────────
   const getResource = (p: { name: string; resource?: string }) => {
     return p.resource || (p.name.includes(':') ? p.name.split(':')[0] : 'general')
   }
@@ -171,7 +171,7 @@ export default function RoleDetailView() {
     return Array.from(res)
   }, [allPermissions])
 
-  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Handlers ─────────────────────────────────────────────────────────────
   const handleTogglePermission = (permissionId: number) => {
     if (!role) return
     const currentPermissionIds = (role.permissions ?? []).map((p) => p.id)
@@ -202,7 +202,7 @@ export default function RoleDetailView() {
     setOpenParentDialog(false)
   }
 
-  // â”€â”€ Final Render Checks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Final Render Checks ──────────────────────────────────────────────────
   if (isLoadingRole || isLoadingPerms) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
@@ -232,7 +232,7 @@ export default function RoleDetailView() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
-      {/* â”€â”€ Premium Banner Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Premium Banner Header ────────────────────────────────────────── */}
       <Box
         sx={{
           mb: 5,
@@ -344,13 +344,13 @@ export default function RoleDetailView() {
             }}
           >
             {updateRole.isPending
-              ? t('auth.common.saving') || 'Savingâ€¦'
+              ? t('auth.common.saving') || 'Saving…'
               : t('auth.common.saveChanges') || 'Save Changes'}
           </Button>
         </Stack>
       </Box>
 
-      {/* â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Tabs ───────────────────────────────────────────────────────────── */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
         <Tabs
           value={tab}
@@ -383,7 +383,7 @@ export default function RoleDetailView() {
         </Tabs>
       </Box>
 
-      {/* â”€â”€ Content Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Content Grid ─────────────────────────────────────────────────────── */}
       <TabPanel value={tab} index={0}>
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, lg: 8 }}>
@@ -839,7 +839,7 @@ export default function RoleDetailView() {
         </Grid>
       </TabPanel>
 
-      {/* â”€â”€ Dialogs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Dialogs ────────────────────────────────────────────────────────── */}
       <AutocompleteDialog
         open={openParentDialog}
         onClose={() => setOpenParentDialog(false)}
@@ -865,7 +865,7 @@ export default function RoleDetailView() {
   )
 }
 
-// â”€â”€ Sub-components for cleaner structure â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Sub-components for cleaner structure ─────────────────────────────────────
 
 function AutocompleteDialog({
   open,

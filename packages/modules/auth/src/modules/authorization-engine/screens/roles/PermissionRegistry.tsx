@@ -278,7 +278,7 @@ export default function PermissionRegistry() {
         </Box>
       )}
 
-      {/* â”€â”€ Category summary cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Category summary cards ──────────────────────────────────────── */}
       {!isLoading && categories.length > 0 && (
         <Box
           sx={{
@@ -566,7 +566,7 @@ export default function PermissionRegistry() {
                           variant='body2'
                           sx={{ fontWeight: 700, textTransform: 'capitalize' }}
                         >
-                          {perm.resource || 'â€”'}
+                          {perm.resource || '—'}
                         </Typography>
                       </Box>
                     </TableCell>
@@ -599,7 +599,7 @@ export default function PermissionRegistry() {
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {perm.description || 'â€”'}
+                        {perm.description || '—'}
                       </Typography>
                     </TableCell>
 

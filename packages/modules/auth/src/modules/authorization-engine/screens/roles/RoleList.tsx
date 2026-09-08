@@ -130,7 +130,7 @@ export default function RoleList() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* â”€â”€ Page Header â€” mirrors OrganizationProfile top banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Page Header — mirrors OrganizationProfile top banner ─────────── */}
       <Box
         sx={{
           mb: 4,
@@ -198,7 +198,7 @@ export default function RoleList() {
         </Button>
       </Box>
 
-      {/* â”€â”€ Stat Cards â€” same card anatomy as OrganizationProfile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Stat Cards — same card anatomy as OrganizationProfile ─────────── */}
       <Box
         sx={{
           display: 'grid',
@@ -216,13 +216,13 @@ export default function RoleList() {
           },
           {
             label: t('auth.admin.mappedPermissions'),
-            value: stats?.totalPermissions ?? 'â€¦',
+            value: stats?.totalPermissions ?? '…',
             icon: <ShieldIcon />,
             color: 'success' as const,
           },
           {
             label: t('auth.admin.activeMemberships'),
-            value: stats?.totalMemberships ?? 'â€¦',
+            value: stats?.totalMemberships ?? '…',
             icon: <GroupIcon />,
             color: 'info' as const,
           },
@@ -275,7 +275,7 @@ export default function RoleList() {
         ))}
       </Box>
 
-      {/* â”€â”€ Roles Table Card â€” unified Card following OrganizationProfile â”€â”€â”€ */}
+      {/* ── Roles Table Card — unified Card following OrganizationProfile ─── */}
       <Card
         sx={{
           border: '1px solid',
@@ -567,7 +567,7 @@ export default function RoleList() {
           }}
         >
           <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 600 }}>
-            {t('auth.admin.page')} {page} {t('auth.admin.of')} {totalPages || 1}
+            {t('auth.admin.pageOf', { page, total: totalPages || 1 })}
           </Typography>
           <Pagination
             count={totalPages}
@@ -582,7 +582,7 @@ export default function RoleList() {
         </Box>
       </Card>
 
-      {/* â”€â”€ Context Menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Context Menu ──────────────────────────────────────────────────── */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -617,7 +617,7 @@ export default function RoleList() {
         </MenuItem>
       </Menu>
 
-      {/* â”€â”€ Delete Confirmation Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Delete Confirmation Dialog ────────────────────────────────────── */}
       <Dialog
         open={deleteDialogOpen}
         onClose={handleCancelDelete}

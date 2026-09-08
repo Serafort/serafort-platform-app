@@ -62,12 +62,12 @@ const APITokensDashboard: React.FC = () => {
   const { data: tokensResponse, isLoading, refetch } = useUserTokens()
   const revokeTokenMutation = useRevokeToken({
     onSuccess: () => {
-      toast.success(t('api_tokens:revoked_success', 'Token revoked successfully'), {})
+      toast.success(t('auth.api_tokens.revoked_success', 'Token revoked successfully'), {})
       refetch()
       handleMenuClose()
     },
     onError: (error: any) => {
-      toast.error(error.message || t('api_tokens:revoked_error', 'Failed to revoke token'), {})
+      toast.error(error.message || t('auth.api_tokens.revoked_error', 'Failed to revoke token'), {})
     },
   })
 
@@ -116,9 +116,9 @@ const APITokensDashboard: React.FC = () => {
       {/* Breadcrumbs */}
       <Breadcrumbs separator={<NavigateNextIcon fontSize='small' />} sx={{ mb: 3 }}>
         <Link underline='hover' color='inherit' href='/auth/account/overview'>
-          {t('account:overview')}
+          {t('auth.account.overview')}
         </Link>
-        <Typography color='text.primary'>{t('api_tokens:title')}</Typography>
+        <Typography color='text.primary'>{t('auth.api_tokens.title')}</Typography>
       </Breadcrumbs>
 
       {/* Header Section */}
@@ -127,11 +127,11 @@ const APITokensDashboard: React.FC = () => {
       >
         <Box>
           <Typography variant='h4' fontWeight='bold' gutterBottom>
-            {t('api_tokens:dashboard_title', 'API Tokens Management')}
+            {t('auth.api_tokens.dashboard_title', 'API Tokens Management')}
           </Typography>
           <Typography variant='body1' color='text.secondary'>
             {t(
-              'api_tokens:dashboard_subtitle',
+              'auth.api_tokens.dashboard_subtitle',
               'Manage and monitor your API access tokens securely.',
             )}
           </Typography>
@@ -142,7 +142,7 @@ const APITokensDashboard: React.FC = () => {
           onClick={() => navigate(Path.apiTokens.createBasic)}
           sx={{ borderRadius: 2, px: 3, py: 1 }}
         >
-          {t('api_tokens:create_new_token', 'Create New Token')}
+          {t('auth.api_tokens.create_new_token', 'Create New Token')}
         </Button>
       </Box>
 
@@ -154,7 +154,7 @@ const APITokensDashboard: React.FC = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <KeyIcon color='primary' sx={{ mr: 1 }} />
                 <Typography variant='subtitle2' color='text.secondary'>
-                  {t('api_tokens:total_active', 'Active Tokens')}
+                  {t('auth.api_tokens.total_active', 'Active Tokens')}
                 </Typography>
               </Box>
               <Typography variant='h4' fontWeight='bold'>
@@ -169,7 +169,7 @@ const APITokensDashboard: React.FC = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <TimerIcon color='warning' sx={{ mr: 1 }} />
                 <Typography variant='subtitle2' color='text.secondary'>
-                  {t('api_tokens:expiring_soon', 'Expiring Soon')}
+                  {t('auth.api_tokens.expiring_soon', 'Expiring Soon')}
                 </Typography>
               </Box>
               <Typography variant='h4' fontWeight='bold'>
@@ -184,11 +184,11 @@ const APITokensDashboard: React.FC = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <SecurityIcon color='info' sx={{ mr: 1 }} />
                 <Typography variant='subtitle2' color='text.secondary'>
-                  {t('api_tokens:security_status', 'Security Status')}
+                  {t('auth.api_tokens.security_status', 'Security Status')}
                 </Typography>
               </Box>
               <Typography variant='h4' fontWeight='bold' color='success.main'>
-                {t('api_tokens:healthy', 'Healthy')}
+                {t('auth.api_tokens.healthy', 'Healthy')}
               </Typography>
             </CardContent>
           </Card>
@@ -208,7 +208,7 @@ const APITokensDashboard: React.FC = () => {
         >
           <TextField
             size='small'
-            placeholder={t('api_tokens:search_placeholder', 'Search tokens...')}
+            placeholder={t('auth.api_tokens.search_placeholder', 'Search tokens...')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{ maxWidth: 400 }}
@@ -227,18 +227,18 @@ const APITokensDashboard: React.FC = () => {
             <TableHead sx={{ bgcolor: theme.palette.action.hover }}>
               <TableRow>
                 <TableCell sx={{ fontWeight: 'bold' }}>
-                  {t('api_tokens:header_name', 'Token Name')}
+                  {t('auth.api_tokens.header_name', 'Token Name')}
                 </TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>
-                  {t('api_tokens:header_status', 'Status')}
+                  {t('auth.api_tokens.header_status', 'Status')}
                 </TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>
-                  {t('api_tokens:header_created', 'Created On')}
+                  {t('auth.api_tokens.header_created', 'Created On')}
                 </TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>
-                  {t('api_tokens:header_last_used', 'Last Used')}
+                  {t('auth.api_tokens.header_last_used', 'Last Used')}
                 </TableCell>
-                <TableCell align='right'>{t('api_tokens:header_actions', 'Actions')}</TableCell>
+                <TableCell align='right'>{t('auth.api_tokens.header_actions', 'Actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -246,7 +246,7 @@ const APITokensDashboard: React.FC = () => {
                 <TableRow>
                   <TableCell colSpan={5} align='center' sx={{ py: 4 }}>
                     <Typography color='text.secondary'>
-                      {t('common:loading', 'Loading tokens...')}
+                      {t('auth.common.loading', 'Loading tokens...')}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -254,7 +254,7 @@ const APITokensDashboard: React.FC = () => {
                 <TableRow>
                   <TableCell colSpan={5} align='center' sx={{ py: 4 }}>
                     <Typography color='text.secondary'>
-                      {t('api_tokens:no_tokens_found', 'No tokens found matching your search.')}
+                      {t('auth.api_tokens.no_tokens_found', 'No tokens found matching your search.')}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -299,10 +299,10 @@ const APITokensDashboard: React.FC = () => {
                     <TableCell>
                       {token.lastUsedAt
                         ? new Date(token.lastUsedAt).toLocaleString()
-                        : t('api_tokens:never', 'Never')}
+                        : t('auth.api_tokens.never', 'Never')}
                     </TableCell>
                     <TableCell align='right'>
-                      <Tooltip title={t('common:view_details')}>
+                      <Tooltip title={t('auth.common.viewDetails')}>
                         <IconButton
                           size='small'
                           onClick={() =>
@@ -336,7 +336,7 @@ const APITokensDashboard: React.FC = () => {
             <ListItemIcon>
               <ViewIcon fontSize='small' />
             </ListItemIcon>
-            <ListItemText primary={t('common:view_details', 'View Details')} />
+            <ListItemText primary={t('auth.common.viewDetails', 'View Details')} />
           </MenuItem>
           <MenuItem
             onClick={() => {
@@ -349,7 +349,7 @@ const APITokensDashboard: React.FC = () => {
             <ListItemIcon>
               <TerminalIcon fontSize='small' />
             </ListItemIcon>
-            <ListItemText primary={t('api_tokens:usage_guide', 'Usage Guide')} />
+            <ListItemText primary={t('auth.api_tokens.usage_guide', 'Usage Guide')} />
           </MenuItem>
           <MenuItem onClick={handleRevoke} sx={{ color: 'error.main' }}>
             <ListItemIcon>
@@ -357,7 +357,7 @@ const APITokensDashboard: React.FC = () => {
                 <AddIcon sx={{ transform: 'rotate(45deg)', fontSize: 20 }} />
               </IconButton>
             </ListItemIcon>
-            <ListItemText primary={t('api_tokens:revoke', 'Revoke Token')} />
+            <ListItemText primary={t('auth.api_tokens.revoke', 'Revoke Token')} />
           </MenuItem>
         </Menu>
       </Card>
@@ -378,11 +378,11 @@ const APITokensDashboard: React.FC = () => {
         <SecurityIcon color='info' sx={{ mr: 2 }} />
         <Box>
           <Typography variant='subtitle2' color='info.contrastText'>
-            {t('api_tokens:security_tip_title', 'Security Tip')}
+            {t('auth.api_tokens.security_tip_title', 'Security Tip')}
           </Typography>
           <Typography variant='body2' color='info.contrastText'>
             {t(
-              'api_tokens:security_tip_message',
+              'auth.api_tokens.security_tip_message',
               'Rotate your API tokens regularly and restrict them to specific IP addresses for maximum security.',
             )}
           </Typography>
@@ -392,7 +392,7 @@ const APITokensDashboard: React.FC = () => {
           onClick={() => navigate(Path.apiTokens.securityWarning)}
           sx={{ ml: 'auto', fontWeight: 'bold' }}
         >
-          {t('common:learn_more', 'Learn More')}
+          {t('auth.common.learnMore', 'Learn More')}
         </Button>
       </Box>
     </Box>

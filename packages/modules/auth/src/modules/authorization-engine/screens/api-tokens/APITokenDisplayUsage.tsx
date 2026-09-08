@@ -71,7 +71,7 @@ const APITokenDisplayUsage: React.FC = () => {
   }, [tokensResponse, tokenId, hasToken])
 
   const formatDate = (dateStr: string | null | undefined): string => {
-    if (!dateStr) return t('common:never', 'Never')
+    if (!dateStr) return t('auth.common.never', 'Never')
     try {
       return new Date(dateStr).toLocaleDateString(undefined, {
         year: 'numeric',
@@ -89,11 +89,11 @@ const APITokenDisplayUsage: React.FC = () => {
     try {
       await navigator.clipboard.writeText(generatedToken)
       setCopied(true)
-      toast.success(t('api_tokens:token_copied', 'Token copied to clipboard!'), {})
+      toast.success(t('auth.api_tokens.token_copied', 'Token copied to clipboard!'), {})
       setTimeout(() => setCopied(false), 5173)
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : t('api_tokens:copy_failed', 'Failed to copy token')
+        err instanceof Error ? err.message : t('auth.api_tokens.copy_failed', 'Failed to copy token')
       toast.error(message)
     }
   }
@@ -102,7 +102,7 @@ const APITokenDisplayUsage: React.FC = () => {
     navigate(Path.apiTokens.dashboard)
   }
 
-  const maskedToken = generatedToken.replace(/.(?=.{4})/g, 'â€¢')
+  const maskedToken = generatedToken.replace(/.(?=.{4})/g, '•')
   const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://api.yourapp.com'
 
   return (
@@ -156,17 +156,17 @@ const APITokenDisplayUsage: React.FC = () => {
           <Box>
             <Typography variant='h4' sx={{ fontWeight: 800 }}>
               {hasToken
-                ? t('api_tokens:display_header', 'Token Generated Successfully!')
-                : t('api_tokens:usage_guide_header', 'API Token Usage Guide')}
+                ? t('auth.api_tokens.display_header', 'Token Generated Successfully!')
+                : t('auth.api_tokens.usage_guide_header', 'API Token Usage Guide')}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
               {hasToken
                 ? t(
-                    'api_tokens:display_subheader',
+                    'auth.api_tokens.display_subheader',
                     "Make sure to copy your API token now. You won't be able to see it again!",
                   )
                 : t(
-                    'api_tokens:usage_guide_subheader',
+                    'auth.api_tokens.usage_guide_subheader',
                     'Learn how to authenticate your API requests using tokens.',
                   )}
             </Typography>
@@ -180,7 +180,7 @@ const APITokenDisplayUsage: React.FC = () => {
               onClick={handleDone}
               sx={{ fontWeight: 700, textTransform: 'none', height: 44, px: 3 }}
             >
-              {t('api_tokens:go_to_dashboard', 'Go to Dashboard')}
+              {t('auth.api_tokens.go_to_dashboard', 'Go to Dashboard')}
             </Button>
           )}
           {!hasToken && (
@@ -189,34 +189,34 @@ const APITokenDisplayUsage: React.FC = () => {
               onClick={handleDone}
               sx={{ fontWeight: 700, textTransform: 'none', height: 44, px: 3 }}
             >
-              {t('common:back_to_dashboard', 'â† Back to Dashboard')}
+              {t('auth.common.backToDashboard', 'Back to dashboard')}
             </Button>
           )}
         </Box>
       </Box>
 
-      {/* Stepper â€” only show after token creation */}
+      {/* Stepper — only show after token creation */}
       {hasToken && (
         <Box sx={{ mb: 4 }}>
           <Stepper activeStep={2} alternativeLabel>
             <Step>
               <StepLabel StepIconComponent={() => <CheckCircleIcon color='success' />}>
                 <Typography sx={{ fontWeight: 700, color: 'success.main' }}>
-                  {t('api_tokens:step_basic', 'Configuration')}
+                  {t('auth.api_tokens.step_basic', 'Configuration')}
                 </Typography>
               </StepLabel>
             </Step>
             <Step>
               <StepLabel StepIconComponent={() => <CheckCircleIcon color='success' />}>
                 <Typography sx={{ fontWeight: 700, color: 'success.main' }}>
-                  {t('api_tokens:step_restrictions', 'Restrictions')}
+                  {t('auth.api_tokens.step_restrictions', 'Restrictions')}
                 </Typography>
               </StepLabel>
             </Step>
             <Step>
               <StepLabel>
                 <Typography sx={{ fontWeight: 700, color: 'primary.main' }}>
-                  {t('api_tokens:step_review', 'Deployment')}
+                  {t('auth.api_tokens.step_review', 'Deployment')}
                 </Typography>
               </StepLabel>
             </Step>
@@ -227,15 +227,15 @@ const APITokenDisplayUsage: React.FC = () => {
       <Grid container spacing={3}>
         {/* Left Column: Main Content */}
         <Grid size={{ xs: 12, md: hasToken ? 8 : 12 }}>
-          {/* Security Warning + Token Card â€” only after creation */}
+          {/* Security Warning + Token Card — only after creation */}
           {hasToken && (
             <>
               <Alert severity='warning' sx={{ mb: 3 }}>
                 <AlertTitle sx={{ fontWeight: 800 }}>
-                  {t('api_tokens:security_alert_title', 'Crucial Security Warning')}
+                  {t('auth.api_tokens.security_alert_title', 'Crucial Security Warning')}
                 </AlertTitle>
                 {t(
-                  'api_tokens:security_alert_msg',
+                  'auth.api_tokens.security_alert_msg',
                   'For your security, we only show this token once. Store it in a secure password manager or environment variable.',
                 )}
               </Alert>
@@ -260,7 +260,7 @@ const APITokenDisplayUsage: React.FC = () => {
                         letterSpacing: '0.05em',
                       }}
                     >
-                      {t('api_tokens:your_new_token', 'Your New API Token')}
+                      {t('auth.api_tokens.your_new_token', 'Your New API Token')}
                     </Typography>
                   </Box>
 
@@ -276,7 +276,7 @@ const APITokenDisplayUsage: React.FC = () => {
                         mb: 0.5,
                       }}
                     >
-                      {t('api_tokens:token_name_label', 'Token Name')}
+                      {t('auth.api_tokens.token_name_label', 'Token Name')}
                     </Typography>
                     <Typography variant='body2' sx={{ fontWeight: 800, color: 'text.primary' }}>
                       {tokenName}
@@ -304,13 +304,13 @@ const APITokenDisplayUsage: React.FC = () => {
                     </Box>
                     <Box sx={{ display: 'flex', flexShrink: 0 }}>
                       <Tooltip
-                        title={showSecret ? t('common:hide', 'Hide') : t('common:show', 'Show')}
+                        title={showSecret ? t('auth.common.hide', 'Hide') : t('auth.common.show', 'Show')}
                       >
                         <IconButton
                           size='small'
                           onClick={() => setShowSecret(!showSecret)}
                           aria-label={
-                            showSecret ? t('common:hide', 'Hide') : t('common:show', 'Show')
+                            showSecret ? t('auth.common.hide', 'Hide') : t('auth.common.show', 'Show')
                           }
                           sx={{ mr: 0.5 }}
                         >
@@ -322,13 +322,13 @@ const APITokenDisplayUsage: React.FC = () => {
                         </IconButton>
                       </Tooltip>
                       <Tooltip
-                        title={copied ? t('common:copied', 'Copied!') : t('common:copy', 'Copy')}
+                        title={copied ? t('auth.common.copied', 'Copied!') : t('auth.common.copy', 'Copy')}
                       >
                         <IconButton
                           size='small'
                           onClick={handleCopy}
                           color={copied ? 'success' : 'primary'}
-                          aria-label={t('common:copy', 'Copy')}
+                          aria-label={t('auth.common.copy', 'Copy')}
                         >
                           {copied ? <CheckIcon fontSize='small' /> : <CopyIcon fontSize='small' />}
                         </IconButton>
@@ -348,7 +348,7 @@ const APITokenDisplayUsage: React.FC = () => {
                           mb: 1,
                         }}
                       >
-                        {t('api_tokens:restriction_summary', 'IP Restrictions')}
+                        {t('auth.api_tokens.restriction_summary', 'IP Restrictions')}
                       </Typography>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
                         {state.ipRestrictions.map((ip: string) => (
@@ -372,7 +372,7 @@ const APITokenDisplayUsage: React.FC = () => {
                   )}
                 </CardContent>
 
-                {/* Card footer â€” canonical */}
+                {/* Card footer — canonical */}
                 <Box
                   sx={{
                     px: 3,
@@ -399,8 +399,8 @@ const APITokenDisplayUsage: React.FC = () => {
                     }}
                   >
                     {copied
-                      ? t('api_tokens:copied_token', 'Copied!')
-                      : t('api_tokens:copy_token', 'Copy Token to Clipboard')}
+                      ? t('auth.api_tokens.copied_token', 'Copied!')
+                      : t('auth.api_tokens.copy_token', 'Copy Token to Clipboard')}
                   </Button>
                 </Box>
               </Card>
@@ -418,12 +418,12 @@ const APITokenDisplayUsage: React.FC = () => {
                   textTransform: 'none',
                 }}
               >
-                {t('api_tokens:done_and_dashboard', 'I have copied it, take me to Dashboard')}
+                {t('auth.api_tokens.done_and_dashboard', 'I have copied it, take me to Dashboard')}
               </Button>
             </>
           )}
 
-          {/* Token Info Card â€” standalone usage guide mode */}
+          {/* Token Info Card — standalone usage guide mode */}
           {!hasToken && (
             <>
               {isLoadingToken && (
@@ -439,7 +439,7 @@ const APITokenDisplayUsage: React.FC = () => {
                   }}
                 >
                   <CardContent sx={{ p: 3 }}>
-                    {/* Section header â€” canonical */}
+                    {/* Section header — canonical */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
                       <VpnKeyIcon color='primary' sx={{ fontSize: 24 }} />
                       <Typography
@@ -458,8 +458,8 @@ const APITokenDisplayUsage: React.FC = () => {
                       <Chip
                         label={
                           tokenDetails.status === 'active'
-                            ? t('common:active', 'Active')
-                            : t('common:expired', 'Expired')
+                            ? t('auth.common.active', 'Active')
+                            : t('auth.common.expired', 'Expired')
                         }
                         color={tokenDetails.status === 'active' ? 'success' : 'default'}
                         size='small'
@@ -473,7 +473,7 @@ const APITokenDisplayUsage: React.FC = () => {
 
                     <Divider sx={{ my: 3, opacity: 0.5 }} />
 
-                    {/* Dates â€” canonical metadata labels */}
+                    {/* Dates — canonical metadata labels */}
                     <Grid container spacing={3} sx={{ mb: 2 }}>
                       <Grid size={{ xs: 6 }}>
                         <Box sx={{ minWidth: 140 }}>
@@ -488,7 +488,7 @@ const APITokenDisplayUsage: React.FC = () => {
                               mb: 0.5,
                             }}
                           >
-                            {t('api_tokens:created_at', 'Created')}
+                            {t('auth.api_tokens.created_at', 'Created')}
                           </Typography>
                           <Typography
                             variant='body2'
@@ -511,7 +511,7 @@ const APITokenDisplayUsage: React.FC = () => {
                               mb: 0.5,
                             }}
                           >
-                            {t('api_tokens:last_used', 'Last Used')}
+                            {t('auth.api_tokens.last_used', 'Last Used')}
                           </Typography>
                           <Typography
                             variant='body2'
@@ -523,7 +523,7 @@ const APITokenDisplayUsage: React.FC = () => {
                       </Grid>
                     </Grid>
 
-                    {/* Abilities â€” canonical permission chips */}
+                    {/* Abilities — canonical permission chips */}
                     {tokenDetails.abilities && tokenDetails.abilities.length > 0 && (
                       <>
                         <Divider sx={{ my: 3, opacity: 0.5 }} />
@@ -537,7 +537,7 @@ const APITokenDisplayUsage: React.FC = () => {
                               letterSpacing: '0.05em',
                             }}
                           >
-                            {t('api_tokens:permissions', 'Permissions')}
+                            {t('auth.api_tokens.permissions', 'Permissions')}
                           </Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
@@ -560,7 +560,7 @@ const APITokenDisplayUsage: React.FC = () => {
                         </Box>
                       </>
                     )}
-                    {/* IP Restrictions â€” canonical */}
+                    {/* IP Restrictions — canonical */}
                     {tokenDetails.ipRestrictions && tokenDetails.ipRestrictions.length > 0 && (
                       <>
                         <Divider sx={{ my: 3, opacity: 0.5 }} />
@@ -574,7 +574,7 @@ const APITokenDisplayUsage: React.FC = () => {
                               letterSpacing: '0.05em',
                             }}
                           >
-                            {t('api_tokens:allowed_ips', 'Allowed IPs')}
+                            {t('auth.api_tokens.allowed_ips', 'Allowed IPs')}
                           </Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
@@ -614,7 +614,7 @@ const APITokenDisplayUsage: React.FC = () => {
             }}
           >
             <CardContent sx={{ p: 3 }}>
-              {/* Section header â€” canonical */}
+              {/* Section header — canonical */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
                 <TerminalIcon color='primary' sx={{ fontSize: 24 }} />
                 <Typography
@@ -625,12 +625,12 @@ const APITokenDisplayUsage: React.FC = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  {t('api_tokens:how_to_use', 'How to use this token')}
+                  {t('auth.api_tokens.how_to_use', 'How to use this token')}
                 </Typography>
               </Box>
               <Typography variant='body2' color='text.secondary' sx={{ mb: 3, lineHeight: 1.6 }}>
                 {t(
-                  'api_tokens:usage_desc',
+                  'auth.api_tokens.usage_desc',
                   'Include this token in the Authorization header of your API requests.',
                 )}
               </Typography>
@@ -658,7 +658,7 @@ const APITokenDisplayUsage: React.FC = () => {
 
               <Divider sx={{ my: 3, opacity: 0.5 }} />
 
-              {/* Info / Tip Callout â€” canonical */}
+              {/* Info / Tip Callout — canonical */}
               <Box
                 sx={{
                   p: 2,
@@ -680,7 +680,7 @@ const APITokenDisplayUsage: React.FC = () => {
                   }}
                 >
                   <InfoIcon fontSize='small' />
-                  {t('api_tokens:quick_tip', 'Quick Tips')}
+                  {t('auth.api_tokens.quick_tip', 'Quick Tips')}
                 </Typography>
                 <Box
                   component='ul'
@@ -694,15 +694,15 @@ const APITokenDisplayUsage: React.FC = () => {
                   }}
                 >
                   <li>
-                    {t('api_tokens:tip_env', 'Store in .env, never commit to source control')}
+                    {t('auth.api_tokens.tip_env', 'Store in .env, never commit to source control')}
                   </li>
-                  <li>{t('api_tokens:tip_2', 'Always use HTTPS for your requests')}</li>
-                  <li>{t('api_tokens:tip_3', 'Rotate your keys regularly')}</li>
+                  <li>{t('auth.api_tokens.tip_2', 'Always use HTTPS for your requests')}</li>
+                  <li>{t('auth.api_tokens.tip_3', 'Rotate your keys regularly')}</li>
                 </Box>
               </Box>
             </CardContent>
 
-            {/* Card footer â€” canonical */}
+            {/* Card footer — canonical */}
             <Box
               sx={{
                 px: 3,
@@ -721,7 +721,7 @@ const APITokenDisplayUsage: React.FC = () => {
                 onClick={() => navigate(Path.apiTokens.securityWarning)}
                 sx={{ fontWeight: 700, textTransform: 'none' }}
               >
-                {t('api_tokens:view_security_guide', 'View Token Security Guide')}
+                {t('auth.api_tokens.view_security_guide', 'View Token Security Guide')}
               </Button>
             </Box>
           </Card>
