@@ -526,7 +526,7 @@ export default function SCIMConfiguration() {
                               </IconButton>
                             </Tooltip>
                             <Tooltip title={t('admin.provisioning.scim.tooltips.open')}>
-                              <IconButton size='small' component='a' href={scimUrl} target='_blank'>
+                              <IconButton size='small' component='a' href={scimUrl} target='_blank' rel='noopener noreferrer'>
                                 <OpenInNew fontSize='small' />
                               </IconButton>
                             </Tooltip>
