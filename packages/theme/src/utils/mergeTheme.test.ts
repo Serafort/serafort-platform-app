@@ -53,6 +53,27 @@ describe("mergeDeep", () => {
     const result = mergeDeep(target, source);
     expect(result).toEqual({ arr: [3, 4] });
   });
+
+  it("terminates on a self-referential source instead of overflowing the stack", () => {
+    const source: Record<string, unknown> = { a: { x: 1 } };
+    source.self = source;
+    (source.a as Record<string, unknown>).back = source;
+
+    const result = mergeDeep<Record<string, unknown>>({}, source);
+
+    expect((result.a as Record<string, number>).x).toBe(1);
+  });
+
+  it("ignores prototype-polluting keys", () => {
+    const result = mergeDeep<Record<string, unknown>>(
+      {},
+      JSON.parse('{"__proto__":{"polluted":true},"safe":1}'),
+    );
+
+    expect(result.safe).toBe(1);
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+    expect((Object.prototype as Record<string, unknown>).polluted).toBeUndefined();
+  });
 });
 
 describe("applyPreset", () => {
@@ -223,6 +244,29 @@ describe("createThemeFromPartial", () => {
       "org-123",
     );
     expect(result.tokens.colors.primary).toBeDefined();
+  });
+
+  it("carries a partial navigation layout onto the config", () => {
+    const result = createThemeFromPartial({ layout: "horizontal" }, "org-123");
+    expect(result.layout).toBe("horizontal");
+  });
+
+  it("defaults the navigation layout to vertical", () => {
+    expect(createThemeFromPartial({}, "org-123").layout).toBe("vertical");
+    expect(DEFAULT_THEME_CONFIG.layout).toBe("vertical");
+  });
+});
+
+describe("mergeThemeWithPreset - navigation layout", () => {
+  it("keeps the tenant's chosen layout when a preset is applied", () => {
+    // Presets do not define a layout, so switching preset must not silently
+    // move a tenant off the sidebar/topbar choice they made.
+    const previous = {
+      ...DEFAULT_THEME_CONFIG,
+      layout: "horizontal",
+    } as TenantThemeConfig;
+
+    expect(mergeThemeWithPreset(previous, "dark-ui").layout).toBe("horizontal");
   });
 });
 

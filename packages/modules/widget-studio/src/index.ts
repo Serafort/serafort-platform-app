@@ -109,7 +109,7 @@ export { WidgetStudioPath } from "./routes/path";
  */
 export const WidgetStudioModule: CAPModule = {
   id: "widget-studio-module",
-  version: "1.0.0",
+  version: "1.0.1",
   name: "AI Widget Studio",
   description:
     "AI-Powered Agentic Widget Generation Platform. Uses a 6-agent Gemini pipeline to produce " +

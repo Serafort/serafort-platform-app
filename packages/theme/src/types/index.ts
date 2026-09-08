@@ -1,3 +1,4 @@
+import type { Layout } from "@cap/shared-types";
 import type { PrimitiveTokens } from "./designTokens";
 import type { EffectConfig } from "./effects";
 import { DEFAULT_EFFECT_CONFIG } from "./effects";
@@ -31,6 +32,16 @@ export interface TenantThemeConfig {
   organizationId: string;
   name: string;
   preset?: ThemePresetId;
+  /**
+   * Navigation shell orientation the tenant's theme prefers: `"vertical"`
+   * (sidebar), `"horizontal"` (top nav) or `"collapsed"` (a pinned-narrow
+   * sidebar). It is stored on the theme rather than only in per-user settings
+   * so that exporting or applying a saved theme carries the layout with it -
+   * `ThemeBridge` pushes this into `settings.layout` when the persisted theme
+   * loads, and the in-app layout switcher still writes `settings.layout`
+   * directly for a live, unsaved change.
+   */
+  layout?: Layout;
   tokens: PrimitiveTokens;
   effects: EffectConfig;
   components: ComponentStyles;
@@ -208,6 +219,7 @@ declare module "@mui/material/styles" {
 export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
   organizationId: "default",
   name: "Default Theme",
+  layout: "vertical",
   tokens: {
     // Serafort brand kit (serafort_brand/brand-kit/tokens) - keep in sync
     // with DEFAULT_PRIMITIVE_TOKENS in designTokens.ts.
@@ -265,6 +277,14 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
       xl: "2rem",
       "2xl": "3rem",
     },
+    fluidSpacing: {
+      gutterInline: "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+      gutterBlock: "clamp(1.5rem, 1rem + 2.5vw, 3.5rem)",
+      sectionGap: "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+      stackGap: "clamp(0.75rem, 0.6rem + 0.8vw, 1.25rem)",
+      cardPadding: "clamp(1rem, 0.8rem + 1vw, 1.75rem)",
+      clusterGap: "clamp(0.5rem, 0.4rem + 0.4vw, 0.875rem)",
+    },
     borderRadius: {
       none: "0",
       sm: "4px",
@@ -272,6 +292,30 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
       lg: "12px",
       xl: "16px",
       full: "9999px",
+    },
+    // Kept in sync with DEFAULT_PRIMITIVE_TOKENS in designTokens.ts.
+    borderWidth: {
+      none: "0px",
+      thin: "1px",
+      medium: "2px",
+      thick: "4px",
+    },
+    borderStyle: {
+      solid: "solid",
+      dashed: "dashed",
+      dotted: "dotted",
+    },
+    // From semanticBorders.light in tokens/semantics.ts - kept in sync here so
+    // the default tenant theme emits `--border-<role>` at runtime.
+    semanticBorders: {
+      subtle: "rgba(3, 20, 51, 0.06)",
+      muted: "rgba(3, 20, 51, 0.12)",
+      default: "#C7D1E3",
+      strong: "rgba(3, 20, 51, 0.32)",
+      focus: "#047BFA",
+    },
+    gradients: {
+      meshIntensity: 1,
     },
     typography: {
       fontFamily: {

@@ -15,12 +15,19 @@ import {
   primitiveColors,
   spacingTokens,
   radiusTokens,
+  borderWidthTokens,
+  borderStyleTokens,
+  opacityTokens,
+  alphaWhiteTokens,
+  alphaBlackTokens,
   motionTokens,
   zIndexTokens,
 } from "./primitives";
 import {
   semanticSurfaces,
+  semanticBorders,
   fluidTypographyTokens,
+  fluidSpacingTokens,
   effectPresetTokens,
 } from "./semantics";
 import { stateComponentTokens, formTokens } from "./components";
@@ -30,12 +37,17 @@ export interface ThemeTokenDictionary {
     colors: typeof primitiveColors;
     spacing: typeof spacingTokens;
     radius: typeof radiusTokens;
+    borderWidth: typeof borderWidthTokens;
+    borderStyle: typeof borderStyleTokens;
+    opacity: typeof opacityTokens;
     motion: typeof motionTokens;
     zIndex: typeof zIndexTokens;
   };
   semantics: {
     surfaces: typeof semanticSurfaces;
+    borders: typeof semanticBorders;
     typography: typeof fluidTypographyTokens;
+    fluidSpacing: typeof fluidSpacingTokens;
     effects: typeof effectPresetTokens;
   };
   components: {
@@ -49,12 +61,17 @@ export const defaultThemeTokens: ThemeTokenDictionary = {
     colors: primitiveColors,
     spacing: spacingTokens,
     radius: radiusTokens,
+    borderWidth: borderWidthTokens,
+    borderStyle: borderStyleTokens,
+    opacity: opacityTokens,
     motion: motionTokens,
     zIndex: zIndexTokens,
   },
   semantics: {
     surfaces: semanticSurfaces,
+    borders: semanticBorders,
     typography: fluidTypographyTokens,
+    fluidSpacing: fluidSpacingTokens,
     effects: effectPresetTokens,
   },
   components: {
@@ -72,8 +89,12 @@ export function tokensToCssVariables(
 ): Record<string, string> {
   const surfaces =
     customTokens?.semantics?.surfaces?.[mode] || semanticSurfaces[mode];
+  const borders =
+    customTokens?.semantics?.borders?.[mode] || semanticBorders[mode];
   const effects = customTokens?.semantics?.effects || effectPresetTokens;
   const typo = customTokens?.semantics?.typography || fluidTypographyTokens;
+  const fluidSpace =
+    customTokens?.semantics?.fluidSpacing || fluidSpacingTokens;
   const form = customTokens?.components?.form || formTokens;
   const state = customTokens?.components?.state || stateComponentTokens;
 
@@ -123,26 +144,63 @@ export function tokensToCssVariables(
     "--color-info-600": primitiveColors.info[600],
     "--color-info-700": primitiveColors.info[700],
 
-    "--alpha-white-4": primitiveColors.alpha.white[4],
-    "--alpha-white-8": primitiveColors.alpha.white[8],
-    "--alpha-white-16": primitiveColors.alpha.white[16],
-    "--alpha-white-60": primitiveColors.alpha.white[60],
+    // Tier 1: Alpha tint ramps (4%-88%) and the unitless opacity scale (0-100).
+    ...Object.fromEntries(
+      Object.entries(alphaWhiteTokens).map(([step, value]) => [
+        `--alpha-white-${step}`,
+        value,
+      ]),
+    ),
+    ...Object.fromEntries(
+      Object.entries(alphaBlackTokens).map(([step, value]) => [
+        `--alpha-black-${step}`,
+        value,
+      ]),
+    ),
+    ...Object.fromEntries(
+      Object.entries(opacityTokens).map(([step, value]) => [
+        `--opacity-${step}`,
+        value,
+      ]),
+    ),
 
-    "--alpha-black-4": primitiveColors.alpha.black[4],
-    "--alpha-black-8": primitiveColors.alpha.black[8],
-    "--alpha-black-12": primitiveColors.alpha.black[12],
-    "--alpha-black-60": primitiveColors.alpha.black[60],
-
-    // Tier 1: Spacing
+    // Tier 1: Spacing (contiguous base-4 scale, space.0 -> space.16)
     "--space-0": spacingTokens[0],
     "--space-1": spacingTokens[1],
     "--space-2": spacingTokens[2],
     "--space-3": spacingTokens[3],
     "--space-4": spacingTokens[4],
+    "--space-5": spacingTokens[5],
     "--space-6": spacingTokens[6],
+    "--space-7": spacingTokens[7],
     "--space-8": spacingTokens[8],
+    "--space-9": spacingTokens[9],
+    "--space-10": spacingTokens[10],
+    "--space-11": spacingTokens[11],
     "--space-12": spacingTokens[12],
+    "--space-13": spacingTokens[13],
+    "--space-14": spacingTokens[14],
+    "--space-15": spacingTokens[15],
     "--space-16": spacingTokens[16],
+
+    // Tier 1: Border width & style scales
+    "--border-width-none": borderWidthTokens.none,
+    "--border-width-hairline": borderWidthTokens.hairline,
+    "--border-width-thin": borderWidthTokens.thin,
+    "--border-width-medium": borderWidthTokens.medium,
+    "--border-width-thick": borderWidthTokens.thick,
+    "--border-width-heavy": borderWidthTokens.heavy,
+    "--border-style-solid": borderStyleTokens.solid,
+    "--border-style-dashed": borderStyleTokens.dashed,
+    "--border-style-dotted": borderStyleTokens.dotted,
+    "--border-style-double": borderStyleTokens.double,
+
+    // Tier 2: Semantic border roles (mode-resolved)
+    "--border-subtle": borders.subtle,
+    "--border-muted": borders.muted,
+    "--border-default": borders.default,
+    "--border-strong": borders.strong,
+    "--border-focus": borders.focus,
 
     // Tier 1: Radii
     "--radius-none": radiusTokens.none,
@@ -178,6 +236,14 @@ export function tokensToCssVariables(
     "--surface-paper": surfaces.paper,
     "--surface-subtle": surfaces.subtle,
     "--surface-border": surfaces.border,
+
+    // Tier 2: Fluid Spacing (viewport-responsive, clamp-based)
+    "--space-fluid-gutter-inline": fluidSpace.gutterInline,
+    "--space-fluid-gutter-block": fluidSpace.gutterBlock,
+    "--space-fluid-section-gap": fluidSpace.sectionGap,
+    "--space-fluid-stack-gap": fluidSpace.stackGap,
+    "--space-fluid-card-padding": fluidSpace.cardPadding,
+    "--space-fluid-cluster-gap": fluidSpace.clusterGap,
 
     // Tier 2: Fluid Typography
     "--font-display": typo.display,

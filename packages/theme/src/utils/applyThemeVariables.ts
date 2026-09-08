@@ -16,6 +16,8 @@ import {
   hexToRgba,
   rgbaToHex,
 } from "./computeEffects";
+import { brandMeshGradient, gradientTokens } from "./gradients";
+import { opacityTokens } from "../tokens/primitives";
 
 export { hexToRgba, rgbaToHex };
 
@@ -105,8 +107,41 @@ export const generateThemeVariables = (
     spacing[`--spacing-${key}`] = value;
   }
 
+  // Viewport-responsive spacing (clamp() strings). Keys are camelCase in the
+  // token config; the custom properties are kebab-cased to match the static
+  // `--space-fluid-*` set emitted by tokensToCssVariables.
+  if (theme.tokens.fluidSpacing) {
+    for (const [key, value] of Object.entries(theme.tokens.fluidSpacing)) {
+      spacing[`--space-fluid-${toKebabCase(key)}`] = value;
+    }
+  }
+
   for (const [key, value] of Object.entries(theme.tokens.borderRadius)) {
     borderRadius[`--radius-${key}`] = value;
+  }
+
+  // Border line weight and style ride in the same output group as radius -
+  // the three together are "how a border is drawn". They are emitted as
+  // `--border-width-*` / `--border-style-*` to match the names
+  // tokensToCssVariables already uses for the static dictionary.
+  if (theme.tokens.borderWidth) {
+    for (const [key, value] of Object.entries(theme.tokens.borderWidth)) {
+      borderRadius[`--border-width-${key}`] = value;
+    }
+  }
+
+  if (theme.tokens.borderStyle) {
+    for (const [key, value] of Object.entries(theme.tokens.borderStyle)) {
+      borderRadius[`--border-style-${key}`] = value;
+    }
+  }
+
+  // Semantic border-role colours - `--border-subtle` ... `--border-focus`.
+  // Flat (not mode-split) at this layer, exactly like `--color-*`.
+  if (theme.tokens.semanticBorders) {
+    for (const [role, value] of Object.entries(theme.tokens.semanticBorders)) {
+      borderRadius[`--border-${role}`] = value;
+    }
   }
 
   if (theme.tokens.shadows) {
@@ -137,6 +172,33 @@ export const generateThemeVariables = (
       typography[`--line-height-${key}`] = value;
     }
   }
+
+  // The unitless opacity scale (`--opacity-0` ... `--opacity-100`). It is a
+  // fixed mathematical ramp rather than a tenant choice, but it has to be a
+  // live custom property so `rgb(... / var(--opacity-40))` and friends resolve
+  // at runtime the same way the static dictionary already spells it.
+  for (const [step, value] of Object.entries(opacityTokens)) {
+    effects[`--opacity-${step}`] = value;
+  }
+
+  // Brand gradient recipes, always emitted (not gated on an effect) so any
+  // surface can reach for `var(--gradient-brand-sheen)` /
+  // `var(--gradient-brand-mesh)`. Both are derived from the tenant's own brand
+  // colours; the mesh's wash strength follows `tokens.gradients.meshIntensity`.
+  const brandPrimary = theme.tokens?.colors?.primary?.value || "#047BFA";
+  const brandSecondary =
+    theme.tokens?.colors?.secondary?.value ||
+    theme.tokens?.colors?.info?.value ||
+    brandPrimary;
+  const meshIntensity = theme.tokens?.gradients?.meshIntensity ?? 1;
+  const brandMesh = brandMeshGradient(brandPrimary, brandSecondary, {
+    intensity: meshIntensity,
+  });
+  effects["--gradient-brand-sheen"] = gradientTokens.brandSheen(
+    brandPrimary,
+    brandSecondary,
+  );
+  effects["--gradient-brand-mesh"] = brandMesh;
 
   // ==========================================================================
   // EFFECTS
@@ -390,17 +452,9 @@ export const generateThemeVariables = (
   // (see StyledMain). Only the two blur-based effects ask for it; for every
   // other effect the variable stays unset and the canvas is a flat colour.
   if (globalType === "glass" || globalType === "liquid-glass") {
-    const primary = theme.tokens?.colors?.primary?.value || "#047BFA";
-    const secondary =
-      theme.tokens?.colors?.secondary?.value ||
-      theme.tokens?.colors?.info?.value ||
-      primary;
-    effects["--effect-canvas-image"] = [
-      `radial-gradient(at 18% 12%, ${hexToRgba(primary, 0.28)} 0px, transparent 55%)`,
-      `radial-gradient(at 82% 8%, ${hexToRgba(secondary, 0.22)} 0px, transparent 50%)`,
-      `radial-gradient(at 70% 88%, ${hexToRgba(primary, 0.18)} 0px, transparent 55%)`,
-      `radial-gradient(at 8% 78%, ${hexToRgba(secondary, 0.16)} 0px, transparent 50%)`,
-    ].join(", ");
+    // The same mesh emitted above as `--gradient-brand-mesh`, reused here as
+    // the ambient wash a backdrop-filter reveals.
+    effects["--effect-canvas-image"] = brandMesh;
   }
   const components: CSSVariableMap = {};
   if (theme.components) {

@@ -23,6 +23,7 @@ import { GlassmorphismPanel } from "../components/EffectControls/GlassmorphismPa
 import { NeumorphismPanel } from "../components/EffectControls/NeumorphismPanel";
 import { EffectSettingsPanel } from "../components/EffectControls/EffectSettingsPanel";
 import { ComponentStyleSelector } from "../components/ComponentStyleSelector";
+import { NavigationLayoutField } from "../components/NavigationLayoutField";
 import { SpacingEditor } from "../components/SpacingEditor";
 import { PresetSelector } from "../components/PresetSelector";
 import { ChoiceChip, PanelHeader } from "../components/studioUi";
@@ -51,6 +52,7 @@ import {
   useSavedTheme,
 } from "@cap/theme";
 import type { ThemePresetId } from "@cap/theme";
+import type { Layout } from "@cap/shared-types";
 import { useSettings } from "@cap/platform-store";
 import { useTenantTheme, useUpdateTenantTheme } from "../hooks/useThemeQuery";
 
@@ -316,6 +318,102 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
       }));
     },
     [updateThemeState],
+  );
+
+  const handleShadowsChange = useCallback(
+    (shadows: Record<string, string>) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          shadows,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
+  const handleFluidSpacingChange = useCallback(
+    (fluidSpacing: Record<string, string>) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          fluidSpacing,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
+  const handleBorderWidthChange = useCallback(
+    (borderWidth: Record<string, string>) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          borderWidth,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
+  const handleBorderStyleChange = useCallback(
+    (borderStyle: Record<string, string>) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          borderStyle,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
+  const handleSemanticBordersChange = useCallback(
+    (semanticBorders: Record<string, string>) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          semanticBorders,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
+  const handleGradientsChange = useCallback(
+    (gradients: { meshIntensity?: number }) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          gradients,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
+  const handleLayoutChange = useCallback(
+    (layout: Layout) => {
+      // Two writes, one decision - the same pattern handlePresetSelect uses
+      // for `mode`. The draft carries `layout` so it is saved with the theme
+      // (and exported with it); `updateSettings` re-renders the live shell
+      // now, since LayoutWrapper reads `settings.layout`, not the draft.
+      updateThemeState((prev) => ({ ...prev, layout }));
+      updateSettings({ layout });
+    },
+    [updateThemeState, updateSettings],
   );
 
   const handlePresetSelect = useCallback(
@@ -599,6 +697,11 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
                 theme.tokens?.colors || DEFAULT_TENANT_THEME.tokens.colors
               }
               onChange={handleColorsChange}
+              gradients={
+                theme.tokens?.gradients ||
+                DEFAULT_TENANT_THEME.tokens.gradients
+              }
+              onGradientsChange={handleGradientsChange}
             />
           </TabPanel>
 
@@ -663,6 +766,10 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
           </TabPanel>
 
           <TabPanel value={activeTab} index={4}>
+            <NavigationLayoutField
+              value={theme.layout || settings.layout || "vertical"}
+              onChange={handleLayoutChange}
+            />
             <ComponentStyleSelector
               components={theme.components || DEFAULT_TENANT_THEME.components}
               globalEffectType={activeEffectType}
@@ -680,8 +787,32 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
                 theme.tokens?.borderRadius ||
                 DEFAULT_TENANT_THEME.tokens.borderRadius
               }
+              shadows={
+                theme.tokens?.shadows || DEFAULT_TENANT_THEME.tokens.shadows
+              }
+              fluidSpacing={
+                theme.tokens?.fluidSpacing ||
+                DEFAULT_TENANT_THEME.tokens.fluidSpacing
+              }
+              borderWidth={
+                theme.tokens?.borderWidth ||
+                DEFAULT_TENANT_THEME.tokens.borderWidth
+              }
+              borderStyle={
+                theme.tokens?.borderStyle ||
+                DEFAULT_TENANT_THEME.tokens.borderStyle
+              }
+              semanticBorders={
+                theme.tokens?.semanticBorders ||
+                DEFAULT_TENANT_THEME.tokens.semanticBorders
+              }
               onSpacingChange={handleSpacingChange}
               onBorderRadiusChange={handleBorderRadiusChange}
+              onShadowsChange={handleShadowsChange}
+              onFluidSpacingChange={handleFluidSpacingChange}
+              onBorderWidthChange={handleBorderWidthChange}
+              onBorderStyleChange={handleBorderStyleChange}
+              onSemanticBordersChange={handleSemanticBordersChange}
             />
           </TabPanel>
         </Grid>

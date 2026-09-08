@@ -18,3 +18,11 @@ export {
   iconTile,
   codeBlock,
 } from "@cap/theme";
+
+/**
+ * Shared animation keyframes, also from @cap/theme. The pipeline tracker used
+ * to declare its own `@keyframes widget-studio-spin` / `-blink` inline; these
+ * are the library versions so the studio's motion matches the rest of the app
+ * and a spinner is defined once.
+ */
+export { spin, pulse } from "@cap/theme";

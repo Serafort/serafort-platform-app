@@ -3,13 +3,19 @@ import {
   primitiveColors,
   spacingTokens,
   radiusTokens,
+  borderWidthTokens,
+  borderStyleTokens,
+  opacityTokens,
+  alphaWhiteTokens,
   motionTokens,
   zIndexTokens,
   primitiveTokens,
 } from "./primitives";
 import {
   semanticSurfaces,
+  semanticBorders,
   fluidTypographyTokens,
+  fluidSpacingTokens,
   effectPresetTokens,
   getSemanticColors,
 } from "./semantics";
@@ -34,7 +40,7 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(primitiveColors.alpha.black[60]).toBe("rgba(0,0,0,0.60)");
     });
 
-    it("defines base-4 spacing scale from space.0 to space.16", () => {
+    it("defines a contiguous base-4 spacing scale from space.0 to space.16", () => {
       expect(spacingTokens[0]).toBe("0px");
       expect(spacingTokens[1]).toBe("4px");
       expect(spacingTokens[2]).toBe("8px");
@@ -43,6 +49,21 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(spacingTokens[8]).toBe("32px");
       expect(spacingTokens[12]).toBe("48px");
       expect(spacingTokens[16]).toBe("64px");
+
+      // Previously-missing intermediate steps.
+      expect(spacingTokens[5]).toBe("20px");
+      expect(spacingTokens[7]).toBe("28px");
+      expect(spacingTokens[9]).toBe("36px");
+      expect(spacingTokens[10]).toBe("40px");
+      expect(spacingTokens[11]).toBe("44px");
+      expect(spacingTokens[13]).toBe("52px");
+      expect(spacingTokens[14]).toBe("56px");
+      expect(spacingTokens[15]).toBe("60px");
+
+      // Every step is n * 4px with no gaps.
+      for (let n = 0; n <= 16; n += 1) {
+        expect(spacingTokens[n as keyof typeof spacingTokens]).toBe(`${n * 4}px`);
+      }
     });
 
     it("defines radius scale from none to full", () => {
@@ -53,6 +74,26 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(radiusTokens.xl).toBe("16px");
       expect(radiusTokens["2xl"]).toBe("24px");
       expect(radiusTokens.full).toBe("9999px");
+    });
+
+    it("defines a full opacity scale and widened alpha tint ramps", () => {
+      expect(opacityTokens[0]).toBe("0");
+      expect(opacityTokens[5]).toBe("0.05");
+      expect(opacityTokens[40]).toBe("0.4");
+      expect(opacityTokens[95]).toBe("0.95");
+      expect(opacityTokens[100]).toBe("1");
+      // Alpha ramp goes well past the old 4/8/12/16/60 stops.
+      expect(alphaWhiteTokens[24]).toBe("rgba(255, 255, 255, 0.24)");
+      expect(alphaWhiteTokens[88]).toBe("rgba(255, 255, 255, 0.88)");
+    });
+
+    it("defines border width and style scales", () => {
+      expect(borderWidthTokens.hairline).toBe("1px");
+      expect(borderWidthTokens.thin).toBe("1.5px");
+      expect(borderWidthTokens.heavy).toBe("4px");
+      expect(borderStyleTokens.dashed).toBe("dashed");
+      expect(borderStyleTokens.dotted).toBe("dotted");
+      expect(borderStyleTokens.double).toBe("double");
     });
 
     it("defines motion duration and easing scales", () => {
@@ -108,6 +149,32 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(fluidTypographyTokens.caption).toBe(
         "clamp(0.75rem, 0.72rem + 0.1vw, 0.8125rem)",
       );
+    });
+
+    it("defines a per-mode semantic border sub-palette", () => {
+      expect(semanticBorders.light.subtle).toBe("rgba(3, 20, 51, 0.06)");
+      expect(semanticBorders.dark.subtle).toBe("rgba(255, 255, 255, 0.05)");
+      // Every role is present in both modes.
+      const roles = ["subtle", "muted", "default", "strong", "focus"] as const;
+      for (const role of roles) {
+        expect(typeof semanticBorders.light[role]).toBe("string");
+        expect(typeof semanticBorders.dark[role]).toBe("string");
+      }
+      // Focus carries the brand colour, not a neutral.
+      expect(semanticBorders.light.focus).toBe("#047BFA");
+    });
+
+    it("defines a viewport-responsive fluid spacing scale", () => {
+      expect(fluidSpacingTokens.gutterInline).toBe(
+        "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+      );
+      expect(fluidSpacingTokens.sectionGap).toBe(
+        "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+      );
+      // Every entry is a clamp() with a vw term so it actually scales.
+      for (const value of Object.values(fluidSpacingTokens)) {
+        expect(value).toMatch(/^clamp\(.+,.+vw.*,.+\)$/);
+      }
     });
 
     it("defines visual effect presets (Glassmorphism, Liquid Glass, Neumorphism, Brutalism, Bento)", () => {
@@ -179,7 +246,17 @@ describe("Design Token Architecture Hierarchy", () => {
 
       expect(cssVars["--color-brand-500"]).toBe("#047BFA");
       expect(cssVars["--space-4"]).toBe("16px");
+      expect(cssVars["--space-5"]).toBe("20px");
+      expect(cssVars["--space-11"]).toBe("44px");
+      expect(cssVars["--space-14"]).toBe("56px");
       expect(cssVars["--radius-md"]).toBe("8px");
+      expect(cssVars["--border-width-hairline"]).toBe("1px");
+      expect(cssVars["--border-style-dashed"]).toBe("dashed");
+      expect(cssVars["--border-subtle"]).toBe("rgba(255, 255, 255, 0.05)"); // dark default
+      expect(cssVars["--border-focus"]).toBeDefined();
+      expect(cssVars["--opacity-40"]).toBe("0.4");
+      expect(cssVars["--alpha-white-24"]).toBe("rgba(255, 255, 255, 0.24)");
+      expect(cssVars["--alpha-black-88"]).toBe("rgba(0, 0, 0, 0.88)");
       expect(cssVars["--touch-target-min"]).toBe("44px");
       expect(cssVars["--motion-duration-quick"]).toBe("120ms");
       expect(cssVars["--z-index-modal"]).toBe("1000");
@@ -188,6 +265,12 @@ describe("Design Token Architecture Hierarchy", () => {
         "clamp(2.25rem, 1.75rem + 3vw, 3.75rem)",
       );
       expect(cssVars["--font-h1"]).toBe("clamp(2rem, 1.5rem + 2.5vw, 3.25rem)");
+      expect(cssVars["--space-fluid-gutter-inline"]).toBe(
+        "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+      );
+      expect(cssVars["--space-fluid-section-gap"]).toBe(
+        "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+      );
       expect(cssVars["--glass-blur"]).toBe("blur(16px)");
       expect(cssVars["--liquid-glass-blur"]).toBe("blur(24px) saturate(180%)");
       expect(cssVars["--form-input-height"]).toBe("48px");

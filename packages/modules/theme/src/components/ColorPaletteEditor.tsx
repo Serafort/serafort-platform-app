@@ -11,6 +11,7 @@ import {
 import LightModeIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeIcon from "@mui/icons-material/DarkModeOutlined";
 import type { ColorToken } from "@cap/theme";
+import { brandMeshGradient } from "@cap/theme";
 import { getWcagComplianceBadge } from "../services/aiThemePromptService";
 import {
   AutoGrid,
@@ -22,6 +23,9 @@ import {
 interface ColorPaletteEditorProps {
   colors: Record<string, ColorToken>;
   onChange: (colors: Record<string, ColorToken>) => void;
+  /** Optional: knobs for the brand gradient recipes (`--gradient-brand-*`). */
+  gradients?: { meshIntensity?: number };
+  onGradientsChange?: (gradients: { meshIntensity?: number }) => void;
 }
 
 const colorLabels: Record<string, string> = {
@@ -170,6 +174,8 @@ const ColorSwatch = ({
 export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
   colors,
   onChange,
+  gradients,
+  onGradientsChange,
 }) => {
   // Which mode the chrome swatches (background/surface/text/textMuted/border)
   // are currently editing. Brand and semantic colors have no mode dimension -
@@ -177,6 +183,7 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
   // and always edit `.value` directly.
   const [previewMode, setPreviewMode] = useState<PreviewMode>("light");
   const surface = useSurfaceSx();
+  const theme = useTheme();
 
   const handleColorChange = (key: string, value: string) => {
     onChange({ ...colors, [key]: { ...colors[key], value } });
@@ -335,6 +342,86 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
           />
         </Box>
       </Box>
+
+      {onGradientsChange && (
+        <Box sx={{ mt: 7 }}>
+          <SectionLabel>Brand gradient</SectionLabel>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", mb: 3, lineHeight: 1.5 }}
+          >
+            A four-lobe mesh wash built from Primary and Secondary, published as{" "}
+            <Box component="code" sx={{ fontFamily: "monospace" }}>
+              --gradient-brand-mesh
+            </Box>
+            . Intensity scales every lobe&rsquo;s opacity.
+          </Typography>
+          <Box sx={{ ...surface, overflow: "hidden" }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                paddingInline: 4,
+                paddingBlock: 3,
+              }}
+            >
+              <Box
+                aria-hidden
+                sx={{
+                  inlineSize: 96,
+                  blockSize: 48,
+                  flexShrink: 0,
+                  borderRadius: 1,
+                  border: `1px solid ${theme.palette.divider}`,
+                  bgcolor: "background.paper",
+                  backgroundImage: brandMeshGradient(
+                    colors.primary?.value || "#047BFA",
+                    colors.secondary?.value ||
+                      colors.info?.value ||
+                      colors.primary?.value ||
+                      "#047BFA",
+                    { intensity: gradients?.meshIntensity ?? 1 },
+                  ),
+                }}
+              />
+              <Typography
+                variant="body2"
+                sx={{ flex: 1, minWidth: 0, fontWeight: 500 }}
+              >
+                Mesh intensity
+              </Typography>
+              <TextField
+                size="small"
+                type="number"
+                value={String(gradients?.meshIntensity ?? 1)}
+                onChange={(e) => {
+                  // Empty / non-numeric falls back to 1 rather than snapping the
+                  // wash to nothing while the field is mid-edit.
+                  const next = parseFloat(e.target.value);
+                  onGradientsChange({
+                    ...gradients,
+                    meshIntensity: Number.isFinite(next) ? next : 1,
+                  });
+                }}
+                slotProps={{
+                  htmlInput: {
+                    min: 0,
+                    max: 2,
+                    step: 0.1,
+                    "aria-label": "Mesh intensity",
+                  },
+                  input: {
+                    sx: { fontFamily: "monospace", fontSize: "0.8125rem" },
+                  },
+                }}
+                sx={{ inlineSize: 104 }}
+              />
+            </Box>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };

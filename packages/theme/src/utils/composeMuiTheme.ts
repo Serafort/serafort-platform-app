@@ -12,7 +12,21 @@ import { DEFAULT_THEME_CONFIG } from "../types";
 import darkTheme from "../assets/themes/dark";
 import lightTheme from "../assets/themes/light";
 import { createBaseMuiTheme } from "./createBaseMuiTheme";
+import { elevationScale } from "./elevation";
 import { LIGHT_SURFACE_THRESHOLD, lightnessOf } from "./colorLightness";
+
+/**
+ * The five numeric elevation indices that a tenant can retarget through a
+ * `--shadow-*` custom property (emitted by `generateThemeVariables`). Every
+ * other index takes the generated ramp value verbatim.
+ */
+const SHADOW_VAR_ANCHORS: Record<number, string> = {
+  1: "xs",
+  4: "sm",
+  8: "md",
+  16: "lg",
+  24: "xl",
+};
 
 interface ComposeMuiThemeOptions {
   currentMode: SystemMode;
@@ -179,7 +193,14 @@ export const composeMuiTheme = ({
 
   const theme = createTheme(
     baseStaticTheme,
-    createBaseMuiTheme(updatedSettings, currentMode, direction),
+    createBaseMuiTheme(updatedSettings, currentMode, direction, {
+      primary: primaryMain,
+      secondary: secondaryMain,
+      error: errorMain,
+      warning: warningMain,
+      info: infoMain,
+      success: successMain,
+    }),
     {
       direction,
       spacing: (factor: number | string) => {
@@ -195,33 +216,16 @@ export const composeMuiTheme = ({
         if (!Number.isInteger(factor)) return `calc(0.25rem * ${factor})`;
         return `var(--spacing-${factor}, calc(0.25rem * ${factor}))`;
       },
-      shadows: [
-        "none",
-        `var(--shadow-xs, ${baseStaticTheme.shadows[1]})`,
-        baseStaticTheme.shadows[2],
-        baseStaticTheme.shadows[3],
-        `var(--shadow-sm, ${baseStaticTheme.shadows[4]})`,
-        baseStaticTheme.shadows[5],
-        baseStaticTheme.shadows[6],
-        baseStaticTheme.shadows[7],
-        `var(--shadow-md, ${baseStaticTheme.shadows[8]})`,
-        baseStaticTheme.shadows[9],
-        baseStaticTheme.shadows[10],
-        baseStaticTheme.shadows[11],
-        baseStaticTheme.shadows[12],
-        baseStaticTheme.shadows[13],
-        baseStaticTheme.shadows[14],
-        baseStaticTheme.shadows[15],
-        `var(--shadow-lg, ${baseStaticTheme.shadows[16]})`,
-        baseStaticTheme.shadows[17],
-        baseStaticTheme.shadows[18],
-        baseStaticTheme.shadows[19],
-        baseStaticTheme.shadows[20],
-        baseStaticTheme.shadows[21],
-        baseStaticTheme.shadows[22],
-        baseStaticTheme.shadows[23],
-        `var(--shadow-xl, ${baseStaticTheme.shadows[24]})`,
-      ] as Theme["shadows"],
+      // A single generated ramp - mode-tinted, monotonic, and (in dark mode)
+      // carrying the ambient edge highlight + containment ring that stops a
+      // raised surface dissolving into a same-coloured canvas. The five
+      // tenant-retargetable indices keep their `--shadow-*` override, falling
+      // back to the generated value; MUI's stock black-alpha shadows are no
+      // longer referenced.
+      shadows: elevationScale(currentMode).map((generated, index) => {
+        const anchor = SHADOW_VAR_ANCHORS[index];
+        return anchor ? `var(--shadow-${anchor}, ${generated})` : generated;
+      }) as Theme["shadows"],
       palette: {
         mode: currentMode,
         primary: derivePaletteColorGroup(primaryMain),
@@ -365,6 +369,15 @@ export const composeMuiThemeMemoized = (
   const bgVal = colors?.background?.value || "";
   const surfaceVal = colors?.surface?.value || "";
   const fontVal = tenantTheme?.tokens?.typography?.fontFamily?.sans || "";
+  // Status colours feed the coloured elevation rings (theme.customShadows.*),
+  // so a tenant that overrides only, say, their error colour must not be
+  // served a theme built for the previous one.
+  const statusVal = [
+    colors?.error?.value,
+    colors?.warning?.value,
+    colors?.info?.value,
+    colors?.success?.value,
+  ].join("|");
   // The whole effect config, not just its name: the theme object carries it
   // through as `theme.tenantTheme` for SurfaceEffectFactory, so tuning a
   // preset's blur or shadow has to miss the cache. Keyed on the name alone,
@@ -372,7 +385,7 @@ export const composeMuiThemeMemoized = (
   // theme built for that effect and appeared to do nothing.
   const effectVal = JSON.stringify(tenantTheme?.effects || {});
 
-  const key = `${tenantTheme?.id || "default"}_${currentMode}_${direction}_${settings.skin}_${settings.effect || "none"}_${effectVal}_${primaryVal}_${secondaryVal}_${bgVal}_${surfaceVal}_${fontVal}`;
+  const key = `${tenantTheme?.id || "default"}_${currentMode}_${direction}_${settings.skin}_${settings.effect || "none"}_${effectVal}_${primaryVal}_${secondaryVal}_${bgVal}_${surfaceVal}_${fontVal}_${statusVal}`;
 
   const cached = themeCache.get(key);
   if (cached) {

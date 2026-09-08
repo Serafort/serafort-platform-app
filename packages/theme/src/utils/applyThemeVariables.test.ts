@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { generateThemeVariables } from "./applyThemeVariables";
 import { applyPreset } from "./mergeTheme";
+import { DEFAULT_THEME_CONFIG } from "../types";
 
 /**
  * The glass look reaches real surfaces through CSS custom properties:
@@ -169,5 +170,164 @@ describe("generateThemeVariables - non-blur effects clear the chrome's blur", ()
   it("still emits a real filter for glass", () => {
     const { effects } = generateThemeVariables(applyPreset("glassmorphism"));
     expect(effects["--effect-backdrop"]).toBe("blur(16px)");
+  });
+});
+
+describe("generateThemeVariables - fluid spacing", () => {
+  it("emits kebab-cased --space-fluid-* from tokens.fluidSpacing", () => {
+    const { spacing } = generateThemeVariables(DEFAULT_THEME_CONFIG);
+
+    expect(spacing["--space-fluid-gutter-inline"]).toBe(
+      "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+    );
+    expect(spacing["--space-fluid-section-gap"]).toBe(
+      "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+    );
+  });
+
+  it("passes a tenant override through verbatim", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: {
+        ...DEFAULT_THEME_CONFIG.tokens,
+        fluidSpacing: { sectionGap: "clamp(1rem, 4vw, 8rem)" },
+      },
+    };
+    const { spacing } = generateThemeVariables(config);
+    expect(spacing["--space-fluid-section-gap"]).toBe("clamp(1rem, 4vw, 8rem)");
+  });
+
+  it("emits nothing when fluidSpacing is absent", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: { ...DEFAULT_THEME_CONFIG.tokens, fluidSpacing: undefined },
+    };
+    const { spacing } = generateThemeVariables(config);
+    expect(
+      Object.keys(spacing).some((k) => k.startsWith("--space-fluid-")),
+    ).toBe(false);
+  });
+});
+
+describe("generateThemeVariables - border width & style", () => {
+  it("emits --border-width-* and --border-style-* from the token config", () => {
+    const { borderRadius } = generateThemeVariables(DEFAULT_THEME_CONFIG);
+
+    expect(borderRadius["--border-width-thin"]).toBe("1px");
+    expect(borderRadius["--border-width-thick"]).toBe("4px");
+    expect(borderRadius["--border-style-solid"]).toBe("solid");
+    expect(borderRadius["--border-style-dashed"]).toBe("dashed");
+  });
+
+  it("passes a tenant override through verbatim", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: {
+        ...DEFAULT_THEME_CONFIG.tokens,
+        borderWidth: { hairline: "0.5px" },
+        borderStyle: { double: "double" },
+      },
+    };
+    const { borderRadius } = generateThemeVariables(config);
+    expect(borderRadius["--border-width-hairline"]).toBe("0.5px");
+    expect(borderRadius["--border-style-double"]).toBe("double");
+  });
+
+  it("emits nothing when both maps are absent", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: {
+        ...DEFAULT_THEME_CONFIG.tokens,
+        borderWidth: undefined,
+        borderStyle: undefined,
+      },
+    };
+    const { borderRadius } = generateThemeVariables(config);
+    expect(
+      Object.keys(borderRadius).some(
+        (k) =>
+          k.startsWith("--border-width-") || k.startsWith("--border-style-"),
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("generateThemeVariables - semantic border roles", () => {
+  it("emits --border-<role> from tokens.semanticBorders", () => {
+    const { borderRadius } = generateThemeVariables(DEFAULT_THEME_CONFIG);
+
+    expect(borderRadius["--border-subtle"]).toBe("rgba(3, 20, 51, 0.06)");
+    expect(borderRadius["--border-default"]).toBe("#C7D1E3");
+    expect(borderRadius["--border-focus"]).toBe("#047BFA");
+  });
+
+  it("passes a tenant override through verbatim", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: {
+        ...DEFAULT_THEME_CONFIG.tokens,
+        semanticBorders: { focus: "#FF00AA", strong: "#001122" },
+      },
+    };
+    const { borderRadius } = generateThemeVariables(config);
+    expect(borderRadius["--border-focus"]).toBe("#FF00AA");
+    expect(borderRadius["--border-strong"]).toBe("#001122");
+  });
+
+  it("emits no --border-<role> when the map is absent", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: { ...DEFAULT_THEME_CONFIG.tokens, semanticBorders: undefined },
+    };
+    const { borderRadius } = generateThemeVariables(config);
+    expect(
+      Object.keys(borderRadius).some(
+        (k) =>
+          k.startsWith("--border-") &&
+          !k.startsWith("--border-width-") &&
+          !k.startsWith("--border-style-"),
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("generateThemeVariables - opacity scale", () => {
+  it("emits the full unitless --opacity-* ramp", () => {
+    const { effects } = generateThemeVariables(DEFAULT_THEME_CONFIG);
+
+    expect(effects["--opacity-0"]).toBe("0");
+    expect(effects["--opacity-40"]).toBe("0.4");
+    expect(effects["--opacity-100"]).toBe("1");
+  });
+});
+
+describe("generateThemeVariables - brand gradients", () => {
+  it("always emits the brand sheen and mesh, derived from brand colours", () => {
+    const { effects } = generateThemeVariables(applyPreset("flat-design"));
+
+    expect(effects["--gradient-brand-sheen"]).toContain("linear-gradient(135deg");
+    expect(effects["--gradient-brand-mesh"]).toContain("radial-gradient");
+  });
+
+  it("scales every mesh lobe's alpha by tokens.gradients.meshIntensity", () => {
+    const base = generateThemeVariables(DEFAULT_THEME_CONFIG).effects[
+      "--gradient-brand-mesh"
+    ];
+    const dialled = generateThemeVariables({
+      ...DEFAULT_THEME_CONFIG,
+      tokens: {
+        ...DEFAULT_THEME_CONFIG.tokens,
+        gradients: { meshIntensity: 0.5 },
+      },
+    }).effects["--gradient-brand-mesh"];
+
+    expect(dialled).not.toBe(base);
+    // 0.28 * 0.5 = 0.14 - the first lobe's alpha at half intensity.
+    expect(dialled).toContain("0.14");
+  });
+
+  it("feeds the same mesh into the glass ambient canvas", () => {
+    const { effects } = generateThemeVariables(applyPreset("glassmorphism"));
+    expect(effects["--effect-canvas-image"]).toBe(effects["--gradient-brand-mesh"]);
   });
 });

@@ -21,8 +21,24 @@ export interface PrimitiveTokens {
     info: ColorToken;
   };
   spacing: Record<string, string>;
+  /** Viewport-responsive spacing (clamp() strings) - page gutters, section gaps. */
+  fluidSpacing?: Record<string, string>;
   borderRadius: Record<string, string>;
   borderWidth?: Record<string, string>;
+  /** Border line styles - solid, dashed, dotted, etc. keyed by name. */
+  borderStyle?: Record<string, string>;
+  /**
+   * Semantic border-role colours (subtle / muted / default / strong / focus).
+   * One flat map, emitted as `--border-<role>`; like `--color-*` it is not
+   * mode-split at the CSS-variable layer (a role reads the same value in light
+   * and dark), so pick values that survive both grounds.
+   */
+  semanticBorders?: Record<string, string>;
+  /** Knobs for the brand gradient recipes emitted as `--gradient-brand-*`. */
+  gradients?: {
+    /** Alpha multiplier for every lobe of the four-lobe brand mesh wash. */
+    meshIntensity?: number;
+  };
   typography: {
     fontFamily: Record<string, string>;
     fontSize: Record<string, string>;
@@ -75,6 +91,14 @@ export const DEFAULT_PRIMITIVE_TOKENS: PrimitiveTokens = {
     xl: "2rem",
     "2xl": "3rem",
   },
+  fluidSpacing: {
+    gutterInline: "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+    gutterBlock: "clamp(1.5rem, 1rem + 2.5vw, 3.5rem)",
+    sectionGap: "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+    stackGap: "clamp(0.75rem, 0.6rem + 0.8vw, 1.25rem)",
+    cardPadding: "clamp(1rem, 0.8rem + 1vw, 1.75rem)",
+    clusterGap: "clamp(0.5rem, 0.4rem + 0.4vw, 0.875rem)",
+  },
   borderRadius: {
     none: "0",
     sm: "4px",
@@ -88,6 +112,21 @@ export const DEFAULT_PRIMITIVE_TOKENS: PrimitiveTokens = {
     thin: "1px",
     medium: "2px",
     thick: "4px",
+  },
+  borderStyle: {
+    solid: "solid",
+    dashed: "dashed",
+    dotted: "dotted",
+  },
+  semanticBorders: {
+    subtle: "rgba(3, 20, 51, 0.06)",
+    muted: "rgba(3, 20, 51, 0.12)",
+    default: "#C7D1E3",
+    strong: "rgba(3, 20, 51, 0.32)",
+    focus: "#047BFA",
+  },
+  gradients: {
+    meshIntensity: 1,
   },
   typography: {
     fontFamily: {
