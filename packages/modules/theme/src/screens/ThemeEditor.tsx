@@ -348,6 +348,34 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     [updateThemeState],
   );
 
+  const handleBorderWidthChange = useCallback(
+    (borderWidth: Record<string, string>) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          borderWidth,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
+  const handleBorderStyleChange = useCallback(
+    (borderStyle: Record<string, string>) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          borderStyle,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
   const handleLayoutChange = useCallback(
     (layout: Layout) => {
       // Two writes, one decision - the same pattern handlePresetSelect uses
@@ -733,10 +761,20 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
                 theme.tokens?.fluidSpacing ||
                 DEFAULT_TENANT_THEME.tokens.fluidSpacing
               }
+              borderWidth={
+                theme.tokens?.borderWidth ||
+                DEFAULT_TENANT_THEME.tokens.borderWidth
+              }
+              borderStyle={
+                theme.tokens?.borderStyle ||
+                DEFAULT_TENANT_THEME.tokens.borderStyle
+              }
               onSpacingChange={handleSpacingChange}
               onBorderRadiusChange={handleBorderRadiusChange}
               onShadowsChange={handleShadowsChange}
               onFluidSpacingChange={handleFluidSpacingChange}
+              onBorderWidthChange={handleBorderWidthChange}
+              onBorderStyleChange={handleBorderStyleChange}
             />
           </TabPanel>
         </Grid>

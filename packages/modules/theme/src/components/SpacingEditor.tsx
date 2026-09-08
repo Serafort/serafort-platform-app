@@ -10,10 +10,16 @@ interface SpacingEditorProps {
   shadows?: Record<string, string>;
   /** Optional: viewport-responsive clamp() spacing. */
   fluidSpacing?: Record<string, string>;
+  /** Optional: the border line-weight scale (none/thin/medium/thick). */
+  borderWidth?: Record<string, string>;
+  /** Optional: named border line styles (solid/dashed/dotted). */
+  borderStyle?: Record<string, string>;
   onSpacingChange: (spacing: Record<string, string>) => void;
   onBorderRadiusChange: (borderRadius: Record<string, string>) => void;
   onShadowsChange?: (shadows: Record<string, string>) => void;
   onFluidSpacingChange?: (fluidSpacing: Record<string, string>) => void;
+  onBorderWidthChange?: (borderWidth: Record<string, string>) => void;
+  onBorderStyleChange?: (borderStyle: Record<string, string>) => void;
 }
 
 const spacingLabels: Record<string, string> = {
@@ -52,15 +58,32 @@ const fluidSpacingLabels: Record<string, string> = {
   clusterGap: "Cluster gap",
 };
 
+const borderWidthLabels: Record<string, string> = {
+  none: "None",
+  thin: "Thin",
+  medium: "Medium",
+  thick: "Thick",
+};
+
+const borderStyleLabels: Record<string, string> = {
+  solid: "Solid",
+  dashed: "Dashed",
+  dotted: "Dotted",
+};
+
 export const SpacingEditor: React.FC<SpacingEditorProps> = ({
   spacing,
   borderRadius,
   shadows,
   fluidSpacing,
+  borderWidth,
+  borderStyle,
   onSpacingChange,
   onBorderRadiusChange,
   onShadowsChange,
   onFluidSpacingChange,
+  onBorderWidthChange,
+  onBorderStyleChange,
 }) => {
   const theme = useTheme();
   const surface = useSurfaceSx();
@@ -79,6 +102,14 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
   const handleFluidChange = patch(
     fluidSpacing ?? {},
     onFluidSpacingChange ?? (() => {}),
+  );
+  const handleBorderWidthChange = patch(
+    borderWidth ?? {},
+    onBorderWidthChange ?? (() => {}),
+  );
+  const handleBorderStyleChange = patch(
+    borderStyle ?? {},
+    onBorderStyleChange ?? (() => {}),
   );
 
   /** Name on the left, the value you edit on the right - one row per token. */
@@ -181,7 +212,9 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
         </Box>
       )}
 
-      <Box sx={{ mb: onShadowsChange ? 7 : 0 }}>
+      <Box
+        sx={{ mb: onBorderWidthChange || onShadowsChange ? 7 : 0 }}
+      >
         <SectionLabel>Corner radius</SectionLabel>
         <Box sx={{ ...surface, overflow: "hidden" }}>
           {Object.entries(borderRadiusLabels).map(([key, label], index) => (
@@ -252,6 +285,77 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
           </Box>
         </Box>
       </Box>
+
+      {onBorderWidthChange && (
+        <Box sx={{ mb: onShadowsChange ? 7 : 0 }}>
+          <SectionLabel>Borders</SectionLabel>
+          <Typography
+            variant="caption"
+            sx={{ display: "block", color: "text.secondary", mb: 1.5 }}
+          >
+            Line weight and style for every container edge. Any CSS{" "}
+            <Box component="code" sx={{ fontFamily: "monospace" }}>
+              border-width
+            </Box>{" "}
+            or{" "}
+            <Box component="code" sx={{ fontFamily: "monospace" }}>
+              border-style
+            </Box>{" "}
+            works.
+          </Typography>
+          <Box sx={{ ...surface, overflow: "hidden" }}>
+            {Object.entries(borderWidthLabels).map(([key, label], index) => (
+              <TokenRow
+                key={`w-${key}`}
+                label={label}
+                value={(borderWidth ?? {})[key] || ""}
+                placeholder="1px"
+                onValueChange={(value) => handleBorderWidthChange(key, value)}
+                isFirst={index === 0}
+                adornment={
+                  <Box
+                    aria-hidden
+                    sx={{
+                      inlineSize: 28,
+                      blockSize: 28,
+                      flexShrink: 0,
+                      borderRadius: 0.5,
+                      borderStyle: "solid",
+                      borderColor: "primary.main",
+                      borderWidth: (borderWidth ?? {})[key] || "0px",
+                    }}
+                  />
+                }
+              />
+            ))}
+            {onBorderStyleChange &&
+              Object.entries(borderStyleLabels).map(([key, label]) => (
+                <TokenRow
+                  key={`s-${key}`}
+                  label={label}
+                  value={(borderStyle ?? {})[key] || ""}
+                  placeholder="solid"
+                  onValueChange={(value) => handleBorderStyleChange(key, value)}
+                  isFirst={false}
+                  adornment={
+                    <Box
+                      aria-hidden
+                      sx={{
+                        inlineSize: 28,
+                        blockSize: 28,
+                        flexShrink: 0,
+                        borderRadius: 0.5,
+                        borderWidth: "2px",
+                        borderColor: "primary.main",
+                        borderStyle: (borderStyle ?? {})[key] || "solid",
+                      }}
+                    />
+                  }
+                />
+              ))}
+          </Box>
+        </Box>
+      )}
 
       {onShadowsChange && (
         <Box>

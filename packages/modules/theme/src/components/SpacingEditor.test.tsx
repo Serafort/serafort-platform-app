@@ -21,6 +21,7 @@ describe("SpacingEditor", () => {
     expect(screen.getByText("Corner radius")).toBeTruthy();
     expect(screen.queryByText("Fluid spacing")).toBeNull();
     expect(screen.queryByText("Elevation")).toBeNull();
+    expect(screen.queryByText("Borders")).toBeNull();
   });
 
   it("renders the elevation, fluid spacing and grouped-control sections when wired", () => {
@@ -38,6 +39,45 @@ describe("SpacingEditor", () => {
     expect(screen.getByText("Fluid spacing")).toBeTruthy();
     expect(screen.getByText("Grouped controls")).toBeTruthy();
     expect(screen.getByText("Spacing, radius & elevation")).toBeTruthy();
+  });
+
+  it("renders the Borders section only when its callback is wired", () => {
+    const { rerender } = render(<SpacingEditor {...baseProps} />);
+    expect(screen.queryByText("Borders")).toBeNull();
+
+    rerender(
+      <SpacingEditor
+        {...baseProps}
+        borderWidth={{ thin: "1px", thick: "4px" }}
+        borderStyle={{ solid: "solid" }}
+        onBorderWidthChange={vi.fn()}
+        onBorderStyleChange={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Borders")).toBeTruthy();
+  });
+
+  it("routes a border-width edit through onBorderWidthChange, keeping siblings", () => {
+    const onBorderWidthChange = vi.fn();
+    render(
+      <SpacingEditor
+        {...baseProps}
+        borderWidth={{ none: "0px", thin: "1px" }}
+        borderStyle={{ solid: "solid" }}
+        onBorderWidthChange={onBorderWidthChange}
+        onBorderStyleChange={vi.fn()}
+      />,
+    );
+
+    // "Thin" is unique to the border-width scale.
+    fireEvent.change(screen.getByLabelText("Thin"), {
+      target: { value: "1.5px" },
+    });
+
+    expect(onBorderWidthChange).toHaveBeenCalledWith({
+      none: "0px",
+      thin: "1.5px",
+    });
   });
 
   it("merges an edit into the shadow map without dropping the other anchors", () => {
