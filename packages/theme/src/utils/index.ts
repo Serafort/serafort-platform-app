@@ -3,6 +3,7 @@ export * from "./computeEffects";
 export * from "./directionalRadius";
 export * from "./elevation";
 export * from "./gradients";
+export * from "./keyframes";
 export * from "./mergeTheme";
 export * from "./composeMuiTheme";
 export * from "./themeObjectStyles";
