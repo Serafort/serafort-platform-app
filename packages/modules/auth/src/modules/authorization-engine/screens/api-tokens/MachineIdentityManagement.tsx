@@ -299,7 +299,7 @@ const MachineIdentityManagement: React.FC = () => {
                               borderRadius: 1,
                             }}
                           >
-                            {identity.prefix}…
+                            {identity.prefix ? `${identity.prefix}…` : '—'}
                           </Typography>
                         </TableCell>
                         <TableCell>

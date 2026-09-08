@@ -607,19 +607,25 @@ export default function PermissionRegistry() {
                       <Stack direction='row' spacing={0.5} justifyContent='flex-end'>
                         <Tooltip title={t('auth.admin.editDefinition')}>
                           <IconButton
-                            size='small'
-                            aria-label={`Edit ${perm.name}`}
+                            aria-label={t('auth.admin.editRoleNamed', {
+                              name: perm.name,
+                              defaultValue: 'Edit {{name}}',
+                            })}
                             onClick={() => handleOpenDialog(perm)}
+                            sx={{ width: 44, height: 44 }}
                           >
                             <SettingsIcon fontSize='small' />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title={t('auth.common.delete')}>
                           <IconButton
-                            size='small'
                             color='error'
-                            aria-label={`Delete ${perm.name}`}
+                            aria-label={t('auth.admin.deleteNamed', {
+                              name: perm.name,
+                              defaultValue: 'Delete {{name}}',
+                            })}
                             onClick={() => handleDeleteClick(perm)}
+                            sx={{ width: 44, height: 44 }}
                           >
                             <DeleteIcon fontSize='small' />
                           </IconButton>

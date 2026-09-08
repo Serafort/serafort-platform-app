@@ -170,7 +170,7 @@ const APITokensDashboard: React.FC = () => {
           'Manage and monitor your API access tokens.',
         )}
         breadcrumbs={[
-          { label: t('auth.account.overview', 'Account'), to: '/auth/account/overview' },
+          { label: t('auth.account.overview.title', 'Account overview'), to: '/auth/account/overview' },
           { label: t('auth.api_tokens.title', 'API Tokens') },
         ]}
         actions={createButton}

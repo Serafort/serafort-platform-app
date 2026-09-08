@@ -501,19 +501,25 @@ export default function RoleList() {
                       <Stack direction='row' spacing={0.5} justifyContent='flex-end'>
                         <Tooltip title={t('auth.admin.editRole')}>
                           <IconButton
-                            size='small'
                             onClick={() =>
                               navigate(Path.roleDetail.replace(':id', role.id.toString()))
                             }
-                            aria-label={`Edit ${role.name}`}
+                            aria-label={t('auth.admin.editRoleNamed', {
+                              name: role.name,
+                              defaultValue: 'Edit {{name}}',
+                            })}
+                            sx={{ width: 44, height: 44 }}
                           >
                             <EditIcon fontSize='small' />
                           </IconButton>
                         </Tooltip>
                         <IconButton
-                          size='small'
                           onClick={(e) => handleMenuOpen(e, role)}
-                          aria-label={`More options for ${role.name}`}
+                          aria-label={t('auth.admin.moreOptionsNamed', {
+                            name: role.name,
+                            defaultValue: 'More options for {{name}}',
+                          })}
+                          sx={{ width: 44, height: 44 }}
                         >
                           <MoreVertIcon fontSize='small' />
                         </IconButton>
@@ -545,10 +551,14 @@ export default function RoleList() {
             count={totalPages}
             page={page}
             onChange={(_, value) => setPage(value)}
-            size='small'
             color='primary'
             sx={{
-              '& .MuiPaginationItem-root': { fontWeight: 700, borderRadius: 1.5 },
+              '& .MuiPaginationItem-root': {
+                fontWeight: 700,
+                borderRadius: 1.5,
+                minWidth: 44,
+                height: 44,
+              },
             }}
           />
         </Box>
