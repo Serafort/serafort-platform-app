@@ -245,6 +245,29 @@ describe("createThemeFromPartial", () => {
     );
     expect(result.tokens.colors.primary).toBeDefined();
   });
+
+  it("carries a partial navigation layout onto the config", () => {
+    const result = createThemeFromPartial({ layout: "horizontal" }, "org-123");
+    expect(result.layout).toBe("horizontal");
+  });
+
+  it("defaults the navigation layout to vertical", () => {
+    expect(createThemeFromPartial({}, "org-123").layout).toBe("vertical");
+    expect(DEFAULT_THEME_CONFIG.layout).toBe("vertical");
+  });
+});
+
+describe("mergeThemeWithPreset - navigation layout", () => {
+  it("keeps the tenant's chosen layout when a preset is applied", () => {
+    // Presets do not define a layout, so switching preset must not silently
+    // move a tenant off the sidebar/topbar choice they made.
+    const previous = {
+      ...DEFAULT_THEME_CONFIG,
+      layout: "horizontal",
+    } as TenantThemeConfig;
+
+    expect(mergeThemeWithPreset(previous, "dark-ui").layout).toBe("horizontal");
+  });
 });
 
 describe("mergeThemeWithPreset", () => {

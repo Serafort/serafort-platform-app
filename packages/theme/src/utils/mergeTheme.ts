@@ -264,6 +264,7 @@ export const createThemeFromPartial = (
 
     if (partial.name) draft.name = partial.name;
     if (partial.preset) draft.preset = partial.preset;
+    if (partial.layout) draft.layout = partial.layout;
 
     if (partial.tokens) {
       if (partial.tokens.colors) {

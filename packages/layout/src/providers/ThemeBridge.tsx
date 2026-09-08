@@ -92,10 +92,32 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
 
   const activeConfig = isEditing && deferredDraft ? deferredDraft : persistedConfig
 
-  const { settings } = useSettings()
+  const { settings, updateSettings } = useSettings()
 
   const resolvedMode = useResolvedSystemMode(settings.mode)
   const isDark = resolvedMode === 'dark'
+
+  // A saved theme can carry its own navigation layout (see TenantThemeConfig
+  // `layout`). When the persisted theme loads - on boot, and again after each
+  // Save - push that layout into `settings.layout`, which `LayoutWrapper`
+  // reads. This is deliberately keyed on the persisted config's identity, not
+  // on `settings.layout`: the in-app layout switcher writes `settings.layout`
+  // directly for a live, unsaved change and must not be reverted here on the
+  // next render. `savedThemeStore` hands back a stable reference until the next
+  // save, so this fires exactly when a genuinely new persisted theme arrives.
+  const settingsLayoutRef = useRef(settings.layout)
+  settingsLayoutRef.current = settings.layout
+  const appliedLayoutConfigRef = useRef<TenantThemeConfig | null>(null)
+
+  useEffect(() => {
+    const cfg = persistedConfig
+    if (!cfg || !('tokens' in cfg) || !cfg.layout) return
+    if (appliedLayoutConfigRef.current === cfg) return
+    appliedLayoutConfigRef.current = cfg as TenantThemeConfig
+    if (cfg.layout !== settingsLayoutRef.current) {
+      updateSettings({ layout: cfg.layout })
+    }
+  }, [persistedConfig, updateSettings])
 
   // Writing direction follows the active language, not a separate setting.
   // `langDirection` in @cap/shared-types is the single source of truth.

@@ -1,3 +1,4 @@
+import type { Layout } from "@cap/shared-types";
 import type { PrimitiveTokens } from "./designTokens";
 import type { EffectConfig } from "./effects";
 import { DEFAULT_EFFECT_CONFIG } from "./effects";
@@ -31,6 +32,16 @@ export interface TenantThemeConfig {
   organizationId: string;
   name: string;
   preset?: ThemePresetId;
+  /**
+   * Navigation shell orientation the tenant's theme prefers: `"vertical"`
+   * (sidebar), `"horizontal"` (top nav) or `"collapsed"` (a pinned-narrow
+   * sidebar). It is stored on the theme rather than only in per-user settings
+   * so that exporting or applying a saved theme carries the layout with it -
+   * `ThemeBridge` pushes this into `settings.layout` when the persisted theme
+   * loads, and the in-app layout switcher still writes `settings.layout`
+   * directly for a live, unsaved change.
+   */
+  layout?: Layout;
   tokens: PrimitiveTokens;
   effects: EffectConfig;
   components: ComponentStyles;
@@ -208,6 +219,7 @@ declare module "@mui/material/styles" {
 export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
   organizationId: "default",
   name: "Default Theme",
+  layout: "vertical",
   tokens: {
     // Serafort brand kit (serafort_brand/brand-kit/tokens) - keep in sync
     // with DEFAULT_PRIMITIVE_TOKENS in designTokens.ts.
