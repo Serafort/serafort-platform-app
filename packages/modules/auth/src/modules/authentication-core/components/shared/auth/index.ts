@@ -29,4 +29,14 @@ export {
   type AuthStepProgressProps,
   type AuthStepProgressStep,
 } from './AuthStepProgress'
+export { default as AuthCopyField, type AuthCopyFieldProps } from './AuthCopyField'
+export { default as AuthQrPanel, type AuthQrPanelProps } from './AuthQrPanel'
+export { default as SecurityMethodCard, type SecurityMethodCardProps } from './SecurityMethodCard'
+export {
+  default as DevicePlatformIcon,
+  resolveDevicePlatform,
+  type DevicePlatformIconProps,
+  type DevicePlatform,
+} from './DevicePlatformIcon'
+export { default as AuthConfirmDrawer, type AuthConfirmDrawerProps } from './AuthConfirmDrawer'
 export { type AuthTone } from './authTone'

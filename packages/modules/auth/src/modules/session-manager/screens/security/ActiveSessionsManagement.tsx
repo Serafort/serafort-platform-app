@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import {
+  alpha,
   Box,
   Typography,
   Card,
   CardContent,
-  Avatar,
   Button,
   Grid,
   List,
@@ -22,10 +22,6 @@ import {
   Stack,
   Skeleton,
 } from '@mui/material'
-import Computer from '@mui/icons-material/Computer'
-import Smartphone from '@mui/icons-material/Smartphone'
-import Laptop from '@mui/icons-material/Laptop'
-import Tablet from '@mui/icons-material/Tablet'
 import LocationOn from '@mui/icons-material/LocationOn'
 import Security from '@mui/icons-material/Security'
 import ArrowForward from '@mui/icons-material/ArrowForward'
@@ -40,7 +36,11 @@ import { toast } from 'react-toastify'
 import { Path } from '../../../../routes/path'
 import { useSessions, useRevokeSession, useRevokeAllSessions } from '../../hooks/useSessionQuery'
 import type { UserSession } from '../../types/session.types'
-import ConfirmationDialog from '../../../authentication-core/components/shared/Modals/ConfirmationDialog'
+import {
+  AuthConfirmDrawer,
+  DevicePlatformIcon,
+  resolveDevicePlatform,
+} from '../../../authentication-core/components/shared/auth'
 
 interface ActiveSessionsProps {
   adminView?: boolean
@@ -100,20 +100,22 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
     ? sessions.filter((s: UserSession) => s.id !== currentSession.id)
     : sessions
 
-  const getDeviceIcon = (type?: string) => {
-    switch (type) {
-      case 'desktop':
-        return <Computer fontSize='small' />
-      case 'mobile':
-        return <Smartphone fontSize='small' />
-      case 'laptop':
-        return <Laptop fontSize='small' />
-      case 'tablet':
-        return <Tablet fontSize='small' />
-      default:
-        return <Computer fontSize='small' />
-    }
-  }
+  /**
+   * Sessions arrive with a coarse `device_type` but also a user-agent-derived
+   * browser/OS string. Feeding the richer string to the shared resolver is
+   * what lets the list show an Apple, Android, Windows or Linux mark instead
+   * of the same generic monitor for every row.
+   */
+  const describeDevice = (session: UserSession) =>
+    [session.os, session.browser, session.device_name || session.deviceName]
+      .filter(Boolean)
+      .join(' ') ||
+    session.device_type ||
+    session.deviceType ||
+    ''
+
+  const sessionLocation = (session: UserSession) =>
+    session.location || [session.city, session.country].filter(Boolean).join(', ') || ''
 
   const handleOpenRevokeSingle = (session: UserSession) => {
     setConfirmDialog({
@@ -200,27 +202,30 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                   sx={{
                     borderRadius: 2,
                     mb: 4,
-                    bgcolor: 'primary.lighter',
-                    borderColor: 'primary.light',
+                    bgcolor: (th) => alpha(th.palette.success.main, 0.06),
+                    borderColor: (th) => alpha(th.palette.success.main, 0.3),
                   }}
                 >
                   <CardContent>
                     <ListItem disableGutters>
                       <ListItemIcon>
-                        <Avatar sx={{ bgcolor: 'primary.main', color: 'white' }}>
-                          {getDeviceIcon(currentSession.device_type || currentSession.deviceType)}
-                        </Avatar>
+                        <DevicePlatformIcon
+                          source={describeDevice(currentSession)}
+                          active
+                          label={t('auth.account.current_session', 'Current Session')}
+                        />
                       </ListItemIcon>
                       <ListItemText
                         primary={currentSession.device_name || currentSession.deviceName}
-                        secondary={`${currentSession.browser || 'Browser'} • IP: ${currentSession.ip_address || currentSession.ipAddress}`}
+                        secondary={`${currentSession.browser || t('auth.account.unknown_browser', 'Unknown browser')} • ${currentSession.ip_address || currentSession.ipAddress || ''}`}
                         primaryTypographyProps={{ fontWeight: 'bold' }}
                       />
                       <Chip
                         icon={<CheckCircleOutline sx={{ fontSize: 16 }} />}
                         label={t('auth.account.active_now', 'Active Now')}
-                        color='primary'
+                        color='success'
                         size='small'
+                        sx={{ fontWeight: 700 }}
                       />
                     </ListItem>
                   </CardContent>
@@ -254,7 +259,9 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                       secondaryAction={
                         <Stack direction='row' spacing={1}>
                           {adminView && (
-                            <Tooltip title='View Session Metadata'>
+                            <Tooltip
+                              title={t('auth.admin.viewSessionMetadata', 'View session metadata')}
+                            >
                               <IconButton size='small'>
                                 <InfoOutlined fontSize='small' />
                               </IconButton>
@@ -267,7 +274,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                             disabled={isRevoking}
                             onClick={() => handleOpenRevokeSingle(session)}
                             startIcon={<DeleteOutline />}
-                            sx={{ textTransform: 'none' }}
+                            sx={{ minHeight: 44, textTransform: 'none' }}
                           >
                             {t('auth.account.revoke', 'Revoke')}
                           </Button>
@@ -276,16 +283,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                       sx={{ py: 2, px: 2 }}
                     >
                       <ListItemIcon>
-                        <Avatar
-                          sx={{
-                            bgcolor: 'action.hover',
-                            color: 'text.secondary',
-                            border: '1px solid',
-                            borderColor: 'divider',
-                          }}
-                        >
-                          {getDeviceIcon(session.device_type || session.deviceType)}
-                        </Avatar>
+                        <DevicePlatformIcon source={describeDevice(session)} />
                       </ListItemIcon>
                       <ListItemText
                         disableTypography
@@ -295,30 +293,50 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                               {session.device_name ||
                                 session.deviceName ||
                                 session.browser ||
-                                'Device'}
+                                t('auth.account.unknown_device', 'Unknown device')}
                             </Typography>
                           </Stack>
                         }
                         secondary={
-                          <Box sx={{ display: 'flex', flexDirection: 'column', mt: 0.5 }}>
-                            <Typography variant='body2' color='text.secondary'>
-                              {session.browser || 'Unknown browser'}
-                            </Typography>
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                mt: 0.5,
-                              }}
-                            >
-                              <LocationOn sx={{ fontSize: 14, mr: 0.5, color: 'text.secondary' }} />
-                              <Typography variant='caption' color='text.secondary'>
-                                {session.location ||
-                                  t('common.unknown_location', 'Unknown Location')}{' '}
-                                • IP: {session.ip_address || session.ipAddress}
-                              </Typography>
-                            </Box>
-                          </Box>
+                          <Stack
+                            direction='row'
+                            spacing={0.75}
+                            flexWrap='wrap'
+                            useFlexGap
+                            sx={{ mt: 0.75 }}
+                          >
+                            <Chip
+                              size='small'
+                              label={
+                                session.browser ||
+                                t('auth.account.unknown_browser', 'Unknown browser')
+                              }
+                              sx={{ height: 24, fontWeight: 600 }}
+                            />
+                            <Chip
+                              size='small'
+                              icon={<LocationOn sx={{ fontSize: 14 }} />}
+                              label={
+                                sessionLocation(session) ||
+                                t('common.unknown_location', 'Unknown Location')
+                              }
+                              sx={{ height: 24, fontWeight: 600 }}
+                            />
+                            {(session.ip_address || session.ipAddress) && (
+                              <Chip
+                                size='small'
+                                dir='ltr'
+                                label={session.ip_address || session.ipAddress}
+                                sx={{ height: 24, fontFamily: 'monospace', fontWeight: 600 }}
+                              />
+                            )}
+                            <Chip
+                              size='small'
+                              variant='outlined'
+                              label={resolveDevicePlatform(describeDevice(session))}
+                              sx={{ height: 24, fontWeight: 600, textTransform: 'capitalize' }}
+                            />
+                          </Stack>
                         }
                       />
                     </ListItem>
@@ -353,7 +371,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
               color='error'
               disabled={isRevokingAll || otherSessions.length === 0}
               onClick={handleOpenRevokeAll}
-              sx={{ textTransform: 'none', borderRadius: 2 }}
+              sx={{ minHeight: 44, textTransform: 'none', borderRadius: 2 }}
             >
               {adminView
                 ? t('auth.admin.terminateAll', 'Terminate All User Sessions')
@@ -370,9 +388,9 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
               sx={{
                 borderRadius: 2,
                 '& .MuiAlert-message': { width: '100%' },
-                bgcolor: 'info.lighter',
+                bgcolor: (th) => alpha(th.palette.info.main, 0.06),
                 border: '1px solid',
-                borderColor: 'info.light',
+                borderColor: (th) => alpha(th.palette.info.main, 0.3),
               }}
             >
               <AlertTitle sx={{ fontWeight: 'bold' }}>
@@ -398,19 +416,19 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
         )}
       </Grid>
 
-      {/* Confirmation Dialog */}
-      <ConfirmationDialog
+      <AuthConfirmDrawer
+        id='session-revoke-confirm'
         open={confirmDialog.open}
         onClose={() => setConfirmDialog((prev) => ({ ...prev, open: false }))}
         onConfirm={handleConfirmAction}
-        severity='warning'
-        isSubmitting={isRevoking || isRevokingAll}
+        tone='error'
+        loading={isRevoking || isRevokingAll}
         title={
           confirmDialog.type === 'single'
             ? t('auth.account.confirm_revoke_title', 'Revoke Session')
             : t('auth.account.confirm_revoke_all_title', 'Revoke All Other Sessions')
         }
-        message={
+        description={
           confirmDialog.type === 'single'
             ? t(
                 'auth.account.confirm_revoke_msg',
@@ -427,7 +445,6 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
             ? t('auth.account.revoke', 'Revoke')
             : t('auth.account.revoke_all', 'Revoke All')
         }
-        cancelLabel={t('common.cancel', 'Cancel')}
       />
     </Container>
   )

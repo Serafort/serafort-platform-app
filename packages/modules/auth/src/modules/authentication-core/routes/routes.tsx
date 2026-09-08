@@ -76,7 +76,7 @@ export const authCoreRouteConfig: AuthRouteConfig[] = [
   // }),
   createAuthRoute(Path.emailChangeStatus, <EmailChangeStatus />, {
     requiresVerification: true,
-    layout: 'admin',
+    layout: 'noLayout',
   }),
   createAuthRoute(Path.emailChangeVerificationPending, <EmailChangeVerificationPending />, {
     layout: 'noLayout',

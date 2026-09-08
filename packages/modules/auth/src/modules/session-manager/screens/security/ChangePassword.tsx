@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import {
+  FormControlLabel,
+  Checkbox,
   Box,
   Button,
   Container,
@@ -28,7 +30,9 @@ import { useTranslation } from 'react-i18next'
 import { themeConfig, useNotifications } from '@cap/platform-core'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
+import LogoutOutlined from '@mui/icons-material/LogoutOutlined'
 import { Controller, useForm, useWatch } from 'react-hook-form'
+import { useRevokeAllSessions } from '../../hooks/useSessionQuery'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useChangePassword } from '../../hooks/useSessionQuery'
@@ -62,6 +66,11 @@ export function ChangePassword() {
 
   const { addNotification } = useNotifications()
   const { mutate: changePassword, isPending } = useChangePassword()
+  const { mutate: revokeOtherSessions } = useRevokeAllSessions()
+  // Offered rather than forced: a password change does not necessarily
+  // invalidate other sessions server-side, so a user who suspects their old
+  // password was known needs an explicit way to evict every other device.
+  const [signOutOtherDevices, setSignOutOtherDevices] = useState(true)
 
   const controlForm = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordFormSchema),
@@ -165,6 +174,11 @@ export function ChangePassword() {
   const onSubmit = (data: ChangePasswordFormData) => {
     changePassword(data, {
       onSuccess: () => {
+        if (signOutOtherDevices) {
+          // Fire-and-forget: the password is already changed, and a failure to
+          // evict other devices must not present as a failed password change.
+          revokeOtherSessions(undefined)
+        }
         addNotification({
           type: 'success',
           title: t('auth.account.password_updated', 'Password Updated'),
@@ -666,6 +680,46 @@ export function ChangePassword() {
                   ))}
                 </Stack>
               </Box>
+
+              <FormControlLabel
+                sx={{
+                  alignItems: 'flex-start',
+                  mt: 1,
+                  mb: 1,
+                  mr: 0,
+                  '& .MuiCheckbox-root': { pt: 0.25 },
+                }}
+                control={
+                  <Checkbox
+                    id='signout-other-devices'
+                    checked={signOutOtherDevices}
+                    onChange={(event) => setSignOutOtherDevices(event.target.checked)}
+                    disabled={isPending}
+                  />
+                }
+                label={
+                  <Box>
+                    <Typography
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.75,
+                        fontSize: '0.9rem',
+                        fontWeight: 700,
+                      }}
+                    >
+                      <LogoutOutlined sx={{ fontSize: 18 }} />
+                      {t('auth.account.signout_other_devices', 'Sign out of all other devices')}
+                    </Typography>
+                    <Typography variant='caption' color='text.secondary'>
+                      {t(
+                        'auth.account.signout_other_devices_desc',
+                        'Recommended if you think someone else knew your old password. This device stays signed in.',
+                      )}
+                    </Typography>
+                  </Box>
+                }
+              />
 
               {/* Action Button CTA */}
               <Button

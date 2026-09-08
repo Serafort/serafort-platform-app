@@ -26,7 +26,12 @@ import { Empty } from '@cap/theme'
 import { Path } from '@cap/module-auth/routes/path'
 import { useEmailChanges } from '@auth/user-directory/hooks/useUserQuery'
 import { EmailChangeRequest } from '../../types/api.types'
-import { AuthCardHeader, AuthStatusBadge, type AuthStatus } from '../../components/shared/auth'
+import {
+  AuthPageLayout,
+  AuthCardHeader,
+  AuthStatusBadge,
+  type AuthStatus,
+} from '../../components/shared/auth'
 
 /**
  * Maps the backend's request lifecycle onto the shared status vocabulary, so a
@@ -70,7 +75,11 @@ export default function EmailChangeStatus() {
   const pendingCount = requests.filter((r) => r.status === 'pending_authorization').length
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto' }}>
+    // Declared `noLayout`, so this screen renders without the admin shell and
+    // has to supply its own page frame. Top-aligned rather than centred: the
+    // request table grows with the number of requests, and a centred tall
+    // table pushes its own heading above the fold.
+    <AuthPageLayout maxWidth={900} align='top' backdrop='subtle'>
       <Box
         sx={{
           mb: 4,
@@ -244,6 +253,6 @@ export default function EmailChangeStatus() {
           {t('common.backToDashboard', 'Back to Dashboard')}
         </Button>
       </Box>
-    </Box>
+    </AuthPageLayout>
   )
 }

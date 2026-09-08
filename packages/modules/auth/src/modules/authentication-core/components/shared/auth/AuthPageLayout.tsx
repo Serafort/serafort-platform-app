@@ -11,12 +11,19 @@ interface AuthPageLayoutProps {
    * supply their own background.
    */
   backdrop?: AuthBackdropIntensity | false
+  /**
+   * `center` suits a single short card. `top` suits a standalone workspace
+   * whose content can outgrow the viewport — a centred tall table would push
+   * its own heading off-screen.
+   */
+  align?: 'center' | 'top'
 }
 
 const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
   children,
   maxWidth = 480,
   backdrop = 'standard',
+  align = 'center',
 }) => {
   return (
     <Box
@@ -26,8 +33,9 @@ const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: align === 'center' ? 'center' : 'flex-start',
         p: { xs: 2, sm: 3, md: 4 },
+        ...(align === 'top' ? { pt: { xs: 3, sm: 5, md: 6 } } : {}),
         boxSizing: 'border-box',
         position: 'relative',
         bgcolor: 'transparent',
