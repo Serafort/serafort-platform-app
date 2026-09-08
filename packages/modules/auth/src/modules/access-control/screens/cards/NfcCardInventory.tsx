@@ -38,8 +38,14 @@ import {
   useRegisterNfcCardMutation,
   useUpdateCardStatusMutation,
 } from '../../hooks/useAccessControlQuery'
-import { normaliseCardUid, type NfcCardStatus } from '../../types/accessControl.types'
+import {
+  normaliseCardUid,
+  type NfcCard,
+  type NfcCardStatus,
+} from '../../types/accessControl.types'
 import { NoOrganizationNotice } from '../NoOrganizationNotice'
+import { AdminDataState } from '../../../authentication-core/components/shared/admin'
+import { AuthConfirmDrawer } from '../../../authentication-core/components/shared/auth'
 
 /**
  * NFC Card Inventory.
@@ -61,6 +67,7 @@ export const NfcCardInventory: React.FC = () => {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<NfcCardStatus | ''>('')
   const [registerOpen, setRegisterOpen] = useState(false)
+  const [pendingRevoke, setPendingRevoke] = useState<NfcCard | null>(null)
 
   const cardsQuery = useNfcCardsQuery(orgId, {
     page: page + 1,
@@ -137,15 +144,18 @@ export const NfcCardInventory: React.FC = () => {
             </Select>
           </Stack>
 
-          {cardsQuery.isLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-              <CircularProgress />
-            </Box>
-          ) : cards.length === 0 ? (
-            <Typography variant='body2' color='text.secondary'>
-              {t('accessControl.cards.empty', 'No badges registered for this filter.')}
-            </Typography>
-          ) : (
+          <AdminDataState
+            loading={cardsQuery.isLoading}
+            error={cardsQuery.isError || undefined}
+            onRetry={() => void cardsQuery.refetch()}
+            empty={cards.length === 0}
+            emptyIcon={<CreditCard sx={{ fontSize: 32 }} />}
+            emptyTitle={t('accessControl.cards.empty', 'No badges registered for this filter.')}
+            emptyDescription={t(
+              'accessControl.cards.empty_help',
+              'Register a badge, or clear the filters to see the full inventory.',
+            )}
+          >
             <>
               <TableContainer component={Paper} variant='outlined'>
                 <Table size='small'>
@@ -187,7 +197,11 @@ export const NfcCardInventory: React.FC = () => {
                           <Chip
                             size='small'
                             color={card.status === 'active' ? 'success' : 'default'}
-                            label={card.status}
+                            label={
+                              card.status === 'active'
+                                ? t('accessControl.cards.active', 'Active')
+                                : t('accessControl.cards.revoked', 'Revoked')
+                            }
                           />
                         </TableCell>
                         <TableCell align='right'>
@@ -199,13 +213,11 @@ export const NfcCardInventory: React.FC = () => {
                               )}
                             >
                               <Button
-                                size='small'
                                 color='error'
                                 startIcon={<Block />}
                                 disabled={updateStatus.isPending}
-                                onClick={() =>
-                                  updateStatus.mutate({ cardId: card.id, status: 'revoked' })
-                                }
+                                onClick={() => setPendingRevoke(card)}
+                                sx={{ minHeight: 44, textTransform: 'none' }}
                               >
                                 {t('accessControl.cards.revoke', 'Revoke')}
                               </Button>
@@ -242,7 +254,7 @@ export const NfcCardInventory: React.FC = () => {
                 }}
               />
             </>
-          )}
+          </AdminDataState>
         </CardContent>
       </Card>
 
@@ -250,6 +262,28 @@ export const NfcCardInventory: React.FC = () => {
         orgId={orgId}
         open={registerOpen}
         onClose={() => setRegisterOpen(false)}
+      />
+
+      <AuthConfirmDrawer
+        id='revoke-nfc-card'
+        open={Boolean(pendingRevoke)}
+        onClose={() => setPendingRevoke(null)}
+        onConfirm={() => {
+          if (!pendingRevoke) return
+          updateStatus.mutate(
+            { cardId: pendingRevoke.id, status: 'revoked' },
+            { onSuccess: () => setPendingRevoke(null) },
+          )
+        }}
+        loading={updateStatus.isPending}
+        tone='error'
+        title={t('accessControl.cards.revoke_title', 'Revoke this badge?')}
+        description={t('accessControl.cards.revoke_confirm', {
+          uid: pendingRevoke?.uid ?? '',
+          defaultValue:
+            'Badge {{uid}} stops opening doors immediately. Its entry history is kept, and it can be restored later.',
+        })}
+        confirmLabel={t('accessControl.cards.revoke', 'Revoke')}
       />
     </Container>
   )

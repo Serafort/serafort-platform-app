@@ -291,11 +291,9 @@ const APITokenDetails: React.FC = () => {
             startIcon={<DeleteIcon />}
             onClick={handleRevoke}
             disabled={revokeTokenMutation.isPending}
+            color='error'
             sx={{
-              bgcolor: 'error.main',
-              color: 'white',
               boxShadow: `0 4px 14px 0 ${alpha(theme.palette.error.main, 0.39)}`,
-              '&:hover': { bgcolor: 'error.dark' },
               textTransform: 'none',
               fontWeight: 700,
               flex: { xs: 1, sm: 'none' },

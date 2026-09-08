@@ -249,11 +249,10 @@ export default function PermissionRegistry() {
           </Button>
           <Button
             variant='contained'
+            color='info'
             startIcon={<AddIcon />}
             onClick={() => handleOpenDialog()}
             sx={{
-              bgcolor: 'info.main',
-              color: 'white',
               boxShadow: `0 4px 14px 0 ${alpha(theme.palette.info.main, 0.39)}`,
               '&:hover': {
                 bgcolor: 'info.dark',

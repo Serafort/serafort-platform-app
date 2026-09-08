@@ -33,7 +33,6 @@ import {
   Tooltip,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
-import FilterListIcon from '@mui/icons-material/FilterList'
 import AddIcon from '@mui/icons-material/Add'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import EditIcon from '@mui/icons-material/Edit'
@@ -47,6 +46,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDebounce } from 'use-debounce'
 import { toast } from 'react-toastify'
 import Path from '../../screens/path'
+import { AdminDataState } from '../../../authentication-core/components/shared/admin'
 
 import {
   useRoles,
@@ -68,7 +68,12 @@ export default function RoleList() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
-  const { data: rolesResponse, isLoading } = useRoles({ page, limit, search: debouncedSearch })
+  const {
+    data: rolesResponse,
+    isLoading,
+    isError,
+    refetch,
+  } = useRoles({ page, limit, search: debouncedSearch })
   const { data: statsResponse } = useRoleStats()
   const deleteRole = useDeleteRole()
   const duplicateRole = useDuplicateRole()
@@ -175,14 +180,15 @@ export default function RoleList() {
 
         <Button
           variant='contained'
+          color='info'
           startIcon={<AddIcon />}
           onClick={() => navigate(Path.roleDetail.replace(':id', 'new'))}
           sx={{
-            bgcolor: 'info.main',
-            color: 'white',
+            // `color='info'` rather than a hand-set bgcolor with white
+            // text: MUI then picks the channel's own contrastText, which
+            // stays readable when a tenant's info colour is light.
             boxShadow: `0 4px 14px 0 ${alpha(theme.palette.info.main, 0.39)}`,
             '&:hover': {
-              bgcolor: 'info.dark',
               boxShadow: `0 6px 20px 0 ${alpha(theme.palette.info.main, 0.5)}`,
             },
             textTransform: 'none',
@@ -306,12 +312,15 @@ export default function RoleList() {
               width: { xs: '100%', sm: 340 },
               '& .MuiOutlinedInput-root': { borderRadius: 2 },
             }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <SearchIcon sx={{ fontSize: 20, color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
+            slotProps={{
+              htmlInput: { 'aria-label': t('auth.admin.searchRolesPlaceholder') },
+              input: {
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <SearchIcon sx={{ fontSize: 20, color: 'text.disabled' }} />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
           <Stack direction='row' spacing={2} alignItems='center' sx={{ flexShrink: 0 }}>
@@ -322,18 +331,6 @@ export default function RoleList() {
             >
               {totalItems} {t('auth.admin.results')}
             </Typography>
-            <Button
-              startIcon={<FilterListIcon />}
-              sx={{
-                color: 'text.primary',
-                textTransform: 'none',
-                fontWeight: 700,
-                borderRadius: 2,
-                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) },
-              }}
-            >
-              {t('auth.common.filters')}
-            </Button>
           </Stack>
         </Box>
 
@@ -379,43 +376,18 @@ export default function RoleList() {
             </TableHead>
 
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} align='center' sx={{ py: 10 }}>
-                    <CircularProgress size={28} />
-                  </TableCell>
-                </TableRow>
-              ) : roles.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align='center' sx={{ py: 12 }}>
-                    <Stack spacing={2} alignItems='center'>
-                      <Avatar
-                        sx={{
-                          width: 64,
-                          height: 64,
-                          bgcolor: 'action.hover',
-                          color: 'text.disabled',
-                        }}
-                      >
-                        <ShieldIcon sx={{ fontSize: 32 }} />
-                      </Avatar>
-                      <Box>
-                        <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
-                          {t('auth.admin.noRolesFound')}
-                        </Typography>
-                        <Typography
-                          variant='body2'
-                          color='text.secondary'
-                          sx={{ maxWidth: 300, mx: 'auto' }}
-                        >
-                          {t('auth.admin.noRolesHint')}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                roles.map((role) => (
+              <AdminDataState
+                asTableRow
+                skeletonColumns={6}
+                loading={isLoading}
+                error={isError || undefined}
+                onRetry={() => void refetch()}
+                empty={roles.length === 0}
+                emptyIcon={<ShieldIcon sx={{ fontSize: 32 }} />}
+                emptyTitle={t('auth.admin.noRolesFound')}
+                emptyDescription={t('auth.admin.noRolesHint')}
+              >
+                {roles.map((role) => (
                   <TableRow
                     key={role.id}
                     hover
@@ -548,8 +520,8 @@ export default function RoleList() {
                       </Stack>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
+                ))}
+              </AdminDataState>
             </TableBody>
           </Table>
         </TableContainer>
