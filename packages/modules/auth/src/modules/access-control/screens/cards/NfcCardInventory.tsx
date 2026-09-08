@@ -32,7 +32,7 @@ import AddCard from '@mui/icons-material/AddCard'
 import Block from '@mui/icons-material/Block'
 import RestartAlt from '@mui/icons-material/RestartAlt'
 import { useTranslation } from 'react-i18next'
-import { useActiveOrganizationId } from '../../hooks/useActiveOrganizationId'
+import { useActiveOrganizationId } from '../../../authentication-core/hooks/useActiveOrganizationId'
 import {
   useNfcCardsQuery,
   useRegisterNfcCardMutation,

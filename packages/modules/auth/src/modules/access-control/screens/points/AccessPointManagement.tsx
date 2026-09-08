@@ -33,7 +33,7 @@ import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import Autorenew from '@mui/icons-material/Autorenew'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import { useTranslation } from 'react-i18next'
-import { useActiveOrganizationId } from '../../hooks/useActiveOrganizationId'
+import { useActiveOrganizationId } from '../../../authentication-core/hooks/useActiveOrganizationId'
 import {
   useAccessPointsQuery,
   useCreateAccessPointMutation,
