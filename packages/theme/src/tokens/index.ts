@@ -17,6 +17,9 @@ import {
   radiusTokens,
   borderWidthTokens,
   borderStyleTokens,
+  opacityTokens,
+  alphaWhiteTokens,
+  alphaBlackTokens,
   motionTokens,
   zIndexTokens,
 } from "./primitives";
@@ -36,6 +39,7 @@ export interface ThemeTokenDictionary {
     radius: typeof radiusTokens;
     borderWidth: typeof borderWidthTokens;
     borderStyle: typeof borderStyleTokens;
+    opacity: typeof opacityTokens;
     motion: typeof motionTokens;
     zIndex: typeof zIndexTokens;
   };
@@ -59,6 +63,7 @@ export const defaultThemeTokens: ThemeTokenDictionary = {
     radius: radiusTokens,
     borderWidth: borderWidthTokens,
     borderStyle: borderStyleTokens,
+    opacity: opacityTokens,
     motion: motionTokens,
     zIndex: zIndexTokens,
   },
@@ -139,15 +144,25 @@ export function tokensToCssVariables(
     "--color-info-600": primitiveColors.info[600],
     "--color-info-700": primitiveColors.info[700],
 
-    "--alpha-white-4": primitiveColors.alpha.white[4],
-    "--alpha-white-8": primitiveColors.alpha.white[8],
-    "--alpha-white-16": primitiveColors.alpha.white[16],
-    "--alpha-white-60": primitiveColors.alpha.white[60],
-
-    "--alpha-black-4": primitiveColors.alpha.black[4],
-    "--alpha-black-8": primitiveColors.alpha.black[8],
-    "--alpha-black-12": primitiveColors.alpha.black[12],
-    "--alpha-black-60": primitiveColors.alpha.black[60],
+    // Tier 1: Alpha tint ramps (4%-88%) and the unitless opacity scale (0-100).
+    ...Object.fromEntries(
+      Object.entries(alphaWhiteTokens).map(([step, value]) => [
+        `--alpha-white-${step}`,
+        value,
+      ]),
+    ),
+    ...Object.fromEntries(
+      Object.entries(alphaBlackTokens).map(([step, value]) => [
+        `--alpha-black-${step}`,
+        value,
+      ]),
+    ),
+    ...Object.fromEntries(
+      Object.entries(opacityTokens).map(([step, value]) => [
+        `--opacity-${step}`,
+        value,
+      ]),
+    ),
 
     // Tier 1: Spacing (contiguous base-4 scale, space.0 -> space.16)
     "--space-0": spacingTokens[0],

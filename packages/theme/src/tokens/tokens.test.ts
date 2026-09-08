@@ -5,6 +5,8 @@ import {
   radiusTokens,
   borderWidthTokens,
   borderStyleTokens,
+  opacityTokens,
+  alphaWhiteTokens,
   motionTokens,
   zIndexTokens,
   primitiveTokens,
@@ -72,6 +74,17 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(radiusTokens.xl).toBe("16px");
       expect(radiusTokens["2xl"]).toBe("24px");
       expect(radiusTokens.full).toBe("9999px");
+    });
+
+    it("defines a full opacity scale and widened alpha tint ramps", () => {
+      expect(opacityTokens[0]).toBe("0");
+      expect(opacityTokens[5]).toBe("0.05");
+      expect(opacityTokens[40]).toBe("0.4");
+      expect(opacityTokens[95]).toBe("0.95");
+      expect(opacityTokens[100]).toBe("1");
+      // Alpha ramp goes well past the old 4/8/12/16/60 stops.
+      expect(alphaWhiteTokens[24]).toBe("rgba(255, 255, 255, 0.24)");
+      expect(alphaWhiteTokens[88]).toBe("rgba(255, 255, 255, 0.88)");
     });
 
     it("defines border width and style scales", () => {
@@ -241,6 +254,9 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(cssVars["--border-style-dashed"]).toBe("dashed");
       expect(cssVars["--border-subtle"]).toBe("rgba(255, 255, 255, 0.05)"); // dark default
       expect(cssVars["--border-focus"]).toBeDefined();
+      expect(cssVars["--opacity-40"]).toBe("0.4");
+      expect(cssVars["--alpha-white-24"]).toBe("rgba(255, 255, 255, 0.24)");
+      expect(cssVars["--alpha-black-88"]).toBe("rgba(0, 0, 0, 0.88)");
       expect(cssVars["--touch-target-min"]).toBe("44px");
       expect(cssVars["--motion-duration-quick"]).toBe("120ms");
       expect(cssVars["--z-index-modal"]).toBe("1000");

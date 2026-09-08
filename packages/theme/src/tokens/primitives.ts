@@ -84,6 +84,44 @@ export const primitiveColors = {
 export type PrimitiveColors = typeof primitiveColors;
 
 /**
+ * Opacity Scale
+ *
+ * `primitiveColors.alpha` only offered four arbitrary stops per channel. This
+ * is the full percentage scale (0-100) as unitless numbers, so any value can
+ * be composed - `opacity`, `rgb(... / var(--opacity-40))`, an `alpha()` call -
+ * without ad-hoc decimals scattered through the code.
+ */
+export const OPACITY_STEPS = [
+  0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 95, 100,
+] as const;
+
+export type OpacityStep = (typeof OPACITY_STEPS)[number];
+
+export const opacityTokens = Object.fromEntries(
+  OPACITY_STEPS.map((step) => [
+    step,
+    step === 0 ? "0" : step === 100 ? "1" : String(step / 100),
+  ]),
+) as Record<OpacityStep, string>;
+
+/** Steps carried by the white/black alpha ramps (superset of the legacy 4). */
+const ALPHA_RAMP_STEPS = [
+  4, 8, 12, 16, 24, 32, 40, 48, 60, 72, 88,
+] as const;
+
+const buildAlphaRamp = (
+  channel: "255, 255, 255" | "0, 0, 0",
+): Record<(typeof ALPHA_RAMP_STEPS)[number], string> =>
+  Object.fromEntries(
+    ALPHA_RAMP_STEPS.map((step) => [step, `rgba(${channel}, ${step / 100})`]),
+  ) as Record<(typeof ALPHA_RAMP_STEPS)[number], string>;
+
+/** Full white-tint ramp, 4%-88%. Widens the 4 stops in `primitiveColors.alpha.white`. */
+export const alphaWhiteTokens = buildAlphaRamp("255, 255, 255");
+/** Full black-tint ramp, 4%-88%. */
+export const alphaBlackTokens = buildAlphaRamp("0, 0, 0");
+
+/**
  * Spacing Scale (contiguous base-4 scale: space.0 -> space.16, step = n * 4px).
  *
  * The scale is deliberately dense: every integer step from 0 to 16 is present
@@ -211,6 +249,7 @@ export interface PrimitiveTokenDictionary {
   radius: RadiusTokens;
   borderWidth: BorderWidthTokens;
   borderStyle: BorderStyleTokens;
+  opacity: Record<OpacityStep, string>;
   motion: MotionTokens;
   touch: TouchTargetTokens;
   zIndex: ZIndexTokens;
@@ -222,6 +261,7 @@ export const primitiveTokens: PrimitiveTokenDictionary = {
   radius: radiusTokens,
   borderWidth: borderWidthTokens,
   borderStyle: borderStyleTokens,
+  opacity: opacityTokens,
   motion: motionTokens,
   touch: touchTargetTokens,
   zIndex: zIndexTokens,
