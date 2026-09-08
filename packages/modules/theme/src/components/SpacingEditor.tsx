@@ -120,10 +120,10 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
         value={value}
         onChange={(e) => onValueChange(e.target.value)}
         placeholder={placeholder}
-        aria-label={label}
         sx={{ inlineSize: wide ? 220 : 104 }}
         slotProps={{
           input: { sx: { fontFamily: "monospace", fontSize: "0.8125rem" } },
+          htmlInput: { "aria-label": label },
         }}
       />
     </Box>
