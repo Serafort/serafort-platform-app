@@ -318,6 +318,34 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     [updateThemeState],
   );
 
+  const handleShadowsChange = useCallback(
+    (shadows: Record<string, string>) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          shadows,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
+  const handleFluidSpacingChange = useCallback(
+    (fluidSpacing: Record<string, string>) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          fluidSpacing,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
   const handlePresetSelect = useCallback(
     (presetId: ThemePresetId) => {
       updateThemeState((prev) => ({
@@ -680,8 +708,17 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
                 theme.tokens?.borderRadius ||
                 DEFAULT_TENANT_THEME.tokens.borderRadius
               }
+              shadows={
+                theme.tokens?.shadows || DEFAULT_TENANT_THEME.tokens.shadows
+              }
+              fluidSpacing={
+                theme.tokens?.fluidSpacing ||
+                DEFAULT_TENANT_THEME.tokens.fluidSpacing
+              }
               onSpacingChange={handleSpacingChange}
               onBorderRadiusChange={handleBorderRadiusChange}
+              onShadowsChange={handleShadowsChange}
+              onFluidSpacingChange={handleFluidSpacingChange}
             />
           </TabPanel>
         </Grid>
