@@ -1,12 +1,13 @@
-import { Box, Snackbar, alpha } from '@mui/material'
+import { Box, Snackbar } from '@mui/material'
 import { Alert as MAlert, themeConfig, useTenant } from '@cap/platform-core'
-import { LiquidGlassCard } from '@cap/theme'
-import { AuthPageLayout } from '../../../components/shared/auth'
+import { AuthPageLayout, AuthCard, AuthStepProgress } from '../../../components/shared/auth'
 import { useSignUpFlow } from '../hooks/useSignUpFlow'
 import { RegistrationStep } from '../components/RegistrationStep'
 import { VerifyEmailStep } from '../components/VerifyEmailStep'
 import { SuccessStep } from '../components/SuccessStep'
 import { LockedStep } from '../components/LockedStep'
+
+const STEP_ORDER = ['register', 'verify', 'success'] as const
 
 export default function SignUp() {
   const { tenant } = useTenant()
@@ -27,7 +28,7 @@ export default function SignUp() {
     otpCode,
     timeLeft,
     countdownDisplay,
-    passwordStrength,
+    password,
     isRegisterPending,
     isResendPending,
     isVerifyingOtp,
@@ -44,6 +45,17 @@ export default function SignUp() {
     onSubmit,
   } = useSignUpFlow()
 
+  const activeIndex = Math.max(0, STEP_ORDER.indexOf(mode as (typeof STEP_ORDER)[number]))
+  // The lock-out state is a dead end rather than a step in the wizard, so the
+  // progress rail is hidden instead of showing a misleading position.
+  const showProgress = mode !== 'locked'
+
+  const steps = [
+    { id: 'register', label: t('signUp.stepAccount', 'Account') },
+    { id: 'verify', label: t('signUp.stepVerify', 'Verify') },
+    { id: 'success', label: t('signUp.stepDone', 'Done') },
+  ]
+
   return (
     <>
       <title>
@@ -55,22 +67,6 @@ export default function SignUp() {
       />
 
       <AuthPageLayout maxWidth={480}>
-        {/* Background Gradient Decoration */}
-        <Box
-          sx={{
-            position: 'fixed',
-            left: 0,
-            top: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: -1,
-            opacity: 1,
-            pointerEvents: 'none',
-            background: (theme) =>
-              `radial-gradient(circle at 10% 20%, ${alpha(theme.palette.primary.main, 0.4)} 0%, transparent 40%), radial-gradient(circle at 90% 80%, ${alpha(theme.palette.secondary.main || theme.palette.primary.light, 0.4)} 0%, transparent 40%), radial-gradient(circle at 50% 50%, ${alpha(theme.palette.primary.dark, 0.2)} 0%, transparent 60%)`,
-          }}
-        />
-
         <Snackbar
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           open={status.open}
@@ -82,60 +78,67 @@ export default function SignUp() {
           </MAlert>
         </Snackbar>
 
-        <Box sx={{ width: '100%' }}>
-          {mode === 'locked' ? (
-            <LiquidGlassCard blur='24px' opacity={0.82} padding='0px' borderRadius='24px'>
-              <LockedStep
-                t={t}
-                timeLeft={timeLeft}
-                countdownDisplay={countdownDisplay}
-                onBackToRegister={handleBackToRegister}
-                defaultEmail={pendingEmail}
+        <AuthCard padding='none'>
+          {showProgress && (
+            <Box sx={{ px: { xs: 3, sm: 4 }, pt: { xs: 3, sm: 4 } }}>
+              <AuthStepProgress
+                steps={steps}
+                activeIndex={activeIndex}
+                label={t('signUp.progressLabel', 'Sign-up progress')}
+                caption={t('signUp.progressCaption', {
+                  current: activeIndex + 1,
+                  total: steps.length,
+                  defaultValue: 'Step {{current}} of {{total}}',
+                })}
               />
-            </LiquidGlassCard>
-          ) : mode === 'verify' ? (
-            <LiquidGlassCard blur='24px' opacity={0.82} padding='0px' borderRadius='24px'>
-              <VerifyEmailStep
-                t={t}
-                pendingEmail={pendingEmail}
-                otpCode={otpCode}
-                otpInputRefs={otpInputRefs}
-                handleOtpDigitChange={handleOtpDigitChange}
-                handleOtpKeyDown={handleOtpKeyDown}
-                countdownDisplay={countdownDisplay}
-                isVerifyingOtp={isVerifyingOtp}
-                isResendPending={isResendPending}
-                timeLeft={timeLeft}
-                onVerifyOtp={handleVerifyOtp}
-                onResendCode={handleResendCode}
-                onBackToRegister={handleBackToRegister}
-              />
-            </LiquidGlassCard>
-          ) : mode === 'success' ? (
-            <LiquidGlassCard blur='24px' opacity={0.82} padding='0px' borderRadius='24px'>
-              <SuccessStep t={t} />
-            </LiquidGlassCard>
-          ) : (
-            <LiquidGlassCard blur='24px' opacity={0.82} padding='0px' borderRadius='24px'>
-              <RegistrationStep
-                t={t}
-                control={control}
-                handleSubmit={handleSubmit}
-                onSubmit={onSubmit}
-                passwordStrength={passwordStrength}
-                showPassword={showPassword}
-                showConfirmPassword={showConfirmPassword}
-                isRegisterPending={isRegisterPending}
-                isSubmitting={isSubmitting}
-                isValidating={isValidating}
-                isLocked={isLocked}
-                onTogglePassword={handleTogglePassword}
-                onToggleConfirmPassword={handleToggleConfirmPassword}
-                onSocialRegister={handleSocialRegister}
-              />
-            </LiquidGlassCard>
+            </Box>
           )}
-        </Box>
+
+          {mode === 'locked' ? (
+            <LockedStep
+              t={t}
+              timeLeft={timeLeft}
+              countdownDisplay={countdownDisplay}
+              onBackToRegister={handleBackToRegister}
+              defaultEmail={pendingEmail}
+            />
+          ) : mode === 'verify' ? (
+            <VerifyEmailStep
+              t={t}
+              pendingEmail={pendingEmail}
+              otpCode={otpCode}
+              otpInputRefs={otpInputRefs}
+              handleOtpDigitChange={handleOtpDigitChange}
+              handleOtpKeyDown={handleOtpKeyDown}
+              countdownDisplay={countdownDisplay}
+              isVerifyingOtp={isVerifyingOtp}
+              isResendPending={isResendPending}
+              timeLeft={timeLeft}
+              onVerifyOtp={handleVerifyOtp}
+              onResendCode={handleResendCode}
+              onBackToRegister={handleBackToRegister}
+            />
+          ) : mode === 'success' ? (
+            <SuccessStep t={t} />
+          ) : (
+            <RegistrationStep
+              t={t}
+              control={control}
+              handleSubmit={handleSubmit}
+              onSubmit={onSubmit}
+              password={password}
+              showPassword={showPassword}
+              showConfirmPassword={showConfirmPassword}
+              isRegisterPending={isRegisterPending}
+              isSubmitting={isSubmitting}
+              isValidating={isValidating}
+              isLocked={isLocked}
+              onTogglePassword={handleTogglePassword}
+              onToggleConfirmPassword={handleToggleConfirmPassword}
+              onSocialRegister={handleSocialRegister}
+            />
+          )}
+        </AuthCard>
       </AuthPageLayout>
     </>
   )

@@ -8,95 +8,101 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
   IconButton,
   Tooltip,
   Button,
   Card,
-  Avatar,
-  alpha,
-  useTheme,
+  Alert,
+  AlertTitle,
+  Skeleton,
 } from '@mui/material'
-import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import Refresh from '@mui/icons-material/Refresh'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import ArrowForward from '@mui/icons-material/ArrowForward'
 import Email from '@mui/icons-material/Email'
-import { motion } from 'framer-motion'
+import MarkEmailUnreadOutlined from '@mui/icons-material/MarkEmailUnreadOutlined'
 import { useTranslation } from 'react-i18next'
+import { Empty } from '@cap/theme'
 import { Path } from '@cap/module-auth/routes/path'
 import { useEmailChanges } from '@auth/user-directory/hooks/useUserQuery'
 import { EmailChangeRequest } from '../../types/api.types'
+import { AuthCardHeader, AuthStatusBadge, type AuthStatus } from '../../components/shared/auth'
+
+/**
+ * Maps the backend's request lifecycle onto the shared status vocabulary, so a
+ * pending email change reads identically here and on the verification screens.
+ */
+const STATUS_MAP: Record<string, { status: AuthStatus; labelKey: string; fallback: string }> = {
+  completed: { status: 'verified', labelKey: 'email.statusCompleted', fallback: 'Completed' },
+  pending_authorization: {
+    status: 'pending',
+    labelKey: 'email.statusPending',
+    fallback: 'Pending Auth',
+  },
+  expired: { status: 'expired', labelKey: 'email.statusExpired', fallback: 'Expired' },
+  failed: { status: 'failed', labelKey: 'email.statusFailed', fallback: 'Failed' },
+  cancelled: { status: 'revoked', labelKey: 'email.statusCancelled', fallback: 'Cancelled' },
+}
+
+const COLUMN_COUNT = 3
 
 export default function EmailChangeStatus() {
   const { t } = useTranslation('auth')
-  const theme = useTheme()
   const navigate = useNavigate()
   const { data: response, isLoading, isError, refetch } = useEmailChanges()
-  const requests = response?.data || []
+  const requests: EmailChangeRequest[] = response?.data || []
 
-  const getStatusChip = (status: string) => {
-    const map: Record<string, any> = {
-      completed: { label: t('email.statusCompleted', 'Completed'), color: 'success' },
-      pending_authorization: { label: t('email.statusPending', 'Pending Auth'), color: 'warning' },
-      expired: { label: t('email.statusExpired', 'Expired'), color: 'error' },
+  const renderStatus = (rawStatus: string) => {
+    const config = STATUS_MAP[rawStatus]
+    if (!config) {
+      return <AuthStatusBadge status='pending' label={rawStatus} size='small' />
     }
-    const cfg = map[status] || { label: status, color: 'default' }
-    return <Chip label={cfg.label} color={cfg.color} size='small' variant='outlined' />
+    return (
+      <AuthStatusBadge
+        status={config.status}
+        label={t(config.labelKey, config.fallback)}
+        size='small'
+      />
+    )
   }
 
+  const hasRequests = requests.length > 0
+  const pendingCount = requests.filter((r) => r.status === 'pending_authorization').length
+
   return (
-    <Box
-      className='animate-scale-in'
-      component={motion.div}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-      sx={{ width: '100%', maxWidth: 720, mx: 'auto', p: { xs: 3, md: 5 } }}
-    >
+    <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto' }}>
       <Box
         sx={{
-          mb: 5,
+          mb: 4,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
+          flexWrap: 'wrap',
           gap: 2,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-          <Avatar
-            variant='square'
-            sx={{
-              width: 56,
-              height: 56,
-              bgcolor: 'transparent',
-              color: 'primary.main',
-              borderRadius: '24px',
-              border: '2px solid',
-              borderColor: alpha(theme.palette.primary.main, 0.2),
-              flexShrink: 0,
-            }}
-          >
-            <Email sx={{ fontSize: 32 }} />
-          </Avatar>
-          <Box>
-            <Typography variant='h4' sx={{ fontWeight: 900, mb: 0.5, letterSpacing: '-0.027em' }}>
-              {t('email.statusHeading', 'Email Management')}
-            </Typography>
-            <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
-              {t('email.statusDescription', 'Track and manage your email address change requests.')}
-            </Typography>
-          </Box>
-        </Box>
+        <AuthCardHeader
+          icon={<Email sx={{ fontSize: 32 }} />}
+          title={t('email.statusHeading', 'Email Management')}
+          subtitle={t(
+            'email.statusDescription',
+            'Track and manage your email address change requests.',
+          )}
+          align='start'
+        />
+
         <Box sx={{ display: 'flex', gap: 2, flexShrink: 0 }}>
           <Tooltip title={t('common.refresh', 'Refresh')}>
-            <IconButton
-              onClick={() => refetch()}
-              disabled={isLoading}
-              sx={{ border: '1px solid', borderColor: 'divider' }}
-            >
-              <Refresh />
-            </IconButton>
+            <span>
+              <IconButton
+                onClick={() => refetch()}
+                disabled={isLoading}
+                aria-label={t('common.refresh', 'Refresh')}
+                sx={{ width: 44, height: 44, border: '1px solid', borderColor: 'divider' }}
+              >
+                <Refresh />
+              </IconButton>
+            </span>
           </Tooltip>
           <Button
             variant='contained'
@@ -104,12 +110,10 @@ export default function EmailChangeStatus() {
             to={Path.account.overview}
             endIcon={<ArrowForward />}
             sx={{
+              minHeight: 44,
               borderRadius: 3,
               textTransform: 'none',
               fontWeight: 800,
-              bgcolor: 'info.main',
-              boxShadow: (t: any) => `0 4px 14px ${alpha(t.palette.info.main, 0.4)}`,
-              '&:hover': { bgcolor: 'info.dark' },
             }}
           >
             {t('email.newRequest', 'New Request')}
@@ -117,103 +121,125 @@ export default function EmailChangeStatus() {
         </Box>
       </Box>
 
+      {/*
+        A pending change invalidates the previous verification token, and users
+        who request twice otherwise get a silently dead link in their inbox.
+      */}
+      {pendingCount > 0 && (
+        <Alert
+          severity='warning'
+          icon={<MarkEmailUnreadOutlined />}
+          sx={{ mb: 3, borderRadius: 2 }}
+        >
+          <AlertTitle sx={{ fontWeight: 800 }}>
+            {t('email.pendingWarningTitle', 'Verification pending')}
+          </AlertTitle>
+          {t(
+            'email.pendingWarningBody',
+            'Requesting another change invalidates the link already sent to your inbox.',
+          )}
+        </Alert>
+      )}
+
+      {isError && (
+        <Alert
+          severity='error'
+          role='alert'
+          sx={{ mb: 3, borderRadius: 2 }}
+          action={
+            <Button color='inherit' size='small' onClick={() => refetch()}>
+              {t('common.retry', 'Retry')}
+            </Button>
+          }
+        >
+          {t('common.errorLoading', 'Failed to load changes.')}
+        </Alert>
+      )}
+
       <Card
         sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}
       >
-        <TableContainer>
-          <Table>
-            <TableHead sx={{ bgcolor: 'action.hover' }}>
-              <TableRow>
-                <TableCell>
-                  <Typography
-                    variant='caption'
-                    sx={{ fontWeight: 800, textTransform: 'uppercase', color: 'text.secondary' }}
-                  >
-                    {t('email.colEmails', 'Email Addresses')}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    variant='caption'
-                    sx={{ fontWeight: 800, textTransform: 'uppercase', color: 'text.secondary' }}
-                  >
-                    {t('email.colDate', 'Date Requested')}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    variant='caption'
-                    sx={{ fontWeight: 800, textTransform: 'uppercase', color: 'text.secondary' }}
-                  >
-                    {t('email.colStatus', 'Status')}
-                  </Typography>
-                </TableCell>
-                <TableCell align='right' />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {isLoading && (
-                <TableRow>
-                  <TableCell colSpan={4} align='center' sx={{ py: 4 }}>
-                    <Typography variant='body2' color='text.secondary'>
-                      {t('common.loading', 'Loading...')}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
+        {!isLoading && !isError && !hasRequests ? (
+          <Box sx={{ py: 6 }}>
+            <Empty
+              title={t('email.noRequests', 'No email change requests found.')}
+              description={t(
+                'email.noRequestsDescription',
+                'When you request a new email address, its verification progress appears here.',
               )}
-              {isError && (
+              action={{
+                label: t('email.newRequest', 'New Request'),
+                onClick: () => navigate(Path.account.overview),
+              }}
+            />
+          </Box>
+        ) : (
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <Table>
+              <TableHead sx={{ bgcolor: 'action.hover' }}>
                 <TableRow>
-                  <TableCell colSpan={4} align='center' sx={{ py: 4 }}>
-                    <Typography variant='body2' color='error'>
-                      {t('common.errorLoading', 'Failed to load changes.')}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-              {!isLoading && !isError && requests.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} align='center' sx={{ py: 4 }}>
-                    <Typography variant='body2' color='text.secondary'>
-                      {t('email.noRequests', 'No email change requests found.')}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-              {!isLoading &&
-                !isError &&
-                requests.map((request: EmailChangeRequest) => (
-                  <TableRow key={request.id} sx={{ '&:last-child td': { border: 0 } }}>
-                    <TableCell>
-                      <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                        {request.newEmail}
-                      </Typography>
-                      <Typography variant='caption' color='text.secondary'>
-                        {t('email.from', 'from')}: {request.oldEmail}
+                  {[
+                    t('email.colEmails', 'Email Addresses'),
+                    t('email.colDate', 'Date Requested'),
+                    t('email.colStatus', 'Status'),
+                  ].map((heading) => (
+                    <TableCell key={heading}>
+                      <Typography
+                        variant='caption'
+                        sx={{
+                          fontWeight: 800,
+                          textTransform: 'uppercase',
+                          color: 'text.secondary',
+                        }}
+                      >
+                        {heading}
                       </Typography>
                     </TableCell>
-                    <TableCell>
-                      <Typography variant='body2' color='text.secondary'>
-                        {request.date}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{getStatusChip(request.status)}</TableCell>
-                    <TableCell align='right'>
-                      <IconButton size='small'>
-                        <InfoOutlined fontSize='small' />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {isLoading &&
+                  Array.from({ length: 3 }).map((_, index) => (
+                    <TableRow key={`skeleton-${index}`}>
+                      {Array.from({ length: COLUMN_COUNT }).map((__, cell) => (
+                        <TableCell key={cell}>
+                          <Skeleton variant='text' height={28} />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+
+                {!isLoading &&
+                  requests.map((request) => (
+                    <TableRow key={request.id} sx={{ '&:last-child td': { border: 0 } }}>
+                      <TableCell>
+                        <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                          {request.newEmail}
+                        </Typography>
+                        <Typography variant='caption' color='text.secondary'>
+                          {t('email.from', 'from')}: {request.oldEmail}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant='body2' color='text.secondary'>
+                          {request.date}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>{renderStatus(request.status)}</TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </Card>
 
       <Box sx={{ mt: 4 }}>
         <Button
           onClick={() => navigate(Path.account.profile)}
           startIcon={<ArrowBack />}
-          sx={{ textTransform: 'none', fontWeight: 600, color: 'text.secondary' }}
+          sx={{ minHeight: 44, textTransform: 'none', fontWeight: 600, color: 'text.secondary' }}
         >
           {t('common.backToDashboard', 'Back to Dashboard')}
         </Button>

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import {
   Box,
   Button,
-  TextField,
   Typography,
   IconButton,
   InputAdornment,
@@ -11,21 +10,22 @@ import {
   Checkbox,
   FormControlLabel,
   FormHelperText,
-  LinearProgress,
-  Stack,
   alpha,
 } from '@mui/material'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import PersonAdd from '@mui/icons-material/PersonAdd'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked'
 import Google from '@mui/icons-material/Google'
 import GitHub from '@mui/icons-material/GitHub'
 import { Controller, Control } from 'react-hook-form'
-import { AuthScreenIcon, AuthInputLabel, AuthActionButton } from '../../../components/shared/auth'
+import {
+  AuthCardHeader,
+  AuthInputLabel,
+  AuthActionButton,
+  AuthTextField,
+  PasswordStrengthMeter,
+} from '../../../components/shared/auth'
 import { SignUpFormSchemaType } from '../../../utils/schema'
-import { PasswordStrength } from '../hooks/useSignUpFlow'
 import { Path } from '@cap/module-auth/routes/path'
 
 interface RegistrationStepProps {
@@ -35,7 +35,8 @@ interface RegistrationStepProps {
     onValid: (data: SignUpFormSchemaType) => void,
   ) => (e?: React.BaseSyntheticEvent) => Promise<void>
   onSubmit: (data: SignUpFormSchemaType) => void
-  passwordStrength: PasswordStrength
+  /** Current password value, for the live strength meter. */
+  password: string
   showPassword: boolean
   showConfirmPassword: boolean
   isRegisterPending: boolean
@@ -45,28 +46,6 @@ interface RegistrationStepProps {
   onTogglePassword: () => void
   onToggleConfirmPassword: () => void
   onSocialRegister: (provider: string) => void
-}
-
-const fieldSx = {
-  '& .MuiOutlinedInput-root': {
-    minHeight: 48,
-    borderRadius: '12px',
-    bgcolor: 'background.paper',
-    transition: 'all 0.2s ease-in-out',
-    '& fieldset': {
-      borderColor: 'divider',
-    },
-    '&:hover fieldset': {
-      borderColor: 'primary.main',
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: 'primary.main',
-      borderWidth: '1px',
-    },
-    '&.Mui-focused': {
-      boxShadow: (theme: any) => `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
-    },
-  },
 }
 
 const socialButtonSx = {
@@ -103,7 +82,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
   control,
   handleSubmit,
   onSubmit,
-  passwordStrength,
+  password,
   showPassword,
   showConfirmPassword,
   isRegisterPending,
@@ -116,29 +95,13 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
 }) => {
   return (
     <>
-      {/* Header Section */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-        <AuthScreenIcon icon={<PersonAdd sx={{ fontSize: 32 }} />} />
+      <Box sx={{ px: { xs: 3, sm: 4 }, pt: { xs: 3, sm: 4 } }}>
+        <AuthCardHeader
+          icon={<PersonAdd sx={{ fontSize: 32 }} />}
+          title={t('signUp.title', 'Create an account')}
+          subtitle={t('signUp.subtitle', 'Join our multi-tenant SaaS platform today')}
+        />
       </Box>
-      <Typography
-        variant='h4'
-        sx={{
-          fontWeight: 900,
-          mb: 1,
-          letterSpacing: '-0.027em',
-          textAlign: 'center',
-          fontFamily: 'var(--font-h4, inherit)',
-        }}
-      >
-        {t('signUp.title', 'Create an account')}
-      </Typography>
-      <Typography
-        variant='body1'
-        color='text.secondary'
-        sx={{ fontWeight: 500, mb: 4, textAlign: 'center' }}
-      >
-        {t('signUp.subtitle', 'Join our multi-tenant SaaS platform today')}
-      </Typography>
 
       {/* Form Section */}
       <Box
@@ -162,7 +125,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                 name='firstname'
                 control={control}
                 render={({ field, fieldState: { error } }) => (
-                  <TextField
+                  <AuthTextField
                     {...field}
                     id='signup-firstname'
                     fullWidth
@@ -171,7 +134,6 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                     helperText={error?.message ? t(error.message, error.message) : undefined}
                     disabled={isRegisterPending || isSubmitting || isLocked}
                     autoComplete='given-name'
-                    sx={fieldSx}
                   />
                 )}
               />
@@ -182,7 +144,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                 name='lastname'
                 control={control}
                 render={({ field, fieldState: { error } }) => (
-                  <TextField
+                  <AuthTextField
                     {...field}
                     id='signup-lastname'
                     fullWidth
@@ -191,7 +153,6 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                     helperText={error?.message ? t(error.message, error.message) : undefined}
                     disabled={isRegisterPending || isSubmitting || isLocked}
                     autoComplete='family-name'
-                    sx={fieldSx}
                   />
                 )}
               />
@@ -205,7 +166,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
               name='email'
               control={control}
               render={({ field, fieldState: { error } }) => (
-                <TextField
+                <AuthTextField
                   {...field}
                   id='signup-email'
                   type='email'
@@ -215,7 +176,6 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                   helperText={error?.message ? t(error.message, error.message) : undefined}
                   disabled={isRegisterPending || isSubmitting || isLocked}
                   autoComplete='email'
-                  sx={fieldSx}
                 />
               )}
             />
@@ -228,7 +188,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
               name='password'
               control={control}
               render={({ field, fieldState: { error } }) => (
-                <TextField
+                <AuthTextField
                   {...field}
                   id='signup-password'
                   type={showPassword ? 'text' : 'password'}
@@ -238,7 +198,6 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                   helperText={error?.message ? t(error.message, error.message) : undefined}
                   disabled={isRegisterPending || isSubmitting || isLocked}
                   autoComplete='new-password'
-                  sx={fieldSx}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position='end'>
@@ -261,86 +220,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
               )}
             />
 
-            {/* Password Strength Progress Bar & Breakdown */}
-            {control._formValues.password && (
-              <Box
-                sx={{
-                  mt: 1.5,
-                  p: 1.5,
-                  borderRadius: '12px',
-                  bgcolor: (theme) => alpha(theme.palette.background.default, 0.5),
-                  border: '1px solid',
-                  borderColor: 'divider',
-                }}
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 0.8,
-                  }}
-                >
-                  <Typography variant='caption' sx={{ fontWeight: 700, color: 'text.secondary' }}>
-                    {t('signUp.passwordStrength', 'Password Strength')}:
-                  </Typography>
-                  <Typography
-                    variant='caption'
-                    sx={{ fontWeight: 800, color: `${passwordStrength.color}.main` }}
-                  >
-                    {passwordStrength.label}
-                  </Typography>
-                </Box>
-                <LinearProgress
-                  variant='determinate'
-                  value={passwordStrength.score}
-                  color={passwordStrength.color}
-                  sx={{ height: 6, borderRadius: 3, mb: 1.5 }}
-                />
-                <Stack spacing={0.6}>
-                  {[
-                    {
-                      label: t('signUp.reqLength', 'At least 8 characters'),
-                      met: passwordStrength.criteria.minLength,
-                    },
-                    {
-                      label: t('signUp.reqUppercase', 'At least one uppercase letter (A-Z)'),
-                      met: passwordStrength.criteria.hasUppercase,
-                    },
-                    {
-                      label: t('signUp.reqLowercase', 'At least one lowercase letter (a-z)'),
-                      met: passwordStrength.criteria.hasLowercase,
-                    },
-                    {
-                      label: t('signUp.reqNumber', 'At least one number (0-9)'),
-                      met: passwordStrength.criteria.hasNumber,
-                    },
-                    {
-                      label: t('signUp.reqSpecial', 'At least one special character (!@#$)'),
-                      met: passwordStrength.criteria.hasSpecial,
-                    },
-                  ].map((req, i) => (
-                    <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                      {req.met ? (
-                        <CheckCircle sx={{ fontSize: 14, color: 'success.main' }} />
-                      ) : (
-                        <RadioButtonUnchecked sx={{ fontSize: 14, color: 'text.disabled' }} />
-                      )}
-                      <Typography
-                        variant='caption'
-                        sx={{
-                          color: req.met ? 'text.primary' : 'text.disabled',
-                          fontWeight: req.met ? 600 : 400,
-                          fontSize: '0.75rem',
-                        }}
-                      >
-                        {req.label}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Stack>
-              </Box>
-            )}
+            <PasswordStrengthMeter password={password} criteria='list' framed />
           </Box>
 
           {/* Confirm Password Field */}
@@ -350,7 +230,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
               name='confirmPassword'
               control={control}
               render={({ field, fieldState: { error } }) => (
-                <TextField
+                <AuthTextField
                   {...field}
                   id='signup-confirm-password'
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -360,7 +240,6 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                   helperText={error?.message ? t(error.message, error.message) : undefined}
                   disabled={isRegisterPending || isSubmitting || isLocked}
                   autoComplete='new-password'
-                  sx={fieldSx}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position='end'>

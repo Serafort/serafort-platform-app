@@ -1,13 +1,23 @@
 import React from 'react'
 import { Box } from '@mui/material'
 import { motion } from 'framer-motion'
+import AuthBackdrop, { type AuthBackdropIntensity } from './AuthBackdrop'
 
 interface AuthPageLayoutProps {
   children: React.ReactNode
   maxWidth?: number | string
+  /**
+   * Ambient gradient wash behind the card. Pass `false` for screens that
+   * supply their own background.
+   */
+  backdrop?: AuthBackdropIntensity | false
 }
 
-const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({ children, maxWidth = 480 }) => {
+const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
+  children,
+  maxWidth = 480,
+  backdrop = 'standard',
+}) => {
   return (
     <Box
       sx={{
@@ -23,6 +33,15 @@ const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({ children, maxWidth = 48
         bgcolor: 'transparent',
       }}
     >
+      {/*
+        Rendered here rather than by each screen, and deliberately outside the
+        animated wrapper below. That wrapper animates `transform`, and a
+        transformed ancestor becomes the containing block for `position: fixed`
+        descendants — which is why the wash used to be clipped to the card
+        instead of covering the viewport.
+      */}
+      {backdrop !== false && <AuthBackdrop intensity={backdrop} />}
+
       <Box
         className='animate-scale-in'
         component={motion.div}
@@ -34,6 +53,8 @@ const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({ children, maxWidth = 48
           maxWidth: maxWidth,
           mx: 'auto',
           position: 'relative',
+          // Above AuthBackdrop's full-viewport wash.
+          zIndex: 1,
         }}
       >
         {children}
