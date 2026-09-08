@@ -106,6 +106,15 @@ export const generateThemeVariables = (
     spacing[`--spacing-${key}`] = value;
   }
 
+  // Viewport-responsive spacing (clamp() strings). Keys are camelCase in the
+  // token config; the custom properties are kebab-cased to match the static
+  // `--space-fluid-*` set emitted by tokensToCssVariables.
+  if (theme.tokens.fluidSpacing) {
+    for (const [key, value] of Object.entries(theme.tokens.fluidSpacing)) {
+      spacing[`--space-fluid-${toKebabCase(key)}`] = value;
+    }
+  }
+
   for (const [key, value] of Object.entries(theme.tokens.borderRadius)) {
     borderRadius[`--radius-${key}`] = value;
   }

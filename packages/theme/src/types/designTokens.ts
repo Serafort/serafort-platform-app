@@ -21,6 +21,8 @@ export interface PrimitiveTokens {
     info: ColorToken;
   };
   spacing: Record<string, string>;
+  /** Viewport-responsive spacing (clamp() strings) - page gutters, section gaps. */
+  fluidSpacing?: Record<string, string>;
   borderRadius: Record<string, string>;
   borderWidth?: Record<string, string>;
   typography: {
@@ -74,6 +76,14 @@ export const DEFAULT_PRIMITIVE_TOKENS: PrimitiveTokens = {
     lg: "1.5rem",
     xl: "2rem",
     "2xl": "3rem",
+  },
+  fluidSpacing: {
+    gutterInline: "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+    gutterBlock: "clamp(1.5rem, 1rem + 2.5vw, 3.5rem)",
+    sectionGap: "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+    stackGap: "clamp(0.75rem, 0.6rem + 0.8vw, 1.25rem)",
+    cardPadding: "clamp(1rem, 0.8rem + 1vw, 1.75rem)",
+    clusterGap: "clamp(0.5rem, 0.4rem + 0.4vw, 0.875rem)",
   },
   borderRadius: {
     none: "0",

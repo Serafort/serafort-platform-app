@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { generateThemeVariables } from "./applyThemeVariables";
 import { applyPreset } from "./mergeTheme";
+import { DEFAULT_THEME_CONFIG } from "../types";
 
 /**
  * The glass look reaches real surfaces through CSS custom properties:
@@ -169,5 +170,41 @@ describe("generateThemeVariables - non-blur effects clear the chrome's blur", ()
   it("still emits a real filter for glass", () => {
     const { effects } = generateThemeVariables(applyPreset("glassmorphism"));
     expect(effects["--effect-backdrop"]).toBe("blur(16px)");
+  });
+});
+
+describe("generateThemeVariables - fluid spacing", () => {
+  it("emits kebab-cased --space-fluid-* from tokens.fluidSpacing", () => {
+    const { spacing } = generateThemeVariables(DEFAULT_THEME_CONFIG);
+
+    expect(spacing["--space-fluid-gutter-inline"]).toBe(
+      "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+    );
+    expect(spacing["--space-fluid-section-gap"]).toBe(
+      "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+    );
+  });
+
+  it("passes a tenant override through verbatim", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: {
+        ...DEFAULT_THEME_CONFIG.tokens,
+        fluidSpacing: { sectionGap: "clamp(1rem, 4vw, 8rem)" },
+      },
+    };
+    const { spacing } = generateThemeVariables(config);
+    expect(spacing["--space-fluid-section-gap"]).toBe("clamp(1rem, 4vw, 8rem)");
+  });
+
+  it("emits nothing when fluidSpacing is absent", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: { ...DEFAULT_THEME_CONFIG.tokens, fluidSpacing: undefined },
+    };
+    const { spacing } = generateThemeVariables(config);
+    expect(
+      Object.keys(spacing).some((k) => k.startsWith("--space-fluid-")),
+    ).toBe(false);
   });
 });
