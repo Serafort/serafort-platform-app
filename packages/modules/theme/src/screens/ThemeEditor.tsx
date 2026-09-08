@@ -376,6 +376,34 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     [updateThemeState],
   );
 
+  const handleSemanticBordersChange = useCallback(
+    (semanticBorders: Record<string, string>) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          semanticBorders,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
+  const handleGradientsChange = useCallback(
+    (gradients: { meshIntensity?: number }) => {
+      updateThemeState((prev) => ({
+        ...prev,
+        tokens: {
+          ...DEFAULT_TENANT_THEME.tokens,
+          ...prev?.tokens,
+          gradients,
+        },
+      }));
+    },
+    [updateThemeState],
+  );
+
   const handleLayoutChange = useCallback(
     (layout: Layout) => {
       // Two writes, one decision - the same pattern handlePresetSelect uses
@@ -669,6 +697,11 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
                 theme.tokens?.colors || DEFAULT_TENANT_THEME.tokens.colors
               }
               onChange={handleColorsChange}
+              gradients={
+                theme.tokens?.gradients ||
+                DEFAULT_TENANT_THEME.tokens.gradients
+              }
+              onGradientsChange={handleGradientsChange}
             />
           </TabPanel>
 
@@ -769,12 +802,17 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
                 theme.tokens?.borderStyle ||
                 DEFAULT_TENANT_THEME.tokens.borderStyle
               }
+              semanticBorders={
+                theme.tokens?.semanticBorders ||
+                DEFAULT_TENANT_THEME.tokens.semanticBorders
+              }
               onSpacingChange={handleSpacingChange}
               onBorderRadiusChange={handleBorderRadiusChange}
               onShadowsChange={handleShadowsChange}
               onFluidSpacingChange={handleFluidSpacingChange}
               onBorderWidthChange={handleBorderWidthChange}
               onBorderStyleChange={handleBorderStyleChange}
+              onSemanticBordersChange={handleSemanticBordersChange}
             />
           </TabPanel>
         </Grid>

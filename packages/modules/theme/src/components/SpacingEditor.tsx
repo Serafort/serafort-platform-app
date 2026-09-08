@@ -14,12 +14,15 @@ interface SpacingEditorProps {
   borderWidth?: Record<string, string>;
   /** Optional: named border line styles (solid/dashed/dotted). */
   borderStyle?: Record<string, string>;
+  /** Optional: semantic border-role colours (subtle/muted/default/strong/focus). */
+  semanticBorders?: Record<string, string>;
   onSpacingChange: (spacing: Record<string, string>) => void;
   onBorderRadiusChange: (borderRadius: Record<string, string>) => void;
   onShadowsChange?: (shadows: Record<string, string>) => void;
   onFluidSpacingChange?: (fluidSpacing: Record<string, string>) => void;
   onBorderWidthChange?: (borderWidth: Record<string, string>) => void;
   onBorderStyleChange?: (borderStyle: Record<string, string>) => void;
+  onSemanticBordersChange?: (semanticBorders: Record<string, string>) => void;
 }
 
 const spacingLabels: Record<string, string> = {
@@ -71,6 +74,14 @@ const borderStyleLabels: Record<string, string> = {
   dotted: "Dotted",
 };
 
+const borderRoleLabels: Record<string, string> = {
+  subtle: "Subtle",
+  muted: "Muted",
+  default: "Default",
+  strong: "Strong",
+  focus: "Focus ring",
+};
+
 export const SpacingEditor: React.FC<SpacingEditorProps> = ({
   spacing,
   borderRadius,
@@ -78,12 +89,14 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
   fluidSpacing,
   borderWidth,
   borderStyle,
+  semanticBorders,
   onSpacingChange,
   onBorderRadiusChange,
   onShadowsChange,
   onFluidSpacingChange,
   onBorderWidthChange,
   onBorderStyleChange,
+  onSemanticBordersChange,
 }) => {
   const theme = useTheme();
   const surface = useSurfaceSx();
@@ -110,6 +123,10 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
   const handleBorderStyleChange = patch(
     borderStyle ?? {},
     onBorderStyleChange ?? (() => {}),
+  );
+  const handleBorderRoleChange = patch(
+    semanticBorders ?? {},
+    onSemanticBordersChange ?? (() => {}),
   );
 
   /** Name on the left, the value you edit on the right - one row per token. */
@@ -354,6 +371,46 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
                 />
               ))}
           </Box>
+
+          {onSemanticBordersChange && (
+            <>
+              <Typography
+                variant="caption"
+                sx={{ display: "block", color: "text.secondary", mt: 3, mb: 1.5 }}
+              >
+                The colour a border takes by role — a barely-there row divider
+                through to the brand-coloured focus ring. Any CSS colour works.
+              </Typography>
+              <Box sx={{ ...surface, overflow: "hidden" }}>
+                {Object.entries(borderRoleLabels).map(([key, label], index) => (
+                  <TokenRow
+                    key={`role-${key}`}
+                    label={label}
+                    value={(semanticBorders ?? {})[key] || ""}
+                    placeholder="rgba(3, 20, 51, 0.12)"
+                    onValueChange={(value) => handleBorderRoleChange(key, value)}
+                    isFirst={index === 0}
+                    wide
+                    adornment={
+                      <Box
+                        aria-hidden
+                        sx={{
+                          inlineSize: 28,
+                          blockSize: 28,
+                          flexShrink: 0,
+                          borderRadius: 0.5,
+                          bgcolor: "background.paper",
+                          border: `2px solid ${
+                            (semanticBorders ?? {})[key] || "transparent"
+                          }`,
+                        }}
+                      />
+                    }
+                  />
+                ))}
+              </Box>
+            </>
+          )}
         </Box>
       )}
 

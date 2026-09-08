@@ -106,6 +106,50 @@ describe("SpacingEditor", () => {
     });
   });
 
+  it("shows border-role rows only when onSemanticBordersChange is wired", () => {
+    const { rerender } = render(
+      <SpacingEditor
+        {...baseProps}
+        borderWidth={{ thin: "1px" }}
+        onBorderWidthChange={vi.fn()}
+      />,
+    );
+    expect(screen.queryByLabelText("Focus ring")).toBeNull();
+
+    rerender(
+      <SpacingEditor
+        {...baseProps}
+        borderWidth={{ thin: "1px" }}
+        semanticBorders={{ subtle: "rgba(0,0,0,0.06)", focus: "#047BFA" }}
+        onBorderWidthChange={vi.fn()}
+        onSemanticBordersChange={vi.fn()}
+      />,
+    );
+    expect(screen.getByLabelText("Focus ring")).toBeTruthy();
+  });
+
+  it("routes a border-role edit through onSemanticBordersChange, keeping siblings", () => {
+    const onSemanticBordersChange = vi.fn();
+    render(
+      <SpacingEditor
+        {...baseProps}
+        borderWidth={{ thin: "1px" }}
+        semanticBorders={{ subtle: "rgba(0,0,0,0.06)", focus: "#047BFA" }}
+        onBorderWidthChange={vi.fn()}
+        onSemanticBordersChange={onSemanticBordersChange}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("Focus ring"), {
+      target: { value: "#FF00AA" },
+    });
+
+    expect(onSemanticBordersChange).toHaveBeenCalledWith({
+      subtle: "rgba(0,0,0,0.06)",
+      focus: "#FF00AA",
+    });
+  });
+
   it("routes a fluid-spacing edit through onFluidSpacingChange", () => {
     const onFluidSpacingChange = vi.fn();
     render(
