@@ -139,7 +139,7 @@ function ChangeEmail() {
               <Typography variant='body2' fontWeight='bold'>
                 Dev Mode: Verification Link
               </Typography>
-              <Link href={successData.verifyUrl} target='_blank' sx={{ wordBreak: 'break-all' }}>
+              <Link href={successData.verifyUrl} target='_blank' rel='noopener noreferrer' sx={{ wordBreak: 'break-all' }}>
                 {successData.verifyUrl}
               </Link>
             </Alert>
