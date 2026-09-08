@@ -6,7 +6,14 @@ import ErrorRounded from "@mui/icons-material/ErrorRounded";
 import ProgressActivityRounded from "@mui/icons-material/RotateRightRounded";
 import RadioButtonUncheckedRounded from "@mui/icons-material/RadioButtonUncheckedRounded";
 import type { AgentState, AgentId } from "@cap/shared-types";
-import { RADIUS, codeBlock, hairline, panelCard } from "../theme/studioStyles";
+import {
+  RADIUS,
+  codeBlock,
+  hairline,
+  panelCard,
+  pulse,
+  spin,
+} from "../theme/studioStyles";
 
 interface AgentPipelineTrackerProps {
   agents: AgentState[];
@@ -53,11 +60,7 @@ const StatusIcon: React.FC<{ status: AgentState["status"] }> = ({ status }) => {
           sx={{
             fontSize: 18,
             color: "primary.main",
-            animation: "widget-studio-spin 1s linear infinite",
-            "@keyframes widget-studio-spin": {
-              "0%": { transform: "rotate(0deg)" },
-              "100%": { transform: "rotate(360deg)" },
-            },
+            animation: `${spin} 1s linear infinite`,
           }}
         />
       );
@@ -202,11 +205,7 @@ const AgentPipelineTracker: React.FC<AgentPipelineTrackerProps> = ({
                             verticalAlign: "text-bottom",
                             bgcolor: "primary.main",
                             ml: 0.25,
-                            animation: "widget-studio-blink 0.8s ease infinite",
-                            "@keyframes widget-studio-blink": {
-                              "0%, 100%": { opacity: 1 },
-                              "50%": { opacity: 0 },
-                            },
+                            animation: `${pulse} 0.8s ease infinite`,
                           }}
                         />
                       )}
