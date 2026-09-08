@@ -25,6 +25,8 @@ export interface PrimitiveTokens {
   fluidSpacing?: Record<string, string>;
   borderRadius: Record<string, string>;
   borderWidth?: Record<string, string>;
+  /** Border line styles - solid, dashed, dotted, etc. keyed by name. */
+  borderStyle?: Record<string, string>;
   typography: {
     fontFamily: Record<string, string>;
     fontSize: Record<string, string>;
@@ -98,6 +100,11 @@ export const DEFAULT_PRIMITIVE_TOKENS: PrimitiveTokens = {
     thin: "1px",
     medium: "2px",
     thick: "4px",
+  },
+  borderStyle: {
+    solid: "solid",
+    dashed: "dashed",
+    dotted: "dotted",
   },
   typography: {
     fontFamily: {

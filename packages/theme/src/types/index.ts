@@ -293,6 +293,18 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
       xl: "16px",
       full: "9999px",
     },
+    // Kept in sync with DEFAULT_PRIMITIVE_TOKENS in designTokens.ts.
+    borderWidth: {
+      none: "0px",
+      thin: "1px",
+      medium: "2px",
+      thick: "4px",
+    },
+    borderStyle: {
+      solid: "solid",
+      dashed: "dashed",
+      dotted: "dotted",
+    },
     typography: {
       fontFamily: {
         sans: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",

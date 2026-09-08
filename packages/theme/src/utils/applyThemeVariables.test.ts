@@ -208,3 +208,46 @@ describe("generateThemeVariables - fluid spacing", () => {
     ).toBe(false);
   });
 });
+
+describe("generateThemeVariables - border width & style", () => {
+  it("emits --border-width-* and --border-style-* from the token config", () => {
+    const { borderRadius } = generateThemeVariables(DEFAULT_THEME_CONFIG);
+
+    expect(borderRadius["--border-width-thin"]).toBe("1px");
+    expect(borderRadius["--border-width-thick"]).toBe("4px");
+    expect(borderRadius["--border-style-solid"]).toBe("solid");
+    expect(borderRadius["--border-style-dashed"]).toBe("dashed");
+  });
+
+  it("passes a tenant override through verbatim", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: {
+        ...DEFAULT_THEME_CONFIG.tokens,
+        borderWidth: { hairline: "0.5px" },
+        borderStyle: { double: "double" },
+      },
+    };
+    const { borderRadius } = generateThemeVariables(config);
+    expect(borderRadius["--border-width-hairline"]).toBe("0.5px");
+    expect(borderRadius["--border-style-double"]).toBe("double");
+  });
+
+  it("emits nothing when both maps are absent", () => {
+    const config = {
+      ...DEFAULT_THEME_CONFIG,
+      tokens: {
+        ...DEFAULT_THEME_CONFIG.tokens,
+        borderWidth: undefined,
+        borderStyle: undefined,
+      },
+    };
+    const { borderRadius } = generateThemeVariables(config);
+    expect(
+      Object.keys(borderRadius).some(
+        (k) =>
+          k.startsWith("--border-width-") || k.startsWith("--border-style-"),
+      ),
+    ).toBe(false);
+  });
+});

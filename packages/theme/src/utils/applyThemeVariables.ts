@@ -119,6 +119,22 @@ export const generateThemeVariables = (
     borderRadius[`--radius-${key}`] = value;
   }
 
+  // Border line weight and style ride in the same output group as radius -
+  // the three together are "how a border is drawn". They are emitted as
+  // `--border-width-*` / `--border-style-*` to match the names
+  // tokensToCssVariables already uses for the static dictionary.
+  if (theme.tokens.borderWidth) {
+    for (const [key, value] of Object.entries(theme.tokens.borderWidth)) {
+      borderRadius[`--border-width-${key}`] = value;
+    }
+  }
+
+  if (theme.tokens.borderStyle) {
+    for (const [key, value] of Object.entries(theme.tokens.borderStyle)) {
+      borderRadius[`--border-style-${key}`] = value;
+    }
+  }
+
   if (theme.tokens.shadows) {
     for (const [key, value] of Object.entries(theme.tokens.shadows)) {
       shadows[`--shadow-${key}`] = value;
