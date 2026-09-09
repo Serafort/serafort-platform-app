@@ -282,7 +282,7 @@ export default function JWKSManagement() {
             boxShadow: 'none',
             textAlign: 'center',
             py: 10,
-            background: alpha(theme.palette.common.black, 0.2),
+            bgcolor: (th) => th.palette.background.paper,
             backdropFilter: 'blur(24px)',
             position: 'relative',
             overflow: 'hidden',
@@ -365,7 +365,7 @@ export default function JWKSManagement() {
                   borderColor: alpha(theme.palette.primary.main, 0.1),
                   boxShadow: 'none',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.05)} 0%, ${alpha(theme.palette.common.black, 0.2)} 100%)`,
+                  bgcolor: (th) => th.palette.background.paper,
                   backdropFilter: 'blur(24px)',
                   position: 'relative',
                   overflow: 'hidden',
@@ -585,7 +585,7 @@ export default function JWKSManagement() {
           borderColor: alpha(theme.palette.divider, 0.08),
           boxShadow: 'none',
           mt: 4,
-          background: alpha(theme.palette.common.black, 0.2),
+          bgcolor: (th) => th.palette.background.paper,
           backdropFilter: 'blur(24px)',
         }}
       >
@@ -634,7 +634,7 @@ export default function JWKSManagement() {
           paper: {
             sx: {
               borderRadius: '24px',
-              background: (t) => alpha(t.palette.common.black, 0.95),
+              bgcolor: (t) => t.palette.background.paper,
               backdropFilter: 'blur(20px)',
               border: '1px solid',
               borderColor: (t) => alpha(t.palette.divider, 0.1),
@@ -680,7 +680,7 @@ export default function JWKSManagement() {
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '12px',
-                    bgcolor: alpha(theme.palette.common.black, 0.3),
+                    bgcolor: alpha(theme.palette.text.primary, 0.03),
                   },
                 }}
               />
@@ -695,7 +695,7 @@ export default function JWKSManagement() {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '12px',
-                        bgcolor: alpha(theme.palette.common.black, 0.3),
+                        bgcolor: alpha(theme.palette.text.primary, 0.03),
                       },
                     }}
                   >
@@ -715,7 +715,7 @@ export default function JWKSManagement() {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '12px',
-                        bgcolor: alpha(theme.palette.common.black, 0.3),
+                        bgcolor: alpha(theme.palette.text.primary, 0.03),
                       },
                     }}
                   >
@@ -736,7 +736,7 @@ export default function JWKSManagement() {
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '12px',
-                    bgcolor: alpha(theme.palette.common.black, 0.3),
+                    bgcolor: alpha(theme.palette.text.primary, 0.03),
                   },
                 }}
               />
@@ -752,7 +752,7 @@ export default function JWKSManagement() {
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '12px',
-                    bgcolor: alpha(theme.palette.common.black, 0.3),
+                    bgcolor: alpha(theme.palette.text.primary, 0.03),
                   },
                 }}
               />
@@ -766,7 +766,7 @@ export default function JWKSManagement() {
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '12px',
-                    bgcolor: alpha(theme.palette.common.black, 0.3),
+                    bgcolor: alpha(theme.palette.text.primary, 0.03),
                   },
                 }}
               />
@@ -810,7 +810,7 @@ export default function JWKSManagement() {
           paper: {
             sx: {
               borderRadius: '24px',
-              background: (t) => alpha(t.palette.common.black, 0.95),
+              bgcolor: (t) => t.palette.background.paper,
               backdropFilter: 'blur(20px)',
               border: '1px solid',
               borderColor: (t) => alpha(t.palette.divider, 0.1),
@@ -911,7 +911,7 @@ export default function JWKSManagement() {
                       minWidth: 120,
                       p: 2,
                       borderRadius: '14px',
-                      bgcolor: alpha(theme.palette.common.black, 0.3),
+                      bgcolor: alpha(theme.palette.text.primary, 0.03),
                       border: '1px solid',
                       borderColor: alpha(theme.palette.divider, 0.08),
                     }}
@@ -974,7 +974,7 @@ export default function JWKSManagement() {
                       minWidth: 120,
                       p: 2,
                       borderRadius: '14px',
-                      bgcolor: alpha(theme.palette.common.black, 0.3),
+                      bgcolor: alpha(theme.palette.text.primary, 0.03),
                       border: '1px solid',
                       borderColor: alpha(theme.palette.divider, 0.08),
                     }}
@@ -1035,14 +1035,14 @@ export default function JWKSManagement() {
                   sx={{
                     p: 2,
                     borderRadius: '14px',
-                    bgcolor: alpha(theme.palette.common.black, 0.4),
+                    bgcolor: alpha(theme.palette.text.primary, 0.05),
                     border: '1px solid',
                     borderColor: alpha(theme.palette.divider, 0.08),
                     fontSize: '0.75rem',
                     fontFamily: 'monospace',
                     overflow: 'auto',
                     maxHeight: 250,
-                    color: alpha(theme.palette.common.white, 0.85),
+                    color: "text.primary",
                     m: 0,
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-all',

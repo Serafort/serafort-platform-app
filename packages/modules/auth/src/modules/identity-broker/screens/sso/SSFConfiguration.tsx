@@ -494,8 +494,7 @@ export default function SSFConfiguration() {
               border: '1px solid',
               borderColor: alpha(theme.palette.divider, 0.08),
               boxShadow: 'none',
-              background: alpha(theme.palette.common.black, 0.2),
-              backdropFilter: 'blur(24px)',
+              bgcolor: 'background.paper',
             }}
           >
             <CardContent sx={{ p: { xs: 3, md: 4 } }}>
@@ -517,7 +516,7 @@ export default function SSFConfiguration() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                     fontSize: '0.8125rem',
-                    color: alpha(theme.palette.common.white, 0.9),
+                    color: 'text.primary',
                   }}
                 >
                   {t('auth.sso.transmitter_endpoint', 'Transmitter Identity')}
@@ -534,7 +533,7 @@ export default function SSFConfiguration() {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '12px',
-                        bgcolor: alpha(theme.palette.common.black, 0.3),
+                        bgcolor: alpha(theme.palette.text.primary, 0.03),
                         '& fieldset': { borderColor: alpha(theme.palette.divider, 0.1) },
                         '&:hover fieldset': { borderColor: alpha(theme.palette.primary.main, 0.4) },
                       },
@@ -560,7 +559,7 @@ export default function SSFConfiguration() {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '12px',
-                        bgcolor: alpha(theme.palette.common.black, 0.3),
+                        bgcolor: alpha(theme.palette.text.primary, 0.03),
                         '& fieldset': { borderColor: alpha(theme.palette.divider, 0.1) },
                       },
                     }}
@@ -643,10 +642,9 @@ export default function SSFConfiguration() {
               borderColor: alpha(theme.palette.primary.main, 0.1),
               boxShadow: 'none',
               mb: 4,
-              background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.common.black, 0.2)} 100%)`,
+              bgcolor: alpha(theme.palette.primary.main, 0.05),
               position: 'relative',
               overflow: 'hidden',
-              backdropFilter: 'blur(24px)',
             }}
           >
             <Box
@@ -843,8 +841,7 @@ export default function SSFConfiguration() {
               border: '1px solid',
               borderColor: alpha(theme.palette.divider, 0.08),
               boxShadow: 'none',
-              background: alpha(theme.palette.common.black, 0.2),
-              backdropFilter: 'blur(24px)',
+              bgcolor: 'background.paper',
             }}
           >
             <CardContent sx={{ p: { xs: 3, md: 4 } }}>
@@ -913,8 +910,8 @@ export default function SSFConfiguration() {
           paper: {
             sx: {
               borderRadius: '24px',
-              background: alpha(theme.palette.common.black, 0.95),
-              backdropFilter: 'blur(20px)',
+              bgcolor: 'background.paper',
+              backgroundImage: 'none',
               border: '1px solid',
               borderColor: alpha(theme.palette.divider, 0.1),
               boxShadow: theme.shadows[24],
@@ -960,7 +957,7 @@ export default function SSFConfiguration() {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
-                  bgcolor: alpha(theme.palette.common.black, 0.3),
+                  bgcolor: alpha(theme.palette.text.primary, 0.03),
                 },
               }}
             />
@@ -973,7 +970,7 @@ export default function SSFConfiguration() {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
-                  bgcolor: alpha(theme.palette.common.black, 0.3),
+                  bgcolor: alpha(theme.palette.text.primary, 0.03),
                 },
               }}
             />
@@ -988,7 +985,7 @@ export default function SSFConfiguration() {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
-                  bgcolor: alpha(theme.palette.common.black, 0.3),
+                  bgcolor: alpha(theme.palette.text.primary, 0.03),
                 },
               }}
             />

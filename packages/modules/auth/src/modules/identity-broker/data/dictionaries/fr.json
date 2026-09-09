@@ -1335,7 +1335,7 @@
       "keys_rotated": "Clés régénérées avec succès",
       "last_active": "Dernière utilisation",
       "live_stream": "Flux de signaux en direct",
-      "load_failed": "Échec du chargement de la configuration",
+      "load_failed": "Impossible de charger la configuration SAML. Réessayez ou revenez dans quelques instants.",
       "loading_interaction": "Chargement de la session d’authentification...",
       "loginSubtitle": "Choisissez votre méthode préférée pour continuer",
       "loginTitle": "Connectez-vous à {{appName}}",

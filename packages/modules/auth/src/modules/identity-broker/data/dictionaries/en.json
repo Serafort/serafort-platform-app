@@ -204,7 +204,7 @@
       "keys_rotated": "Keys rotated successfully",
       "last_active": "Last active",
       "live_stream": "Live signals stream",
-      "load_failed": "Failed to load configuration",
+      "load_failed": "The SAML configuration could not be loaded. Retry, or check back shortly.",
       "loading_interaction": "Loading authentication session...",
       "loginSubtitle": "Choose your preferred way to continue",
       "loginTitle": "Sign in to {{appName}}",
