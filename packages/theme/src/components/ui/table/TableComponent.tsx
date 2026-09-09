@@ -38,21 +38,19 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
         <TableHead>
           <TableRow>
             {data?.header?.map((item: ITableHeader) => (
-              <TableCell
-                key={`${item.label}${Math.random()}${item.key}${Math.random()}`}
-              >
+              <TableCell key={`header-${item.key}`}>
                 {item.label}
               </TableCell>
             ))}
             {this.props?.TableOptions && (
-              <TableCell key={`actions${Math.random() * properties.length}}`}>
+              <TableCell key="header-actions">
                 {/* // {translate('actions')} */}
                 actions
               </TableCell>
             )}
           </TableRow>
         </TableHead>
-        <TableBody key={`TableBody${Math.random()}`}>
+        <TableBody>
           {/* <FixedSizeList
               height={100}
               width={100}
@@ -62,10 +60,10 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
               cc
             </FixedSizeList> */}
           {loading &&
-            fillArray.map(() => (
-              <TableRow key={`TableRow${Math.random()}`}>
+            fillArray.map((_, rowIndex) => (
+              <TableRow key={`loading-row-${rowIndex}`}>
                 {data.header.map((item: ITableHeader) => (
-                  <TableCell key={`${item.label}${Math.random()}`}>
+                  <TableCell key={`loading-cell-${rowIndex}-${item.key}`}>
                     <Skeleton variant="text" sx={{ fontSize: "1rem" }} />
                   </TableCell>
                 ))}
@@ -75,26 +73,23 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
           {!loading &&
             data.rows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row: ITableRow) => (
-                <TableRow hover key={`${row?.id ? row?.id : Math.random()}`}>
-                  {data.header.map((header: ITableHeader) => (
-                    <TableCell
-                      key={`${
-                        Object.keys(row).filter(
-                          (value) => value === header.key,
-                        )[0]
-                      }${Math.random()}${header.key}${Math.random()}`}
-                    >
-                      <TableValue property={header} row={row} />
-                    </TableCell>
-                  ))}
-                  {/* {this.props?.TableOptions && (
-                      <TableCell align='right'>
-                        <TableOptions data={row} onClick={onClick} />
+              .map((row: ITableRow, rowIndex: number) => {
+                const rowKey = row?.id ? String(row.id) : `row-${page * rowsPerPage + rowIndex}`;
+                return (
+                  <TableRow hover key={rowKey}>
+                    {data.header.map((header: ITableHeader) => (
+                      <TableCell key={`${rowKey}-${header.key}`}>
+                        <TableValue property={header} row={row} />
                       </TableCell>
-                    )} */}
-                </TableRow>
-              ))}
+                    ))}
+                    {/* {this.props?.TableOptions && (
+                        <TableCell align='right'>
+                          <TableOptions data={row} onClick={onClick} />
+                        </TableCell>
+                      )} */}
+                  </TableRow>
+                );
+              })}
         </TableBody>
       </Table>
     );

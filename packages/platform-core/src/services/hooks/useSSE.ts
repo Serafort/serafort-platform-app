@@ -166,7 +166,6 @@ export function useSSE<T = any>(endpoint: string, options: SSEOptions = {}): SSE
   }, [connect, disconnect])
 
   React.useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     connect()
 
     return () => {
@@ -279,7 +278,6 @@ export function useAnalysisProgress(analysisId: number | null) {
   // Extract result when available
   React.useEffect(() => {
     if (lastEvent === 'result' && data && 'top_roles' in data) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setResult(data as AnalysisResult)
     }
   }, [lastEvent, data])
