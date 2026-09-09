@@ -201,7 +201,7 @@ export default function OrganizationInvitationDashboard() {
               textTransform: 'none',
               bgcolor: 'info.main',
               color: 'info.contrastText',
-              boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.2)',
+              boxShadow: (th) => `0 4px 14px 0 ${alpha(th.palette.info.main, 0.3)}`,
               '&:hover': { bgcolor: 'info.dark' },
             }}
           >
@@ -524,7 +524,7 @@ export default function OrganizationInvitationDashboard() {
               px: 3,
               bgcolor: 'info.main',
               color: 'info.contrastText',
-              boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.2)',
+              boxShadow: (th) => `0 4px 14px 0 ${alpha(th.palette.info.main, 0.3)}`,
               '&:hover': { bgcolor: 'info.dark' },
             }}
           >
