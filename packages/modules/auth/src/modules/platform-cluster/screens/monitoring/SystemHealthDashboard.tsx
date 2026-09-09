@@ -64,7 +64,6 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
     data: healthResponse,
     isLoading,
     isError,
-    error,
     refetch,
     isFetching,
   } = useDetailedHealth({
@@ -181,8 +180,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '100vh',
-          bgcolor: 'background.default',
+          minHeight: 400,
           gap: 2,
         }}
       >
@@ -192,7 +190,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
     )
   }
 
-  // Error state
+  // Error state — the raw query error is not surfaced to the user.
   if (isError) {
     return (
       <Box
@@ -201,8 +199,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '100vh',
-          bgcolor: 'background.default',
+          minHeight: 400,
           p: 4,
         }}
       >
@@ -215,9 +212,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
             </Button>
           }
         >
-          {t('monitoring.dashboard.error_failed_to_load', {
-            error: error?.message || 'Unknown error',
-          })}
+          {t('monitoring.dashboard.error_failed_to_load')}
         </Alert>
       </Box>
     )

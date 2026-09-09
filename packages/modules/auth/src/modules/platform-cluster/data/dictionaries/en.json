@@ -148,6 +148,31 @@
       "resolve": "Resolve",
       "dismiss": "Dismiss",
       "false_positive": "False positive"
+    },
+    "dashboard": {
+      "status_healthy": "Healthy",
+      "status_degraded": "Degraded",
+      "status_outage": "Outage",
+      "loading_data": "Loading system health…",
+      "retry_button": "Retry",
+      "error_failed_to_load": "System health data could not be loaded. Retry, or check back shortly.",
+      "all_systems_operational": "All systems operational",
+      "degraded_performance": "Degraded performance",
+      "refreshing": "Refreshing…",
+      "last_check": "Last checked {{time}}",
+      "overall_health_score": "Overall health score",
+      "dependency_col": "Dependency",
+      "status_col": "Status",
+      "response_time_col": "Response time",
+      "version_col": "Version",
+      "details_col": "Details",
+      "app_version": "App version {{version}}",
+      "environment": "Environment {{env}}",
+      "uptime": "Uptime {{uptime}}",
+      "server": "Server {{server}}",
+      "status_page_desc": "This page reflects the live status of core platform services.",
+      "incident_report_prefix": "Seeing something we're not?",
+      "incident_portal_link": "Report an incident"
     }
   }
 }

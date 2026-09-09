@@ -148,6 +148,31 @@
       "resolve": "Résoudre",
       "dismiss": "Rejeter",
       "false_positive": "Faux positif"
+    },
+    "dashboard": {
+      "status_healthy": "Sain",
+      "status_degraded": "Dégradé",
+      "status_outage": "Panne",
+      "loading_data": "Chargement de l’état du système…",
+      "retry_button": "Réessayer",
+      "error_failed_to_load": "Impossible de charger l’état du système. Réessayez ou revenez dans quelques instants.",
+      "all_systems_operational": "Tous les systèmes sont opérationnels",
+      "degraded_performance": "Performances dégradées",
+      "refreshing": "Actualisation…",
+      "last_check": "Dernière vérification {{time}}",
+      "overall_health_score": "Score de santé global",
+      "dependency_col": "Dépendance",
+      "status_col": "Statut",
+      "response_time_col": "Temps de réponse",
+      "version_col": "Version",
+      "details_col": "Détails",
+      "app_version": "Version de l’application {{version}}",
+      "environment": "Environnement {{env}}",
+      "uptime": "Disponibilité {{uptime}}",
+      "server": "Serveur {{server}}",
+      "status_page_desc": "Cette page reflète l’état en direct des services principaux de la plateforme.",
+      "incident_report_prefix": "Vous constatez autre chose ?",
+      "incident_portal_link": "Signaler un incident"
     }
   }
 }

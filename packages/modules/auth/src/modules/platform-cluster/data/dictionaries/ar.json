@@ -148,6 +148,31 @@
       "resolve": "حلّ",
       "dismiss": "رفض",
       "false_positive": "إنذار كاذب"
+    },
+    "dashboard": {
+      "status_healthy": "سليم",
+      "status_degraded": "متدهور",
+      "status_outage": "انقطاع",
+      "loading_data": "جارٍ تحميل حالة النظام…",
+      "retry_button": "إعادة المحاولة",
+      "error_failed_to_load": "تعذّر تحميل بيانات حالة النظام. أعد المحاولة أو عد بعد قليل.",
+      "all_systems_operational": "جميع الأنظمة تعمل",
+      "degraded_performance": "أداء متدهور",
+      "refreshing": "جارٍ التحديث…",
+      "last_check": "آخر فحص {{time}}",
+      "overall_health_score": "نتيجة السلامة الإجمالية",
+      "dependency_col": "التبعية",
+      "status_col": "الحالة",
+      "response_time_col": "زمن الاستجابة",
+      "version_col": "الإصدار",
+      "details_col": "التفاصيل",
+      "app_version": "إصدار التطبيق {{version}}",
+      "environment": "البيئة {{env}}",
+      "uptime": "مدة التشغيل {{uptime}}",
+      "server": "الخادم {{server}}",
+      "status_page_desc": "تعكس هذه الصفحة الحالة المباشرة لخدمات المنصة الأساسية.",
+      "incident_report_prefix": "تلاحظ شيئًا مختلفًا؟",
+      "incident_portal_link": "الإبلاغ عن حادث"
     }
   }
 }
