@@ -64,7 +64,7 @@ const REC_ICON_MAP: Record<string, React.ReactNode> = {
 
 export const SecurityHealthCheck: React.FC = () => {
   const { t } = useTranslation()
-  const { data: healthRes, isLoading, error } = useSecurityHealth()
+  const { data: healthRes, isLoading, error, refetch } = useSecurityHealth()
 
   const healthData = (healthRes as any)?.data || healthRes
   const securityScore = healthData?.score ?? 85
@@ -88,7 +88,14 @@ export const SecurityHealthCheck: React.FC = () => {
   if (error) {
     return (
       <Container maxWidth='lg' sx={{ py: 4 }}>
-        <Alert severity='error'>
+        <Alert
+          severity='error'
+          action={
+            <Button color='inherit' size='small' onClick={() => refetch()}>
+              {t('monitoring.security.retry', 'Retry')}
+            </Button>
+          }
+        >
           {t('monitoring.security.error_loading', 'Failed to load security health data')}
         </Alert>
       </Container>
