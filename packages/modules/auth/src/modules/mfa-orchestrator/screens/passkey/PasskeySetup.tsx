@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import {
+  Alert,
+  Avatar,
   Box,
   Button,
-  Typography,
+  CircularProgress,
   Dialog,
   DialogContent,
-  CircularProgress,
-  Link,
-  Avatar,
+  Stack,
+  Typography,
   alpha,
   useTheme,
-  Alert,
 } from '@mui/material'
 import Fingerprint from '@mui/icons-material/Fingerprint'
 import Security from '@mui/icons-material/Security'
@@ -42,9 +42,11 @@ export default function PasskeySetup({
     try {
       await registerPasskey({ friendlyName })
       onSuccess?.()
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : ''
       onError?.(
-        err.message || t('passkey.errorSetupFailed', 'Passkey registration cancelled or failed'),
+        message ||
+          t('passkey.errorSetupFailed', 'Passkey registration was cancelled or did not complete.'),
       )
     } finally {
       setWaitingForConfirmation(false)
@@ -61,23 +63,25 @@ export default function PasskeySetup({
       onClose={handleCancel}
       maxWidth='xs'
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 3,
-          p: 2,
-          bgcolor: 'background.paper',
-          backgroundImage: 'none',
-          border: (theme) => `1px solid ${theme.palette.divider}`,
-          boxShadow: (theme) =>
-            theme.palette.mode === 'dark'
-              ? '0 24px 48px -12px rgba(0, 0, 0, 0.8)'
-              : '0 24px 48px -12px rgba(15, 23, 42, 0.25)',
+      aria-labelledby='passkey-setup-title'
+      // `PaperProps` is deprecated in MUI v7 in favour of slotProps.
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 3,
+            p: 2,
+            bgcolor: 'background.paper',
+            backgroundImage: 'none',
+            border: '1px solid',
+            borderColor: 'divider',
+          },
         },
       }}
     >
       <DialogContent sx={{ px: 4, py: 5, textAlign: 'center' }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
           <Avatar
+            aria-hidden
             variant='square'
             sx={{
               width: 56,
@@ -93,109 +97,112 @@ export default function PasskeySetup({
           </Avatar>
         </Box>
 
-        <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+        <Typography
+          id='passkey-setup-title'
+          component='h2'
+          variant='h5'
+          sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}
+        >
           {t('passkey.setupTitle', 'Set up a passkey')}
         </Typography>
         <Typography
           variant='body2'
           color='text.secondary'
-          sx={{ mb: 4, lineHeight: 1.6, maxWidth: 340, mx: 'auto' }}
+          sx={{ mb: 4, lineHeight: 1.6, maxInlineSize: 340, mx: 'auto' }}
         >
           {t(
             'passkey.setupDesc',
-            'Use your device biometrics or security key to sign in without a password.',
+            'Sign in with the fingerprint, face or security key you already use to unlock this device — no password to type or remember.',
           )}
         </Typography>
 
         {error && (
-          <Alert severity='error' sx={{ mb: 3, borderRadius: 2, textAlign: 'left' }}>
+          // `textAlign: 'left'` pinned the message to the left even in Arabic.
+          // The logical value follows the writing direction.
+          <Alert severity='error' sx={{ mb: 3, borderRadius: 2, textAlign: 'start' }}>
             {error}
           </Alert>
         )}
 
         {waitingForConfirmation && (
-          <Box
-            sx={{
-              bgcolor: 'action.hover',
-              borderRadius: 2,
-              py: 2,
-              px: 3,
-              mb: 3,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 2,
-            }}
-          >
-            <CircularProgress size={20} thickness={4} />
-            <Typography variant='body2' color='text.secondary' fontWeight={500}>
-              {t('passkey.waitingConfirmation', 'Waiting for confirmation...')}
+          <Stack spacing={1} sx={{ mb: 3 }}>
+            <Stack
+              direction='row'
+              spacing={2}
+              alignItems='center'
+              justifyContent='center'
+              role='status'
+              sx={{ bgcolor: 'action.hover', borderRadius: 2, py: 2, px: 3 }}
+            >
+              <CircularProgress size={20} thickness={4} />
+              <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
+                {t('passkey.waitingConfirmation', 'Waiting for confirmation…')}
+              </Typography>
+            </Stack>
+            <Typography variant='caption' color='text.secondary'>
+              {t('passkey.checkBrowser', 'Your browser or device should be asking you to confirm.')}
             </Typography>
-          </Box>
-        )}
-        {waitingForConfirmation && (
-          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 3 }}>
-            {t('passkey.checkBrowser', 'Check your browser or device for the prompt.')}
-          </Typography>
+          </Stack>
         )}
 
         <Button
           fullWidth
           variant='contained'
+          // `color='info'` rather than a hand-set bgcolor: MUI then picks the
+          // channel's own contrastText, which stays legible under a tenant
+          // palette with a pale info colour.
+          color='info'
           startIcon={<Security />}
           onClick={handleSetupPasskey}
           disabled={isLoading}
           sx={{
-            py: 1.5,
+            minHeight: 48,
             mb: 2,
             borderRadius: 3,
             fontWeight: 800,
             textTransform: 'none',
-            bgcolor: 'info.main',
-            boxShadow: (t) => `0 4px 14px ${alpha(t.palette.info.main, 0.4)}`,
-            '&:hover': {
-              bgcolor: 'info.dark',
-              transform: 'translateY(-1px)',
-            },
+            boxShadow: `0 4px 14px ${alpha(theme.palette.info.main, 0.4)}`,
           }}
         >
           {isLoading
-            ? t('passkey.settingUp', 'Setting up...')
-            : t('passkey.useSecurityKey', 'Use Biometrics / Security Key')}
+            ? t('passkey.settingUp', 'Setting up…')
+            : t('passkey.useSecurityKey', 'Use this device')}
         </Button>
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 1 }}>
-          <Link
-            component='button'
-            variant='body2'
-            onClick={handleCancel}
-            underline='none'
-            disabled={isLoading}
-            sx={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'text.secondary',
-              fontWeight: 600,
-              cursor: 'pointer',
-              textDecoration: 'none',
-              transition: 'color 0.2s ease',
-              '&:hover': { color: 'text.primary' },
-              '&.Mui-disabled': { color: 'text.disabled', cursor: 'default' },
-            }}
-          >
-            {t('common.cancel', 'Cancel')}
-          </Link>
-        </Box>
-
-        <Box
-          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 4 }}
+        {/*
+          Was a `<Link component='button' disabled>`. `disabled` is not a Link
+          prop, so it reached the DOM without disabling anything: the cancel
+          control stayed clickable during registration despite being styled as
+          though it were not.
+        */}
+        <Button
+          fullWidth
+          variant='text'
+          onClick={handleCancel}
+          disabled={isLoading}
+          sx={{
+            minHeight: 44,
+            fontWeight: 600,
+            textTransform: 'none',
+            color: 'text.secondary',
+            '&:hover': { color: 'text.primary' },
+          }}
         >
-          <Security sx={{ fontSize: 14, color: 'text.disabled' }} />
-          <Typography variant='caption' color='text.disabled' fontWeight={500}>
+          {t('common.cancel', 'Cancel')}
+        </Button>
+
+        <Stack
+          direction='row'
+          spacing={0.5}
+          alignItems='center'
+          justifyContent='center'
+          sx={{ mt: 4 }}
+        >
+          <Security aria-hidden sx={{ fontSize: 14, color: 'text.disabled' }} />
+          <Typography variant='caption' color='text.disabled' sx={{ fontWeight: 500 }}>
             {t('passkey.securedByWebauthn', 'Secured by WebAuthn')}
           </Typography>
-        </Box>
+        </Stack>
       </DialogContent>
     </Dialog>
   )
