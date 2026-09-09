@@ -52,6 +52,7 @@
       "manage_accounts": "Manage Accounts",
       "manage_devices": "Manage Devices",
       "manage_passkeys": "Manage Passkeys",
+      "manage_passkeys_cta": "Manage keys",
       "manage_tokens": "Manage Tokens",
       "mfa": {
         "disabled": "Disabled",
@@ -63,15 +64,20 @@
       "mfa_status": "MFA Status",
       "new_password_label": "New Password",
       "new_password_placeholder": "Create a strong new password",
+      "no_email": "No email address on file",
+      "overview_subtitle": "Manage your security settings, active sessions, passkeys, and multi-factor authentication.",
       "overview_title": "Account Overview",
       "overview_welcome": "Manage your security settings, active sessions, passkeys, and multi-factor authentication.",
       "overview_welcome_user": "Welcome back, {{name}}. Manage your security settings and authentication.",
+      "passkey_active_desc": "Your account is protected by a passkey. You can manage or add another one anytime.",
+      "passkey_active_title": "Passkey authentication enabled",
       "passkey_banner_desc": "Experience fast, phishing-resistant logins using biometric verification (Touch ID, Face ID, Windows Hello) or security keys.",
       "passkey_banner_title": "Strengthen Your Account with Passkeys",
       "passkeys_enrolled": "Passkeys & Biometrics",
       "password_updated": "Password Updated",
       "password_updated_desc": "Your password has been changed successfully.",
       "register_passkey": "Add Passkey",
+      "retry": "Retry",
       "security": {
         "enable_2fa_message": "Two-factor authentication is not enabled. Turn it on to enhance your account security.",
         "recommendation": "Security Recommendation"
@@ -93,9 +99,19 @@
         "status_needs_attention": "Action Recommended",
         "status_optimal": "Optimal"
       },
+      "statusLabel": {
+        "active": "Active",
+        "banned": "Banned",
+        "inactive": "Inactive",
+        "suspended": "Suspended"
+      },
+      "sync_notice": "Some security metrics could not be loaded",
+      "sync_notice_desc": "We encountered an issue syncing some of your account data. Click retry to refresh.",
+      "tenant_label": "Tenant: {{tenant}}",
       "unknown_browser": "Unknown browser",
       "unknown_device": "Unknown device",
-      "update_password": "Update Password"
+      "update_password": "Update Password",
+      "user": "User"
     },
     "active_sessions": {
       "button_end_all": "Sign Out All Other Sessions",
