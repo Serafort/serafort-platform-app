@@ -274,22 +274,6 @@ export default function AuthWaitScreen() {
           </Box>
         </motion.div>
       </Container>
-
-      {/* Footer Branding */}
-      <Box sx={{ position: 'absolute', bottom: 40, width: '100%', textAlign: 'center' }}>
-        <Typography
-          variant='caption'
-          color='text.secondary'
-          sx={{
-            opacity: 0.4,
-            fontWeight: 700,
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase',
-          }}
-        >
-          {t('auth.sso.nexus_version', 'Nexus Protocol Engine v2.4')}
-        </Typography>
-      </Box>
     </Box>
   )
 }

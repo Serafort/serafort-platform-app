@@ -96,13 +96,13 @@ export default function SSOProviderSelection() {
         `${Path.identity.oidcLoginPrompt}?domain=${emailDomain}${detectedProvider.clientId ? `&clientId=${detectedProvider.clientId}` : ''}`,
       )
     } else {
-      toast.info(t('sso.noProviderDetected', 'No SSO provider could be identified'))
+      toast.info(t('auth.sso.noProviderDetected', 'No SSO provider could be identified'))
     }
   }, [detectedProvider, emailDomain, navigate, t])
 
   const handleManualProviderClick = (provider: (typeof MANUAL_PROVIDERS)[number]) => {
     if (!isValidEmail) {
-      toast.warning(t('sso.enterEmailFirst', 'Please enter your work email first'))
+      toast.warning(t('auth.sso.enterEmailFirst', 'Please enter your work email first'))
       return
     }
     navigate(`${Path.identity.samlSSOInitiation}?provider=${provider.id}&domain=${emailDomain}`)
@@ -135,10 +135,10 @@ export default function SSOProviderSelection() {
           <ShieldIcon sx={{ fontSize: 32 }} />
         </Avatar>
         <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 1 }}>
-          {t('sso.enterpriseLoginTitle', 'Enterprise Sign-In')}
+          {t('auth.sso.enterpriseLoginTitle', 'Enterprise Sign-In')}
         </Typography>
         <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
-          {t('sso.hrdSubtitle', 'Enter your work email to continue to your provider')}
+          {t('auth.sso.hrdSubtitle', 'Enter your work email to continue to your provider')}
         </Typography>
       </Box>
 
@@ -245,14 +245,14 @@ export default function SSOProviderSelection() {
                           color: 'primary.dark',
                         }}
                       >
-                        {t('sso.detectedLabel', 'Detected')} {detectedProvider.type}
+                        {t('auth.sso.detectedLabel', 'Detected')} {detectedProvider.type}
                       </Typography>
                     </Box>
                   </Box>
                   <IconButton
                     color='primary'
                     onClick={handleContinue}
-                    aria-label={t('sso.continueProvider', 'Continue with detected provider')}
+                    aria-label={t('auth.sso.continueProvider', 'Continue with detected provider')}
                     sx={{
                       bgcolor: alpha(theme.palette.primary.main, 0.08),
                       '&:hover': {
@@ -292,7 +292,7 @@ export default function SSOProviderSelection() {
                   {isDiscovering ? (
                     <CircularProgress size={24} color='inherit' />
                   ) : (
-                    t('sso.findProvider', 'Find My Provider')
+                    t('auth.sso.findProvider', 'Find My Provider')
                   )}
                 </Button>
               </motion.div>
@@ -310,7 +310,7 @@ export default function SSOProviderSelection() {
                 color: 'text.disabled',
               }}
             >
-              {t('sso.orSelectManually', 'Or select manually')}
+              {t('auth.sso.orSelectManually', 'Or select manually')}
             </Typography>
           </Divider>
 
@@ -345,7 +345,10 @@ export default function SSOProviderSelection() {
                       fontSize: '0.65rem',
                       fontWeight: 900,
                       bgcolor: alpha(p.color, theme.palette.mode === 'dark' ? 0.2 : 0.1),
-                      color: p.color,
+                      // The brand hue tints the chip, but the initials take a
+                      // theme colour: OneLogin's #000 (and Ping's dark red) are
+                      // invisible on the dark-mode surface otherwise.
+                      color: theme.palette.mode === 'dark' ? 'text.primary' : p.color,
                       borderRadius: '8px',
                     }}
                   >
@@ -393,7 +396,7 @@ export default function SSOProviderSelection() {
               variant='caption'
               sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.075em' }}
             >
-              {t('sso.whatIsSso', 'What is Enterprise SSO?')}
+              {t('auth.sso.whatIsSso', 'What is Enterprise SSO?')}
             </Typography>
           </Box>
         </Tooltip>
@@ -408,7 +411,7 @@ export default function SSOProviderSelection() {
               color: 'success.dark',
             }}
           >
-            {t('sso.secureEncryptionTag', 'Verified & Protected')}
+            {t('auth.sso.secureEncryptionTag', 'Verified & Protected')}
           </Typography>
         </Box>
       </Box>

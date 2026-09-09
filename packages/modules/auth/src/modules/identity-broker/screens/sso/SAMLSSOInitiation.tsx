@@ -71,8 +71,11 @@ function useProviderConfig(): Record<
       color: theme.palette.info.main,
       icon: <KeyIcon sx={{ fontSize: 16 }} />,
     },
+    // Brand hues for the provider chip. This screen always renders on its own
+    // dark gradient, so GitHub's near-black mark is lightened to its dark-UI
+    // grey to stay visible; Google and Microsoft are already bright enough.
     google: { label: 'Google', color: '#EA4335', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
-    github: { label: 'GitHub', color: '#333', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
+    github: { label: 'GitHub', color: '#8b949e', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
     microsoft: { label: 'Microsoft', color: '#00A4EF', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
     password: {
       label: 'Standard Login',
