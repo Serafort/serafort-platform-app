@@ -173,6 +173,44 @@
       "status_page_desc": "تعكس هذه الصفحة الحالة المباشرة لخدمات المنصة الأساسية.",
       "incident_report_prefix": "تلاحظ شيئًا مختلفًا؟",
       "incident_portal_link": "الإبلاغ عن حادث"
+    },
+    "modules": {
+      "title": "إدارة الوحدات والتسجيل التلقائي",
+      "subtitle": "ارفع الوحدات وفكّ ضغطها واختبرها وأدرها ديناميكيًا عبر النظام.",
+      "refresh": "تحديث",
+      "upload": "رفع حزمة وحدة",
+      "stat_total": "إجمالي المُثبَّت",
+      "stat_active": "الوحدات النشطة",
+      "stat_core": "وحدات المنصة الأساسية",
+      "stat_routes": "المسارات المُسجَّلة",
+      "search_placeholder": "ابحث عن الوحدات بالاسم أو المعرّف أو الوصف…",
+      "filter_all": "الكل",
+      "filter_active": "نشط",
+      "filter_disabled": "مُعطّل",
+      "filter_core": "أساسي",
+      "core_badge": "أساسي",
+      "routes_count": "{{count}} مسار",
+      "nav_count": "{{count}} عنصر تنقّل",
+      "status_active": "نشط",
+      "status_disabled": "مُعطّل",
+      "load_failed": "تعذّر تحميل قائمة الوحدات المُثبَّتة.",
+      "toggle_failed": "تعذّر تغيير هذه الوحدة. حاول مجددًا.",
+      "empty_title": "لا توجد وحدات مطابقة",
+      "empty_none": "لا توجد وحدات مُثبَّتة بعد. ارفع حزمة وحدة للبدء.",
+      "empty_filtered": "جرّب مصطلح بحث أو عامل تصفية مختلف."
+    }
+  },
+  "auth": {
+    "admin": {
+      "startDate": "تاريخ البدء",
+      "endDate": "تاريخ الانتهاء",
+      "exportScopeSecurity": "أحداث الأمان والوصول",
+      "exportScopeIam": "سجلّات تغييرات الهوية والصلاحيات",
+      "exportScopeFull": "تدقيق شامل للنظام",
+      "exportFailed": "تعذّر تصدير سجلّات التدقيق.",
+      "exportSuccess": "تم تنزيل تصدير سجلّ التدقيق بنجاح.",
+      "exportSuccessTitle": "اكتمل التصدير",
+      "exportAudit_subtitle": "أنشئ عمليات تصدير موقّعة ومقاوِمة للعبث لسجلّ تدقيق المنصة."
     }
   }
 }

@@ -35,7 +35,7 @@ import ModuleUploadModal from './components/ModuleUploadModal'
 
 export default function ModuleManagementDashboard() {
   const theme = useTheme()
-  const { t: _t } = useTranslation('common')
+  const { t } = useTranslation('common')
 
   const [modules, setModules] = useState<ModuleStatusInfo[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -51,7 +51,10 @@ export default function ModuleManagementDashboard() {
       const data = await modulesRouterService.listInstalledModules()
       setModules(data)
     } catch (err: any) {
-      setError(err.message || 'Failed to load installed module list')
+      setError(
+        err.message ||
+          t('monitoring.modules.load_failed', 'Failed to load the installed module list.'),
+      )
     } finally {
       setIsLoading(false)
     }
@@ -87,7 +90,10 @@ export default function ModuleManagementDashboard() {
         ),
       )
     } catch (err: any) {
-      setError(err.message || `Failed to toggle module ${id}`)
+      setError(
+        err.message ||
+          t('monitoring.modules.toggle_failed', 'Could not change that module. Try again.'),
+      )
     }
   }
 
@@ -123,11 +129,14 @@ export default function ModuleManagementDashboard() {
                 fontSize: { xs: '1.5rem', md: '2.125rem' },
               }}
             >
-              Module Management & Auto-Registration
+              {t('monitoring.modules.title', 'Module Management & Auto-Registration')}
             </Typography>
           </Box>
           <Typography variant='body2' color='text.secondary'>
-            Upload, unpack, test, and dynamically manage platform modules across the system.
+            {t(
+              'monitoring.modules.subtitle',
+              'Upload, unpack, test, and dynamically manage platform modules across the system.',
+            )}
           </Typography>
         </Box>
 
@@ -138,7 +147,7 @@ export default function ModuleManagementDashboard() {
             onClick={fetchModules}
             sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
           >
-            Refresh
+            {t('monitoring.modules.refresh', 'Refresh')}
           </Button>
           <Button
             variant='contained'
@@ -150,10 +159,10 @@ export default function ModuleManagementDashboard() {
               borderRadius: 2,
               px: 2.5,
               bgcolor: 'primary.main',
-              boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
+              boxShadow: (th) => `0 4px 14px 0 ${alpha(th.palette.primary.main, 0.39)}`,
             }}
           >
-            Upload Module Package
+            {t('monitoring.modules.upload', 'Upload Module Package')}
           </Button>
         </Stack>
       </Box>
@@ -171,7 +180,7 @@ export default function ModuleManagementDashboard() {
             }}
           >
             <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 700 }}>
-              TOTAL INSTALLED
+              {t('monitoring.modules.stat_total', 'TOTAL INSTALLED')}
             </Typography>
             <Typography variant='h4' sx={{ fontWeight: 900, mt: 0.5 }}>
               {stats.total}
@@ -189,7 +198,7 @@ export default function ModuleManagementDashboard() {
             }}
           >
             <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 700 }}>
-              ACTIVE MODULES
+              {t('monitoring.modules.stat_active', 'ACTIVE MODULES')}
             </Typography>
             <Typography variant='h4' sx={{ fontWeight: 900, mt: 0.5, color: 'success.main' }}>
               {stats.active}
@@ -207,7 +216,7 @@ export default function ModuleManagementDashboard() {
             }}
           >
             <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 700 }}>
-              CORE PLATFORM MODULES
+              {t('monitoring.modules.stat_core', 'CORE PLATFORM MODULES')}
             </Typography>
             <Typography variant='h4' sx={{ fontWeight: 900, mt: 0.5, color: 'info.main' }}>
               {stats.core}
@@ -225,7 +234,7 @@ export default function ModuleManagementDashboard() {
             }}
           >
             <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 700 }}>
-              REGISTERED ROUTES
+              {t('monitoring.modules.stat_routes', 'REGISTERED ROUTES')}
             </Typography>
             <Typography variant='h4' sx={{ fontWeight: 900, mt: 0.5, color: 'warning.main' }}>
               {stats.totalRoutes}
@@ -250,7 +259,10 @@ export default function ModuleManagementDashboard() {
         }}
       >
         <TextField
-          placeholder='Search modules by name, ID, or description...'
+          placeholder={t(
+            'monitoring.modules.search_placeholder',
+            'Search modules by name, ID, or description...',
+          )}
           size='small'
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -275,7 +287,7 @@ export default function ModuleManagementDashboard() {
               onClick={() => setStatusFilter(filter)}
               sx={{ textTransform: 'capitalize', borderRadius: 2, fontWeight: 700 }}
             >
-              {filter}
+              {t('monitoring.modules.filter_' + filter, filter)}
             </Button>
           ))}
         </Stack>
@@ -291,6 +303,32 @@ export default function ModuleManagementDashboard() {
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
           <CircularProgress />
         </Box>
+      ) : filteredModules.length === 0 ? (
+        <Paper
+          sx={{
+            p: 6,
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+            textAlign: 'center',
+          }}
+        >
+          <ExtensionIcon sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
+          <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
+            {t('monitoring.modules.empty_title', 'No modules match')}
+          </Typography>
+          <Typography variant='body2' color='text.secondary'>
+            {modules.length === 0
+              ? t(
+                  'monitoring.modules.empty_none',
+                  'No modules are installed yet. Upload a module package to get started.',
+                )
+              : t(
+                  'monitoring.modules.empty_filtered',
+                  'Try a different search term or filter.',
+                )}
+          </Typography>
+        </Paper>
       ) : (
         <Grid container spacing={3}>
           {filteredModules.map((module) => {
@@ -344,7 +382,7 @@ export default function ModuleManagementDashboard() {
                             {module.isCore && (
                               <Chip
                                 icon={<ShieldIcon sx={{ fontSize: 13 }} />}
-                                label='CORE'
+                                label={t('monitoring.modules.core_badge', 'CORE')}
                                 size='small'
                                 color='info'
                                 variant='outlined'
@@ -390,13 +428,19 @@ export default function ModuleManagementDashboard() {
                       <Stack direction='row' spacing={2}>
                         <Chip
                           icon={<RouteIcon sx={{ fontSize: 14 }} />}
-                          label={`${module.routeCount} Routes`}
+                          label={t('monitoring.modules.routes_count', {
+                            count: module.routeCount,
+                            defaultValue: '{{count}} Routes',
+                          })}
                           size='small'
                           variant='outlined'
                         />
                         <Chip
                           icon={<MenuIcon sx={{ fontSize: 14 }} />}
-                          label={`${module.navCount} Nav Items`}
+                          label={t('monitoring.modules.nav_count', {
+                            count: module.navCount,
+                            defaultValue: '{{count}} Nav Items',
+                          })}
                           size='small'
                           variant='outlined'
                         />
@@ -404,7 +448,11 @@ export default function ModuleManagementDashboard() {
 
                       <Chip
                         icon={isActive ? <CheckCircleIcon sx={{ fontSize: 14 }} /> : undefined}
-                        label={isActive ? 'Active' : 'Disabled'}
+                        label={
+                          isActive
+                            ? t('monitoring.modules.status_active', 'Active')
+                            : t('monitoring.modules.status_disabled', 'Disabled')
+                        }
                         color={isActive ? 'success' : 'default'}
                         size='small'
                         sx={{ fontWeight: 800 }}

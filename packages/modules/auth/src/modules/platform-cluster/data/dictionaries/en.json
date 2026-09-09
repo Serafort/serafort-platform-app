@@ -173,6 +173,44 @@
       "status_page_desc": "This page reflects the live status of core platform services.",
       "incident_report_prefix": "Seeing something we're not?",
       "incident_portal_link": "Report an incident"
+    },
+    "modules": {
+      "title": "Module Management & Auto-Registration",
+      "subtitle": "Upload, unpack, test, and dynamically manage platform modules across the system.",
+      "refresh": "Refresh",
+      "upload": "Upload Module Package",
+      "stat_total": "TOTAL INSTALLED",
+      "stat_active": "ACTIVE MODULES",
+      "stat_core": "CORE PLATFORM MODULES",
+      "stat_routes": "REGISTERED ROUTES",
+      "search_placeholder": "Search modules by name, ID, or description...",
+      "filter_all": "All",
+      "filter_active": "Active",
+      "filter_disabled": "Disabled",
+      "filter_core": "Core",
+      "core_badge": "CORE",
+      "routes_count": "{{count}} Routes",
+      "nav_count": "{{count}} Nav Items",
+      "status_active": "Active",
+      "status_disabled": "Disabled",
+      "load_failed": "Failed to load the installed module list.",
+      "toggle_failed": "Could not change that module. Try again.",
+      "empty_title": "No modules match",
+      "empty_none": "No modules are installed yet. Upload a module package to get started.",
+      "empty_filtered": "Try a different search term or filter."
+    }
+  },
+  "auth": {
+    "admin": {
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "exportScopeSecurity": "Security & Access Events",
+      "exportScopeIam": "IAM & Permission Change Logs",
+      "exportScopeFull": "Comprehensive System Audit",
+      "exportFailed": "Failed to export audit logs.",
+      "exportSuccess": "Audit log export downloaded successfully.",
+      "exportSuccessTitle": "Export Completed",
+      "exportAudit_subtitle": "Generate signed, tamper-evident exports of the platform audit trail."
     }
   }
 }

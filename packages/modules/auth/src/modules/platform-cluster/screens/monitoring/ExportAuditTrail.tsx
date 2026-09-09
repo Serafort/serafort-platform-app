@@ -135,9 +135,15 @@ export default function ExportAuditTrail() {
                     value={reportType}
                     onChange={(e) => setReportType(e.target.value)}
                   >
-                    <MenuItem value='security'>Security & Access Events</MenuItem>
-                    <MenuItem value='iam'>IAM & Perm Change Logs</MenuItem>
-                    <MenuItem value='full'>Comprehensive System Audit</MenuItem>
+                    <MenuItem value='security'>
+                      {t('auth.admin.exportScopeSecurity', 'Security & Access Events')}
+                    </MenuItem>
+                    <MenuItem value='iam'>
+                      {t('auth.admin.exportScopeIam', 'IAM & Permission Change Logs')}
+                    </MenuItem>
+                    <MenuItem value='full'>
+                      {t('auth.admin.exportScopeFull', 'Comprehensive System Audit')}
+                    </MenuItem>
                   </Select>
                 </FormControl>
 
@@ -145,7 +151,7 @@ export default function ExportAuditTrail() {
                   <Grid size={{ xs: 6 }}>
                     <TextField
                       fullWidth
-                      label='Start Date'
+                      label={t('auth.admin.startDate', 'Start Date')}
                       type='date'
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
@@ -155,7 +161,7 @@ export default function ExportAuditTrail() {
                   <Grid size={{ xs: 6 }}>
                     <TextField
                       fullWidth
-                      label='End Date'
+                      label={t('auth.admin.endDate', 'End Date')}
                       type='date'
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}

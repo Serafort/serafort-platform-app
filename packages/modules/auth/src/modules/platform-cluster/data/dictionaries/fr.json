@@ -173,6 +173,44 @@
       "status_page_desc": "Cette page reflète l’état en direct des services principaux de la plateforme.",
       "incident_report_prefix": "Vous constatez autre chose ?",
       "incident_portal_link": "Signaler un incident"
+    },
+    "modules": {
+      "title": "Gestion des modules et enregistrement automatique",
+      "subtitle": "Chargez, décompressez, testez et gérez dynamiquement les modules de la plateforme.",
+      "refresh": "Actualiser",
+      "upload": "Charger un paquet de module",
+      "stat_total": "TOTAL INSTALLÉ",
+      "stat_active": "MODULES ACTIFS",
+      "stat_core": "MODULES CŒUR DE PLATEFORME",
+      "stat_routes": "ROUTES ENREGISTRÉES",
+      "search_placeholder": "Rechercher des modules par nom, ID ou description…",
+      "filter_all": "Tous",
+      "filter_active": "Actifs",
+      "filter_disabled": "Désactivés",
+      "filter_core": "Cœur",
+      "core_badge": "CŒUR",
+      "routes_count": "{{count}} routes",
+      "nav_count": "{{count}} éléments de nav.",
+      "status_active": "Actif",
+      "status_disabled": "Désactivé",
+      "load_failed": "Échec du chargement de la liste des modules installés.",
+      "toggle_failed": "Impossible de modifier ce module. Réessayez.",
+      "empty_title": "Aucun module correspondant",
+      "empty_none": "Aucun module n’est encore installé. Chargez un paquet de module pour commencer.",
+      "empty_filtered": "Essayez un autre terme de recherche ou filtre."
+    }
+  },
+  "auth": {
+    "admin": {
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "exportScopeSecurity": "Événements de sécurité et d’accès",
+      "exportScopeIam": "Journaux des modifications IAM et de permissions",
+      "exportScopeFull": "Audit système complet",
+      "exportFailed": "Échec de l’export des journaux d’audit.",
+      "exportSuccess": "Export du journal d’audit téléchargé.",
+      "exportSuccessTitle": "Export terminé",
+      "exportAudit_subtitle": "Générez des exports signés et infalsifiables du journal d’audit de la plateforme."
     }
   }
 }
