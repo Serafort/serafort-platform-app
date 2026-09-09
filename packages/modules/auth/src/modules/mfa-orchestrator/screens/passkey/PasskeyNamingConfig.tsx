@@ -11,20 +11,18 @@ import {
   Switch,
   FormGroup,
   FormControlLabel,
-  Chip,
   alpha,
 } from '@mui/material'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import Edit from '@mui/icons-material/Edit'
-import Devices from '@mui/icons-material/Devices'
-import Schedule from '@mui/icons-material/Schedule'
 import CheckCircle from '@mui/icons-material/CheckCircle'
 import { useTranslation } from 'react-i18next'
+import Path from '../path'
 
 export default function PasskeyNamingConfig() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const [passkeyName, setPasskeyName] = useState('MacBook Pro - Chrome')
+  const [passkeyName, setPasskeyName] = useState('')
   const [autoUse, setAutoUse] = useState(true)
   const [isSyncEnabled, setIsSyncEnabled] = useState(true)
   const [requireBiometric, setRequireBiometric] = useState(true)
@@ -108,36 +106,13 @@ export default function PasskeyNamingConfig() {
             fullWidth
             value={passkeyName}
             onChange={(e) => setPasskeyName(e.target.value)}
-            placeholder='e.g., Work Laptop'
-            helperText='Choose a name to easily identify this passkey across your devices.'
+            placeholder={t('auth.passkey.name_placeholder', 'e.g., Work Laptop')}
+            helperText={t(
+              'auth.passkey.name_helper',
+              'Choose a name to easily identify this passkey across your devices.',
+            )}
             sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
           />
-        </CardContent>
-      </Card>
-
-      {/* Device Info */}
-      <Card sx={{ borderRadius: 3, border: 1, borderColor: 'divider', mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <Devices sx={{ fontSize: 18, color: 'primary.main' }} />
-            <Typography variant='subtitle1' fontWeight={600}>
-              {t('auth.passkey.device_info', 'Device Information')}
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            <Chip label='macOS 14.2' variant='outlined' size='small' sx={{ borderRadius: 1 }} />
-            <Chip label='Chrome 120' variant='outlined' size='small' sx={{ borderRadius: 1 }} />
-            <Chip label='Touch ID' variant='outlined' size='small' sx={{ borderRadius: 1 }} />
-            <Chip label='WebAuthn L2' variant='outlined' size='small' sx={{ borderRadius: 1 }} />
-          </Box>
-          <Typography
-            variant='caption'
-            color='text.disabled'
-            sx={{ display: 'flex', alignItems: 'center', gap: 0.3, mt: 1.5 }}
-          >
-            <Schedule sx={{ fontSize: 12 }} />
-            Created just now
-          </Typography>
         </CardContent>
       </Card>
 
@@ -156,7 +131,10 @@ export default function PasskeyNamingConfig() {
                     {t('auth.passkey.auto_use', 'Auto-use on this device')}
                   </Typography>
                   <Typography variant='caption' color='text.secondary'>
-                    Automatically suggest this passkey when signing in from this device.
+                    {t(
+                      'auth.passkey.auto_use_desc',
+                      'Automatically suggest this passkey when signing in from this device.',
+                    )}
                   </Typography>
                 </Box>
               }
@@ -175,7 +153,10 @@ export default function PasskeyNamingConfig() {
                     {t('auth.passkey.cloud_sync', 'Cloud sync')}
                   </Typography>
                   <Typography variant='caption' color='text.secondary'>
-                    Sync this passkey to your iCloud / Google Keychain for cross-device access.
+                    {t(
+                      'auth.passkey.cloud_sync_desc',
+                      'Sync this passkey to your iCloud / Google Keychain for cross-device access.',
+                    )}
                   </Typography>
                 </Box>
               }
@@ -194,7 +175,10 @@ export default function PasskeyNamingConfig() {
                     {t('auth.passkey.require_biometric', 'Require biometric')}
                   </Typography>
                   <Typography variant='caption' color='text.secondary'>
-                    Always require fingerprint or face scan when using this passkey.
+                    {t(
+                      'auth.passkey.require_biometric_desc',
+                      'Always require fingerprint or face scan when using this passkey.',
+                    )}
                   </Typography>
                 </Box>
               }
@@ -212,6 +196,7 @@ export default function PasskeyNamingConfig() {
         <Button
           variant='contained'
           disabled={!passkeyName.trim()}
+          onClick={() => navigate(Path.passkey.management)}
           sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2, px: 4 }}
         >
           {t('auth.passkey.save_config', 'Save & Finish')}

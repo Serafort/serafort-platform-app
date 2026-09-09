@@ -9,6 +9,7 @@ import ArrowForward from '@mui/icons-material/ArrowForward'
 import CheckCircle from '@mui/icons-material/CheckCircle'
 import Hub from '@mui/icons-material/Hub'
 import { useTranslation } from 'react-i18next'
+import Path from '../path'
 
 interface CreationOption {
   id: string
@@ -19,46 +20,70 @@ interface CreationOption {
   recommended?: boolean
 }
 
-const CREATION_OPTIONS: CreationOption[] = [
-  {
-    id: 'platform',
-    icon: <Fingerprint />,
-    title: 'This Device',
-    description:
-      "Create a passkey using this device's built-in authenticator (Touch ID, Face ID, Windows Hello).",
-    features: ['Fastest setup', 'Biometric verification', 'No additional hardware needed'],
-    recommended: true,
-  },
-  {
-    id: 'security_key',
-    icon: <UsbOutlined />,
-    title: 'Security Key',
-    description:
-      'Use a hardware security key like YubiKey to create a portable, phishing-resistant passkey.',
-    features: ['Highest security', 'Cross-device portable', 'Phishing resistant'],
-  },
-  {
-    id: 'phone',
-    icon: <PhoneIphone />,
-    title: 'Another Device',
-    description:
-      'Scan a QR code with your phone or tablet to create a passkey on a different device.',
-    features: ['Cross-device setup', 'Flexible placement', 'Scan to link'],
-  },
-  {
-    id: 'cross_platform',
-    icon: <Hub />,
-    title: 'Cross-Platform Passkey',
-    description:
-      'Create a synced passkey stored in your cloud keychain, accessible from multiple devices.',
-    features: ['iCloud / Google sync', 'Works everywhere', 'Auto-backup'],
-  },
-]
-
 export default function PasskeyCreationOptions() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
+
+  const CREATION_OPTIONS: CreationOption[] = [
+    {
+      id: 'platform',
+      icon: <Fingerprint />,
+      title: t('auth.passkey.opt_this_device', 'This Device'),
+      description: t(
+        'auth.passkey.opt_this_device_desc',
+        "Create a passkey using this device's built-in authenticator (Touch ID, Face ID, Windows Hello).",
+      ),
+      features: [
+        t('auth.passkey.feat_fastest_setup', 'Fastest setup'),
+        t('auth.passkey.feat_biometric', 'Biometric verification'),
+        t('auth.passkey.feat_no_hardware', 'No additional hardware needed'),
+      ],
+      recommended: true,
+    },
+    {
+      id: 'security_key',
+      icon: <UsbOutlined />,
+      title: t('auth.passkey.opt_security_key', 'Security Key'),
+      description: t(
+        'auth.passkey.opt_security_key_desc',
+        'Use a hardware security key like YubiKey to create a portable, phishing-resistant passkey.',
+      ),
+      features: [
+        t('auth.passkey.feat_highest_security', 'Highest security'),
+        t('auth.passkey.feat_portable', 'Cross-device portable'),
+        t('auth.passkey.feat_phishing_resistant', 'Phishing resistant'),
+      ],
+    },
+    {
+      id: 'phone',
+      icon: <PhoneIphone />,
+      title: t('auth.passkey.opt_another_device', 'Another Device'),
+      description: t(
+        'auth.passkey.opt_another_device_desc',
+        'Scan a QR code with your phone or tablet to create a passkey on a different device.',
+      ),
+      features: [
+        t('auth.passkey.feat_cross_device', 'Cross-device setup'),
+        t('auth.passkey.feat_flexible', 'Flexible placement'),
+        t('auth.passkey.feat_scan_link', 'Scan to link'),
+      ],
+    },
+    {
+      id: 'cross_platform',
+      icon: <Hub />,
+      title: t('auth.passkey.opt_cross_platform', 'Cross-Platform Passkey'),
+      description: t(
+        'auth.passkey.opt_cross_platform_desc',
+        'Create a synced passkey stored in your cloud keychain, accessible from multiple devices.',
+      ),
+      features: [
+        t('auth.passkey.feat_cloud_sync', 'iCloud / Google sync'),
+        t('auth.passkey.feat_works_everywhere', 'Works everywhere'),
+        t('auth.passkey.feat_auto_backup', 'Auto-backup'),
+      ],
+    },
+  ]
 
   return (
     <Container maxWidth='sm' sx={{ py: 4 }}>
@@ -156,7 +181,7 @@ export default function PasskeyCreationOptions() {
                   </Typography>
                   {option.recommended && (
                     <Chip
-                      label='Recommended'
+                      label={t('auth.passkey.recommended', 'Recommended')}
                       size='small'
                       color='primary'
                       sx={{ height: 20, fontSize: '0.65rem', fontWeight: 600 }}
@@ -194,6 +219,7 @@ export default function PasskeyCreationOptions() {
         <Button
           variant='contained'
           disabled={!selectedOption}
+          onClick={() => navigate(Path.passkey.prompt)}
           endIcon={<ArrowForward />}
           sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2, px: 4 }}
         >

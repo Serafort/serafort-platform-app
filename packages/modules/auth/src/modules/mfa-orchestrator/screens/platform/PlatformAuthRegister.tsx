@@ -27,15 +27,6 @@ import { useNavigate } from 'react-router-dom'
 import { usePasskey } from '../../hooks'
 import { Path as AuthPath } from '@cap/module-auth/routes/path'
 
-const BENEFITS = [
-  { icon: <Shield />, text: 'Phishing-resistant authentication' },
-  { icon: <Speed />, text: 'Faster sign-in than passwords' },
-  { icon: <PhoneIphone />, text: 'Works with your device biometrics' },
-  { icon: <Lock />, text: 'Your biometric data never leaves your device' },
-]
-
-const STEPS = ['Review Benefits', 'Register Authenticator']
-
 export default function PlatformAuthRegister() {
   const { t } = useTranslation('auth')
   const navigate = useNavigate()
@@ -44,13 +35,33 @@ export default function PlatformAuthRegister() {
   const [localError, setLocalError] = useState<string | null>(null)
   const { registerPasskey, isLoading, error: passkeyError } = usePasskey()
 
+  const BENEFITS = [
+    { icon: <Shield />, text: t('passkey.benefit_phishing', 'Phishing-resistant authentication') },
+    { icon: <Speed />, text: t('passkey.benefit_faster', 'Faster sign-in than passwords') },
+    {
+      icon: <PhoneIphone />,
+      text: t('passkey.benefit_device', 'Works with your device biometrics'),
+    },
+    {
+      icon: <Lock />,
+      text: t('passkey.benefit_private', 'Your biometric data never leaves your device'),
+    },
+  ]
+
+  const STEPS = [
+    t('passkey.step_review', 'Review Benefits'),
+    t('passkey.step_register', 'Register Authenticator'),
+  ]
+
   const handleRegister = async () => {
     setLocalError(null)
     try {
       await registerPasskey()
       setIsComplete(true)
     } catch (err: any) {
-      setLocalError(err?.message || 'Failed to register biometric authenticator.')
+      setLocalError(
+        err?.message || t('passkey.register_failed', 'Failed to register biometric authenticator.'),
+      )
     }
   }
 

@@ -33,35 +33,43 @@ import Download from '@mui/icons-material/Download'
 import { useTranslation } from 'react-i18next'
 import { mfaService, TOTPSetupResponse } from '../../services/mfa.service'
 
-const RECOVERY_OPTIONS = [
-  {
-    value: 'authenticator',
-    icon: <Smartphone />,
-    label: 'Authenticator App',
-    description: 'Use Google Authenticator, Authy, or 1Password for time-based verification codes.',
-    recommended: true,
-  },
-  {
-    value: 'sms',
-    icon: <Sms />,
-    label: 'SMS Recovery',
-    description:
-      'Receive a one-time recovery code via text message to your registered phone number.',
-    recommended: false,
-  },
-  {
-    value: 'backup_codes',
-    icon: <Key />,
-    label: 'Recovery Codes',
-    description: 'Generate a set of one-time-use codes to store securely offline.',
-    recommended: false,
-  },
-]
-
 export default function PasskeyRecoveryOptions() {
   const { t } = useTranslation('auth')
   const theme = useTheme()
   const navigate = useNavigate()
+
+  const RECOVERY_OPTIONS = [
+    {
+      value: 'authenticator',
+      icon: <Smartphone />,
+      label: t('passkey.recovery_authenticator', 'Authenticator App'),
+      description: t(
+        'passkey.recovery_authenticator_desc',
+        'Use Google Authenticator, Authy, or 1Password for time-based verification codes.',
+      ),
+      recommended: true,
+    },
+    {
+      value: 'sms',
+      icon: <Sms />,
+      label: t('passkey.recovery_sms', 'SMS Recovery'),
+      description: t(
+        'passkey.recovery_sms_desc',
+        'Receive a one-time recovery code via text message to your registered phone number.',
+      ),
+      recommended: false,
+    },
+    {
+      value: 'backup_codes',
+      icon: <Key />,
+      label: t('passkey.recovery_backup_codes', 'Recovery Codes'),
+      description: t(
+        'passkey.recovery_backup_codes_desc',
+        'Generate a set of one-time-use codes to store securely offline.',
+      ),
+      recommended: false,
+    },
+  ]
   const [selectedMethod, setSelectedMethod] = useState('authenticator')
   const [showSetup, setShowSetup] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
@@ -87,7 +95,7 @@ export default function PasskeyRecoveryOptions() {
         setBackupCodes(res.data?.recoveryCodes || [])
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Failed to initialize recovery setup.')
+      setError(err.response?.data?.message || err.message || t('passkey.recovery_init_failed', 'Failed to initialize recovery setup.'))
     } finally {
       setLoading(false)
     }
@@ -110,7 +118,7 @@ export default function PasskeyRecoveryOptions() {
       }
       setTimeout(() => navigate(-1), 1500)
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Failed to verify recovery setup.')
+      setError(err.response?.data?.message || err.message || t('passkey.recovery_verify_failed', 'Failed to verify recovery setup.'))
     } finally {
       setLoading(false)
     }
@@ -261,7 +269,7 @@ export default function PasskeyRecoveryOptions() {
                         </Typography>
                         {option.recommended && (
                           <Chip
-                            label='Recommended'
+                            label={t('passkey.recommended', 'Recommended')}
                             size='small'
                             color='primary'
                             sx={{ height: 20, fontSize: '0.65rem', fontWeight: 600 }}
@@ -308,12 +316,12 @@ export default function PasskeyRecoveryOptions() {
                   <Box
                     component='img'
                     src={setupData.qrDataUrl}
-                    alt='QR Code'
+                    alt={t('passkey.qr_alt', 'QR code')}
                     sx={{ width: 160, height: 160, mx: 'auto', mb: 2, borderRadius: 2 }}
                   />
                 )}
                 <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-                  Scan the QR code with your authenticator app, then enter the 6-digit code.
+                  {t('passkey.scan_qr_instruction', 'Scan the QR code with your authenticator app, then enter the 6-digit code.')}
                 </Typography>
                 <TextField
                   fullWidth
@@ -339,7 +347,7 @@ export default function PasskeyRecoveryOptions() {
             {!loading && selectedMethod === 'sms' && (
               <Box sx={{ textAlign: 'center', mb: 2 }}>
                 <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-                  Enter the 6-digit verification code sent to your registered phone number.
+                  {t('passkey.sms_instruction', 'Enter the 6-digit verification code sent to your registered phone number.')}
                 </Typography>
                 <TextField
                   fullWidth
@@ -365,7 +373,7 @@ export default function PasskeyRecoveryOptions() {
             {!loading && selectedMethod === 'backup_codes' && (
               <Box sx={{ textAlign: 'center', mb: 2 }}>
                 <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-                  Save these backup codes in a secure password manager.
+                  {t('passkey.backup_instruction', 'Save these backup codes in a secure password manager.')}
                 </Typography>
                 <Box
                   sx={{
@@ -394,7 +402,7 @@ export default function PasskeyRecoveryOptions() {
                     onClick={handleCopyCodes}
                     startIcon={copiedCodes ? <Check /> : <ContentCopy />}
                   >
-                    {copiedCodes ? 'Copied' : 'Copy Codes'}
+                    {copiedCodes ? t('passkey.copied', 'Copied') : t('passkey.copy_codes', 'Copy Codes')}
                   </Button>
                   <Button
                     variant='outlined'
@@ -402,7 +410,7 @@ export default function PasskeyRecoveryOptions() {
                     onClick={handleDownloadCodes}
                     startIcon={<Download />}
                   >
-                    Download .txt
+                    {t('passkey.download_txt', 'Download .txt')}
                   </Button>
                 </Stack>
               </Box>

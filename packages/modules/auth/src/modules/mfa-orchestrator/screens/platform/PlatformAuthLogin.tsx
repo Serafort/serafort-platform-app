@@ -34,7 +34,10 @@ export default function PlatformAuthLogin() {
       }
       navigate(AuthPath.account.overview || '/dashboard')
     } catch (err: any) {
-      setLocalError(err?.message || 'Biometric authentication was cancelled or failed.')
+      setLocalError(
+        err?.message ||
+          t('passkey.biometric_cancelled', 'Biometric authentication was cancelled or failed.'),
+      )
     }
   }
 
