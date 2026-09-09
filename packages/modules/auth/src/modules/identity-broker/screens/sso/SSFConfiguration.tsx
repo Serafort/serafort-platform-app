@@ -136,7 +136,7 @@ export default function SSFConfiguration() {
   const [addEventDialogOpen, setAddEventDialogOpen] = useState(false)
   const [newEvent, setNewEvent] = useState({ id: '', name: '', desc: '' })
 
-  const { data: configResp, isLoading } = useSSFConfig()
+  const { data: configResp, isLoading, isError: isConfigError, refetch: refetchConfig } = useSSFConfig()
   const config = configResp?.data
 
   const { mutateAsync: updateConfig, isPending: isSaving } = useUpdateSSFConfig()
@@ -144,6 +144,7 @@ export default function SSFConfiguration() {
   const {
     data: historyData,
     isLoading: isHistoryLoading,
+    isError: isHistoryError,
     refetch: refetchHistory,
   } = useSSFHistory()
 
@@ -260,7 +261,11 @@ export default function SSFConfiguration() {
     )
   }, [t])
 
-  if (isLoading || isHistoryLoading) {
+  // The configuration is the primary resource: if it genuinely failed to load,
+  // rendering the form would let an admin save default values over real config.
+  // A slow/pending load, and any failure of the secondary history panel, must
+  // NOT block the screen — those get inline states further down.
+  if (isConfigError) {
     return (
       <Box
         sx={{
@@ -270,20 +275,37 @@ export default function SSFConfiguration() {
           justifyContent: 'center',
           minHeight: '400px',
           gap: 2,
+          p: 3,
+          textAlign: 'center',
         }}
       >
-        <CircularProgress size={32} thickness={5} />
-        <Typography
-          variant='caption'
+        <Avatar
           sx={{
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.075em',
-            color: 'text.secondary',
+            width: 56,
+            height: 56,
+            bgcolor: alpha(theme.palette.error.main, 0.1),
+            color: 'error.main',
           }}
         >
-          {t('auth.common.loading', 'Syncing Signals...')}
+          <Sensors sx={{ fontSize: 28 }} />
+        </Avatar>
+        <Typography variant='h6' sx={{ fontWeight: 800 }}>
+          {t('auth.sso.ssf_load_error_title', 'Could not load SSF configuration')}
         </Typography>
+        <Typography variant='body2' color='text.secondary' sx={{ maxWidth: 420 }}>
+          {t(
+            'auth.sso.ssf_load_error_desc',
+            'The Shared Signals transmitter settings are unavailable right now. Retry, or check back shortly.',
+          )}
+        </Typography>
+        <Button
+          variant='contained'
+          startIcon={<Sync />}
+          onClick={() => refetchConfig()}
+          sx={{ textTransform: 'none', fontWeight: 800, borderRadius: '12px', mt: 1 }}
+        >
+          {t('auth.common.retry', 'Retry')}
+        </Button>
       </Box>
     )
   }
@@ -416,29 +438,50 @@ export default function SSFConfiguration() {
               }}
             />
           </Tooltip>
-          <Button
-            variant='contained'
-            startIcon={isSaving ? <CircularProgress size={16} color='inherit' /> : <Save />}
-            disabled={isSaving}
-            onClick={handleSave}
-            sx={{
-              bgcolor: 'info.main',
-              boxShadow: `0 8px 32px 0 ${alpha(theme.palette.info.main, 0.3)}`,
-              borderRadius: '12px',
-              textTransform: 'none',
-              fontWeight: 800,
-              height: { xs: 44, md: 48 },
-              px: { xs: 3, md: 4 },
-              '&:hover': {
-                bgcolor: 'info.dark',
-                boxShadow: `0 12px 40px 0 ${alpha(theme.palette.info.main, 0.45)}`,
-              },
-            }}
+          <Tooltip
+            title={
+              isLoading
+                ? t(
+                    'auth.sso.ssf_save_disabled_loading',
+                    'Loading the current configuration…',
+                  )
+                : ''
+            }
           >
-            {isSaving
-              ? t('auth.common.saving', 'Saving...')
-              : t('auth.common.save_config', 'Save Configuration')}
-          </Button>
+            <span>
+              <Button
+                variant='contained'
+                startIcon={
+                  isSaving || isLoading ? (
+                    <CircularProgress size={16} color='inherit' />
+                  ) : (
+                    <Save />
+                  )
+                }
+                disabled={isSaving || isLoading}
+                onClick={handleSave}
+                sx={{
+                  bgcolor: 'info.main',
+                  boxShadow: `0 8px 32px 0 ${alpha(theme.palette.info.main, 0.3)}`,
+                  borderRadius: '12px',
+                  textTransform: 'none',
+                  fontWeight: 800,
+                  height: { xs: 44, md: 48 },
+                  px: { xs: 3, md: 4 },
+                  '&:hover': {
+                    bgcolor: 'info.dark',
+                    boxShadow: `0 12px 40px 0 ${alpha(theme.palette.info.main, 0.45)}`,
+                  },
+                }}
+              >
+                {isSaving
+                  ? t('auth.common.saving', 'Saving...')
+                  : isLoading
+                    ? t('auth.common.loading', 'Loading…')
+                    : t('auth.common.save_config', 'Save Configuration')}
+              </Button>
+            </span>
+          </Tooltip>
         </Box>
       </Box>
 
@@ -644,7 +687,36 @@ export default function SSFConfiguration() {
               </Box>
 
               <AnimatePresence mode='popLayout'>
-                {signals.length === 0 ? (
+                {isHistoryLoading ? (
+                  <Box
+                    sx={{
+                      py: 6,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 1.5,
+                    }}
+                  >
+                    <CircularProgress size={24} thickness={5} />
+                    <Typography variant='body2' color='text.secondary'>
+                      {t('auth.sso.loading_signals', 'Loading recent signals…')}
+                    </Typography>
+                  </Box>
+                ) : isHistoryError ? (
+                  <Box sx={{ py: 6, textAlign: 'center' }}>
+                    <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
+                      {t('auth.sso.signals_load_error', 'Could not load the signal stream.')}
+                    </Typography>
+                    <Button
+                      size='small'
+                      variant='text'
+                      onClick={() => refetchHistory()}
+                      sx={{ fontWeight: 700, textTransform: 'none' }}
+                    >
+                      {t('auth.common.retry', 'Retry')}
+                    </Button>
+                  </Box>
+                ) : signals.length === 0 ? (
                   <Box sx={{ py: 6, textAlign: 'center', opacity: 0.5 }}>
                     <Typography variant='body2'>
                       {t('auth.sso.no_recent_signals', 'No recent signals detected')}

@@ -343,7 +343,12 @@
       "view_key_history": "View Full History",
       "wait_description": "Building a secure connection with your identity provider. This will only take a moment.",
       "whatIsSso": "What is Enterprise SSO?",
-      "whatIsSsoDesc": "Single Sign-On allows you to access multiple applications with one set of credentials managed by your organization."
+      "whatIsSsoDesc": "Single Sign-On allows you to access multiple applications with one set of credentials managed by your organization.",
+      "ssf_load_error_title": "Could not load SSF configuration",
+      "ssf_load_error_desc": "The Shared Signals transmitter settings are unavailable right now. Retry, or check back shortly.",
+      "ssf_save_disabled_loading": "Loading the current configuration…",
+      "loading_signals": "Loading recent signals…",
+      "signals_load_error": "Could not load the signal stream."
     }
   }
 }

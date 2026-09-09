@@ -1474,7 +1474,12 @@
       "view_key_history": "Voir l’historique complet",
       "wait_description": "Établissement d'une connexion sécurisée avec votre fournisseur d'identité. Cela ne prendra qu'un instant.",
       "whatIsSso": "Qu’est-ce que le SSO d’entreprise ?",
-      "whatIsSsoDesc": "L’authentification unique vous permet d’accéder à plusieurs applications avec un seul ensemble d’identifiants gérés par votre organisation."
+      "whatIsSsoDesc": "L’authentification unique vous permet d’accéder à plusieurs applications avec un seul ensemble d’identifiants gérés par votre organisation.",
+      "ssf_load_error_title": "Impossible de charger la configuration SSF",
+      "ssf_load_error_desc": "Les paramètres de l'émetteur Shared Signals sont indisponibles pour le moment. Réessayez ou revenez dans quelques instants.",
+      "ssf_save_disabled_loading": "Chargement de la configuration actuelle…",
+      "loading_signals": "Chargement des signaux récents…",
+      "signals_load_error": "Impossible de charger le flux de signaux."
     },
     "twoFactor": {
       "backToLogin": "Retour à la connexion",
