@@ -163,6 +163,7 @@ export default function PasskeyManagement() {
   const [newName, setNewName] = useState('')
   const [isRenaming, setIsRenaming] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   // Queries & Mutations
   const { data: passkeysRes, isLoading, refetch } = useUserPasskeys()
@@ -195,23 +196,40 @@ export default function PasskeyManagement() {
     })
   }
 
+  /**
+   * Dismisses the popover without forgetting which passkey it was opened for.
+   *
+   * `handleRenameClick` and `handleDeleteClick` used to call `handleMenuClose`
+   * right after opening their dialog, which cleared `menuState.passkey` at the
+   * same moment — before the user had done anything. `handleRenameSubmit` and
+   * `handleDeleteConfirm` both guard on that field being set, so both actions
+   * silently did nothing: the dialog opened, the confirm button appeared to
+   * work, and nothing was ever renamed or deleted. This closes only the
+   * anchor; the selection is cleared once the dialog is cancelled or the
+   * action completes.
+   */
+  const closeMenuAnchor = () => {
+    setMenuState((state) => ({ ...state, anchorEl: null }))
+  }
+
   const handleRenameClick = () => {
     if (menuState.passkey) {
       setNewName(menuState.passkey.name)
       setRenameDialogOpen(true)
-      handleMenuClose()
+      closeMenuAnchor()
     }
   }
 
   const handleDeleteClick = () => {
     setDeleteDialogOpen(true)
-    handleMenuClose()
+    closeMenuAnchor()
   }
 
   const handleRenameSubmit = async () => {
     if (!menuState.passkey || !newName.trim()) return
 
     setIsRenaming(true)
+    setErrorMessage('')
     try {
       await updatePasskeyMutation.mutateAsync({
         id: menuState.passkey.id,
@@ -220,10 +238,11 @@ export default function PasskeyManagement() {
       await refetch()
       setSuccessMessage(t('auth.passkey.success_renamed', 'Passkey renamed successfully'))
       setRenameDialogOpen(false)
-      setMenuState({ anchorEl: null, passkey: null })
+      handleMenuClose()
       setTimeout(() => setSuccessMessage(''), 5000)
-    } catch (error) {
-      console.error('Failed to rename passkey:', error)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : ''
+      setErrorMessage(message || t('auth.passkey.error_rename', 'The passkey could not be renamed.'))
     } finally {
       setIsRenaming(false)
     }
@@ -232,15 +251,17 @@ export default function PasskeyManagement() {
   const handleDeleteConfirm = async () => {
     if (!menuState.passkey) return
 
+    setErrorMessage('')
     try {
       await deletePasskeyMutation.mutateAsync(menuState.passkey.id)
       await refetch()
       setSuccessMessage(t('auth.passkey.success_deleted', 'Passkey deleted successfully'))
       setDeleteDialogOpen(false)
-      setMenuState({ anchorEl: null, passkey: null })
+      handleMenuClose()
       setTimeout(() => setSuccessMessage(''), 5000)
-    } catch (error) {
-      console.error('Failed to delete passkey:', error)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : ''
+      setErrorMessage(message || t('auth.passkey.error_delete', 'The passkey could not be deleted.'))
     }
   }
 
@@ -294,7 +315,7 @@ export default function PasskeyManagement() {
           </Button>
         </Box>
 
-        {/* Success Alert */}
+        {/* Success / Error Alerts */}
         {successMessage && (
           <Alert
             severity='success'
@@ -306,6 +327,16 @@ export default function PasskeyManagement() {
             }}
           >
             {successMessage}
+          </Alert>
+        )}
+        {/*
+          Rename and delete failures previously went to `console.error` only —
+          nothing told the person at the keyboard that their click did not
+          take effect.
+        */}
+        {errorMessage && (
+          <Alert severity='error' onClose={() => setErrorMessage('')} sx={{ borderRadius: '12px' }}>
+            {errorMessage}
           </Alert>
         )}
 
@@ -674,8 +705,13 @@ export default function PasskeyManagement() {
                         <TableCell align='right' sx={{ py: 1.75 }}>
                           <IconButton
                             onClick={(e) => handleMenuOpen(e, passkey)}
-                            size='small'
+                            aria-label={t('auth.passkey.row_actions', {
+                              name: passkey.name,
+                              defaultValue: 'Actions for {{name}}',
+                            })}
                             sx={{
+                              width: 44,
+                              height: 44,
                               color: 'text.secondary',
                               borderRadius: '8px',
                               '&:hover': {
@@ -753,25 +789,27 @@ export default function PasskeyManagement() {
           vertical: 'top',
           horizontal: 'right',
         }}
-        PaperProps={{
-          sx: {
-            mt: 1,
-            minWidth: 160,
-            borderRadius: '12px',
-            boxShadow: (theme) =>
-              theme.palette.mode === 'dark'
-                ? '0 12px 32px rgba(0, 0, 0, 0.6)'
-                : '0 8px 24px rgba(15, 23, 42, 0.12)',
-            border: (theme) => `1px solid ${theme.palette.divider}`,
-            p: 0.5,
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 1,
+              minWidth: 160,
+              borderRadius: '12px',
+              boxShadow: (theme) =>
+                theme.palette.mode === 'dark'
+                  ? '0 12px 32px rgba(0, 0, 0, 0.6)'
+                  : '0 8px 24px rgba(15, 23, 42, 0.12)',
+              border: (theme) => `1px solid ${theme.palette.divider}`,
+              p: 0.5,
+            },
           },
         }}
       >
-        <MenuItem onClick={handleRenameClick} sx={{ borderRadius: '8px', py: 1 }}>
+        <MenuItem onClick={handleRenameClick} sx={{ borderRadius: '8px', py: 1, minHeight: 44 }}>
           <ListItemIcon>
             <Edit fontSize='small' sx={{ color: 'text.secondary' }} />
           </ListItemIcon>
-          <ListItemText primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}>
+          <ListItemText slotProps={{ primary: { variant: 'body2', fontWeight: 600 } }}>
             {t('auth.common.rename', 'Rename')}
           </ListItemText>
         </MenuItem>
@@ -780,6 +818,7 @@ export default function PasskeyManagement() {
           sx={{
             borderRadius: '8px',
             py: 1,
+            minHeight: 44,
             color: 'error.main',
             '&:hover': {
               bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),
@@ -789,7 +828,7 @@ export default function PasskeyManagement() {
           <ListItemIcon>
             <Delete fontSize='small' color='error' />
           </ListItemIcon>
-          <ListItemText primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}>
+          <ListItemText slotProps={{ primary: { variant: 'body2', fontWeight: 600 } }}>
             {t('auth.common.delete', 'Delete')}
           </ListItemText>
         </MenuItem>
@@ -801,17 +840,19 @@ export default function PasskeyManagement() {
         onClose={() => !isRenaming && setRenameDialogOpen(false)}
         maxWidth='xs'
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: '16px',
-            p: 1,
-            bgcolor: 'background.paper',
-            backgroundImage: 'none',
-            border: (theme) => `1px solid ${theme.palette.divider}`,
-            boxShadow: (theme) =>
-              theme.palette.mode === 'dark'
-                ? '0 24px 48px -12px rgba(0, 0, 0, 0.8)'
-                : '0 24px 48px -12px rgba(15, 23, 42, 0.25)',
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: '16px',
+              p: 1,
+              bgcolor: 'background.paper',
+              backgroundImage: 'none',
+              border: (theme) => `1px solid ${theme.palette.divider}`,
+              boxShadow: (theme) =>
+                theme.palette.mode === 'dark'
+                  ? '0 24px 48px -12px rgba(0, 0, 0, 0.8)'
+                  : '0 24px 48px -12px rgba(15, 23, 42, 0.25)',
+            },
           },
         }}
       >
@@ -880,17 +921,19 @@ export default function PasskeyManagement() {
         onClose={() => !deletePasskeyMutation.isPending && setDeleteDialogOpen(false)}
         maxWidth='xs'
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: '16px',
-            p: 1,
-            bgcolor: 'background.paper',
-            backgroundImage: 'none',
-            border: (theme) => `1px solid ${theme.palette.divider}`,
-            boxShadow: (theme) =>
-              theme.palette.mode === 'dark'
-                ? '0 24px 48px -12px rgba(0, 0, 0, 0.8)'
-                : '0 24px 48px -12px rgba(15, 23, 42, 0.25)',
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: '16px',
+              p: 1,
+              bgcolor: 'background.paper',
+              backgroundImage: 'none',
+              border: (theme) => `1px solid ${theme.palette.divider}`,
+              boxShadow: (theme) =>
+                theme.palette.mode === 'dark'
+                  ? '0 24px 48px -12px rgba(0, 0, 0, 0.8)'
+                  : '0 24px 48px -12px rgba(15, 23, 42, 0.25)',
+            },
           },
         }}
       >
