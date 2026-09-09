@@ -97,7 +97,8 @@ export default function EmailChangeStatusDashboard() {
         label: t('auth.account.verify_current_email', 'Request Email Change'),
         description: t(
           'auth.account.current_email_desc',
-          `Identity verified for current account (${currentEmail}).`,
+          'Identity verified for current account ({{email}}).',
+          { email: currentEmail },
         ),
         completed: true,
       },
@@ -105,7 +106,8 @@ export default function EmailChangeStatusDashboard() {
         label: t('auth.account.confirm_new_email', 'Confirm New Email Address'),
         description: t(
           'auth.account.confirm_new_email_desc',
-          `We've dispatched a secure confirmation link to ${stateNewEmail}. Please click the link to finalize your new login credentials.`,
+          "We've dispatched a secure confirmation link to {{newEmail}}. Please click the link to finalize your new login credentials.",
+          { newEmail: stateNewEmail },
         ),
         completed: false,
       },
