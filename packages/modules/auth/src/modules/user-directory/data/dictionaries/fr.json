@@ -662,7 +662,13 @@
       "view_provider": "Voir les détails du fournisseur pour {{provider}}",
       "workspaceSlug": "Slug de l'espace de travail",
       "workspaceSlugHelper": "Identifiant URL pour cet espace de travail",
-      "workspaceSlugLabel": "Slug de l'espace de travail"
+      "workspaceSlugLabel": "Slug de l'espace de travail",
+      "denyAppeal_confirm_title": "Rejeter le recours ?",
+      "denyAppeal_confirm_msg": "Rejeter ce recours ? Le bannissement est maintenu et l’utilisateur est averti.",
+      "editBan_stub": "La modification d’un bannissement existant n’est pas encore disponible.",
+      "userUnbannedSuccess": "Le compte a été rétabli.",
+      "allowPublicSignup_desc": "Toute personne disposant d’une adresse sur un domaine vérifié peut rejoindre sans invitation.",
+      "email": "E-mail"
     },
     "browser": {
       "not_supported_title": "Mise à jour requise"

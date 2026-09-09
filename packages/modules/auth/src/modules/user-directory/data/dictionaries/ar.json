@@ -665,7 +665,13 @@
       "view_provider": "عرض تفاصيل المزود لـ {{provider}}",
       "workspaceSlug": "معرف مساحة العمل",
       "workspaceSlugHelper": "معرف صديق للروابط لمساحة العمل هذه",
-      "workspaceSlugLabel": "معرف مساحة العمل"
+      "workspaceSlugLabel": "معرف مساحة العمل",
+      "denyAppeal_confirm_title": "رفض الطعن؟",
+      "denyAppeal_confirm_msg": "رفض هذا الطعن؟ سيبقى الحظر قائمًا وسيُخطر المستخدم.",
+      "editBan_stub": "تعديل حظر قائم غير متاح بعد.",
+      "userUnbannedSuccess": "تمت إعادة تفعيل الحساب.",
+      "allowPublicSignup_desc": "يمكن لأي شخص لديه بريد على نطاق مُتحقق الانضمام دون دعوة.",
+      "email": "البريد الإلكتروني"
     },
     "browser": {
       "not_supported_title": "تحديث مطلوب"

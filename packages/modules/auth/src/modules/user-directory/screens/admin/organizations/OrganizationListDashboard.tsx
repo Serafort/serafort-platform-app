@@ -40,8 +40,6 @@ import BusinessIcon from '@mui/icons-material/Business'
 import LaunchIcon from '@mui/icons-material/Launch'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import BlockIcon from '@mui/icons-material/Block'
-import GroupsIcon from '@mui/icons-material/Groups'
-import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt'
 import DeleteIcon from '@mui/icons-material/Delete'
 
 import { useTranslation } from 'react-i18next'
@@ -228,96 +226,6 @@ export default function OrganizationListDashboard() {
         >
           {t('auth.admin.newOrg')}
         </Button>
-      </Box>
-
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
-          gap: 3,
-          mb: 4,
-        }}
-      >
-        {[
-          {
-            label: t('auth.admin.activeTenants'),
-            value: '142', // Mock stat as in original
-            icon: <BusinessIcon />,
-            color: 'primary' as const,
-          },
-          {
-            label: t('auth.admin.totalUsers'),
-            value: '12.4k', // Mock stat as in original
-            icon: <GroupsIcon />,
-            color: 'info' as const,
-          },
-          {
-            label: t('auth.admin.systemHealth'),
-            value: '99.4%', // Mock stat as in original
-            icon: <SignalCellularAltIcon />,
-            color: 'success' as const,
-          },
-          {
-            label: t('auth.admin.pendingTrials'),
-            value: '8', // Mock stat as in original
-            icon: <LaunchIcon />,
-            color: 'warning' as const,
-          },
-        ].map((stat, idx) => (
-          <Card
-            key={idx}
-            sx={(theme: any) => ({
-              borderRadius: 4,
-              transition: 'transform 0.15s ease',
-              '&:hover': { transform: 'translateY(-2px)' },
-              ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-            })}
-          >
-            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2.5, p: 3 }}>
-              <Avatar
-                sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '14px',
-                  bgcolor: alpha(theme.palette[stat.color].main, 0.1),
-                  color: `${stat.color}.main`,
-                  boxShadow: `0 6px 12px ${alpha(theme.palette[stat.color].main, 0.1)}`,
-                }}
-              >
-                {React.cloneElement(stat.icon, { fontSize: 'small' })}
-              </Avatar>
-              <Box>
-                <Typography
-                  variant='caption'
-                  sx={{
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.075em',
-                    display: 'block',
-                    mb: 0.25,
-                    fontSize: '0.65rem',
-                    color: (theme) =>
-                      theme.palette.mode === 'dark'
-                        ? 'rgba(255, 255, 255, 0.95)'
-                        : 'text.secondary',
-                  }}
-                >
-                  {stat.label}
-                </Typography>
-                <Typography
-                  variant='h5'
-                  sx={{
-                    fontWeight: 900,
-                    letterSpacing: '-0.02em',
-                    color: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : 'text.primary'),
-                  }}
-                >
-                  {stat.value}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        ))}
       </Box>
 
       <Card

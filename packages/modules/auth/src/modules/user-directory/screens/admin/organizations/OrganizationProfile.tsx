@@ -561,47 +561,6 @@ export default function OrganizationProfile() {
                 </CardContent>
               </Card>
 
-              {process.env.NODE_ENV === 'development' && (
-                <Box sx={{ width: '100%' }}>
-                  <Card
-                    sx={(theme: any) => ({
-                      mt: 3,
-                      border: '1px solid ' + theme.palette.divider,
-                      ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-                    })}
-                  >
-                    <CardContent sx={{ p: 3 }}>
-                      <Typography
-                        variant='h6'
-                        sx={{ fontWeight: 800, mb: 2, textTransform: 'uppercase' }}
-                      >
-                        {t('auth.admin.internalDebug')}
-                      </Typography>
-                      <Divider sx={{ my: 1, opacity: 0.5 }} />
-                      <Box
-                        sx={{
-                          color: 'text.secondary',
-                          fontFamily: 'monospace',
-                          wordBreak: 'break-all',
-                          lineHeight: 1.5,
-                          bgcolor: (theme) => alpha(theme.palette.text.primary, 0.05),
-                          p: 2,
-                          borderRadius: 0,
-                          width: 'calc(100% + 32px)',
-                          mx: -2,
-                          mb: -2,
-                          overflowX: 'auto',
-                        }}
-                      >
-                        <strong>{t('auth.admin.rawData')}:</strong>
-                        <pre style={{ margin: 0, marginTop: '8px' }}>
-                          {JSON.stringify(orgData, null, 2)}
-                        </pre>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Box>
-              )}
             </Box>
           </Grid>
 
