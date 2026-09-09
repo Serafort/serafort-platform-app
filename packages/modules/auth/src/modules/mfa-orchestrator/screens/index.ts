@@ -1,9 +1,7 @@
 export { MFASetupScreen, MFAManagement, MFAVerificationScreen } from './mfa'
 export {
-  PasskeyCreationOptions,
   PasskeyLoginOptions,
   PasskeyManagement,
-  PasskeyNamingConfig,
   PasskeyRecoveryOptions,
   PasskeyRegistrationPrompt,
   PasskeySetup,

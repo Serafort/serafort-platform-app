@@ -117,7 +117,7 @@ export default function EmailChangeVerification() {
         isSuccess ? undefined : (
           <Button
             variant='contained'
-            onClick={() => navigate(Path.auth.requestEmailChange)}
+            onClick={() => navigate(Path.account.initiateEmailChange)}
             endIcon={<ArrowForward />}
             sx={{
               minHeight: 48,
