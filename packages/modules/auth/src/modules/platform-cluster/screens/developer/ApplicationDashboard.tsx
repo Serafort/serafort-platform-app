@@ -522,7 +522,7 @@ export default function ApplicationDashboard() {
                       }}
                     >
                       {app.client_secret
-                        ? '•••• •••• ab2c'
+                        ? '•••• •••• ••••'
                         : t('admin.developer.applications.card.pkce_protected')}
                     </Typography>
                   </Box>
