@@ -1,6 +1,6 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/SAMLSSOInitiation.tsx
 // STYLE AUDIT: Aligned to OrganizationProfile.tsx design system and premium aesthetics
-// WIRED: Full SSO discovery flow based on backend sso_discovery_controller â†’ sso_discovery_service
+// WIRED: Full SSO discovery flow based on backend sso_discovery_controller → sso_discovery_service
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import {
@@ -51,17 +51,35 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 // ── Provider display config ──
-const PROVIDER_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  saml: { label: 'SAML SSO', color: '#4CAF50', icon: <SecurityIcon sx={{ fontSize: 16 }} /> },
-  oidc: { label: 'OpenID Connect', color: '#2196F3', icon: <KeyIcon sx={{ fontSize: 16 }} /> },
-  google: { label: 'Google', color: '#EA4335', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
-  github: { label: 'GitHub', color: '#333', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
-  microsoft: { label: 'Microsoft', color: '#00A4EF', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
-  password: {
-    label: 'Standard Login',
-    color: '#FF9800',
-    icon: <LoginIcon sx={{ fontSize: 16 }} />,
-  },
+// Third-party identity providers (google/github/microsoft) keep their real
+// brand colors — that's an intentional, industry-standard exception to the
+// theme-token rule, not a hardcoded UI color. SAML/OIDC/password are protocol
+// types, not brands, so those three resolve from the active theme instead.
+function useProviderConfig(): Record<
+  string,
+  { label: string; color: string; icon: React.ReactNode }
+> {
+  const theme = useTheme()
+  return {
+    saml: {
+      label: 'SAML SSO',
+      color: theme.palette.success.main,
+      icon: <SecurityIcon sx={{ fontSize: 16 }} />,
+    },
+    oidc: {
+      label: 'OpenID Connect',
+      color: theme.palette.info.main,
+      icon: <KeyIcon sx={{ fontSize: 16 }} />,
+    },
+    google: { label: 'Google', color: '#EA4335', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
+    github: { label: 'GitHub', color: '#333', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
+    microsoft: { label: 'Microsoft', color: '#00A4EF', icon: <LoginIcon sx={{ fontSize: 16 }} /> },
+    password: {
+      label: 'Standard Login',
+      color: theme.palette.warning.main,
+      icon: <LoginIcon sx={{ fontSize: 16 }} />,
+    },
+  }
 }
 
 const SAMLSSOInitiation = () => {
@@ -87,7 +105,7 @@ const SAMLSSOInitiation = () => {
   const rawIdentifier = useWatch({ control, name: 'sso_identifier' })
   const debouncedIdentifier = useDebounce(rawIdentifier.trim(), 500)
 
-  // SSO Discovery query â€” fires when debounced identifier is â‰¥ 2 chars
+  // SSO Discovery query — fires when debounced identifier is ≥ 2 chars
   const {
     data: discoveryResponse,
     isLoading: isDiscovering,
@@ -97,10 +115,11 @@ const SAMLSSOInitiation = () => {
 
   const discoveryData = discoveryResponse?.data
   const providerType = discoveryData?.provider
-  const providerInfo = providerType ? PROVIDER_CONFIG[providerType] : null
+  const providerConfig = useProviderConfig()
+  const providerInfo = providerType ? providerConfig[providerType] : null
 
   /**
-   * Handle form submission â€” route user based on discovered provider.
+   * Handle form submission — route user based on discovered provider.
    *
    * Backend returns:
    *   { provider: 'saml', organizationId: number, loginUrl?: string }
@@ -151,14 +170,18 @@ const SAMLSSOInitiation = () => {
         case 'github':
         case 'microsoft': {
           // Social providers → redirect to provider selection or directly to social auth
-          toast.info(t('auth.sso.social_redirect', `Redirecting to ${providerType} login...`))
+          toast.info(
+            t('auth.sso.social_redirect', 'Redirecting to {{provider}} login...', {
+              provider: providerType,
+            }),
+          )
           navigate(`${Path.identity.providerSelection}?provider=${providerType}`)
           break
         }
 
         case 'password':
         default: {
-          // No enterprise SSO found â€” fall back to standard login
+          // No enterprise SSO found — fall back to standard login
           toast.info(
             t(
               'auth.sso.no_enterprise_sso',
@@ -179,7 +202,7 @@ const SAMLSSOInitiation = () => {
   // Show discovery errors
   useEffect(() => {
     if (discoveryError && debouncedIdentifier.length >= 2) {
-      // Discovery error is non-critical â€” input may still be typing
+      // Discovery error is non-critical — input may still be typing
     }
   }, [discoveryError, debouncedIdentifier])
 
@@ -187,8 +210,10 @@ const SAMLSSOInitiation = () => {
     <Box
       className='animate-scale-in'
       sx={{
-        // Serafort brand gradient: deep blue into ink.
-        background: `linear-gradient(135deg, ${alpha('#0437A2', 0.95)} 0%, ${alpha('#031433', 0.98)} 100%)`,
+        // Tenant brand gradient: primary colour fading into ink, so this
+        // screen re-brands correctly for every tenant preset instead of
+        // being hardcoded to one brand's blue.
+        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.dark, 0.95)} 0%, ${alpha(theme.palette.common.black, 0.98)} 100%)`,
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
@@ -354,7 +379,7 @@ const SAMLSSOInitiation = () => {
                   />
                 </FormControl>
 
-                {/* â”€â”€ Discovery result feedback â”€â”€ */}
+                {/* ── Discovery result feedback ── */}
                 <Collapse in={!!providerInfo && isFetched && !isDiscovering}>
                   <Box sx={{ mb: 2, textAlign: 'left' }}>
                     <AnimatePresence mode='wait'>
@@ -376,11 +401,10 @@ const SAMLSSOInitiation = () => {
                             }
                             label={
                               providerType !== 'password'
-                                ? t('auth.sso.provider_found', `${providerInfo.label} detected`)
-                                : t(
-                                    'auth.sso.no_enterprise',
-                                    'No enterprise SSO â€” standard login',
-                                  )
+                                ? t('auth.sso.provider_found', '{{provider}} detected', {
+                                    provider: providerInfo.label,
+                                  })
+                                : t('auth.sso.no_enterprise', 'No enterprise SSO — standard login')
                             }
                             size='small'
                             sx={{
@@ -411,19 +435,19 @@ const SAMLSSOInitiation = () => {
                     height: 56,
                     borderRadius: 3,
                     bgcolor: 'common.white',
-                    color: '#8A6D3B',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+                    color: theme.palette.primary.dark,
+                    boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.15)}`,
                     fontWeight: 800,
                     fontSize: '1rem',
                     textTransform: 'none',
                     '&:hover': {
                       bgcolor: alpha(theme.palette.common.white, 0.9),
                       transform: 'translateY(-1px)',
-                      boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
+                      boxShadow: `0 12px 40px ${alpha(theme.palette.common.black, 0.2)}`,
                     },
                     '&:disabled': {
                       bgcolor: alpha(theme.palette.common.white, 0.4),
-                      color: alpha('#8A6D3B', 0.5),
+                      color: alpha(theme.palette.primary.dark, 0.5),
                     },
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
@@ -431,9 +455,11 @@ const SAMLSSOInitiation = () => {
                   {isDiscovering || isRedirecting ? (
                     <CircularProgress size={24} color='inherit' />
                   ) : providerType && providerType !== 'password' ? (
-                    t('auth.sso.continue_with', `Continue with ${providerInfo?.label ?? 'SSO'}`)
+                    t('auth.sso.continue_with', 'Continue with {{provider}}', {
+                      provider: providerInfo?.label ?? 'SSO',
+                    })
                   ) : (
-                    t('common.continue_to_sso', 'Continue')
+                    t('auth.common.continue_to_sso', 'Continue')
                   )}
                 </Button>
               </Box>
@@ -458,7 +484,7 @@ const SAMLSSOInitiation = () => {
                     letterSpacing: '0.1em',
                   }}
                 >
-                  {t('common.or', 'OR')}
+                  {t('auth.common.or', 'OR')}
                 </Typography>
               </Divider>
 
@@ -479,7 +505,7 @@ const SAMLSSOInitiation = () => {
                   },
                 }}
               >
-                {t('auth.signin.back_to_login', 'Standard Administrative Login')}
+                {t('auth.sso.back_to_standard_login', 'Standard Administrative Login')}
               </Button>
             </Stack>
           </Paper>

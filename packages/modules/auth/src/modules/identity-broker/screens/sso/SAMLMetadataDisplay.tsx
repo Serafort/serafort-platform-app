@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/SAMLMetadataDisplay.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // FIXES: Added header; implemented entry motion; unified notification system with notistack; standardized Card/Tabs styles to match project design language; translated all labels; added accessibility aria-labels
-// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
+// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
 
 import { useMemo, useState, type ReactNode } from 'react'
 import {
@@ -125,9 +125,9 @@ const MetadataField = ({
             flex: 1,
           }}
         >
-          {value || 'â€”'}
+          {value || '—'}
         </Typography>
-        <Tooltip title={t('common.copy', 'Copy')}>
+        <Tooltip title={t('auth.common.copy', 'Copy')}>
           <IconButton
             size='small'
             onClick={() => onCopy(value)}
@@ -183,9 +183,9 @@ export default function SAMLMetadataDisplay() {
       const data = remoteResponse.data
       return {
         entityId: data.entityId,
-        acsUrl: 'â€”', // We might not have this in remote check unless we parse XML deeply
-        sloUrl: 'â€”',
-        certificate: 'â€”',
+        acsUrl: '—', // We might not have this in remote check unless we parse XML deeply
+        sloUrl: '—',
+        certificate: '—',
         enabled: true,
         wantAssertionsSigned: false,
         xml: data.xml,
@@ -234,9 +234,9 @@ export default function SAMLMetadataDisplay() {
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      toast.error(t('common.copied_to_clipboard', 'Copied to clipboard!'))
+      toast.error(t('auth.common.copied_to_clipboard', 'Copied to clipboard!'))
     } catch {
-      toast.warning(t('common.copy_failed', 'Copy failed'))
+      toast.warning(t('auth.common.copy_failed', 'Copy failed'))
     }
   }
 
@@ -346,7 +346,7 @@ export default function SAMLMetadataDisplay() {
                     )}
               </Typography>
               <Chip
-                label={metadata.isRemote ? 'EXTERNAL' : 'SAML 2.0'}
+                label={metadata.isRemote ? t('auth.sso.external_badge', 'EXTERNAL') : 'SAML 2.0'}
                 size='small'
                 color={metadata.isRemote ? 'info' : 'primary'}
                 variant='outlined'
@@ -406,7 +406,7 @@ export default function SAMLMetadataDisplay() {
                 onClick={refetch}
                 sx={{ fontWeight: 800, textTransform: 'none' }}
               >
-                {t('common.retry', 'Retry')}
+                {t('auth.common.retry', 'Retry')}
               </Button>
             }
           >
@@ -512,28 +512,33 @@ export default function SAMLMetadataDisplay() {
               sx={{
                 p: { xs: 2, md: 3 },
                 borderRadius: 4,
-                backgroundColor: '#0F172A',
-                color: '#94A3B8',
+                backgroundColor: theme.palette.grey[900],
+                color: theme.palette.grey[400],
                 fontFamily: 'JetBrains Mono, monospace',
                 fontSize: '0.8125rem',
                 overflowX: 'auto',
                 position: 'relative',
-                border: '1px solid #1E293B',
-                boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.4)',
+                border: '1px solid',
+                borderColor: theme.palette.grey[800],
+                boxShadow: `inset 0 2px 8px ${alpha(theme.palette.common.black, 0.4)}`,
               }}
             >
               <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 1 }}>
-                <Tooltip title={t('common.copy', 'Copy')}>
+                <Tooltip title={t('auth.common.copy', 'Copy')}>
                   <IconButton
                     size='small'
                     onClick={() => handleCopy(metadata.xml)}
                     aria-label={t('auth.sso.copy_raw_xml', 'Copy Raw XML')}
                     sx={{
-                      color: '#94A3B8',
-                      bgcolor: alpha('#1E293B', 0.8),
+                      color: theme.palette.grey[400],
+                      bgcolor: alpha(theme.palette.grey[800], 0.8),
                       backdropFilter: 'blur(4px)',
-                      border: '1px solid #334155',
-                      '&:hover': { color: '#F8FAFC', bgcolor: '#1E293B' },
+                      border: '1px solid',
+                      borderColor: theme.palette.grey[700],
+                      '&:hover': {
+                        color: theme.palette.common.white,
+                        bgcolor: theme.palette.grey[800],
+                      },
                     }}
                   >
                     <ContentCopy sx={{ fontSize: 16 }} />
@@ -543,7 +548,7 @@ export default function SAMLMetadataDisplay() {
               <pre
                 style={{
                   margin: 0,
-                  color: '#E2E8F0',
+                  color: theme.palette.grey[300],
                   lineHeight: 1.7,
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-all',

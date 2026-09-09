@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/PermissionConsentScreen.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // FIXES: Added header; implemented entry motion; modernized component attributes (slotProps); standardized Avatar/Card/Stack styles; translated all scope labels and descriptions; added accessibility aria-labels; improved responsive layout
-// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
+// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
 
 import { useEffect, useMemo } from 'react'
 import {
@@ -177,7 +177,7 @@ export default function PermissionConsentScreen() {
             textTransform: 'uppercase',
           }}
         >
-          {t('common.initializing', 'Initializing secure connection...')}
+          {t('auth.common.initializing', 'Initializing secure connection...')}
         </Typography>
       </Box>
     )
@@ -214,7 +214,7 @@ export default function PermissionConsentScreen() {
         <IconButton
           onClick={handleDeny}
           size='small'
-          aria-label={t('common.back', 'Back')}
+          aria-label={t('auth.common.back', 'Back')}
           sx={{ border: '1px solid', borderColor: 'divider' }}
         >
           <ArrowBackIcon sx={{ fontSize: 16 }} />
@@ -272,7 +272,9 @@ export default function PermissionConsentScreen() {
           {t(
             'auth.sso.consent_subtitle',
             'is requesting permission to access your {{tenantName}}',
-            { tenantName: organization?.name || tenant?.name || t('common.account', 'account') },
+            {
+              tenantName: organization?.name || tenant?.name || t('auth.common.account', 'account'),
+            },
           )}
         </Typography>
       </Box>

@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/OIDCConfigBrowser.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // FIXES: Added header; implemented entry motion; modernized MUI component attributes (slotProps); standardized Card/Avatar styles to match golden standard; fully translated labels; added accessibility aria-labels
-// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
+// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
 
 import { useState } from 'react'
 import {
@@ -77,12 +77,12 @@ export default function OIDCConfigBrowser() {
     if (clientToDelete) {
       deleteMutation.mutate(String(clientToDelete), {
         onSuccess: () => {
-          toast.success(t('common.deleted_successfully', 'Deleted successfully'))
+          toast.success(t('auth.common.deleted_successfully', 'Deleted successfully'))
           setDeleteDialogOpen(false)
           setClientToDelete(null)
         },
         onError: (err: any) => {
-          toast.error(err.message || t('common.error_deleting', 'Error deleting client'))
+          toast.error(err.message || t('auth.common.error_deleting', 'Error deleting client'))
           setDeleteDialogOpen(false)
           setClientToDelete(null)
         },
@@ -279,7 +279,7 @@ export default function OIDCConfigBrowser() {
                     fontSize: '0.75rem',
                   }}
                 >
-                  {t('common.status', 'Status')}
+                  {t('auth.common.status', 'Status')}
                 </TableCell>
                 <TableCell
                   sx={{
@@ -300,7 +300,7 @@ export default function OIDCConfigBrowser() {
                     fontSize: '0.75rem',
                   }}
                 >
-                  {t('common.actions', 'Actions')}
+                  {t('auth.common.actions', 'Actions')}
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -362,15 +362,15 @@ export default function OIDCConfigBrowser() {
                         >
                           {client.client_id || client.clientId}
                         </Typography>
-                        <Tooltip title={t('common.copy', 'Copy')}>
+                        <Tooltip title={t('auth.common.copy', 'Copy')}>
                           <IconButton
                             size='small'
                             sx={{ p: 0.5, border: '1px solid', borderColor: 'divider' }}
                             onClick={() => {
                               navigator.clipboard.writeText(client.client_id || client.clientId)
-                              toast.success(t('common.copied', 'Copied to clipboard'))
+                              toast.success(t('auth.common.copied', 'Copied to clipboard'))
                             }}
-                            aria-label={t('common.copy', 'Copy Client ID')}
+                            aria-label={t('auth.common.copy', 'Copy Client ID')}
                           >
                             <ContentCopy sx={{ fontSize: 14 }} />
                           </IconButton>
@@ -393,7 +393,11 @@ export default function OIDCConfigBrowser() {
                     </TableCell>
                     <TableCell>
                       <Chip
-                        label={(client.is_active ?? client.isActive) ? 'ACTIVE' : 'INACTIVE'}
+                        label={
+                          (client.is_active ?? client.isActive)
+                            ? t('auth.sso.status_active', 'ACTIVE')
+                            : t('auth.sso.status_inactive', 'INACTIVE')
+                        }
                         size='small'
                         color={(client.is_active ?? client.isActive) ? 'success' : 'error'}
                         sx={{ borderRadius: '6px', fontWeight: 900, fontSize: '0.65rem' }}
@@ -408,18 +412,18 @@ export default function OIDCConfigBrowser() {
                     </TableCell>
                     <TableCell align='right'>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        <Tooltip title={t('common.edit', 'Edit')}>
+                        <Tooltip title={t('auth.common.edit', 'Edit')}>
                           <IconButton
                             component={RouterLink}
                             to={Path.identity.oidcClientEdit.replace(':id', client.id)}
                             size='small'
                             sx={{ border: '1px solid', borderColor: 'divider' }}
-                            aria-label={t('common.edit', 'Edit Client')}
+                            aria-label={t('auth.common.edit', 'Edit Client')}
                           >
                             <Edit fontSize='small' />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title={t('common.delete', 'Delete')}>
+                        <Tooltip title={t('auth.common.delete', 'Delete')}>
                           <IconButton
                             size='small'
                             color='error'
@@ -428,7 +432,7 @@ export default function OIDCConfigBrowser() {
                               border: '1px solid',
                               borderColor: alpha(theme.palette.error.main, 0.2),
                             }}
-                            aria-label={t('common.delete', 'Delete Client')}
+                            aria-label={t('auth.common.delete', 'Delete Client')}
                           >
                             <Delete fontSize='small' />
                           </IconButton>
@@ -482,7 +486,7 @@ export default function OIDCConfigBrowser() {
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'error.main' }}>
-          <Warning /> {t('common.confirm_delete_title', 'Delete Client?')}
+          <Warning /> {t('auth.common.confirm_delete_title', 'Delete Client?')}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -494,7 +498,7 @@ export default function OIDCConfigBrowser() {
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={() => setDeleteDialogOpen(false)} color='inherit'>
-            {t('common.cancel', 'Cancel')}
+            {t('auth.common.cancel', 'Cancel')}
           </Button>
           <Button
             onClick={confirmDelete}
@@ -504,8 +508,8 @@ export default function OIDCConfigBrowser() {
             autoFocus
           >
             {deleteMutation.isPending
-              ? t('common.deleting', 'Deleting...')
-              : t('common.delete', 'Delete')}
+              ? t('auth.common.deleting', 'Deleting...')
+              : t('auth.common.delete', 'Delete')}
           </Button>
         </DialogActions>
       </Dialog>

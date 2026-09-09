@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/SSFConfiguration.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // FIXES: Enforced 1200px max layout width, strict MUI v7 Cards and Avatars styling, removed inline styling, enforced Grid2 with size property, enforced useCallback, unified headers, full i18next coverage, framer-motion page entry transitions.
-// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
+// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
 
 import React, { useState, useEffect, useCallback } from 'react'
 import Box from '@mui/material/Box'
@@ -253,7 +253,10 @@ export default function SSFConfiguration() {
   const handleCopyJwksUrlClick = useCallback(() => {
     navigator.clipboard.writeText(`${window.location.origin}/.well-known/jwks.json`)
     toast.success(
-      t('common.copied_item', { item: 'JWKS URL', defaultValue: 'JWKS URL copied to clipboard' }),
+      t('auth.common.copied_item', {
+        item: 'JWKS URL',
+        defaultValue: 'JWKS URL copied to clipboard',
+      }),
     )
   }, [t])
 
@@ -279,7 +282,7 @@ export default function SSFConfiguration() {
             color: 'text.secondary',
           }}
         >
-          {t('common.loading', 'Syncing Signals...')}
+          {t('auth.common.loading', 'Syncing Signals...')}
         </Typography>
       </Box>
     )
@@ -319,7 +322,7 @@ export default function SSFConfiguration() {
             '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
           }}
         >
-          {t('common.back')}
+          {t('auth.common.back')}
         </Button>
       </Box>
 
@@ -347,7 +350,7 @@ export default function SSFConfiguration() {
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Chip
-              label={t('common.beta', 'BETA')}
+              label={t('auth.common.beta', 'BETA')}
               size='small'
               sx={{
                 fontWeight: 900,
@@ -433,8 +436,8 @@ export default function SSFConfiguration() {
             }}
           >
             {isSaving
-              ? t('common.saving', 'Saving...')
-              : t('common.save_config', 'Save Configuration')}
+              ? t('auth.common.saving', 'Saving...')
+              : t('auth.common.save_config', 'Save Configuration')}
           </Button>
         </Box>
       </Box>
@@ -448,7 +451,7 @@ export default function SSFConfiguration() {
               border: '1px solid',
               borderColor: alpha(theme.palette.divider, 0.08),
               boxShadow: 'none',
-              background: alpha('#000', 0.2),
+              background: alpha(theme.palette.common.black, 0.2),
               backdropFilter: 'blur(24px)',
             }}
           >
@@ -471,7 +474,7 @@ export default function SSFConfiguration() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                     fontSize: '0.8125rem',
-                    color: alpha('#fff', 0.9),
+                    color: alpha(theme.palette.common.white, 0.9),
                   }}
                 >
                   {t('auth.sso.transmitter_endpoint', 'Transmitter Identity')}
@@ -488,7 +491,7 @@ export default function SSFConfiguration() {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '12px',
-                        bgcolor: alpha('#000', 0.3),
+                        bgcolor: alpha(theme.palette.common.black, 0.3),
                         '& fieldset': { borderColor: alpha(theme.palette.divider, 0.1) },
                         '&:hover fieldset': { borderColor: alpha(theme.palette.primary.main, 0.4) },
                       },
@@ -514,7 +517,7 @@ export default function SSFConfiguration() {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: '12px',
-                        bgcolor: alpha('#000', 0.3),
+                        bgcolor: alpha(theme.palette.common.black, 0.3),
                         '& fieldset': { borderColor: alpha(theme.palette.divider, 0.1) },
                       },
                     }}
@@ -567,7 +570,7 @@ export default function SSFConfiguration() {
                   onClick={handleAddEventClick}
                   sx={{ fontWeight: 700, textTransform: 'none' }}
                 >
-                  {t('common.add_event', 'Add Event Type')}
+                  {t('auth.common.add_event', 'Add Event Type')}
                 </Button>
               </Box>
 
@@ -597,7 +600,7 @@ export default function SSFConfiguration() {
               borderColor: alpha(theme.palette.primary.main, 0.1),
               boxShadow: 'none',
               mb: 4,
-              background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha('#000', 0.2)} 100%)`,
+              background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.common.black, 0.2)} 100%)`,
               position: 'relative',
               overflow: 'hidden',
               backdropFilter: 'blur(24px)',
@@ -698,7 +701,9 @@ export default function SSFConfiguration() {
                                   borderRadius: '4px',
                                 }}
                               >
-                                {signal.action === 'SSF_TEST_SIGNAL' ? 'TEST' : 'PUSH'}
+                                {signal.action === 'SSF_TEST_SIGNAL'
+                                  ? t('auth.sso.signal_test', 'TEST')
+                                  : t('auth.sso.signal_push', 'PUSH')}
                               </Typography>
                               <Typography
                                 variant='caption'
@@ -754,7 +759,7 @@ export default function SSFConfiguration() {
                   },
                 }}
               >
-                {t('common.refresh_stream', 'Refresh Stream')}
+                {t('auth.common.refresh_stream', 'Refresh Stream')}
               </Button>
             </CardContent>
           </Card>
@@ -766,7 +771,7 @@ export default function SSFConfiguration() {
               border: '1px solid',
               borderColor: alpha(theme.palette.divider, 0.08),
               boxShadow: 'none',
-              background: alpha('#000', 0.2),
+              background: alpha(theme.palette.common.black, 0.2),
               backdropFilter: 'blur(24px)',
             }}
           >
@@ -832,14 +837,16 @@ export default function SSFConfiguration() {
         onClose={handleCloseAddEventDialog}
         maxWidth='xs'
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: '24px',
-            background: alpha('#111', 0.95),
-            backdropFilter: 'blur(20px)',
-            border: '1px solid',
-            borderColor: alpha(theme.palette.divider, 0.1),
-            boxShadow: theme.shadows[24],
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: '24px',
+              background: alpha(theme.palette.common.black, 0.95),
+              backdropFilter: 'blur(20px)',
+              border: '1px solid',
+              borderColor: alpha(theme.palette.divider, 0.1),
+              boxShadow: theme.shadows[24],
+            },
           },
         }}
       >
@@ -881,7 +888,7 @@ export default function SSFConfiguration() {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
-                  bgcolor: alpha('#000', 0.3),
+                  bgcolor: alpha(theme.palette.common.black, 0.3),
                 },
               }}
             />
@@ -894,7 +901,7 @@ export default function SSFConfiguration() {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
-                  bgcolor: alpha('#000', 0.3),
+                  bgcolor: alpha(theme.palette.common.black, 0.3),
                 },
               }}
             />
@@ -909,7 +916,7 @@ export default function SSFConfiguration() {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
-                  bgcolor: alpha('#000', 0.3),
+                  bgcolor: alpha(theme.palette.common.black, 0.3),
                 },
               }}
             />
@@ -921,7 +928,7 @@ export default function SSFConfiguration() {
             onClick={handleCloseAddEventDialog}
             sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}
           >
-            {t('common.cancel', 'Cancel')}
+            {t('auth.common.cancel', 'Cancel')}
           </Button>
           <Button
             variant='contained'

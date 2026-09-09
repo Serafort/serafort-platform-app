@@ -164,7 +164,7 @@ export default function SSOProviderSelection() {
                 color: 'text.secondary',
               }}
             >
-              {t('common.workEmail', 'Work Email Address')}
+              {t('auth.common.workEmail', 'Work Email Address')}
             </Typography>
           </Box>
           <TextField

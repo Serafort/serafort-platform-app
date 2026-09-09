@@ -120,7 +120,7 @@ export default function OIDCClientEdit() {
           navigate(Path.identity.oidcConfigBrowser)
         },
         onError: (err: any) => {
-          toast.error(err.message || t('common.error', 'An error occurred'))
+          toast.error(err.message || t('auth.common.error', 'An error occurred'))
         },
       },
     )
@@ -136,7 +136,7 @@ export default function OIDCClientEdit() {
       },
       onError: (err: any) => {
         setRotateDialogOpen(false)
-        toast.error(err.message || t('common.error', 'Failed to rotate secret'))
+        toast.error(err.message || t('auth.common.error', 'Failed to rotate secret'))
       },
     })
   }
@@ -144,7 +144,7 @@ export default function OIDCClientEdit() {
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
     toast.success(
-      t('common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }),
+      t('auth.common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }),
     )
   }
 
@@ -160,7 +160,7 @@ export default function OIDCClientEdit() {
     return (
       <Container maxWidth='md' sx={{ py: 10 }}>
         <Alert severity='error'>
-          <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
+          <AlertTitle>{t('auth.common.error', 'Error')}</AlertTitle>
           {t('auth.sso.client_load_error', 'Failed to load client details.')}
         </Alert>
         <Button
@@ -169,7 +169,7 @@ export default function OIDCClientEdit() {
           startIcon={<ArrowBack />}
           sx={{ mt: 3 }}
         >
-          {t('common.back_to_list', 'Back to OIDC Clients')}
+          {t('auth.common.back_to_list', 'Back to OIDC Clients')}
         </Button>
       </Container>
     )
@@ -197,7 +197,7 @@ export default function OIDCClientEdit() {
             '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
           }}
         >
-          {t('common.back_to_list', 'Back to OIDC Clients')}
+          {t('auth.common.back_to_list', 'Back to OIDC Clients')}
         </Button>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar
@@ -364,7 +364,7 @@ export default function OIDCClientEdit() {
             render={({ field }) => (
               <TextField
                 {...field}
-                label={t('common.description', 'Description')}
+                label={t('auth.common.description', 'Description')}
                 fullWidth
                 multiline
                 rows={2}
@@ -464,7 +464,7 @@ export default function OIDCClientEdit() {
               color='inherit'
               sx={{ fontWeight: 600 }}
             >
-              {t('common.cancel', 'Cancel')}
+              {t('auth.common.cancel', 'Cancel')}
             </Button>
             <Button
               type='submit'
@@ -478,8 +478,8 @@ export default function OIDCClientEdit() {
               }}
             >
               {isSubmitting
-                ? t('common.saving', 'Saving...')
-                : t('common.save_changes', 'Save Changes')}
+                ? t('auth.common.saving', 'Saving...')
+                : t('auth.common.save_changes', 'Save Changes')}
             </Button>
           </Box>
         </Box>
@@ -548,7 +548,7 @@ export default function OIDCClientEdit() {
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={() => setRotateDialogOpen(false)} color='inherit'>
-            {t('common.cancel', 'Cancel')}
+            {t('auth.common.cancel', 'Cancel')}
           </Button>
           <Button
             onClick={handleRotateSecret}
@@ -558,8 +558,8 @@ export default function OIDCClientEdit() {
             autoFocus
           >
             {rotateMutation.isPending
-              ? t('common.processing', 'Processing...')
-              : t('common.confirm', 'Confirm')}
+              ? t('auth.common.processing', 'Processing...')
+              : t('auth.common.confirm', 'Confirm')}
           </Button>
         </DialogActions>
       </Dialog>

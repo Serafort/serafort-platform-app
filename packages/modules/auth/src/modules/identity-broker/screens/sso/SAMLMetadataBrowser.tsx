@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/SAMLMetadataBrowser.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // FIXES: Added header; implemented entry motion; modernized component attributes (slotProps); standardized Card/Paper/Avatar styles; translated all strings; added aria-label support
-// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
+// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
 
 import { useMemo, useState, type KeyboardEvent } from 'react'
 import {
@@ -275,7 +275,7 @@ export default function SAMLMetadataBrowser() {
               {fetchRemote.isPending ? (
                 <CircularProgress size={24} color='inherit' />
               ) : (
-                t('common.fetch', 'Fetch Metadata')
+                t('auth.common.fetch', 'Fetch Metadata')
               )}
             </Button>
           </Box>
@@ -296,7 +296,7 @@ export default function SAMLMetadataBrowser() {
         </Typography>
         <TextField
           size='small'
-          placeholder={t('common.filter', 'Filter entities...')}
+          placeholder={t('auth.common.filter', 'Filter entities...')}
           value={filterQuery}
           onChange={(e) => setFilterQuery(e.target.value)}
           sx={{ maxWidth: 300 }}
@@ -471,7 +471,7 @@ export default function SAMLMetadataBrowser() {
                       },
                     }}
                   >
-                    {t('common.view_details', 'View Technical Details')}
+                    {t('auth.common.view_details', 'View Technical Details')}
                   </Button>
                 </CardContent>
               </Card>

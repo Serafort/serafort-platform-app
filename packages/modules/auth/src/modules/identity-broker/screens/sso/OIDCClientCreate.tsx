@@ -111,7 +111,7 @@ export default function OIDCClientCreate() {
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
     toast.success(
-      t('common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }),
+      t('auth.common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }),
     )
   }
 
@@ -137,7 +137,7 @@ export default function OIDCClientCreate() {
             '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
           }}
         >
-          {t('common.back_to_list', 'Back to OIDC Clients')}
+          {t('auth.common.back_to_list', 'Back to OIDC Clients')}
         </Button>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar
@@ -289,7 +289,7 @@ export default function OIDCClientCreate() {
 
           <Box sx={{ mt: 5, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
             <Button variant='outlined' component={RouterLink} to={Path.identity.oidcConfigBrowser}>
-              {t('common.done', 'Done')}
+              {t('auth.common.done', 'Done')}
             </Button>
           </Box>
         </Card>
@@ -428,7 +428,7 @@ export default function OIDCClientCreate() {
                 color='inherit'
                 sx={{ fontWeight: 600 }}
               >
-                {t('common.cancel', 'Cancel')}
+                {t('auth.common.cancel', 'Cancel')}
               </Button>
               <Button
                 type='submit'
@@ -442,7 +442,7 @@ export default function OIDCClientCreate() {
                 }}
               >
                 {isSubmitting
-                  ? t('common.creating', 'Creating...')
+                  ? t('auth.common.creating', 'Creating...')
                   : t('auth.sso.register_client', 'Register Client')}
               </Button>
             </Box>

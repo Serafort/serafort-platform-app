@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/SamlWaitScreen.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md, Error-handling.md
 // FIXES: Added header; implemented entry motion; modernized typography and iconography; standardized color palette; translated all labels; added aria-label support; integrated functional SAML redirect logic
-// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
+// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
 
 import React from 'react'
 import {
@@ -246,7 +246,7 @@ export default function SamlWaitScreen() {
                   px: 3,
                 }}
               >
-                {t('common.retry', 'Retry')}
+                {t('auth.common.retry', 'Retry')}
               </Button>
             </Box>
           </motion.div>

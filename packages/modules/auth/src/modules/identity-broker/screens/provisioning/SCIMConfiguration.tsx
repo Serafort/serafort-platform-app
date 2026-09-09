@@ -131,7 +131,7 @@ export default function SCIMConfiguration() {
   const { data: tokensData } = useSCIMTokens()
   const tokens: SCIMToken[] = (tokensData?.data as any)?.data ?? tokensData?.data ?? []
   const activeToken = tokens.find((t) => !(t as any).revokedAt) ?? tokens[0] ?? null
-  const displayToken = newlyCreatedToken ?? (activeToken ? `scim_live_${'â€¢'.repeat(24)}` : null)
+  const displayToken = newlyCreatedToken ?? (activeToken ? `scim_live_${'•'.repeat(24)}` : null)
 
   const createTokenMutation = useCreateSCIMToken({
     onSuccess: (resp) => {
@@ -140,21 +140,21 @@ export default function SCIMConfiguration() {
         setNewlyCreatedToken(created.token)
         setTokenVisible(true)
       }
-      toast.success(t('admin.provisioning.scim.messages.token_generated'))
+      toast.success(t('auth.admin.provisioning.scim.messages.token_generated'))
     },
     onError: (error: unknown) => {
       logger.error('Failed to create SCIM token', { error })
-      toast.error(t('admin.provisioning.scim.messages.error_generic'))
+      toast.error(t('auth.admin.provisioning.scim.messages.error_generic'))
     },
   })
 
   const revokeTokenMutation = useRevokeSCIMToken({
     onSuccess: () => {
-      toast.info(t('admin.provisioning.scim.messages.token_revoked'))
+      toast.info(t('auth.admin.provisioning.scim.messages.token_revoked'))
     },
     onError: (error: unknown) => {
       logger.error('Failed to revoke SCIM token', { error })
-      toast.error(t('admin.provisioning.scim.messages.error_generic'))
+      toast.error(t('auth.admin.provisioning.scim.messages.error_generic'))
     },
   })
 
@@ -195,12 +195,12 @@ export default function SCIMConfiguration() {
 
   const updateConfigMutation = useUpdateOrganizationScimConfig({
     onSuccess: () => {
-      toast.success(t('admin.provisioning.scim.messages.config_saved'))
+      toast.success(t('auth.admin.provisioning.scim.messages.config_saved'))
       setIsSaving(false)
     },
     onError: (error: unknown) => {
       logger.error('Failed to save SCIM config', { error })
-      toast.error(t('admin.provisioning.scim.messages.error_generic'))
+      toast.error(t('auth.admin.provisioning.scim.messages.error_generic'))
       setIsSaving(false)
     },
   })
@@ -216,7 +216,7 @@ export default function SCIMConfiguration() {
     },
     onError: (error: unknown) => {
       logger.error('SCIM test connection failed', { error })
-      toast.error(t('admin.provisioning.scim.messages.test_failed'))
+      toast.error(t('auth.admin.provisioning.scim.messages.test_failed'))
     },
   })
 
@@ -238,10 +238,10 @@ export default function SCIMConfiguration() {
   const handleCopy = (text: string, label: string) => {
     try {
       navigator.clipboard.writeText(text)
-      toast.success(`${label} ${t('admin.provisioning.scim.messages.copied')}`)
+      toast.success(`${label} ${t('auth.admin.provisioning.scim.messages.copied')}`)
     } catch (err: unknown) {
       logger.error('Clipboard write failed', { error: err })
-      toast.error(t('admin.provisioning.scim.messages.error_generic'))
+      toast.error(t('auth.admin.provisioning.scim.messages.error_generic'))
     }
   }
 
@@ -338,18 +338,18 @@ export default function SCIMConfiguration() {
                   letterSpacing: '-0.027em',
                 }}
               >
-                {t('admin.provisioning.scim.title')}
+                {t('auth.admin.provisioning.scim.title')}
               </Typography>
             </Box>
             <Stack direction='row' spacing={1.5} alignItems='center' flexWrap='wrap'>
               <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-                {t('admin.provisioning.scim.subtitle')}
+                {t('auth.admin.provisioning.scim.subtitle')}
               </Typography>
               <Chip
                 label={
                   scimEnabled
-                    ? t('admin.provisioning.scim.status_active')
-                    : t('admin.provisioning.scim.status_inactive')
+                    ? t('auth.admin.provisioning.scim.status_active')
+                    : t('auth.admin.provisioning.scim.status_inactive')
                 }
                 size='small'
                 color={scimEnabled ? 'success' : 'default'}
@@ -385,8 +385,8 @@ export default function SCIMConfiguration() {
             }}
           >
             {testConnectionMutation.isPending
-              ? t('admin.provisioning.scim.testing')
-              : t('admin.provisioning.scim.test_connection')}
+              ? t('auth.admin.provisioning.scim.testing')
+              : t('auth.admin.provisioning.scim.test_connection')}
           </Button>
           <Button
             variant='contained'
@@ -406,8 +406,8 @@ export default function SCIMConfiguration() {
             }}
           >
             {isSaving
-              ? t('admin.provisioning.scim.saving')
-              : t('admin.provisioning.scim.save_config')}
+              ? t('auth.admin.provisioning.scim.saving')
+              : t('auth.admin.provisioning.scim.save_config')}
           </Button>
         </Stack>
       </Box>
@@ -415,7 +415,7 @@ export default function SCIMConfiguration() {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('admin.provisioning.scim.stats.users')}
+            label={t('auth.admin.provisioning.scim.stats.users')}
             value='1,284'
             icon={<People />}
             color='primary'
@@ -423,7 +423,7 @@ export default function SCIMConfiguration() {
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('admin.provisioning.scim.stats.sync')}
+            label={t('auth.admin.provisioning.scim.stats.sync')}
             value='4m ago'
             icon={<CloudSync />}
             color='success'
@@ -431,7 +431,7 @@ export default function SCIMConfiguration() {
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('admin.provisioning.scim.stats.errors')}
+            label={t('auth.admin.provisioning.scim.stats.errors')}
             value='0.3%'
             icon={<Security />}
             color='info'
@@ -453,7 +453,7 @@ export default function SCIMConfiguration() {
                   variant='h6'
                   sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}
                 >
-                  {t('admin.provisioning.scim.protocol_status')}
+                  {t('auth.admin.provisioning.scim.protocol_status')}
                 </Typography>
               </Box>
               <FormControlLabel
@@ -469,8 +469,8 @@ export default function SCIMConfiguration() {
                     sx={{ fontWeight: 800, color: scimEnabled ? 'success.main' : 'text.secondary' }}
                   >
                     {scimEnabled
-                      ? t('admin.provisioning.scim.enabled')
-                      : t('admin.provisioning.scim.disabled')}
+                      ? t('auth.admin.provisioning.scim.enabled')
+                      : t('auth.admin.provisioning.scim.disabled')}
                   </Typography>
                 }
               />
@@ -478,7 +478,7 @@ export default function SCIMConfiguration() {
 
             {!scimEnabled && (
               <Alert severity='warning' sx={{ mb: 4, borderRadius: 3, fontWeight: 600 }}>
-                {t('admin.provisioning.scim.messages.disabled_warning')}
+                {t('auth.admin.provisioning.scim.messages.disabled_warning')}
               </Alert>
             )}
 
@@ -501,7 +501,7 @@ export default function SCIMConfiguration() {
                     color: 'text.secondary',
                   }}
                 >
-                  {t('admin.provisioning.scim.base_url')}
+                  {t('auth.admin.provisioning.scim.base_url')}
                 </Typography>
                 <TextField
                   fullWidth
@@ -517,7 +517,7 @@ export default function SCIMConfiguration() {
                       endAdornment: (
                         <InputAdornment position='end'>
                           <Stack direction='row' spacing={1}>
-                            <Tooltip title={t('admin.provisioning.scim.tooltips.copy_url')}>
+                            <Tooltip title={t('auth.admin.provisioning.scim.tooltips.copy_url')}>
                               <IconButton
                                 size='small'
                                 onClick={() => handleCopy(scimUrl, 'SCIM URL')}
@@ -525,7 +525,7 @@ export default function SCIMConfiguration() {
                                 <ContentCopy fontSize='small' />
                               </IconButton>
                             </Tooltip>
-                            <Tooltip title={t('admin.provisioning.scim.tooltips.open')}>
+                            <Tooltip title={t('auth.admin.provisioning.scim.tooltips.open')}>
                               <IconButton size='small' component='a' href={scimUrl} target='_blank'>
                                 <OpenInNew fontSize='small' />
                               </IconButton>
@@ -551,9 +551,9 @@ export default function SCIMConfiguration() {
                       color: 'text.secondary',
                     }}
                   >
-                    {t('admin.provisioning.scim.tokens_title')}
+                    {t('auth.admin.provisioning.scim.tokens_title')}
                   </Typography>
-                  <Tooltip title={t('admin.provisioning.scim.tooltips.token_desc')}>
+                  <Tooltip title={t('auth.admin.provisioning.scim.tooltips.token_desc')}>
                     <Info sx={{ fontSize: 16, color: 'text.disabled' }} />
                   </Tooltip>
                 </Box>
@@ -562,7 +562,7 @@ export default function SCIMConfiguration() {
                   color='text.secondary'
                   sx={{ mb: 2.5, fontWeight: 500 }}
                 >
-                  {t('admin.provisioning.scim.token_help')}
+                  {t('auth.admin.provisioning.scim.token_help')}
                 </Typography>
 
                 <Card
@@ -608,16 +608,16 @@ export default function SCIMConfiguration() {
                       {displayToken
                         ? tokenVisible
                           ? displayToken
-                          : 'â€¢'.repeat(32)
-                        : t('admin.provisioning.scim.no_token')}
+                          : '•'.repeat(32)
+                        : t('auth.admin.provisioning.scim.no_token')}
                     </Typography>
                   </Stack>
                   <Stack direction='row' spacing={1.5} sx={{ flexShrink: 0 }}>
                     <Tooltip
                       title={
                         tokenVisible
-                          ? t('admin.provisioning.scim.tooltips.hide')
-                          : t('admin.provisioning.scim.tooltips.show')
+                          ? t('auth.admin.provisioning.scim.tooltips.hide')
+                          : t('auth.admin.provisioning.scim.tooltips.show')
                       }
                     >
                       <IconButton
@@ -632,7 +632,7 @@ export default function SCIMConfiguration() {
                         )}
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title={t('admin.provisioning.scim.tooltips.copy')}>
+                    <Tooltip title={t('auth.admin.provisioning.scim.tooltips.copy')}>
                       <span>
                         <IconButton
                           size='small'
@@ -655,8 +655,8 @@ export default function SCIMConfiguration() {
                         sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 2, px: 2 }}
                       >
                         {createTokenMutation.isPending
-                          ? t('admin.provisioning.scim.rotating')
-                          : t('admin.provisioning.scim.rotate')}
+                          ? t('auth.admin.provisioning.scim.rotating')
+                          : t('auth.admin.provisioning.scim.rotate')}
                       </Button>
                     ) : (
                       <Button
@@ -675,8 +675,8 @@ export default function SCIMConfiguration() {
                         }}
                       >
                         {createTokenMutation.isPending
-                          ? t('admin.provisioning.scim.generating')
-                          : t('admin.provisioning.scim.create_token')}
+                          ? t('auth.admin.provisioning.scim.generating')
+                          : t('auth.admin.provisioning.scim.create_token')}
                       </Button>
                     )}
                   </Stack>
@@ -696,7 +696,7 @@ export default function SCIMConfiguration() {
                 variant='h6'
                 sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}
               >
-                {t('admin.provisioning.scim.supported_ops')}
+                {t('auth.admin.provisioning.scim.supported_ops')}
               </Typography>
             </Box>
 
@@ -705,22 +705,22 @@ export default function SCIMConfiguration() {
                 {
                   resource: '/Users',
                   ops: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-                  note: t('admin.provisioning.scim.ops_notes.users'),
+                  note: t('auth.admin.provisioning.scim.ops_notes.users'),
                 },
                 {
                   resource: '/Groups',
                   ops: ['GET', 'POST', 'PUT', 'PATCH'],
-                  note: t('admin.provisioning.scim.ops_notes.groups'),
+                  note: t('auth.admin.provisioning.scim.ops_notes.groups'),
                 },
                 {
                   resource: '/Schemas',
                   ops: ['GET'],
-                  note: t('admin.provisioning.scim.ops_notes.schemas'),
+                  note: t('auth.admin.provisioning.scim.ops_notes.schemas'),
                 },
                 {
                   resource: '/ServiceProviderConfig',
                   ops: ['GET'],
-                  note: t('admin.provisioning.scim.ops_notes.config'),
+                  note: t('auth.admin.provisioning.scim.ops_notes.config'),
                 },
               ].map((row) => (
                 <Grid key={row.resource} size={{ xs: 12, sm: 6 }}>
@@ -791,10 +791,10 @@ export default function SCIMConfiguration() {
                     variant='h6'
                     sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}
                   >
-                    {t('admin.provisioning.scim.attribute_mapping')}
+                    {t('auth.admin.provisioning.scim.attribute_mapping')}
                   </Typography>
                   <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-                    {t('admin.provisioning.scim.mapping_subtitle')}
+                    {t('auth.admin.provisioning.scim.mapping_subtitle')}
                   </Typography>
                 </Box>
               </Box>
@@ -808,7 +808,7 @@ export default function SCIMConfiguration() {
                   color: 'text.secondary',
                 }}
               >
-                {t('admin.provisioning.scim.reset_defaults')}
+                {t('auth.admin.provisioning.scim.reset_defaults')}
               </Button>
             </Box>
 
@@ -831,13 +831,13 @@ export default function SCIMConfiguration() {
                         color: 'text.secondary',
                       }}
                     >
-                      {t('admin.provisioning.scim.table.scim_attr').toUpperCase()}
+                      {t('auth.admin.provisioning.scim.table.scim_attr').toUpperCase()}
                     </TableCell>
                     <TableCell
                       align='center'
                       sx={{ fontWeight: 900, width: 60, color: 'text.secondary' }}
                     >
-                      â†’
+                      <SwapHoriz fontSize='small' />
                     </TableCell>
                     <TableCell
                       sx={{
@@ -847,7 +847,7 @@ export default function SCIMConfiguration() {
                         color: 'text.secondary',
                       }}
                     >
-                      {t('admin.provisioning.scim.table.internal_field').toUpperCase()}
+                      {t('auth.admin.provisioning.scim.table.internal_field').toUpperCase()}
                     </TableCell>
                     <TableCell
                       align='center'
@@ -858,7 +858,7 @@ export default function SCIMConfiguration() {
                         color: 'text.secondary',
                       }}
                     >
-                      {t('admin.provisioning.scim.table.required').toUpperCase()}
+                      {t('auth.admin.provisioning.scim.table.required').toUpperCase()}
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -917,7 +917,7 @@ export default function SCIMConfiguration() {
                       <TableCell align='center'>
                         {row.required ? (
                           <Chip
-                            label={t('common.yes') || 'YES'}
+                            label={t('auth.common.yes') || 'YES'}
                             size='small'
                             color='primary'
                             sx={{
@@ -932,7 +932,7 @@ export default function SCIMConfiguration() {
                             variant='caption'
                             sx={{ fontWeight: 700, color: 'text.disabled' }}
                           >
-                            {t('common.optional') || 'OPTIONAL'}
+                            {t('auth.common.optional') || 'OPTIONAL'}
                           </Typography>
                         )}
                       </TableCell>

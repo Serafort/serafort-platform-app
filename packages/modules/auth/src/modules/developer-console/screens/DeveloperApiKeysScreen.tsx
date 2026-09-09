@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Box,
   Button,
@@ -37,6 +38,7 @@ import {
 import { ConfirmDeleteModal } from '../../authentication-core/components/shared'
 
 export const DeveloperApiKeysScreen: React.FC = () => {
+  const { t } = useTranslation('auth')
   // TanStack Query hooks
   const { data: keys = [], isLoading, isError, error, refetch } = useApiKeysQuery()
   const createMutation = useCreateApiKeyMutation()
@@ -134,11 +136,13 @@ export const DeveloperApiKeysScreen: React.FC = () => {
 
     const blob = new Blob([content], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `api-key-${createdKeyName.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40)}.txt`
-    a.click()
-    URL.revokeObjectURL(url)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `api-key-${createdKeyName.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40)}.txt`
+    document.body.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 0)
   }
 
   // -----------------------------------------------------------------------
@@ -174,10 +178,13 @@ export const DeveloperApiKeysScreen: React.FC = () => {
       <TableCell colSpan={5} align='center' sx={{ py: 8 }}>
         <KeyIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
         <Typography variant='body1' fontWeight={600}>
-          No API Keys found.
+          {t('auth.developer_console.api_keys.empty_title', 'No API Keys found.')}
         </Typography>
         <Typography variant='body2' color='text.secondary' sx={{ mt: 0.5, mb: 2 }}>
-          Generate your first API key to interact with the Identity platform programmatically.
+          {t(
+            'auth.developer_console.api_keys.empty_desc',
+            'Generate your first API key to interact with the Identity platform programmatically.',
+          )}
         </Typography>
         <Button
           variant='contained'
@@ -185,7 +192,7 @@ export const DeveloperApiKeysScreen: React.FC = () => {
           onClick={() => setCreateOpen(true)}
           sx={{ borderRadius: 2 }}
         >
-          Generate Your First Key
+          {t('auth.developer_console.api_keys.generate_first', 'Generate Your First Key')}
         </Button>
       </TableCell>
     </TableRow>
@@ -201,10 +208,14 @@ export const DeveloperApiKeysScreen: React.FC = () => {
             fontWeight={700}
             sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
           >
-            <KeyIcon color='primary' fontSize='large' /> Developer API Keys
+            <KeyIcon color='primary' fontSize='large' />{' '}
+            {t('auth.developer_console.api_keys.title', 'Developer API Keys')}
           </Typography>
           <Typography variant='body2' color='text.secondary'>
-            Manage programmatic API credentials with custom expirations and granular access scopes.
+            {t(
+              'auth.developer_console.api_keys.subtitle',
+              'Manage programmatic API credentials with custom expirations and granular access scopes.',
+            )}
           </Typography>
         </Box>
         <Button
@@ -213,7 +224,7 @@ export const DeveloperApiKeysScreen: React.FC = () => {
           onClick={() => setCreateOpen(true)}
           sx={{ borderRadius: 2 }}
         >
-          Generate New Key
+          {t('auth.developer_console.api_keys.generate_new', 'Generate New Key')}
         </Button>
       </Box>
 
@@ -229,11 +240,13 @@ export const DeveloperApiKeysScreen: React.FC = () => {
               startIcon={<RefreshIcon />}
               onClick={() => refetch()}
             >
-              Retry
+              {t('auth.common.retry', 'Retry')}
             </Button>
           }
         >
-          {error instanceof Error ? error.message : 'Failed to load developer API keys.'}
+          {error instanceof Error
+            ? error.message
+            : t('auth.developer_console.api_keys.load_error', 'Failed to load developer API keys.')}
         </Alert>
       )}
 
@@ -242,14 +255,14 @@ export const DeveloperApiKeysScreen: React.FC = () => {
         <Alert severity='error' sx={{ mb: 3 }} onClose={() => createMutation.reset()}>
           {createMutation.error instanceof Error
             ? createMutation.error.message
-            : 'Failed to generate API key.'}
+            : t('auth.developer_console.api_keys.create_error', 'Failed to generate API key.')}
         </Alert>
       )}
       {deleteMutation.isError && (
         <Alert severity='error' sx={{ mb: 3 }} onClose={() => deleteMutation.reset()}>
           {deleteMutation.error instanceof Error
             ? deleteMutation.error.message
-            : 'Failed to revoke API key.'}
+            : t('auth.developer_console.api_keys.revoke_error', 'Failed to revoke API key.')}
         </Alert>
       )}
 
@@ -259,12 +272,20 @@ export const DeveloperApiKeysScreen: React.FC = () => {
         <Table>
           <TableHead sx={{ bgcolor: 'action.hover' }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: 600 }}>Key Name</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Last Used</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Expires</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Created</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>
+                {t('auth.developer_console.api_keys.col_name', 'Key Name')}
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>
+                {t('auth.developer_console.api_keys.col_last_used', 'Last Used')}
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>
+                {t('auth.developer_console.api_keys.col_expires', 'Expires')}
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>
+                {t('auth.developer_console.api_keys.col_created', 'Created')}
+              </TableCell>
               <TableCell align='right' sx={{ fontWeight: 600 }}>
-                Actions
+                {t('auth.common.actions', 'Actions')}
               </TableCell>
             </TableRow>
           </TableHead>
@@ -278,7 +299,13 @@ export const DeveloperApiKeysScreen: React.FC = () => {
                     const createdAt = key.createdAt || (key as any).created_at
                     const lastUsedAt = (key as any).lastUsedAt || (key as any).last_used_at
                     const isExpired = expiresAt && new Date(expiresAt) < new Date()
-                    const displayName = key.name || (key as any).title || `API Key #${key.id}`
+                    const displayName =
+                      key.name ||
+                      (key as any).title ||
+                      t('auth.developer_console.api_keys.untitled', 'API Key #{{id}}', {
+                        id: key.id,
+                      })
+                    const neverLabel = t('auth.common.never', 'Never')
                     return (
                       <TableRow key={key.id} hover>
                         <TableCell>
@@ -288,21 +315,23 @@ export const DeveloperApiKeysScreen: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <Typography variant='body2' color='text.secondary'>
-                            {lastUsedAt ? new Date(lastUsedAt).toLocaleDateString() : 'Never'}
+                            {lastUsedAt ? new Date(lastUsedAt).toLocaleDateString() : neverLabel}
                           </Typography>
                         </TableCell>
                         <TableCell>
                           {expiresAt ? (
                             <Chip
                               label={
-                                isExpired ? 'Expired' : new Date(expiresAt).toLocaleDateString()
+                                isExpired
+                                  ? t('auth.developer_console.api_keys.expired', 'Expired')
+                                  : new Date(expiresAt).toLocaleDateString()
                               }
                               size='small'
                               color={isExpired ? 'error' : 'default'}
                               variant='outlined'
                             />
                           ) : (
-                            <Chip label='Never' size='small' variant='outlined' />
+                            <Chip label={neverLabel} size='small' variant='outlined' />
                           )}
                         </TableCell>
                         <TableCell>
@@ -311,10 +340,19 @@ export const DeveloperApiKeysScreen: React.FC = () => {
                           </Typography>
                         </TableCell>
                         <TableCell align='right'>
-                          <Tooltip title='Revoke API Key'>
+                          <Tooltip
+                            title={t(
+                              'auth.developer_console.api_keys.revoke_tooltip',
+                              'Revoke API Key',
+                            )}
+                          >
                             <IconButton
                               color='error'
-                              size='small'
+                              sx={{ width: 44, height: 44 }}
+                              aria-label={t(
+                                'auth.developer_console.api_keys.revoke_tooltip',
+                                'Revoke API Key',
+                              )}
                               onClick={() => setDeleteTarget({ id: key.id, name: displayName })}
                             >
                               <DeleteOutlineIcon fontSize='small' />
@@ -330,51 +368,74 @@ export const DeveloperApiKeysScreen: React.FC = () => {
 
       {/* Create Key Dialog */}
       <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth='sm' fullWidth>
-        <DialogTitle fontWeight={600}>Generate New API Key</DialogTitle>
+        <DialogTitle fontWeight={600}>
+          {t('auth.developer_console.api_keys.create_title', 'Generate New API Key')}
+        </DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
             <TextField
-              label='Key Name'
+              label={t('auth.developer_console.api_keys.name_label', 'Key Name')}
               fullWidth
               value={keyName}
               onChange={(e) => setKeyName(e.target.value)}
-              placeholder='e.g. CI/CD Deployment Pipeline, Zapier Sync'
+              placeholder={t(
+                'auth.developer_console.api_keys.name_placeholder',
+                'e.g. CI/CD Deployment Pipeline, Zapier Sync',
+              )}
               autoFocus
               required
             />
             <TextField
-              label='Description (optional)'
+              label={t(
+                'auth.developer_console.api_keys.description_label',
+                'Description (optional)',
+              )}
               fullWidth
               value={keyDescription}
               onChange={(e) => setKeyDescription(e.target.value)}
-              placeholder='What is this key used for?'
+              placeholder={t(
+                'auth.developer_console.api_keys.description_placeholder',
+                'What is this key used for?',
+              )}
               multiline
               minRows={2}
               maxRows={4}
             />
             <TextField
               select
-              label='Expiration'
+              label={t('auth.developer_console.api_keys.expiration_label', 'Expiration')}
               fullWidth
               value={expiresIn}
               onChange={(e) => setExpiresIn(e.target.value)}
             >
-              <MenuItem value='30'>30 Days</MenuItem>
-              <MenuItem value='90'>90 Days (Recommended)</MenuItem>
-              <MenuItem value='180'>180 Days</MenuItem>
-              <MenuItem value='365'>1 Year</MenuItem>
-              <MenuItem value='never'>Never (Not Recommended)</MenuItem>
+              <MenuItem value='30'>
+                {t('auth.developer_console.api_keys.exp_30d', '30 Days')}
+              </MenuItem>
+              <MenuItem value='90'>
+                {t('auth.developer_console.api_keys.exp_90d', '90 Days (Recommended)')}
+              </MenuItem>
+              <MenuItem value='180'>
+                {t('auth.developer_console.api_keys.exp_180d', '180 Days')}
+              </MenuItem>
+              <MenuItem value='365'>
+                {t('auth.developer_console.api_keys.exp_1y', '1 Year')}
+              </MenuItem>
+              <MenuItem value='never'>
+                {t('auth.developer_console.api_keys.exp_never', 'Never (Not Recommended)')}
+              </MenuItem>
             </TextField>
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
+          <Button onClick={() => setCreateOpen(false)}>{t('auth.common.cancel', 'Cancel')}</Button>
           <Button
             variant='contained'
             onClick={handleCreate}
             disabled={!keyName.trim() || createMutation.isPending}
           >
-            {createMutation.isPending ? 'Generating...' : 'Generate Secret Key'}
+            {createMutation.isPending
+              ? t('auth.developer_console.api_keys.generating', 'Generating...')
+              : t('auth.developer_console.api_keys.generate_secret', 'Generate Secret Key')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -382,13 +443,19 @@ export const DeveloperApiKeysScreen: React.FC = () => {
       {/* Reveal Raw Key Modal — one-time display */}
       <Dialog open={revealOpen} onClose={handleCloseRevealModal} maxWidth='sm' fullWidth>
         <DialogTitle fontWeight={700} sx={{ color: 'warning.main' }}>
-          Save Your API Key
+          {t('auth.developer_console.api_keys.reveal_title', 'Save Your API Key')}
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
             <Alert severity='warning'>
-              Please copy or download your API key now. For security purposes, it will{' '}
-              <strong>never be shown again</strong>.
+              {t(
+                'auth.developer_console.api_keys.reveal_warning_prefix',
+                'Please copy or download your API key now. For security purposes, it will',
+              )}{' '}
+              <strong>
+                {t('auth.developer_console.api_keys.reveal_warning_bold', 'never be shown again')}
+              </strong>
+              .
             </Alert>
             <Paper
               variant='outlined'
@@ -406,17 +473,29 @@ export const DeveloperApiKeysScreen: React.FC = () => {
                 {createdRawKey}
               </Typography>
               <Stack direction='row' spacing={0.5} sx={{ ml: 1, flexShrink: 0 }}>
-                <Tooltip title={copied ? 'Copied!' : 'Copy to Clipboard'}>
+                <Tooltip
+                  title={
+                    copied
+                      ? t('auth.common.copied', 'Copied!')
+                      : t('auth.common.copy_to_clipboard', 'Copy to Clipboard')
+                  }
+                >
                   <IconButton
                     onClick={handleCopyKey}
                     color={copied ? 'success' : 'primary'}
-                    size='small'
+                    sx={{ width: 44, height: 44 }}
+                    aria-label={t('auth.common.copy_to_clipboard', 'Copy to Clipboard')}
                   >
                     {copied ? <CheckCircleOutlineIcon /> : <ContentCopyIcon />}
                   </IconButton>
                 </Tooltip>
-                <Tooltip title='Download as .txt file'>
-                  <IconButton onClick={handleDownloadKey} color='primary' size='small'>
+                <Tooltip title={t('auth.common.download_as_txt', 'Download as .txt file')}>
+                  <IconButton
+                    onClick={handleDownloadKey}
+                    color='primary'
+                    sx={{ width: 44, height: 44 }}
+                    aria-label={t('auth.common.download_as_txt', 'Download as .txt file')}
+                  >
                     <DownloadOutlinedIcon />
                   </IconButton>
                 </Tooltip>
@@ -426,7 +505,7 @@ export const DeveloperApiKeysScreen: React.FC = () => {
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
           <Button variant='contained' onClick={handleCloseRevealModal}>
-            I have saved my key securely
+            {t('auth.developer_console.api_keys.reveal_confirm', 'I have saved my key securely')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -436,9 +515,13 @@ export const DeveloperApiKeysScreen: React.FC = () => {
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleConfirmDelete}
-        title='Revoke API Key'
-        message={`Are you sure you want to revoke "${deleteTarget?.name}"? This action is irreversible and any integrations using this key will immediately stop working.`}
-        confirmLabel='Revoke Key Permanently'
+        title={t('auth.developer_console.api_keys.revoke_title', 'Revoke API Key')}
+        message={t(
+          'auth.developer_console.api_keys.revoke_message',
+          'Are you sure you want to revoke "{{name}}"? This action is irreversible and any integrations using this key will immediately stop working.',
+          { name: deleteTarget?.name },
+        )}
+        confirmLabel={t('auth.developer_console.api_keys.revoke_confirm', 'Revoke Key Permanently')}
         isSubmitting={deleteMutation.isPending}
       />
     </Box>

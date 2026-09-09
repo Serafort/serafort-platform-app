@@ -1,6 +1,6 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/OidcWaitScreen.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md, Error-handling.md
-// PURPOSE: OIDC Authorization Redirect Screen â€” handles the initial redirect to the backend
+// PURPOSE: OIDC Authorization Redirect Screen — handles the initial redirect to the backend
 // OIDC authorization endpoint with proper query parameters, interaction resume, and error states.
 
 import React from 'react'
@@ -122,7 +122,7 @@ export default function OidcWaitScreen() {
       return
     }
 
-    // Case 2: Fresh OIDC authorization â€” validate required params
+    // Case 2: Fresh OIDC authorization — validate required params
     if (!clientId) {
       setPhase('error')
       setErrorMessage(
@@ -145,7 +145,7 @@ export default function OidcWaitScreen() {
       return
     }
 
-    // All good â€” build URL and redirect
+    // All good — build URL and redirect
     const authUrl = buildAuthUrl()
     logger.info('OidcWaitScreen: Redirecting to OIDC authorization endpoint', { authUrl })
     doRedirect(authUrl)
@@ -293,7 +293,7 @@ export default function OidcWaitScreen() {
                   px: 3,
                 }}
               >
-                {t('common.retry', 'Retry')}
+                {t('auth.common.retry', 'Retry')}
               </Button>
             </Box>
           </motion.div>

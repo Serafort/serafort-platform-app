@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/AuthWaitScreen.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // FIXES: Added header; replaced bare strings with t(); refined h5 to h4; added aria-hidden to decorative icons; implemented page-level entry motion
-// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
+// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
 
 import {
   Box,
@@ -232,7 +232,7 @@ export default function AuthWaitScreen() {
                     }}
                     sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 3 }}
                   >
-                    {t('common.retry', 'Retry')}
+                    {t('auth.common.retry', 'Retry')}
                   </Button>
                   <Button
                     fullWidth

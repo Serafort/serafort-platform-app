@@ -81,15 +81,15 @@ export default function OIDCLoginPrompt({
         : '')
     return {
       ...rawUser,
-      displayName: name || t('common.guest', 'Guest User'),
-      displayEmail: (rawUser as any).email || t('common.notSignedIn', 'Not signed in'),
+      displayName: name || t('auth.common.guest', 'Guest User'),
+      displayEmail: (rawUser as any).email || t('auth.common.notSignedIn', 'Not signed in'),
       avatar: (rawUser as any).avatar ?? undefined,
     }
   }, [initialUser, authUser, details, t])
 
   const isPending = initialPending || isFetching || isConfirming
-  const displayName = user?.displayName || t('common.guest', 'Guest User')
-  const displayEmail = user?.displayEmail || t('common.notSignedIn', 'Not signed in')
+  const displayName = user?.displayName || t('auth.common.guest', 'Guest User')
+  const displayEmail = user?.displayEmail || t('auth.common.notSignedIn', 'Not signed in')
   const initials = displayName
     .split(' ')
     .filter(Boolean)

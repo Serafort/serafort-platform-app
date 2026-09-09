@@ -77,7 +77,7 @@ function TabPanel(props: TabPanelProps) {
   )
 }
 
-// â”€â”€â”€ Stat Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Stat Card ─────────────────────────────────────────────────────────────────
 function StatCard({
   label,
   value,
@@ -154,7 +154,7 @@ const ConnectorDetailView: React.FC = () => {
 
   const connectorId = Number(id)
 
-  // â”€â”€ Queries & Mutations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Queries & Mutations ──────────────────────────────────────────
   const {
     data: connectorData,
     isLoading,
@@ -169,38 +169,38 @@ const ConnectorDetailView: React.FC = () => {
 
   const syncMutation = useSyncProvisioningConnector({
     onSuccess: () => {
-      toast.success(t('admin.provisioning.connector.messages.sync_queued'))
+      toast.success(t('auth.admin.provisioning.connectors.messages.sync_queued'))
       refetchConnector()
     },
     onError: (err: any) => {
       logger.error('Sync failed', { error: err })
-      toast.error(t('admin.provisioning.connector.messages.error_generic'))
+      toast.error(t('auth.admin.provisioning.connectors.messages.error_generic'))
     },
   })
 
   const updateMutation = useUpdateProvisioningConnector(connectorId, {
     onSuccess: () => {
-      toast.success(t('admin.provisioning.connector.messages.config_saved'))
+      toast.success(t('auth.admin.provisioning.connectors.messages.config_saved'))
       refetchConnector()
     },
     onError: (err: any) => {
       logger.error('Update failed', { error: err })
-      toast.error(t('admin.provisioning.connector.messages.error_generic'))
+      toast.error(t('auth.admin.provisioning.connectors.messages.error_generic'))
     },
   })
 
   const deleteMutation = useDeleteProvisioningConnector({
     onSuccess: () => {
-      toast.success(t('admin.provisioning.connector.messages.deleted'))
+      toast.success(t('auth.admin.provisioning.connectors.messages.deleted'))
       navigate(Path.provisioning)
     },
     onError: (err: any) => {
       logger.error('Delete failed', { error: err })
-      toast.error(t('admin.provisioning.connector.messages.error_generic'))
+      toast.error(t('auth.admin.provisioning.connectors.messages.error_generic'))
     },
   })
 
-  // â”€â”€ Form State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Form State ───────────────────────────────────────────────────
   const [configName, setConfigName] = React.useState('')
   const [configStatus, setConfigStatus] = React.useState('')
 
@@ -211,7 +211,7 @@ const ConnectorDetailView: React.FC = () => {
     }
   }, [connector])
 
-  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Handlers ─────────────────────────────────────────────────────
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
   }
@@ -221,7 +221,7 @@ const ConnectorDetailView: React.FC = () => {
   }
 
   const handleDelete = () => {
-    if (window.confirm(t('admin.provisioning.connector.delete_confirm'))) {
+    if (window.confirm(t('auth.admin.provisioning.connectors.delete_confirm'))) {
       deleteMutation.mutate(connectorId)
     }
   }
@@ -280,10 +280,10 @@ const ConnectorDetailView: React.FC = () => {
           <ErrorIcon sx={{ fontSize: 40 }} />
         </Avatar>
         <Typography variant='h5' sx={{ fontWeight: 900, mb: 1 }}>
-          {t('admin.provisioning.connector.not_found')}
+          {t('auth.admin.provisioning.connectors.not_found')}
         </Typography>
         <Typography color='text.secondary' sx={{ mb: 4, maxWidth: 400, mx: 'auto' }}>
-          {t('admin.provisioning.connector.not_found_desc') ||
+          {t('auth.admin.provisioning.connectors.not_found_desc') ||
             'The connector you are looking for does not exist or has been removed.'}
         </Typography>
         <Button
@@ -292,7 +292,7 @@ const ConnectorDetailView: React.FC = () => {
           startIcon={<ArrowBack />}
           sx={{ fontWeight: 800, px: 4, py: 1.5, borderRadius: 3 }}
         >
-          {t('admin.provisioning.connector.back_to_list')}
+          {t('auth.admin.provisioning.connectors.back_to_list')}
         </Button>
       </Box>
     )
@@ -300,7 +300,7 @@ const ConnectorDetailView: React.FC = () => {
 
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, md: 4 } }}>
-      {/* â”€â”€ Pattern 1: Page Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Pattern 1: Page Header ───────────────────────────────────── */}
       <Box
         sx={{
           mb: 4,
@@ -348,7 +348,8 @@ const ConnectorDetailView: React.FC = () => {
               />
             </Stack>
             <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-              {connector.type} {t('admin.provisioning.connector.type_label')} â€¢ ID: {connector.id}
+              {connector.type} {t('auth.admin.provisioning.connectors.type_label')} • ID:{' '}
+              {connector.id}
             </Typography>
           </Box>
         </Box>
@@ -369,7 +370,7 @@ const ConnectorDetailView: React.FC = () => {
               flex: { xs: 1, sm: 'none' },
             }}
           >
-            {t('admin.provisioning.connector.delete')}
+            {t('auth.admin.provisioning.connectors.delete')}
           </Button>
           <Button
             variant='contained'
@@ -389,21 +390,21 @@ const ConnectorDetailView: React.FC = () => {
             }}
           >
             {syncMutation.isPending
-              ? t('admin.provisioning.connector.syncing')
-              : t('admin.provisioning.connector.sync_now')}
+              ? t('auth.admin.provisioning.connectors.syncing')
+              : t('auth.admin.provisioning.connectors.sync_now')}
           </Button>
         </Stack>
       </Box>
 
-      {/* â”€â”€ Pattern 2: Quick Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Pattern 2: Quick Stats ─────────────────────────────────────── */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('admin.provisioning.connector.stats.last_sync')}
+            label={t('auth.admin.provisioning.connectors.stats.last_sync')}
             value={
               connector.last_sync_at
                 ? new Date(connector.last_sync_at).toLocaleString()
-                : t('admin.provisioning.connector.never')
+                : t('auth.admin.provisioning.connectors.never')
             }
             icon={<History />}
             color='primary'
@@ -411,7 +412,7 @@ const ConnectorDetailView: React.FC = () => {
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('admin.provisioning.connector.stats.records')}
+            label={t('auth.admin.provisioning.connectors.stats.records')}
             value={connector.sync_count || 0}
             icon={<Storage />}
             color='success'
@@ -419,11 +420,11 @@ const ConnectorDetailView: React.FC = () => {
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('admin.provisioning.connector.stats.status')}
+            label={t('auth.admin.provisioning.connectors.stats.status')}
             value={
               connector.status === 'active'
-                ? t('admin.provisioning.scim.status_active')
-                : t('admin.provisioning.scim.status_inactive')
+                ? t('auth.admin.provisioning.scim.status_active')
+                : t('auth.admin.provisioning.scim.status_inactive')
             }
             icon={<Security />}
             color='info'
@@ -431,7 +432,7 @@ const ConnectorDetailView: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* â”€â”€ Main Content: Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Main Content: Tabs ─────────────────────────────────────────── */}
       <Card
         sx={{
           borderRadius: 4,
@@ -458,17 +459,17 @@ const ConnectorDetailView: React.FC = () => {
             <Tab
               icon={<Settings sx={{ mr: 1, fontSize: 20 }} />}
               iconPosition='start'
-              label={t('admin.provisioning.connector.tabs.config')}
+              label={t('auth.admin.provisioning.connectors.tabs.config')}
             />
             <Tab
               icon={<CompareArrows sx={{ mr: 1, fontSize: 20 }} />}
               iconPosition='start'
-              label={t('admin.provisioning.connector.tabs.mappings')}
+              label={t('auth.admin.provisioning.connectors.tabs.mappings')}
             />
             <Tab
               icon={<History sx={{ mr: 1, fontSize: 20 }} />}
               iconPosition='start'
-              label={t('admin.provisioning.connector.tabs.history')}
+              label={t('auth.admin.provisioning.connectors.tabs.history')}
             />
           </Tabs>
         </Box>
@@ -486,12 +487,12 @@ const ConnectorDetailView: React.FC = () => {
                     letterSpacing: '0.02em',
                   }}
                 >
-                  {t('admin.provisioning.connector.general_settings')}
+                  {t('auth.admin.provisioning.connectors.general_settings')}
                 </Typography>
                 <Stack spacing={3.5}>
                   <TextField
                     fullWidth
-                    label={t('admin.provisioning.connector.fields.name')}
+                    label={t('auth.admin.provisioning.connectors.fields.name')}
                     value={configName}
                     onChange={(e) => setConfigName(e.target.value)}
                     variant='outlined'
@@ -502,23 +503,23 @@ const ConnectorDetailView: React.FC = () => {
                   />
                   <FormControl fullWidth>
                     <InputLabel id='status-label' sx={{ fontWeight: 700 }}>
-                      {t('admin.provisioning.connector.fields.status')}
+                      {t('auth.admin.provisioning.connectors.fields.status')}
                     </InputLabel>
                     <Select
                       labelId='status-label'
                       value={configStatus}
-                      label={t('admin.provisioning.connector.fields.status')}
+                      label={t('auth.admin.provisioning.connectors.fields.status')}
                       onChange={(e) => setConfigStatus(e.target.value as any)}
                       sx={{ borderRadius: 3, fontWeight: 700 }}
                     >
                       <MenuItem value='active' sx={{ fontWeight: 700 }}>
-                        {t('admin.provisioning.scim.status_active').toUpperCase()}
+                        {t('auth.admin.provisioning.scim.status_active').toUpperCase()}
                       </MenuItem>
                       <MenuItem value='inactive' sx={{ fontWeight: 700 }}>
-                        {t('admin.provisioning.scim.status_inactive').toUpperCase()}
+                        {t('auth.admin.provisioning.scim.status_inactive').toUpperCase()}
                       </MenuItem>
                       <MenuItem value='error' sx={{ fontWeight: 700 }}>
-                        {t('common.error').toUpperCase()}
+                        {t('auth.common.error').toUpperCase()}
                       </MenuItem>
                     </Select>
                   </FormControl>
@@ -540,8 +541,8 @@ const ConnectorDetailView: React.FC = () => {
                       }}
                     >
                       {updateMutation.isPending
-                        ? t('admin.provisioning.connector.saving')
-                        : t('admin.provisioning.connector.save_changes')}
+                        ? t('auth.admin.provisioning.connectors.saving')
+                        : t('auth.admin.provisioning.connectors.save_changes')}
                     </Button>
                   </Box>
                 </Stack>
@@ -571,7 +572,7 @@ const ConnectorDetailView: React.FC = () => {
                     }}
                   >
                     <Storage fontSize='small' color='primary' />{' '}
-                    {t('admin.provisioning.connector.metadata')}
+                    {t('auth.admin.provisioning.connectors.metadata')}
                   </Typography>
                   <Divider sx={{ mb: 2.5 }} />
                   <Stack spacing={2}>
@@ -586,14 +587,14 @@ const ConnectorDetailView: React.FC = () => {
                         variant='caption'
                         sx={{ fontWeight: 800, color: 'text.secondary' }}
                       >
-                        {t('admin.provisioning.connector.metadata_fields.created_on')}
+                        {t('auth.admin.provisioning.connectors.metadata_fields.created_on')}
                       </Typography>
                       <Typography variant='body2' sx={{ fontWeight: 800 }}>
                         {connector.created_at
                           ? new Date(connector.created_at).toLocaleDateString(undefined, {
                               dateStyle: 'medium',
                             })
-                          : 'â€”'}
+                          : '—'}
                       </Typography>
                     </Box>
                     <Box
@@ -607,7 +608,7 @@ const ConnectorDetailView: React.FC = () => {
                         variant='caption'
                         sx={{ fontWeight: 800, color: 'text.secondary' }}
                       >
-                        {t('admin.provisioning.connector.metadata_fields.type')}
+                        {t('auth.admin.provisioning.connectors.metadata_fields.type')}
                       </Typography>
                       <Chip
                         label={connector.type}
@@ -642,19 +643,19 @@ const ConnectorDetailView: React.FC = () => {
                 <CompareArrows sx={{ fontSize: 32 }} />
               </Avatar>
               <Typography variant='h6' sx={{ fontWeight: 900, mb: 1.5 }}>
-                {t('admin.provisioning.connector.mappings_title')}
+                {t('auth.admin.provisioning.connectors.mappings_title')}
               </Typography>
               <Typography
                 color='text.secondary'
                 sx={{ maxWidth: 450, mx: 'auto', fontWeight: 500, lineHeight: 1.6 }}
               >
-                {t('admin.provisioning.connector.mappings_desc')}
+                {t('auth.admin.provisioning.connectors.mappings_desc')}
               </Typography>
               <Button
                 variant='outlined'
                 sx={{ mt: 4, borderRadius: 2.5, fontWeight: 800, textTransform: 'none' }}
               >
-                {t('admin.provisioning.connector.configure_mappings')}
+                {t('auth.admin.provisioning.connectors.configure_mappings')}
               </Button>
             </Box>
           </TabPanel>
@@ -677,7 +678,7 @@ const ConnectorDetailView: React.FC = () => {
                   <History />
                 </Avatar>
                 <Typography color='text.secondary' sx={{ fontWeight: 700 }}>
-                  {t('admin.provisioning.connector.no_logs')}
+                  {t('auth.admin.provisioning.connectors.no_logs')}
                 </Typography>
               </Box>
             ) : (
@@ -701,7 +702,7 @@ const ConnectorDetailView: React.FC = () => {
                             color: 'text.secondary',
                           }}
                         >
-                          {t('admin.provisioning.connector.table.timestamp').toUpperCase()}
+                          {t('auth.admin.provisioning.connectors.table.timestamp').toUpperCase()}
                         </TableCell>
                         <TableCell
                           sx={{
@@ -711,7 +712,7 @@ const ConnectorDetailView: React.FC = () => {
                             color: 'text.secondary',
                           }}
                         >
-                          {t('admin.provisioning.connector.table.event').toUpperCase()}
+                          {t('auth.admin.provisioning.connectors.table.event').toUpperCase()}
                         </TableCell>
                         <TableCell
                           sx={{
@@ -721,7 +722,7 @@ const ConnectorDetailView: React.FC = () => {
                             color: 'text.secondary',
                           }}
                         >
-                          {t('admin.provisioning.connector.table.status').toUpperCase()}
+                          {t('auth.admin.provisioning.connectors.table.status').toUpperCase()}
                         </TableCell>
                         <TableCell
                           align='right'
@@ -732,7 +733,7 @@ const ConnectorDetailView: React.FC = () => {
                             color: 'text.secondary',
                           }}
                         >
-                          {t('admin.provisioning.connector.table.actions').toUpperCase()}
+                          {t('auth.admin.provisioning.connectors.table.actions').toUpperCase()}
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -839,14 +840,14 @@ const ConnectorDetailView: React.FC = () => {
         </Avatar>
         <Box sx={{ flex: 1 }}>
           <Typography variant='subtitle1' sx={{ fontWeight: 900, mb: 0.5 }}>
-            {t('admin.provisioning.connector.helper_title')}
+            {t('auth.admin.provisioning.connectors.helper_title')}
           </Typography>
           <Typography
             variant='body2'
             color='text.secondary'
             sx={{ fontWeight: 500, lineHeight: 1.5 }}
           >
-            {t('admin.provisioning.connector.helper_desc')}
+            {t('auth.admin.provisioning.connectors.helper_desc')}
           </Typography>
         </Box>
         <Button
@@ -861,7 +862,7 @@ const ConnectorDetailView: React.FC = () => {
             borderColor: alpha(theme.palette.info.main, 0.3),
           }}
         >
-          {t('admin.provisioning.connector.view_docs')}
+          {t('auth.admin.provisioning.connectors.view_docs')}
         </Button>
       </Card>
     </Box>

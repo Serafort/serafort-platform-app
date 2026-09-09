@@ -79,11 +79,11 @@ const SyncLogsView: React.FC = () => {
 
   const handleRefresh = () => {
     refetch()
-    toast.info(t('admin.provisioning.logs.messages.refreshed'))
+    toast.info(t('auth.admin.provisioning.logs.messages.refreshed'))
   }
 
   const handleExport = () => {
-    toast.info(t('admin.provisioning.logs.messages.exporting'))
+    toast.info(t('auth.admin.provisioning.logs.messages.exporting'))
   }
 
   const getEventChip = (event: string) => {
@@ -158,10 +158,10 @@ const SyncLogsView: React.FC = () => {
               <ArrowBack sx={{ fontSize: 20 }} />
             </IconButton>
             <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
-              {t('admin.provisioning.logs.title')}
+              {t('auth.admin.provisioning.logs.title')}
             </Typography>
             <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-              {t('admin.provisioning.logs.subtitle')}
+              {t('auth.admin.provisioning.logs.subtitle')}
             </Typography>
           </Box>
         </Box>
@@ -182,7 +182,7 @@ const SyncLogsView: React.FC = () => {
               flex: { xs: 1, sm: 'none' },
             }}
           >
-            {t('admin.provisioning.logs.export')}
+            {t('auth.admin.provisioning.logs.export')}
           </Button>
           <Button
             variant='contained'
@@ -200,7 +200,7 @@ const SyncLogsView: React.FC = () => {
               flex: { xs: 1, sm: 'none' },
             }}
           >
-            {t('admin.provisioning.logs.refresh')}
+            {t('auth.admin.provisioning.logs.refresh')}
           </Button>
         </Stack>
       </Box>
@@ -232,7 +232,7 @@ const SyncLogsView: React.FC = () => {
                 color: 'text.secondary',
               }}
             >
-              {t('admin.provisioning.logs.connector_label')}
+              {t('auth.admin.provisioning.logs.connector_label')}
             </InputLabel>
             <Select
               labelId='connector-label'
@@ -269,7 +269,7 @@ const SyncLogsView: React.FC = () => {
           </FormControl>
         </Paper>
 
-        <Tooltip title={t('admin.provisioning.logs.filters')}>
+        <Tooltip title={t('auth.admin.provisioning.logs.filters')}>
           <IconButton
             sx={{
               border: '1px solid',
@@ -287,7 +287,7 @@ const SyncLogsView: React.FC = () => {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {[
           {
-            label: t('admin.provisioning.logs.stats.sync_count'),
+            label: t('auth.admin.provisioning.logs.stats.sync_count'),
             value: selectedConnectorId
               ? connectors.find((c: any) => c.id === selectedConnectorId)?.syncCount || 0
               : 0,
@@ -295,13 +295,13 @@ const SyncLogsView: React.FC = () => {
             color: 'primary',
           },
           {
-            label: t('admin.provisioning.logs.stats.success_rate'),
+            label: t('auth.admin.provisioning.logs.stats.success_rate'),
             value: '100%',
             icon: <CheckCircle />,
             color: 'success',
           },
           {
-            label: t('admin.provisioning.logs.stats.errors'),
+            label: t('auth.admin.provisioning.logs.stats.errors'),
             value: 0,
             icon: <ErrorIcon />,
             color: 'error',
@@ -382,7 +382,7 @@ const SyncLogsView: React.FC = () => {
             variant='h6'
             sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}
           >
-            {t('admin.provisioning.logs.event_logs')}
+            {t('auth.admin.provisioning.logs.event_logs')}
           </Typography>
         </Box>
 
@@ -391,7 +391,7 @@ const SyncLogsView: React.FC = () => {
             <Box sx={{ py: 8, textAlign: 'center' }}>
               <CircularProgress thickness={5} size={32} />
               <Typography variant='body2' color='text.secondary' sx={{ mt: 2, fontWeight: 700 }}>
-                {t('admin.provisioning.logs.messages.fetching')}
+                {t('auth.admin.provisioning.logs.messages.fetching')}
               </Typography>
             </Box>
           ) : logs.length === 0 ? (
@@ -408,13 +408,13 @@ const SyncLogsView: React.FC = () => {
                 <History sx={{ color: 'primary.main', fontSize: 32 }} />
               </Avatar>
               <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
-                {t('admin.provisioning.logs.no_logs_title')}
+                {t('auth.admin.provisioning.logs.no_logs_title')}
               </Typography>
               <Typography
                 color='text.secondary'
                 sx={{ fontWeight: 500, mb: 3, maxWidth: 400, mx: 'auto' }}
               >
-                {t('admin.provisioning.logs.no_logs_desc')}
+                {t('auth.admin.provisioning.logs.no_logs_desc')}
               </Typography>
               <Button
                 variant='contained'
@@ -430,7 +430,7 @@ const SyncLogsView: React.FC = () => {
                   boxShadow: 1,
                 }}
               >
-                {t('admin.provisioning.logs.refresh_action', 'Refresh Logs')}
+                {t('auth.admin.provisioning.logs.refresh_action', 'Refresh Logs')}
               </Button>
             </Box>
           ) : (
@@ -454,7 +454,7 @@ const SyncLogsView: React.FC = () => {
                           color: 'text.secondary',
                         }}
                       >
-                        {t('admin.provisioning.logs.table.timestamp').toUpperCase()}
+                        {t('auth.admin.provisioning.logs.table.timestamp').toUpperCase()}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -464,7 +464,7 @@ const SyncLogsView: React.FC = () => {
                           color: 'text.secondary',
                         }}
                       >
-                        {t('admin.provisioning.logs.table.event').toUpperCase()}
+                        {t('auth.admin.provisioning.logs.table.event').toUpperCase()}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -474,7 +474,7 @@ const SyncLogsView: React.FC = () => {
                           color: 'text.secondary',
                         }}
                       >
-                        {t('admin.provisioning.logs.table.target').toUpperCase()}
+                        {t('auth.admin.provisioning.logs.table.target').toUpperCase()}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -484,7 +484,7 @@ const SyncLogsView: React.FC = () => {
                           color: 'text.secondary',
                         }}
                       >
-                        {t('admin.provisioning.logs.table.status').toUpperCase()}
+                        {t('auth.admin.provisioning.logs.table.status').toUpperCase()}
                       </TableCell>
                       <TableCell
                         align='right'
@@ -495,7 +495,7 @@ const SyncLogsView: React.FC = () => {
                           color: 'text.secondary',
                         }}
                       >
-                        {t('admin.provisioning.logs.table.details').toUpperCase()}
+                        {t('auth.admin.provisioning.logs.table.details').toUpperCase()}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -526,7 +526,7 @@ const SyncLogsView: React.FC = () => {
                               fontSize: '0.8rem',
                             }}
                           >
-                            {log.target || t('common.not_available') || 'â€”'}
+                            {log.target || t('auth.common.not_available') || '—'}
                           </Typography>
                         </TableCell>
                         <TableCell>
@@ -614,14 +614,14 @@ const SyncLogsView: React.FC = () => {
         </Avatar>
         <Box sx={{ flex: 1 }}>
           <Typography variant='subtitle1' sx={{ fontWeight: 900, mb: 0.5 }}>
-            {t('admin.provisioning.logs.helper_title')}
+            {t('auth.admin.provisioning.logs.helper_title')}
           </Typography>
           <Typography
             variant='body2'
             color='text.secondary'
             sx={{ fontWeight: 500, lineHeight: 1.5 }}
           >
-            {t('admin.provisioning.logs.helper_desc')}
+            {t('auth.admin.provisioning.logs.helper_desc')}
           </Typography>
         </Box>
         <Button
@@ -629,7 +629,7 @@ const SyncLogsView: React.FC = () => {
           color='info'
           sx={{ fontWeight: 900, textTransform: 'none', borderRadius: 2.5, px: 4, height: 44 }}
         >
-          {t('common.documentation') || 'Documentation'}
+          {t('auth.common.documentation') || 'Documentation'}
         </Button>
       </Card>
     </Box>
