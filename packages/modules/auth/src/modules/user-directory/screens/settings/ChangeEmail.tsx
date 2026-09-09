@@ -195,7 +195,7 @@ function ChangeEmail() {
           }}
         />
 
-        {/* â”€â”€ SYSTEM PATTERN: metric_card (OrganizationProfile style background) â”€â”€ */}
+        {/* ── SYSTEM PATTERN: metric_card (OrganizationProfile style background) ── */}
         <Card
           sx={(theme: any) => ({
             display: 'flex',
@@ -471,7 +471,7 @@ function ChangeEmail() {
                   </Typography>
                 </Alert>
 
-                {/* â”€â”€ SYSTEM PATTERN: cta_button (info.main variant) â”€â”€ */}
+                {/* ── SYSTEM PATTERN: cta_button (info.main variant) ── */}
                 <Button
                   type='submit'
                   variant='contained'
@@ -522,7 +522,7 @@ function ChangeEmail() {
         {/* Footer */}
         <Box sx={{ mt: 4, textAlign: 'center' }}>
           <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
-            Â© {new Date().getFullYear()} {t('auth.common.appName')}.{' '}
+            © {new Date().getFullYear()} {t('auth.common.appName')}.{' '}
             {t('auth.common.allRightsReserved')}
           </Typography>
         </Box>

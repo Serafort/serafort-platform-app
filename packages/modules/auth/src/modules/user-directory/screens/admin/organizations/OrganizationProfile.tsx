@@ -151,7 +151,7 @@ export default function OrganizationProfile() {
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 50 * 1024) {
-      toast.error(t('auth.admin.logoTooLarge') || 'PNG, SVG or WebP â€“ max 50 KB')
+      toast.error(t('auth.admin.logoTooLarge') || 'PNG, SVG or WebP — max 50 KB')
       return
     }
 
@@ -273,7 +273,7 @@ export default function OrganizationProfile() {
             </Box>
             <Stack direction='row' spacing={1} alignItems='center' flexWrap='wrap'>
               <Typography variant='body2' color='text.primary' sx={{ fontWeight: 600 }}>
-                ID: {orgData.id} â€¢ {orgData.domain || orgData.slug}
+                ID: {orgData.id} • {orgData.domain || orgData.slug}
               </Typography>
               <Chip
                 label={orgData.status || 'ACTIVE'}
@@ -754,7 +754,7 @@ export default function OrganizationProfile() {
                         {t('auth.admin.dropLogo')}
                       </Typography>
                       <Typography variant='caption' color='text.disabled'>
-                        PNG, SVG or WebP â€“ max 50 KB
+                        PNG, SVG or WebP — max 50 KB
                       </Typography>
                     </>
                   )}
@@ -1027,12 +1027,12 @@ export default function OrganizationProfile() {
                         </TableCell>
                         <TableCell>
                           <Typography variant='caption' sx={{ fontFamily: 'monospace' }}>
-                            {dv.verification_token || 'â€”'}
+                            {dv.verification_token || '—'}
                           </Typography>
                         </TableCell>
                         <TableCell align='right'>
                           <Typography variant='body2' color='text.secondary'>
-                            {dv.verified_at ? new Date(dv.verified_at).toLocaleDateString() : 'â€”'}
+                            {dv.verified_at ? new Date(dv.verified_at).toLocaleDateString() : '—'}
                           </Typography>
                         </TableCell>
                       </TableRow>
@@ -1051,7 +1051,7 @@ export default function OrganizationProfile() {
                       </TableCell>
                       <TableCell>
                         <Typography variant='caption' sx={{ fontFamily: 'monospace' }}>
-                          â€”
+                          —
                         </Typography>
                       </TableCell>
                       <TableCell align='right'>

@@ -72,7 +72,7 @@ const AVAILABLE_EVENTS = [
   'provisioning.sync',
 ]
 
-// â”€â”€ Chip overflow helper: show max N chips + "+X more" badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Chip overflow helper: show max N chips + "+X more" badge ─────────────────
 function EventChips({ events, max = 2 }: { events: string[]; max?: number }) {
   const theme = useTheme()
   const visible = events.slice(0, max)
@@ -118,7 +118,7 @@ const WebhookManagement: React.FC = () => {
   const { t } = useTranslation('auth')
   const theme = useTheme()
   const navigate = useNavigate()
-  // â”€â”€ Queries & Mutations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Queries & Mutations ──────────────────────────────────────────
   const { data: webhooksData, isLoading } = useWebhooks()
   const createWebhook = useCreateWebhook()
   const deleteWebhook = useDeleteWebhook()
@@ -126,7 +126,7 @@ const WebhookManagement: React.FC = () => {
 
   const webhooks = (webhooksData?.data as any)?.data ?? webhooksData?.data ?? []
 
-  // â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── State ────────────────────────────────────────────────────────
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isSecretDialogOpen, setIsSecretDialogOpen] = useState(false)
@@ -138,7 +138,7 @@ const WebhookManagement: React.FC = () => {
   const [selectedEvents, setSelectedEvents] = useState<string[]>([])
   const [secretVisible, setSecretVisible] = useState(false)
 
-  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Handlers ─────────────────────────────────────────────────────
   const handleCreate = () => {
     if (!url || selectedEvents.length === 0) {
       toast.warning(t('admin.developer.webhooks.messages.form_error'))
@@ -196,7 +196,7 @@ const WebhookManagement: React.FC = () => {
     toast.info(t('admin.developer.webhooks.messages.copied', { label }))
   }
 
-  // â”€â”€ Render Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Render Helpers ───────────────────────────────────────────────
   const getStatusChip = (status: string) => {
     const isFailing = status === 'failing'
     const isDisabled = status === 'disabled'
@@ -230,7 +230,7 @@ const WebhookManagement: React.FC = () => {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* â”€â”€ Rule 2: Page Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Rule 2: Page Header ─────────────────────────────────────────────── */}
       <Box
         sx={{
           mb: 4,
@@ -305,7 +305,7 @@ const WebhookManagement: React.FC = () => {
         </Button>
       </Box>
 
-      {/* â”€â”€ Rule 7: Stats Cards Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Rule 7: Stats Cards Row ───────────────────────────────────────────────── */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {[
           {
@@ -384,7 +384,7 @@ const WebhookManagement: React.FC = () => {
         ))}
       </Grid>
 
-      {/* â”€â”€ Main Section: Configured Webhooks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Main Section: Configured Webhooks ─────────────────────── */}
       <Card
         sx={{
           borderRadius: 4,
@@ -469,7 +469,7 @@ const WebhookManagement: React.FC = () => {
                 <TableBody>
                   {webhooks.map((hook: any) => (
                     <TableRow key={hook.id} hover sx={{ '& td': { py: 2 } }}>
-                      {/* Rule 8/116: URL â€” long text truncation with Tooltip */}
+                      {/* Rule 8/116: URL — long text truncation with Tooltip */}
                       <TableCell sx={{ maxWidth: { xs: 120, md: 220 } }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                           <Tooltip title={hook.url} placement='top'>
@@ -506,7 +506,7 @@ const WebhookManagement: React.FC = () => {
                         </Box>
                       </TableCell>
 
-                      {/* Rule 8/117: Events â€” overflow chips */}
+                      {/* Rule 8/117: Events — overflow chips */}
                       <TableCell sx={{ maxWidth: 160 }}>
                         <EventChips events={hook.events ?? []} max={2} />
                       </TableCell>
@@ -613,7 +613,7 @@ const WebhookManagement: React.FC = () => {
         </Typography>
       </Box>
 
-      {/* â”€â”€ Rule 12: Dialogs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Rule 12: Dialogs ────────────────────────────────────────── */}
       <Dialog
         open={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
@@ -754,7 +754,7 @@ const WebhookManagement: React.FC = () => {
               variant='body2'
               sx={{ fontWeight: 700, letterSpacing: 1, wordBreak: 'break-all' }}
             >
-              {secretVisible ? newWebhookSecret : 'â€¢'.repeat(32)}
+              {secretVisible ? newWebhookSecret : '•'.repeat(32)}
             </Typography>
             <Box sx={{ display: 'flex', flexShrink: 0, ml: 1 }}>
               <IconButton size='small' onClick={() => setSecretVisible(!secretVisible)}>

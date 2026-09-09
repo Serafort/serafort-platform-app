@@ -341,7 +341,7 @@ export default function OrganizationListDashboard() {
           }}
         >
           <TextField
-            placeholder={t('auth.common.searchOrgs') || 'Search organizationsâ€¦'}
+            placeholder={t('auth.common.searchOrgs') || 'Search organizations…'}
             size='small'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -736,7 +736,7 @@ export default function OrganizationListDashboard() {
           >
             {t('auth.common.cancel')}
           </Button>
-          {/* â”€â”€ SYSTEM PATTERN: cta_button (info.main) â”€â”€ */}
+          {/* ── SYSTEM PATTERN: cta_button (info.main) ── */}
           <Button
             onClick={handleCreateSubmit}
             variant='contained'

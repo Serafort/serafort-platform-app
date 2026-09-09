@@ -667,7 +667,7 @@ export default function APIExplorerDashboard() {
                   </Box>
 
                   <Box sx={{ p: 3 }}>
-                    {/* Tab 0 â€” Security */}
+                    {/* Tab 0 — Security */}
                     <TabPanel value={detailTab} index={0}>
                       <Typography
                         variant='caption'
@@ -687,7 +687,7 @@ export default function APIExplorerDashboard() {
                         {selectedEndpoint.isPublic ? (
                           <Chip
                             icon={<PublicIcon sx={{ fontSize: 15 }} />}
-                            label={t('auth.developer.publicNoAuth', 'Public â€” No Auth Required')}
+                            label={t('auth.developer.publicNoAuth', 'Public — No Auth Required')}
                             color='success'
                             size='small'
                             variant='outlined'
@@ -756,7 +756,7 @@ export default function APIExplorerDashboard() {
                       )}
                     </TabPanel>
 
-                    {/* Tab 1 â€” Request */}
+                    {/* Tab 1 — Request */}
                     <TabPanel value={detailTab} index={1}>
                       <Typography
                         variant='caption'
@@ -874,7 +874,7 @@ export default function APIExplorerDashboard() {
                       </Stack>
                     </TabPanel>
 
-                    {/* Tab 3 â€” SDK */}
+                    {/* Tab 3 — SDK */}
                     <TabPanel value={detailTab} index={3}>
                       <Typography
                         variant='caption'
@@ -946,7 +946,7 @@ export default function APIExplorerDashboard() {
                       </Grid>
                     </TabPanel>
 
-                    {/* Tab 2 â€” Try It */}
+                    {/* Tab 2 — Try It */}
                     <TabPanel value={detailTab} index={2}>
                       <Box
                         sx={{

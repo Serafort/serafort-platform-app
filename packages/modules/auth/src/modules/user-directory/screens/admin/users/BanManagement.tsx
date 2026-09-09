@@ -118,7 +118,7 @@ export default function BanManagement() {
             label: t('auth.admin.statAppealsPending'),
             value:
               dashboardData?.data?.pendingAppeals === 0
-                ? 'â€”'
+                ? '—'
                 : (dashboardData?.data?.pendingAppeals ?? '...'),
             tooltip:
               dashboardData?.data?.pendingAppeals === 0
@@ -512,7 +512,7 @@ function AppealsQueue() {
                     </Box>
                   </Box>
                   <Box sx={{ display: 'flex', gap: 1 }}>
-                    {/* â”€â”€ SYSTEM PATTERN: action_button â”€â”€ */}
+                    {/* ── SYSTEM PATTERN: action_button ── */}
                     <Button
                       variant='contained'
                       color='success'
@@ -707,8 +707,8 @@ function BanFullHistory() {
                     {log.action?.replace(/_/g, ' ')}
                   </Typography>
                   <Typography variant='caption' color='text.secondary'>
-                    User #{log.userId} Â· {new Date(log.createdAt).toLocaleString()}
-                    {log.ipAddress ? ` Â· IP: ${log.ipAddress}` : ''}
+                    User #{log.userId} · {new Date(log.createdAt).toLocaleString()}
+                    {log.ipAddress ? ` · IP: ${log.ipAddress}` : ''}
                   </Typography>
                 </Box>
                 <Chip

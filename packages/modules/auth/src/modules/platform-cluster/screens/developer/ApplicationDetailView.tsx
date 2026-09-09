@@ -586,10 +586,10 @@ export default function ApplicationDetailView() {
                   </Typography>
                   <Stack spacing={1}>
                     <Typography variant='body2'>
-                      â€¢ {t('auth.admin.fapi2MandatoryPkce')}
+                      • {t('auth.admin.fapi2MandatoryPkce')}
                     </Typography>
-                    <Typography variant='body2'>â€¢ {t('auth.admin.fapi2DpopRequired')}</Typography>
-                    <Typography variant='body2'>â€¢ {t('auth.admin.fapi2ParRequired')}</Typography>
+                    <Typography variant='body2'>• {t('auth.admin.fapi2DpopRequired')}</Typography>
+                    <Typography variant='body2'>• {t('auth.admin.fapi2ParRequired')}</Typography>
                   </Stack>
                 </Stack>
               </CardContent>

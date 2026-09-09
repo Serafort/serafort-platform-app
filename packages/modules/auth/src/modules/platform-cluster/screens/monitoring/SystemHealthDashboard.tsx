@@ -599,7 +599,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <span>{t('monitoring.dashboard.uptime', { uptime })}</span>
-              <span>â€¢</span>
+              <span>•</span>
               <span>{t('monitoring.dashboard.server', { server })}</span>
             </Box>
           </Box>

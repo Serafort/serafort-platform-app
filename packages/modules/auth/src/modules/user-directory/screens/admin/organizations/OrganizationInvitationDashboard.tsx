@@ -188,7 +188,7 @@ export default function OrganizationInvitationDashboard() {
               {t('auth.admin.memberInvitationsSubtitle')}
             </Typography>
           </Box>
-          {/* â”€â”€ SYSTEM PATTERN: cta_button (info.main variant) â”€â”€ */}
+          {/* ── SYSTEM PATTERN: cta_button (info.main variant) ── */}
           <Button
             variant='contained'
             startIcon={<PersonAdd />}
@@ -279,7 +279,7 @@ export default function OrganizationInvitationDashboard() {
         <Box
           sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', gap: 2 }}
         >
-          {/* â”€â”€ SYSTEM PATTERN: text_field (InputProps -> slotProps.input) â”€â”€ */}
+          {/* ── SYSTEM PATTERN: text_field (InputProps -> slotProps.input) ── */}
           <TextField
             fullWidth
             placeholder={t('auth.common.searchUsers')}
@@ -344,7 +344,7 @@ export default function OrganizationInvitationDashboard() {
                         ? new Date(
                             invite.created_at || (invite as any).createdAt!,
                           ).toLocaleDateString()
-                        : 'â€”'}
+                        : '—'}
                     </Typography>
                   </TableCell>
                   <TableCell>
@@ -353,7 +353,7 @@ export default function OrganizationInvitationDashboard() {
                         ? new Date(
                             invite.expires_at || (invite as any).expiresAt!,
                           ).toLocaleDateString()
-                        : 'â€”'}
+                        : '—'}
                     </Typography>
                   </TableCell>
                   <TableCell align='right'>

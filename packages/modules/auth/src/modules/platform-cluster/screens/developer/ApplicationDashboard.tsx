@@ -290,7 +290,7 @@ export default function ApplicationDashboard() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
-      {/* â”€â”€ Pattern 1: Page Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Pattern 1: Page Header ───────────────────────────────────── */}
       <Box
         sx={{
           mb: 4,
@@ -341,7 +341,7 @@ export default function ApplicationDashboard() {
         </Button>
       </Box>
 
-      {/* â”€â”€ Search & Filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Search & Filter ─────────────────────────────────────────── */}
       <Card
         sx={{
           p: 2.5,
@@ -522,7 +522,7 @@ export default function ApplicationDashboard() {
                       }}
                     >
                       {app.client_secret
-                        ? 'â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ ab2c'
+                        ? '•••• •••• ab2c'
                         : t('admin.developer.applications.card.pkce_protected')}
                     </Typography>
                   </Box>

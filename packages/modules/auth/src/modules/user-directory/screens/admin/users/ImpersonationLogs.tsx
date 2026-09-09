@@ -127,7 +127,7 @@ export default function ImpersonationLogs() {
     }
   }
 
-  // â”€â”€ SYSTEM PATTERN: Entry animation (OrganizationProfile L60) â”€â”€
+  // ── SYSTEM PATTERN: Entry animation (OrganizationProfile L60) ──
   return (
     <Box className='animate-scale-in' sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       {/* Header */}
@@ -256,7 +256,7 @@ export default function ImpersonationLogs() {
 
       {/* Toolbar */}
       <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-        {/* â”€â”€ SYSTEM PATTERN: MUI v6 API input props (OrganizationProfile L67) â”€â”€ */}
+        {/* ── SYSTEM PATTERN: MUI v6 API input props (OrganizationProfile L67) ── */}
         <TextField
           fullWidth
           size='small'
@@ -439,7 +439,7 @@ export default function ImpersonationLogs() {
                         {format(new Date(log.startedAt), 'MMM dd, yyyy')}
                       </Typography>
                       <Typography variant='caption' color='text.secondary'>
-                        {format(new Date(log.startedAt), 'HH:mm:ss')} â€¢{' '}
+                        {format(new Date(log.startedAt), 'HH:mm:ss')} •{' '}
                         {formatDistanceToNow(new Date(log.startedAt))} ago
                       </Typography>
                     </TableCell>

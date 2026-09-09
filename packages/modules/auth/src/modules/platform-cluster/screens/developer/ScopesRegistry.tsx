@@ -143,7 +143,7 @@ export default function ScopesRegistry() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
-      {/* â”€â”€ Page Header â”€â”€ */}
+      {/* ── Page Header ── */}
       <Box
         sx={{
           display: 'flex',
@@ -192,7 +192,7 @@ export default function ScopesRegistry() {
         </Button>
       </Box>
 
-      {/* â”€â”€ Main Table Card â”€â”€ */}
+      {/* ── Main Table Card ── */}
       <Paper
         sx={{
           borderRadius: 4,
@@ -214,7 +214,7 @@ export default function ScopesRegistry() {
           }}
         >
           <TextField
-            placeholder={t('auth.developer.searchScopes', 'Search scopesâ€¦')}
+            placeholder={t('auth.developer.searchScopes', 'Search scopes…')}
             size='small'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -384,7 +384,7 @@ export default function ScopesRegistry() {
                   </TableRow>
                 ))
               ) : (
-                /* â”€â”€ Empty State â”€â”€ */
+                /* ── Empty State ── */
                 <TableRow>
                   <TableCell colSpan={5} sx={{ textAlign: 'center', py: 6 }}>
                     <Layers sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
@@ -399,7 +399,7 @@ export default function ScopesRegistry() {
         </TableContainer>
       </Paper>
 
-      {/* â”€â”€ Info Tip â”€â”€ */}
+      {/* ── Info Tip ── */}
       <Box
         sx={{
           mt: 3,
@@ -429,7 +429,7 @@ export default function ScopesRegistry() {
         </Typography>
       </Box>
 
-      {/* â”€â”€ Scope Create/Edit Dialog â”€â”€ */}
+      {/* ── Scope Create/Edit Dialog ── */}
       <Dialog open={isDialogOpen} onClose={closeForm} maxWidth='sm' fullWidth>
         <DialogTitle sx={{ fontWeight: 800 }}>
           {editingScope
@@ -483,7 +483,7 @@ export default function ScopesRegistry() {
         </DialogActions>
       </Dialog>
 
-      {/* â”€â”€ Delete Confirmation Dialog â”€â”€ */}
+      {/* ── Delete Confirmation Dialog ── */}
       <Dialog open={deleteConfirmationId !== null} onClose={() => setDeleteConfirmationId(null)}>
         <DialogTitle sx={{ fontWeight: 800, color: 'error.main' }}>
           {t('auth.developer.deleteScopeConfirmTitle', 'Delete Scope')}
