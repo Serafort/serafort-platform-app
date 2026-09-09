@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Box, Stack, Typography } from "@mui/material";
 import { LayoutModeEnum } from "@cap/shared-types";
 import type { Layout } from "@cap/shared-types";
@@ -14,23 +15,31 @@ interface NavigationLayoutFieldProps {
 
 const LAYOUT_OPTIONS: Array<{
   value: LayoutModeEnum;
-  label: string;
-  hint: string;
+  labelKey: string;
+  labelDefault: string;
+  hintKey: string;
+  hintDefault: string;
 }> = [
   {
     value: LayoutModeEnum.VERTICAL,
-    label: "Sidebar",
-    hint: "Navigation in a full-width vertical drawer.",
+    labelKey: "theme.layout.sidebar",
+    labelDefault: "Sidebar",
+    hintKey: "theme.layout.sidebar_hint",
+    hintDefault: "Navigation in a full-width vertical drawer.",
   },
   {
     value: LayoutModeEnum.COLLAPSED,
-    label: "Collapsed rail",
-    hint: "Vertical drawer pinned to its narrow icon rail.",
+    labelKey: "theme.layout.collapsed",
+    labelDefault: "Collapsed rail",
+    hintKey: "theme.layout.collapsed_hint",
+    hintDefault: "Vertical drawer pinned to its narrow icon rail.",
   },
   {
     value: LayoutModeEnum.HORIZONTAL,
-    label: "Top bar",
-    hint: "Navigation in a horizontal bar under the header.",
+    labelKey: "theme.layout.topbar",
+    labelDefault: "Top bar",
+    hintKey: "theme.layout.topbar_hint",
+    hintDefault: "Navigation in a horizontal bar under the header.",
   },
 ];
 
@@ -43,33 +52,34 @@ export const NavigationLayoutField: React.FC<NavigationLayoutFieldProps> = ({
   value,
   onChange,
 }) => {
+  const { t } = useTranslation();
   const current =
     LAYOUT_OPTIONS.find((option) => option.value === value)?.value ??
     LayoutModeEnum.VERTICAL;
-  const activeHint = LAYOUT_OPTIONS.find(
-    (option) => option.value === current,
-  )?.hint;
+  const activeOption = LAYOUT_OPTIONS.find((option) => option.value === current);
 
   return (
     <Box sx={{ mb: 7 }}>
-      <SectionLabel>Navigation layout</SectionLabel>
+      <SectionLabel>
+        {t("theme.layout.section_label", "Navigation layout")}
+      </SectionLabel>
       <Stack direction="row" useFlexGap spacing={1.5} sx={{ flexWrap: "wrap" }}>
         {LAYOUT_OPTIONS.map((option) => (
           <ChoiceChip
             key={option.value}
-            label={option.label}
+            label={t(option.labelKey, option.labelDefault)}
             selected={current === option.value}
             onClick={() => onChange(option.value)}
           />
         ))}
       </Stack>
-      {activeHint && (
+      {activeOption && (
         <Typography
           variant="caption"
           color="text.secondary"
           sx={{ display: "block", mt: 2 }}
         >
-          {activeHint}
+          {t(activeOption.hintKey, activeOption.hintDefault)}
         </Typography>
       )}
     </Box>
