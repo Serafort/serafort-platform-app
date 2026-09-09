@@ -123,6 +123,16 @@
       "title": "Two-Factor Authentication",
       "verifyButton": "Verify & Continue",
       "verifying": "Verifying..."
+    },
+    "validate": {
+      "already_validated": "This account is already validated.",
+      "success_message": "Your account has been validated. You can sign in now.",
+      "error_message": "Validation failed. The link may have expired or already been used.",
+      "title_page": "Validate Account",
+      "meta_desc": "Account validation",
+      "title": "Account Validation",
+      "checking": "Checking your verification link…",
+      "button_connect": "Sign In"
     }
   },
   "common": {
@@ -189,7 +199,18 @@
     "verifiedDescription": "Your email has been successfully updated. Redirecting you now...",
     "verifiedHeading2": "Email Verified!",
     "verifyingDescription": "Please wait while we securely update your account.",
-    "verifyingHeading": "Verifying your new email"
+    "verifyingHeading": "Verifying your new email",
+    "authorizationRequiredV2": "Click the confirmation link in your email.",
+    "checkInbox": "Check your inbox",
+    "confirmCurrentDescription": "A verification link has been sent to your inbox. Please follow the instructions to complete your email change.",
+    "confirmCurrentHeading": "Authorization Required",
+    "initiateSubtitle": "Enter your new email and current password to proceed",
+    "initiateTitle": "Update Email",
+    "newEmailLabel": "New Email Address",
+    "trackRequest": "Track this request",
+    "updateButton": "Update Email",
+    "verifyNewDescription": "We've sent a final verification link to your new email address. Please click it to complete the change.",
+    "verifyNewHeading": "One last step"
   },
   "forgotPassword": {
     "backToSignIn": "Back to sign in",
@@ -368,5 +389,17 @@
     "getStarted": "Get started",
     "verifiedDescription": "Your email address has been confirmed.",
     "verifiedHeading": "Email verified"
+  },
+  "export": {
+    "codeLabel": "Verification Code",
+    "downloadNow": "Download Data (.zip)",
+    "readyDesc": "Verification successful. Your secure download link is now active for 1 hour.",
+    "readyHeading": "Export Ready",
+    "requestDesc": "Your account data is ready for export. For your protection, we require one-time verification.",
+    "requestHeading": "Secure Export",
+    "sendCode": "Send Verification Code",
+    "verifyButton": "Verify & Unlock",
+    "verifyingDesc": "We've sent a 6-digit code to your registered email address.",
+    "verifyingHeading": "Verify Identity"
   }
 }

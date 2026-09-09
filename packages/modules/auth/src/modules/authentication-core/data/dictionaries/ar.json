@@ -1290,6 +1290,16 @@
       "useBackup": "استخدام رمز احتياطي",
       "verifyButton": "التحقق من الرمز",
       "verifying": "جاري التحقق..."
+    },
+    "validate": {
+      "already_validated": "هذا الحساب مُفعَّل بالفعل.",
+      "success_message": "تم تفعيل حسابك. يمكنك تسجيل الدخول الآن.",
+      "error_message": "فشل التفعيل. قد يكون الرابط منتهي الصلاحية أو تم استخدامه من قبل.",
+      "title_page": "تفعيل الحساب",
+      "meta_desc": "تفعيل الحساب",
+      "title": "تفعيل الحساب",
+      "checking": "جارٍ التحقق من رابط التفعيل…",
+      "button_connect": "تسجيل الدخول"
     }
   },
   "common": {
@@ -1364,7 +1374,18 @@
     "verifiedDescription": "تم تحديث بريدك بنجاح. جارٍ إعادة التوجيه...",
     "verifiedHeading2": "تم التحقق من البريد!",
     "verifyingDescription": "يرجى الانتظار بينما نحدّث حسابك بأمان.",
-    "verifyingHeading": "جارٍ التحقق من بريدك الجديد"
+    "verifyingHeading": "جارٍ التحقق من بريدك الجديد",
+    "authorizationRequiredV2": "انقر على رابط التأكيد في بريدك الإلكتروني.",
+    "checkInbox": "تحقق من صندوق الوارد",
+    "confirmCurrentDescription": "تم إرسال رابط تحقق إلى صندوق الوارد. اتبع التعليمات لإتمام تغيير بريدك الإلكتروني.",
+    "confirmCurrentHeading": "التفويض مطلوب",
+    "initiateSubtitle": "أدخل بريدك الإلكتروني الجديد وكلمة المرور الحالية للمتابعة",
+    "initiateTitle": "تحديث البريد الإلكتروني",
+    "newEmailLabel": "عنوان البريد الإلكتروني الجديد",
+    "trackRequest": "تتبّع هذا الطلب",
+    "updateButton": "تحديث البريد الإلكتروني",
+    "verifyNewDescription": "أرسلنا رابط تحقق أخيرًا إلى عنوان بريدك الجديد. انقر عليه لإتمام التغيير.",
+    "verifyNewHeading": "خطوة أخيرة"
   },
   "email_test": {
     "col_recipient": "المستلم",
@@ -1616,5 +1637,17 @@
     "getStarted": "ابدأ الآن",
     "verifiedDescription": "تم تأكيد بريدك الإلكتروني.",
     "verifiedHeading": "تم التحقق من البريد"
+  },
+  "export": {
+    "codeLabel": "رمز التحقق",
+    "downloadNow": "تنزيل البيانات (.zip)",
+    "readyDesc": "تم التحقق بنجاح. رابط التنزيل الآمن الخاص بك نشط لمدة ساعة واحدة.",
+    "readyHeading": "التصدير جاهز",
+    "requestDesc": "بيانات حسابك جاهزة للتصدير. لحمايتك، نطلب تحققًا لمرة واحدة.",
+    "requestHeading": "تصدير آمن",
+    "sendCode": "إرسال رمز التحقق",
+    "verifyButton": "تحقّق وافتح",
+    "verifyingDesc": "أرسلنا رمزًا من 6 أرقام إلى عنوان بريدك المسجَّل.",
+    "verifyingHeading": "التحقق من الهوية"
   }
 }

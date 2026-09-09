@@ -1,14 +1,6 @@
 import React from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import {
-  Backdrop,
-  Button,
-  CircularProgress,
-  Container,
-  Card,
-  CardContent,
-  Typography,
-} from '@mui/material'
+import { Box, Button, CircularProgress, Container, Card, CardContent, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { themeConfig, IStatus } from '@cap/platform-core'
@@ -48,6 +40,11 @@ export default function Validate() {
   })
 
   const validateUser = validateUserData?.data
+  // A token is being checked against the server and no verdict has come back yet.
+  // Without this the card rendered its "Sign In" button immediately, so the
+  // screen looked resolved while the request was still in flight.
+  const isValidating =
+    !!id && !!token && !isSuccessValidateUser && !isErrorValidateUser
   const [status, setStatus] = React.useState<IStatus>({
     open: false,
     type: '',
@@ -109,13 +106,6 @@ export default function Validate() {
         maxWidth='sm'
         sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
-        <Backdrop
-          sx={{ color: '#FFFFFF', zIndex: (theme) => theme.zIndex.drawer + 10 }}
-          open={false}
-        >
-          <CircularProgress color='inherit' />
-        </Backdrop>
-
         <Card sx={{ my: { xs: 3, md: 6 }, width: '100%', maxWidth: 450, borderRadius: 3 }}>
           <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
             <Typography
@@ -132,22 +122,42 @@ export default function Validate() {
             >
               {t('auth.validate.title', 'Account Validation')}
             </Typography>
-            {status.open && (
-              <MAlert sx={{ width: '100%' }} severity={status.type || 'info'}>
-                {status.msg}
-              </MAlert>
-            )}
-            {status?.type !== 'error' && (
-              <Button
-                fullWidth
-                variant='contained'
-                sx={{ mt: 3, mb: 2, borderRadius: 2, py: 1.2, fontWeight: 700 }}
-                onClick={() => {
-                  navigate(Path.auth.signin)
+
+            {isValidating ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 2,
+                  py: 4,
                 }}
               >
-                {t('auth.validate.button_connect', 'Sign In')}
-              </Button>
+                <CircularProgress />
+                <Typography variant='body2' color='text.secondary'>
+                  {t('auth.validate.checking', 'Checking your verification link…')}
+                </Typography>
+              </Box>
+            ) : (
+              <>
+                {status.open && (
+                  <MAlert sx={{ width: '100%' }} severity={status.type || 'info'}>
+                    {status.msg}
+                  </MAlert>
+                )}
+                {status?.type !== 'error' && (
+                  <Button
+                    fullWidth
+                    variant='contained'
+                    sx={{ mt: 3, mb: 2, borderRadius: 2, py: 1.2, fontWeight: 700 }}
+                    onClick={() => {
+                      navigate(Path.auth.signin)
+                    }}
+                  >
+                    {t('auth.validate.button_connect', 'Sign In')}
+                  </Button>
+                )}
+              </>
             )}
           </CardContent>
         </Card>

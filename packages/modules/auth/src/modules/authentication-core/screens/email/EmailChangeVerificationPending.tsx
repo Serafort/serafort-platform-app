@@ -10,7 +10,6 @@ import {
   useTheme,
 } from '@mui/material'
 import MarkEmailRead from '@mui/icons-material/MarkEmailRead'
-import Refresh from '@mui/icons-material/Refresh'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import ArrowForward from '@mui/icons-material/ArrowForward'
 import { motion } from 'framer-motion'
@@ -65,7 +64,7 @@ export default function EmailChangeVerificationPending() {
           variant='contained'
           size='large'
           fullWidth
-          onClick={() => window.open('https://mail.google.com', '_blank')}
+          onClick={() => navigate(Path.account.emailChangeStatus)}
           endIcon={<ArrowForward />}
           sx={{
             py: 1.5,
@@ -78,24 +77,7 @@ export default function EmailChangeVerificationPending() {
             '&:hover': { bgcolor: 'info.dark', transform: 'translateY(-1px)' },
           }}
         >
-          {t('email.openEmailApp', 'Open Email App')}
-        </Button>
-        <Button
-          variant='outlined'
-          size='large'
-          fullWidth
-          startIcon={<Refresh />}
-          sx={{
-            py: 1.2,
-            borderRadius: 3,
-            fontWeight: 700,
-            textTransform: 'none',
-            color: 'text.primary',
-            borderColor: alpha(theme.palette.divider, 0.8),
-            '&:hover': { bgcolor: alpha(theme.palette.action.hover, 0.5) },
-          }}
-        >
-          {t('email.resendButton', 'Resend verification')}
+          {t('email.trackRequest', 'Track this request')}
         </Button>
       </Stack>
       <Box sx={{ mt: 5, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>

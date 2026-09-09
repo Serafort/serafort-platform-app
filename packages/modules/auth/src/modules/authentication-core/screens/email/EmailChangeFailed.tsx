@@ -27,7 +27,7 @@ export default function EmailChangeFailed() {
             variant='contained'
             size='large'
             fullWidth
-            onClick={() => navigate(Path.auth.requestEmailChange)}
+            onClick={() => navigate(Path.account.initiateEmailChange)}
             startIcon={<History />}
             endIcon={<ArrowForward />}
             sx={{

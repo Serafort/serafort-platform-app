@@ -160,7 +160,7 @@ export default function InitiateEmailChange() {
                   <TextField
                     fullWidth
                     type={showPassword ? 'text' : 'password'}
-                    placeholder='â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢'
+                    placeholder='••••••••'
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isPending}

@@ -1290,6 +1290,16 @@
       "useBackup": "Utiliser un code de secours",
       "verifyButton": "Vérifier le code",
       "verifying": "Vérification..."
+    },
+    "validate": {
+      "already_validated": "Ce compte est déjà validé.",
+      "success_message": "Votre compte a été validé. Vous pouvez maintenant vous connecter.",
+      "error_message": "Échec de la validation. Le lien a peut-être expiré ou a déjà été utilisé.",
+      "title_page": "Valider le compte",
+      "meta_desc": "Validation du compte",
+      "title": "Validation du compte",
+      "checking": "Vérification de votre lien…",
+      "button_connect": "Se connecter"
     }
   },
   "common": {
@@ -1364,7 +1374,18 @@
     "verifiedDescription": "Votre e-mail a été mis à jour. Redirection en cours...",
     "verifiedHeading2": "E-mail vérifié !",
     "verifyingDescription": "Veuillez patienter pendant la mise à jour sécurisée de votre compte.",
-    "verifyingHeading": "Vérification de votre nouvel e-mail"
+    "verifyingHeading": "Vérification de votre nouvel e-mail",
+    "authorizationRequiredV2": "Cliquez sur le lien de confirmation dans votre e-mail.",
+    "checkInbox": "Consultez votre boîte de réception",
+    "confirmCurrentDescription": "Un lien de vérification a été envoyé dans votre boîte de réception. Suivez les instructions pour terminer le changement d'e-mail.",
+    "confirmCurrentHeading": "Autorisation requise",
+    "initiateSubtitle": "Saisissez votre nouvelle adresse e-mail et votre mot de passe actuel pour continuer",
+    "initiateTitle": "Mettre à jour l'e-mail",
+    "newEmailLabel": "Nouvelle adresse e-mail",
+    "trackRequest": "Suivre cette demande",
+    "updateButton": "Mettre à jour l'e-mail",
+    "verifyNewDescription": "Nous avons envoyé un dernier lien de vérification à votre nouvelle adresse e-mail. Cliquez dessus pour terminer le changement.",
+    "verifyNewHeading": "Une dernière étape"
   },
   "email_test": {
     "col_recipient": "Destinataire",
@@ -1616,5 +1637,17 @@
     "getStarted": "Commencer",
     "verifiedDescription": "Votre adresse e-mail a été confirmée.",
     "verifiedHeading": "E-mail vérifié"
+  },
+  "export": {
+    "codeLabel": "Code de vérification",
+    "downloadNow": "Télécharger les données (.zip)",
+    "readyDesc": "Vérification réussie. Votre lien de téléchargement sécurisé est actif pendant 1 heure.",
+    "readyHeading": "Export prêt",
+    "requestDesc": "Les données de votre compte sont prêtes à être exportées. Pour votre protection, une vérification unique est requise.",
+    "requestHeading": "Export sécurisé",
+    "sendCode": "Envoyer le code de vérification",
+    "verifyButton": "Vérifier et déverrouiller",
+    "verifyingDesc": "Nous avons envoyé un code à 6 chiffres à votre adresse e-mail enregistrée.",
+    "verifyingHeading": "Vérifier l'identité"
   }
 }
