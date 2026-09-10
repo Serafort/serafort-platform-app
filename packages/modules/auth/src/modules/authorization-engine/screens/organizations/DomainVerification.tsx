@@ -13,7 +13,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   TextField,
   Tooltip,
@@ -33,6 +32,9 @@ import { useActiveOrganizationId } from '../../../authentication-core/hooks/useA
 import {
   AdminDataState,
   AdminPageHeader,
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
 } from '../../../authentication-core/components/shared/admin'
 import { AuthCopyField } from '../../../authentication-core/components/shared/auth'
 
@@ -261,28 +263,26 @@ const DomainVerification: React.FC = () => {
         </CardContent>
       </Card>
 
-      <TableContainer
-        component={Card}
-        sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
-      >
-        <Table>
-          <TableHead sx={{ bgcolor: 'action.hover' }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 800 }}>
-                {t('auth.admin.domainVerification.col_domain', 'Domain')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>
-                {t('auth.admin.domainVerification.col_status', 'Status')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 800 }}>
-                {t('auth.admin.domainVerification.col_added', 'Added')}
-              </TableCell>
-              <TableCell align='right' sx={{ fontWeight: 800 }}>
-                {t('auth.admin.domainVerification.col_actions', 'Actions')}
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      <AdminTableCard>
+        <TableContainer>
+          <Table>
+            <AdminTableHead>
+              <TableRow>
+                <AdminTableHeadCell>
+                  {t('auth.admin.domainVerification.col_domain', 'Domain')}
+                </AdminTableHeadCell>
+                <AdminTableHeadCell>
+                  {t('auth.admin.domainVerification.col_status', 'Status')}
+                </AdminTableHeadCell>
+                <AdminTableHeadCell>
+                  {t('auth.admin.domainVerification.col_added', 'Added')}
+                </AdminTableHeadCell>
+                <AdminTableHeadCell align='right'>
+                  {t('auth.admin.domainVerification.col_actions', 'Actions')}
+                </AdminTableHeadCell>
+              </TableRow>
+            </AdminTableHead>
+            <TableBody>
             <AdminDataState
               asTableRow
               skeletonColumns={4}
@@ -395,9 +395,10 @@ const DomainVerification: React.FC = () => {
                 )
               })}
             </AdminDataState>
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </AdminTableCard>
     </Box>
   )
 }

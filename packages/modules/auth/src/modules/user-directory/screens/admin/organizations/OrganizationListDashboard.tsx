@@ -2,13 +2,10 @@ import React, { useState } from 'react'
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Chip,
   IconButton,
@@ -57,6 +54,12 @@ import {
 } from '@idaas/authentication-core/hooks/useAdminQuery'
 
 import { Organization } from '@auth/authorization-engine/services/adminService'
+import {
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
+} from '@auth/modules/authentication-core/components/shared/admin'
 
 export default function OrganizationListDashboard() {
   const { t } = useTranslation('common')
@@ -228,11 +231,8 @@ export default function OrganizationListDashboard() {
         </Button>
       </Box>
 
-      <Card
-        sx={(theme: any) => ({
-          borderRadius: 4,
-          overflow: 'hidden',
-          border: '1px solid ' + theme.palette.divider,
+      <AdminTableCard
+        sx={(theme) => ({
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
         })}
       >
@@ -286,12 +286,7 @@ export default function OrganizationListDashboard() {
         {/* Table */}
         <TableContainer sx={{ borderRadius: 0, boxShadow: 'none' }}>
           <Table sx={{ minWidth: 800 }}>
-            <TableHead
-              sx={{
-                bgcolor: (theme) => alpha(theme.palette.action.hover, 0.4),
-                borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-              }}
-            >
+            <AdminTableHead>
               <TableRow>
                 {[
                   t('auth.admin.colOrganization'),
@@ -301,34 +296,15 @@ export default function OrganizationListDashboard() {
                   t('auth.admin.colEnterprise'),
                   t('auth.admin.colHealth'),
                 ].map((col) => (
-                  <TableCell
-                    key={col}
-                    sx={{
-                      py: 2.5,
-                      fontWeight: 900,
-                      fontSize: '0.75rem',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em',
-                      color: 'text.primary',
-                    }}
-                  >
+                  <AdminTableHeadCell key={col} sx={{ py: 2.5 }}>
                     {col}
-                  </TableCell>
+                  </AdminTableHeadCell>
                 ))}
-                <TableCell
-                  align='right'
-                  sx={{
-                    fontWeight: 900,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    color: 'text.primary',
-                  }}
-                >
+                <AdminTableHeadCell align='right'>
                   {t('auth.admin.colActions')}
-                </TableCell>
+                </AdminTableHeadCell>
               </TableRow>
-            </TableHead>
+            </AdminTableHead>
 
             <TableBody>
               {isLoading ? (
@@ -349,23 +325,15 @@ export default function OrganizationListDashboard() {
                 </TableRow>
               ) : (
                 orgs.map((org: Organization) => (
-                  <TableRow
+                  <AdminTableRow
                     key={org.id}
-                    hover
-                    sx={{
-                      '&:last-child td, &:last-child th': { border: 0 },
-                      transition: 'background-color 0.2s ease',
-                      '&:hover': {
-                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.02),
-                      },
-                    }}
+                    clickable
+                    onClick={() =>
+                      navigate(Path.admin.organizationProfile.replace(':id', org.id.toString()))
+                    }
+                    aria-label={org.name}
                   >
-                    <TableCell
-                      onClick={() =>
-                        navigate(Path.admin.organizationProfile.replace(':id', org.id.toString()))
-                      }
-                      sx={{ cursor: 'pointer', py: 2 }}
-                    >
+                    <TableCell sx={{ py: 2 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Avatar
                           src={org.logo_url || undefined}
@@ -498,13 +466,16 @@ export default function OrganizationListDashboard() {
                     <TableCell align='right'>
                       <IconButton
                         size='small'
-                        onClick={(e) => handleMenuOpen(e, org as any)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleMenuOpen(e, org as any)
+                        }}
                         aria-label={`More options for ${org.name}`}
                       >
                         <MoreVertIcon fontSize='small' />
                       </IconButton>
                     </TableCell>
-                  </TableRow>
+                  </AdminTableRow>
                 ))
               )}
             </TableBody>
@@ -533,7 +504,7 @@ export default function OrganizationListDashboard() {
             }}
           />
         </Box>
-      </Card>
+      </AdminTableCard>
 
       <Menu
         anchorEl={anchorEl}

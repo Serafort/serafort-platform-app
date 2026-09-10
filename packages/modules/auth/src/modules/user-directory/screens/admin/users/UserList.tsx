@@ -5,13 +5,10 @@ import React, { useState, useMemo, useCallback } from 'react'
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Chip,
   IconButton,
@@ -76,6 +73,11 @@ import EditUserDrawer from '../../../components/EditUserDrawer'
 import AssignRolesModal from '../../../components/AssignRolesModal'
 import DeleteUserDialog from '../../../components/DeleteUserDialog'
 import BulkActionModal from '../../../components/BulkActionModal'
+import {
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+} from '../../../../authentication-core/components/shared/admin'
 
 const STATUS_OPTIONS: Array<{
   label: string
@@ -386,16 +388,8 @@ export default function UserList() {
         </Stack>
       </Stack>
 
-      {/* Main Glass Card Container */}
-      <Card
-        sx={{
-          borderRadius: 3,
-          border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
-          overflow: 'hidden',
-          bgcolor: 'background.paper',
-        }}
-      >
+      {/* Main table surface — shared AdminTableCard (16px, hairline divider) */}
+      <AdminTableCard>
         {/* Status Filter Chips Bar */}
         <Box
           sx={{
@@ -611,9 +605,9 @@ export default function UserList() {
         {/* Data Table */}
         <TableContainer>
           <Table sx={{ minWidth: 800 }}>
-            <TableHead sx={{ bgcolor: alpha(theme.palette.background.default, 0.5) }}>
+            <AdminTableHead>
               <TableRow>
-                <TableCell padding='checkbox' sx={{ pl: 3 }}>
+                <TableCell padding='checkbox' sx={{ pl: 3, borderColor: 'divider' }}>
                   <Checkbox
                     indeterminate={isSomeSelected}
                     checked={isAllSelected}
@@ -621,16 +615,20 @@ export default function UserList() {
                     color='primary'
                   />
                 </TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>User</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>Roles</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>Department</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>Joined Date</TableCell>
-                <TableCell align='right' sx={{ fontWeight: 700, fontSize: '0.8125rem', pr: 3 }}>
-                  Actions
-                </TableCell>
+                <AdminTableHeadCell>{t('auth.userList.colUser', 'User')}</AdminTableHeadCell>
+                <AdminTableHeadCell>{t('auth.userList.colStatus', 'Status')}</AdminTableHeadCell>
+                <AdminTableHeadCell>{t('auth.userList.colRoles', 'Roles')}</AdminTableHeadCell>
+                <AdminTableHeadCell>
+                  {t('auth.userList.colDepartment', 'Department')}
+                </AdminTableHeadCell>
+                <AdminTableHeadCell>
+                  {t('auth.userList.colJoined', 'Joined Date')}
+                </AdminTableHeadCell>
+                <AdminTableHeadCell align='right' sx={{ pr: 3 }}>
+                  {t('auth.userList.colActions', 'Actions')}
+                </AdminTableHeadCell>
               </TableRow>
-            </TableHead>
+            </AdminTableHead>
 
             <TableBody>
               {/* Loading Skeletons */}
@@ -913,7 +911,7 @@ export default function UserList() {
             />
           </Stack>
         </Box>
-      </Card>
+      </AdminTableCard>
 
       {/* Row Action Context Menu */}
       <Menu
