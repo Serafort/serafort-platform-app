@@ -8,7 +8,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Chip,
   IconButton,
@@ -30,12 +29,10 @@ import {
   DialogContentText,
   DialogActions,
   CircularProgress,
-  Tooltip,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
-import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SecurityIcon from '@mui/icons-material/Security'
 import GroupIcon from '@mui/icons-material/Group'
@@ -46,7 +43,13 @@ import { useNavigate } from 'react-router-dom'
 import { useDebounce } from 'use-debounce'
 import { toast } from 'react-toastify'
 import Path from '../../screens/path'
-import { AdminDataState } from '../../../authentication-core/components/shared/admin'
+import {
+  AdminDataState,
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
+} from '../../../authentication-core/components/shared/admin'
 
 import {
   useRoles,
@@ -281,16 +284,8 @@ export default function RoleList() {
         ))}
       </Box>
 
-      {/* ── Roles Table Card — unified Card following OrganizationProfile ─── */}
-      <Card
-        sx={{
-          border: '1px solid',
-          borderColor: 'divider',
-          boxShadow: 'none',
-          borderRadius: 4,
-          overflow: 'hidden',
-        }}
-      >
+      {/* ── Roles Table Card — shared AdminTableCard (16px, hairline divider) ─ */}
+      <AdminTableCard>
         {/* Toolbar */}
         <Box
           sx={{
@@ -339,7 +334,7 @@ export default function RoleList() {
         {/* Table */}
         <TableContainer>
           <Table sx={{ minWidth: 800 }}>
-            <TableHead sx={{ bgcolor: 'action.hover' }}>
+            <AdminTableHead>
               <TableRow>
                 {[
                   t('auth.admin.colRoleName'),
@@ -348,32 +343,15 @@ export default function RoleList() {
                   t('auth.admin.colMembers'),
                   t('auth.admin.colLastUpdated'),
                 ].map((col) => (
-                  <TableCell
-                    key={col}
-                    sx={{
-                      py: 2,
-                      fontWeight: 800,
-                      fontSize: '0.7rem',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.075em',
-                    }}
-                  >
+                  <AdminTableHeadCell key={col} sx={{ py: 2 }}>
                     {col}
-                  </TableCell>
+                  </AdminTableHeadCell>
                 ))}
-                <TableCell
-                  align='right'
-                  sx={{
-                    fontWeight: 800,
-                    fontSize: '0.7rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.075em',
-                  }}
-                >
+                <AdminTableHeadCell align='right'>
                   {t('auth.admin.colActions')}
-                </TableCell>
+                </AdminTableHeadCell>
               </TableRow>
-            </TableHead>
+            </AdminTableHead>
 
             <TableBody>
               <AdminDataState
@@ -388,16 +366,17 @@ export default function RoleList() {
                 emptyDescription={t('auth.admin.noRolesHint')}
               >
                 {roles.map((role) => (
-                  <TableRow
+                  <AdminTableRow
                     key={role.id}
-                    hover
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    clickable
+                    onClick={() => navigate(Path.roleDetail.replace(':id', role.id.toString()))}
+                    aria-label={t('auth.admin.editRoleNamed', {
+                      name: role.name,
+                      defaultValue: 'Edit {{name}}',
+                    })}
                   >
                     {/* Role Name + Description */}
-                    <TableCell
-                      onClick={() => navigate(Path.roleDetail.replace(':id', role.id.toString()))}
-                      sx={{ cursor: 'pointer', py: 2 }}
-                    >
+                    <TableCell sx={{ py: 2 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Avatar
                           sx={{
@@ -499,22 +478,11 @@ export default function RoleList() {
                     {/* Actions */}
                     <TableCell align='right'>
                       <Stack direction='row' spacing={0.5} justifyContent='flex-end'>
-                        <Tooltip title={t('auth.admin.editRole')}>
-                          <IconButton
-                            onClick={() =>
-                              navigate(Path.roleDetail.replace(':id', role.id.toString()))
-                            }
-                            aria-label={t('auth.admin.editRoleNamed', {
-                              name: role.name,
-                              defaultValue: 'Edit {{name}}',
-                            })}
-                            sx={{ width: 44, height: 44 }}
-                          >
-                            <EditIcon fontSize='small' />
-                          </IconButton>
-                        </Tooltip>
                         <IconButton
-                          onClick={(e) => handleMenuOpen(e, role)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleMenuOpen(e, role)
+                          }}
                           aria-label={t('auth.admin.moreOptionsNamed', {
                             name: role.name,
                             defaultValue: 'More options for {{name}}',
@@ -525,7 +493,7 @@ export default function RoleList() {
                         </IconButton>
                       </Stack>
                     </TableCell>
-                  </TableRow>
+                  </AdminTableRow>
                 ))}
               </AdminDataState>
             </TableBody>
@@ -562,7 +530,7 @@ export default function RoleList() {
             }}
           />
         </Box>
-      </Card>
+      </AdminTableCard>
 
       {/* ── Context Menu ──────────────────────────────────────────────────── */}
       <Menu

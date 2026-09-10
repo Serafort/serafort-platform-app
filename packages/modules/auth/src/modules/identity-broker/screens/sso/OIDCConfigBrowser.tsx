@@ -9,12 +9,10 @@ import {
   Button,
   Container,
   Typography,
-  Card,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   IconButton,
   Chip,
@@ -33,7 +31,6 @@ import {
   DialogActions,
 } from '@mui/material'
 import Add from '@mui/icons-material/Add'
-import Edit from '@mui/icons-material/Edit'
 import Delete from '@mui/icons-material/Delete'
 import Search from '@mui/icons-material/Search'
 import VpnKey from '@mui/icons-material/VpnKey'
@@ -43,16 +40,23 @@ import Warning from '@mui/icons-material/Warning'
 import ChevronRight from '@mui/icons-material/ChevronRight'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useOIDCClients, useDeleteOIDCClient, Path } from '@auth'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
+import {
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
+} from '@auth/modules/authentication-core/components/shared/admin'
 
 export default function OIDCConfigBrowser() {
   const { t } = useTranslation()
   const theme = useTheme()
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [clientToDelete, setClientToDelete] = useState<string | number | null>(null)
@@ -196,12 +200,9 @@ export default function OIDCConfigBrowser() {
         </Button>
       </Box>
 
-      <Card
-        sx={(theme: any) => ({
-          borderRadius: 4,
+      <AdminTableCard
+        sx={(theme) => ({
           mb: 5,
-          border: '1px solid ' + theme.palette.divider,
-          overflow: 'hidden',
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
         })}
       >
@@ -238,72 +239,20 @@ export default function OIDCConfigBrowser() {
 
         <TableContainer>
           <Table sx={{ minWidth: 800 }}>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: alpha(theme.palette.action.hover, 0.04) }}>
-                <TableCell
-                  sx={{
-                    fontWeight: 800,
-                    py: 2.5,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    fontSize: '0.75rem',
-                  }}
-                >
+            <AdminTableHead>
+              <TableRow>
+                <AdminTableHeadCell sx={{ py: 2.5 }}>
                   {t('auth.sso.client_name', 'Client Name')}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    fontSize: '0.75rem',
-                  }}
-                >
-                  {t('auth.sso.client_id', 'Client ID')}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    fontSize: '0.75rem',
-                  }}
-                >
-                  {t('auth.sso.client_type', 'Type')}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    fontSize: '0.75rem',
-                  }}
-                >
-                  {t('auth.common.status', 'Status')}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    fontSize: '0.75rem',
-                  }}
-                >
-                  {t('auth.sso.last_active', 'Last Active')}
-                </TableCell>
-                <TableCell
-                  align='right'
-                  sx={{
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    fontSize: '0.75rem',
-                  }}
-                >
+                </AdminTableHeadCell>
+                <AdminTableHeadCell>{t('auth.sso.client_id', 'Client ID')}</AdminTableHeadCell>
+                <AdminTableHeadCell>{t('auth.sso.client_type', 'Type')}</AdminTableHeadCell>
+                <AdminTableHeadCell>{t('auth.common.status', 'Status')}</AdminTableHeadCell>
+                <AdminTableHeadCell>{t('auth.sso.last_active', 'Last Active')}</AdminTableHeadCell>
+                <AdminTableHeadCell align='right'>
                   {t('auth.common.actions', 'Actions')}
-                </TableCell>
+                </AdminTableHeadCell>
               </TableRow>
-            </TableHead>
+            </AdminTableHead>
             <TableBody>
               {isLoading ? (
                 <TableRow>
@@ -321,12 +270,13 @@ export default function OIDCConfigBrowser() {
                 </TableRow>
               ) : (
                 filteredClients.map((client: any) => (
-                  <TableRow
+                  <AdminTableRow
                     key={client.id}
-                    sx={{
-                      '&:hover': { backgroundColor: alpha(theme.palette.primary.main, 0.01) },
-                      transition: 'background-color 0.2s',
-                    }}
+                    clickable
+                    onClick={() =>
+                      navigate(Path.identity.oidcClientEdit.replace(':id', client.id))
+                    }
+                    aria-label={t('auth.common.edit', 'Edit Client')}
                   >
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -366,7 +316,8 @@ export default function OIDCConfigBrowser() {
                           <IconButton
                             size='small'
                             sx={{ p: 0.5, border: '1px solid', borderColor: 'divider' }}
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation()
                               navigator.clipboard.writeText(client.client_id || client.clientId)
                               toast.success(t('auth.common.copied', 'Copied to clipboard'))
                             }}
@@ -412,22 +363,14 @@ export default function OIDCConfigBrowser() {
                     </TableCell>
                     <TableCell align='right'>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        <Tooltip title={t('auth.common.edit', 'Edit')}>
-                          <IconButton
-                            component={RouterLink}
-                            to={Path.identity.oidcClientEdit.replace(':id', client.id)}
-                            size='small'
-                            sx={{ border: '1px solid', borderColor: 'divider' }}
-                            aria-label={t('auth.common.edit', 'Edit Client')}
-                          >
-                            <Edit fontSize='small' />
-                          </IconButton>
-                        </Tooltip>
                         <Tooltip title={t('auth.common.delete', 'Delete')}>
                           <IconButton
                             size='small'
                             color='error'
-                            onClick={() => handleDelete(client.id)}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDelete(client.id)
+                            }}
                             sx={{
                               border: '1px solid',
                               borderColor: alpha(theme.palette.error.main, 0.2),
@@ -439,13 +382,13 @@ export default function OIDCConfigBrowser() {
                         </Tooltip>
                       </Box>
                     </TableCell>
-                  </TableRow>
+                  </AdminTableRow>
                 ))
               )}
             </TableBody>
           </Table>
         </TableContainer>
-      </Card>
+      </AdminTableCard>
 
       <Box
         sx={{

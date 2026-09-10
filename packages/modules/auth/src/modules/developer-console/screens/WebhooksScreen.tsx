@@ -8,7 +8,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableRow,
   Dialog,
   DialogTitle,
@@ -29,7 +28,6 @@ import WebhookIcon from '@mui/icons-material/Webhook'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import SendIcon from '@mui/icons-material/Send'
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -44,6 +42,12 @@ import {
   useTestWebhookMutation,
 } from '../hooks/useDeveloperConsoleQuery'
 import { ConfirmDeleteModal } from '../../authentication-core/components/shared'
+import {
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
+} from '../../authentication-core/components/shared/admin'
 
 export const WEBHOOK_EVENT_CATEGORIES = {
   authentication: [
@@ -373,32 +377,30 @@ export const WebhooksScreen: React.FC = () => {
         </Alert>
       )}
 
-      <Paper
-        sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}
-      >
+      <AdminTableCard>
         <Table>
-          <TableHead sx={{ bgcolor: 'action.hover' }}>
+          <AdminTableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 600 }}>
+              <AdminTableHeadCell>
                 {t('auth.developer_console.webhooks.col_url', 'Endpoint URL')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>
+              </AdminTableHeadCell>
+              <AdminTableHeadCell>
                 {t('auth.developer_console.webhooks.col_status', 'Status')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>
+              </AdminTableHeadCell>
+              <AdminTableHeadCell>
                 {t('auth.developer_console.webhooks.col_events', 'Subscribed Events')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>
+              </AdminTableHeadCell>
+              <AdminTableHeadCell>
                 {t('auth.developer_console.webhooks.col_failures', 'Failures')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>
+              </AdminTableHeadCell>
+              <AdminTableHeadCell>
                 {t('auth.developer_console.webhooks.col_last_triggered', 'Last Triggered')}
-              </TableCell>
-              <TableCell align='right' sx={{ fontWeight: 600 }}>
+              </AdminTableHeadCell>
+              <AdminTableHeadCell align='right'>
                 {t('auth.common.actions', 'Actions')}
-              </TableCell>
+              </AdminTableHeadCell>
             </TableRow>
-          </TableHead>
+          </AdminTableHead>
           <TableBody>
             {isLoading
               ? renderTableSkeleton()
@@ -428,7 +430,12 @@ export const WebhooksScreen: React.FC = () => {
                       'Delete Webhook',
                     )
                     return (
-                      <TableRow key={wh.id} hover>
+                      <AdminTableRow
+                        key={wh.id}
+                        clickable
+                        onClick={() => handleOpenEdit(wh)}
+                        aria-label={editLabel}
+                      >
                         <TableCell>
                           <Typography
                             variant='subtitle2'
@@ -495,18 +502,12 @@ export const WebhooksScreen: React.FC = () => {
                                 color='primary'
                                 sx={{ width: 44, height: 44 }}
                                 aria-label={sendTestLabel}
-                                onClick={() => handleSendTestPing(wh.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleSendTestPing(wh.id)
+                                }}
                               >
                                 <SendIcon fontSize='small' />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title={editLabel}>
-                              <IconButton
-                                sx={{ width: 44, height: 44 }}
-                                aria-label={editLabel}
-                                onClick={() => handleOpenEdit(wh)}
-                              >
-                                <EditOutlinedIcon fontSize='small' />
                               </IconButton>
                             </Tooltip>
                             <Tooltip title={deleteLabel}>
@@ -514,19 +515,22 @@ export const WebhooksScreen: React.FC = () => {
                                 color='error'
                                 sx={{ width: 44, height: 44 }}
                                 aria-label={deleteLabel}
-                                onClick={() => setDeleteTarget({ id: wh.id, url: wh.url })}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setDeleteTarget({ id: wh.id, url: wh.url })
+                                }}
                               >
                                 <DeleteOutlineIcon fontSize='small' />
                               </IconButton>
                             </Tooltip>
                           </Stack>
                         </TableCell>
-                      </TableRow>
+                      </AdminTableRow>
                     )
                   })}
           </TableBody>
         </Table>
-      </Paper>
+      </AdminTableCard>
 
       {/* Create / Edit Modal */}
       <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth='md' fullWidth>

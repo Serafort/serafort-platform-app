@@ -7,10 +7,12 @@ import {
   TableRow,
   alpha,
   type CardProps,
+  type SxProps,
   type TableCellProps,
   type TableHeadProps,
   type TablePaginationProps,
   type TableRowProps,
+  type Theme,
 } from '@mui/material'
 
 /**
@@ -27,6 +29,12 @@ import {
  * own cells — so adoption is incremental and nothing here hides MUI's API.
  */
 
+/** Fold a caller `sx` (object OR theme callback OR array) onto a base without losing either. */
+const mergeSx = (
+  base: SxProps<Theme>,
+  extra?: SxProps<Theme>,
+): SxProps<Theme> => [base, ...(Array.isArray(extra) ? extra : [extra])] as SxProps<Theme>
+
 export type AdminTableCardProps = CardProps
 
 /** 16px outlined card wrapper. `overflow: hidden` clips the header tint and the last row to the radius. */
@@ -34,14 +42,16 @@ export const AdminTableCard: React.FC<AdminTableCardProps> = ({ sx, children, ..
   <Card
     variant='outlined'
     {...props}
-    sx={{
-      borderRadius: '16px',
-      borderColor: 'divider',
-      backgroundColor: 'background.paper',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
-      overflow: 'hidden',
-      ...sx,
-    }}
+    sx={mergeSx(
+      {
+        borderRadius: '16px',
+        borderColor: 'divider',
+        backgroundColor: 'background.paper',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+        overflow: 'hidden',
+      },
+      sx,
+    )}
   >
     {children}
   </Card>
@@ -53,10 +63,7 @@ export type AdminTableHeadProps = TableHeadProps
 export const AdminTableHead: React.FC<AdminTableHeadProps> = ({ sx, children, ...props }) => (
   <TableHead
     {...props}
-    sx={{
-      bgcolor: (theme) => alpha(theme.palette.action.hover, 0.5),
-      ...sx,
-    }}
+    sx={mergeSx({ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.5) }, sx)}
   >
     {children}
   </TableHead>
@@ -68,16 +75,18 @@ export type AdminTableHeadCellProps = TableCellProps
 export const AdminTableHeadCell: React.FC<AdminTableHeadCellProps> = ({ sx, children, ...props }) => (
   <TableCell
     {...props}
-    sx={{
-      fontSize: '0.75rem',
-      fontWeight: 700,
-      letterSpacing: '0.05em',
-      textTransform: 'uppercase',
-      color: 'text.secondary',
-      borderColor: 'divider',
-      whiteSpace: 'nowrap',
-      ...sx,
-    }}
+    sx={mergeSx(
+      {
+        fontSize: '0.75rem',
+        fontWeight: 700,
+        letterSpacing: '0.05em',
+        textTransform: 'uppercase',
+        color: 'text.secondary',
+        borderColor: 'divider',
+        whiteSpace: 'nowrap',
+      },
+      sx,
+    )}
   >
     {children}
   </TableCell>
@@ -119,22 +128,24 @@ export const AdminTableRow: React.FC<AdminTableRowProps> = ({
       role={clickable && onClick ? 'button' : undefined}
       tabIndex={clickable && onClick ? 0 : undefined}
       {...props}
-      sx={{
-        transition: 'background-color 0.15s ease',
-        '& > .MuiTableCell-root': { borderColor: 'divider' },
-        '&:last-of-type > .MuiTableCell-root': { border: 0 },
-        ...(clickable && {
-          cursor: 'pointer',
-          '&:hover': {
-            backgroundColor: (theme) => alpha(theme.palette.action.hover, 0.04),
-          },
-          '&:focus-visible': {
-            outline: (theme) => `2px solid ${theme.palette.primary.main}`,
-            outlineOffset: '-2px',
-          },
-        }),
-        ...sx,
-      }}
+      sx={mergeSx(
+        {
+          transition: 'background-color 0.15s ease',
+          '& > .MuiTableCell-root': { borderColor: 'divider' },
+          '&:last-of-type > .MuiTableCell-root': { border: 0 },
+          ...(clickable && {
+            cursor: 'pointer',
+            '&:hover': {
+              backgroundColor: (theme: Theme) => alpha(theme.palette.action.hover, 0.04),
+            },
+            '&:focus-visible': {
+              outline: (theme: Theme) => `2px solid ${theme.palette.primary.main}`,
+              outlineOffset: '-2px',
+            },
+          }),
+        },
+        sx,
+      )}
     >
       {children}
     </TableRow>
@@ -147,10 +158,6 @@ export type AdminTablePaginationProps = TablePaginationProps
 export const AdminTablePagination: React.FC<AdminTablePaginationProps> = ({ sx, ...props }) => (
   <TablePagination
     {...props}
-    sx={{
-      borderTop: '1px solid',
-      borderColor: 'divider',
-      ...sx,
-    }}
+    sx={mergeSx({ borderTop: '1px solid', borderColor: 'divider' }, sx)}
   />
 )

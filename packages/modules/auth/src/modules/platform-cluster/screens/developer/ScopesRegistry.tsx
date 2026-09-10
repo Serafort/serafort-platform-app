@@ -6,9 +6,7 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
-  Paper,
   Chip,
   IconButton,
   Button,
@@ -29,7 +27,6 @@ import Search from '@mui/icons-material/Search'
 import Add from '@mui/icons-material/Add'
 import Delete from '@mui/icons-material/Delete'
 import Layers from '@mui/icons-material/Layers'
-import Edit from '@mui/icons-material/Edit'
 import VpnKey from '@mui/icons-material/VpnKey'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
@@ -40,6 +37,12 @@ import {
   useUpdateScope,
   useDeleteScope,
 } from '@idaas/authentication-core/hooks/useAdminQuery'
+import {
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
+} from '@auth/modules/authentication-core/components/shared/admin'
 
 export default function ScopesRegistry() {
   const theme = useTheme()
@@ -193,15 +196,7 @@ export default function ScopesRegistry() {
       </Box>
 
       {/* ── Main Table Card ── */}
-      <Paper
-        sx={{
-          borderRadius: 4,
-          border: '1px solid',
-          borderColor: 'divider',
-          boxShadow: 'none',
-          overflow: 'hidden',
-        }}
-      >
+      <AdminTableCard>
         {/* Toolbar */}
         <Box
           sx={{
@@ -237,23 +232,23 @@ export default function ScopesRegistry() {
         {/* Table */}
         <TableContainer>
           <Table>
-            <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.3) }}>
+            <AdminTableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>
+                <AdminTableHeadCell>
                   {t('auth.developer.scopeName', 'Scope Name')}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>{t('auth.developer.type', 'Type')}</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>
+                </AdminTableHeadCell>
+                <AdminTableHeadCell>{t('auth.developer.type', 'Type')}</AdminTableHeadCell>
+                <AdminTableHeadCell>
                   {t('auth.developer.mappedPermissions', 'Mapped Permissions')}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>
+                </AdminTableHeadCell>
+                <AdminTableHeadCell>
                   {t('auth.developer.description', 'Description')}
-                </TableCell>
-                <TableCell align='right' sx={{ fontWeight: 700 }}>
+                </AdminTableHeadCell>
+                <AdminTableHeadCell align='right'>
                   {t('auth.developer.actions', 'Actions')}
-                </TableCell>
+                </AdminTableHeadCell>
               </TableRow>
-            </TableHead>
+            </AdminTableHead>
 
             <TableBody>
               {isLoading ? (
@@ -278,7 +273,12 @@ export default function ScopesRegistry() {
                 ))
               ) : filtered.length > 0 ? (
                 filtered.map((scope: AuthScope) => (
-                  <TableRow key={scope.id} hover>
+                  <AdminTableRow
+                    key={scope.id}
+                    clickable
+                    onClick={() => openForm(scope)}
+                    aria-label={t('auth.developer.editScope', 'Edit Scope')}
+                  >
                     {/* Scope Name */}
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -363,17 +363,15 @@ export default function ScopesRegistry() {
                     {/* Actions */}
                     <TableCell align='right'>
                       <Stack direction='row' spacing={1} justifyContent='flex-end'>
-                        <Tooltip title={t('auth.developer.editScope', 'Edit Scope')}>
-                          <IconButton size='small' onClick={() => openForm(scope)}>
-                            <Edit fontSize='small' />
-                          </IconButton>
-                        </Tooltip>
                         {!scope.isSystem && (
                           <Tooltip title={t('auth.developer.deleteScope', 'Delete Scope')}>
                             <IconButton
                               size='small'
                               color='error'
-                              onClick={() => setDeleteConfirmationId(Number(scope.id))}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setDeleteConfirmationId(Number(scope.id))
+                              }}
                             >
                               <Delete fontSize='small' />
                             </IconButton>
@@ -381,7 +379,7 @@ export default function ScopesRegistry() {
                         )}
                       </Stack>
                     </TableCell>
-                  </TableRow>
+                  </AdminTableRow>
                 ))
               ) : (
                 /* ── Empty State ── */
@@ -397,7 +395,7 @@ export default function ScopesRegistry() {
             </TableBody>
           </Table>
         </TableContainer>
-      </Paper>
+      </AdminTableCard>
 
       {/* ── Info Tip ── */}
       <Box

@@ -2,7 +2,6 @@ import React, { useCallback, useMemo, useState } from 'react'
 import {
   Box,
   Button,
-  Card,
   Chip,
   IconButton,
   ListItemIcon,
@@ -14,9 +13,7 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
-  Tooltip,
   Typography,
   alpha,
   useTheme,
@@ -41,6 +38,10 @@ import {
   AdminPageHeader,
   AdminSearchField,
   AdminStatCard,
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
 } from '../../../authentication-core/components/shared/admin'
 import { AuthConfirmDrawer } from '../../../authentication-core/components/shared/auth'
 
@@ -219,15 +220,7 @@ const APITokensDashboard: React.FC = () => {
         />
       </Box>
 
-      <Card
-        sx={{
-          border: '1px solid',
-          borderColor: 'divider',
-          boxShadow: 'none',
-          borderRadius: 4,
-          overflow: 'hidden',
-        }}
-      >
+      <AdminTableCard>
         <Box sx={{ px: 3, py: 2 }}>
           <AdminSearchField
             value={searchQuery}
@@ -240,7 +233,7 @@ const APITokensDashboard: React.FC = () => {
 
         <TableContainer>
           <Table sx={{ minWidth: 720 }}>
-            <TableHead sx={{ bgcolor: 'action.hover' }}>
+            <AdminTableHead>
               <TableRow>
                 {[
                   t('auth.api_tokens.header_name', 'Token name'),
@@ -248,32 +241,15 @@ const APITokensDashboard: React.FC = () => {
                   t('auth.api_tokens.header_created', 'Created'),
                   t('auth.api_tokens.header_last_used', 'Last used'),
                 ].map((column) => (
-                  <TableCell
-                    key={String(column)}
-                    sx={{
-                      py: 2,
-                      fontWeight: 800,
-                      fontSize: '0.7rem',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.075em',
-                    }}
-                  >
+                  <AdminTableHeadCell key={String(column)} sx={{ py: 2 }}>
                     {column}
-                  </TableCell>
+                  </AdminTableHeadCell>
                 ))}
-                <TableCell
-                  align='right'
-                  sx={{
-                    fontWeight: 800,
-                    fontSize: '0.7rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.075em',
-                  }}
-                >
+                <AdminTableHeadCell align='right'>
                   {t('auth.api_tokens.header_actions', 'Actions')}
-                </TableCell>
+                </AdminTableHeadCell>
               </TableRow>
-            </TableHead>
+            </AdminTableHead>
 
             <TableBody>
               <AdminDataState
@@ -304,7 +280,14 @@ const APITokensDashboard: React.FC = () => {
                   const created = token.createdAt ?? token.created_at
                   const lastUsed = token.lastUsedAt ?? token.last_used_at
                   return (
-                    <TableRow key={token.id} hover>
+                    <AdminTableRow
+                      key={token.id}
+                      clickable
+                      onClick={() =>
+                        navigate(Path.apiTokens.details.replace(':tokenId', String(token.id)))
+                      }
+                      aria-label={t('auth.common.viewDetails', 'View details')}
+                    >
                       <TableCell>
                         <Typography variant='body2' sx={{ fontWeight: 700 }}>
                           {token.name || t('auth.api_tokens.title', 'API Tokens')}
@@ -359,29 +342,19 @@ const APITokensDashboard: React.FC = () => {
                       </TableCell>
                       <TableCell align='right'>
                         <Stack direction='row' spacing={0.5} justifyContent='flex-end'>
-                          <Tooltip title={t('auth.common.viewDetails', 'View details')}>
-                            <IconButton
-                              aria-label={t('auth.common.viewDetails', 'View details')}
-                              onClick={() =>
-                                navigate(
-                                  Path.apiTokens.details.replace(':tokenId', String(token.id)),
-                                )
-                              }
-                              sx={{ width: 44, height: 44 }}
-                            >
-                              <ViewIcon fontSize='small' />
-                            </IconButton>
-                          </Tooltip>
                           <IconButton
                             aria-label={t('auth.api_tokens.actions_title', 'Manage token')}
-                            onClick={(event) => handleMenuOpen(event, token)}
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              handleMenuOpen(event, token)
+                            }}
                             sx={{ width: 44, height: 44 }}
                           >
                             <MoreVertIcon fontSize='small' />
                           </IconButton>
                         </Stack>
                       </TableCell>
-                    </TableRow>
+                    </AdminTableRow>
                   )
                 })}
               </AdminDataState>
@@ -438,7 +411,7 @@ const APITokensDashboard: React.FC = () => {
             <ListItemText primary={t('auth.api_tokens.revoke', 'Revoke token')} />
           </MenuItem>
         </Menu>
-      </Card>
+      </AdminTableCard>
 
       {/*
         `info.lighter` is not a key in the MUI palette, so this banner had no
