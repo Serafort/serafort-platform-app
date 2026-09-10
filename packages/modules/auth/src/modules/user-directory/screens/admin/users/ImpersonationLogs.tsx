@@ -1,6 +1,3 @@
-// FILE: packages/modules/auth/src/screens/admin/ImpersonationLogs.tsx
-// STYLE AUDIT: Aligned to OrganizationProfile.tsx design system
-// FIXES: [CRITICAL] Modernized InputProps to slotProps.input, applied info.main to CTAs [HIGH] Added animate-scale-in [MEDIUM] Added divider opacity and avatar 24px radius [LOW] Added aria-labels and i18n fallbacks
 import React, { useState, useMemo } from 'react'
 import {
   Box,
@@ -29,7 +26,9 @@ import {
   Menu,
   MenuItem,
   CircularProgress,
+  Container,
 } from '@mui/material'
+import ArrowBack from '@mui/icons-material/ArrowBack'
 import Search from '@mui/icons-material/Search'
 import FilterList from '@mui/icons-material/FilterList'
 import Download from '@mui/icons-material/Download'
@@ -42,15 +41,19 @@ import Block from '@mui/icons-material/Block'
 import AssignmentTurnedIn from '@mui/icons-material/AssignmentTurnedIn'
 import Refresh from '@mui/icons-material/Refresh'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { ImpersonationRecord } from '@cap/shared-types'
 import { useImpersonationLogs } from '../../../../authentication-core'
 import { format, formatDistanceToNow } from 'date-fns'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
+import Path from '../../path'
 
 export default function ImpersonationLogs() {
   const { t } = useTranslation('common')
   const theme = useTheme()
+  const navigate = useNavigate()
 
   const {
     data: logsResponse,
@@ -127,68 +130,117 @@ export default function ImpersonationLogs() {
     }
   }
 
-  // ── SYSTEM PATTERN: Entry animation (OrganizationProfile L60) ──
   return (
-    <Box className='animate-scale-in' sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
-      {/* Header */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-          mb: 4,
-        }}
-      >
-        <Box>
-          <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
-            {t('auth.admin.impersonationLogs', 'Impersonation Logs')}
-          </Typography>
-          <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
-            {t('auth.admin.auditTrailDesc', 'Audit trail of all administrative access sessions')}
-          </Typography>
-        </Box>
-        <Stack direction='row' spacing={2}>
-          <Tooltip title='Refresh Logs'>
-            <IconButton onClick={() => refetch()} disabled={isFetching} aria-label='Refresh logs'>
-              <Refresh color={isFetching ? 'disabled' : 'inherit'} />
-            </IconButton>
-          </Tooltip>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      <Container maxWidth='xl' sx={{ py: 4 }}>
+        {/* Back Navigation */}
+        <Box sx={{ mb: 3 }}>
           <Button
-            variant='outlined'
-            startIcon={<Download />}
+            startIcon={<ArrowBack />}
+            onClick={() => navigate(Path.admin.users.list)}
             sx={{
-              px: 3,
-              borderRadius: 2.5,
-              fontWeight: 700,
+              minHeight: 44,
+              px: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               textTransform: 'none',
-              borderColor: alpha(theme.palette.info.main, 0.5),
-              color: 'info.main',
+              fontWeight: 600,
+              color: 'text.secondary',
               '&:hover': {
-                borderColor: 'info.main',
-                bgcolor: alpha(theme.palette.info.main, 0.05),
+                color: 'text.primary',
+                bgcolor: 'action.hover',
               },
             }}
           >
-            {t('auth.admin.exportCsv', 'Export CSV')}
+            {t('auth.admin.backToUsers', 'Back to Users')}
           </Button>
-        </Stack>
-      </Box>
+        </Box>
+
+        {/* Header with Visual Anchor */}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 2.5,
+            mb: 4,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+            <Box
+              sx={{
+                width: 64,
+                height: 64,
+                borderRadius: 'var(--sf-radius-lg, 24px)',
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: 'primary.main',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Security sx={{ fontSize: 32 }} />
+            </Box>
+            <Box>
+              <Typography variant='h4' sx={{ fontWeight: 800, mb: 0.5, letterSpacing: '-0.02em' }}>
+                {t('auth.admin.impersonationLogs', 'Impersonation Logs')}
+              </Typography>
+              <Typography variant='body2' color='text.secondary'>
+                {t('auth.admin.auditTrailDesc', 'Audit trail of all administrative access sessions')}
+              </Typography>
+            </Box>
+          </Box>
+          <Stack direction='row' spacing={1.5} alignItems='center'>
+            <Tooltip title={t('auth.common.refresh', 'Refresh Logs')}>
+              <IconButton
+                onClick={() => refetch()}
+                disabled={isFetching}
+                aria-label={t('auth.common.refresh', 'Refresh logs')}
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  border: '1px solid ' + theme.palette.divider,
+                  bgcolor: 'background.paper',
+                }}
+              >
+                <Refresh color={isFetching ? 'disabled' : 'inherit'} />
+              </IconButton>
+            </Tooltip>
+            <Button
+              variant='outlined'
+              startIcon={<Download />}
+              sx={{
+                minHeight: 44,
+                px: 2.5,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                fontWeight: 600,
+                textTransform: 'none',
+              }}
+            >
+              {t('auth.admin.exportCsv', 'Export CSV')}
+            </Button>
+          </Stack>
+        </Box>
 
       {/* Stats/Overview Card */}
       <Card
         sx={(theme: any) => ({
           mb: 4,
-          borderRadius: 4,
-          border: '1px dashed ' + alpha(theme.palette.primary.main, 0.2),
+          borderRadius: 'var(--sf-radius-lg, 16px)',
+          border: '1px dashed ' + alpha(theme.palette.primary.main, 0.25),
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
         })}
       >
         <CardContent
           sx={{
             py: 3,
-            px: 4,
+            px: { xs: 2.5, sm: 4 },
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
             alignItems: { xs: 'flex-start', md: 'center' },
@@ -197,32 +249,40 @@ export default function ImpersonationLogs() {
           }}
         >
           <Stack
-            direction='row'
-            spacing={4}
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={{ xs: 2, sm: 5 }}
             sx={{ overflowX: 'auto', width: '100%', pb: { xs: 1, md: 0 } }}
           >
             <Box>
               <Typography
                 variant='caption'
                 color='text.secondary'
-                sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.075em' }}
+                sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}
               >
                 {t('auth.admin.activeSessions', 'Active Sessions')}
               </Typography>
               <Typography
-                variant='h5'
+                variant='h4'
                 sx={{
-                  fontWeight: 900,
+                  fontWeight: 800,
                   color: 'success.main',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 1,
+                  gap: 1.5,
+                  mt: 0.5,
                 }}
               >
                 {logs.filter((l: ImpersonationRecord) => l.status === 'active').length}
-                <span
-                  className='pulse-dot bg-success-main'
-                  style={{ width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }}
+                <Box
+                  component='span'
+                  sx={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: '50%',
+                    bgcolor: 'success.main',
+                    display: 'inline-block',
+                    boxShadow: '0 0 0 2px ' + alpha(theme.palette.success.main, 0.2),
+                  }}
                 />
               </Typography>
             </Box>
@@ -230,11 +290,11 @@ export default function ImpersonationLogs() {
               <Typography
                 variant='caption'
                 color='text.secondary'
-                sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.075em' }}
+                sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}
               >
                 {t('auth.admin.totalRecords', 'Total Records (30d)')}
               </Typography>
-              <Typography variant='h5' sx={{ fontWeight: 900 }}>
+              <Typography variant='h4' sx={{ fontWeight: 800, mt: 0.5 }}>
                 {logs.length}
               </Typography>
             </Box>
@@ -242,11 +302,11 @@ export default function ImpersonationLogs() {
               <Typography
                 variant='caption'
                 color='text.secondary'
-                sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.075em' }}
+                sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}
               >
                 {t('auth.admin.highRiskEvents', 'High Risk Events')}
               </Typography>
-              <Typography variant='h5' sx={{ fontWeight: 900, color: 'warning.main' }}>
+              <Typography variant='h4' sx={{ fontWeight: 800, color: 'warning.main', mt: 0.5 }}>
                 0
               </Typography>
             </Box>
@@ -255,8 +315,7 @@ export default function ImpersonationLogs() {
       </Card>
 
       {/* Toolbar */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-        {/* ── SYSTEM PATTERN: MUI v6 API input props (OrganizationProfile L67) ── */}
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
         <TextField
           fullWidth
           size='small'
@@ -270,18 +329,25 @@ export default function ImpersonationLogs() {
                   <Search sx={{ color: 'text.secondary' }} />
                 </InputAdornment>
               ),
-              sx: { borderRadius: 3, bgcolor: 'background.paper' },
+              sx: {
+                minHeight: 44,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                bgcolor: 'background.paper',
+              },
             },
           }}
+          sx={{ flex: { xs: '1 1 100%', sm: 1 } }}
         />
         <Button
           variant='outlined'
           startIcon={<FilterList />}
           onClick={(e) => setFilterAnchorEl(e.currentTarget)}
           sx={{
-            borderRadius: 3,
+            minHeight: 44,
+            px: 2.5,
+            borderRadius: 'var(--sf-radius-md, 8px)',
             textTransform: 'none',
-            fontWeight: 700,
+            fontWeight: 600,
             whiteSpace: 'nowrap',
             color: 'text.primary',
             borderColor: 'divider',
@@ -294,9 +360,11 @@ export default function ImpersonationLogs() {
           anchorEl={filterAnchorEl}
           open={Boolean(filterAnchorEl)}
           onClose={() => setFilterAnchorEl(null)}
-          PaperProps={{
-            elevation: 3,
-            sx: { borderRadius: 3, minWidth: 200, mt: 1 },
+          slotProps={{
+            paper: {
+              elevation: 3,
+              sx: { borderRadius: 'var(--sf-radius-md, 8px)', minWidth: 200, mt: 1 },
+            },
           }}
         >
           <MenuItem onClick={() => setFilterAnchorEl(null)}>All Statuses</MenuItem>
@@ -309,7 +377,7 @@ export default function ImpersonationLogs() {
       {/* Table Card */}
       <Paper
         sx={(theme: any) => ({
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           overflow: 'hidden',
           border: '1px solid ' + theme.palette.divider,
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -318,10 +386,10 @@ export default function ImpersonationLogs() {
         <TableContainer>
           <Table sx={{ minWidth: 800 }}>
             <TableHead>
-              <TableRow sx={{ bgcolor: alpha(theme.palette.action.hover, 0.5) }}>
+              <TableRow sx={{ bgcolor: alpha(theme.palette.action.hover, 0.4) }}>
                 <TableCell
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: 700,
                     textTransform: 'uppercase',
                     fontSize: '0.75rem',
                     letterSpacing: '0.05em',
@@ -332,7 +400,7 @@ export default function ImpersonationLogs() {
                 </TableCell>
                 <TableCell
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: 700,
                     textTransform: 'uppercase',
                     fontSize: '0.75rem',
                     letterSpacing: '0.05em',
@@ -343,7 +411,7 @@ export default function ImpersonationLogs() {
                 </TableCell>
                 <TableCell
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: 700,
                     textTransform: 'uppercase',
                     fontSize: '0.75rem',
                     letterSpacing: '0.05em',
@@ -354,7 +422,7 @@ export default function ImpersonationLogs() {
                 </TableCell>
                 <TableCell
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: 700,
                     textTransform: 'uppercase',
                     fontSize: '0.75rem',
                     letterSpacing: '0.05em',
@@ -365,7 +433,7 @@ export default function ImpersonationLogs() {
                 </TableCell>
                 <TableCell
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: 700,
                     textTransform: 'uppercase',
                     fontSize: '0.75rem',
                     letterSpacing: '0.05em',
@@ -393,12 +461,13 @@ export default function ImpersonationLogs() {
                           width: 56,
                           height: 56,
                           mb: 2,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           bgcolor: alpha(theme.palette.primary.main, 0.08),
                         }}
                       >
                         <History sx={{ fontSize: 32, color: 'primary.main' }} />
                       </Avatar>
-                      <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
+                      <Typography variant='h6' sx={{ fontWeight: 700, mb: 0.5 }}>
                         {t('auth.admin.noLogsFound', 'No logs found')}
                       </Typography>
                       <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
@@ -416,10 +485,11 @@ export default function ImpersonationLogs() {
                           refetch()
                         }}
                         sx={{
-                          borderRadius: 2,
+                          minHeight: 44,
+                          px: 2.5,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           textTransform: 'none',
                           fontWeight: 600,
-                          px: 2.5,
                         }}
                       >
                         {t('auth.admin.resetAndRefresh', 'Reset Filters & Refresh')}
@@ -434,7 +504,7 @@ export default function ImpersonationLogs() {
                     hover
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
-                    <TableCell>
+                    <TableCell sx={{ py: 2 }}>
                       <Typography variant='body2' sx={{ fontWeight: 700 }}>
                         {format(new Date(log.startedAt), 'MMM dd, yyyy')}
                       </Typography>
@@ -443,14 +513,14 @@ export default function ImpersonationLogs() {
                         {formatDistanceToNow(new Date(log.startedAt))} ago
                       </Typography>
                     </TableCell>
-                    <TableCell>
-                      <Stack direction='row' spacing={2} alignItems='center'>
+                    <TableCell sx={{ py: 2 }}>
+                      <Stack direction='row' spacing={1.5} alignItems='center'>
                         <Avatar
                           src={log.actorAvatar}
                           sx={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: '24px',
+                            width: 36,
+                            height: 36,
+                            borderRadius: 'var(--sf-radius-xs, 4px)',
                             bgcolor: 'primary.main',
                             fontSize: '0.875rem',
                             fontWeight: 700,
@@ -468,15 +538,15 @@ export default function ImpersonationLogs() {
                         </Box>
                       </Stack>
                     </TableCell>
-                    <TableCell>
-                      <Stack direction='row' spacing={2} alignItems='center'>
+                    <TableCell sx={{ py: 2 }}>
+                      <Stack direction='row' spacing={1.5} alignItems='center'>
                         <Box sx={{ position: 'relative' }}>
                           <Avatar
                             src={log.targetAvatar}
                             sx={{
-                              width: 32,
-                              height: 32,
-                              borderRadius: '24px',
+                              width: 36,
+                              height: 36,
+                              borderRadius: 'var(--sf-radius-xs, 4px)',
                               bgcolor: 'secondary.main',
                               fontSize: '0.875rem',
                               fontWeight: 700,
@@ -506,7 +576,7 @@ export default function ImpersonationLogs() {
                         </Box>
                       </Stack>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ py: 2 }}>
                       <Tooltip title={log.reason || 'No reason provided'}>
                         <Typography
                           variant='body2'
@@ -523,7 +593,7 @@ export default function ImpersonationLogs() {
                         </Typography>
                       </Tooltip>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ py: 2 }}>
                       <Chip
                         icon={getStatusIcon(log.status) || undefined}
                         label={log.status}
@@ -533,6 +603,7 @@ export default function ImpersonationLogs() {
                         sx={{
                           height: 24,
                           fontWeight: 700,
+                          borderRadius: 'var(--sf-radius-xs, 4px)',
                           textTransform: 'capitalize',
                           ...(log.status === 'active' && {
                             bgcolor: alpha(theme.palette.success.main, 0.1),
@@ -543,7 +614,7 @@ export default function ImpersonationLogs() {
                         }}
                       />
                     </TableCell>
-                    <TableCell align='right'>
+                    <TableCell align='right' sx={{ py: 2 }}>
                       <IconButton
                         size='small'
                         onClick={(e) => {
@@ -551,6 +622,11 @@ export default function ImpersonationLogs() {
                           setActionAnchorEl(e.currentTarget)
                         }}
                         aria-label='More actions'
+                        sx={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                        }}
                       >
                         <MoreVert fontSize='small' />
                       </IconButton>
@@ -586,9 +662,11 @@ export default function ImpersonationLogs() {
           setActionAnchorEl(null)
           setSelectedLog(null)
         }}
-        PaperProps={{
-          elevation: 3,
-          sx: { borderRadius: 3, minWidth: 220, mt: 1 },
+        slotProps={{
+          paper: {
+            elevation: 3,
+            sx: { borderRadius: 'var(--sf-radius-md, 8px)', minWidth: 220, mt: 1 },
+          },
         }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
@@ -623,6 +701,7 @@ export default function ImpersonationLogs() {
           </MenuItem>,
         ]}
       </Menu>
-    </Box>
+      </Container>
+    </motion.div>
   )
 }

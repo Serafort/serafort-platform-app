@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   Box,
   Typography,
@@ -223,6 +226,8 @@ async function executeSandboxCall(
 
 export default function APIExplorerDashboard() {
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const { t } = useTranslation('common')
   const [searchTerm, setSearchTerm] = useState('')
   const [endpoints, setEndpoints] = useState<APIEndpoint[]>([])
@@ -323,6 +328,7 @@ export default function APIExplorerDashboard() {
   }
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       <Box
         sx={{
@@ -360,7 +366,7 @@ export default function APIExplorerDashboard() {
           <Button
             variant='outlined'
             startIcon={<TerminalIcon />}
-            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2, px: 2.5 }}
+            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', px: 2.5, minHeight: 44 }}
             onClick={() => setDetailTab(3)}
           >
             {t('auth.developer.sdkGuides', 'SDK Guides')}
@@ -371,12 +377,11 @@ export default function APIExplorerDashboard() {
             sx={{
               textTransform: 'none',
               fontWeight: 700,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 2.5,
-              bgcolor: 'info.main',
+              minHeight: 48,
+              bgcolor: 'primary.main',
               color: 'white',
-              boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-              '&:hover': { bgcolor: 'info.dark' },
             }}
             onClick={() => setDetailTab(2)}
           >
@@ -401,7 +406,8 @@ export default function APIExplorerDashboard() {
           <Grid size={{ xs: 12, md: 4 }}>
             <Paper
               sx={{
-                borderRadius: 4,
+                ...surfaceEffect,
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
@@ -560,7 +566,8 @@ export default function APIExplorerDashboard() {
             {selectedEndpoint ? (
               <Card
                 sx={{
-                  borderRadius: 4,
+                  ...surfaceEffect,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
@@ -774,10 +781,11 @@ export default function APIExplorerDashboard() {
 
                       <Paper
                         sx={{
+                          ...surfaceEffect,
                           bgcolor: alpha(theme.palette.text.primary, 0.04),
                           border: '1px solid',
                           borderColor: 'divider',
-                          borderRadius: 3,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           p: 2.5,
                           position: 'relative',
                           overflow: 'hidden',
@@ -898,8 +906,9 @@ export default function APIExplorerDashboard() {
                           <Grid size={{ xs: 12 }} key={lang}>
                             <Paper
                               sx={{
+                                ...surfaceEffect,
                                 p: 2,
-                                borderRadius: 3,
+                                borderRadius: 'var(--sf-radius-md, 8px)',
                                 border: '1px solid',
                                 borderColor: 'divider',
                                 position: 'relative',
@@ -1134,5 +1143,6 @@ export default function APIExplorerDashboard() {
         </Grid>
       )}
     </Box>
+    </motion.div>
   )
 }

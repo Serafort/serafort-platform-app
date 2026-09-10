@@ -30,7 +30,9 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Container,
 } from '@mui/material'
+import { motion } from 'framer-motion'
 import Save from '@mui/icons-material/Save'
 import Business from '@mui/icons-material/Business'
 import Palette from '@mui/icons-material/Palette'
@@ -208,138 +210,154 @@ export default function OrganizationProfile() {
   }
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }} className='animate-scale-in'>
-      {/* Top Banner / Action Area */}
-      <Box
-        sx={{
-          mb: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box sx={{ position: 'relative' }}>
-            <Avatar
-              sx={{
-                width: { xs: 56, md: 80 },
-                height: { xs: 56, md: 80 },
-                borderRadius: '24px',
-                fontSize: '2rem',
-                bgcolor: 'primary.main',
-                boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
-              }}
-            >
-              {orgData.name[0]}
-            </Avatar>
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: -4,
-                right: -4,
-                width: 24,
-                height: 24,
-                bgcolor: 'success.main',
-                borderRadius: '50%',
-                border: '4px solid',
-                borderColor: 'background.paper',
-              }}
-            />
-          </Box>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
-              <Button
-                startIcon={<ArrowBack />}
-                onClick={() => navigate(Path.admin.organizations)}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      <Container maxWidth='xl' sx={{ py: 4 }}>
+        {/* Navigation & Back Action */}
+        <Box sx={{ mb: 3 }}>
+          <Button
+            startIcon={<ArrowBack />}
+            onClick={() => navigate(Path.admin.organizations)}
+            sx={{
+              minHeight: 44,
+              px: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              textTransform: 'none',
+              fontWeight: 600,
+              color: 'text.secondary',
+              '&:hover': {
+                color: 'text.primary',
+                bgcolor: 'action.hover',
+              },
+            }}
+          >
+            {t('auth.admin.backToOrganizations', 'Back to Organizations')}
+          </Button>
+        </Box>
+
+        {/* Top Banner / Action Area */}
+        <Box
+          sx={{
+            mb: 4,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 2.5,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+            <Box sx={{ position: 'relative' }}>
+              <Avatar
                 sx={{
-                  p: 0,
-                  minWidth: 'auto',
-                  color: 'text.secondary',
-                  '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
+                  width: { xs: 64, md: 80 },
+                  height: { xs: 64, md: 80 },
+                  borderRadius: 'var(--sf-radius-lg, 24px)',
+                  fontSize: '2rem',
+                  bgcolor: 'primary.main',
+                  boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+                }}
+              >
+                {orgData.name[0]}
+              </Avatar>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: -2,
+                  right: -2,
+                  width: 20,
+                  height: 20,
+                  bgcolor: 'success.main',
+                  borderRadius: '50%',
+                  border: '3px solid',
+                  borderColor: 'background.paper',
                 }}
               />
+            </Box>
+            <Box>
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 900,
-                  letterSpacing: '-0.027em',
+                  fontWeight: 800,
+                  letterSpacing: '-0.02em',
+                  mb: 0.5,
                   fontSize: { xs: '1.5rem', md: '2.125rem' },
                 }}
               >
                 {orgData.name}
               </Typography>
+              <Stack direction='row' spacing={1.5} alignItems='center' flexWrap='wrap'>
+                <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 600 }}>
+                  ID: {orgData.id} • {orgData.domain || orgData.slug}
+                </Typography>
+                <Chip
+                  label={orgData.status || 'ACTIVE'}
+                  size='small'
+                  color={orgData.status === 'ACTIVE' ? 'success' : 'default'}
+                  variant='outlined'
+                  sx={{ fontWeight: 700, height: 22, borderRadius: 'var(--sf-radius-xs, 4px)' }}
+                />
+              </Stack>
             </Box>
-            <Stack direction='row' spacing={1} alignItems='center' flexWrap='wrap'>
-              <Typography variant='body2' color='text.primary' sx={{ fontWeight: 600 }}>
-                ID: {orgData.id} • {orgData.domain || orgData.slug}
-              </Typography>
-              <Chip
-                label={orgData.status || 'ACTIVE'}
-                size='small'
-                color={orgData.status === 'ACTIVE' ? 'success' : 'default'}
-                variant='outlined'
-                sx={{ fontWeight: 700, height: 20 }}
-              />
-            </Stack>
           </Box>
-        </Box>
-        <Stack
-          direction='row'
-          spacing={2}
-          sx={{ flexShrink: 0, width: { xs: '100%', sm: 'auto' } }}
-        >
-          <Button
-            variant='contained'
-            startIcon={<Save />}
-            onClick={handleSave}
-            disabled={updateOrgMutation.isPending}
-            sx={{
-              bgcolor: 'info.main',
-              color: 'white',
-              boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-              '&:hover': { bgcolor: 'info.dark' },
-              textTransform: 'none',
-              fontWeight: 700,
-              flex: { xs: 1, sm: 'none' },
-              height: 44,
-              px: 3,
-            }}
+          <Stack
+            direction='row'
+            spacing={2}
+            sx={{ flexShrink: 0, width: { xs: '100%', sm: 'auto' } }}
           >
-            {updateOrgMutation.isPending ? t('auth.common.saving') : t('auth.common.saveSettings')}
-          </Button>
-        </Stack>
-      </Box>
+            <Button
+              variant='contained'
+              startIcon={<Save />}
+              onClick={handleSave}
+              disabled={updateOrgMutation.isPending}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 700,
+                flex: { xs: 1, sm: 'none' },
+                minHeight: 48,
+                px: 3,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                boxShadow: 'none',
+              }}
+            >
+              {updateOrgMutation.isPending ? t('auth.common.saving') : t('auth.common.saveSettings')}
+            </Button>
+          </Stack>
+        </Box>
 
-      <Box
-        sx={{
-          borderBottom: 1,
-          borderColor: 'divider',
-        }}
-      >
-        <Tabs
-          value={tab}
-          onChange={(_: React.SyntheticEvent, v: number) => setTab(v)}
-          aria-label='organization tabs'
+        <Box
           sx={{
-            mb: 2,
-            '& .MuiTab-root': {
-              textTransform: 'uppercase',
-              fontWeight: 700,
-              minWidth: 100,
-              fontSize: '0.8125rem',
-              letterSpacing: '0.05em',
-            },
+            borderBottom: 1,
+            borderColor: 'divider',
           }}
         >
-          <Tab icon={<Info />} iconPosition='start' label={t('auth.admin.overview')} />
-          <Tab icon={<Palette />} iconPosition='start' label={t('auth.admin.branding')} />
-          <Tab icon={<Security />} iconPosition='start' label={t('auth.admin.security')} />
-          <Tab icon={<Language />} iconPosition='start' label={t('auth.admin.domains')} />
-          <Tab icon={<Groups />} iconPosition='start' label={t('auth.admin.members')} />
-        </Tabs>
-      </Box>
+          <Tabs
+            value={tab}
+            onChange={(_: React.SyntheticEvent, v: number) => setTab(v)}
+            aria-label='organization tabs'
+            sx={{
+              mb: 2,
+              '& .MuiTab-root': {
+                textTransform: 'uppercase',
+                fontWeight: 700,
+                minHeight: 48,
+                minWidth: 100,
+                fontSize: '0.8125rem',
+                letterSpacing: '0.05em',
+                borderRadius: 'var(--sf-radius-md, 8px)',
+              },
+            }}
+          >
+            <Tab icon={<Info />} iconPosition='start' label={t('auth.admin.overview')} />
+            <Tab icon={<Palette />} iconPosition='start' label={t('auth.admin.branding')} />
+            <Tab icon={<Security />} iconPosition='start' label={t('auth.admin.security')} />
+            <Tab icon={<Language />} iconPosition='start' label={t('auth.admin.domains')} />
+            <Tab icon={<Groups />} iconPosition='start' label={t('auth.admin.members')} />
+          </Tabs>
+        </Box>
 
       <TabPanel value={tab} index={0}>
         <Grid container spacing={3}>
@@ -939,33 +957,81 @@ export default function OrganizationProfile() {
       <TabPanel value={tab} index={3}>
         <Card
           sx={(theme: any) => ({
-            borderRadius: 4,
+            borderRadius: 'var(--sf-radius-lg, 16px)',
             border: '1px solid ' + theme.palette.divider,
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
           })}
         >
-          <CardContent sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
+          <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
               <Typography variant='h6' sx={{ fontWeight: 800, textTransform: 'uppercase' }}>
                 {t('auth.admin.verifiedDomains').toUpperCase()}
               </Typography>
               <Button
                 variant='outlined'
-                size='small'
                 startIcon={<Language />}
                 onClick={() => setDomainDialogOpen(true)}
+                sx={{
+                  minHeight: 44,
+                  px: 2.5,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                }}
               >
                 {t('auth.admin.addDomain')}
               </Button>
             </Box>
-            <TableContainer sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+            <TableContainer
+              sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 'var(--sf-radius-md, 12px)',
+                overflow: 'hidden',
+              }}
+            >
               <Table>
-                <TableHead sx={{ bgcolor: 'action.hover' }}>
+                <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.4) }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>{t('auth.admin.domainName')}</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>{t('auth.admin.status')}</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>{t('auth.admin.dnsRecord')}</TableCell>
-                    <TableCell align='right' sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {t('auth.admin.domainName')}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {t('auth.admin.status')}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {t('auth.admin.dnsRecord')}
+                    </TableCell>
+                    <TableCell
+                      align='right'
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
                       {t('auth.admin.verifiedAt')}
                     </TableCell>
                   </TableRow>
@@ -973,23 +1039,23 @@ export default function OrganizationProfile() {
                 <TableBody>
                   {orgData.domainVerifications && orgData.domainVerifications.length > 0 ? (
                     orgData.domainVerifications.map((dv: any) => (
-                      <TableRow key={dv.id}>
-                        <TableCell sx={{ fontWeight: 600 }}>{dv.domain}</TableCell>
-                        <TableCell>
+                      <TableRow key={dv.id} hover>
+                        <TableCell sx={{ fontWeight: 600, py: 1.75 }}>{dv.domain}</TableCell>
+                        <TableCell sx={{ py: 1.75 }}>
                           <Chip
                             label={dv.status === 'verified' ? t('auth.admin.verified') : 'Pending'}
                             size='small'
                             color={dv.status === 'verified' ? 'success' : 'warning'}
-                            icon={dv.status === 'verified' ? <CheckCircle /> : undefined}
-                            sx={{ fontWeight: 700 }}
+                            icon={dv.status === 'verified' ? <CheckCircle fontSize='small' /> : undefined}
+                            sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-xs, 4px)' }}
                           />
                         </TableCell>
-                        <TableCell>
+                        <TableCell sx={{ py: 1.75 }}>
                           <Typography variant='caption' sx={{ fontFamily: 'monospace' }}>
                             {dv.verification_token || '—'}
                           </Typography>
                         </TableCell>
-                        <TableCell align='right'>
+                        <TableCell align='right' sx={{ py: 1.75 }}>
                           <Typography variant='body2' color='text.secondary'>
                             {dv.verified_at ? new Date(dv.verified_at).toLocaleDateString() : '—'}
                           </Typography>
@@ -997,23 +1063,23 @@ export default function OrganizationProfile() {
                       </TableRow>
                     ))
                   ) : orgData.domain ? (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>{orgData.domain}</TableCell>
-                      <TableCell>
+                    <TableRow hover>
+                      <TableCell sx={{ fontWeight: 600, py: 1.75 }}>{orgData.domain}</TableCell>
+                      <TableCell sx={{ py: 1.75 }}>
                         <Chip
                           label={t('auth.admin.verified')}
                           size='small'
                           color='success'
-                          icon={<CheckCircle />}
-                          sx={{ fontWeight: 700 }}
+                          icon={<CheckCircle fontSize='small' />}
+                          sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-xs, 4px)' }}
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ py: 1.75 }}>
                         <Typography variant='caption' sx={{ fontFamily: 'monospace' }}>
                           —
                         </Typography>
                       </TableCell>
-                      <TableCell align='right'>
+                      <TableCell align='right' sx={{ py: 1.75 }}>
                         <Typography variant='body2' color='text.secondary'>
                           Legacy
                         </Typography>
@@ -1021,7 +1087,7 @@ export default function OrganizationProfile() {
                     </TableRow>
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} sx={{ textAlign: 'center', py: 4 }}>
+                      <TableCell colSpan={4} sx={{ textAlign: 'center', py: 6 }}>
                         <Typography variant='body2' color='text.secondary'>
                           {t('auth.admin.noDomains')}
                         </Typography>
@@ -1038,14 +1104,14 @@ export default function OrganizationProfile() {
       <TabPanel value={tab} index={4}>
         <Card
           sx={(theme: any) => ({
-            borderRadius: 4,
+            borderRadius: 'var(--sf-radius-lg, 16px)',
             border: '1px solid ' + theme.palette.divider,
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
           })}
         >
-          <CardContent sx={{ p: 3 }}>
+          <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
             <Box
-              sx={{ display: 'flex', justifyContent: 'space-between', mb: 4, alignItems: 'center' }}
+              sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center', flexWrap: 'wrap', gap: 2 }}
             >
               <Typography variant='h6' sx={{ fontWeight: 800, textTransform: 'uppercase' }}>
                 {t('auth.admin.members').toUpperCase()}
@@ -1054,6 +1120,14 @@ export default function OrganizationProfile() {
                 variant='contained'
                 startIcon={<Mail />}
                 onClick={() => navigate(Path.admin.invitations.replace(':id', id!))}
+                sx={{
+                  minHeight: 44,
+                  px: 2.5,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  boxShadow: 'none',
+                }}
               >
                 {t('auth.admin.manageInvitations')}
               </Button>
@@ -1061,18 +1135,54 @@ export default function OrganizationProfile() {
 
             <TableContainer
               sx={(theme: any) => ({
-                borderRadius: 3,
+                borderRadius: 'var(--sf-radius-md, 12px)',
                 border: '1px solid ' + theme.palette.divider,
+                overflow: 'hidden',
                 ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
               })}
             >
               <Table>
-                <TableHead sx={{ bgcolor: 'action.hover' }}>
+                <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.4) }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>{t('auth.admin.name')}</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>{t('auth.admin.email')}</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>{t('auth.admin.role')}</TableCell>
-                    <TableCell align='right' sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {t('auth.admin.name')}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {t('auth.admin.email')}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {t('auth.admin.role')}
+                    </TableCell>
+                    <TableCell
+                      align='right'
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
                       {t('auth.admin.joinedAt')}
                     </TableCell>
                   </TableRow>
@@ -1080,19 +1190,19 @@ export default function OrganizationProfile() {
                 <TableBody>
                   {orgData.members && orgData.members.length > 0 ? (
                     orgData.members.map((m: any) => (
-                      <TableRow key={m.id}>
-                        <TableCell sx={{ fontWeight: 600 }}>
+                      <TableRow key={m.id} hover>
+                        <TableCell sx={{ fontWeight: 600, py: 1.75 }}>
                           {m.user?.firstName} {m.user?.lastName}
                         </TableCell>
-                        <TableCell>{m.user?.email}</TableCell>
-                        <TableCell>
+                        <TableCell sx={{ py: 1.75 }}>{m.user?.email}</TableCell>
+                        <TableCell sx={{ py: 1.75 }}>
                           <Chip
                             label={m.role?.name || t('auth.common.member')}
                             size='small'
-                            sx={{ fontWeight: 700, textTransform: 'uppercase' }}
+                            sx={{ fontWeight: 700, textTransform: 'uppercase', borderRadius: 'var(--sf-radius-xs, 4px)' }}
                           />
                         </TableCell>
-                        <TableCell align='right'>
+                        <TableCell align='right' sx={{ py: 1.75 }}>
                           <Typography variant='body2' color='text.secondary'>
                             {new Date(m.createdAt).toLocaleDateString()}
                           </Typography>
@@ -1101,7 +1211,7 @@ export default function OrganizationProfile() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} sx={{ textAlign: 'center', py: 4 }}>
+                      <TableCell colSpan={4} sx={{ textAlign: 'center', py: 6 }}>
                         <Typography variant='body2' color='text.secondary'>
                           {t('auth.admin.noMembers')}
                         </Typography>
@@ -1121,8 +1231,16 @@ export default function OrganizationProfile() {
         onClose={() => setDomainDialogOpen(false)}
         maxWidth='sm'
         fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              p: 1,
+            },
+          },
+        }}
       >
-        <DialogTitle>{t('auth.admin.domainDialogTitle')}</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 800, fontSize: '1.25rem' }}>{t('auth.admin.domainDialogTitle')}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -1131,14 +1249,28 @@ export default function OrganizationProfile() {
             placeholder='example.com'
             value={pendingDomain}
             onChange={(e) => setPendingDomain(e.target.value)}
-            sx={{ mt: 1 }}
+            sx={{
+              mt: 1.5,
+              '& .MuiOutlinedInput-root': {
+                minHeight: 44,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+              },
+            }}
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ p: 2.5, gap: 1 }}>
           <Button
             onClick={() => {
               setDomainDialogOpen(false)
               setPendingDomain('')
+            }}
+            sx={{
+              minHeight: 44,
+              px: 2.5,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              textTransform: 'none',
+              fontWeight: 600,
+              color: 'text.secondary',
             }}
           >
             {t('auth.common.cancel')}
@@ -1148,11 +1280,20 @@ export default function OrganizationProfile() {
             onClick={handleVerifyDomain}
             disabled={!pendingDomain.trim() || verifyDomainMutation.isPending}
             startIcon={verifyDomainMutation.isPending ? <CircularProgress size={16} /> : undefined}
+            sx={{
+              minHeight: 44,
+              px: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              textTransform: 'none',
+              fontWeight: 700,
+              boxShadow: 'none',
+            }}
           >
             {t('auth.admin.verify')}
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+      </Container>
+    </motion.div>
   )
 }

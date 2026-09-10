@@ -35,6 +35,9 @@ import Search from '@mui/icons-material/Search'
 import Flag from '@mui/icons-material/Flag'
 import Security from '@mui/icons-material/Security'
 import Edit from '@mui/icons-material/Edit'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { AdminUser } from '@idaas/authentication-core/hooks/useAdminQuery'
 import { useTranslation } from 'react-i18next'
 import {
@@ -48,10 +51,12 @@ import {
 import { toast } from 'react-toastify'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
+import Path from '../../path'
 import IssueBanDialog from '../../../components/IssueBanDialog'
 
 export default function BanManagement() {
   const { t } = useTranslation('common')
+  const navigate = useNavigate()
   const theme = useTheme()
   const [tabValue, setTabValue] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
@@ -89,15 +94,79 @@ export default function BanManagement() {
   }
 
   return (
-    <Box className='animate-scale-in' sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}
+    >
+      {/* Back button */}
+      <Button
+        startIcon={<ArrowBack />}
+        onClick={() => navigate(Path.admin.users.list)}
+        sx={{
+          mb: 2.5,
+          textTransform: 'none',
+          fontWeight: 700,
+          color: 'text.secondary',
+          minHeight: 44,
+          borderRadius: 'var(--sf-radius-md, 8px)',
+          '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
+        }}
+      >
+        Back to User Directory
+      </Button>
+
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 1 }}>
-          {t('auth.admin.banManagementTitle')}
-        </Typography>
-        <Typography variant='body1' color='text.secondary'>
-          {t('auth.admin.banManagementSubtitle')}
-        </Typography>
+      <Box
+        sx={{
+          mb: 4,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: 2,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+          <Avatar
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: 'var(--sf-radius-lg, 24px)',
+              bgcolor: (theme) => alpha(theme.palette.error.main, 0.12),
+              color: 'error.main',
+              boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.error.main, 0.18)}`,
+            }}
+          >
+            <Gavel sx={{ fontSize: 32 }} />
+          </Avatar>
+          <Box>
+            <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
+              {t('auth.admin.banManagementTitle')}
+            </Typography>
+            <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
+              {t('auth.admin.banManagementSubtitle')}
+            </Typography>
+          </Box>
+        </Box>
+        <Button
+          variant='contained'
+          color='error'
+          startIcon={<Gavel />}
+          onClick={() => setIsBanModalOpen(true)}
+          sx={{
+            minHeight: 44,
+            px: 3,
+            borderRadius: 'var(--sf-radius-md, 8px)',
+            fontWeight: 800,
+            textTransform: 'none',
+            boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.error.main, 0.35)}`,
+          }}
+        >
+          {t('auth.admin.issueBan', 'Issue Account Suspension / Ban')}
+        </Button>
       </Box>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -131,6 +200,7 @@ export default function BanManagement() {
           <Grid key={idx} size={{ xs: 12, sm: 4 }}>
             <Card
               sx={(theme: any) => ({
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 bgcolor: alpha((theme.palette as any)[stat.color].main, 0.04),
                 border: '1px solid ' + alpha((theme.palette as any)[stat.color].main, 0.1),
                 ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -169,7 +239,7 @@ export default function BanManagement() {
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
-          sx={{ '& .MuiTab-root': { textTransform: 'none', fontWeight: 600 } }}
+          sx={{ minHeight: 48, '& .MuiTab-root': { minHeight: 48, textTransform: 'none', fontWeight: 600 } }}
         >
           <Tab label={t('auth.admin.activeBans')} />
           <Tab label={t('auth.admin.appealsQueue')} />
@@ -179,7 +249,7 @@ export default function BanManagement() {
 
       {/* Active Bans Section */}
       {tabValue === 0 && (
-        <Stack spacing={3} className='animate-scale-in'>
+        <Stack spacing={3}>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <TextField
               placeholder={t('auth.common.searchUsers')}
@@ -193,6 +263,7 @@ export default function BanManagement() {
                       <Search fontSize='small' sx={{ color: 'text.secondary' }} />
                     </InputAdornment>
                   ),
+                  sx: { borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 },
                 },
               }}
               sx={{ width: 300 }}
@@ -204,11 +275,14 @@ export default function BanManagement() {
               startIcon={<Gavel />}
               onClick={() => setIsBanModalOpen(true)}
               sx={{
+                minHeight: 44,
+                px: 3,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 textTransform: 'none',
                 fontWeight: 700,
-                boxShadow: (theme) => `0 4px 14px 0 ${theme.palette.error.main}40`,
+                boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.error.main, 0.35)}`,
                 '&:hover': {
-                  boxShadow: (theme) => `0 6px 20px 0 ${theme.palette.error.main}60`,
+                  boxShadow: (theme) => `0 6px 20px 0 ${alpha(theme.palette.error.main, 0.5)}`,
                 },
               }}
             >
@@ -234,6 +308,7 @@ export default function BanManagement() {
               <Card
                 key={user.id}
                 sx={(theme: any) => ({
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                   border: '1px solid ' + theme.palette.divider,
                   transition: 'border-color 0.2s',
                   '&:hover': { borderColor: 'error.light' },
@@ -254,6 +329,9 @@ export default function BanManagement() {
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                         <Avatar
                           sx={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             bgcolor: alpha(theme.palette.error.main, 0.1),
                             color: 'error.main',
                           }}
@@ -307,7 +385,7 @@ export default function BanManagement() {
                           label={t('auth.admin.suspended')}
                           size='small'
                           color='error'
-                          sx={{ fontWeight: 700 }}
+                          sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-xs, 4px)' }}
                         />
                       </Box>
                       {(user as any).suspendedReason && (
@@ -338,7 +416,7 @@ export default function BanManagement() {
                       sx={{
                         display: 'flex',
                         flexDirection: { md: 'column' },
-                        gap: 1,
+                        gap: 1.5,
                         minWidth: 130,
                       }}
                     >
@@ -347,7 +425,12 @@ export default function BanManagement() {
                         size='small'
                         startIcon={<Edit />}
                         onClick={() => setEditingUser(user as AdminUser)}
-                        sx={{ textTransform: 'none', fontWeight: 600 }}
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 700,
+                          minHeight: 40,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                        }}
                       >
                         {t('auth.common.edit', 'Edit Profile')}
                       </Button>
@@ -358,12 +441,28 @@ export default function BanManagement() {
                         startIcon={<Undo />}
                         onClick={() => handleRevokeBan(user.id)}
                         disabled={unbanMutation.isPending}
-                        sx={{ textTransform: 'none', fontWeight: 600 }}
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 700,
+                          minHeight: 40,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                        }}
                       >
                         {t('auth.admin.revokeBan', 'Lift Ban')}
                       </Button>
                       <Box sx={{ flexGrow: 1 }} />
-                      <IconButton size='small' sx={{ alignSelf: 'flex-end' }}>
+                      <IconButton
+                        size='small'
+                        aria-label='More options'
+                        sx={{
+                          alignSelf: 'flex-end',
+                          width: 44,
+                          height: 44,
+                          minWidth: 44,
+                          minHeight: 44,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                        }}
+                      >
                         <MoreVert />
                       </IconButton>
                     </Box>
@@ -400,18 +499,24 @@ export default function BanManagement() {
       <Dialog
         open={!!editingUser}
         onClose={() => setEditingUser(null)}
-        PaperProps={{
-          sx: (theme: any) => ({
-            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-          }),
+        slotProps={{
+          paper: {
+            sx: (theme: any) => ({
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+            }),
+          },
         }}
       >
         <DialogTitle>{t('auth.admin.editBan')}</DialogTitle>
         <DialogContent>
           <DialogContentText>{t('auth.admin.editBan_stub')}</DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditingUser(null)} sx={{ textTransform: 'none' }}>
+        <DialogActions sx={{ p: 2.5, gap: 1 }}>
+          <Button
+            onClick={() => setEditingUser(null)}
+            sx={{ minHeight: 44, px: 2.5, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
+          >
             {t('auth.common.cancel')}
           </Button>
         </DialogActions>
@@ -448,7 +553,10 @@ function AppealsQueue() {
     <Stack spacing={3} className='animate-scale-in'>
       <Alert
         severity='info'
-        sx={(theme: any) => ({ ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme) })}
+        sx={(theme: any) => ({
+          borderRadius: 'var(--sf-radius-md, 12px)',
+          ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+        })}
       >
         {t('auth.admin.appealsInfo')}
       </Alert>
@@ -460,6 +568,7 @@ function AppealsQueue() {
         <Alert
           severity='success'
           sx={(theme: any) => ({
+            borderRadius: 'var(--sf-radius-md, 12px)',
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
           })}
         >
@@ -471,6 +580,7 @@ function AppealsQueue() {
             <Card
               key={appeal.id}
               sx={(theme: any) => ({
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 border: '1px solid ' + alpha(theme.palette.warning.main, 0.3),
                 ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
               })}
@@ -488,8 +598,12 @@ function AppealsQueue() {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Avatar
                       sx={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         bgcolor: alpha(theme.palette.warning.main, 0.12),
                         color: 'warning.main',
+                        fontWeight: 700,
                       }}
                     >
                       {appeal.user?.firstName?.[0] || appeal.user?.email[0] || '?'}
@@ -501,7 +615,15 @@ function AppealsQueue() {
                       <Typography variant='caption' color='text.secondary'>
                         {appeal.user?.email}
                       </Typography>
-                      <Box sx={{ mt: 1, p: 1, bgcolor: 'background.default', borderRadius: 1 }}>
+                      <Box
+                        sx={{
+                          mt: 1,
+                          p: 1.5,
+                          bgcolor: 'background.default',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                          border: '1px solid ' + theme.palette.divider,
+                        }}
+                      >
                         <Typography variant='body2' sx={{ fontStyle: 'italic' }}>
                           &ldquo;{appeal.reason}&rdquo;
                         </Typography>
@@ -520,7 +642,13 @@ function AppealsQueue() {
                       startIcon={<Undo />}
                       onClick={() => resolveMutation.mutate({ id: appeal.id, action: 'approved' })}
                       disabled={resolveMutation.isPending}
-                      sx={{ textTransform: 'none', fontWeight: 600 }}
+                      sx={{
+                        minHeight: 40,
+                        px: 2,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                      }}
                     >
                       {t('auth.admin.approveAppeal')}
                     </Button>
@@ -531,7 +659,13 @@ function AppealsQueue() {
                       startIcon={<Block />}
                       onClick={() => setResolvingAppealId(appeal.id)}
                       disabled={resolveMutation.isPending}
-                      sx={{ textTransform: 'none', fontWeight: 600 }}
+                      sx={{
+                        minHeight: 40,
+                        px: 2,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                      }}
                     >
                       {t('auth.admin.denyAppeal')}
                     </Button>
@@ -547,6 +681,11 @@ function AppealsQueue() {
                 page={page}
                 onChange={(_, val) => setPage(val)}
                 color='primary'
+                sx={{
+                  '& .MuiPaginationItem-root': {
+                    borderRadius: 'var(--sf-radius-xs, 4px)',
+                  },
+                }}
               />
             </Box>
           )}
@@ -556,24 +695,37 @@ function AppealsQueue() {
       <Dialog
         open={!!resolvingAppealId}
         onClose={() => setResolvingAppealId(null)}
-        PaperProps={{
-          sx: (theme: any) => ({
-            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-          }),
+        slotProps={{
+          paper: {
+            sx: (theme: any) => ({
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+            }),
+          },
         }}
       >
         <DialogTitle>{t('auth.admin.denyAppeal_confirm_title')}</DialogTitle>
         <DialogContent>
           <DialogContentText>{t('auth.admin.denyAppeal_confirm_msg')}</DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setResolvingAppealId(null)} sx={{ textTransform: 'none' }}>
+        <DialogActions sx={{ p: 2.5, gap: 1 }}>
+          <Button
+            onClick={() => setResolvingAppealId(null)}
+            sx={{ minHeight: 44, px: 2.5, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
+          >
             {t('auth.common.cancel')}
           </Button>
           <Button
             color='error'
+            variant='contained'
             disabled={resolveMutation.isPending}
-            sx={{ textTransform: 'none', fontWeight: 600 }}
+            sx={{
+              minHeight: 44,
+              px: 2.5,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              textTransform: 'none',
+              fontWeight: 600,
+            }}
             onClick={() => {
               if (resolvingAppealId) {
                 resolveMutation.mutate(
@@ -638,7 +790,7 @@ function BanFullHistory() {
 
   return (
     <Stack spacing={2} className='animate-scale-in'>
-      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <TextField
           placeholder={t('auth.admin.searchHistory')}
           size='small'
@@ -653,7 +805,13 @@ function BanFullHistory() {
               ),
             },
           }}
-          sx={{ width: 300 }}
+          sx={{
+            width: { xs: '100%', sm: 320 },
+            '& .MuiOutlinedInput-root': {
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+            },
+          }}
         />
         <Box sx={{ flexGrow: 1 }} />
         <Button
@@ -661,7 +819,13 @@ function BanFullHistory() {
           size='small'
           onClick={handleExport}
           disabled={rawLogs.length === 0}
-          sx={{ textTransform: 'none', fontWeight: 600 }}
+          sx={{
+            minHeight: 44,
+            px: 2.5,
+            borderRadius: 'var(--sf-radius-md, 8px)',
+            textTransform: 'none',
+            fontWeight: 600,
+          }}
         >
           {t('auth.common.export')}
         </Button>
@@ -675,6 +839,7 @@ function BanFullHistory() {
         <Alert
           severity='info'
           sx={(theme: any) => ({
+            borderRadius: 'var(--sf-radius-md, 12px)',
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
           })}
         >
@@ -685,6 +850,7 @@ function BanFullHistory() {
           <Card
             key={log.id}
             sx={(theme: any) => ({
+              borderRadius: 'var(--sf-radius-md, 12px)',
               border: '1px solid ' + theme.palette.divider,
               ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
             })}
@@ -693,11 +859,12 @@ function BanFullHistory() {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Avatar
                   sx={{
-                    width: 32,
-                    height: 32,
+                    width: 36,
+                    height: 36,
+                    borderRadius: 'var(--sf-radius-xs, 4px)',
                     bgcolor: alpha(theme.palette.error.main, 0.1),
                     color: 'error.main',
-                    fontSize: '0.75rem',
+                    fontSize: '0.875rem',
                   }}
                 >
                   <Gavel fontSize='small' />
@@ -715,7 +882,7 @@ function BanFullHistory() {
                   label={log.action?.includes('ACTIVATED') ? 'Unbanned' : 'Banned'}
                   size='small'
                   color={log.action?.includes('ACTIVATED') ? 'success' : 'error'}
-                  sx={{ fontWeight: 700 }}
+                  sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-xs, 4px)' }}
                 />
               </Box>
             </CardContent>

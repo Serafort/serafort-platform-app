@@ -23,11 +23,15 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import Insights from '@mui/icons-material/Insights'
 import TravelExplore from '@mui/icons-material/TravelExplore'
 import Refresh from '@mui/icons-material/Refresh'
 import RadarIcon from '@mui/icons-material/Radar'
+import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   useAnomaliesQuery,
   useAnomalyStatsQuery,
@@ -78,6 +82,9 @@ const GEO_DETECTORS = new Set(['impossible_travel', 'geo_velocity', 'new_country
 
 export const AnomalyDashboard: React.FC = () => {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const [status, setStatus] = useState<AnomalyStatus | ''>('')
 
   const anomaliesQuery = useAnomaliesQuery({ status: status || undefined, limit: 50 })
@@ -109,6 +116,7 @@ export const AnomalyDashboard: React.FC = () => {
   }
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Container maxWidth='lg' sx={{ py: 4 }}>
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
@@ -351,6 +359,7 @@ export const AnomalyDashboard: React.FC = () => {
         </CardContent>
       </Card>
     </Container>
+    </motion.div>
   )
 }
 

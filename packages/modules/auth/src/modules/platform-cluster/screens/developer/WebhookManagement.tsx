@@ -52,6 +52,8 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import logger from '@idaas/authentication-core/utils/logger'
 import {
   useWebhooks,
@@ -117,6 +119,8 @@ function EventChips({ events, max = 2 }: { events: string[]; max?: number }) {
 const WebhookManagement: React.FC = () => {
   const { t } = useTranslation('auth')
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const navigate = useNavigate()
   // ── Queries & Mutations ──────────────────────────────────────────
   const { data: webhooksData, isLoading } = useWebhooks()
@@ -289,16 +293,14 @@ const WebhookManagement: React.FC = () => {
           startIcon={<Add />}
           onClick={() => setIsCreateDialogOpen(true)}
           sx={{
-            bgcolor: 'info.main',
+            bgcolor: 'primary.main',
             color: 'white',
-            boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-            height: 44,
+            minHeight: 48,
             px: 3,
-            borderRadius: 2,
+            borderRadius: 'var(--sf-radius-md, 8px)',
             fontWeight: 700,
             textTransform: 'none',
             flex: { xs: 1, sm: 'none' },
-            '&:hover': { bgcolor: 'info.dark' },
           }}
         >
           {t('admin.developer.webhooks.create_button')}
@@ -333,7 +335,8 @@ const WebhookManagement: React.FC = () => {
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
-                borderRadius: 4,
+                borderRadius: 'var(--sf-radius-lg, 16px)',
+                ...surfaceEffect,
               }}
             >
               <CardContent
@@ -387,10 +390,11 @@ const WebhookManagement: React.FC = () => {
       {/* ── Main Section: Configured Webhooks ─────────────────────── */}
       <Card
         sx={{
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
+          ...surfaceEffect,
         }}
       >
         <CardContent sx={{ p: 3 }}>
@@ -429,7 +433,7 @@ const WebhookManagement: React.FC = () => {
                 variant='outlined'
                 startIcon={<Add />}
                 onClick={() => setIsCreateDialogOpen(true)}
-                sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700 }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700, minHeight: 44 }}
               >
                 {t('admin.developer.webhooks.empty.button')}
               </Button>

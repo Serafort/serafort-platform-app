@@ -23,11 +23,16 @@ import History from '@mui/icons-material/History'
 import Edit from '@mui/icons-material/Edit'
 import Code from '@mui/icons-material/Code'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import { useEmailTemplatesQuery } from '../../hooks/useAdminMonitoringQuery'
 
 export default function EmailTemplatePreview() {
   const { t } = useTranslation('common')
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
   const [view, setView] = useState<'preview' | 'code'>('preview')
   const [selectedId, setSelectedId] = useState('welcome')
@@ -95,6 +100,7 @@ export default function EmailTemplatePreview() {
   const templateHtml = (activeTemplate as any).html || defaultTemplates[0].html
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       {/* Header */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -113,7 +119,7 @@ export default function EmailTemplatePreview() {
           <Button
             variant='outlined'
             startIcon={<History />}
-            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
+            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
           >
             {t('auth.admin.versionHistory', 'Version History')}
           </Button>
@@ -316,5 +322,6 @@ export default function EmailTemplatePreview() {
         </Grid>
       </Grid>
     </Box>
+    </motion.div>
   )
 }

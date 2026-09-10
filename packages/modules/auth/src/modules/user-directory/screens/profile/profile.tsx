@@ -61,6 +61,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Controller, useForm, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import { Path } from '@cap/module-auth/routes/path'
 import {
   useUserProfile,
@@ -170,6 +173,8 @@ export default function ProfileView({
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const { t } = useTranslation()
   const { user: authUser } = useAuth()
   const {
@@ -900,19 +905,24 @@ export default function ProfileView({
   }
 
   return (
-    <Box
-      component='form'
-      onSubmit={handleProfileSubmit(onFormSubmit)}
-      noValidate
-      sx={{
-        width: '100%',
-        maxWidth: 1280,
-        mx: 'auto',
-        py: { xs: 2.5, md: 4 },
-        px: { xs: 2, sm: 3, md: 4 },
-        boxSizing: 'border-box',
-      }}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
     >
+      <Box
+        component='form'
+        onSubmit={handleProfileSubmit(onFormSubmit)}
+        noValidate
+        sx={{
+          width: '100%',
+          maxWidth: 1280,
+          mx: 'auto',
+          py: { xs: 2.5, md: 4 },
+          px: { xs: 2, sm: 3, md: 4 },
+          boxSizing: 'border-box',
+        }}
+      >
       {/* ── Page Header ── */}
       <Box
         sx={{
@@ -2487,5 +2497,6 @@ export default function ProfileView({
         </DialogActions>
       </Dialog>
     </Box>
+    </motion.div>
   )
 }

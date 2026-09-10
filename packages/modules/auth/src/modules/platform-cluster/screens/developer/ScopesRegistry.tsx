@@ -1,4 +1,7 @@
 import { useState, useMemo } from 'react'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   Box,
   Typography,
@@ -46,6 +49,8 @@ import {
 
 export default function ScopesRegistry() {
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const { t } = useTranslation('common')
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -145,6 +150,7 @@ export default function ScopesRegistry() {
   const isSaving = createScope.isPending || updateScope.isPending
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       {/* ── Page Header ── */}
       <Box
@@ -180,13 +186,11 @@ export default function ScopesRegistry() {
           startIcon={<Add />}
           onClick={() => openForm()}
           sx={{
-            bgcolor: 'info.main',
+            bgcolor: 'primary.main',
             color: 'white',
-            boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-            '&:hover': { bgcolor: 'info.dark' },
             textTransform: 'none',
             fontWeight: 700,
-            height: 44,
+            minHeight: 48,
             px: 3,
             flexShrink: 0,
           }}
@@ -286,7 +290,7 @@ export default function ScopesRegistry() {
                           sx={{
                             width: 32,
                             height: 32,
-                            borderRadius: '8px',
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             bgcolor: alpha(theme.palette.primary.main, 0.1),
                             color: 'primary.main',
                             display: 'flex',
@@ -402,7 +406,7 @@ export default function ScopesRegistry() {
         sx={{
           mt: 3,
           p: 2,
-          borderRadius: 2,
+          borderRadius: 'var(--sf-radius-md, 8px)',
           bgcolor: alpha(theme.palette.info.main, 0.05),
           border: '1px solid',
           borderColor: alpha(theme.palette.info.main, 0.1),
@@ -463,14 +467,14 @@ export default function ScopesRegistry() {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={closeForm} color='inherit' sx={{ fontWeight: 700 }}>
+          <Button onClick={closeForm} color='inherit' sx={{ fontWeight: 700, minHeight: 44 }}>
             {t('auth.common.cancel', 'Cancel')}
           </Button>
           <Button
             onClick={handleFormSubmit}
             variant='contained'
             disabled={isSaving}
-            sx={{ fontWeight: 700, px: 3 }}
+            sx={{ fontWeight: 700, px: 3, minHeight: 48 }}
           >
             {isSaving ? (
               <CircularProgress size={24} color='inherit' />
@@ -498,7 +502,7 @@ export default function ScopesRegistry() {
           <Button
             onClick={() => setDeleteConfirmationId(null)}
             color='inherit'
-            sx={{ fontWeight: 700 }}
+            sx={{ fontWeight: 700, minHeight: 44 }}
           >
             {t('auth.common.cancel', 'Cancel')}
           </Button>
@@ -507,7 +511,7 @@ export default function ScopesRegistry() {
             color='error'
             variant='contained'
             disabled={deleteScope.isPending}
-            sx={{ fontWeight: 700 }}
+            sx={{ fontWeight: 700, minHeight: 48 }}
           >
             {deleteScope.isPending ? (
               <CircularProgress size={24} color='inherit' />
@@ -518,5 +522,6 @@ export default function ScopesRegistry() {
         </DialogActions>
       </Dialog>
     </Box>
+    </motion.div>
   )
 }

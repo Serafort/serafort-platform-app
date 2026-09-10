@@ -1,4 +1,8 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { useTheme } from '@mui/material/styles'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   Alert,
   AlertTitle,
@@ -65,6 +69,9 @@ const ANCHOR_TYPES: BlockchainAnchorType[] = [
 
 export const BlockchainAnchorStatus: React.FC = () => {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const [state, setState] = useState<AnchorState | ''>('')
   const [type, setType] = useState<BlockchainAnchorType | ''>('')
 
@@ -114,6 +121,7 @@ export const BlockchainAnchorStatus: React.FC = () => {
   const lastConfirmed = anchors.find((anchor) => anchor.status === 'CONFIRMED') ?? null
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Container maxWidth='lg' sx={{ py: 4 }}>
       <Stack direction='row' alignItems='center' spacing={1.5} sx={{ mb: 1 }}>
         <AccountTree color='primary' />
@@ -315,6 +323,7 @@ export const BlockchainAnchorStatus: React.FC = () => {
         </CardContent>
       </Card>
     </Container>
+    </motion.div>
   )
 }
 

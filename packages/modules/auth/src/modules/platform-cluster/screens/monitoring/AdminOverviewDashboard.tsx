@@ -26,6 +26,9 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import { useAdminDashboard } from '@idaas/authentication-core/hooks/useAdminQuery'
 import { Path } from '@cap/module-auth/routes/path'
 
@@ -173,6 +176,8 @@ const QuickAction: React.FC<QuickActionProps> = ({ label, description, href }) =
 // ─── Main screen ─────────────────────────────────────────────────────────────
 const AdminOverviewDashboard: React.FC = () => {
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const { t: _t } = useTranslation('common')
   const navigate = useNavigate()
 
@@ -220,6 +225,7 @@ const AdminOverviewDashboard: React.FC = () => {
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
       {/* ── Page header ── */}
       <Box
@@ -340,8 +346,9 @@ const AdminOverviewDashboard: React.FC = () => {
             border: '1px solid',
             borderColor: 'divider',
             boxShadow: 'none',
-            borderRadius: 4,
+            borderRadius: 'var(--sf-radius-lg, 16px)',
             overflow: 'hidden',
+            ...surfaceEffect,
           }}
         >
           <CardContent sx={{ p: 3, pb: '16px !important' }}>
@@ -435,8 +442,9 @@ const AdminOverviewDashboard: React.FC = () => {
             border: '1px solid',
             borderColor: 'divider',
             boxShadow: 'none',
-            borderRadius: 4,
+            borderRadius: 'var(--sf-radius-lg, 16px)',
             overflow: 'hidden',
+            ...surfaceEffect,
           }}
         >
           <CardContent sx={{ p: 3, pb: '16px !important' }}>
@@ -488,6 +496,7 @@ const AdminOverviewDashboard: React.FC = () => {
         </Card>
       </Box>
     </Box>
+    </motion.div>
   )
 }
 

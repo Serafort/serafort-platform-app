@@ -32,11 +32,16 @@ import Security from '@mui/icons-material/Security'
 import GppGood from '@mui/icons-material/GppGood'
 import Info from '@mui/icons-material/Info'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import { useAuditLogs } from '@cap/module-auth/modules/authentication-core/hooks/useAdminQuery'
 
 export default function AuthEventsMonitor() {
   const { t } = useTranslation('common')
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
 
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(50)
@@ -120,6 +125,7 @@ export default function AuthEventsMonitor() {
   }
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
       {/* Header */}
       <Box
@@ -362,5 +368,6 @@ export default function AuthEventsMonitor() {
         }}
       />
     </Box>
+    </motion.div>
   )
 }

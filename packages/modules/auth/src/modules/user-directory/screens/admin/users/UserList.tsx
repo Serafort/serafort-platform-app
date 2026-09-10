@@ -55,7 +55,8 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useDebounce } from 'use-debounce'
-import { Path } from '@cap/module-auth/routes/path'
+import { motion } from 'framer-motion'
+import Path from '../../path'
 import { useUsersQuery, useRolesQuery } from '../../../hooks/useUserDirectoryQuery'
 import {
   useUpdateUserStatusMutation,
@@ -212,7 +213,7 @@ export default function UserList() {
 
   const handleViewProfile = (user: UserDirectoryItemDTO) => {
     handleCloseActionMenu()
-    navigate(`/admin/user/${user.id}`)
+    navigate(Path.admin.users.user_profile.replace(':id', String(user.id)))
   }
 
   const handleOpenEdit = (user: UserDirectoryItemDTO) => {
@@ -278,6 +279,7 @@ export default function UserList() {
               color: theme.palette.success.dark,
               fontWeight: 700,
               fontSize: '0.75rem',
+              borderRadius: 'var(--sf-radius-xs, 4px)',
             }}
           />
         )
@@ -292,6 +294,7 @@ export default function UserList() {
               color: theme.palette.warning.dark,
               fontWeight: 700,
               fontSize: '0.75rem',
+              borderRadius: 'var(--sf-radius-xs, 4px)',
             }}
           />
         )
@@ -306,6 +309,7 @@ export default function UserList() {
               color: theme.palette.error.dark,
               fontWeight: 700,
               fontSize: '0.75rem',
+              borderRadius: 'var(--sf-radius-xs, 4px)',
             }}
           />
         )
@@ -319,6 +323,7 @@ export default function UserList() {
               color: theme.palette.text.secondary,
               fontWeight: 600,
               fontSize: '0.75rem',
+              borderRadius: 'var(--sf-radius-xs, 4px)',
             }}
           />
         )
@@ -326,7 +331,13 @@ export default function UserList() {
   }
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1440, mx: 'auto' }}>
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      sx={{ p: { xs: 2, md: 4 }, maxWidth: 1440, mx: 'auto' }}
+    >
       {/* Header Banner */}
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
@@ -363,9 +374,10 @@ export default function UserList() {
             disabled={exportUsersMutation.isPending}
             sx={{
               textTransform: 'none',
-              fontWeight: 600,
-              borderRadius: 2,
-              px: 2,
+              fontWeight: 700,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              px: 2.5,
+              minHeight: 44,
               borderColor: alpha(theme.palette.divider, 0.2),
             }}
           >
@@ -378,9 +390,10 @@ export default function UserList() {
             sx={{
               textTransform: 'none',
               fontWeight: 700,
-              borderRadius: 2,
-              px: 2.5,
-              boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.25)',
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              px: 3,
+              minHeight: 44,
+              boxShadow: 'var(--sf-shadow-glow)',
             }}
           >
             Invite User
@@ -417,7 +430,7 @@ export default function UserList() {
                 sx={{
                   fontWeight: isSelected ? 700 : 500,
                   fontSize: '0.8125rem',
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
                   px: 0.5,
                   cursor: 'pointer',
                   borderColor: isSelected ? 'primary.main' : alpha(theme.palette.divider, 0.15),
@@ -452,21 +465,24 @@ export default function UserList() {
             placeholder='Search by name, email, or department...'
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <SearchIcon fontSize='small' sx={{ color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-              endAdornment: searchInput ? (
-                <InputAdornment position='end'>
-                  <IconButton size='small' onClick={() => setSearchInput('')}>
-                    <ClearIcon fontSize='small' />
-                  </IconButton>
-                </InputAdornment>
-              ) : null,
-              sx: { borderRadius: 2, bgcolor: 'background.paper', width: { xs: '100%', md: 340 } },
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <SearchIcon fontSize='small' sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+                endAdornment: searchInput ? (
+                  <InputAdornment position='end'>
+                    <IconButton size='small' aria-label='Clear search' onClick={() => setSearchInput('')}>
+                      <ClearIcon fontSize='small' />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null,
+                sx: { borderRadius: 'var(--sf-radius-md, 8px)', bgcolor: 'background.paper', minHeight: 44 },
+              },
             }}
+            sx={{ width: { xs: '100%', md: 340 } }}
           />
 
           {/* Role & Sorting Selectors */}
@@ -479,7 +495,7 @@ export default function UserList() {
                   setPage(1)
                 }}
                 displayEmpty
-                sx={{ borderRadius: 2, bgcolor: 'background.paper' }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 8px)', bgcolor: 'background.paper', minHeight: 40 }}
               >
                 <MenuItem value='ALL'>All Roles</MenuItem>
                 {roles.map((r) => (
@@ -498,7 +514,7 @@ export default function UserList() {
                   setSortBy(field)
                   setSortOrder(order as 'asc' | 'desc')
                 }}
-                sx={{ borderRadius: 2, bgcolor: 'background.paper' }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 8px)', bgcolor: 'background.paper', minHeight: 40 }}
               >
                 <MenuItem value='createdAt-desc'>Newest First</MenuItem>
                 <MenuItem value='createdAt-asc'>Oldest First</MenuItem>
@@ -510,12 +526,16 @@ export default function UserList() {
 
             <Tooltip title='Refresh Directory'>
               <IconButton
+                aria-label='Refresh Directory'
                 onClick={() => refetch()}
                 size='small'
                 sx={{
                   border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
-                  borderRadius: 2,
-                  p: 0.9,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  width: 44,
+                  height: 44,
+                  minWidth: 44,
+                  minHeight: 44,
                 }}
               >
                 <RefreshIcon fontSize='small' />
@@ -552,7 +572,12 @@ export default function UserList() {
                 variant='outlined'
                 color='success'
                 onClick={() => setBulkAction('ACTIVATE')}
-                sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5 }}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                  minHeight: 36,
+                }}
               >
                 Activate
               </Button>
@@ -561,7 +586,12 @@ export default function UserList() {
                 variant='outlined'
                 color='warning'
                 onClick={() => setBulkAction('SUSPEND')}
-                sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5 }}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                  minHeight: 36,
+                }}
               >
                 Suspend
               </Button>
@@ -570,7 +600,12 @@ export default function UserList() {
                 variant='outlined'
                 color='error'
                 onClick={() => setBulkAction('DELETE')}
-                sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5 }}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                  minHeight: 36,
+                }}
               >
                 Delete
               </Button>
@@ -578,7 +613,7 @@ export default function UserList() {
                 size='small'
                 color='inherit'
                 onClick={() => setSelectedIds([])}
-                sx={{ textTransform: 'none', ml: 1 }}
+                sx={{ textTransform: 'none', ml: 1, minHeight: 36, fontWeight: 600 }}
               >
                 Clear Selection
               </Button>
@@ -804,6 +839,7 @@ export default function UserList() {
                                   fontSize: '0.7rem',
                                   height: 22,
                                   fontWeight: 600,
+                                  borderRadius: 'var(--sf-radius-xs, 4px)',
                                   borderColor: alpha(theme.palette.divider, 0.2),
                                 }}
                               />
@@ -845,9 +881,15 @@ export default function UserList() {
                       <TableCell align='right' sx={{ pr: 3 }} onClick={(e) => e.stopPropagation()}>
                         <IconButton
                           size='small'
+                          aria-label='Open actions menu'
                           onClick={(e) => handleOpenActionMenu(e, user)}
                           sx={{
                             color: 'text.secondary',
+                            width: 44,
+                            height: 44,
+                            minWidth: 44,
+                            minHeight: 44,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.05) },
                           }}
                         >
@@ -893,7 +935,7 @@ export default function UserList() {
                   setPerPage(Number(e.target.value))
                   setPage(1)
                 }}
-                sx={{ height: 32, fontSize: '0.8125rem' }}
+                sx={{ height: 36, fontSize: '0.8125rem', borderRadius: 'var(--sf-radius-xs, 4px)' }}
               >
                 <MenuItem value={10}>10 per page</MenuItem>
                 <MenuItem value={25}>25 per page</MenuItem>
@@ -908,6 +950,12 @@ export default function UserList() {
               color='primary'
               shape='rounded'
               size='small'
+              sx={{
+                '& .MuiPaginationItem-root': {
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                  fontWeight: 700,
+                },
+              }}
             />
           </Stack>
         </Box>
@@ -918,12 +966,14 @@ export default function UserList() {
         anchorEl={actionMenuAnchor}
         open={Boolean(actionMenuAnchor)}
         onClose={handleCloseActionMenu}
-        PaperProps={{
-          sx: {
-            minWidth: 200,
-            borderRadius: 2,
-            boxShadow: '0 12px 28px rgba(0, 0, 0, 0.15)',
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        slotProps={{
+          paper: {
+            sx: {
+              minWidth: 200,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              boxShadow: 'var(--sf-shadow-lg)',
+              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            },
           },
         }}
       >

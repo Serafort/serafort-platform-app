@@ -50,6 +50,9 @@ import Warning from '@mui/icons-material/Warning'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   useOIDCClients,
   useCreateOIDCClient,
@@ -71,6 +74,8 @@ const DEFAULT_REDIRECT_URI =
 export default function ApplicationDashboard() {
   const navigate = useNavigate()
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const { t } = useTranslation('auth')
   const { data: clientsResponse, isLoading, refetch } = useOIDCClients()
   const createMutation = useCreateOIDCClient()
@@ -289,6 +294,7 @@ export default function ApplicationDashboard() {
   }
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       {/* ── Pattern 1: Page Header ───────────────────────────────────── */}
       <Box
@@ -306,7 +312,7 @@ export default function ApplicationDashboard() {
             sx={{
               width: 72,
               height: 72,
-              borderRadius: '20px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               bgcolor: alpha(theme.palette.primary.main, 0.1),
               color: 'primary.main',
             }}
@@ -327,14 +333,11 @@ export default function ApplicationDashboard() {
           startIcon={<Add />}
           onClick={() => handleOpenAppDialog()}
           sx={{
-            bgcolor: 'info.main',
-            boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-            height: 44,
+            minHeight: 48,
             px: 3,
-            borderRadius: 2,
+            borderRadius: 'var(--sf-radius-md, 8px)',
             fontWeight: 700,
             textTransform: 'none',
-            '&:hover': { bgcolor: 'info.dark' },
           }}
         >
           {t('admin.developer.applications.new_app')}
@@ -346,10 +349,11 @@ export default function ApplicationDashboard() {
         sx={{
           p: 2.5,
           mb: 4,
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
+          ...surfaceEffect,
         }}
       >
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems='center'>
@@ -359,13 +363,15 @@ export default function ApplicationDashboard() {
             size='small'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <Search sx={{ fontSize: 20, color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-              sx: { borderRadius: 3 },
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <Search sx={{ fontSize: 20, color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: 3 },
+              },
             }}
             sx={{ maxWidth: 500 }}
           />
@@ -404,11 +410,12 @@ export default function ApplicationDashboard() {
           <Grid key={app.id} size={{ xs: 12, md: 6, lg: 4 }}>
             <Card
               sx={{
-                borderRadius: 4,
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
                 transition: 'all 0.2s',
+                ...surfaceEffect,
                 '&:hover': {
                   borderColor: 'primary.main',
                   bgcolor: alpha(theme.palette.primary.main, 0.01),
@@ -866,5 +873,6 @@ export default function ApplicationDashboard() {
         </DialogActions>
       </Dialog>
     </Box>
+    </motion.div>
   )
 }

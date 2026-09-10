@@ -28,14 +28,20 @@ import RouteIcon from '@mui/icons-material/AltRoute'
 import MenuIcon from '@mui/icons-material/Menu'
 import ShieldIcon from '@mui/icons-material/Shield'
 
+import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { modulesRouterService } from '@cap/platform-core'
 import type { ModuleStatusInfo } from '@cap/shared-types'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import ModuleUploadModal from './components/ModuleUploadModal'
 
 export default function ModuleManagementDashboard() {
   const theme = useTheme()
   const { t } = useTranslation('common')
+
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
 
   const [modules, setModules] = useState<ModuleStatusInfo[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -106,6 +112,7 @@ export default function ModuleManagementDashboard() {
   }, [modules])
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       {/* Header */}
       <Box
@@ -145,7 +152,7 @@ export default function ModuleManagementDashboard() {
             variant='outlined'
             startIcon={<RefreshIcon />}
             onClick={fetchModules}
-            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
+            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
           >
             {t('monitoring.modules.refresh', 'Refresh')}
           </Button>
@@ -156,10 +163,10 @@ export default function ModuleManagementDashboard() {
             sx={{
               textTransform: 'none',
               fontWeight: 700,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 2.5,
               bgcolor: 'primary.main',
-              boxShadow: (th) => `0 4px 14px 0 ${alpha(th.palette.primary.main, 0.39)}`,
+              minHeight: 48,
             }}
           >
             {t('monitoring.modules.upload', 'Upload Module Package')}
@@ -172,8 +179,9 @@ export default function ModuleManagementDashboard() {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper
             sx={{
+              ...surfaceEffect,
               p: 2.5,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               border: '1px solid',
               borderColor: 'divider',
               bgcolor: alpha(theme.palette.primary.main, 0.03),
@@ -190,8 +198,9 @@ export default function ModuleManagementDashboard() {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper
             sx={{
+              ...surfaceEffect,
               p: 2.5,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               border: '1px solid',
               borderColor: 'divider',
               bgcolor: alpha(theme.palette.success.main, 0.03),
@@ -208,8 +217,9 @@ export default function ModuleManagementDashboard() {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper
             sx={{
+              ...surfaceEffect,
               p: 2.5,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               border: '1px solid',
               borderColor: 'divider',
               bgcolor: alpha(theme.palette.info.main, 0.03),
@@ -226,8 +236,9 @@ export default function ModuleManagementDashboard() {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper
             sx={{
+              ...surfaceEffect,
               p: 2.5,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               border: '1px solid',
               borderColor: 'divider',
               bgcolor: alpha(theme.palette.warning.main, 0.03),
@@ -475,5 +486,6 @@ export default function ModuleManagementDashboard() {
         }}
       />
     </Box>
+    </motion.div>
   )
 }

@@ -16,6 +16,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import Send from '@mui/icons-material/Send'
 import History from '@mui/icons-material/History'
 import CheckCircle from '@mui/icons-material/CheckCircle'
@@ -23,6 +24,8 @@ import Error from '@mui/icons-material/Error'
 import SettingsApplications from '@mui/icons-material/SettingsApplications'
 import { useTranslation } from 'react-i18next'
 import { useNotifications } from '@cap/platform-core'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   useEmailTemplatesQuery,
   useSendTestEmailMutation,
@@ -31,6 +34,9 @@ import {
 export default function EmailTestingDashboard() {
   const { t } = useTranslation('common')
   const { addNotification } = useNotifications()
+  const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const [testEmail, setTestEmail] = useState('')
   const [selectedTemplate, setSelectedTemplate] = useState('welcome')
   const [testLogs, setTestLogs] = useState<
