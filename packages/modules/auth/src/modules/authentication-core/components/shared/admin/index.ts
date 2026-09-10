@@ -11,3 +11,15 @@ export { default as AdminStatCard, type AdminStatCardProps } from './AdminStatCa
 export { default as AdminEmptyState, type AdminEmptyStateProps } from './AdminEmptyState'
 export { default as AdminDataState, type AdminDataStateProps } from './AdminDataState'
 export { default as AdminSearchField, type AdminSearchFieldProps } from './AdminSearchField'
+export {
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
+  AdminTablePagination,
+  type AdminTableCardProps,
+  type AdminTableHeadProps,
+  type AdminTableHeadCellProps,
+  type AdminTableRowProps,
+  type AdminTablePaginationProps,
+} from './AdminTable'

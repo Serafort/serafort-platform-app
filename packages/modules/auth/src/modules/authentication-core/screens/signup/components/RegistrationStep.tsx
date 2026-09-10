@@ -2,7 +2,6 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import {
   Box,
-  Button,
   Typography,
   IconButton,
   InputAdornment,
@@ -10,19 +9,17 @@ import {
   Checkbox,
   FormControlLabel,
   FormHelperText,
-  alpha,
 } from '@mui/material'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import PersonAdd from '@mui/icons-material/PersonAdd'
-import Google from '@mui/icons-material/Google'
-import GitHub from '@mui/icons-material/GitHub'
 import { Controller, Control } from 'react-hook-form'
 import {
   AuthCardHeader,
   AuthInputLabel,
   AuthActionButton,
   AuthTextField,
+  AuthSocialButton,
   PasswordStrengthMeter,
 } from '../../../components/shared/auth'
 import { SignUpFormSchemaType } from '../../../utils/schema'
@@ -46,35 +43,6 @@ interface RegistrationStepProps {
   onTogglePassword: () => void
   onToggleConfirmPassword: () => void
   onSocialRegister: (provider: string) => void
-}
-
-const socialButtonSx = {
-  py: 1.2,
-  minHeight: 48,
-  borderRadius: '12px',
-  fontWeight: 700,
-  textTransform: 'none' as const,
-  color: 'text.primary',
-  borderColor: 'divider',
-  bgcolor: 'background.paper',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  transition: 'all 0.2s ease-in-out',
-  '& .MuiButton-startIcon': {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    m: 0,
-    mr: 1,
-  },
-  '&:hover': {
-    bgcolor: (theme: any) => alpha(theme.palette.action.hover, 0.04),
-    borderColor: 'divider',
-  },
-  '&:focus': {
-    boxShadow: (theme: any) => `0 0 0 3px ${alpha(theme.palette.primary.main, 0.2)}`,
-  },
 }
 
 export const RegistrationStep: React.FC<RegistrationStepProps> = ({
@@ -356,26 +324,18 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
             </Box>
 
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
-              <Button
-                fullWidth
-                variant='outlined'
-                startIcon={<Google />}
+              <AuthSocialButton
+                provider='google'
+                label={t('auth.login.google', 'Google')}
                 onClick={() => onSocialRegister('google')}
                 disabled={isRegisterPending || isSubmitting || isLocked}
-                sx={socialButtonSx}
-              >
-                Google
-              </Button>
-              <Button
-                fullWidth
-                variant='outlined'
-                startIcon={<GitHub />}
+              />
+              <AuthSocialButton
+                provider='github'
+                label={t('auth.login.github', 'GitHub')}
                 onClick={() => onSocialRegister('github')}
                 disabled={isRegisterPending || isSubmitting || isLocked}
-                sx={socialButtonSx}
-              >
-                GitHub
-              </Button>
+              />
             </Box>
           </Box>
 

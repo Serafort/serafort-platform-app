@@ -39,4 +39,9 @@ export {
   type DevicePlatform,
 } from './DevicePlatformIcon'
 export { default as AuthConfirmDrawer, type AuthConfirmDrawerProps } from './AuthConfirmDrawer'
+export {
+  default as AuthSocialButton,
+  type AuthSocialButtonProps,
+  type AuthSocialProvider,
+} from './AuthSocialButton'
 export { type AuthTone } from './authTone'
