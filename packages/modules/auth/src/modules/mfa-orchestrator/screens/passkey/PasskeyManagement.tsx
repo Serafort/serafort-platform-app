@@ -41,6 +41,7 @@ import ArrowBack from '@mui/icons-material/ArrowBack'
 import WarningAmber from '@mui/icons-material/WarningAmber'
 import Security from '@mui/icons-material/Security'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { Link as RouterLink } from 'react-router-dom'
 import { buildSurfaceEffect, getTenantThemeEffects } from '@cap/theme'
 import { useUserPasskeys, useDeletePasskey, useUpdatePasskey } from '../../../user-directory/hooks'
@@ -99,7 +100,7 @@ const getDeviceIconColor = (deviceType: string, theme: Theme) => {
   }
 }
 
-const formatDate = (dateString: string | null, t: any): string => {
+const formatDate = (dateString: string | null, t: TFunction): string => {
   if (!dateString) return t('auth.passkey.last_used_never', 'Never')
 
   const date = new Date(dateString)
@@ -321,7 +322,7 @@ export default function PasskeyManagement() {
             severity='success'
             onClose={() => setSuccessMessage('')}
             sx={{
-              borderRadius: '12px',
+              borderRadius: 'var(--sf-radius-md, 12px)',
               border: (theme) => `1px solid ${alpha(theme.palette.success.main, 0.2)}`,
               boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.success.main, 0.1)}`,
             }}
@@ -335,7 +336,7 @@ export default function PasskeyManagement() {
           take effect.
         */}
         {errorMessage && (
-          <Alert severity='error' onClose={() => setErrorMessage('')} sx={{ borderRadius: '12px' }}>
+          <Alert severity='error' onClose={() => setErrorMessage('')} sx={{ borderRadius: 'var(--sf-radius-md, 12px)' }}>
             {errorMessage}
           </Alert>
         )}
@@ -356,7 +357,7 @@ export default function PasskeyManagement() {
                 sx={{
                   width: 42,
                   height: 42,
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-md, 12px)',
                   bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
                   color: 'primary.main',
                   display: 'flex',
@@ -396,18 +397,17 @@ export default function PasskeyManagement() {
             startIcon={<Add />}
             onClick={() => setSetupDialogOpen(true)}
             sx={{
-              borderRadius: '10px',
-              height: 44,
+              borderRadius: 'var(--sf-radius-md, 10px)',
+              minHeight: 48,
               px: 2.5,
               fontWeight: 700,
               textTransform: 'none',
               bgcolor: 'primary.main',
               color: 'primary.contrastText',
-              boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.primary.main, 0.3)}`,
+              boxShadow: 'var(--sf-shadow-glow, none)',
               transition: 'all 0.2s ease',
               '&:hover': {
                 bgcolor: 'primary.dark',
-                boxShadow: (theme) => `0 6px 20px ${alpha(theme.palette.primary.main, 0.4)}`,
               },
             }}
           >
@@ -419,7 +419,7 @@ export default function PasskeyManagement() {
         <Card
           sx={{
             ...surfaceEffects,
-            borderRadius: '16px',
+            borderRadius: 'var(--sf-radius-lg, 16px)',
             border: (theme) => `1px solid ${theme.palette.divider}`,
             bgcolor: 'background.paper',
             overflow: 'hidden',
@@ -461,7 +461,7 @@ export default function PasskeyManagement() {
                 sx={{
                   width: 64,
                   height: 64,
-                  borderRadius: '20px',
+                  borderRadius: 'var(--sf-radius-lg, 20px)',
                   bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
                   color: 'primary.main',
                   display: 'flex',
@@ -486,7 +486,8 @@ export default function PasskeyManagement() {
                 startIcon={<Add />}
                 onClick={() => setSetupDialogOpen(true)}
                 sx={{
-                  borderRadius: '10px',
+                  borderRadius: 'var(--sf-radius-md, 10px)',
+                  minHeight: 44,
                   fontWeight: 600,
                   textTransform: 'none',
                   px: 2.5,
@@ -736,7 +737,7 @@ export default function PasskeyManagement() {
         <Card
           sx={{
             p: 2.5,
-            borderRadius: '14px',
+            borderRadius: 'var(--sf-radius-md, 14px)',
             bgcolor: (theme) =>
               theme.palette.mode === 'dark'
                 ? alpha(theme.palette.background.paper, 0.4)
@@ -751,7 +752,7 @@ export default function PasskeyManagement() {
             sx={{
               width: 36,
               height: 36,
-              borderRadius: '10px',
+              borderRadius: 'var(--sf-radius-sm, 10px)',
               bgcolor: (theme) => alpha(theme.palette.info.main, 0.12),
               color: 'info.main',
               display: 'flex',
@@ -794,7 +795,7 @@ export default function PasskeyManagement() {
             sx: {
               mt: 1,
               minWidth: 160,
-              borderRadius: '12px',
+              borderRadius: 'var(--sf-radius-md, 12px)',
               boxShadow: (theme) =>
                 theme.palette.mode === 'dark'
                   ? '0 12px 32px rgba(0, 0, 0, 0.6)'
@@ -805,7 +806,7 @@ export default function PasskeyManagement() {
           },
         }}
       >
-        <MenuItem onClick={handleRenameClick} sx={{ borderRadius: '8px', py: 1, minHeight: 44 }}>
+        <MenuItem onClick={handleRenameClick} sx={{ borderRadius: 'var(--sf-radius-sm, 8px)', py: 1, minHeight: 44 }}>
           <ListItemIcon>
             <Edit fontSize='small' sx={{ color: 'text.secondary' }} />
           </ListItemIcon>
@@ -816,7 +817,7 @@ export default function PasskeyManagement() {
         <MenuItem
           onClick={handleDeleteClick}
           sx={{
-            borderRadius: '8px',
+            borderRadius: 'var(--sf-radius-sm, 8px)',
             py: 1,
             minHeight: 44,
             color: 'error.main',
@@ -843,7 +844,7 @@ export default function PasskeyManagement() {
         slotProps={{
           paper: {
             sx: {
-              borderRadius: '16px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               p: 1,
               bgcolor: 'background.paper',
               backgroundImage: 'none',
@@ -873,9 +874,14 @@ export default function PasskeyManagement() {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             disabled={isRenaming}
+            slotProps={{
+              input: {
+                sx: { minHeight: 48 },
+              },
+            }}
             sx={{
               '& .MuiOutlinedInput-root': {
-                borderRadius: '10px',
+                borderRadius: 'var(--sf-radius-md, 10px)',
               },
             }}
           />
@@ -886,7 +892,8 @@ export default function PasskeyManagement() {
             disabled={isRenaming}
             variant='outlined'
             sx={{
-              borderRadius: '10px',
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 10px)',
               textTransform: 'none',
               fontWeight: 600,
               borderColor: 'divider',
@@ -900,7 +907,8 @@ export default function PasskeyManagement() {
             variant='contained'
             disabled={isRenaming || !newName.trim()}
             sx={{
-              borderRadius: '10px',
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 10px)',
               textTransform: 'none',
               fontWeight: 700,
               minWidth: 90,
@@ -924,7 +932,7 @@ export default function PasskeyManagement() {
         slotProps={{
           paper: {
             sx: {
-              borderRadius: '16px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               p: 1,
               bgcolor: 'background.paper',
               backgroundImage: 'none',
@@ -953,7 +961,7 @@ export default function PasskeyManagement() {
             sx={{
               width: 36,
               height: 36,
-              borderRadius: '8px',
+              borderRadius: 'var(--sf-radius-sm, 8px)',
               bgcolor: (theme) => alpha(theme.palette.error.main, 0.12),
               display: 'flex',
               alignItems: 'center',
@@ -978,7 +986,7 @@ export default function PasskeyManagement() {
                 mt: 2.5,
                 p: 2,
                 bgcolor: (theme) => alpha(theme.palette.text.primary, 0.04),
-                borderRadius: '10px',
+                borderRadius: 'var(--sf-radius-md, 10px)',
                 border: (theme) => `1px solid ${theme.palette.divider}`,
                 display: 'flex',
                 alignItems: 'center',
@@ -990,7 +998,7 @@ export default function PasskeyManagement() {
                 sx={{
                   width: 36,
                   height: 36,
-                  borderRadius: '8px',
+                  borderRadius: 'var(--sf-radius-sm, 8px)',
                   ...getDeviceIconColor(menuState.passkey.deviceType, theme),
                 }}
               >
@@ -1014,7 +1022,8 @@ export default function PasskeyManagement() {
             disabled={deletePasskeyMutation.isPending}
             variant='outlined'
             sx={{
-              borderRadius: '10px',
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 10px)',
               textTransform: 'none',
               fontWeight: 600,
               borderColor: 'divider',
@@ -1035,7 +1044,8 @@ export default function PasskeyManagement() {
               )
             }
             sx={{
-              borderRadius: '10px',
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 10px)',
               bgcolor: 'error.main',
               color: 'error.contrastText',
               fontWeight: 700,

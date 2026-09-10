@@ -208,14 +208,14 @@ export const UserActivityTimeline: React.FC = () => {
                 variant={selected ? 'filled' : 'outlined'}
                 onClick={() => setActiveFilter(filter.id)}
                 label={`${t(filter.labelKey, filter.fallback)} (${count})`}
-                sx={{ height: 36, fontWeight: 700, borderRadius: 2 }}
+                sx={{ height: 36, fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)' }}
               />
             )
           })}
         </Stack>
       )}
 
-      <Paper variant='outlined' sx={{ p: { xs: 2, md: 4 }, borderRadius: 3 }}>
+      <Paper variant='outlined' sx={{ p: { xs: 2, md: 4 }, borderRadius: 'var(--sf-radius-lg, 12px)' }}>
         {isLoading ? (
           <Stack spacing={3} sx={{ py: 4, px: 2 }}>
             {[1, 2, 3, 4].map((i) => (
@@ -295,7 +295,7 @@ export const UserActivityTimeline: React.FC = () => {
                     variant='outlined'
                     sx={{
                       p: 2,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       bgcolor: 'background.default',
                       borderColor: 'divider',
                       '&:hover': {
@@ -327,7 +327,7 @@ export const UserActivityTimeline: React.FC = () => {
             startIcon={<Refresh />}
             disabled={isFetching}
             onClick={() => refetch()}
-            sx={{ textTransform: 'none', fontWeight: 'bold' }}
+            sx={{ textTransform: 'none', fontWeight: 'bold', minHeight: 44 }}
           >
             {t('auth.account.activity.refresh', 'Refresh activity')}
           </Button>

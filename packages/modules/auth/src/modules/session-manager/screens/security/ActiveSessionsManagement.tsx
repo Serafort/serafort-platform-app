@@ -178,7 +178,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
               {t('common.retry', 'Retry')}
             </Button>
           }
-          sx={{ mb: 4, borderRadius: 2 }}
+          sx={{ mb: 4, borderRadius: 'var(--sf-radius-md, 8px)' }}
         >
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           {error?.message ||
@@ -195,12 +195,12 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                 {t('auth.account.current_session', 'Current Session')}
               </Typography>
               {isLoading ? (
-                <Skeleton variant='rectangular' height={100} sx={{ borderRadius: 2, mb: 4 }} />
+                <Skeleton variant='rectangular' height={100} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', mb: 4 }} />
               ) : currentSession ? (
                 <Card
                   variant='outlined'
                   sx={{
-                    borderRadius: 2,
+                    borderRadius: 'var(--sf-radius-lg, 12px)',
                     mb: 4,
                     bgcolor: (th) => alpha(th.palette.success.main, 0.06),
                     borderColor: (th) => alpha(th.palette.success.main, 0.3),
@@ -231,7 +231,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                   </CardContent>
                 </Card>
               ) : (
-                <Alert severity='warning' sx={{ mb: 4, borderRadius: 2 }}>
+                <Alert severity='warning' sx={{ mb: 4, borderRadius: 'var(--sf-radius-md, 8px)' }}>
                   {t('auth.account.no_current_session', 'Unable to identify current session.')}
                 </Alert>
               )}
@@ -244,12 +244,12 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
               ? t('auth.admin.activeTokens', 'Active Access Tokens')
               : t('auth.account.other_active_sessions', 'Other Active Sessions')}
           </Typography>
-          <Paper variant='outlined' sx={{ borderRadius: 2 }}>
+          <Paper variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}>
             <List disablePadding>
               {isLoading ? (
                 [1, 2].map((i: number) => (
                   <Box key={i} sx={{ p: 2 }}>
-                    <Skeleton variant='rectangular' height={60} sx={{ borderRadius: 2 }} />
+                    <Skeleton variant='rectangular' height={60} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
                   </Box>
                 ))
               ) : otherSessions.length > 0 ? (
@@ -371,7 +371,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
               color='error'
               disabled={isRevokingAll || otherSessions.length === 0}
               onClick={handleOpenRevokeAll}
-              sx={{ minHeight: 44, textTransform: 'none', borderRadius: 2 }}
+              sx={{ minHeight: 44, textTransform: 'none', borderRadius: 'var(--sf-radius-md, 8px)' }}
             >
               {adminView
                 ? t('auth.admin.terminateAll', 'Terminate All User Sessions')
@@ -386,7 +386,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
               severity='info'
               icon={<Security color='info' />}
               sx={{
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-lg, 12px)',
                 '& .MuiAlert-message': { width: '100%' },
                 bgcolor: (th) => alpha(th.palette.info.main, 0.06),
                 border: '1px solid',
@@ -407,7 +407,7 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                 size='small'
                 endIcon={<ArrowForward />}
                 onClick={() => navigate(Path.account.changePassword)}
-                sx={{ textTransform: 'none', fontWeight: 'bold', p: 0 }}
+                sx={{ textTransform: 'none', fontWeight: 'bold', p: 0, minHeight: 44 }}
               >
                 {t('auth.account.change_password', 'Change Password')}
               </Button>

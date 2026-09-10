@@ -249,13 +249,35 @@ export default function MFAVerificationScreen() {
             severity='error'
             role='alert'
             aria-live='polite'
-            sx={{ mb: 3, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 600 } }}
+            sx={{
+              mb: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              '& .MuiAlert-message': { fontWeight: 600 },
+            }}
           >
             {error}
           </Alert>
         )}
+        {successMsg && (
+          <Alert
+            severity='success'
+            role='status'
+            aria-live='polite'
+            sx={{
+              mb: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              '& .MuiAlert-message': { fontWeight: 600 },
+            }}
+          >
+            {successMsg}
+          </Alert>
+        )}
         {smsSentMessage && activeMethod === 'sms' && (
-          <Alert severity='info' role='status' sx={{ mb: 3, borderRadius: 2 }}>
+          <Alert
+            severity='info'
+            role='status'
+            sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)' }}
+          >
             {smsSentMessage}
           </Alert>
         )}
@@ -269,14 +291,14 @@ export default function MFAVerificationScreen() {
           variant='fullWidth'
           sx={{
             mb: 3,
-            minHeight: 40,
+            minHeight: 44,
             borderBottom: 1,
             borderColor: 'divider',
             '& .MuiTab-root': {
-              minHeight: 40,
+              minHeight: 44,
               textTransform: 'none',
               fontWeight: 700,
-              fontSize: '0.8rem',
+              fontSize: '0.8125rem',
             },
           }}
         >
@@ -418,7 +440,7 @@ export default function MFAVerificationScreen() {
           )}
 
           {activeMethod === 'passkey' && (
-            <Box sx={{ py: 2 }}>
+            <Box sx={{ py: 1 }}>
               <Button
                 fullWidth
                 variant='contained'
@@ -433,13 +455,14 @@ export default function MFAVerificationScreen() {
                   )
                 }
                 sx={{
-                  py: 1.8,
-                  borderRadius: 3,
+                  minHeight: 48,
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                   fontWeight: 800,
                   fontSize: '1rem',
                   textTransform: 'none',
                   bgcolor: 'info.main',
-                  boxShadow: `0 4px 14px ${alpha(theme.palette.info.main, 0.4)}`,
+                  color: 'info.contrastText',
+                  boxShadow: 'var(--sf-shadow-glow, none)',
                   '&:hover': { bgcolor: 'info.dark' },
                 }}
               >
@@ -465,14 +488,14 @@ export default function MFAVerificationScreen() {
               onClick={handleSubmit}
               endIcon={loading ? <CircularProgress size={20} color='inherit' /> : <ArrowForward />}
               sx={{
-                py: 1.5,
-                borderRadius: 3,
+                minHeight: 48,
+                borderRadius: 'var(--sf-radius-lg, 12px)',
                 fontWeight: 800,
                 fontSize: '1rem',
                 textTransform: 'none',
                 bgcolor: 'primary.main',
-                boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`,
-                '&:hover': { bgcolor: 'primary.dark', transform: 'translateY(-1px)' },
+                boxShadow: 'var(--sf-shadow-glow, none)',
+                '&:hover': { bgcolor: 'primary.dark' },
               }}
             >
               {loading
@@ -485,7 +508,7 @@ export default function MFAVerificationScreen() {
             <Timer sx={{ fontSize: 18, color: 'text.secondary' }} />
             <Typography variant='caption' sx={{ fontWeight: 600, color: 'text.secondary' }}>
               {t('mfa.codeExpires', 'Challenge session expires in')}{' '}
-              <Box component='span' sx={{ color: 'primary.main', fontWeight: 700 }}>
+              <Box component='span' sx={{ color: 'primary.main', fontWeight: 700, fontFamily: 'monospace' }}>
                 {formatTime(timeLeft)}
               </Box>
             </Typography>

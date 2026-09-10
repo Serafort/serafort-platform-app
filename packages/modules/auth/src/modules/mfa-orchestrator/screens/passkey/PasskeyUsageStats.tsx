@@ -103,7 +103,7 @@ export default function PasskeyUsageStats() {
               />
             </Box>
 
-            <Card variant='outlined' sx={{ borderRadius: 3, borderColor: 'divider' }}>
+            <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', borderColor: 'divider' }}>
               <CardContent>
                 <Typography variant='subtitle1' sx={{ fontWeight: 700, mb: 3 }}>
                   {t('auth.passkey.adoption_trend', 'Daily challenge volume')}
@@ -157,7 +157,7 @@ export default function PasskeyUsageStats() {
                 variant='outlined'
                 endIcon={<ArrowForward fontSize='small' />}
                 onClick={() => navigate(PlatformClusterPath.monitor.mfa_analytics)}
-                sx={{ minHeight: 44, fontWeight: 700, textTransform: 'none', borderRadius: 2 }}
+                sx={{ minHeight: 44, fontWeight: 700, textTransform: 'none', borderRadius: 'var(--sf-radius-md, 8px)' }}
               >
                 {t('auth.passkey.view_full_analytics', 'View full MFA analytics')}
               </Button>

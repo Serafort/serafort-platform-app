@@ -255,7 +255,12 @@ export default function MFASetupScreen() {
               variant='outlined'
               onClick={handleCopyCodes}
               startIcon={copiedCodes ? <Check /> : <ContentCopy />}
-              sx={{ minHeight: 44, borderRadius: 2.5, fontWeight: 700, textTransform: 'none' }}
+              sx={{
+                minHeight: 44,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                fontWeight: 700,
+                textTransform: 'none',
+              }}
             >
               {copiedCodes ? t('common.copied', 'Copied!') : t('mfa.copyCodes', 'Copy Codes')}
             </Button>
@@ -264,7 +269,12 @@ export default function MFASetupScreen() {
               variant='outlined'
               onClick={handleDownloadCodes}
               startIcon={<Download />}
-              sx={{ minHeight: 44, borderRadius: 2.5, fontWeight: 700, textTransform: 'none' }}
+              sx={{
+                minHeight: 44,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                fontWeight: 700,
+                textTransform: 'none',
+              }}
             >
               {t('mfa.downloadCodes', 'Download .txt')}
             </Button>
@@ -273,7 +283,12 @@ export default function MFASetupScreen() {
               variant='outlined'
               onClick={handlePrintCodes}
               startIcon={<Print />}
-              sx={{ minHeight: 44, borderRadius: 2.5, fontWeight: 700, textTransform: 'none' }}
+              sx={{
+                minHeight: 44,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                fontWeight: 700,
+                textTransform: 'none',
+              }}
             >
               {t('mfa.printCodes', 'Print')}
             </Button>
@@ -287,10 +302,11 @@ export default function MFASetupScreen() {
             endIcon={<ArrowForward />}
             sx={{
               minHeight: 48,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               fontWeight: 800,
               fontSize: '1rem',
               textTransform: 'none',
+              boxShadow: 'var(--sf-shadow-glow, none)',
             }}
           >
             {t('mfa.finishSetup', 'Finish & Continue')}
@@ -376,10 +392,11 @@ export default function MFASetupScreen() {
             endIcon={verifying ? <CircularProgress size={20} color='inherit' /> : <ArrowForward />}
             sx={{
               minHeight: 48,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               fontWeight: 800,
               fontSize: '1rem',
               textTransform: 'none',
+              boxShadow: 'var(--sf-shadow-glow, none)',
             }}
           >
             {verifying

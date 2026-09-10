@@ -11,7 +11,6 @@ import {
   Typography,
   Card,
   CardContent,
-  CssBaseline,
   useTheme,
   alpha,
   CircularProgress,
@@ -27,7 +26,7 @@ import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked'
 import ShieldOutlined from '@mui/icons-material/ShieldOutlined'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { themeConfig, useNotifications } from '@cap/platform-core'
+import { useNotifications } from '@cap/platform-core'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import LogoutOutlined from '@mui/icons-material/LogoutOutlined'
@@ -203,107 +202,99 @@ export function ChangePassword() {
   }
 
   return (
-    <>
-      <title>
-        {t('auth.set_new_password.title_page', 'Change Password')} - {themeConfig.templateName}
-      </title>
-      <Container
-        component='main'
-        maxWidth='md'
+    <Container
+      component='main'
+      maxWidth='md'
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 'calc(100vh - 120px)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        py: { xs: 4, sm: 6 },
+        px: { xs: 2, sm: 3 },
+        position: 'relative',
+      }}
+    >
+      {/* Simplified Top Navigation Header */}
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: 520,
+          mb: 2.5,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+        }}
+      >
+        <Button
+          component={RouterLink}
+          to={Path.account.overview}
+          startIcon={<ArrowBack sx={{ fontSize: 18 }} />}
+          sx={{
+            textTransform: 'none',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            color: 'text.secondary',
+            px: 1.5,
+            py: 0.75,
+            minHeight: 44,
+            borderRadius: 'var(--sf-radius-sm, 8px)',
+            transition: 'all 0.2s ease',
+            '&:hover, &:not(.Mui-disabled):hover': {
+              color: 'text.primary',
+              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+            },
+          }}
+        >
+          {t('auth.account.back_to_security', 'Back to Security & Account')}
+        </Button>
+      </Box>
+
+      {/* Main Grouped Container Card */}
+      <Card
+        elevation={0}
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          minHeight: 'calc(100vh - 120px)',
-          justifyContent: 'center',
-          alignItems: 'center',
-          py: { xs: 4, sm: 6 },
-          px: { xs: 2, sm: 3 },
+          width: '100%',
+          maxWidth: 520,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          bgcolor: 'background.paper',
+          boxShadow: 'var(--sf-shadow-lg)',
           position: 'relative',
+          overflow: 'hidden',
+          zIndex: 1,
+          ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
         }}
       >
-        <CssBaseline />
-
-        {/* Simplified Top Navigation Header */}
-        <Box
+        <CardContent
           sx={{
-            width: '100%',
-            maxWidth: 520,
-            mb: 2.5,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
+            p: { xs: 3, sm: 4.5 },
+            '&:last-child': { pb: { xs: 3, sm: 4.5 } },
           }}
         >
-          <Button
-            component={RouterLink}
-            to={Path.account.overview}
-            startIcon={<ArrowBack sx={{ fontSize: 18 }} />}
-            sx={{
-              textTransform: 'none',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              color: 'text.secondary',
-              px: 1.5,
-              py: 0.75,
-              borderRadius: '8px',
-              transition: 'all 0.2s ease',
-              '&:hover, &:not(.Mui-disabled):hover': {
-                color: 'text.primary',
-                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
-              },
-            }}
-          >
-            {t('auth.account.back_to_security', 'Back to Security & Account')}
-          </Button>
-        </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3.5 }}>
+            {/* Header Icon */}
+            <Box
+              sx={{
+                width: 56,
+                height: 56,
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                color: 'primary.main',
+                borderRadius: 'var(--sf-radius-md, 14px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 2,
+                boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.15)}`,
+              }}
+            >
+              <ShieldOutlined sx={{ fontSize: 30 }} />
+            </Box>
 
-        {/* Main Grouped Container Card */}
-        <Card
-          elevation={0}
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: '100%',
-            maxWidth: 520,
-            borderRadius: '16px',
-            border: (theme) => `1px solid ${theme.palette.divider}`,
-            bgcolor: 'background.paper',
-            boxShadow: (theme) =>
-              theme.palette.mode === 'dark'
-                ? '0 12px 32px -4px rgba(0, 0, 0, 0.5)'
-                : '0 12px 32px -4px rgba(15, 23, 42, 0.08)',
-            position: 'relative',
-            overflow: 'hidden',
-            zIndex: 1,
-            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-          }}
-        >
-          <CardContent
-            sx={{
-              p: { xs: 3, sm: 4.5 },
-              '&:last-child': { pb: { xs: 3, sm: 4.5 } },
-            }}
-          >
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3.5 }}>
-              {/* Header Icon */}
-              <Box
-                sx={{
-                  width: 56,
-                  height: 56,
-                  bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
-                  color: 'primary.main',
-                  borderRadius: '14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mb: 2,
-                  boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.primary.main, 0.15)}`,
-                }}
-              >
-                <ShieldOutlined sx={{ fontSize: 30 }} />
-              </Box>
-
-              <Typography
+            <Typography
                 variant='h5'
                 fontWeight='700'
                 textAlign='center'
@@ -393,7 +384,7 @@ export function ChangePassword() {
                       }}
                       sx={{
                         '& .MuiOutlinedInput-root': {
-                          borderRadius: '10px',
+                          borderRadius: 'var(--sf-radius-md, 10px)',
                           minHeight: 48,
                           bgcolor: 'background.default',
                           transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
@@ -469,7 +460,7 @@ export function ChangePassword() {
                       }}
                       sx={{
                         '& .MuiOutlinedInput-root': {
-                          borderRadius: '10px',
+                          borderRadius: 'var(--sf-radius-md, 10px)',
                           minHeight: 48,
                           bgcolor: 'background.default',
                           transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
@@ -597,7 +588,7 @@ export function ChangePassword() {
                       }}
                       sx={{
                         '& .MuiOutlinedInput-root': {
-                          borderRadius: '10px',
+                          borderRadius: 'var(--sf-radius-md, 10px)',
                           minHeight: 48,
                           bgcolor: 'background.default',
                           transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
@@ -621,7 +612,7 @@ export function ChangePassword() {
                     theme.palette.mode === 'dark'
                       ? alpha(theme.palette.background.default, 0.6)
                       : alpha(theme.palette.primary.main, 0.03),
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-md, 12px)',
                   p: 2,
                   border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.7)}`,
                 }}
@@ -729,19 +720,19 @@ export function ChangePassword() {
                 disabled={isPending}
                 sx={{
                   py: 1.5,
-                  borderRadius: '10px',
+                  minHeight: 48,
+                  borderRadius: 'var(--sf-radius-md, 10px)',
                   bgcolor: 'primary.main',
                   color: 'primary.contrastText',
                   textTransform: 'none',
                   fontWeight: 700,
                   fontSize: '0.9375rem',
                   mt: 1,
-                  boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.primary.main, 0.3)}`,
+                  boxShadow: 'var(--sf-shadow-glow, none)',
                   transition: 'all 0.2s ease',
                   '&:hover, &:not(.Mui-disabled):hover': {
                     bgcolor: (theme) => `${theme.palette.primary.dark} !important`,
                     color: (theme) => `${theme.palette.primary.contrastText} !important`,
-                    boxShadow: (theme) => `0 6px 20px ${alpha(theme.palette.primary.main, 0.4)}`,
                   },
                   '&:disabled, &.Mui-disabled': {
                     bgcolor: 'action.disabledBackground',
@@ -768,7 +759,8 @@ export function ChangePassword() {
                     color: 'text.secondary',
                     px: 2,
                     py: 1,
-                    borderRadius: '8px',
+                    minHeight: 44,
+                    borderRadius: 'var(--sf-radius-sm, 8px)',
                     '&:hover, &:not(.Mui-disabled):hover': {
                       color: 'text.primary',
                       bgcolor: (theme) => alpha(theme.palette.action.hover, 0.08),
@@ -781,16 +773,7 @@ export function ChangePassword() {
             </Box>
           </CardContent>
         </Card>
-
-        {/* Footer info */}
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
-          <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
-            &copy; {new Date().getFullYear()} {t('auth.common.appName', 'Nexus IDaaS')}.{' '}
-            {t('auth.common.allRightsReserved', 'All rights reserved.')}
-          </Typography>
-        </Box>
       </Container>
-    </>
   )
 }
 

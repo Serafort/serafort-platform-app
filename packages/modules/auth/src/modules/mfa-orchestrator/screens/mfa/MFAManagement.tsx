@@ -286,10 +286,10 @@ export default function MFAManagement() {
   if (loadingMethods && !methods.length) {
     return (
       <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', p: { xs: 2, md: 4 } }}>
-        <Skeleton variant='rectangular' height={80} sx={{ borderRadius: 3, mb: 3 }} />
-        <Skeleton variant='rectangular' height={140} sx={{ borderRadius: 3, mb: 3 }} />
-        <Skeleton variant='rectangular' height={220} sx={{ borderRadius: 3, mb: 3 }} />
-        <Skeleton variant='rectangular' height={160} sx={{ borderRadius: 3 }} />
+        <Skeleton variant='rectangular' height={80} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', mb: 3 }} />
+        <Skeleton variant='rectangular' height={140} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', mb: 3 }} />
+        <Skeleton variant='rectangular' height={220} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', mb: 3 }} />
+        <Skeleton variant='rectangular' height={160} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
       </Box>
     )
   }
@@ -314,7 +314,7 @@ export default function MFAManagement() {
               height: 48,
               bgcolor: alpha(theme.palette.primary.main, 0.12),
               color: 'primary.main',
-              borderRadius: 2.5,
+              borderRadius: 'var(--sf-radius-md, 10px)',
             }}
           >
             <Security sx={{ fontSize: 28 }} />
@@ -354,14 +354,14 @@ export default function MFAManagement() {
       {successMsg && (
         <Alert
           severity='success'
-          sx={{ mb: 3, borderRadius: 2.5 }}
+          sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 10px)' }}
           onClose={() => setSuccessMsg(null)}
         >
           {successMsg}
         </Alert>
       )}
       {(error || methodsError) && (
-        <Alert severity='error' sx={{ mb: 3, borderRadius: 2.5 }} onClose={() => setError(null)}>
+        <Alert severity='error' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 10px)' }} onClose={() => setError(null)}>
           {error ||
             (methodsError instanceof Error ? methodsError.message : '') ||
             t('mfa.loadError', 'Your security settings could not be loaded.')}
@@ -374,7 +374,7 @@ export default function MFAManagement() {
           variant='outlined'
           sx={{
             p: 3,
-            borderRadius: 3,
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             borderColor: 'divider',
             display: 'flex',
             alignItems: 'center',
@@ -424,7 +424,7 @@ export default function MFAManagement() {
           sx={{
             flex: 1,
             p: 3,
-            borderRadius: 3,
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             bgcolor: bannerTone.main,
             color: bannerTone.contrastText,
             display: 'flex',
@@ -470,7 +470,7 @@ export default function MFAManagement() {
                 bgcolor: bannerTone.contrastText,
                 color: bannerTone.main,
                 fontWeight: 700,
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 textTransform: 'none',
                 px: 2.5,
                 whiteSpace: 'nowrap',
@@ -484,7 +484,7 @@ export default function MFAManagement() {
       </Stack>
 
       {/* ── Factors ────────────────────────────────────────────────────────── */}
-      <Card variant='outlined' sx={{ borderRadius: 3, mb: 4, borderColor: 'divider' }}>
+      <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', mb: 4, borderColor: 'divider' }}>
         <Box
           sx={{
             px: 3,
@@ -541,7 +541,7 @@ export default function MFAManagement() {
                     variant='outlined'
                     onClick={() => navigate(Path.passkey.management)}
                     endIcon={<ArrowForward fontSize='small' />}
-                    sx={{ minHeight: 44, fontWeight: 700, borderRadius: 2, textTransform: 'none' }}
+                    sx={{ minHeight: 44, fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
                   >
                     {t('mfa.managePasskeys', 'Manage passkeys')}
                   </Button>
@@ -580,7 +580,7 @@ export default function MFAManagement() {
                       color='error'
                       onClick={handlePromptDisableMfa}
                       startIcon={<DeleteOutline fontSize='small' />}
-                      sx={{ minHeight: 44, fontWeight: 700, borderRadius: 2, textTransform: 'none' }}
+                      sx={{ minHeight: 44, fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
                     >
                       {t('mfa.disable', 'Turn off')}
                     </Button>
@@ -589,7 +589,7 @@ export default function MFAManagement() {
                       fullWidth
                       variant='outlined'
                       onClick={() => navigate(Path.mfa.setup)}
-                      sx={{ minHeight: 44, fontWeight: 700, borderRadius: 2, textTransform: 'none' }}
+                      sx={{ minHeight: 44, fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
                     >
                       {t('mfa.setup', 'Set up')}
                     </Button>
@@ -633,7 +633,7 @@ export default function MFAManagement() {
                     fullWidth
                     variant='outlined'
                     onClick={() => navigate(Path.passkey.management)}
-                    sx={{ minHeight: 44, fontWeight: 700, borderRadius: 2, textTransform: 'none' }}
+                    sx={{ minHeight: 44, fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
                   >
                     {isPasskeyEnabled
                       ? t('mfa.configure', 'Configure')
@@ -669,7 +669,7 @@ export default function MFAManagement() {
                     fullWidth
                     variant='outlined'
                     onClick={() => navigate(Path.mfa.setup)}
-                    sx={{ minHeight: 44, fontWeight: 700, borderRadius: 2, textTransform: 'none' }}
+                    sx={{ minHeight: 44, fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
                   >
                     {isSmsEnabled ? t('mfa.configure', 'Configure') : t('mfa.addPhone', 'Add a phone')}
                   </Button>
@@ -687,7 +687,7 @@ export default function MFAManagement() {
             sx={{
               mt: 3,
               p: 2.5,
-              borderRadius: 2.5,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               bgcolor: alpha(theme.palette.warning.main, 0.04),
               border: '1px solid',
               borderColor: alpha(theme.palette.warning.main, 0.25),
@@ -699,7 +699,7 @@ export default function MFAManagement() {
                 sx={{
                   bgcolor: alpha(theme.palette.warning.main, 0.12),
                   color: 'warning.main',
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-sm, 6px)',
                 }}
               >
                 <Shield />
@@ -730,7 +730,7 @@ export default function MFAManagement() {
                 sx={{
                   minHeight: 44,
                   fontWeight: 700,
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   textTransform: 'none',
                   flex: { xs: 1, sm: 'none' },
                 }}
@@ -744,7 +744,7 @@ export default function MFAManagement() {
                 sx={{
                   minHeight: 44,
                   fontWeight: 700,
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   textTransform: 'none',
                   flex: { xs: 1, sm: 'none' },
                 }}
@@ -775,7 +775,7 @@ export default function MFAManagement() {
         account. It is replaced below by a link to the activity timeline, which
         renders the real events.
       */}
-      <Card variant='outlined' sx={{ borderRadius: 3, mb: 4, borderColor: 'divider' }}>
+      <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', mb: 4, borderColor: 'divider' }}>
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           alignItems={{ xs: 'flex-start', sm: 'center' }}
@@ -789,7 +789,7 @@ export default function MFAManagement() {
               sx={{
                 bgcolor: alpha(theme.palette.info.main, 0.12),
                 color: 'info.main',
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-sm, 6px)',
               }}
             >
               <History />
@@ -813,7 +813,7 @@ export default function MFAManagement() {
             sx={{
               minHeight: 44,
               fontWeight: 700,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               textTransform: 'none',
               whiteSpace: 'nowrap',
             }}
@@ -829,7 +829,7 @@ export default function MFAManagement() {
         onClose={() => setCodesModalOpen(false)}
         maxWidth='sm'
         fullWidth
-        slotProps={{ paper: { sx: { borderRadius: 3, p: 1 } } }}
+        slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)', p: 1 } } }}
       >
         <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>
           {t('mfa.dialogRecoveryTitle', 'Your recovery codes')}
@@ -875,7 +875,7 @@ export default function MFAManagement() {
                   gridTemplateColumns: 'repeat(2, 1fr)',
                   gap: 1.5,
                   p: 2.5,
-                  borderRadius: 2.5,
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                   bgcolor: alpha(theme.palette.action.selected, 0.05),
                   border: '1px solid',
                   borderColor: 'divider',
@@ -895,7 +895,7 @@ export default function MFAManagement() {
                       fontWeight: 700,
                       fontSize: '0.95rem',
                       py: 2,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-sm, 6px)',
                     }}
                   />
                 ))}
@@ -909,14 +909,14 @@ export default function MFAManagement() {
             onClick={handleDownloadCodes}
             disabled={loadingCodes || !recoveryCodes.length}
             startIcon={<Download />}
-            sx={{ minHeight: 44, fontWeight: 700, borderRadius: 2, textTransform: 'none' }}
+            sx={{ minHeight: 44, fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
           >
             {t('mfa.downloadCodes', 'Download')}
           </Button>
           <Button
             onClick={() => setCodesModalOpen(false)}
             variant='contained'
-            sx={{ minHeight: 44, fontWeight: 700, borderRadius: 2, textTransform: 'none' }}
+            sx={{ minHeight: 44, fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
           >
             {t('common.done', 'Done')}
           </Button>

@@ -91,10 +91,10 @@ const OverviewMetricCard: React.FC<OverviewMetricCardProps> = ({
     <Card
       variant='outlined'
       sx={{
-        borderRadius: '16px',
+        borderRadius: 'var(--sf-radius-lg, 16px)',
         borderColor: 'divider',
         backgroundColor: 'background.paper',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+        boxShadow: 'var(--sf-shadow-xs)',
         p: 2.5,
         display: 'flex',
         flexDirection: 'column',
@@ -110,7 +110,7 @@ const OverviewMetricCard: React.FC<OverviewMetricCardProps> = ({
           </Typography>
           <Avatar
             aria-hidden
-            sx={{ bgcolor: alpha(color, 0.12), color, width: 32, height: 32, borderRadius: '8px' }}
+            sx={{ bgcolor: alpha(color, 0.12), color, width: 32, height: 32, borderRadius: 'var(--sf-radius-sm, 8px)' }}
           >
             {icon}
           </Avatar>
@@ -444,7 +444,7 @@ export const AccountOverview: React.FC = () => {
             fontWeight: 600,
             fontSize: '0.875rem',
             textTransform: 'none',
-            borderRadius: '10px',
+            borderRadius: 'var(--sf-radius-md, 10px)',
             px: 2,
             backgroundColor: 'background.paper',
             boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
@@ -459,7 +459,7 @@ export const AccountOverview: React.FC = () => {
       {isAnyError && (
         <Alert
           severity='warning'
-          sx={{ mb: 3.5, borderRadius: '12px' }}
+          sx={{ mb: 3.5, borderRadius: 'var(--sf-radius-md, 12px)' }}
           action={
             <Button color='inherit' startIcon={<Refresh />} onClick={handleRefreshAll} disabled={isFetching} sx={{ minHeight: 44 }}>
               {t('auth.account.retry', 'Retry')}
@@ -482,10 +482,10 @@ export const AccountOverview: React.FC = () => {
         sx={{
           mb: 3.5,
           p: { xs: 2, sm: 2.5 },
-          borderRadius: '16px',
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           borderColor: 'divider',
           backgroundColor: 'background.paper',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+          boxShadow: 'var(--sf-shadow-xs)',
         }}
       >
         <Stack
@@ -545,7 +545,7 @@ export const AccountOverview: React.FC = () => {
                         height: 20,
                         fontSize: '0.6875rem',
                         fontWeight: 700,
-                        borderRadius: '4px',
+                        borderRadius: 'var(--sf-radius-sm, 4px)',
                         bgcolor: alpha(
                           userStatus === 'ACTIVE' ? theme.palette.success.main : theme.palette.error.main,
                           0.12,
@@ -562,7 +562,7 @@ export const AccountOverview: React.FC = () => {
                           height: 20,
                           fontSize: '0.6875rem',
                           fontWeight: 600,
-                          borderRadius: '4px',
+                          borderRadius: 'var(--sf-radius-sm, 4px)',
                           bgcolor: alpha(theme.palette.info.main, 0.1),
                           color: theme.palette.info.dark,
                         }}
@@ -584,7 +584,7 @@ export const AccountOverview: React.FC = () => {
                 label={typeof userRole === 'string' ? userRole.toUpperCase() : `Role #${userRole}`}
                 variant='outlined'
                 size='small'
-                sx={{ borderRadius: '6px', fontWeight: 600, fontSize: '0.75rem', borderColor: 'divider' }}
+                sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 600, fontSize: '0.75rem', borderColor: 'divider' }}
               />
             )}
             {user.tenantId && (
@@ -595,7 +595,7 @@ export const AccountOverview: React.FC = () => {
                 })}
                 variant='outlined'
                 size='small'
-                sx={{ borderRadius: '6px', fontWeight: 500, fontSize: '0.75rem', borderColor: 'divider' }}
+                sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 500, fontSize: '0.75rem', borderColor: 'divider' }}
               />
             )}
           </Stack>
@@ -608,10 +608,10 @@ export const AccountOverview: React.FC = () => {
         sx={{
           mb: 3.5,
           p: { xs: 2, sm: 2.5 },
-          borderRadius: '16px',
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           borderColor: 'divider',
           backgroundColor: 'background.paper',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+          boxShadow: 'var(--sf-shadow-xs)',
           display: 'flex',
           flexDirection: { xs: 'column', sm: 'row' },
           alignItems: { xs: 'flex-start', sm: 'center' },
@@ -657,7 +657,7 @@ export const AccountOverview: React.FC = () => {
             color: 'text.primary',
             fontWeight: 600,
             textTransform: 'none',
-            borderRadius: '10px',
+            borderRadius: 'var(--sf-radius-md, 10px)',
             px: 2.25,
             fontSize: '0.875rem',
             whiteSpace: 'nowrap',
@@ -766,7 +766,7 @@ export const AccountOverview: React.FC = () => {
       {/* ── Recent Security Activity Card ── */}
       <Card
         variant='outlined'
-        sx={{ borderRadius: '16px', borderColor: 'divider', backgroundColor: 'background.paper', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)', overflow: 'hidden' }}
+        sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', borderColor: 'divider', backgroundColor: 'background.paper', boxShadow: 'var(--sf-shadow-xs)', overflow: 'hidden' }}
       >
         <Box
           sx={{
@@ -864,7 +864,7 @@ export const AccountOverview: React.FC = () => {
                         <Chip
                           label={item.meta}
                           size='small'
-                          sx={{ height: 22, fontSize: '0.75rem', bgcolor: 'action.hover', color: 'text.secondary', fontWeight: 500, borderRadius: '6px' }}
+                          sx={{ height: 22, fontSize: '0.75rem', bgcolor: 'action.hover', color: 'text.secondary', fontWeight: 500, borderRadius: 'var(--sf-radius-sm, 6px)' }}
                         />
                       </Box>
                     }

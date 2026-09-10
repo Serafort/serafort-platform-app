@@ -158,10 +158,10 @@ export default function PasskeySetup({
           sx={{
             minHeight: 48,
             mb: 2,
-            borderRadius: 3,
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             fontWeight: 800,
             textTransform: 'none',
-            boxShadow: `0 4px 14px ${alpha(theme.palette.info.main, 0.4)}`,
+            boxShadow: 'var(--sf-shadow-glow, none)',
           }}
         >
           {isLoading
