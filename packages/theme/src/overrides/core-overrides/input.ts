@@ -136,6 +136,15 @@ const input: Theme["components"] = {
       root: {
         lineHeight: 1,
         letterSpacing: "unset",
+        // Inline validation copy is running text on the paper surface, so it
+        // must clear WCAG 2.2 AA 4.5:1 — the `palette.error.main` fill colour
+        // (#DC2626) does not. `--state-error-message-color` resolves to the
+        // text-safe `--semantic-error-text` variant (dark on light, light on
+        // dark) that `tokensToCssVariables` emits per mode.
+        "&.Mui-error": {
+          color:
+            "var(--state-error-message-color, var(--semantic-error-text, #B42121))",
+        },
       },
     },
   },

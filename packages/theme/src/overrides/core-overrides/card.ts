@@ -39,6 +39,13 @@ const card = (skin: Skin): Theme["components"] => {
           // ready-made `blur(...)` the effect layer emits for exactly this.
           backdropFilter: "var(--effect-backdrop, none)",
           ...(ownerState.variant !== "outlined" && {
+            // A hairline token border on every card (not just `variant="outlined"`),
+            // so a card reads as a contained surface even where its shadow is
+            // faint — on the light canvas, or under a flat effect. The colour
+            // still rides the effect-aware chain above (`--glass-border` wins
+            // for glass, then the plain surface border).
+            borderStyle: "solid",
+            borderWidth: "var(--border-width-hairline, 1px)",
             boxShadow: `var(--glass-shadow, var(--effect-shadow, var(--comp-card-box-shadow, ${(theme as Theme).customShadows.md})))`,
           }),
         }),

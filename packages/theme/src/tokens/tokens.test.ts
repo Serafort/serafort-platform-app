@@ -14,6 +14,7 @@ import {
 import {
   semanticSurfaces,
   semanticBorders,
+  semanticTextColors,
   fluidTypographyTokens,
   fluidSpacingTokens,
   effectPresetTokens,
@@ -164,6 +165,35 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(semanticBorders.light.focus).toBe("#047BFA");
     });
 
+    it("defines text-safe feedback colours that clear WCAG AA on their paper surface", () => {
+      // Plan-mandated light-mode values.
+      expect(semanticTextColors.light.successText).toBe("#0F7A3D");
+      expect(semanticTextColors.light.warningText).toBe("#A15C03");
+      expect(semanticTextColors.light.errorText).toBe("#B42121");
+      expect(semanticTextColors.light.infoText).toBe("#0437A2");
+
+      const relLuminance = (hex: string): number => {
+        const channels = (hex.replace("#", "").match(/.{2}/g) ?? []).map((h) => {
+          const v = parseInt(h, 16) / 255;
+          return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+        });
+        return (
+          0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+        );
+      };
+      const contrast = (a: string, b: string): number => {
+        const [hi, lo] = [relLuminance(a), relLuminance(b)].sort((m, n) => n - m);
+        return (hi + 0.05) / (lo + 0.05);
+      };
+
+      for (const mode of ["light", "dark"] as const) {
+        const paper = semanticSurfaces[mode].paper;
+        for (const value of Object.values(semanticTextColors[mode])) {
+          expect(contrast(value, paper)).toBeGreaterThanOrEqual(4.5);
+        }
+      }
+    });
+
     it("defines a viewport-responsive fluid spacing scale", () => {
       expect(fluidSpacingTokens.gutterInline).toBe(
         "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
@@ -273,6 +303,20 @@ describe("Design Token Architecture Hierarchy", () => {
       );
       expect(cssVars["--glass-blur"]).toBe("blur(16px)");
       expect(cssVars["--liquid-glass-blur"]).toBe("blur(24px) saturate(180%)");
+      // Elevation scale + brand glow, ink-tinted for the current mode.
+      expect(cssVars["--shadow-xs"]).toBeDefined();
+      expect(cssVars["--shadow-md"]).toContain("rgba(19, 17, 32"); // dark ground
+      expect(cssVars["--shadow-xl"]).toBeDefined();
+      expect(cssVars["--shadow-glow"]).toContain("rgba(6, 203, 253"); // dark = cyan
+      // Text-safe feedback colours (dark-mode high-contrast variants here).
+      expect(cssVars["--semantic-success-text"]).toBe("#3DD68C");
+      expect(cssVars["--semantic-error-text"]).toBe("#FF8A8A");
+      expect(tokensToCssVariables("light")["--semantic-error-text"]).toBe(
+        "#B42121",
+      );
+      expect(tokensToCssVariables("light")["--shadow-glow"]).toContain(
+        "rgba(4, 123, 250",
+      ); // light = brand blue
       expect(cssVars["--form-input-height"]).toBe("48px");
       expect(cssVars["--form-button-height-primary"]).toBe("44px");
       expect(cssVars["--form-modal-backdrop-filter"]).toBe("blur(8px)");

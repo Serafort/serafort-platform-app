@@ -25,7 +25,9 @@ const PublicLayout: React.FC<
       <Box
         component='header'
         sx={{
-          color: 'white',
+          // Token, not the bare `white` keyword — the public navbar still
+          // controls its own foreground; this is only the inherited default.
+          color: 'common.white',
           width: '100%',
           zIndex: zIndexScale.layout.header,
         }}

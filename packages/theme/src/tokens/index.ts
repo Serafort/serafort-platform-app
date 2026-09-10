@@ -26,11 +26,13 @@ import {
 import {
   semanticSurfaces,
   semanticBorders,
+  semanticTextCssVars,
   fluidTypographyTokens,
   fluidSpacingTokens,
   effectPresetTokens,
 } from "./semantics";
 import { stateComponentTokens, formTokens } from "./components";
+import { elevationShadowCssVars } from "../utils/elevation";
 
 export interface ThemeTokenDictionary {
   primitives: {
@@ -289,6 +291,15 @@ export function tokensToCssVariables(
 
     "--bento-gap": effects.bento.gap,
     "--bento-radius": effects.bento.radius,
+
+    // Tier 2: Elevation scale (--shadow-xs … --shadow-xl) + brand glow.
+    // Ink-tinted and mode-aware; the xs/sm/md/lg/xl values match the
+    // generated ramp that `theme.shadows[1|4|8|16|24]` already fall back to.
+    ...elevationShadowCssVars(mode),
+
+    // Tier 2: Text-safe feedback colours (--semantic-*-text). WCAG AA against
+    // the mode's paper surface — use these for inline messages and helper text.
+    ...semanticTextCssVars(mode),
 
     // Tier 3: Form Contracts
     "--form-input-height": form.input.height,
