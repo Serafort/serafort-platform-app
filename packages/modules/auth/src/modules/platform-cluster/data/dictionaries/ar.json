@@ -101,7 +101,11 @@
       "job": "المهمة",
       "attempts": "المحاولات",
       "failed_at": "وقت الفشل",
-      "reason": "السبب"
+      "reason": "السبب",
+      "severity_healthy": "سليم",
+      "severity_warning": "تحذير",
+      "severity_error": "خطأ",
+      "severity_idle": "خامل"
     },
     "anomalies": {
       "title": "كشف الشذوذ",
@@ -198,6 +202,63 @@
       "empty_title": "لا توجد وحدات مطابقة",
       "empty_none": "لا توجد وحدات مُثبَّتة بعد. ارفع حزمة وحدة للبدء.",
       "empty_filtered": "جرّب مصطلح بحث أو عامل تصفية مختلف."
+    },
+    "realtimeV2": {
+      "alerts": "إعدادات التنبيه",
+      "badge_blocked": "محظور",
+      "badge_info": "معلومة",
+      "badge_pending": "قيد الانتظار",
+      "badge_success": "نجاح",
+      "dateRange": "النطاق الزمني",
+      "dateRangeLive": "مباشر (الجلسة الحالية)",
+      "detail_sessionDuration": "مدة الجلسة: 45 دقيقة",
+      "detail_smsSent": "تم إرسال الرسالة القصيرة",
+      "detail_suspiciousIp": "حظر عنوان IP مشبوه",
+      "eventTypes": "أنواع الأحداث",
+      "event_failed": "محاولة تسجيل دخول فاشلة",
+      "event_login": "نجح تسجيل الدخول",
+      "event_logout": "تسجيل الخروج",
+      "event_mfa": "تحدي المصادقة الثنائية",
+      "event_refresh": "تحديث الرمز",
+      "exportLog": "تصدير السجل",
+      "filter_failed": "محاولة فاشلة",
+      "filter_login": "تسجيل الدخول",
+      "filter_logout": "تسجيل الخروج",
+      "filter_mfa": "تحدي المصادقة الثنائية",
+      "filter_refresh": "تحديث الرمز",
+      "filters": "عوامل التصفية",
+      "lastUpdatedNow": "آخر تحديث: الآن",
+      "liveFeed": "البث المباشر",
+      "loadOlder": "تحميل أحداث أقدم",
+      "noEvents": "لا توجد أحداث تطابق عوامل التصفية الحالية.",
+      "pauseStream": "إيقاف مؤقت",
+      "resumeStream": "استئناف",
+      "searchPlaceholder": "ابحث عن معرّف المستخدم أو IP",
+      "settings": "إعدادات البث",
+      "stat_activeSessions": "الجلسات النشطة",
+      "stat_failedLogins": "تسجيلات الدخول الفاشلة (ساعة)",
+      "stat_latency": "متوسط زمن الاستجابة",
+      "status_paused": "البث متوقف مؤقتًا",
+      "status_receiving": "استقبال الأحداث",
+      "systemOperational": "جميع الأنظمة تعمل",
+      "systemStatus": "حالة النظام",
+      "title": "مراقب AuthStream"
+    },
+    "security": {
+      "error_loading": "فشل تحميل بيانات صحة الأمان.",
+      "health_check_subtitle": "نظرة عامة على وضع أمان منصتك",
+      "health_check_title": "فحص صحة الأمان",
+      "no_recommendations": "وضع الأمان لديك ممتاز — لا حاجة لإجراءات فورية.",
+      "overall_score": "درجة الأمان الإجمالية",
+      "recommendations_title": "التوصيات ذات الأولوية",
+      "retry": "إعادة المحاولة",
+      "score_comparison": "استنادًا إلى أفضل الممارسات ونشاط الحسابات",
+      "severity_critical": "حرج",
+      "severity_info": "معلومة",
+      "severity_warning": "تحذير",
+      "stat_inactive": "الحسابات غير النشطة",
+      "stat_mfa": "اعتماد المصادقة الثنائية",
+      "stat_tokens": "الرموز النشطة"
     }
   },
   "auth": {
@@ -252,7 +313,16 @@
       "securityTip": "نصيحة أمنية",
       "successRotateSecret": "تم تدوير سر العميل بنجاح.",
       "successUpdateApp": "تم تحديث التطبيق.",
-      "totalScopes": "إجمالي النطاقات"
+      "totalScopes": "إجمالي النطاقات",
+      "exportFormatCsv": "جدول بيانات (.csv)",
+      "exportFormatJson": "بيانات JSON (.json)",
+      "exportChunkProgress": "جارٍ تصدير الجزء {{processed}} من {{total}}",
+      "exportStatPayload": "الحمولة",
+      "exportStatThroughput": "الإنتاجية",
+      "exportStatEta": "الوقت المتبقي",
+      "exportStatRate": "{{rate}} سجل/ث",
+      "exportHistoryReady": "جاهز",
+      "exportHistoryExpired": "منتهٍ"
     },
     "developer": {
       "actions": "إجراءات",
@@ -318,6 +388,10 @@
       "system": "النظام",
       "tryItTab": "جرّبها",
       "type": "النوع"
+    },
+    "security": {
+      "scan_info": "تُجرى فحوص الأمان تلقائيًا. آخر فحص: الآن.",
+      "configure_scan": "تكوين إعدادات الفحص"
     }
   },
   "admin": {

@@ -101,7 +101,11 @@
       "job": "Travail",
       "attempts": "Tentatives",
       "failed_at": "Échec",
-      "reason": "Motif"
+      "reason": "Motif",
+      "severity_healthy": "Sain",
+      "severity_warning": "Avertissement",
+      "severity_error": "Erreur",
+      "severity_idle": "Inactif"
     },
     "anomalies": {
       "title": "Détection d'anomalies",
@@ -198,6 +202,63 @@
       "empty_title": "Aucun module correspondant",
       "empty_none": "Aucun module n’est encore installé. Chargez un paquet de module pour commencer.",
       "empty_filtered": "Essayez un autre terme de recherche ou filtre."
+    },
+    "realtimeV2": {
+      "alerts": "Paramètres d'alerte",
+      "badge_blocked": "Bloqué",
+      "badge_info": "Info",
+      "badge_pending": "En attente",
+      "badge_success": "Succès",
+      "dateRange": "Plage de dates",
+      "dateRangeLive": "En direct (session en cours)",
+      "detail_sessionDuration": "Durée de session : 45 min",
+      "detail_smsSent": "SMS envoyé",
+      "detail_suspiciousIp": "Blocage IP suspecte",
+      "eventTypes": "Types d'événements",
+      "event_failed": "Tentative de connexion échouée",
+      "event_login": "Connexion réussie",
+      "event_logout": "Déconnexion",
+      "event_mfa": "Défi MFA",
+      "event_refresh": "Rafraîchissement du jeton",
+      "exportLog": "Exporter le journal",
+      "filter_failed": "Tentative échouée",
+      "filter_login": "Connexion",
+      "filter_logout": "Déconnexion",
+      "filter_mfa": "Défi MFA",
+      "filter_refresh": "Rafraîchissement du jeton",
+      "filters": "Filtres",
+      "lastUpdatedNow": "Dernière mise à jour : à l'instant",
+      "liveFeed": "Flux en direct",
+      "loadOlder": "Charger les événements plus anciens",
+      "noEvents": "Aucun événement ne correspond aux filtres actuels.",
+      "pauseStream": "Mettre en pause",
+      "resumeStream": "Reprendre",
+      "searchPlaceholder": "Rechercher un ID utilisateur ou une IP",
+      "settings": "Paramètres du flux",
+      "stat_activeSessions": "Sessions actives",
+      "stat_failedLogins": "Connexions échouées (1 h)",
+      "stat_latency": "Latence moyenne",
+      "status_paused": "Flux en pause",
+      "status_receiving": "Réception des événements",
+      "systemOperational": "Tous les systèmes sont opérationnels",
+      "systemStatus": "État du système",
+      "title": "Moniteur AuthStream"
+    },
+    "security": {
+      "error_loading": "Échec du chargement des données de sécurité.",
+      "health_check_subtitle": "Aperçu de la posture de sécurité de votre plateforme",
+      "health_check_title": "Bilan de sécurité",
+      "no_recommendations": "Votre posture de sécurité est excellente — aucune action immédiate requise.",
+      "overall_score": "Score de sécurité global",
+      "recommendations_title": "Recommandations prioritaires",
+      "retry": "Réessayer",
+      "score_comparison": "D'après les bonnes pratiques et l'activité des comptes",
+      "severity_critical": "Critique",
+      "severity_info": "Info",
+      "severity_warning": "Avertissement",
+      "stat_inactive": "Comptes inactifs",
+      "stat_mfa": "Adoption de la MFA",
+      "stat_tokens": "Jetons actifs"
     }
   },
   "auth": {
@@ -252,7 +313,16 @@
       "securityTip": "Conseil de sécurité",
       "successRotateSecret": "Secret client renouvelé.",
       "successUpdateApp": "Application mise à jour.",
-      "totalScopes": "Total des portées"
+      "totalScopes": "Total des portées",
+      "exportFormatCsv": "Tableur (.csv)",
+      "exportFormatJson": "Données JSON (.json)",
+      "exportChunkProgress": "Exportation du bloc {{processed}} sur {{total}}",
+      "exportStatPayload": "Charge utile",
+      "exportStatThroughput": "Débit",
+      "exportStatEta": "Temps restant",
+      "exportStatRate": "{{rate}} journaux/s",
+      "exportHistoryReady": "Prêt",
+      "exportHistoryExpired": "Expiré"
     },
     "developer": {
       "actions": "Actions",
@@ -318,6 +388,10 @@
       "system": "Système",
       "tryItTab": "Essayer",
       "type": "Type"
+    },
+    "security": {
+      "scan_info": "Les analyses de sécurité s'exécutent automatiquement. Dernière analyse : à l'instant.",
+      "configure_scan": "Configurer les paramètres d'analyse"
     }
   },
   "admin": {

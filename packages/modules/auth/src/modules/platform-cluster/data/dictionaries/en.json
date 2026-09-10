@@ -101,7 +101,11 @@
       "job": "Job",
       "attempts": "Attempts",
       "failed_at": "Failed",
-      "reason": "Reason"
+      "reason": "Reason",
+      "severity_healthy": "Healthy",
+      "severity_warning": "Warning",
+      "severity_error": "Error",
+      "severity_idle": "Idle"
     },
     "anomalies": {
       "title": "Anomaly detection",
@@ -198,6 +202,63 @@
       "empty_title": "No modules match",
       "empty_none": "No modules are installed yet. Upload a module package to get started.",
       "empty_filtered": "Try a different search term or filter."
+    },
+    "realtimeV2": {
+      "alerts": "Alert settings",
+      "badge_blocked": "Blocked",
+      "badge_info": "Info",
+      "badge_pending": "Pending",
+      "badge_success": "Success",
+      "dateRange": "Date range",
+      "dateRangeLive": "Live (current session)",
+      "detail_sessionDuration": "Session duration: 45m",
+      "detail_smsSent": "SMS sent",
+      "detail_suspiciousIp": "Suspicious IP block",
+      "eventTypes": "Event types",
+      "event_failed": "Failed login attempt",
+      "event_login": "Login success",
+      "event_logout": "Logout",
+      "event_mfa": "MFA challenge",
+      "event_refresh": "Token refresh",
+      "exportLog": "Export log",
+      "filter_failed": "Failed attempt",
+      "filter_login": "Login",
+      "filter_logout": "Logout",
+      "filter_mfa": "MFA challenge",
+      "filter_refresh": "Token refresh",
+      "filters": "Filters",
+      "lastUpdatedNow": "Last updated: just now",
+      "liveFeed": "Live feed",
+      "loadOlder": "Load older events",
+      "noEvents": "No events match the current filters.",
+      "pauseStream": "Pause stream",
+      "resumeStream": "Resume stream",
+      "searchPlaceholder": "Search user ID or IP",
+      "settings": "Stream settings",
+      "stat_activeSessions": "Active sessions",
+      "stat_failedLogins": "Failed logins (1h)",
+      "stat_latency": "Avg. latency",
+      "status_paused": "Stream paused",
+      "status_receiving": "Receiving events",
+      "systemOperational": "All systems operational",
+      "systemStatus": "System status",
+      "title": "AuthStream monitor"
+    },
+    "security": {
+      "error_loading": "Failed to load security health data.",
+      "health_check_subtitle": "Overview of your platform security posture",
+      "health_check_title": "Security health check",
+      "no_recommendations": "Your security posture looks great — no immediate actions required.",
+      "overall_score": "Overall security score",
+      "recommendations_title": "Prioritized recommendations",
+      "retry": "Retry",
+      "score_comparison": "Based on best practices and account activity",
+      "severity_critical": "Critical",
+      "severity_info": "Info",
+      "severity_warning": "Warning",
+      "stat_inactive": "Inactive accounts",
+      "stat_mfa": "MFA adoption",
+      "stat_tokens": "Active tokens"
     }
   },
   "auth": {
@@ -262,7 +323,16 @@
       "outputFormat": "Output Format",
       "recentExports": "Recent Exports",
       "reportType": "Report Type",
-      "startExport": "Start Export"
+      "startExport": "Start Export",
+      "exportFormatCsv": "Spreadsheet (.csv)",
+      "exportFormatJson": "JSON data (.json)",
+      "exportChunkProgress": "Exporting chunk {{processed}} of {{total}}",
+      "exportStatPayload": "Payload",
+      "exportStatThroughput": "Throughput",
+      "exportStatEta": "ETA",
+      "exportStatRate": "{{rate}} logs/s",
+      "exportHistoryReady": "Ready",
+      "exportHistoryExpired": "Expired"
     },
     "developer": {
       "actions": "Actions",
@@ -328,6 +398,10 @@
       "system": "System",
       "tryItTab": "Try It",
       "type": "Type"
+    },
+    "security": {
+      "scan_info": "Security scans run automatically. Last scan: just now.",
+      "configure_scan": "Configure scan settings"
     }
   },
   "admin": {
