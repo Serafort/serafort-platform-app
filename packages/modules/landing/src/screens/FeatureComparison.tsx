@@ -170,6 +170,20 @@ const categoryNames = {
   analytics: 'Analytics & Insights',
 }
 
+// ⚡ Bolt Optimization:
+// Computed at module level since `features` is static,
+// preventing O(n) recalculation on every render.
+const groupedFeatures = features.reduce(
+  (acc, feature) => {
+    if (!acc[feature.category]) {
+      acc[feature.category] = []
+    }
+    acc[feature.category].push(feature)
+    return acc
+  },
+  {} as Record<string, Feature[]>,
+)
+
 export const FeatureComparison: React.FC = () => {
   const navigate = useNavigate()
   const { isGuest } = useGuest()
@@ -181,17 +195,6 @@ export const FeatureComparison: React.FC = () => {
     }
     return <Chip label={value} size='small' color='primary' variant='outlined' />
   }
-
-  const groupedFeatures = features.reduce(
-    (acc, feature) => {
-      if (!acc[feature.category]) {
-        acc[feature.category] = []
-      }
-      acc[feature.category].push(feature)
-      return acc
-    },
-    {} as Record<string, Feature[]>,
-  )
 
   return (
     <Container maxWidth='lg' sx={{ py: 6 }}>
