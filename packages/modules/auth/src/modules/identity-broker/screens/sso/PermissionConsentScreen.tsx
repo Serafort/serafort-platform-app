@@ -215,7 +215,7 @@ export default function PermissionConsentScreen() {
           onClick={handleDeny}
           size='small'
           aria-label={t('auth.common.back', 'Back')}
-          sx={{ border: '1px solid', borderColor: 'divider' }}
+          sx={{ width: 44, height: 44, border: '1px solid', borderColor: 'divider' }}
         >
           <ArrowBackIcon sx={{ fontSize: 16 }} />
         </IconButton>
@@ -290,7 +290,7 @@ export default function PermissionConsentScreen() {
               sx={{
                 px: 2,
                 py: 2,
-                borderRadius: 3,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 mb: 1.5,
                 bgcolor: alpha(theme.palette.action.hover, 0.02),
                 border: '1px solid',
@@ -310,7 +310,7 @@ export default function PermissionConsentScreen() {
                     height: 32,
                     bgcolor: alpha(theme.palette.primary.main, 0.1),
                     color: 'primary.main',
-                    borderRadius: '8px',
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                   }}
                 >
                   {scope.icon}
@@ -358,10 +358,11 @@ export default function PermissionConsentScreen() {
           onClick={handleDeny}
           disabled={confirmMutation.isPending || abortMutation.isPending}
           sx={{
+            minHeight: 48,
             fontWeight: 800,
             textTransform: 'none',
             height: 52,
-            borderRadius: 3,
+            borderRadius: 'var(--sf-radius-md, 8px)',
             borderColor: 'divider',
             color: 'text.primary',
             '&:hover': {

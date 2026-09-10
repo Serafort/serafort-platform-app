@@ -198,10 +198,10 @@ export default function AuthWaitScreen() {
               value={progressValue}
               sx={{
                 height: 6,
-                borderRadius: 3,
+                borderRadius: 'var(--sf-radius-xs, 4px)',
                 backgroundColor: alpha(theme.palette.primary.main, 0.1),
                 '& .MuiLinearProgress-bar': {
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
                 },
               }}
             />
@@ -212,7 +212,7 @@ export default function AuthWaitScreen() {
                   severity='warning'
                   sx={{
                     textAlign: 'left',
-                    borderRadius: 3,
+                    borderRadius: 'var(--sf-radius-md, 10px)',
                     bgcolor: alpha(theme.palette.warning.main, 0.06),
                     border: '1px solid',
                     borderColor: alpha(theme.palette.warning.main, 0.2),
@@ -230,7 +230,7 @@ export default function AuthWaitScreen() {
                       setError(null)
                       setSecondsElapsed(0)
                     }}
-                    sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 3 }}
+                    sx={{ minHeight: 44, textTransform: 'none', fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
                   >
                     {t('auth.common.retry', 'Retry')}
                   </Button>
@@ -238,7 +238,7 @@ export default function AuthWaitScreen() {
                     fullWidth
                     variant='outlined'
                     onClick={() => navigate(Path.auth.signin, { replace: true })}
-                    sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 3 }}
+                    sx={{ minHeight: 44, textTransform: 'none', fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
                   >
                     {t('auth.signin', 'Sign in')}
                   </Button>

@@ -130,7 +130,7 @@ export default function OIDCLoginPrompt({
     >
       <Card
         sx={{
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
@@ -209,7 +209,7 @@ export default function OIDCLoginPrompt({
               <Skeleton
                 variant='rectangular'
                 height={72}
-                sx={{ borderRadius: 3, mb: 4, transform: 'none' }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 10px)', mb: 4, transform: 'none' }}
               />
             ) : (
               <Paper
@@ -221,7 +221,7 @@ export default function OIDCLoginPrompt({
                 sx={{
                   p: 2,
                   mb: 4,
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-md, 10px)',
                   bgcolor: alpha(theme.palette.primary.main, 0.02),
                   border: '1px solid',
                   borderColor: alpha(theme.palette.primary.main, 0.1),
@@ -296,7 +296,7 @@ export default function OIDCLoginPrompt({
                     <Skeleton
                       variant='rectangular'
                       height={80}
-                      sx={{ borderRadius: 3, transform: 'none' }}
+                      sx={{ borderRadius: 'var(--sf-radius-md, 8px)', transform: 'none' }}
                     />
                   </Grid>
                 ))
@@ -310,8 +310,9 @@ export default function OIDCLoginPrompt({
                       disabled={isPending}
                       onClick={() => handleProviderClick(provider.id)}
                       sx={{
+                        minHeight: 48,
                         height: { xs: 52, sm: 80 },
-                        borderRadius: 3,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         textTransform: 'none',
                         fontWeight: 700,
                         color: 'text.primary',
@@ -367,7 +368,7 @@ export default function OIDCLoginPrompt({
                   gap: 1.5,
                   px: 2.5,
                   py: 1.25,
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-md, 10px)',
                   bgcolor: alpha(theme.palette.info.main, 0.05),
                   border: '1px solid',
                   borderColor: alpha(theme.palette.info.main, 0.15),

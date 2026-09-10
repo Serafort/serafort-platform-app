@@ -119,7 +119,7 @@ export default function OIDCConfigBrowser() {
               sx={{
                 width: { xs: 56, md: 80 },
                 height: { xs: 56, md: 80 },
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 24px)',
                 bgcolor: 'primary.main',
                 boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
               }}
@@ -168,7 +168,7 @@ export default function OIDCConfigBrowser() {
                   size='small'
                   color='primary'
                   variant='outlined'
-                  sx={{ fontWeight: 700, height: 20, mr: 1 }}
+                  sx={{ fontWeight: 700, height: 20, mr: 1, borderRadius: 'var(--sf-radius-xs, 4px)' }}
                 />
                 <Typography variant='body2' color='text.secondary'>
                   {t(
@@ -186,14 +186,14 @@ export default function OIDCConfigBrowser() {
           variant='contained'
           startIcon={<Add />}
           sx={{
-            bgcolor: 'info.main',
-            boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
+            bgcolor: 'primary.main',
+            boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
             textTransform: 'none',
             fontWeight: 700,
-            height: 48,
-            borderRadius: '12px',
+            minHeight: 48,
+            borderRadius: 'var(--sf-radius-md, 8px)',
             px: 4,
-            '&:hover': { bgcolor: 'info.dark' },
+            '&:hover': { bgcolor: 'primary.dark' },
           }}
         >
           {t('auth.sso.create_client', 'Create New Client')}
@@ -203,6 +203,7 @@ export default function OIDCConfigBrowser() {
       <AdminTableCard
         sx={(theme) => ({
           mb: 5,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
         })}
       >
@@ -221,7 +222,7 @@ export default function OIDCConfigBrowser() {
             sx={{
               width: { xs: '100%', md: 400 },
               '& .MuiOutlinedInput-root': {
-                borderRadius: '12px',
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 bgcolor: 'background.paper',
               },
             }}
@@ -286,7 +287,7 @@ export default function OIDCConfigBrowser() {
                             height: 36,
                             backgroundColor: alpha(theme.palette.primary.main, 0.08),
                             color: 'primary.main',
-                            borderRadius: '10px',
+                            borderRadius: 'var(--sf-radius-sm, 8px)',
                           }}
                         >
                           <VpnKey sx={{ fontSize: 18 }} />
@@ -307,7 +308,7 @@ export default function OIDCConfigBrowser() {
                             bgcolor: alpha(theme.palette.action.hover, 0.06),
                             px: 1,
                             py: 0.25,
-                            borderRadius: '4px',
+                            borderRadius: 'var(--sf-radius-xs, 4px)',
                           }}
                         >
                           {client.client_id || client.clientId}
@@ -315,7 +316,7 @@ export default function OIDCConfigBrowser() {
                         <Tooltip title={t('auth.common.copy', 'Copy')}>
                           <IconButton
                             size='small'
-                            sx={{ p: 0.5, border: '1px solid', borderColor: 'divider' }}
+                            sx={{ minWidth: 44, minHeight: 44, p: 0.5, border: '1px solid', borderColor: 'divider' }}
                             onClick={(e) => {
                               e.stopPropagation()
                               navigator.clipboard.writeText(client.client_id || client.clientId)
@@ -339,7 +340,7 @@ export default function OIDCConfigBrowser() {
                         }
                         size='small'
                         variant='outlined'
-                        sx={{ borderRadius: '6px', fontWeight: 800, fontSize: '0.65rem' }}
+                        sx={{ borderRadius: 'var(--sf-radius-xs, 4px)', fontWeight: 800, fontSize: '0.65rem' }}
                       />
                     </TableCell>
                     <TableCell>
@@ -351,7 +352,7 @@ export default function OIDCConfigBrowser() {
                         }
                         size='small'
                         color={(client.is_active ?? client.isActive) ? 'success' : 'error'}
-                        sx={{ borderRadius: '6px', fontWeight: 900, fontSize: '0.65rem' }}
+                        sx={{ borderRadius: 'var(--sf-radius-xs, 4px)', fontWeight: 900, fontSize: '0.65rem' }}
                       />
                     </TableCell>
                     <TableCell>
@@ -372,6 +373,8 @@ export default function OIDCConfigBrowser() {
                               handleDelete(client.id)
                             }}
                             sx={{
+                              minWidth: 44,
+                              minHeight: 44,
                               border: '1px solid',
                               borderColor: alpha(theme.palette.error.main, 0.2),
                             }}
@@ -397,7 +400,7 @@ export default function OIDCConfigBrowser() {
           alignItems: 'center',
           gap: 2,
           p: 3,
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           backgroundColor: alpha(theme.palette.info.main, 0.05),
           border: '1px solid',
           borderColor: alpha(theme.palette.info.main, 0.1),
@@ -440,7 +443,11 @@ export default function OIDCConfigBrowser() {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} color='inherit'>
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            color='inherit'
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
+          >
             {t('auth.common.cancel', 'Cancel')}
           </Button>
           <Button
@@ -448,6 +455,7 @@ export default function OIDCConfigBrowser() {
             color='error'
             variant='contained'
             disabled={deleteMutation.isPending}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
             autoFocus
           >
             {deleteMutation.isPending

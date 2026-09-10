@@ -336,8 +336,8 @@ export default function SSFConfiguration() {
           to={Path.identity.oidcConfigBrowser}
           startIcon={<ArrowBack />}
           sx={{
-            p: 0,
-            minWidth: 'auto',
+            p: 1,
+            minHeight: 44,
             color: 'text.secondary',
             textTransform: 'none',
             fontWeight: 700,
@@ -376,7 +376,7 @@ export default function SSFConfiguration() {
               size='small'
               sx={{
                 fontWeight: 900,
-                borderRadius: '6px',
+                borderRadius: 'var(--sf-radius-xs, 4px)',
                 bgcolor: alpha(theme.palette.warning.main, 0.1),
                 color: 'warning.dark',
                 fontSize: '0.625rem',
@@ -427,7 +427,7 @@ export default function SSFConfiguration() {
                 ),
                 px: 2,
                 py: 0.5,
-                borderRadius: '12px',
+                borderRadius: 'var(--sf-radius-md, 12px)',
                 border: '1px solid',
                 borderColor: alpha(
                   ssfEnabled ? theme.palette.success.main : theme.palette.error.main,
@@ -461,16 +461,16 @@ export default function SSFConfiguration() {
                 disabled={isSaving || isLoading}
                 onClick={handleSave}
                 sx={{
-                  bgcolor: 'info.main',
-                  boxShadow: `0 8px 32px 0 ${alpha(theme.palette.info.main, 0.3)}`,
-                  borderRadius: '12px',
+                  bgcolor: 'primary.main',
+                  boxShadow: (theme) => `0 8px 32px 0 ${alpha(theme.palette.primary.main, 0.3)}`,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   textTransform: 'none',
                   fontWeight: 800,
-                  height: { xs: 44, md: 48 },
+                  minHeight: 48,
                   px: { xs: 3, md: 4 },
                   '&:hover': {
-                    bgcolor: 'info.dark',
-                    boxShadow: `0 12px 40px 0 ${alpha(theme.palette.info.main, 0.45)}`,
+                    bgcolor: 'primary.dark',
+                    boxShadow: (theme) => `0 12px 40px 0 ${alpha(theme.palette.primary.main, 0.45)}`,
                   },
                 }}
               >
@@ -490,7 +490,7 @@ export default function SSFConfiguration() {
         <Grid size={{ xs: 12, md: 7 }}>
           <Card
             sx={{
-              borderRadius: '24px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: alpha(theme.palette.divider, 0.08),
               boxShadow: 'none',
@@ -505,7 +505,7 @@ export default function SSFConfiguration() {
                     height: 36,
                     bgcolor: alpha(theme.palette.primary.main, 0.1),
                     color: 'primary.main',
-                    borderRadius: '10px',
+                    borderRadius: 'var(--sf-radius-sm, 8px)',
                   }}
                 >
                   <Hub sx={{ fontSize: 20 }} />
@@ -532,7 +532,7 @@ export default function SSFConfiguration() {
                     onChange={handleIssuerUrlChange}
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         bgcolor: alpha(theme.palette.text.primary, 0.03),
                         '& fieldset': { borderColor: alpha(theme.palette.divider, 0.1) },
                         '&:hover fieldset': { borderColor: alpha(theme.palette.primary.main, 0.4) },
@@ -558,7 +558,7 @@ export default function SSFConfiguration() {
                     select
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         bgcolor: alpha(theme.palette.text.primary, 0.03),
                         '& fieldset': { borderColor: alpha(theme.palette.divider, 0.1) },
                       },
@@ -589,7 +589,7 @@ export default function SSFConfiguration() {
                       height: 36,
                       bgcolor: alpha(theme.palette.primary.main, 0.08),
                       color: 'primary.main',
-                      borderRadius: '10px',
+                      borderRadius: 'var(--sf-radius-sm, 8px)',
                     }}
                   >
                     <Sensors sx={{ fontSize: 20 }} />
@@ -610,7 +610,7 @@ export default function SSFConfiguration() {
                   size='small'
                   startIcon={<Add />}
                   onClick={handleAddEventClick}
-                  sx={{ fontWeight: 700, textTransform: 'none' }}
+                  sx={{ fontWeight: 700, textTransform: 'none', minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
                 >
                   {t('auth.common.add_event', 'Add Event Type')}
                 </Button>
@@ -637,7 +637,7 @@ export default function SSFConfiguration() {
           {/* Live Signals Stream */}
           <Card
             sx={{
-              borderRadius: '24px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: alpha(theme.palette.primary.main, 0.1),
               boxShadow: 'none',
@@ -709,7 +709,7 @@ export default function SSFConfiguration() {
                       size='small'
                       variant='text'
                       onClick={() => refetchHistory()}
-                      sx={{ fontWeight: 700, textTransform: 'none' }}
+                      sx={{ fontWeight: 700, textTransform: 'none', minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
                     >
                       {t('auth.common.retry', 'Retry')}
                     </Button>
@@ -729,7 +729,7 @@ export default function SSFConfiguration() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.1 }}
                       sx={{
-                        borderRadius: '16px',
+                        borderRadius: 'var(--sf-radius-md, 12px)',
                         mb: 2,
                         boxShadow: 'none',
                         border: '1px solid',
@@ -768,7 +768,7 @@ export default function SSFConfiguration() {
                                     0.1,
                                   ),
                                   px: 1,
-                                  borderRadius: '4px',
+                                  borderRadius: 'var(--sf-radius-xs, 4px)',
                                 }}
                               >
                                 {signal.action === 'SSF_TEST_SIGNAL'
@@ -797,7 +797,7 @@ export default function SSFConfiguration() {
                             size='small'
                             variant='outlined'
                             sx={{
-                              borderRadius: '6px',
+                              borderRadius: 'var(--sf-radius-xs, 4px)',
                               fontWeight: 800,
                               fontSize: '0.625rem',
                               height: 20,
@@ -818,8 +818,8 @@ export default function SSFConfiguration() {
                 onClick={() => refetchHistory()}
                 sx={{
                   mt: 1,
-                  height: 40,
-                  borderRadius: '12px',
+                  minHeight: 44,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   fontWeight: 700,
                   textTransform: 'none',
                   color: 'text.secondary',
@@ -837,7 +837,7 @@ export default function SSFConfiguration() {
           {/* Signing Keys */}
           <Card
             sx={{
-              borderRadius: '24px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: alpha(theme.palette.divider, 0.08),
               boxShadow: 'none',
@@ -852,7 +852,7 @@ export default function SSFConfiguration() {
                     height: 36,
                     bgcolor: alpha(theme.palette.primary.main, 0.08),
                     color: 'primary.main',
-                    borderRadius: '10px',
+                    borderRadius: 'var(--sf-radius-sm, 8px)',
                   }}
                 >
                   <Key sx={{ fontSize: 20 }} />
@@ -884,7 +884,8 @@ export default function SSFConfiguration() {
                 fullWidth
                 onClick={handleCopyJwksUrlClick}
                 sx={{
-                  borderRadius: '8px',
+                  minHeight: 44,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   fontWeight: 700,
                   textTransform: 'none',
                   borderColor: 'divider',
@@ -909,7 +910,7 @@ export default function SSFConfiguration() {
         slotProps={{
           paper: {
             sx: {
-              borderRadius: '24px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               bgcolor: 'background.paper',
               backgroundImage: 'none',
               border: '1px solid',
@@ -939,7 +940,8 @@ export default function SSFConfiguration() {
           <IconButton
             onClick={handleCloseAddEventDialog}
             size='small'
-            sx={{ color: 'text.secondary' }}
+            sx={{ color: 'text.secondary', minWidth: 44, minHeight: 44 }}
+            aria-label={t('auth.common.close', 'Close')}
           >
             <Close />
           </IconButton>
@@ -956,7 +958,7 @@ export default function SSFConfiguration() {
               autoFocus
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   bgcolor: alpha(theme.palette.text.primary, 0.03),
                 },
               }}
@@ -969,7 +971,7 @@ export default function SSFConfiguration() {
               onChange={handleNewEventChange('name')}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   bgcolor: alpha(theme.palette.text.primary, 0.03),
                 },
               }}
@@ -984,7 +986,7 @@ export default function SSFConfiguration() {
               rows={2}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   bgcolor: alpha(theme.palette.text.primary, 0.03),
                 },
               }}
@@ -995,7 +997,7 @@ export default function SSFConfiguration() {
         <DialogActions sx={{ p: 3, pt: 0 }}>
           <Button
             onClick={handleCloseAddEventDialog}
-            sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}
+            sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary', minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
             {t('auth.common.cancel', 'Cancel')}
           </Button>
@@ -1004,10 +1006,13 @@ export default function SSFConfiguration() {
             onClick={handleConfirmAddEvent}
             startIcon={<AddCircle />}
             sx={{
-              borderRadius: '12px',
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               fontWeight: 800,
               textTransform: 'none',
               bgcolor: 'primary.main',
+              boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
+              '&:hover': { bgcolor: 'primary.dark' },
             }}
           >
             {t('auth.sso.add_event', 'Add Event')}

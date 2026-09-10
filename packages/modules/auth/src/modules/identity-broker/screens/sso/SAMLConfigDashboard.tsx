@@ -168,7 +168,7 @@ export default function SAMLConfigDashboard() {
               sx={{
                 width: { xs: 56, md: 80 },
                 height: { xs: 56, md: 80 },
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 24px)',
                 bgcolor: 'primary.main',
                 boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
               }}
@@ -193,9 +193,11 @@ export default function SAMLConfigDashboard() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
               <IconButton
                 onClick={() => navigate(-1)}
+                aria-label={t('auth.common.back', 'Back')}
                 sx={{
-                  p: 0,
-                  minWidth: 'auto',
+                  p: 1,
+                  minWidth: 44,
+                  minHeight: 44,
                   color: 'text.secondary',
                   '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
                 }}
@@ -226,7 +228,7 @@ export default function SAMLConfigDashboard() {
                 size='small'
                 color='primary'
                 variant='outlined'
-                sx={{ fontWeight: 700, height: 20 }}
+                sx={{ fontWeight: 700, height: 20, borderRadius: 'var(--sf-radius-xs, 4px)' }}
               />
             </Stack>
           </Box>
@@ -237,19 +239,19 @@ export default function SAMLConfigDashboard() {
           onClick={handleSave}
           disabled={updateConfig.isPending}
           sx={{
-            bgcolor: 'info.main',
+            bgcolor: 'primary.main',
             color: 'white',
-            boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-            '&:hover': { bgcolor: 'info.dark' },
+            boxShadow: (t) => `0 4px 14px 0 ${alpha(t.palette.primary.main, 0.39)}`,
+            '&:hover': { bgcolor: 'primary.dark' },
             textTransform: 'none',
             fontWeight: 700,
-            height: 44,
-            borderRadius: '12px',
+            minHeight: 48,
+            borderRadius: 'var(--sf-radius-md, 12px)',
             px: 4,
           }}
         >
           {updateConfig.isPending ? (
-            <CircularProgress size={24} />
+            <CircularProgress size={24} color='inherit' />
           ) : (
             t('auth.common.save_changes', 'Save Changes')
           )}
@@ -262,7 +264,7 @@ export default function SAMLConfigDashboard() {
             {/* General Settings */}
             <Card
               sx={{
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 bgcolor: alpha(theme.palette.text.primary, 0.03),
                 backdropFilter: 'blur(20px)',
                 border: '1px solid',
@@ -288,7 +290,7 @@ export default function SAMLConfigDashboard() {
                     height: 32,
                     bgcolor: alpha(theme.palette.primary.main, 0.1),
                     color: 'primary.main',
-                    borderRadius: '8px',
+                    borderRadius: 'var(--sf-radius-sm, 8px)',
                   }}
                 >
                   <Language sx={{ fontSize: 18 }} />
@@ -336,7 +338,7 @@ export default function SAMLConfigDashboard() {
                       )}
                       sx={{
                         '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           bgcolor: alpha(theme.palette.text.primary, 0.05),
                           '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                           '&:hover fieldset': {
@@ -355,7 +357,7 @@ export default function SAMLConfigDashboard() {
                       variant='outlined'
                       sx={{
                         '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           bgcolor: alpha(theme.palette.text.primary, 0.05),
                           '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                           '&:hover fieldset': {
@@ -374,7 +376,7 @@ export default function SAMLConfigDashboard() {
                       variant='outlined'
                       sx={{
                         '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           bgcolor: alpha(theme.palette.text.primary, 0.05),
                           '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                           '&:hover fieldset': {
@@ -391,7 +393,7 @@ export default function SAMLConfigDashboard() {
             {/* Attribute Mapping */}
             <Card
               sx={{
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 bgcolor: alpha(theme.palette.text.primary, 0.03),
                 backdropFilter: 'blur(20px)',
                 border: '1px solid',
@@ -417,7 +419,7 @@ export default function SAMLConfigDashboard() {
                     height: 32,
                     bgcolor: alpha(theme.palette.info.main, 0.1),
                     color: 'info.main',
-                    borderRadius: '8px',
+                    borderRadius: 'var(--sf-radius-sm, 8px)',
                   }}
                 >
                   <SwapHoriz sx={{ fontSize: 18 }} />
@@ -455,7 +457,7 @@ export default function SAMLConfigDashboard() {
                           alignItems: 'center',
                           gap: 2,
                           p: 1.5,
-                          borderRadius: '12px',
+                          borderRadius: 'var(--sf-radius-md, 10px)',
                           border: '1px solid',
                           borderColor: alpha(theme.palette.divider, 0.05),
                           bgcolor: alpha(theme.palette.text.primary, 0.05),
@@ -469,7 +471,7 @@ export default function SAMLConfigDashboard() {
                           sx={{
                             flex: 1,
                             '& .MuiOutlinedInput-root': {
-                              borderRadius: '8px',
+                              borderRadius: 'var(--sf-radius-md, 8px)',
                               bgcolor: alpha(theme.palette.text.primary, 0.03),
                               '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                             },
@@ -484,7 +486,7 @@ export default function SAMLConfigDashboard() {
                           sx={{
                             flex: 1,
                             '& .MuiOutlinedInput-root': {
-                              borderRadius: '8px',
+                              borderRadius: 'var(--sf-radius-md, 8px)',
                               bgcolor: alpha(theme.palette.text.primary, 0.03),
                               '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                             },
@@ -493,8 +495,13 @@ export default function SAMLConfigDashboard() {
                         <IconButton
                           size='small'
                           color='error'
+                          aria-label={t('auth.common.remove', 'Remove')}
                           onClick={() => handleRemoveMapping(saml)}
-                          sx={{ bgcolor: alpha(theme.palette.error.main, 0.05) }}
+                          sx={{
+                            minWidth: 44,
+                            minHeight: 44,
+                            bgcolor: alpha(theme.palette.error.main, 0.05),
+                          }}
                         >
                           <DeleteOutline fontSize='small' />
                         </IconButton>
@@ -506,7 +513,7 @@ export default function SAMLConfigDashboard() {
                 <Box
                   sx={{
                     p: 2.5,
-                    borderRadius: '16px',
+                    borderRadius: 'var(--sf-radius-md, 12px)',
                     bgcolor: alpha(theme.palette.text.primary, 0.05),
                     border: '1px dashed',
                     borderColor: alpha(theme.palette.primary.main, 0.3),
@@ -530,7 +537,7 @@ export default function SAMLConfigDashboard() {
                         sx={{
                           bgcolor: alpha(theme.palette.text.primary, 0.05),
                           '& .MuiOutlinedInput-root': {
-                            borderRadius: '8px',
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                             '&:hover fieldset': {
                               borderColor: alpha(theme.palette.primary.main, 0.2),
@@ -550,7 +557,7 @@ export default function SAMLConfigDashboard() {
                         sx={{
                           bgcolor: alpha(theme.palette.text.primary, 0.05),
                           '& .MuiOutlinedInput-root': {
-                            borderRadius: '8px',
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             '& fieldset': { borderColor: alpha(theme.palette.divider, 0.05) },
                             '&:hover fieldset': {
                               borderColor: alpha(theme.palette.primary.main, 0.2),
@@ -563,9 +570,10 @@ export default function SAMLConfigDashboard() {
                       <Button
                         fullWidth
                         variant='contained'
+                        aria-label={t('auth.sso.add_mapping', 'Add Mapping')}
                         onClick={handleAddMapping}
                         disabled={!newMapping.saml || !newMapping.internal}
-                        sx={{ height: 40, borderRadius: '8px', boxShadow: 'none' }}
+                        sx={{ minHeight: 44, minWidth: 44, borderRadius: 'var(--sf-radius-md, 8px)', boxShadow: 'none' }}
                       >
                         <Add />
                       </Button>
@@ -582,7 +590,7 @@ export default function SAMLConfigDashboard() {
             {/* Metadata Section */}
             <Card
               sx={{
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 bgcolor: alpha(theme.palette.text.primary, 0.03),
                 backdropFilter: 'blur(20px)',
                 border: '1px solid',
@@ -598,7 +606,7 @@ export default function SAMLConfigDashboard() {
                       height: 36,
                       bgcolor: alpha(theme.palette.info.main, 0.1),
                       color: 'info.main',
-                      borderRadius: '10px',
+                      borderRadius: 'var(--sf-radius-sm, 8px)',
                     }}
                   >
                     <Explore sx={{ fontSize: 20 }} />
@@ -626,8 +634,8 @@ export default function SAMLConfigDashboard() {
                   startIcon={<Explore />}
                   onClick={() => navigate(Path.identity.samlMetadataBrowser)}
                   sx={{
-                    borderRadius: '12px',
-                    height: 44,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    minHeight: 44,
                     textTransform: 'none',
                     fontWeight: 700,
                     borderColor: alpha(theme.palette.info.main, 0.3),
@@ -648,7 +656,7 @@ export default function SAMLConfigDashboard() {
                     size='small'
                     startIcon={<CloudDownload />}
                     onClick={() => window.open('/api/admin/saml/metadata', '_blank')}
-                    sx={{ textTransform: 'none', fontWeight: 600 }}
+                    sx={{ textTransform: 'none', fontWeight: 600, minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
                   >
                     {t('auth.sso.download_xml', 'Download XML')}
                   </Button>
@@ -659,7 +667,7 @@ export default function SAMLConfigDashboard() {
                     onClick={() =>
                       copyToClipboard(`${window.location.origin}/api/admin/saml/metadata`)
                     }
-                    sx={{ textTransform: 'none', fontWeight: 600 }}
+                    sx={{ textTransform: 'none', fontWeight: 600, minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
                   >
                     {t('auth.sso.copy_link', 'Copy Link')}
                   </Button>
@@ -671,7 +679,7 @@ export default function SAMLConfigDashboard() {
             <Card
               sx={{
                 p: 3,
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 bgcolor: alpha(theme.palette.text.primary, 0.03),
                 backdropFilter: 'blur(20px)',
                 border: '1px solid',
@@ -686,7 +694,7 @@ export default function SAMLConfigDashboard() {
                     height: 36,
                     bgcolor: alpha(theme.palette.primary.main, 0.1),
                     color: 'primary.main',
-                    borderRadius: '10px',
+                    borderRadius: 'var(--sf-radius-sm, 8px)',
                   }}
                 >
                   <Fingerprint sx={{ fontSize: 20 }} />
@@ -714,7 +722,7 @@ export default function SAMLConfigDashboard() {
                       key={key.kid || idx}
                       sx={{
                         p: 2,
-                        borderRadius: '16px',
+                        borderRadius: 'var(--sf-radius-md, 12px)',
                         border: '1px solid',
                         borderColor: alpha(theme.palette.divider, 0.05),
                         bgcolor: alpha(theme.palette.text.primary, 0.05),
@@ -742,7 +750,7 @@ export default function SAMLConfigDashboard() {
                           size='small'
                           color={idx === 0 ? 'success' : 'info'}
                           sx={{
-                            borderRadius: '6px',
+                            borderRadius: 'var(--sf-radius-xs, 4px)',
                             fontWeight: 900,
                             height: 18,
                             fontSize: '0.6rem',
@@ -772,10 +780,10 @@ export default function SAMLConfigDashboard() {
                 onClick={() => navigate(Path.identity.jwksManagement)}
                 sx={{
                   mt: 3,
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   textTransform: 'none',
                   fontWeight: 700,
-                  height: 44,
+                  minHeight: 44,
                   borderColor: alpha(theme.palette.primary.main, 0.3),
                   color: 'primary.main',
                   '&:hover': {

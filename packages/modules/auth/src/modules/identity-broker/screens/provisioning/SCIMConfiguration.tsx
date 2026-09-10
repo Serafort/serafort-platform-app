@@ -42,6 +42,8 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { motion } from 'framer-motion'
+import Path from '../path'
 import {
   useSCIMTokens,
   useCreateSCIMToken,
@@ -69,7 +71,7 @@ function StatCard({
     <Card
       sx={{
         p: 3,
-        borderRadius: 4,
+        borderRadius: 'var(--sf-radius-lg, 16px)',
         border: '1px solid',
         borderColor: 'divider',
         boxShadow: 'none',
@@ -90,7 +92,7 @@ function StatCard({
           color: `${color}.main`,
           width: 56,
           height: 56,
-          borderRadius: 3,
+          borderRadius: 'var(--sf-radius-md, 12px)',
         }}
       >
         {icon}
@@ -279,7 +281,31 @@ export default function SCIMConfiguration() {
   }
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}
+    >
+      {/* ── Back button ────────────────────────────────────────────── */}
+      <Box sx={{ mb: 2 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate(Path.provisioning)}
+          sx={{
+            p: 1,
+            minHeight: 44,
+            color: 'text.secondary',
+            textTransform: 'none',
+            fontWeight: 700,
+            '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
+          }}
+        >
+          {t('auth.common.back', 'Back to Provisioning')}
+        </Button>
+      </Box>
+
       <Box
         sx={{
           mb: 4,
@@ -294,9 +320,9 @@ export default function SCIMConfiguration() {
           <Box sx={{ position: 'relative' }}>
             <Avatar
               sx={{
-                width: 72,
-                height: 72,
-                borderRadius: '20px',
+                width: 64,
+                height: 64,
+                borderRadius: 'var(--sf-radius-lg, 24px)',
                 bgcolor: alpha(theme.palette.secondary.main, 0.12),
                 color: 'secondary.main',
                 boxShadow: `0 12px 24px ${alpha(theme.palette.secondary.main, 0.18)}`,
@@ -307,40 +333,30 @@ export default function SCIMConfiguration() {
             <Box
               sx={{
                 position: 'absolute',
-                bottom: -4,
-                right: -4,
-                width: 24,
-                height: 24,
+                bottom: -2,
+                right: -2,
+                width: 20,
+                height: 20,
                 bgcolor: scimEnabled ? 'success.main' : 'action.disabled',
                 borderRadius: '50%',
-                border: '4px solid',
+                border: '3px solid',
                 borderColor: 'background.paper',
                 transition: 'background-color 0.3s',
               }}
             />
           </Box>
           <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
-              <IconButton
-                onClick={() => navigate(-1)}
-                sx={{
-                  p: 0,
-                  color: 'text.secondary',
-                  '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
-                }}
-              >
-                <ArrowBack />
-              </IconButton>
-              <Typography
-                variant='h4'
-                sx={{
-                  fontWeight: 900,
-                  letterSpacing: '-0.027em',
-                }}
-              >
-                {t('auth.admin.provisioning.scim.title')}
-              </Typography>
-            </Box>
+            <Typography
+              variant='h4'
+              sx={{
+                fontWeight: 900,
+                letterSpacing: '-0.027em',
+                fontFamily: 'Outfit, sans-serif',
+                mb: 0.5,
+              }}
+            >
+              {t('auth.admin.provisioning.scim.title')}
+            </Typography>
             <Stack direction='row' spacing={1.5} alignItems='center' flexWrap='wrap'>
               <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
                 {t('auth.admin.provisioning.scim.subtitle')}
@@ -353,7 +369,11 @@ export default function SCIMConfiguration() {
                 }
                 size='small'
                 color={scimEnabled ? 'success' : 'default'}
-                sx={{ fontWeight: 800, height: 22, borderRadius: 1.5 }}
+                sx={{
+                  fontWeight: 800,
+                  height: 22,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                }}
               />
             </Stack>
           </Box>
@@ -371,8 +391,9 @@ export default function SCIMConfiguration() {
             disabled={testConnectionMutation.isPending}
             sx={{
               height: 44,
+              minHeight: 44,
               px: 3,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               fontWeight: 800,
               textTransform: 'none',
               flex: { xs: 1, sm: 'none' },
@@ -400,8 +421,9 @@ export default function SCIMConfiguration() {
               textTransform: 'none',
               fontWeight: 800,
               height: 44,
+              minHeight: 44,
               px: 3,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               flex: { xs: 1, sm: 'none' },
             }}
           >
@@ -441,7 +463,12 @@ export default function SCIMConfiguration() {
 
       <Stack spacing={4}>
         <Card
-          sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
+          sx={{
+            borderRadius: 'var(--sf-radius-lg, 16px)',
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+          }}
         >
           <CardContent sx={{ p: 3.5 }}>
             <Box
@@ -477,7 +504,7 @@ export default function SCIMConfiguration() {
             </Box>
 
             {!scimEnabled && (
-              <Alert severity='warning' sx={{ mb: 4, borderRadius: 3, fontWeight: 600 }}>
+              <Alert severity='warning' sx={{ mb: 4, borderRadius: 'var(--sf-radius-md, 10px)', fontWeight: 600 }}>
                 {t('auth.admin.provisioning.scim.messages.disabled_warning')}
               </Alert>
             )}
@@ -521,19 +548,26 @@ export default function SCIMConfiguration() {
                               <IconButton
                                 size='small'
                                 onClick={() => handleCopy(scimUrl, 'SCIM URL')}
+                                sx={{ width: 44, height: 44 }}
                               >
                                 <ContentCopy fontSize='small' />
                               </IconButton>
                             </Tooltip>
                             <Tooltip title={t('auth.admin.provisioning.scim.tooltips.open')}>
-                              <IconButton size='small' component='a' href={scimUrl} target='_blank'>
+                              <IconButton
+                                size='small'
+                                component='a'
+                                href={scimUrl}
+                                target='_blank'
+                                sx={{ width: 44, height: 44 }}
+                              >
                                 <OpenInNew fontSize='small' />
                               </IconButton>
                             </Tooltip>
                           </Stack>
                         </InputAdornment>
                       ),
-                      sx: { borderRadius: 3, fontWeight: 600, fontFamily: 'monospace' },
+                      sx: { borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600, fontFamily: 'monospace' },
                     },
                   }}
                 />
@@ -570,7 +604,7 @@ export default function SCIMConfiguration() {
                   sx={{
                     p: 2.5,
                     bgcolor: alpha(theme.palette.background.default, 0.5),
-                    borderRadius: 3,
+                    borderRadius: 'var(--sf-radius-md, 12px)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -586,7 +620,7 @@ export default function SCIMConfiguration() {
                         color: 'primary.main',
                         width: 44,
                         height: 44,
-                        borderRadius: 2,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                       }}
                     >
                       <VpnKey />
@@ -623,7 +657,13 @@ export default function SCIMConfiguration() {
                       <IconButton
                         size='small'
                         onClick={() => setTokenVisible((v) => !v)}
-                        sx={{ border: '1px solid', borderColor: 'divider' }}
+                        sx={{
+                          width: 44,
+                          height: 44,
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                        }}
                       >
                         {tokenVisible ? (
                           <VisibilityOff fontSize='small' />
@@ -638,7 +678,13 @@ export default function SCIMConfiguration() {
                           size='small'
                           disabled={!displayToken}
                           onClick={() => displayToken && handleCopy(displayToken, 'Bearer token')}
-                          sx={{ border: '1px solid', borderColor: 'divider' }}
+                          sx={{
+                            width: 44,
+                            height: 44,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 'var(--sf-radius-md, 8px)',
+                          }}
                         >
                           <ContentCopy fontSize='small' />
                         </IconButton>
@@ -652,7 +698,13 @@ export default function SCIMConfiguration() {
                         onClick={handleRotateToken}
                         disabled={createTokenMutation.isPending || revokeTokenMutation.isPending}
                         color='warning'
-                        sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 2, px: 2 }}
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 800,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                          minHeight: 44,
+                          px: 2.5,
+                        }}
                       >
                         {createTokenMutation.isPending
                           ? t('auth.admin.provisioning.scim.rotating')
@@ -669,8 +721,9 @@ export default function SCIMConfiguration() {
                           boxShadow: '0 4px 12px rgba(0,118,255,0.3)',
                           textTransform: 'none',
                           fontWeight: 800,
-                          borderRadius: 2,
-                          px: 2,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                          minHeight: 44,
+                          px: 2.5,
                           '&:hover': { bgcolor: 'info.dark' },
                         }}
                       >
@@ -687,7 +740,12 @@ export default function SCIMConfiguration() {
         </Card>
 
         <Card
-          sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
+          sx={{
+            borderRadius: 'var(--sf-radius-lg, 16px)',
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+          }}
         >
           <CardContent sx={{ p: 3.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 4 }}>
@@ -728,7 +786,7 @@ export default function SCIMConfiguration() {
                     variant='outlined'
                     sx={{
                       p: 2.5,
-                      borderRadius: 3,
+                      borderRadius: 'var(--sf-radius-md, 12px)',
                       border: '1px solid',
                       borderColor: 'divider',
                       bgcolor: alpha(theme.palette.action.hover, 0.3),
@@ -754,7 +812,12 @@ export default function SCIMConfiguration() {
                           label={op}
                           size='small'
                           color={op === 'DELETE' ? 'error' : op === 'GET' ? 'info' : 'success'}
-                          sx={{ height: 22, fontSize: '0.65rem', fontWeight: 900, borderRadius: 1 }}
+                          sx={{
+                            height: 22,
+                            fontSize: '0.65rem',
+                            fontWeight: 900,
+                            borderRadius: 'var(--sf-radius-xs, 4px)',
+                          }}
                         />
                       ))}
                     </Stack>
@@ -773,7 +836,12 @@ export default function SCIMConfiguration() {
         </Card>
 
         <Card
-          sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
+          sx={{
+            borderRadius: 'var(--sf-radius-lg, 16px)',
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+          }}
         >
           <CardContent sx={{ p: 3.5 }}>
             <Box
@@ -804,7 +872,9 @@ export default function SCIMConfiguration() {
                 sx={{
                   fontWeight: 800,
                   textTransform: 'none',
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  minHeight: 44,
+                  px: 2.5,
                   color: 'text.secondary',
                 }}
               >
@@ -816,7 +886,7 @@ export default function SCIMConfiguration() {
               sx={{
                 border: '1px solid',
                 borderColor: 'divider',
-                borderRadius: 4,
+                borderRadius: 'var(--sf-radius-md, 12px)',
                 overflow: 'hidden',
               }}
             >
@@ -904,7 +974,9 @@ export default function SCIMConfiguration() {
                               fontSize: '0.875rem',
                               fontFamily: 'monospace',
                             },
-                            '& .MuiOutlinedInput-root': { borderRadius: 2.5 },
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 'var(--sf-radius-md, 8px)',
+                            },
                           }}
                         >
                           {internalFields.map((f) => (
@@ -922,9 +994,9 @@ export default function SCIMConfiguration() {
                             color='primary'
                             sx={{
                               fontWeight: 900,
-                              height: 20,
+                              height: 22,
                               fontSize: '0.65rem',
-                              borderRadius: 1,
+                              borderRadius: 'var(--sf-radius-xs, 4px)',
                             }}
                           />
                         ) : (

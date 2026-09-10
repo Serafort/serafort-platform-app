@@ -243,11 +243,11 @@ const SAMLSSOInitiation = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         >
-          <Paper
+            <Paper
             elevation={0}
             sx={{
               p: { xs: 4, md: 6 },
-              borderRadius: 8,
+              borderRadius: 'var(--sf-radius-lg, 24px)',
               background: alpha(theme.palette.common.white, 0.1),
               backdropFilter: 'blur(40px)',
               border: '1px solid',
@@ -277,7 +277,7 @@ const SAMLSSOInitiation = () => {
                     color: 'common.white',
                     zIndex: 1,
                     boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.2)}`,
-                    borderRadius: '24px',
+                    borderRadius: 'var(--sf-radius-lg, 24px)',
                   }}
                 >
                   <BusinessIcon sx={{ fontSize: 36 }} />
@@ -344,7 +344,7 @@ const SAMLSSOInitiation = () => {
                           color: 'common.white',
                           height: 56,
                           background: alpha(theme.palette.common.white, 0.08),
-                          borderRadius: 3,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           fontWeight: 500,
                           '& fieldset': {
                             borderColor: alpha(theme.palette.common.white, 0.2),
@@ -418,6 +418,7 @@ const SAMLSSOInitiation = () => {
                               textTransform: 'uppercase',
                               letterSpacing: '0.04em',
                               border: `1px solid ${alpha(providerInfo.color, 0.4)}`,
+                              borderRadius: 'var(--sf-radius-sm, 6px)',
                               '& .MuiChip-icon': { ml: 0.5 },
                             }}
                           />
@@ -435,8 +436,8 @@ const SAMLSSOInitiation = () => {
                   size='large'
                   disabled={isDiscovering || isRedirecting || !rawIdentifier.trim()}
                   sx={{
-                    height: 56,
-                    borderRadius: 3,
+                    minHeight: 56,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     bgcolor: 'common.white',
                     color: theme.palette.primary.dark,
                     boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.15)}`,
@@ -497,11 +498,11 @@ const SAMLSSOInitiation = () => {
                 variant='text'
                 onClick={() => navigate(Path.auth.signin)}
                 sx={{
-                  height: 48,
+                  minHeight: 48,
                   color: alpha(theme.palette.common.white, 0.9),
                   fontWeight: 700,
                   textTransform: 'none',
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   '&:hover': {
                     color: 'common.white',
                     background: alpha(theme.palette.common.white, 0.1),

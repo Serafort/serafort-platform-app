@@ -127,7 +127,7 @@ export default function SSOProviderSelection() {
             mb: 3,
             bgcolor: 'transparent',
             color: 'primary.main',
-            borderRadius: '24px',
+            borderRadius: 'var(--sf-radius-lg, 24px)',
             border: '2px solid',
             borderColor: alpha(theme.palette.primary.main, 0.2),
           }}
@@ -144,7 +144,7 @@ export default function SSOProviderSelection() {
 
       <Card
         sx={{
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
@@ -181,7 +181,7 @@ export default function SSOProviderSelection() {
                   </InputAdornment>
                 ),
                 sx: {
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   height: 56,
                   fontSize: '1rem',
                   fontWeight: 600,
@@ -204,7 +204,7 @@ export default function SSOProviderSelection() {
                   sx={{
                     p: 3,
                     mb: 4,
-                    borderRadius: 3,
+                    borderRadius: 'var(--sf-radius-md, 10px)',
                     bgcolor: alpha(theme.palette.primary.main, 0.02),
                     border: '1px solid',
                     borderColor: alpha(theme.palette.primary.main, 0.1),
@@ -227,7 +227,7 @@ export default function SSOProviderSelection() {
                         height: 52,
                         border: '1px solid',
                         borderColor: 'divider',
-                        borderRadius: '12px',
+                        borderRadius: 'var(--sf-radius-md, 12px)',
                       }}
                     >
                       {detectedProvider.icon}
@@ -254,6 +254,8 @@ export default function SSOProviderSelection() {
                     onClick={handleContinue}
                     aria-label={t('auth.sso.continueProvider', 'Continue with detected provider')}
                     sx={{
+                      minWidth: 44,
+                      minHeight: 44,
                       bgcolor: alpha(theme.palette.primary.main, 0.08),
                       '&:hover': {
                         bgcolor: alpha(theme.palette.primary.main, 0.15),
@@ -274,8 +276,8 @@ export default function SSOProviderSelection() {
                   disabled={!isValidEmail || isDiscovering}
                   onClick={handleContinue}
                   sx={{
-                    height: 52,
-                    borderRadius: 3,
+                    minHeight: 52,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     fontSize: '1rem',
                     fontWeight: 900,
                     textTransform: 'none',
@@ -322,8 +324,8 @@ export default function SSOProviderSelection() {
                   variant='outlined'
                   onClick={() => handleManualProviderClick(p)}
                   sx={{
-                    height: 80,
-                    borderRadius: 3,
+                    minHeight: 80,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     borderColor: 'divider',
                     textTransform: 'none',
                     transition: 'all 0.25s',
@@ -349,7 +351,7 @@ export default function SSOProviderSelection() {
                       // theme colour: OneLogin's #000 (and Ping's dark red) are
                       // invisible on the dark-mode surface otherwise.
                       color: theme.palette.mode === 'dark' ? 'text.primary' : p.color,
-                      borderRadius: '8px',
+                      borderRadius: 'var(--sf-radius-sm, 8px)',
                     }}
                   >
                     {p.initials}

@@ -135,7 +135,7 @@ export default function SAMLMetadataBrowser() {
               sx={{
                 width: { xs: 56, md: 80 },
                 height: { xs: 56, md: 80 },
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 24px)',
                 bgcolor: 'primary.main',
                 boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
               }}
@@ -203,7 +203,7 @@ export default function SAMLMetadataBrowser() {
                 size='small'
                 color='primary'
                 variant='outlined'
-                sx={{ fontWeight: 700, height: 20 }}
+                sx={{ fontWeight: 700, height: 20, borderRadius: 'var(--sf-radius-xs, 4px)' }}
               />
             </Stack>
           </Box>
@@ -212,7 +212,7 @@ export default function SAMLMetadataBrowser() {
 
       <Card
         sx={{
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           mb: 5,
           boxShadow: 'none',
           border: '1px solid',
@@ -244,7 +244,7 @@ export default function SAMLMetadataBrowser() {
               disabled={fetchRemote.isPending}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                 },
               }}
               onKeyDown={handleKeyDown}
@@ -263,13 +263,13 @@ export default function SAMLMetadataBrowser() {
               onClick={handleFetch}
               disabled={fetchRemote.isPending || !searchUrl}
               sx={{
-                height: 56,
+                minHeight: 56,
                 minWidth: 160,
-                borderRadius: '12px',
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 fontWeight: 700,
                 textTransform: 'none',
                 color: 'white',
-                boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
+                boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
               }}
             >
               {fetchRemote.isPending ? (
@@ -321,7 +321,7 @@ export default function SAMLMetadataBrowser() {
           sx={{
             p: 8,
             textAlign: 'center',
-            borderRadius: 4,
+            borderRadius: 'var(--sf-radius-lg, 16px)',
             border: '1px dashed',
             borderColor: 'divider',
             bgcolor: 'transparent',
@@ -345,7 +345,7 @@ export default function SAMLMetadataBrowser() {
             <Grid key={entity.id} size={{ xs: 12, md: 6 }}>
               <Card
                 sx={{
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
@@ -373,7 +373,7 @@ export default function SAMLMetadataBrowser() {
                           height: 48,
                           backgroundColor: alpha(theme.palette.primary.main, 0.08),
                           color: 'primary.main',
-                          borderRadius: '14px',
+                          borderRadius: 'var(--sf-radius-md, 12px)',
                           boxShadow: (theme) =>
                             `0 4px 12px ${alpha(theme.palette.primary.main, 0.1)}`,
                         }}
@@ -405,7 +405,7 @@ export default function SAMLMetadataBrowser() {
                       size='small'
                       color={entity.status === 'active' ? 'success' : 'warning'}
                       sx={{
-                        borderRadius: '8px',
+                        borderRadius: 'var(--sf-radius-xs, 4px)',
                         fontWeight: 900,
                         fontSize: '0.65rem',
                         letterSpacing: '0.05em',
@@ -418,7 +418,7 @@ export default function SAMLMetadataBrowser() {
                     sx={{
                       mb: 3,
                       p: 2,
-                      borderRadius: '12px',
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       bgcolor: (theme) => alpha(theme.palette.text.primary, 0.02),
                       border: '1px solid',
                       borderColor: 'divider',
@@ -463,7 +463,8 @@ export default function SAMLMetadataBrowser() {
                       color: 'text.primary',
                       borderColor: 'divider',
                       py: 1.5,
-                      borderRadius: '12px',
+                      minHeight: 44,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       '&:hover': {
                         backgroundColor: 'primary.main',
                         color: 'white',

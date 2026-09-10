@@ -234,7 +234,7 @@ export default function OidcWaitScreen() {
               sx={{
                 width: 80,
                 height: 80,
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 24px)',
                 bgcolor: alpha(theme.palette.error.main, 0.08),
                 display: 'flex',
                 alignItems: 'center',
@@ -259,7 +259,7 @@ export default function OidcWaitScreen() {
               severity='error'
               sx={{
                 mb: 4,
-                borderRadius: '16px',
+                borderRadius: 'var(--sf-radius-md, 10px)',
                 textAlign: 'left',
                 '& .MuiAlert-message': { fontWeight: 600 },
               }}
@@ -273,9 +273,10 @@ export default function OidcWaitScreen() {
                 startIcon={<ArrowBackIcon />}
                 onClick={() => navigate(Path.auth.login)}
                 sx={{
+                  minHeight: 44,
                   fontWeight: 700,
                   textTransform: 'none',
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   px: 3,
                   borderColor: 'divider',
                 }}
@@ -287,9 +288,10 @@ export default function OidcWaitScreen() {
                 startIcon={<RefreshIcon />}
                 onClick={handleRetry}
                 sx={{
+                  minHeight: 44,
                   fontWeight: 700,
                   textTransform: 'none',
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   px: 3,
                 }}
               >
@@ -348,7 +350,7 @@ export default function OidcWaitScreen() {
             sx={{
               width: 80,
               height: 80,
-              borderRadius: '24px',
+              borderRadius: 'var(--sf-radius-lg, 24px)',
               bgcolor: alpha(theme.palette.primary.main, 0.08),
               display: 'flex',
               alignItems: 'center',
@@ -408,10 +410,10 @@ export default function OidcWaitScreen() {
               <LinearProgress
                 sx={{
                   height: 6,
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
                   bgcolor: alpha(theme.palette.primary.main, 0.06),
                   '& .MuiLinearProgress-bar': {
-                    borderRadius: 3,
+                    borderRadius: 'var(--sf-radius-xs, 4px)',
                     boxShadow: `0 0 10px ${alpha(theme.palette.primary.main, 0.4)}`,
                   },
                 }}

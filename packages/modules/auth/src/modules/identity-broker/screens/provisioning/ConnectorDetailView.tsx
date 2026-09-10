@@ -46,6 +46,7 @@ import Save from '@mui/icons-material/Save'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 import Path from '../path'
 import {
   useProvisioningConnector,
@@ -94,7 +95,7 @@ function StatCard({
     <Card
       sx={{
         p: 3,
-        borderRadius: 4,
+        borderRadius: 'var(--sf-radius-lg, 16px)',
         border: '1px solid',
         borderColor: 'divider',
         boxShadow: 'none',
@@ -115,7 +116,7 @@ function StatCard({
           color: `${color}.main`,
           width: 56,
           height: 56,
-          borderRadius: 3,
+          borderRadius: 'var(--sf-radius-md, 12px)',
         }}
       >
         {icon}
@@ -290,7 +291,13 @@ const ConnectorDetailView: React.FC = () => {
           variant='contained'
           onClick={() => navigate(Path.provisioning)}
           startIcon={<ArrowBack />}
-          sx={{ fontWeight: 800, px: 4, py: 1.5, borderRadius: 3 }}
+          sx={{
+            fontWeight: 800,
+            px: 4,
+            py: 1.5,
+            minHeight: 48,
+            borderRadius: 'var(--sf-radius-md, 8px)',
+          }}
         >
           {t('auth.admin.provisioning.connectors.back_to_list')}
         </Button>
@@ -299,7 +306,31 @@ const ConnectorDetailView: React.FC = () => {
   }
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, md: 4 } }}>
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, md: 4 } }}
+    >
+      {/* ── Back button ────────────────────────────────────────────── */}
+      <Box sx={{ mb: 2 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate(Path.provisioning)}
+          sx={{
+            p: 1,
+            minHeight: 44,
+            color: 'text.secondary',
+            textTransform: 'none',
+            fontWeight: 700,
+            '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
+          }}
+        >
+          {t('auth.common.back', 'Back to Connectors')}
+        </Button>
+      </Box>
+
       {/* ── Pattern 1: Page Header ───────────────────────────────────── */}
       <Box
         sx={{
@@ -314,9 +345,9 @@ const ConnectorDetailView: React.FC = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
           <Avatar
             sx={{
-              width: 72,
-              height: 72,
-              borderRadius: '20px',
+              width: 64,
+              height: 64,
+              borderRadius: 'var(--sf-radius-lg, 24px)',
               bgcolor: alpha(theme.palette.primary.main, 0.12),
               color: 'primary.main',
               boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.15)}`,
@@ -325,26 +356,27 @@ const ConnectorDetailView: React.FC = () => {
             <Hub sx={{ fontSize: 32 }} />
           </Avatar>
           <Box>
-            <IconButton
-              onClick={() => navigate(Path.provisioning)}
-              sx={{
-                p: 0,
-                mb: 0.5,
-                color: 'text.secondary',
-                '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
-              }}
-            >
-              <ArrowBack sx={{ fontSize: 20 }} />
-            </IconButton>
             <Stack direction='row' alignItems='center' spacing={1.5}>
-              <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
+              <Typography
+                variant='h4'
+                sx={{
+                  fontWeight: 900,
+                  letterSpacing: '-0.027em',
+                  fontFamily: 'Outfit, sans-serif',
+                }}
+              >
                 {connector.name}
               </Typography>
               <Chip
                 label={(connector.status || '').toUpperCase()}
                 size='small'
                 color={connector.status === 'active' ? 'success' : 'default'}
-                sx={{ fontWeight: 900, fontSize: 10, height: 20, borderRadius: 1 }}
+                sx={{
+                  fontWeight: 900,
+                  fontSize: 10,
+                  height: 22,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                }}
               />
             </Stack>
             <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
@@ -362,8 +394,9 @@ const ConnectorDetailView: React.FC = () => {
             onClick={handleDelete}
             sx={{
               height: 44,
+              minHeight: 44,
               px: 3,
-              borderRadius: 2.5,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               fontWeight: 800,
               textTransform: 'none',
               borderColor: 'divider',
@@ -381,8 +414,9 @@ const ConnectorDetailView: React.FC = () => {
               bgcolor: 'info.main',
               boxShadow: '0 4px 14px 0 rgba(0,118,255,0.35)',
               height: 44,
+              minHeight: 44,
               px: 3,
-              borderRadius: 2.5,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               fontWeight: 800,
               textTransform: 'none',
               '&:hover': { bgcolor: 'info.dark' },
@@ -435,7 +469,7 @@ const ConnectorDetailView: React.FC = () => {
       {/* ── Main Content: Tabs ─────────────────────────────────────────── */}
       <Card
         sx={{
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
@@ -497,7 +531,7 @@ const ConnectorDetailView: React.FC = () => {
                     onChange={(e) => setConfigName(e.target.value)}
                     variant='outlined'
                     slotProps={{
-                      input: { sx: { borderRadius: 3, fontWeight: 600 } },
+                      input: { sx: { borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600 } },
                       inputLabel: { sx: { fontWeight: 700 } },
                     }}
                   />
@@ -510,7 +544,7 @@ const ConnectorDetailView: React.FC = () => {
                       value={configStatus}
                       label={t('auth.admin.provisioning.connectors.fields.status')}
                       onChange={(e) => setConfigStatus(e.target.value as any)}
-                      sx={{ borderRadius: 3, fontWeight: 700 }}
+                      sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}
                     >
                       <MenuItem value='active' sx={{ fontWeight: 700 }}>
                         {t('auth.admin.provisioning.scim.status_active').toUpperCase()}
@@ -532,8 +566,9 @@ const ConnectorDetailView: React.FC = () => {
                       disabled={updateMutation.isPending}
                       sx={{
                         height: 48,
+                        minHeight: 48,
                         px: 4,
-                        borderRadius: 3,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         fontWeight: 900,
                         bgcolor: 'primary.main',
                         boxShadow: `0 8px 16px -4px ${alpha(theme.palette.primary.main, 0.3)}`,
@@ -553,7 +588,7 @@ const ConnectorDetailView: React.FC = () => {
                   variant='outlined'
                   sx={{
                     p: 3,
-                    borderRadius: 4,
+                    borderRadius: 'var(--sf-radius-md, 12px)',
                     bgcolor: alpha(theme.palette.action.hover, 0.4),
                     border: '1px solid',
                     borderColor: 'divider',
@@ -615,7 +650,7 @@ const ConnectorDetailView: React.FC = () => {
                         size='small'
                         sx={{
                           fontWeight: 900,
-                          borderRadius: 1.5,
+                          borderRadius: 'var(--sf-radius-xs, 4px)',
                           bgcolor: 'background.paper',
                           border: '1px solid',
                           borderColor: 'divider',
@@ -636,6 +671,7 @@ const ConnectorDetailView: React.FC = () => {
                   mb: 3,
                   width: 64,
                   height: 64,
+                  borderRadius: 'var(--sf-radius-md, 12px)',
                   bgcolor: alpha(theme.palette.primary.main, 0.1),
                   color: 'primary.main',
                 }}
@@ -653,7 +689,14 @@ const ConnectorDetailView: React.FC = () => {
               </Typography>
               <Button
                 variant='outlined'
-                sx={{ mt: 4, borderRadius: 2.5, fontWeight: 800, textTransform: 'none' }}
+                sx={{
+                  mt: 4,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  minHeight: 44,
+                  px: 3,
+                  fontWeight: 800,
+                  textTransform: 'none',
+                }}
               >
                 {t('auth.admin.provisioning.connectors.configure_mappings')}
               </Button>
@@ -671,6 +714,7 @@ const ConnectorDetailView: React.FC = () => {
                   sx={{
                     mx: 'auto',
                     mb: 2,
+                    borderRadius: 'var(--sf-radius-md, 10px)',
                     bgcolor: alpha(theme.palette.action.hover, 0.5),
                     color: 'text.disabled',
                   }}
@@ -687,7 +731,7 @@ const ConnectorDetailView: React.FC = () => {
                   sx={{
                     border: '1px solid',
                     borderColor: 'divider',
-                    borderRadius: 4,
+                    borderRadius: 'var(--sf-radius-md, 12px)',
                     overflow: 'hidden',
                   }}
                 >
@@ -777,7 +821,11 @@ const ConnectorDetailView: React.FC = () => {
                             <Tooltip title='View Log Entry'>
                               <IconButton
                                 size='small'
-                                sx={{ bgcolor: alpha(theme.palette.action.hover, 0.5) }}
+                                sx={{
+                                  width: 44,
+                                  height: 44,
+                                  bgcolor: alpha(theme.palette.action.hover, 0.5),
+                                }}
                               >
                                 <ChevronRight fontSize='small' />
                               </IconButton>
@@ -796,7 +844,10 @@ const ConnectorDetailView: React.FC = () => {
                       page={page}
                       onChange={(_, value) => setPage(value)}
                       sx={{
-                        '& .MuiPaginationItem-root': { fontWeight: 900, borderRadius: 2 },
+                        '& .MuiPaginationItem-root': {
+                          fontWeight: 900,
+                          borderRadius: 'var(--sf-radius-xs, 4px)',
+                        },
                         '& .Mui-selected': {
                           bgcolor: alpha(theme.palette.primary.main, 0.1),
                           color: 'primary.main',
@@ -817,7 +868,7 @@ const ConnectorDetailView: React.FC = () => {
         sx={{
           mt: 4,
           p: 3,
-          borderRadius: 5,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid',
           borderColor: alpha(theme.palette.info.main, 0.2),
           bgcolor: alpha(theme.palette.info.main, 0.03),
@@ -833,7 +884,7 @@ const ConnectorDetailView: React.FC = () => {
             color: 'info.main',
             width: 52,
             height: 52,
-            borderRadius: 2.5,
+            borderRadius: 'var(--sf-radius-md, 10px)',
           }}
         >
           <Info />
@@ -856,9 +907,10 @@ const ConnectorDetailView: React.FC = () => {
           sx={{
             fontWeight: 900,
             textTransform: 'none',
-            borderRadius: 2.5,
+            borderRadius: 'var(--sf-radius-md, 8px)',
             px: 4,
             height: 44,
+            minHeight: 44,
             borderColor: alpha(theme.palette.info.main, 0.3),
           }}
         >
