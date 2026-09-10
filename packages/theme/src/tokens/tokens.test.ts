@@ -41,7 +41,7 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(primitiveColors.alpha.black[60]).toBe("rgba(0,0,0,0.60)");
     });
 
-    it("defines a contiguous base-4 spacing scale from space.0 to space.16", () => {
+    it("defines a contiguous base-4 spacing scale from space.0 to space.32", () => {
       expect(spacingTokens[0]).toBe("0px");
       expect(spacingTokens[1]).toBe("4px");
       expect(spacingTokens[2]).toBe("8px");
@@ -61,8 +61,13 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(spacingTokens[14]).toBe("56px");
       expect(spacingTokens[15]).toBe("60px");
 
+      // Page-level steps 17-32 (68px-128px).
+      expect(spacingTokens[20]).toBe("80px");
+      expect(spacingTokens[24]).toBe("96px");
+      expect(spacingTokens[32]).toBe("128px");
+
       // Every step is n * 4px with no gaps.
-      for (let n = 0; n <= 16; n += 1) {
+      for (let n = 0; n <= 32; n += 1) {
         expect(spacingTokens[n as keyof typeof spacingTokens]).toBe(`${n * 4}px`);
       }
     });
@@ -325,6 +330,16 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(cssVars["--sf-ink"]).toBe("#031433");
       expect(cssVars["--sf-cta-bg"]).toBe("#06CBFD"); // dark-mode CTA is cyan
       expect(cssVars["--font-family-display"]).toContain("Space Grotesk");
+      // Serafort --sf-* scale aliases mirror the platform scales 1:1
+      expect(cssVars["--sf-space-4"]).toBe("16px");
+      expect(cssVars["--sf-space-32"]).toBe("128px");
+      expect(cssVars["--space-32"]).toBe("128px");
+      expect(cssVars["--sf-radius-2xl"]).toBe("24px");
+      expect(cssVars["--sf-border-1"]).toBe("1px");
+      expect(cssVars["--sf-shadow-md"]).toBe(cssVars["--shadow-md"]);
+      expect(cssVars["--sf-shadow-glow"]).toBe(cssVars["--shadow-glow"]);
+      expect(cssVars["--sf-error-text"]).toBe("#FF8A8A"); // dark variant
+      expect(tokensToCssVariables("light")["--sf-error-text"]).toBe("#B42121");
     });
 
     it("batches CSS variable updates to document element in requestAnimationFrame", () => {

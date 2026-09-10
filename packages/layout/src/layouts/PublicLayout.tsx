@@ -2,14 +2,20 @@ import React from 'react'
 import { Box } from '@mui/material'
 import { zIndexScale } from '@cap/theme'
 import LayoutContent from '../components/horizontal/LayoutContent'
+import AmbientBackdrop, { type AmbientBackdropIntensity } from '../components/AmbientBackdrop'
 import type { ChildrenType } from '@cap/shared-types'
 
 const PublicLayout: React.FC<
   ChildrenType & {
     header?: React.ReactNode
     footer?: React.ReactNode
+    /**
+     * Ambient gradient wash behind the page. Off by default; marketing and
+     * landing surfaces opt in for the same branded ground the auth funnel uses.
+     */
+    backdrop?: AmbientBackdropIntensity | false
   }
-> = ({ header, footer, children }) => {
+> = ({ header, footer, children, backdrop = false }) => {
   return (
     <Box
       sx={{
@@ -19,8 +25,11 @@ const PublicLayout: React.FC<
         width: '100%',
         margin: 0,
         padding: 0,
+        position: 'relative',
       }}
     >
+      {backdrop !== false && <AmbientBackdrop intensity={backdrop} />}
+
       {/* Header Section */}
       <Box
         component='header'
@@ -36,7 +45,7 @@ const PublicLayout: React.FC<
       </Box>
 
       {/* Main Content Area */}
-      <Box component='main' sx={{ flex: '1 1 auto' }}>
+      <Box component='main' sx={{ flex: '1 1 auto', position: 'relative', zIndex: 1 }}>
         <LayoutContent>{children}</LayoutContent>
       </Box>
 
@@ -49,6 +58,8 @@ const PublicLayout: React.FC<
           width: '100%',
           borderTop: 1,
           borderColor: 'divider',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         {footer || null}

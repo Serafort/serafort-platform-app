@@ -1,8 +1,8 @@
 import React from 'react'
 import { Box } from '@mui/material'
 import { motion } from 'framer-motion'
-import { AdaptiveLogo } from '@cap/theme'
-import AuthBackdrop, { type AuthBackdropIntensity } from './AuthBackdrop'
+import { BlankLayout } from '@cap/layout'
+import type { AuthBackdropIntensity } from './AuthBackdrop'
 
 interface AuthPageLayoutProps {
   children: React.ReactNode
@@ -26,6 +26,16 @@ interface AuthPageLayoutProps {
   logo?: boolean
 }
 
+/**
+ * Thin wrapper over `@cap/layout`'s centred `BlankLayout` shell.
+ *
+ * The centring, the ambient gradient (`AmbientBackdrop`) and the
+ * `<AdaptiveLogo/>` all live at the layout tier now — this component only
+ * picks the options the auth funnel wants and adds the card's entrance
+ * animation. The animation stays here, outside the shell: it animates
+ * `transform`, and a transformed ancestor would become the containing block
+ * for the backdrop's `position: fixed`, clipping the wash to the card.
+ */
 const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
   children,
   maxWidth = 480,
@@ -34,68 +44,24 @@ const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
   logo = true,
 }) => {
   return (
-    <Box
-      sx={{
-        minHeight: '100dvh',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: align === 'center' ? 'center' : 'flex-start',
-        p: { xs: 2, sm: 3, md: 4 },
-        ...(align === 'top' ? { pt: { xs: 3, sm: 5, md: 6 } } : {}),
-        boxSizing: 'border-box',
-        position: 'relative',
-        bgcolor: 'transparent',
-      }}
+    <BlankLayout
+      centered
+      align={align}
+      backdrop={backdrop === false ? 'none' : backdrop}
+      logo={logo}
+      maxWidth={maxWidth}
     >
-      {/*
-        Rendered here rather than by each screen, and deliberately outside the
-        animated wrapper below. That wrapper animates `transform`, and a
-        transformed ancestor becomes the containing block for `position: fixed`
-        descendants — which is why the wash used to be clipped to the card
-        instead of covering the viewport.
-      */}
-      {backdrop !== false && <AuthBackdrop intensity={backdrop} />}
-
-      {logo && (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            width: '100%',
-            maxWidth: maxWidth,
-            mx: 'auto',
-            mb: { xs: 3, sm: 4 },
-            // Above AuthBackdrop's full-viewport wash, same layer as the card.
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
-          {/* Sized by height with width:auto — the mark stays proportionate and
-              never competes with the card heading for visual weight. */}
-          <AdaptiveLogo height={40} />
-        </Box>
-      )}
-
       <Box
         className='animate-scale-in'
         component={motion.div}
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-        sx={{
-          width: '100%',
-          maxWidth: maxWidth,
-          mx: 'auto',
-          position: 'relative',
-          // Above AuthBackdrop's full-viewport wash.
-          zIndex: 1,
-        }}
+        sx={{ width: '100%' }}
       >
         {children}
       </Box>
-    </Box>
+    </BlankLayout>
   )
 }
 

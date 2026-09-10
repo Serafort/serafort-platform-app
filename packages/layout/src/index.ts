@@ -2,7 +2,12 @@
 export { default as VerticalLayout } from './layouts/VerticalLayout'
 export { default as HorizontalLayout } from './layouts/HorizontalLayout'
 export { default as PublicLayout } from './layouts/PublicLayout'
-export { default as BlankLayout } from './layouts/BlankLayout'
+export { default as BlankLayout, type BlankBackdropIntensity } from './layouts/BlankLayout'
+export {
+  default as AmbientBackdrop,
+  type AmbientBackdropIntensity,
+  type AmbientBackdropProps,
+} from './components/AmbientBackdrop'
 export { default as LayoutWrapper } from './layouts/LayoutWrapper'
 export { default as Footer } from './layouts/Footer'
 export { default as LayoutRouteWrapper } from './components/wrappers/LayoutRouteWrapper'

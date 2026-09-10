@@ -9,6 +9,7 @@ export * from "./brand";
 export * from "./primitives";
 export * from "./semantics";
 export * from "./components";
+export * from "./serafort-aliases";
 
 import { brandCssVariables, brandTypography } from "./brand";
 import {
@@ -33,6 +34,7 @@ import {
 } from "./semantics";
 import { stateComponentTokens, formTokens } from "./components";
 import { elevationShadowCssVars } from "../utils/elevation";
+import { serafortAliasCssVars } from "./serafort-aliases";
 
 export interface ThemeTokenDictionary {
   primitives: {
@@ -166,24 +168,13 @@ export function tokensToCssVariables(
       ]),
     ),
 
-    // Tier 1: Spacing (contiguous base-4 scale, space.0 -> space.16)
-    "--space-0": spacingTokens[0],
-    "--space-1": spacingTokens[1],
-    "--space-2": spacingTokens[2],
-    "--space-3": spacingTokens[3],
-    "--space-4": spacingTokens[4],
-    "--space-5": spacingTokens[5],
-    "--space-6": spacingTokens[6],
-    "--space-7": spacingTokens[7],
-    "--space-8": spacingTokens[8],
-    "--space-9": spacingTokens[9],
-    "--space-10": spacingTokens[10],
-    "--space-11": spacingTokens[11],
-    "--space-12": spacingTokens[12],
-    "--space-13": spacingTokens[13],
-    "--space-14": spacingTokens[14],
-    "--space-15": spacingTokens[15],
-    "--space-16": spacingTokens[16],
+    // Tier 1: Spacing (contiguous base-4 scale, space.0 -> space.32)
+    ...Object.fromEntries(
+      Object.entries(spacingTokens).map(([step, value]) => [
+        `--space-${step}`,
+        value,
+      ]),
+    ),
 
     // Tier 1: Border width & style scales
     "--border-width-none": borderWidthTokens.none,
@@ -300,6 +291,10 @@ export function tokensToCssVariables(
     // Tier 2: Text-safe feedback colours (--semantic-*-text). WCAG AA against
     // the mode's paper surface — use these for inline messages and helper text.
     ...semanticTextCssVars(mode),
+
+    // Serafort `--sf-*` scale aliases (space / radius / shadow / feedback text)
+    // so brand-kit markup resolves the same values as the platform tokens.
+    ...serafortAliasCssVars(mode),
 
     // Tier 3: Form Contracts
     "--form-input-height": form.input.height,

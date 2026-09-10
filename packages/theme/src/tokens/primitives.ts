@@ -122,12 +122,15 @@ export const alphaWhiteTokens = buildAlphaRamp("255, 255, 255");
 export const alphaBlackTokens = buildAlphaRamp("0, 0, 0");
 
 /**
- * Spacing Scale (contiguous base-4 scale: space.0 -> space.16, step = n * 4px).
+ * Spacing Scale (contiguous base-4 scale: space.0 -> space.32, step = n * 4px).
  *
- * The scale is deliberately dense: every integer step from 0 to 16 is present
+ * The scale is deliberately dense: every integer step from 0 to 32 is present
  * so `sx={{ p: 5 }}`, `gap: 7`, `mt: 9` etc. resolve against a real
  * `--spacing-<n>` custom property instead of falling through to ad-hoc
  * `calc(0.25rem * n)` maths (see the `spacing()` resolver in composeMuiTheme).
+ * Steps 17-32 (68px-128px) cover page-level gutters and hero rhythm that used
+ * to fall back to the calc path; they are also mirrored 1:1 as
+ * `--sf-space-17` ... `--sf-space-32` for brand-kit markup.
  */
 export const spacingTokens = {
   0: "0px",
@@ -147,6 +150,22 @@ export const spacingTokens = {
   14: "56px",
   15: "60px",
   16: "64px",
+  17: "68px",
+  18: "72px",
+  19: "76px",
+  20: "80px",
+  21: "84px",
+  22: "88px",
+  23: "92px",
+  24: "96px",
+  25: "100px",
+  26: "104px",
+  27: "108px",
+  28: "112px",
+  29: "116px",
+  30: "120px",
+  31: "124px",
+  32: "128px",
 } as const;
 
 export type SpacingTokens = typeof spacingTokens;
