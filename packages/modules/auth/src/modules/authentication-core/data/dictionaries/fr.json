@@ -1625,6 +1625,10 @@
     "verifying": "Vérification..."
   },
   "success": {
+    "checklistCredentials": "Identifiants d'identité et de session vérifiés",
+    "checklistHeading": "Espace de travail prêt :",
+    "checklistPermissions": "Autorisations de locataire par défaut configurées",
+    "checklistTelemetry": "Télémétrie d'audit zéro confiance activée",
     "completeProfileLater": "Vous pourrez compléter votre profil plus tard.",
     "footerNote": "Besoin d'aide ? Contactez notre équipe d'assistance.",
     "genericSuccessMessage": "Tout s'est déroulé avec succès.",

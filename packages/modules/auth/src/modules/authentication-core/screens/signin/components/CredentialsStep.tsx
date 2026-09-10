@@ -233,8 +233,8 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
               onClick={onPasskeyLogin}
               disabled={isBusy}
               sx={{
-                height: 48,
-                borderRadius: '12px',
+                minHeight: 48,
+                borderRadius: 'var(--sf-radius-lg, 12px)',
                 textTransform: 'none',
                 fontWeight: 700,
                 fontSize: '0.875rem',
@@ -246,8 +246,8 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                   bgcolor: (theme) => alpha(theme.palette.primary.main, 0.06),
                   borderColor: 'primary.main',
                 },
-                '&:focus': {
-                  boxShadow: (theme) => `0 0 0 3px ${alpha(theme.palette.primary.main, 0.18)}`,
+                '&:focus-visible': {
+                  boxShadow: 'var(--sf-shadow-glow, 0 0 0 3px rgba(6, 203, 253, 0.18))',
                 },
                 '& .MuiButton-startIcon': {
                   color: 'primary.main',

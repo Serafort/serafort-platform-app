@@ -393,6 +393,7 @@ export function useSignInFlow() {
     mode,
     pendingMfaUser,
     mfaCode,
+    setMfaCode,
     timeLeft,
     countdownDisplay,
     isDiscovering,

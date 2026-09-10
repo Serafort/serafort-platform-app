@@ -377,6 +377,10 @@
     "verifying": "Verifying..."
   },
   "success": {
+    "checklistCredentials": "Identity & session credentials verified",
+    "checklistHeading": "Workspace ready:",
+    "checklistPermissions": "Default tenant permissions configured",
+    "checklistTelemetry": "Zero-trust audit telemetry enabled",
     "completeProfileLater": "You can complete your profile later.",
     "footerNote": "Need help? Contact our support team.",
     "genericSuccessMessage": "Everything went through successfully.",

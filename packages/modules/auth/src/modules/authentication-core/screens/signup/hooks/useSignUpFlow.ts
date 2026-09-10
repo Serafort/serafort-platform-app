@@ -320,6 +320,7 @@ export function useSignUpFlow() {
     mode,
     pendingEmail,
     otpCode,
+    setOtpCode,
     timeLeft,
     countdownDisplay,
     password: watchedPassword,

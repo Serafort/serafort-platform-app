@@ -104,14 +104,24 @@ export const LockedStep: React.FC<LockedStepProps> = ({
           variant='outlined'
           color='primary'
           onClick={handleOpenAppeal}
-          sx={{ borderRadius: '12px', textTransform: 'none', fontWeight: 700 }}
+          sx={{
+            borderRadius: 'var(--sf-radius-lg, 12px)',
+            textTransform: 'none',
+            fontWeight: 700,
+            minHeight: 48,
+          }}
         >
           {t('auth.lockout.appealButton', 'Appeal Account Lock')}
         </Button>
         <Button
           variant='text'
           onClick={onBackToLogin}
-          sx={{ borderRadius: '12px', textTransform: 'none', fontWeight: 700 }}
+          sx={{
+            borderRadius: 'var(--sf-radius-lg, 12px)',
+            textTransform: 'none',
+            fontWeight: 700,
+            minHeight: 48,
+          }}
         >
           {t('auth.common.backToLogin', 'Back to sign in')}
         </Button>

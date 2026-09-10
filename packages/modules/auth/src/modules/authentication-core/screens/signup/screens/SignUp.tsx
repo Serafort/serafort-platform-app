@@ -26,6 +26,7 @@ export default function SignUp() {
     mode,
     pendingEmail,
     otpCode,
+    setOtpCode,
     timeLeft,
     countdownDisplay,
     password,
@@ -107,6 +108,7 @@ export default function SignUp() {
               t={t}
               pendingEmail={pendingEmail}
               otpCode={otpCode}
+              onOtpCodeChange={setOtpCode}
               otpInputRefs={otpInputRefs}
               handleOtpDigitChange={handleOtpDigitChange}
               handleOtpKeyDown={handleOtpKeyDown}

@@ -1625,6 +1625,10 @@
     "verifying": "جارٍ التحقق..."
   },
   "success": {
+    "checklistCredentials": "تم التحقق من بيانات اعتماد الهوية والجلسة",
+    "checklistHeading": "مساحة العمل جاهزة:",
+    "checklistPermissions": "تم تكوين أذونات المستأجر الافتراضية",
+    "checklistTelemetry": "تم تمكين قياس تدقيق الثقة الصفرية",
     "completeProfileLater": "يمكنك إكمال ملفك الشخصي لاحقًا.",
     "footerNote": "تحتاج مساعدة؟ تواصل مع فريق الدعم.",
     "genericSuccessMessage": "تمت العملية بنجاح.",

@@ -23,6 +23,7 @@ export default function SignInV2() {
     mode,
     pendingMfaUser,
     mfaCode,
+    setMfaCode,
     timeLeft,
     countdownDisplay,
     isDiscovering,
@@ -89,6 +90,7 @@ export default function SignInV2() {
               t={t}
               pendingMfaUser={pendingMfaUser}
               mfaCode={mfaCode}
+              onMfaCodeChange={setMfaCode}
               mfaInputRefs={mfaInputRefs}
               handleMfaDigitChange={handleMfaDigitChange}
               handleMfaKeyDown={handleMfaKeyDown}

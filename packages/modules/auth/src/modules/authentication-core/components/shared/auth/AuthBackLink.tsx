@@ -4,7 +4,8 @@ import ArrowBack from '@mui/icons-material/ArrowBack'
 import ArrowForward from '@mui/icons-material/ArrowForward'
 
 export interface AuthBackLinkProps {
-  label: React.ReactNode
+  label?: React.ReactNode
+  children?: React.ReactNode
   onClick: () => void
   id?: string
 }
@@ -16,7 +17,7 @@ export interface AuthBackLinkProps {
  * RTL: `stylis-plugin-rtl` flips physical spacing but cannot flip the glyph
  * inside an icon font.
  */
-const AuthBackLink: React.FC<AuthBackLinkProps> = ({ label, onClick, id }) => {
+const AuthBackLink: React.FC<AuthBackLinkProps> = ({ label, children, onClick, id }) => {
   const theme = useTheme()
   const isRtl = theme.direction === 'rtl'
 
@@ -46,7 +47,7 @@ const AuthBackLink: React.FC<AuthBackLinkProps> = ({ label, onClick, id }) => {
         }}
       >
         {isRtl ? <ArrowForward /> : <ArrowBack />}
-        {label}
+        {label ?? children}
       </MuiLink>
     </Box>
   )
