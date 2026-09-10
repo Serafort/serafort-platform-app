@@ -1082,6 +1082,19 @@
       "verifying_desc": "Veuillez patienter pendant que nous sécurisons votre session. Cela ne devrait prendre qu'un instant.",
       "verifying_title": "Vérification de votre connexion..."
     },
+    "userList": {
+      "colUser": "Utilisateur",
+      "colStatus": "Statut",
+      "colRoles": "Rôles",
+      "colDepartment": "Service",
+      "colJoined": "Date d'inscription",
+      "colActions": "Actions",
+      "statusAll": "Tous les utilisateurs",
+      "statusActive": "Actif",
+      "statusInactive": "Inactif",
+      "statusSuspended": "Suspendu",
+      "statusBanned": "Banni"
+    },
     "profile": {
       "logout": "Se déconnecter",
       "settings": "Paramètres",

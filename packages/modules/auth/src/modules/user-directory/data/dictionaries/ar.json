@@ -1082,6 +1082,19 @@
       "verifying_desc": "يرجى الانتظار بينما نقوم بتأمين جلستك. قد يستغرق هذا لحظة فقط.",
       "verifying_title": "جاري التحقق من تسجيل دخولك..."
     },
+    "userList": {
+      "colUser": "المستخدم",
+      "colStatus": "الحالة",
+      "colRoles": "الأدوار",
+      "colDepartment": "القسم",
+      "colJoined": "تاريخ الانضمام",
+      "colActions": "الإجراءات",
+      "statusAll": "جميع المستخدمين",
+      "statusActive": "نشط",
+      "statusInactive": "غير نشط",
+      "statusSuspended": "موقوف",
+      "statusBanned": "محظور"
+    },
     "profile": {
       "logout": "تسجيل الخروج",
       "settings": "الإعدادات",

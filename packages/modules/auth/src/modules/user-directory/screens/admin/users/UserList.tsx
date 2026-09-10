@@ -82,14 +82,20 @@ import {
 
 const STATUS_OPTIONS: Array<{
   label: string
+  labelKey: string
   value: UserStatus | 'ALL'
   color?: 'default' | 'success' | 'warning' | 'error'
 }> = [
-  { label: 'All Users', value: 'ALL' },
-  { label: 'Active', value: 'ACTIVE', color: 'success' },
-  { label: 'Inactive', value: 'INACTIVE', color: 'default' },
-  { label: 'Suspended', value: 'SUSPENDED', color: 'warning' },
-  { label: 'Banned', value: 'BANNED', color: 'error' },
+  { label: 'All Users', labelKey: 'auth.userList.statusAll', value: 'ALL' },
+  { label: 'Active', labelKey: 'auth.userList.statusActive', value: 'ACTIVE', color: 'success' },
+  { label: 'Inactive', labelKey: 'auth.userList.statusInactive', value: 'INACTIVE', color: 'default' },
+  {
+    label: 'Suspended',
+    labelKey: 'auth.userList.statusSuspended',
+    value: 'SUSPENDED',
+    color: 'warning',
+  },
+  { label: 'Banned', labelKey: 'auth.userList.statusBanned', value: 'BANNED', color: 'error' },
 ]
 
 export default function UserList() {
@@ -272,7 +278,7 @@ export default function UserList() {
         return (
           <Chip
             size='small'
-            label='Active'
+            label={t('auth.userList.statusActive', 'Active')}
             icon={<CheckCircleIcon sx={{ fontSize: '14px !important' }} />}
             sx={{
               bgcolor: alpha(theme.palette.success.main, 0.12),
@@ -287,7 +293,7 @@ export default function UserList() {
         return (
           <Chip
             size='small'
-            label='Suspended'
+            label={t('auth.userList.statusSuspended', 'Suspended')}
             icon={<BlockIcon sx={{ fontSize: '14px !important' }} />}
             sx={{
               bgcolor: alpha(theme.palette.warning.main, 0.12),
@@ -302,7 +308,7 @@ export default function UserList() {
         return (
           <Chip
             size='small'
-            label='Banned'
+            label={t('auth.userList.statusBanned', 'Banned')}
             icon={<HighlightOffIcon sx={{ fontSize: '14px !important' }} />}
             sx={{
               bgcolor: alpha(theme.palette.error.main, 0.12),
@@ -317,7 +323,7 @@ export default function UserList() {
         return (
           <Chip
             size='small'
-            label='Inactive'
+            label={t('auth.userList.statusInactive', 'Inactive')}
             sx={{
               bgcolor: alpha(theme.palette.text.secondary, 0.1),
               color: theme.palette.text.secondary,
@@ -420,7 +426,7 @@ export default function UserList() {
             return (
               <Chip
                 key={opt.value}
-                label={opt.label}
+                label={t(opt.labelKey, opt.label)}
                 onClick={() => {
                   setStatusFilter(opt.value)
                   setPage(1)

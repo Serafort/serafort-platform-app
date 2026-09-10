@@ -399,6 +399,19 @@
       "resetPasswordSuccessTitle": "Password Reset",
       "totalRecords": "Total Records (30d)"
     },
+    "userList": {
+      "colUser": "User",
+      "colStatus": "Status",
+      "colRoles": "Roles",
+      "colDepartment": "Department",
+      "colJoined": "Joined Date",
+      "colActions": "Actions",
+      "statusAll": "All Users",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "statusSuspended": "Suspended",
+      "statusBanned": "Banned"
+    },
     "profile": {
       "logout": "Sign Out",
       "settings": "Settings",
