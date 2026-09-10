@@ -86,15 +86,15 @@ const input: Theme["components"] = {
         },
         "&:not(.Mui-error).Mui-focused": {
           boxShadow:
-            "var(--form-input-focus-ring, 0 0 0 3px rgba(99, 102, 241, 0.15))",
+            "var(--sf-shadow-glow, var(--form-input-focus-ring, 0 0 0 3px rgba(6, 203, 253, 0.18)))",
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor:
-              "var(--form-input-focus-border, var(--color-brand-500))",
+              "var(--form-input-focus-border, var(--color-brand-500, var(--sf-blue)))",
           },
         },
         "&.Mui-error.Mui-focused": {
           boxShadow:
-            "var(--state-error-focus-ring, 0 0 0 3px rgba(239, 68, 68, 0.2))",
+            "var(--state-error-focus-ring, 0 0 0 3px rgba(220, 38, 38, 0.25))",
         },
       },
       input: ({ ownerState }) => ({
@@ -144,6 +144,18 @@ const input: Theme["components"] = {
         "&.Mui-error": {
           color:
             "var(--state-error-message-color, var(--semantic-error-text, #B42121))",
+        },
+      },
+    },
+  },
+  MuiTextField: {
+    defaultProps: {
+      variant: "outlined",
+    },
+    styleOverrides: {
+      root: {
+        "& .MuiOutlinedInput-root": {
+          minHeight: "var(--form-input-height, 48px)",
         },
       },
     },

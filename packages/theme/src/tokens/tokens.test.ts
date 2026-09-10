@@ -74,7 +74,7 @@ describe("Design Token Architecture Hierarchy", () => {
 
     it("defines radius scale from none to full", () => {
       expect(radiusTokens.none).toBe("0px");
-      expect(radiusTokens.sm).toBe("4px");
+      expect(radiusTokens.sm).toBe("6px");
       expect(radiusTokens.md).toBe("8px");
       expect(radiusTokens.lg).toBe("12px");
       expect(radiusTokens.xl).toBe("16px");
@@ -335,11 +335,22 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(cssVars["--sf-space-32"]).toBe("128px");
       expect(cssVars["--space-32"]).toBe("128px");
       expect(cssVars["--sf-radius-2xl"]).toBe("24px");
+      expect(cssVars["--sf-radius-sm"]).toBe("6px");
+      expect(cssVars["--sf-border-0"]).toBe("0px");
       expect(cssVars["--sf-border-1"]).toBe("1px");
+      expect(cssVars["--sf-border-2"]).toBe("2px");
+      expect(cssVars["--sf-border-4"]).toBe("4px");
+      expect(cssVars["--sf-size-10"]).toBe("40px");
+      expect(cssVars["--sf-size-12"]).toBe("48px");
+      expect(cssVars["--sf-duration-fast"]).toBe("120ms");
+      expect(cssVars["--sf-z-modal"]).toBe("400");
+      expect(cssVars["--sf-success-bg"]).toBe("rgba(22, 163, 74, 0.14)");
       expect(cssVars["--sf-shadow-md"]).toBe(cssVars["--shadow-md"]);
       expect(cssVars["--sf-shadow-glow"]).toBe(cssVars["--shadow-glow"]);
       expect(cssVars["--sf-error-text"]).toBe("#FF8A8A"); // dark variant
       expect(tokensToCssVariables("light")["--sf-error-text"]).toBe("#B42121");
+      expect(tokensToCssVariables("light")["--sf-success-bg"]).toBe("#EAF8EE");
+      expect(tokensToCssVariables("light")["--sf-link"]).toBe("#0437A2");
     });
 
     it("batches CSS variable updates to document element in requestAnimationFrame", () => {

@@ -40,12 +40,12 @@ describe("MuiToggleButtonGroup radius override", () => {
     >;
 
     expect(grouped["&:first-of-type"]).toEqual({
-      borderStartStartRadius: "var(--radius-sm, 4px)",
-      borderStartEndRadius: "var(--radius-sm, 4px)",
+      borderStartStartRadius: "var(--radius-sm, 6px)",
+      borderStartEndRadius: "var(--radius-sm, 6px)",
     });
     expect(grouped["&:last-of-type"]).toEqual({
-      borderEndStartRadius: "var(--radius-sm, 4px)",
-      borderEndEndRadius: "var(--radius-sm, 4px)",
+      borderEndStartRadius: "var(--radius-sm, 6px)",
+      borderEndEndRadius: "var(--radius-sm, 6px)",
     });
   });
 

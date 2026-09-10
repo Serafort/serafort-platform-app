@@ -176,7 +176,7 @@ export type SpacingTokens = typeof spacingTokens;
 export const radiusTokens = {
   none: "0px",
   xs: "4px",
-  sm: "4px",
+  sm: "6px",
   md: "8px",
   lg: "12px",
   xl: "16px",
