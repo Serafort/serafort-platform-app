@@ -24,6 +24,13 @@ export interface AdminPageHeaderProps {
   breadcrumbs?: AdminBreadcrumb[]
   /** Primary action(s) for the screen, aligned to the inline-end edge. */
   actions?: React.ReactNode
+  /**
+   * Pin the header to the top of the scroll region so the title and its
+   * actions stay reachable while a long table or form scrolls beneath it.
+   * The pinned bar gets a translucent blurred ground and a hairline underline
+   * so scrolled content reads clearly as it passes under.
+   */
+  sticky?: boolean
   id?: string
 }
 
@@ -45,13 +52,36 @@ const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
   tone = 'primary',
   breadcrumbs,
   actions,
+  sticky = false,
   id,
 }) => {
   const theme = useTheme()
   const color = theme.palette[tone].main
 
   return (
-    <Box id={id} sx={{ mb: 4 }}>
+    <Box
+      id={id}
+      sx={{
+        mb: 4,
+        ...(sticky && {
+          position: 'sticky',
+          insetBlockStart: 0,
+          zIndex: theme.zIndex.appBar - 1,
+          // Bleed to the content padding edges so the blurred ground spans the
+          // full width while the header content keeps the page rhythm.
+          marginInline: {
+            xs: `calc(-1 * ${theme.spacing(4)})`,
+            sm: `calc(-1 * ${theme.spacing(6)})`,
+          },
+          paddingInline: { xs: theme.spacing(4), sm: theme.spacing(6) },
+          paddingBlock: 2,
+          backgroundColor: alpha(theme.palette.background.default, 0.8),
+          backdropFilter: 'var(--form-modal-backdrop-filter, blur(8px))',
+          WebkitBackdropFilter: 'var(--form-modal-backdrop-filter, blur(8px))',
+          borderBlockEnd: `1px solid ${theme.palette.divider}`,
+        }),
+      }}
+    >
       {breadcrumbs && breadcrumbs.length > 0 && (
         <Breadcrumbs
           // Flips to a back-pointing chevron under RTL: the separator encodes

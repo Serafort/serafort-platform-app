@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box } from '@mui/material'
 import { motion } from 'framer-motion'
+import { AdaptiveLogo } from '@cap/theme'
 import AuthBackdrop, { type AuthBackdropIntensity } from './AuthBackdrop'
 
 interface AuthPageLayoutProps {
@@ -17,6 +18,12 @@ interface AuthPageLayoutProps {
    * its own heading off-screen.
    */
   align?: 'center' | 'top'
+  /**
+   * Serafort brand mark above the card. On by default so the whole
+   * unauthenticated funnel opens on the brand; pass `false` for a screen that
+   * renders its own lockup or is embedded inside another surface.
+   */
+  logo?: boolean
 }
 
 const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
@@ -24,6 +31,7 @@ const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
   maxWidth = 480,
   backdrop = 'standard',
   align = 'center',
+  logo = true,
 }) => {
   return (
     <Box
@@ -49,6 +57,26 @@ const AuthPageLayout: React.FC<AuthPageLayoutProps> = ({
         instead of covering the viewport.
       */}
       {backdrop !== false && <AuthBackdrop intensity={backdrop} />}
+
+      {logo && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            width: '100%',
+            maxWidth: maxWidth,
+            mx: 'auto',
+            mb: { xs: 3, sm: 4 },
+            // Above AuthBackdrop's full-viewport wash, same layer as the card.
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          {/* Sized by height with width:auto — the mark stays proportionate and
+              never competes with the card heading for visual weight. */}
+          <AdaptiveLogo height={40} />
+        </Box>
+      )}
 
       <Box
         className='animate-scale-in'
