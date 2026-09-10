@@ -1,0 +1,3 @@
+## 2024-05-19 - Hoisting Static Data Reductions
+**Learning:** When trying to prevent unnecessary recalculations of derived data (like grouped or mapped arrays) in React components, if the source data is a static constant defined outside the component, `useMemo` is suboptimal. The calculation will still be evaluated when the module is loaded and memoized on component mount, but hoisting the calculation entirely outside the component ensures it only runs once per module load, rather than on every component instance mount.
+**Action:** Before using `useMemo` with an empty dependency array for static data, evaluate if the data processing can just be hoisted to the module scope.
