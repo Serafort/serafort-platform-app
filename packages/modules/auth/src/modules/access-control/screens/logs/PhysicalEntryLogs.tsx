@@ -33,6 +33,7 @@ import { useActiveOrganizationId } from '../../../authentication-core/hooks/useA
 import { useAccessLogsQuery, useAccessPointsQuery } from '../../hooks/useAccessControlQuery'
 import type { AccessDecision, AccessLogDirection } from '../../types/accessControl.types'
 import { NoOrganizationNotice } from '../NoOrganizationNotice'
+import { AdminDataState } from '../../../authentication-core/components/shared/admin'
 
 /**
  * Physical Entry Logs.
@@ -116,7 +117,7 @@ export const PhysicalEntryLogs: React.FC = () => {
         )}
       </Typography>
 
-      <Card variant='outlined'>
+      <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}>
         <CardContent>
           <Grid container spacing={1} sx={{ mb: 2 }}>
             <Grid size={{ xs: 12, sm: 3 }}>
@@ -130,6 +131,7 @@ export const PhysicalEntryLogs: React.FC = () => {
                   setPage(0)
                 }}
                 inputProps={{ 'aria-label': t('accessControl.logs.decision', 'Decision') }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
               >
                 <MenuItem value=''>{t('accessControl.logs.all_decisions', 'All')}</MenuItem>
                 <MenuItem value='granted'>{t('accessControl.logs.granted', 'Granted')}</MenuItem>
@@ -147,6 +149,7 @@ export const PhysicalEntryLogs: React.FC = () => {
                   setPage(0)
                 }}
                 inputProps={{ 'aria-label': t('accessControl.logs.direction', 'Direction') }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
               >
                 <MenuItem value=''>{t('accessControl.logs.all_directions', 'Both ways')}</MenuItem>
                 <MenuItem value='in'>{t('accessControl.logs.in', 'In')}</MenuItem>
@@ -164,6 +167,7 @@ export const PhysicalEntryLogs: React.FC = () => {
                   setPage(0)
                 }}
                 inputProps={{ 'aria-label': t('accessControl.logs.reader', 'Reader') }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
               >
                 <MenuItem value=''>{t('accessControl.logs.all_readers', 'All readers')}</MenuItem>
                 {points.map((point) => (
@@ -185,88 +189,91 @@ export const PhysicalEntryLogs: React.FC = () => {
                   setPage(0)
                 }}
                 slotProps={{ inputLabel: { shrink: true } }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' } }}
               />
             </Grid>
           </Grid>
 
-          {logsQuery.isLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-              <CircularProgress />
-            </Box>
-          ) : logs.length === 0 ? (
-            <Typography variant='body2' color='text.secondary'>
-              {t('accessControl.logs.empty', 'No scans recorded for this filter.')}
-            </Typography>
-          ) : (
-            <>
-              <TableContainer component={Paper} variant='outlined'>
-                <Table size='small'>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>{t('accessControl.logs.time', 'Time')}</TableCell>
-                      <TableCell>{t('accessControl.logs.reader', 'Reader')}</TableCell>
-                      <TableCell>{t('accessControl.logs.uid', 'Badge UID')}</TableCell>
-                      <TableCell>{t('accessControl.logs.holder', 'Holder')}</TableCell>
-                      <TableCell>{t('accessControl.logs.direction', 'Direction')}</TableCell>
-                      <TableCell>{t('accessControl.logs.decision', 'Decision')}</TableCell>
-                      <TableCell>{t('accessControl.logs.reason', 'Reason')}</TableCell>
+          <AdminDataState
+            loading={logsQuery.isLoading}
+            error={logsQuery.isError || undefined}
+            onRetry={() => void logsQuery.refetch()}
+            empty={logs.length === 0}
+            emptyIcon={<History sx={{ fontSize: 32 }} />}
+            emptyTitle={t('accessControl.logs.empty', 'No scans recorded for this filter.')}
+            emptyDescription={t(
+              'accessControl.logs.empty_help',
+              'Adjust your filters or wait for badges to be scanned at configured access points.',
+            )}
+          >
+            <TableContainer component={Paper} variant='outlined' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+              <Table size='small'>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t('accessControl.logs.time', 'Time')}</TableCell>
+                    <TableCell>{t('accessControl.logs.reader', 'Reader')}</TableCell>
+                    <TableCell>{t('accessControl.logs.uid', 'Badge UID')}</TableCell>
+                    <TableCell>{t('accessControl.logs.holder', 'Holder')}</TableCell>
+                    <TableCell>{t('accessControl.logs.direction', 'Direction')}</TableCell>
+                    <TableCell>{t('accessControl.logs.decision', 'Decision')}</TableCell>
+                    <TableCell>{t('accessControl.logs.reason', 'Reason')}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {logs.map((log) => (
+                    <TableRow key={log.id}>
+                      <TableCell>{new Date(log.scannedAt).toLocaleString()}</TableCell>
+                      <TableCell>{log.accessPoint?.name ?? `#${log.accessPointId}`}</TableCell>
+                      <TableCell sx={{ fontFamily: 'monospace' }}>{log.nfcUid}</TableCell>
+                      <TableCell>
+                        {log.userId === null ? (
+                          <Tooltip
+                            title={t(
+                              'accessControl.logs.unknown_help',
+                              'This UID matched no registered badge — an unknown card was presented, not a member being turned away.',
+                            )}
+                          >
+                            <Stack direction='row' spacing={0.5} alignItems='center'>
+                              <PersonOff fontSize='small' color='error' />
+                              <Typography variant='body2' color='error.main'>
+                                {t('accessControl.logs.unknown', 'Unknown badge')}
+                              </Typography>
+                            </Stack>
+                          </Tooltip>
+                        ) : (
+                          (log.user?.email ?? log.user?.fullName ?? `#${log.userId}`)
+                        )}
+                      </TableCell>
+                      <TableCell>{log.direction}</TableCell>
+                      <TableCell>
+                        <Chip
+                          size='small'
+                          color={DECISION_META[log.status]?.color ?? 'default'}
+                          icon={DECISION_META[log.status]?.icon as any}
+                          label={log.status}
+                          sx={{ borderRadius: 'var(--sf-radius-sm, 6px)' }}
+                        />
+                      </TableCell>
+                      <TableCell>{log.reason ?? '—'}</TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {logs.map((log) => (
-                      <TableRow key={log.id}>
-                        <TableCell>{new Date(log.scannedAt).toLocaleString()}</TableCell>
-                        <TableCell>{log.accessPoint?.name ?? `#${log.accessPointId}`}</TableCell>
-                        <TableCell sx={{ fontFamily: 'monospace' }}>{log.nfcUid}</TableCell>
-                        <TableCell>
-                          {log.userId === null ? (
-                            <Tooltip
-                              title={t(
-                                'accessControl.logs.unknown_help',
-                                'This UID matched no registered badge — an unknown card was presented, not a member being turned away.',
-                              )}
-                            >
-                              <Stack direction='row' spacing={0.5} alignItems='center'>
-                                <PersonOff fontSize='small' color='error' />
-                                <Typography variant='body2' color='error.main'>
-                                  {t('accessControl.logs.unknown', 'Unknown badge')}
-                                </Typography>
-                              </Stack>
-                            </Tooltip>
-                          ) : (
-                            (log.user?.email ?? log.user?.fullName ?? `#${log.userId}`)
-                          )}
-                        </TableCell>
-                        <TableCell>{log.direction}</TableCell>
-                        <TableCell>
-                          <Chip
-                            size='small'
-                            color={DECISION_META[log.status]?.color ?? 'default'}
-                            icon={DECISION_META[log.status]?.icon as any}
-                            label={log.status}
-                          />
-                        </TableCell>
-                        <TableCell>{log.reason ?? '—'}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-              <TablePagination
-                component='div'
-                count={total}
-                page={page}
-                rowsPerPage={rowsPerPage}
-                rowsPerPageOptions={[25, 50, 100]}
-                onPageChange={(_event, next) => setPage(next)}
-                onRowsPerPageChange={(event) => {
-                  setRowsPerPage(Number(event.target.value))
-                  setPage(0)
-                }}
-              />
-            </>
-          )}
+            <TablePagination
+              component='div'
+              count={total}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              rowsPerPageOptions={[25, 50, 100]}
+              onPageChange={(_event, next) => setPage(next)}
+              onRowsPerPageChange={(event) => {
+                setRowsPerPage(Number(event.target.value))
+                setPage(0)
+              }}
+            />
+          </AdminDataState>
         </CardContent>
       </Card>
     </Container>

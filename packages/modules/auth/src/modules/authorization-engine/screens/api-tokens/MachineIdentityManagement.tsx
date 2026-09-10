@@ -160,7 +160,7 @@ const MachineIdentityManagement: React.FC = () => {
       sx={{
         minHeight: 44,
         px: 3,
-        borderRadius: 2,
+        borderRadius: 'var(--sf-radius-md, 8px)',
         textTransform: 'none',
         fontWeight: 700,
         width: { xs: '100%', sm: 'auto' },
@@ -213,7 +213,7 @@ const MachineIdentityManagement: React.FC = () => {
       </Box>
 
       <Card
-        sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
+        sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
       >
         <CardContent sx={{ p: 0 }}>
           <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider' }}>
@@ -296,7 +296,7 @@ const MachineIdentityManagement: React.FC = () => {
                               bgcolor: 'action.selected',
                               px: 1,
                               py: 0.5,
-                              borderRadius: 1,
+                              borderRadius: 'var(--sf-radius-xs, 4px)',
                             }}
                           >
                             {identity.prefix ? `${identity.prefix}…` : '—'}
@@ -317,7 +317,7 @@ const MachineIdentityManagement: React.FC = () => {
                             }
                             size='small'
                             sx={{
-                              borderRadius: 1.5,
+                              borderRadius: 'var(--sf-radius-sm, 6px)',
                               fontWeight: 800,
                               height: 24,
                               color: isExpired
@@ -371,7 +371,13 @@ const MachineIdentityManagement: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Dialog open={createDialogOpen} onClose={handleCloseDialog} fullWidth maxWidth='sm'>
+      <Dialog
+        open={createDialogOpen}
+        onClose={handleCloseDialog}
+        fullWidth
+        maxWidth='sm'
+        slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } } }}
+      >
         <DialogTitle sx={{ fontWeight: 800 }}>
           {createdKey
             ? t('auth.admin.machineIdentity.created_title', 'Copy this key now')
@@ -420,7 +426,7 @@ const MachineIdentityManagement: React.FC = () => {
         <DialogActions sx={{ p: 3 }}>
           {!createdKey ? (
             <>
-              <Button onClick={handleCloseDialog} sx={{ minHeight: 44, textTransform: 'none' }}>
+              <Button onClick={handleCloseDialog} sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}>
                 {t('auth.common.cancel', 'Cancel')}
               </Button>
               <Button
@@ -432,7 +438,7 @@ const MachineIdentityManagement: React.FC = () => {
                     <CircularProgress size={18} color='inherit' />
                   ) : undefined
                 }
-                sx={{ minHeight: 44, textTransform: 'none', fontWeight: 700 }}
+                sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
               >
                 {t('auth.admin.machineIdentity.generate', 'Generate key')}
               </Button>
@@ -441,7 +447,7 @@ const MachineIdentityManagement: React.FC = () => {
             <Button
               variant='contained'
               onClick={handleCloseDialog}
-              sx={{ minHeight: 44, textTransform: 'none', fontWeight: 700 }}
+              sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
             >
               {t('auth.admin.machineIdentity.done', 'I have copied it')}
             </Button>

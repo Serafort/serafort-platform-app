@@ -35,7 +35,13 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
   const { t } = useTranslation()
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth='md' fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth='md'
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } }}
+    >
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <AutoAwesomeIcon color='primary' />
         <Typography variant='h6' sx={{ fontWeight: 800 }}>
@@ -57,7 +63,7 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
               <Card
                 variant='outlined'
                 sx={{
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -103,7 +109,7 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
                       size='small'
                       color='primary'
                       variant='outlined'
-                      sx={{ fontWeight: 700, fontSize: 11 }}
+                      sx={{ fontWeight: 700, fontSize: 11, borderRadius: 'var(--sf-radius-sm, 6px)' }}
                     />
                   </Box>
 
@@ -118,7 +124,7 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
                         defaultValue: 'Default: {{effect}}',
                       })}
                       size='small'
-                      sx={{ fontSize: 10, fontWeight: 700 }}
+                      sx={{ fontSize: 10, fontWeight: 700, borderRadius: 'var(--sf-radius-sm, 6px)' }}
                     />
                     <Chip
                       label={t('auth.admin.policy.algorithm', {
@@ -126,7 +132,7 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
                         defaultValue: 'Algorithm: {{algorithm}}',
                       })}
                       size='small'
-                      sx={{ fontSize: 10, fontWeight: 700 }}
+                      sx={{ fontSize: 10, fontWeight: 700, borderRadius: 'var(--sf-radius-sm, 6px)' }}
                     />
                   </Box>
                 </CardActionArea>
@@ -137,7 +143,7 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} sx={{ minHeight: 44, fontWeight: 700 }}>
+        <Button onClick={onClose} sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}>
           {t('auth.common.cancel', 'Cancel')}
         </Button>
       </DialogActions>

@@ -294,7 +294,7 @@ export const WebhooksScreen: React.FC = () => {
           variant='contained'
           startIcon={<AddIcon />}
           onClick={handleOpenCreate}
-          sx={{ borderRadius: 2 }}
+          sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
         >
           {t('auth.developer_console.webhooks.add_first', 'Add Your First Webhook')}
         </Button>
@@ -326,7 +326,7 @@ export const WebhooksScreen: React.FC = () => {
           variant='contained'
           startIcon={<AddIcon />}
           onClick={handleOpenCreate}
-          sx={{ borderRadius: 2 }}
+          sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
         >
           {t('auth.developer_console.webhooks.add_endpoint', 'Add Webhook Endpoint')}
         </Button>
@@ -336,13 +336,14 @@ export const WebhooksScreen: React.FC = () => {
       {isError && (
         <Alert
           severity='error'
-          sx={{ mb: 3 }}
+          sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 10px)' }}
           action={
             <Button
               color='inherit'
               size='small'
               startIcon={<RefreshIcon />}
               onClick={() => refetch()}
+              sx={{ minHeight: 44 }}
             >
               {t('auth.common.retry', 'Retry')}
             </Button>
@@ -356,21 +357,21 @@ export const WebhooksScreen: React.FC = () => {
 
       {/* Mutation error feedback */}
       {createMutation.isError && (
-        <Alert severity='error' sx={{ mb: 3 }} onClose={() => createMutation.reset()}>
+        <Alert severity='error' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 10px)' }} onClose={() => createMutation.reset()}>
           {createMutation.error instanceof Error
             ? createMutation.error.message
             : t('auth.developer_console.webhooks.create_error', 'Failed to create webhook.')}
         </Alert>
       )}
       {updateMutation.isError && (
-        <Alert severity='error' sx={{ mb: 3 }} onClose={() => updateMutation.reset()}>
+        <Alert severity='error' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 10px)' }} onClose={() => updateMutation.reset()}>
           {updateMutation.error instanceof Error
             ? updateMutation.error.message
             : t('auth.developer_console.webhooks.update_error', 'Failed to update webhook.')}
         </Alert>
       )}
       {deleteMutation.isError && (
-        <Alert severity='error' sx={{ mb: 3 }} onClose={() => deleteMutation.reset()}>
+        <Alert severity='error' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 10px)' }} onClose={() => deleteMutation.reset()}>
           {deleteMutation.error instanceof Error
             ? deleteMutation.error.message
             : t('auth.developer_console.webhooks.delete_error', 'Failed to delete webhook.')}
@@ -451,6 +452,7 @@ export const WebhooksScreen: React.FC = () => {
                             size='small'
                             color={isDisabled ? 'error' : isActiveStatus ? 'success' : 'default'}
                             variant='filled'
+                            sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 700 }}
                           />
                         </TableCell>
                         <TableCell>
@@ -462,7 +464,13 @@ export const WebhooksScreen: React.FC = () => {
                             sx={{ maxWidth: 350 }}
                           >
                             {events.slice(0, 3).map((event: string) => (
-                              <Chip key={event} label={event} size='small' variant='outlined' />
+                              <Chip
+                                key={event}
+                                label={event}
+                                size='small'
+                                variant='outlined'
+                                sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 700 }}
+                              />
                             ))}
                             {events.length > 3 && (
                               <Chip
@@ -475,6 +483,7 @@ export const WebhooksScreen: React.FC = () => {
                                 )}
                                 size='small'
                                 variant='outlined'
+                                sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 700 }}
                               />
                             )}
                           </Stack>
@@ -533,7 +542,13 @@ export const WebhooksScreen: React.FC = () => {
       </AdminTableCard>
 
       {/* Create / Edit Modal */}
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth='md' fullWidth>
+      <Dialog
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        maxWidth='md'
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } } }}
+      >
         <DialogTitle fontWeight={600}>
           {editingId
             ? t('auth.developer_console.webhooks.edit_title', 'Edit Webhook Subscription')
@@ -608,7 +623,7 @@ export const WebhooksScreen: React.FC = () => {
                     string[],
                   ][]
                 ).map(([category, events]) => (
-                  <Box key={category} sx={{ p: 1.5, borderRadius: 1.5, bgcolor: 'action.hover' }}>
+                  <Box key={category} sx={{ p: 1.5, borderRadius: 'var(--sf-radius-md, 8px)', bgcolor: 'action.hover' }}>
                     <Typography
                       variant='caption'
                       fontWeight={700}
@@ -628,7 +643,7 @@ export const WebhooksScreen: React.FC = () => {
                             onClick={() => toggleEvent(event)}
                             color={isSelected ? 'primary' : 'default'}
                             variant={isSelected ? 'filled' : 'outlined'}
-                            sx={{ cursor: 'pointer' }}
+                            sx={{ cursor: 'pointer', borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 600 }}
                           />
                         )
                       })}
@@ -640,11 +655,17 @@ export const WebhooksScreen: React.FC = () => {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setModalOpen(false)}>{t('auth.common.cancel', 'Cancel')}</Button>
+          <Button
+            onClick={() => setModalOpen(false)}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
+          >
+            {t('auth.common.cancel', 'Cancel')}
+          </Button>
           <Button
             variant='contained'
             onClick={handleSave}
             disabled={!url.trim() || selectedEvents.length === 0 || isSaving}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
           >
             {isSaving
               ? t('auth.developer_console.webhooks.saving', 'Saving...')
@@ -656,7 +677,13 @@ export const WebhooksScreen: React.FC = () => {
       </Dialog>
 
       {/* One-Time Signing Secret Reveal Modal */}
-      <Dialog open={secretRevealOpen} onClose={handleCloseSecretReveal} maxWidth='sm' fullWidth>
+      <Dialog
+        open={secretRevealOpen}
+        onClose={handleCloseSecretReveal}
+        maxWidth='sm'
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } } }}
+      >
         <DialogTitle fontWeight={700} sx={{ color: 'warning.main' }}>
           {t(
             'auth.developer_console.webhooks.secret_reveal_title',
@@ -665,7 +692,7 @@ export const WebhooksScreen: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
-            <Alert severity='warning'>
+            <Alert severity='warning' sx={{ borderRadius: 'var(--sf-radius-md, 10px)' }}>
               {t(
                 'auth.developer_console.webhooks.secret_reveal_warning',
                 'Copy or download your signing secret now. For security purposes, it will never be shown again. Use this secret to verify webhook payload signatures (HMAC-SHA256).',
@@ -681,6 +708,7 @@ export const WebhooksScreen: React.FC = () => {
                 bgcolor: 'background.default',
                 fontFamily: 'monospace',
                 wordBreak: 'break-all',
+                borderRadius: 'var(--sf-radius-md, 8px)',
               }}
             >
               <Typography variant='body2' sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
@@ -718,7 +746,11 @@ export const WebhooksScreen: React.FC = () => {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button variant='contained' onClick={handleCloseSecretReveal}>
+          <Button
+            variant='contained'
+            onClick={handleCloseSecretReveal}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
+          >
             {t(
               'auth.developer_console.webhooks.secret_reveal_confirm',
               'I have saved my secret securely',
@@ -733,6 +765,7 @@ export const WebhooksScreen: React.FC = () => {
         onClose={() => setTestResult({ open: false, loading: false })}
         maxWidth='sm'
         fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } } }}
       >
         <DialogTitle fontWeight={600} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <SendIcon color='primary' />{' '}
@@ -751,13 +784,13 @@ export const WebhooksScreen: React.FC = () => {
             </Box>
           ) : testResult.success ? (
             <Stack spacing={2} sx={{ mt: 1 }}>
-              <Alert severity='success' icon={<CheckCircleIcon />}>
+              <Alert severity='success' icon={<CheckCircleIcon />} sx={{ borderRadius: 'var(--sf-radius-md, 10px)' }}>
                 {t(
                   'auth.developer_console.webhooks.test_ping_success',
                   'Test ping payload successfully created and scheduled for dispatch!',
                 )}
               </Alert>
-              <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
+              <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default', borderRadius: 'var(--sf-radius-md, 8px)' }}>
                 <Typography
                   variant='caption'
                   fontWeight={700}
@@ -781,7 +814,7 @@ export const WebhooksScreen: React.FC = () => {
             </Stack>
           ) : (
             <Stack spacing={2} sx={{ mt: 1 }}>
-              <Alert severity='error' icon={<ErrorOutlineIcon />}>
+              <Alert severity='error' icon={<ErrorOutlineIcon />} sx={{ borderRadius: 'var(--sf-radius-md, 10px)' }}>
                 {t(
                   'auth.developer_console.webhooks.test_ping_failed',
                   'Test ping failed: {{error}}',
@@ -797,6 +830,7 @@ export const WebhooksScreen: React.FC = () => {
           <Button
             variant='contained'
             onClick={() => setTestResult({ open: false, loading: false })}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
           >
             {t('auth.common.close', 'Close')}
           </Button>

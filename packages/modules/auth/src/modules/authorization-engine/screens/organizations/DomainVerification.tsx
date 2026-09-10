@@ -205,7 +205,7 @@ const DomainVerification: React.FC = () => {
         }
       />
 
-      <Alert severity='info' sx={{ mb: 4, borderRadius: 3 }}>
+      <Alert severity='info' sx={{ mb: 4, borderRadius: 'var(--sf-radius-md, 10px)' }}>
         {t(
           'auth.admin.domainVerification.how_it_works',
           'Add a domain to receive a verification token, publish it as a TXT record in that domain’s DNS, then check the status here.',
@@ -214,7 +214,7 @@ const DomainVerification: React.FC = () => {
 
       <Card
         sx={{
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           mb: 4,
           border: '1px solid',
           borderColor: 'divider',
@@ -250,7 +250,7 @@ const DomainVerification: React.FC = () => {
               sx={{
                 minHeight: 48,
                 px: 4,
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 textTransform: 'none',
                 fontWeight: 700,
                 flexShrink: 0,
@@ -317,7 +317,7 @@ const DomainVerification: React.FC = () => {
                           }
                           color={verified ? 'success' : 'warning'}
                           size='small'
-                          sx={{ borderRadius: 1.5, fontWeight: 800 }}
+                          sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 800 }}
                         />
                       </TableCell>
                       <TableCell>

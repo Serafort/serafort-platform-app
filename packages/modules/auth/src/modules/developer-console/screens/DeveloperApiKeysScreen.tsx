@@ -190,7 +190,7 @@ export const DeveloperApiKeysScreen: React.FC = () => {
           variant='contained'
           startIcon={<AddIcon />}
           onClick={() => setCreateOpen(true)}
-          sx={{ borderRadius: 2 }}
+          sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
         >
           {t('auth.developer_console.api_keys.generate_first', 'Generate Your First Key')}
         </Button>
@@ -222,7 +222,7 @@ export const DeveloperApiKeysScreen: React.FC = () => {
           variant='contained'
           startIcon={<AddIcon />}
           onClick={() => setCreateOpen(true)}
-          sx={{ borderRadius: 2 }}
+          sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
         >
           {t('auth.developer_console.api_keys.generate_new', 'Generate New Key')}
         </Button>
@@ -232,13 +232,14 @@ export const DeveloperApiKeysScreen: React.FC = () => {
       {isError && (
         <Alert
           severity='error'
-          sx={{ mb: 3 }}
+          sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 10px)' }}
           action={
             <Button
               color='inherit'
               size='small'
               startIcon={<RefreshIcon />}
               onClick={() => refetch()}
+              sx={{ minHeight: 44 }}
             >
               {t('auth.common.retry', 'Retry')}
             </Button>
@@ -252,14 +253,14 @@ export const DeveloperApiKeysScreen: React.FC = () => {
 
       {/* Mutation error feedback */}
       {createMutation.isError && (
-        <Alert severity='error' sx={{ mb: 3 }} onClose={() => createMutation.reset()}>
+        <Alert severity='error' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 10px)' }} onClose={() => createMutation.reset()}>
           {createMutation.error instanceof Error
             ? createMutation.error.message
             : t('auth.developer_console.api_keys.create_error', 'Failed to generate API key.')}
         </Alert>
       )}
       {deleteMutation.isError && (
-        <Alert severity='error' sx={{ mb: 3 }} onClose={() => deleteMutation.reset()}>
+        <Alert severity='error' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 10px)' }} onClose={() => deleteMutation.reset()}>
           {deleteMutation.error instanceof Error
             ? deleteMutation.error.message
             : t('auth.developer_console.api_keys.revoke_error', 'Failed to revoke API key.')}
@@ -267,7 +268,7 @@ export const DeveloperApiKeysScreen: React.FC = () => {
       )}
 
       <Paper
-        sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}
+        sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}
       >
         <Table>
           <TableHead sx={{ bgcolor: 'action.hover' }}>
@@ -329,9 +330,15 @@ export const DeveloperApiKeysScreen: React.FC = () => {
                               size='small'
                               color={isExpired ? 'error' : 'default'}
                               variant='outlined'
+                              sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 700 }}
                             />
                           ) : (
-                            <Chip label={neverLabel} size='small' variant='outlined' />
+                            <Chip
+                              label={neverLabel}
+                              size='small'
+                              variant='outlined'
+                              sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 700 }}
+                            />
                           )}
                         </TableCell>
                         <TableCell>
@@ -367,7 +374,13 @@ export const DeveloperApiKeysScreen: React.FC = () => {
       </Paper>
 
       {/* Create Key Dialog */}
-      <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth='sm' fullWidth>
+      <Dialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        maxWidth='sm'
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } } }}
+      >
         <DialogTitle fontWeight={600}>
           {t('auth.developer_console.api_keys.create_title', 'Generate New API Key')}
         </DialogTitle>
@@ -427,11 +440,17 @@ export const DeveloperApiKeysScreen: React.FC = () => {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setCreateOpen(false)}>{t('auth.common.cancel', 'Cancel')}</Button>
+          <Button
+            onClick={() => setCreateOpen(false)}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
+          >
+            {t('auth.common.cancel', 'Cancel')}
+          </Button>
           <Button
             variant='contained'
             onClick={handleCreate}
             disabled={!keyName.trim() || createMutation.isPending}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
           >
             {createMutation.isPending
               ? t('auth.developer_console.api_keys.generating', 'Generating...')
@@ -441,13 +460,19 @@ export const DeveloperApiKeysScreen: React.FC = () => {
       </Dialog>
 
       {/* Reveal Raw Key Modal — one-time display */}
-      <Dialog open={revealOpen} onClose={handleCloseRevealModal} maxWidth='sm' fullWidth>
+      <Dialog
+        open={revealOpen}
+        onClose={handleCloseRevealModal}
+        maxWidth='sm'
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } } }}
+      >
         <DialogTitle fontWeight={700} sx={{ color: 'warning.main' }}>
           {t('auth.developer_console.api_keys.reveal_title', 'Save Your API Key')}
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
-            <Alert severity='warning'>
+            <Alert severity='warning' sx={{ borderRadius: 'var(--sf-radius-md, 10px)' }}>
               {t(
                 'auth.developer_console.api_keys.reveal_warning_prefix',
                 'Please copy or download your API key now. For security purposes, it will',
@@ -467,6 +492,7 @@ export const DeveloperApiKeysScreen: React.FC = () => {
                 bgcolor: 'background.default',
                 fontFamily: 'monospace',
                 wordBreak: 'break-all',
+                borderRadius: 'var(--sf-radius-md, 8px)',
               }}
             >
               <Typography variant='body2' sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
@@ -504,7 +530,11 @@ export const DeveloperApiKeysScreen: React.FC = () => {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button variant='contained' onClick={handleCloseRevealModal}>
+          <Button
+            variant='contained'
+            onClick={handleCloseRevealModal}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
+          >
             {t('auth.developer_console.api_keys.reveal_confirm', 'I have saved my key securely')}
           </Button>
         </DialogActions>

@@ -203,7 +203,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
       <Card
         variant='outlined'
         sx={{
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
@@ -227,16 +227,22 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                       color: 'text.primary',
                     }}
                   >
-                    {t('auth.api_tokens.field_name', 'Integration Name')}
+                    {t('auth.api_tokens.field_name', 'Token Name')}
                   </FormLabel>
                   <TextField
                     fullWidth
-                    placeholder={t('auth.api_tokens.name_placeholder', 'e.g. CI/CD Pipeline')}
+                    placeholder={
+                      t('auth.api_tokens.name_placeholder', 'e.g. GitHub Actions Sync') || ''
+                    }
                     value={tokenName}
                     onChange={(e) => setTokenName(e.target.value)}
-                    variant='outlined'
-                    autoFocus
-                    slotProps={{ input: { sx: { borderRadius: 3, fontWeight: 600, height: 52 } } }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        fontWeight: 600,
+                        height: 52,
+                      },
+                    }}
                   />
                   <Typography
                     variant='caption'
@@ -268,7 +274,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                     fullWidth
                     value={expiration}
                     onChange={(e) => setExpiration(e.target.value)}
-                    sx={{ borderRadius: 3, fontWeight: 600, height: 52 }}
+                    sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600, height: 52 }}
                   >
                     <MenuItem value='7 days' sx={{ fontWeight: 600 }}>
                       {t('auth.api_tokens.exp_7d', '7 Days')}
@@ -313,7 +319,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
               {scopesLoading && (
                 <Stack spacing={1.5}>
                   {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} variant='rounded' height={56} sx={{ borderRadius: 3 }} />
+                    <Skeleton key={i} variant='rounded' height={56} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
                   ))}
                 </Stack>
               )}
@@ -333,7 +339,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                       {t('auth.common.retry', 'Retry')}
                     </Button>
                   }
-                  sx={{ borderRadius: 2 }}
+                  sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
                 >
                   {t('auth.api_tokens.scopes_load_error', 'Failed to load available scopes.')}
                 </Alert>
@@ -362,7 +368,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                           }}
                           sx={{
                             p: 2,
-                            borderRadius: 3,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             cursor: 'pointer',
                             transition: 'all 0.15s ease-in-out',
                             position: 'relative',
@@ -449,14 +455,15 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
             alignItems: 'center',
             borderTop: '1px solid',
             borderColor: 'divider',
-            borderBottomLeftRadius: 16,
-            borderBottomRightRadius: 16,
+            borderBottomLeftRadius: 'var(--sf-radius-lg, 16px)',
+            borderBottomRightRadius: 'var(--sf-radius-lg, 16px)',
           }}
         >
           <Button
             startIcon={<ArrowBackIcon />}
             onClick={() => navigate(Path.apiTokens.dashboard)}
             sx={{
+              minHeight: 44,
               fontWeight: 800,
               textTransform: 'none',
               color: 'text.secondary',
@@ -476,7 +483,8 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
             sx={{
               px: 4,
               py: 1.2,
-              borderRadius: 3,
+              minHeight: 48,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               fontWeight: 900,
               textTransform: 'none',
               boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,

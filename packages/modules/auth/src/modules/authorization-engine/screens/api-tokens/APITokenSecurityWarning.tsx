@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   Box,
   Typography,
@@ -10,6 +9,8 @@ import {
   Link,
   Stack,
   Paper,
+  useTheme,
+  alpha,
 } from '@mui/material'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -26,6 +27,7 @@ import { Path } from '@auth/routes/path'
 const APITokenSecurityWarning: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const theme = useTheme()
 
   const bestPractices = [
     {
@@ -90,7 +92,7 @@ const APITokenSecurityWarning: React.FC = () => {
           </Typography>
           <Stack spacing={3} sx={{ mt: 3 }}>
             {bestPractices.map((practice, index) => (
-              <Paper key={index} variant='outlined' sx={{ p: 3, borderRadius: 3 }}>
+              <Paper key={index} variant='outlined' sx={{ p: 3, borderRadius: 'var(--sf-radius-md, 10px)' }}>
                 <Box sx={{ display: 'flex' }}>
                   <Box sx={{ mr: 2, display: 'flex', alignItems: 'flex-start', pt: 0.5 }}>
                     {practice.icon}
@@ -112,7 +114,12 @@ const APITokenSecurityWarning: React.FC = () => {
         <Grid size={{ xs: 12, md: 5 }}>
           <Card
             variant='outlined'
-            sx={{ borderRadius: 3, mb: 4, bgcolor: 'error.lighter', borderColor: 'error.main' }}
+            sx={{
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              mb: 4,
+              bgcolor: alpha(theme.palette.error.main, 0.04),
+              borderColor: 'error.main',
+            }}
           >
             <CardContent>
               <Typography
@@ -163,7 +170,7 @@ const APITokenSecurityWarning: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card variant='outlined' sx={{ borderRadius: 3 }}>
+          <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 16px)' }}>
             <CardContent>
               <Typography variant='subtitle1' fontWeight='bold' gutterBottom>
                 {t('auth.api_tokens.help_resources', 'Need help?')}
@@ -174,7 +181,7 @@ const APITokenSecurityWarning: React.FC = () => {
                   'Check our developer portal for more information on securing your integration.',
                 )}
               </Typography>
-              <Button fullWidth variant='outlined'>
+              <Button fullWidth variant='outlined' sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}>
                 {t('auth.api_tokens.view_docs', 'View Documentation')}
               </Button>
             </CardContent>
@@ -188,7 +195,7 @@ const APITokenSecurityWarning: React.FC = () => {
           size='large'
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate(Path.apiTokens.dashboard)}
-          sx={{ px: 4, borderRadius: 2 }}
+          sx={{ minHeight: 48, px: 4, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 800 }}
         >
           {t('auth.common.returnToTokens', 'Return to API Tokens')}
         </Button>

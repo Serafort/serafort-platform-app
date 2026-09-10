@@ -230,7 +230,7 @@ const APITokenDisplayUsage: React.FC = () => {
           {/* Security Warning + Token Card — only after creation */}
           {hasToken && (
             <>
-              <Alert severity='warning' sx={{ mb: 3 }}>
+              <Alert severity='warning' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 10px)' }}>
                 <AlertTitle sx={{ fontWeight: 800 }}>
                   {t('auth.api_tokens.security_alert_title', 'Crucial Security Warning')}
                 </AlertTitle>
@@ -243,6 +243,7 @@ const APITokenDisplayUsage: React.FC = () => {
               {/* Token Display Card */}
               <Card
                 sx={{
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
@@ -291,7 +292,7 @@ const APITokenDisplayUsage: React.FC = () => {
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       bgcolor: alpha(theme.palette.action.hover, 0.3),
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       fontFamily: 'monospace',
                       fontSize: '0.95rem',
                       wordBreak: 'break-all',
@@ -360,6 +361,7 @@ const APITokenDisplayUsage: React.FC = () => {
                               fontWeight: 700,
                               fontSize: '0.75rem',
                               height: 20,
+                              borderRadius: 'var(--sf-radius-sm, 6px)',
                               bgcolor: alpha(theme.palette.secondary.main, 0.08),
                               color: 'secondary.main',
                               border: '1px solid',
@@ -391,6 +393,8 @@ const APITokenDisplayUsage: React.FC = () => {
                     startIcon={copied ? <CheckIcon /> : <CopyIcon />}
                     color={copied ? 'success' : 'primary'}
                     sx={{
+                      minHeight: 44,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       px: 5,
                       fontWeight: 700,
                       textTransform: 'none',
@@ -413,6 +417,8 @@ const APITokenDisplayUsage: React.FC = () => {
                 endIcon={<ArrowForwardIcon />}
                 onClick={handleDone}
                 sx={{
+                  minHeight: 48,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   py: 1.5,
                   fontWeight: 700,
                   textTransform: 'none',
@@ -427,11 +433,12 @@ const APITokenDisplayUsage: React.FC = () => {
           {!hasToken && (
             <>
               {isLoadingToken && (
-                <Skeleton variant='rounded' height={200} sx={{ borderRadius: 2, mb: 3 }} />
+                <Skeleton variant='rounded' height={200} sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', mb: 3 }} />
               )}
               {tokenDetails && (
                 <Card
                   sx={{
+                    borderRadius: 'var(--sf-radius-lg, 16px)',
                     border: '1px solid',
                     borderColor: 'divider',
                     boxShadow: 'none',
@@ -550,6 +557,7 @@ const APITokenDisplayUsage: React.FC = () => {
                                 fontWeight: 700,
                                 fontSize: '0.75rem',
                                 height: 20,
+                                borderRadius: 'var(--sf-radius-sm, 6px)',
                                 bgcolor: alpha(theme.palette.primary.main, 0.08),
                                 color: 'primary.main',
                                 border: '1px solid',
@@ -588,6 +596,7 @@ const APITokenDisplayUsage: React.FC = () => {
                                 fontWeight: 700,
                                 fontSize: '0.75rem',
                                 height: 20,
+                                borderRadius: 'var(--sf-radius-sm, 6px)',
                               }}
                             />
                           ))}
@@ -605,6 +614,7 @@ const APITokenDisplayUsage: React.FC = () => {
         <Grid size={{ xs: 12, md: hasToken ? 4 : 12 }}>
           <Card
             sx={{
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
@@ -641,7 +651,7 @@ const APITokenDisplayUsage: React.FC = () => {
                   p: 2.5,
                   bgcolor: theme.palette.mode === 'dark' ? 'grey.800' : 'grey.900',
                   color: 'grey.100',
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   fontFamily: '"Fira Code", "JetBrains Mono", monospace',
                   fontSize: '0.8rem',
                   lineHeight: 1.7,
@@ -662,7 +672,7 @@ const APITokenDisplayUsage: React.FC = () => {
               <Box
                 sx={{
                   p: 2,
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-md, 10px)',
                   bgcolor: alpha(theme.palette.info.main, 0.05),
                   border: '1px solid',
                   borderColor: alpha(theme.palette.info.main, 0.1),
@@ -719,7 +729,7 @@ const APITokenDisplayUsage: React.FC = () => {
                 variant='text'
                 size='small'
                 onClick={() => navigate(Path.apiTokens.securityWarning)}
-                sx={{ fontWeight: 700, textTransform: 'none' }}
+                sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700, textTransform: 'none' }}
               >
                 {t('auth.api_tokens.view_security_guide', 'View Token Security Guide')}
               </Button>

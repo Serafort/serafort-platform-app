@@ -226,7 +226,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
             size='medium'
             startIcon={<PlayArrowIcon />}
             onClick={handleRunSimulation}
-            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 2 }}
+            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
             {t('auth.admin.policy.run', 'Run evaluation')}
           </Button>
@@ -253,7 +253,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
               sx={{
                 p: 2,
                 mt: 1,
-                borderRadius: 2.5,
+                borderRadius: 'var(--sf-radius-md, 10px)',
                 border: '1.5px solid',
                 borderColor:
                   simulationResult.effect === 'allow'
@@ -283,7 +283,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                       : t('auth.admin.policy.effect_deny', 'Deny')
                   }
                   color={simulationResult.effect === 'allow' ? 'success' : 'error'}
-                  sx={{ fontWeight: 900, px: 1 }}
+                  sx={{ fontWeight: 900, px: 1, borderRadius: 'var(--sf-radius-sm, 6px)' }}
                 />
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <SpeedIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
@@ -322,7 +322,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                   key={trace.stepNumber}
                   sx={{
                     p: 1,
-                    borderRadius: 1.5,
+                    borderRadius: 'var(--sf-radius-sm, 6px)',
                     border: '1px solid',
                     borderColor: 'divider',
                     bgcolor:
@@ -338,7 +338,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                     label={`#${trace.stepNumber}`}
                     size='small'
                     color={trace.status === 'pass' ? 'success' : 'error'}
-                    sx={{ height: 20, fontSize: 10, fontWeight: 800 }}
+                    sx={{ height: 20, fontSize: 10, fontWeight: 800, borderRadius: 'var(--sf-radius-sm, 6px)' }}
                   />
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Typography

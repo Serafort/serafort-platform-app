@@ -353,7 +353,7 @@ export default function VisualPolicyCanvas() {
           <Box
             sx={{
               p: 1,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               bgcolor: alpha(theme.palette.primary.main, 0.12),
               color: 'primary.main',
               display: 'flex',
@@ -386,7 +386,7 @@ export default function VisualPolicyCanvas() {
             size='small'
             startIcon={<AddCircleOutlineIcon />}
             onClick={(e) => setAddNodeAnchor(e.currentTarget)}
-            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 2 }}
+            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
             {t('auth.admin.policy.add_node', 'Add node')}
           </Button>
@@ -395,8 +395,9 @@ export default function VisualPolicyCanvas() {
             anchorEl={addNodeAnchor}
             open={Boolean(addNodeAnchor)}
             onClose={() => setAddNodeAnchor(null)}
+            PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
           >
-            <MenuItem onClick={() => handleAddNode('subject')}>
+            <MenuItem onClick={() => handleAddNode('subject')} sx={{ minHeight: 44 }}>
               <ListItemIcon>
                 <PersonIcon fontSize='small' color='primary' />
               </ListItemIcon>
@@ -405,7 +406,7 @@ export default function VisualPolicyCanvas() {
                 secondary={t('auth.admin.policy.node_subject_desc', 'Roles and principal attributes')}
               />
             </MenuItem>
-            <MenuItem onClick={() => handleAddNode('action')}>
+            <MenuItem onClick={() => handleAddNode('action')} sx={{ minHeight: 44 }}>
               <ListItemIcon>
                 <TouchAppIcon fontSize='small' color='info' />
               </ListItemIcon>
@@ -414,7 +415,7 @@ export default function VisualPolicyCanvas() {
                 secondary={t('auth.admin.policy.node_action_desc', 'Operations such as read, write or delete')}
               />
             </MenuItem>
-            <MenuItem onClick={() => handleAddNode('resource')}>
+            <MenuItem onClick={() => handleAddNode('resource')} sx={{ minHeight: 44 }}>
               <ListItemIcon>
                 <FolderIcon fontSize='small' color='secondary' />
               </ListItemIcon>
@@ -423,7 +424,7 @@ export default function VisualPolicyCanvas() {
                 secondary={t('auth.admin.policy.node_resource_desc', 'Entity types and attributes')}
               />
             </MenuItem>
-            <MenuItem onClick={() => handleAddNode('condition')}>
+            <MenuItem onClick={() => handleAddNode('condition')} sx={{ minHeight: 44 }}>
               <ListItemIcon>
                 <RuleIcon fontSize='small' color='warning' />
               </ListItemIcon>
@@ -433,7 +434,7 @@ export default function VisualPolicyCanvas() {
               />
             </MenuItem>
             <Divider />
-            <MenuItem onClick={() => handleAddNode('decision', 'allow')}>
+            <MenuItem onClick={() => handleAddNode('decision', 'allow')} sx={{ minHeight: 44 }}>
               <ListItemIcon>
                 <CheckCircleIcon fontSize='small' color='success' />
               </ListItemIcon>
@@ -442,7 +443,7 @@ export default function VisualPolicyCanvas() {
                 secondary={t('auth.admin.policy.node_allow_desc', 'Ends the path by granting access')}
               />
             </MenuItem>
-            <MenuItem onClick={() => handleAddNode('decision', 'deny')}>
+            <MenuItem onClick={() => handleAddNode('decision', 'deny')} sx={{ minHeight: 44 }}>
               <ListItemIcon>
                 <BlockIcon fontSize='small' color='error' />
               </ListItemIcon>
@@ -460,7 +461,7 @@ export default function VisualPolicyCanvas() {
             color='secondary'
             startIcon={<AutoAwesomeIcon />}
             onClick={() => setTemplatePickerOpen(true)}
-            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 2 }}
+            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
             {t('auth.admin.policy.templates', 'Templates')}
           </Button>
@@ -472,7 +473,7 @@ export default function VisualPolicyCanvas() {
             color='info'
             startIcon={<PlayArrowIcon />}
             onClick={() => setSimulatorOpen((prev) => !prev)}
-            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 2 }}
+            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
             {t('auth.admin.policy.simulator', 'Simulator')}
           </Button>
@@ -515,7 +516,7 @@ export default function VisualPolicyCanvas() {
             size='small'
             startIcon={<CloudDoneIcon />}
             onClick={handleDeployToEngine}
-            sx={{ minHeight: 44, fontWeight: 900, px: 2, borderRadius: 2 }}
+            sx={{ minHeight: 44, fontWeight: 900, px: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
             {t('auth.admin.policy.deploy', 'Deploy policy')}
           </Button>
@@ -541,7 +542,7 @@ export default function VisualPolicyCanvas() {
           >
             <Controls
               style={{
-                borderRadius: 8,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 overflow: 'hidden',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               }}
@@ -566,7 +567,7 @@ export default function VisualPolicyCanvas() {
                 }
               }}
               style={{
-                borderRadius: 8,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 overflow: 'hidden',
                 backgroundColor: alpha(theme.palette.background.paper, 0.9),
               }}

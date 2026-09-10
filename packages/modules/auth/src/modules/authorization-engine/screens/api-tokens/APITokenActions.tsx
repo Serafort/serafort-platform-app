@@ -24,7 +24,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import SecurityIcon from '@mui/icons-material/Security'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Path } from '@cap/module-auth/routes/path'
+import { Path } from '@auth/routes/path'
 
 const APITokenActions: React.FC = () => {
   const { t } = useTranslation()
@@ -80,7 +80,7 @@ const APITokenActions: React.FC = () => {
         )}
       </Typography>
 
-      <Card variant='outlined' sx={{ borderRadius: 3, mb: 4 }}>
+      <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', mb: 4 }}>
         <CardContent sx={{ p: 4 }}>
           <Typography
             variant='subtitle1'
@@ -100,6 +100,7 @@ const APITokenActions: React.FC = () => {
               value={tokenName}
               onChange={(e) => setTokenName(e.target.value)}
               variant='outlined'
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' } }}
             />
           </Box>
 
@@ -170,19 +171,24 @@ const APITokenActions: React.FC = () => {
             px: 4,
             py: 2,
             bgcolor: 'action.hover',
-            borderBottomLeftRadius: 12,
-            borderBottomRightRadius: 12,
+            borderBottomLeftRadius: 'var(--sf-radius-lg, 16px)',
+            borderBottomRightRadius: 'var(--sf-radius-lg, 16px)',
             display: 'flex',
             justifyContent: 'flex-end',
           }}
         >
-          <Button variant='contained' startIcon={<SaveIcon />} onClick={handleSave}>
+          <Button
+            variant='contained'
+            startIcon={<SaveIcon />}
+            onClick={handleSave}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}
+          >
             {t('auth.common.saveChanges', 'Save Changes')}
           </Button>
         </Box>
       </Card>
 
-      <Card variant='outlined' sx={{ borderRadius: 3, borderColor: 'error.main' }}>
+      <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', borderColor: 'error.main' }}>
         <CardContent sx={{ p: 4 }}>
           <Typography
             variant='subtitle1'
@@ -200,14 +206,24 @@ const APITokenActions: React.FC = () => {
               'Once revoked, this token will immediately stop working and cannot be restored.',
             )}
           </Typography>
-          <Button variant='outlined' color='error' fullWidth onClick={handleRevoke}>
+          <Button
+            variant='outlined'
+            color='error'
+            fullWidth
+            onClick={handleRevoke}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}
+          >
             {t('auth.api_tokens.revoke_token_now', 'Revoke this Token')}
           </Button>
         </CardContent>
       </Card>
 
       {/* Revoke Confirmation Dialog */}
-      <Dialog open={revoking} onClose={() => setRevoking(false)}>
+      <Dialog
+        open={revoking}
+        onClose={() => setRevoking(false)}
+        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } }}
+      >
         <DialogTitle>{t('auth.api_tokens.revoke_confirm_title', 'Revoke API Token?')}</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -219,7 +235,9 @@ const APITokenActions: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setRevoking(false)}>{t('auth.common.cancel', 'Cancel')}</Button>
+          <Button onClick={() => setRevoking(false)} sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}>
+            {t('auth.common.cancel', 'Cancel')}
+          </Button>
           <Button
             variant='contained'
             color='error'
@@ -227,6 +245,7 @@ const APITokenActions: React.FC = () => {
               setRevoking(false)
               navigate(Path.apiTokens.dashboard)
             }}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}
           >
             {t('auth.common.revokePermanently', 'Revoke Permanently')}
           </Button>

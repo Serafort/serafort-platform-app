@@ -265,13 +265,13 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
             <Alert
               severity='warning'
               variant='outlined'
-              sx={{ mb: 4, borderRadius: 2, bgcolor: alpha(theme.palette.warning.main, 0.05) }}
+              sx={{ mb: 4, borderRadius: 'var(--sf-radius-md, 10px)', bgcolor: alpha(theme.palette.warning.main, 0.05) }}
               action={
                 <Button
                   color='inherit'
                   size='small'
                   onClick={() => navigate(Path.apiTokens.createBasic)}
-                  sx={{ fontWeight: 700, textTransform: 'none' }}
+                  sx={{ minHeight: 44, fontWeight: 700, textTransform: 'none' }}
                 >
                   {t('auth.api_tokens.go_back_config', 'Go back to step 1')}
                 </Button>
@@ -318,7 +318,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
           <Card
             variant='outlined'
             sx={{
-              borderRadius: 4,
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
@@ -377,7 +377,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                     onKeyDown={(e) => e.key === 'Enter' && handleAddIP()}
                     slotProps={{
                       input: {
-                        sx: { borderRadius: 3, fontWeight: 600, height: 52 },
+                        sx: { borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600, height: 52 },
                         inputProps: {
                           pattern: '^(\\d{1,3}\\.){3}\\d{1,3}(\\/\\d{1,2})?$',
                         },
@@ -399,7 +399,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                     variant='outlined'
                     onClick={handleAddIP}
                     disabled={!ipInput.trim()}
-                    sx={{ borderRadius: 3, px: 3, fontWeight: 800, textTransform: 'none' }}
+                    sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', px: 3, fontWeight: 800, textTransform: 'none' }}
                   >
                     {t('auth.common.add', 'Add')}
                   </Button>
@@ -408,7 +408,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                 <Paper
                   variant='outlined'
                   sx={{
-                    borderRadius: 3,
+                    borderRadius: 'var(--sf-radius-md, 10px)',
                     minHeight: 160,
                     maxHeight: 300,
                     overflowY: 'auto',
@@ -443,7 +443,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                           key={ip}
                           sx={{
                             mb: index === ipList.length - 1 ? 0 : 1,
-                            borderRadius: 3,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             bgcolor: 'background.paper',
                             boxShadow: 'none',
                             border: '1px solid',
@@ -488,14 +488,15 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                 alignItems: 'center',
                 borderTop: '1px solid',
                 borderColor: 'divider',
-                borderBottomLeftRadius: 16,
-                borderBottomRightRadius: 16,
+                borderBottomLeftRadius: 'var(--sf-radius-lg, 16px)',
+                borderBottomRightRadius: 'var(--sf-radius-lg, 16px)',
               }}
             >
               <Button
                 startIcon={<ArrowBackIcon />}
                 onClick={handleBackClick}
                 sx={{
+                  minHeight: 44,
                   fontWeight: 800,
                   textTransform: 'none',
                   color: 'text.secondary',
@@ -509,7 +510,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                   variant='text'
                   onClick={onSkipRestrictions}
                   disabled={isPendingSubmit || isMissingState}
-                  sx={{ fontWeight: 800, textTransform: 'none', color: 'text.primary' }}
+                  sx={{ minHeight: 44, fontWeight: 800, textTransform: 'none', color: 'text.primary' }}
                 >
                   {t('auth.api_tokens.skip_restrictions', 'Skip for now')}
                 </Button>
@@ -520,9 +521,10 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                   loading={isPendingSubmit}
                   disabled={isMissingState}
                   sx={{
+                    minHeight: 48,
                     px: 4,
                     py: 1.2,
-                    borderRadius: 3,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     fontWeight: 900,
                     textTransform: 'none',
                     boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
@@ -543,7 +545,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
           <Box
             sx={{
               p: 3,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               bgcolor: alpha(theme.palette.warning.main, 0.05),
               border: '1px solid',
               borderColor: alpha(theme.palette.warning.main, 0.2),

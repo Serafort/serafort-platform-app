@@ -209,7 +209,7 @@ const APITokenDetails: React.FC = () => {
               sx={{
                 width: { xs: 56, md: 80 },
                 height: { xs: 56, md: 80 },
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 24px)',
                 bgcolor: 'primary.main',
                 boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
               }}
@@ -234,11 +234,13 @@ const APITokenDetails: React.FC = () => {
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
               <Button
+                aria-label={t('auth.common.back', 'Back')}
                 startIcon={<ArrowBackIcon />}
                 onClick={() => navigate(Path.apiTokens.dashboard)}
                 sx={{
                   p: 0,
-                  minWidth: 'auto',
+                  minWidth: 44,
+                  minHeight: 44,
                   color: 'text.secondary',
                   '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
                 }}
@@ -293,6 +295,8 @@ const APITokenDetails: React.FC = () => {
             disabled={revokeTokenMutation.isPending}
             color='error'
             sx={{
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               boxShadow: `0 4px 14px 0 ${alpha(theme.palette.error.main, 0.39)}`,
               textTransform: 'none',
               fontWeight: 700,
@@ -313,7 +317,7 @@ const APITokenDetails: React.FC = () => {
         {/* Main Column */}
         <Grid size={{ xs: 12, md: 8 }}>
           {/* Overview Card */}
-          <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none', mb: 3 }}>
+          <Card sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', border: '1px solid', borderColor: 'divider', boxShadow: 'none', mb: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <SectionHeading
                 icon={<VpnKeyIcon color='primary' sx={{ fontSize: 24 }} />}
@@ -335,7 +339,7 @@ const APITokenDetails: React.FC = () => {
           </Card>
 
           {/* Permissions Card */}
-          <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
+          <Card sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
             <CardContent sx={{ p: 3 }}>
               <SectionHeading
                 icon={<ShieldIcon color='primary' sx={{ fontSize: 24 }} />}
@@ -353,7 +357,7 @@ const APITokenDetails: React.FC = () => {
                         fontWeight: 700,
                         fontSize: '0.75rem',
                         height: 20,
-                        borderRadius: 1.5,
+                        borderRadius: 'var(--sf-radius-sm, 6px)',
                         bgcolor: alpha(theme.palette.primary.main, 0.08),
                         color: 'primary.main',
                         border: '1px solid',
@@ -367,7 +371,7 @@ const APITokenDetails: React.FC = () => {
                   sx={{
                     p: 3,
                     textAlign: 'center',
-                    borderRadius: 2,
+                    borderRadius: 'var(--sf-radius-md, 10px)',
                     bgcolor: alpha(theme.palette.action.hover, 0.3),
                     border: '1px dashed',
                     borderColor: 'divider',
@@ -388,6 +392,7 @@ const APITokenDetails: React.FC = () => {
           {/* Quick Actions Card */}
           <Card
             sx={{
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
@@ -412,6 +417,8 @@ const APITokenDetails: React.FC = () => {
                     navigate(Path.apiTokens.display.replace(':tokenId', String(token.id)))
                   }
                   sx={{
+                    minHeight: 44,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     justifyContent: 'flex-start',
                     textTransform: 'none',
                     fontWeight: 700,
@@ -427,6 +434,8 @@ const APITokenDetails: React.FC = () => {
                   onClick={handleRevoke}
                   disabled={revokeTokenMutation.isPending}
                   sx={{
+                    minHeight: 44,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     justifyContent: 'flex-start',
                     textTransform: 'none',
                     fontWeight: 700,
@@ -444,7 +453,7 @@ const APITokenDetails: React.FC = () => {
           <Box
             sx={{
               p: 2,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 10px)',
               bgcolor: alpha(theme.palette.info.main, 0.05),
               border: '1px solid',
               borderColor: alpha(theme.palette.info.main, 0.1),

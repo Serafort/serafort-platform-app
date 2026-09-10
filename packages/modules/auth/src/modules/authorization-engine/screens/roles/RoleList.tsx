@@ -154,7 +154,7 @@ export default function RoleList() {
             sx={{
               width: { xs: 56, md: 64 },
               height: { xs: 56, md: 64 },
-              borderRadius: '20px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               bgcolor: alpha(theme.palette.primary.main, 0.1),
               color: 'primary.main',
               boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.12)}`,
@@ -187,18 +187,15 @@ export default function RoleList() {
           startIcon={<AddIcon />}
           onClick={() => navigate(Path.roleDetail.replace(':id', 'new'))}
           sx={{
-            // `color='info'` rather than a hand-set bgcolor with white
-            // text: MUI then picks the channel's own contrastText, which
-            // stays readable when a tenant's info colour is light.
             boxShadow: `0 4px 14px 0 ${alpha(theme.palette.info.main, 0.39)}`,
             '&:hover': {
               boxShadow: `0 6px 20px 0 ${alpha(theme.palette.info.main, 0.5)}`,
             },
             textTransform: 'none',
             fontWeight: 700,
-            height: 44,
+            minHeight: 44,
             px: 3,
-            borderRadius: 2,
+            borderRadius: 'var(--sf-radius-md, 8px)',
             width: { xs: '100%', sm: 'auto' },
             flexShrink: 0,
           }}
@@ -242,7 +239,7 @@ export default function RoleList() {
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
-              borderRadius: 4,
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               transition: 'transform 0.15s ease',
               '&:hover': { transform: 'translateY(-2px)' },
             }}
@@ -252,7 +249,7 @@ export default function RoleList() {
                 sx={{
                   width: 48,
                   height: 48,
-                  borderRadius: '14px',
+                  borderRadius: 'var(--sf-radius-md, 12px)',
                   bgcolor: alpha(theme.palette[stat.color].main, 0.1),
                   color: `${stat.color}.main`,
                   boxShadow: `0 6px 12px ${alpha(theme.palette[stat.color].main, 0.1)}`,
@@ -305,7 +302,7 @@ export default function RoleList() {
             onChange={(e) => setSearchTerm(e.target.value)}
             sx={{
               width: { xs: '100%', sm: 340 },
-              '& .MuiOutlinedInput-root': { borderRadius: 2 },
+              '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' },
             }}
             slotProps={{
               htmlInput: { 'aria-label': t('auth.admin.searchRolesPlaceholder') },
@@ -382,7 +379,7 @@ export default function RoleList() {
                           sx={{
                             width: 40,
                             height: 40,
-                            borderRadius: '12px',
+                            borderRadius: 'var(--sf-radius-md, 10px)',
                             bgcolor: alpha(theme.palette.primary.main, 0.1),
                             color: 'primary.main',
                             fontWeight: 800,
@@ -422,7 +419,7 @@ export default function RoleList() {
                         sx={{
                           fontWeight: 800,
                           height: 22,
-                          borderRadius: 1.5,
+                          borderRadius: 'var(--sf-radius-sm, 6px)',
                           fontSize: '0.65rem',
                           textTransform: 'uppercase',
                           borderColor: alpha(
@@ -523,7 +520,7 @@ export default function RoleList() {
             sx={{
               '& .MuiPaginationItem-root': {
                 fontWeight: 700,
-                borderRadius: 1.5,
+                borderRadius: 'var(--sf-radius-sm, 6px)',
                 minWidth: 44,
                 height: 44,
               },
@@ -538,7 +535,12 @@ export default function RoleList() {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
         PaperProps={{
-          sx: { borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', minWidth: 180, mt: 1 },
+          sx: {
+            borderRadius: 'var(--sf-radius-lg, 12px)',
+            boxShadow: 'var(--sf-shadow-lg)',
+            minWidth: 180,
+            mt: 1,
+          },
         }}
       >
         <MenuItem
@@ -546,20 +548,25 @@ export default function RoleList() {
             handleMenuClose()
             navigate(Path.roleDetail.replace(':id', selectedRole?.id.toString() || ''))
           }}
+          sx={{ minHeight: 44 }}
         >
           <ListItemIcon>
             <SecurityIcon fontSize='small' />
           </ListItemIcon>
           {t('auth.admin.permissions')}
         </MenuItem>
-        <MenuItem onClick={handleDuplicateRole} disabled={duplicateRole.isPending}>
+        <MenuItem
+          onClick={handleDuplicateRole}
+          disabled={duplicateRole.isPending}
+          sx={{ minHeight: 44 }}
+        >
           <ListItemIcon>
             <ContentCopyIcon fontSize='small' />
           </ListItemIcon>
           {t('auth.common.duplicate')}
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleDeleteRole} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={handleDeleteRole} sx={{ color: 'error.main', minHeight: 44 }}>
           <ListItemIcon>
             <DeleteIcon fontSize='small' color='error' />
           </ListItemIcon>
@@ -573,7 +580,9 @@ export default function RoleList() {
         onClose={handleCancelDelete}
         maxWidth='xs'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 4, p: 1, backgroundImage: 'none' } }}
+        PaperProps={{
+          sx: { borderRadius: 'var(--sf-radius-lg, 16px)', p: 1, backgroundImage: 'none' },
+        }}
       >
         <DialogTitle sx={{ fontWeight: 900, fontSize: '1.375rem', letterSpacing: '-0.02em' }}>
           {t('auth.admin.deleteRoleTitle')} &rdquo;{selectedRole?.name}&rdquo;?
@@ -586,7 +595,13 @@ export default function RoleList() {
         <DialogActions sx={{ p: 3, pt: 1 }}>
           <Button
             onClick={handleCancelDelete}
-            sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'none' }}
+            sx={{
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              fontWeight: 700,
+              color: 'text.secondary',
+              textTransform: 'none',
+            }}
           >
             {t('auth.common.cancel')}
           </Button>
@@ -596,9 +611,10 @@ export default function RoleList() {
             variant='contained'
             disabled={deleteRole.isPending}
             sx={{
+              minHeight: 44,
               fontWeight: 800,
               textTransform: 'none',
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 3,
               boxShadow: `0 4px 12px ${alpha(theme.palette.error.main, 0.4)}`,
             }}

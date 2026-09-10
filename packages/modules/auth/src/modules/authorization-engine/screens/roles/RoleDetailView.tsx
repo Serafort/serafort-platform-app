@@ -249,7 +249,7 @@ export default function RoleDetailView() {
               sx={{
                 width: 80,
                 height: 80,
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 bgcolor: alpha(theme.palette.primary.main, 0.1),
                 color: 'primary.main',
                 boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.15)}`,
@@ -274,7 +274,7 @@ export default function RoleDetailView() {
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
               <Tooltip title={t('auth.admin.goBack') || 'Go back'}>
-                <IconButton onClick={() => navigate(Path.admin.roles)} sx={{ ml: -1 }}>
+                <IconButton onClick={() => navigate(Path.admin.roles)} sx={{ ml: -1, width: 44, height: 44 }}>
                   <ArrowBack fontSize='small' />
                 </IconButton>
               </Tooltip>
@@ -304,7 +304,7 @@ export default function RoleDetailView() {
               <Chip
                 label={(role.guard_name || 'web').toUpperCase()}
                 size='small'
-                sx={{ height: 20, fontSize: '0.6rem', fontWeight: 900, borderRadius: 1 }}
+                sx={{ height: 20, fontSize: '0.6rem', fontWeight: 900, borderRadius: 'var(--sf-radius-sm, 6px)' }}
               />
             </Stack>
           </Box>
@@ -319,8 +319,8 @@ export default function RoleDetailView() {
             sx={{
               textTransform: 'none',
               fontWeight: 800,
-              height: 48,
-              borderRadius: 3,
+              minHeight: 48,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               borderColor: 'divider',
               color: 'text.primary',
             }}
@@ -338,9 +338,9 @@ export default function RoleDetailView() {
               '&:hover': { bgcolor: 'info.dark' },
               textTransform: 'none',
               fontWeight: 800,
-              height: 48,
+              minHeight: 48,
               px: 3,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
             }}
           >
             {updateRole.isPending
@@ -395,7 +395,7 @@ export default function RoleDetailView() {
                     border: '1px solid',
                     borderColor: 'divider',
                     boxShadow: 'none',
-                    borderRadius: 4,
+                    borderRadius: 'var(--sf-radius-lg, 16px)',
                   }}
                 >
                   <CardContent sx={{ p: 4 }}>
@@ -404,7 +404,7 @@ export default function RoleDetailView() {
                         sx={{
                           width: 48,
                           height: 48,
-                          borderRadius: '14px',
+                          borderRadius: 'var(--sf-radius-md, 12px)',
                           bgcolor: alpha(theme.palette.primary.main, 0.08),
                           color: 'primary.main',
                         }}
@@ -466,6 +466,7 @@ export default function RoleDetailView() {
                                         height: 18,
                                         fontSize: '0.6rem',
                                         fontWeight: 900,
+                                        borderRadius: 'var(--sf-radius-sm, 6px)',
                                       }}
                                     />
                                   )}
@@ -502,7 +503,7 @@ export default function RoleDetailView() {
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                   mb: 3,
                 }}
               >
@@ -540,7 +541,7 @@ export default function RoleDetailView() {
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            borderRadius: 2,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             borderStyle: 'dashed',
                           }}
                         >
@@ -556,6 +557,7 @@ export default function RoleDetailView() {
                                 .filter((id) => id !== p.id)
                               syncRoleParents.mutate({ roleId: role.id, parentIds: newIds })
                             }}
+                            sx={{ width: 44, height: 44 }}
                           >
                             <Delete fontSize='small' />
                           </IconButton>
@@ -569,7 +571,12 @@ export default function RoleDetailView() {
                     variant='outlined'
                     startIcon={<Add />}
                     onClick={() => setOpenParentDialog(true)}
-                    sx={{ borderRadius: 2.5, fontWeight: 800, textTransform: 'none', height: 44 }}
+                    sx={{
+                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      fontWeight: 800,
+                      textTransform: 'none',
+                      minHeight: 44,
+                    }}
                   >
                     {t('auth.admin.addParentRole')}
                   </Button>
@@ -581,7 +588,7 @@ export default function RoleDetailView() {
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
@@ -644,7 +651,7 @@ export default function RoleDetailView() {
 
       <TabPanel value={tab} index={1}>
         <Card
-          sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none', borderRadius: 4 }}
+          sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none', borderRadius: 'var(--sf-radius-lg, 16px)' }}
         >
           <Box
             sx={{
@@ -668,7 +675,7 @@ export default function RoleDetailView() {
               variant='contained'
               startIcon={<Add />}
               onClick={() => navigate(Path.admin.users)}
-              sx={{ borderRadius: 2.5, fontWeight: 800, textTransform: 'none', height: 44 }}
+              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 800, textTransform: 'none', minHeight: 44 }}
             >
               {t('auth.admin.assignNewUser')}
             </Button>
@@ -700,7 +707,7 @@ export default function RoleDetailView() {
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                 }}
               >
                 <CardContent sx={{ p: 4 }}>
@@ -742,7 +749,7 @@ export default function RoleDetailView() {
                   border: '1px solid',
                   borderColor: 'error.main',
                   boxShadow: 'none',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                   bgcolor: alpha(theme.palette.error.main, 0.02),
                 }}
               >
@@ -773,10 +780,10 @@ export default function RoleDetailView() {
                     color='error'
                     onClick={() => setConfirmDeleteOpen(true)}
                     sx={{
-                      borderRadius: 3,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       fontWeight: 800,
                       textTransform: 'none',
-                      height: 44,
+                      minHeight: 44,
                       px: 3,
                     }}
                   >
@@ -794,7 +801,7 @@ export default function RoleDetailView() {
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
@@ -813,21 +820,21 @@ export default function RoleDetailView() {
                     <Button
                       fullWidth
                       startIcon={<HistoryIcon />}
-                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 2 }}
+                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
                     >
                       {t('auth.admin.systemAuditData')}
                     </Button>
                     <Button
                       fullWidth
                       startIcon={<Description />}
-                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 2 }}
+                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
                     >
                       {t('auth.admin.exportAccessLogs')}
                     </Button>
                     <Button
                       fullWidth
                       startIcon={<Security />}
-                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 2 }}
+                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
                     >
                       {t('auth.admin.securityBaseline')}
                     </Button>
@@ -885,7 +892,7 @@ function AutocompleteDialog({
       onClose={onClose}
       fullWidth
       maxWidth='xs'
-      PaperProps={{ sx: { borderRadius: 4, p: 1 } }}
+      PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 16px)', p: 1 } }}
     >
       <DialogTitle sx={{ fontWeight: 900, fontSize: '1.4rem' }}>{title}</DialogTitle>
       <DialogContent>
@@ -915,14 +922,14 @@ function AutocompleteDialog({
         />
       </DialogContent>
       <DialogActions sx={{ p: 3, pt: 1 }}>
-        <Button onClick={onClose} sx={{ fontWeight: 700, color: 'text.secondary' }}>
+        <Button onClick={onClose} sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700, color: 'text.secondary' }}>
           {t('auth.common.cancel')}
         </Button>
         <Button
           onClick={onConfirm}
           variant='contained'
           disabled={isPending}
-          sx={{ fontWeight: 800, borderRadius: 2, px: 3 }}
+          sx={{ minHeight: 44, fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)', px: 3 }}
         >
           {t('auth.common.saveConfiguration')}
         </Button>

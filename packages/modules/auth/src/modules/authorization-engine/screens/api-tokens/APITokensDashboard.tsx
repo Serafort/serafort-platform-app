@@ -151,7 +151,7 @@ const APITokensDashboard: React.FC = () => {
       sx={{
         minHeight: 44,
         px: 3,
-        borderRadius: 2,
+        borderRadius: 'var(--sf-radius-md, 8px)',
         fontWeight: 700,
         textTransform: 'none',
         width: { xs: '100%', sm: 'auto' },
@@ -328,7 +328,7 @@ const APITokensDashboard: React.FC = () => {
                           size='small'
                           sx={{
                             fontWeight: 700,
-                            borderRadius: 1.5,
+                            borderRadius: 'var(--sf-radius-sm, 6px)',
                             color: theme.palette[STATUS_TONE[status]].main,
                             bgcolor: alpha(theme.palette[STATUS_TONE[status]].main, 0.12),
                           }}
@@ -427,7 +427,7 @@ const APITokensDashboard: React.FC = () => {
         sx={{
           mt: 4,
           p: 2.5,
-          borderRadius: 3,
+          borderRadius: 'var(--sf-radius-md, 10px)',
           bgcolor: alpha(theme.palette.info.main, 0.08),
           border: '1px solid',
           borderColor: alpha(theme.palette.info.main, 0.28),
