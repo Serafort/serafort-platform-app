@@ -399,16 +399,6 @@ const lightTheme = createTheme({
         },
       },
     },
-    MuiTooltip: {
-      styleOverrides: {
-        tooltip: {
-          backgroundColor: "#031433",
-          color: "#FFFFFF",
-          borderRadius: 6,
-          fontSize: "0.75rem",
-        },
-      },
-    },
     MuiDivider: {
       styleOverrides: {
         root: {
