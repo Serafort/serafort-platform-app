@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Container,
   Grid,
@@ -41,6 +40,7 @@ import {
 } from '../../hooks/useSecurityIntelQuery'
 import { useAdminSessionStatsQuery } from '../../hooks/useAdminMonitoringQuery'
 import type { Anomaly, AnomalyStatus } from '../../types/securityIntel.types'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 
 /**
  * Anomaly & Threat Intel Dashboard.
@@ -57,11 +57,11 @@ import type { Anomaly, AnomalyStatus } from '../../types/securityIntel.types'
  * the two to show a security operator.
  */
 
-const STATUS_COLOR: Record<AnomalyStatus, 'error' | 'warning' | 'info' | 'success' | 'default'> = {
+const STATUS_COLOR: Record<AnomalyStatus, 'error' | 'warning' | 'info' | 'success' | 'neutral'> = {
   detected: 'error',
   investigating: 'warning',
   confirmed: 'error',
-  false_positive: 'default',
+  false_positive: 'neutral',
   resolved: 'success',
 }
 
@@ -316,9 +316,8 @@ export const AnomalyDashboard: React.FC = () => {
                       </TableCell>
                       <TableCell align='right'>{anomaly.score}</TableCell>
                       <TableCell>
-                        <Chip
-                          size='small'
-                          color={STATUS_COLOR[anomaly.status] ?? 'default'}
+                        <AdminStatusBadge
+                          tone={STATUS_COLOR[anomaly.status] ?? 'neutral'}
                           label={anomaly.status}
                         />
                       </TableCell>

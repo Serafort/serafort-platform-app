@@ -43,7 +43,6 @@ import Info from '@mui/icons-material/Info'
 import Mail from '@mui/icons-material/Mail'
 import Groups from '@mui/icons-material/Groups'
 import CloudUpload from '@mui/icons-material/CloudUpload'
-import CheckCircle from '@mui/icons-material/CheckCircle'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -59,6 +58,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -1042,12 +1042,9 @@ export default function OrganizationProfile() {
                       <TableRow key={dv.id} hover>
                         <TableCell sx={{ fontWeight: 600, py: 1.75 }}>{dv.domain}</TableCell>
                         <TableCell sx={{ py: 1.75 }}>
-                          <Chip
+                          <AdminStatusBadge
+                            tone={dv.status === 'verified' ? 'success' : 'warning'}
                             label={dv.status === 'verified' ? t('auth.admin.verified') : 'Pending'}
-                            size='small'
-                            color={dv.status === 'verified' ? 'success' : 'warning'}
-                            icon={dv.status === 'verified' ? <CheckCircle fontSize='small' /> : undefined}
-                            sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-xs, 4px)' }}
                           />
                         </TableCell>
                         <TableCell sx={{ py: 1.75 }}>
@@ -1066,13 +1063,7 @@ export default function OrganizationProfile() {
                     <TableRow hover>
                       <TableCell sx={{ fontWeight: 600, py: 1.75 }}>{orgData.domain}</TableCell>
                       <TableCell sx={{ py: 1.75 }}>
-                        <Chip
-                          label={t('auth.admin.verified')}
-                          size='small'
-                          color='success'
-                          icon={<CheckCircle fontSize='small' />}
-                          sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-xs, 4px)' }}
-                        />
+                        <AdminStatusBadge tone='success' label={t('auth.admin.verified')} />
                       </TableCell>
                       <TableCell sx={{ py: 1.75 }}>
                         <Typography variant='caption' sx={{ fontFamily: 'monospace' }}>

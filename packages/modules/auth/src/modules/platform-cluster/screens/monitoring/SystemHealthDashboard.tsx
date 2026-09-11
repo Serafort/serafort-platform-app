@@ -12,7 +12,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
   Link as MuiLink,
   CircularProgress,
   Alert,
@@ -31,6 +30,7 @@ import Dns from '@mui/icons-material/Dns'
 import { alpha, useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import { useDetailedHealth } from '../../hooks/useHealthQuery'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 
 interface ApiDependency {
   id: string
@@ -507,22 +507,15 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
                         </Box>
                       </TableCell>
                       <TableCell sx={{ py: 2 }}>
-                        <Chip
-                          icon={statusConfig.icon}
+                        <AdminStatusBadge
+                          tone={
+                            dep.status === 'healthy'
+                              ? 'success'
+                              : dep.status === 'degraded'
+                                ? 'warning'
+                                : 'error'
+                          }
                           label={statusConfig.label}
-                          size='small'
-                          sx={{
-                            height: 28,
-                            fontSize: '12px',
-                            fontWeight: 500,
-                            bgcolor: statusConfig.bg,
-                            color: statusConfig.color,
-                            border: 1,
-                            borderColor: statusConfig.border,
-                            '& .MuiChip-icon': {
-                              color: 'inherit',
-                            },
-                          }}
                         />
                       </TableCell>
                       <TableCell sx={{ py: 2 }}>

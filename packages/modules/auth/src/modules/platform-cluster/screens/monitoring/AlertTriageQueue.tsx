@@ -6,7 +6,6 @@ import {
   ButtonGroup,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Container,
   Grid,
@@ -43,6 +42,7 @@ import {
   type SecurityAlert,
   type TriageAction,
 } from '../../types/securityIntel.types'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 
 /**
  * Alert Triage Queue.
@@ -66,20 +66,20 @@ import {
  * table and its tests cannot drift apart on that question.
  */
 
-const SEVERITY_COLOR: Record<AlertSeverity, 'error' | 'warning' | 'info' | 'default'> = {
+const SEVERITY_COLOR: Record<AlertSeverity, 'error' | 'warning' | 'info' | 'neutral'> = {
   critical: 'error',
   high: 'error',
   medium: 'warning',
   low: 'info',
-  info: 'default',
+  info: 'neutral',
 }
 
-const STATUS_COLOR: Record<AlertStatus, 'error' | 'warning' | 'success' | 'default'> = {
+const STATUS_COLOR: Record<AlertStatus, 'error' | 'warning' | 'success' | 'neutral'> = {
   open: 'error',
   acknowledged: 'warning',
   resolved: 'success',
-  suppressed: 'default',
-  expired: 'default',
+  suppressed: 'neutral',
+  expired: 'neutral',
 }
 
 const ACTION_META: Record<
@@ -254,9 +254,8 @@ export const AlertTriageQueue: React.FC = () => {
                     return (
                       <TableRow key={alert.id}>
                         <TableCell>
-                          <Chip
-                            size='small'
-                            color={SEVERITY_COLOR[alert.severity] ?? 'default'}
+                          <AdminStatusBadge
+                            tone={SEVERITY_COLOR[alert.severity] ?? 'neutral'}
                             label={alert.severity}
                           />
                         </TableCell>
@@ -276,9 +275,8 @@ export const AlertTriageQueue: React.FC = () => {
                         </TableCell>
                         <TableCell>{new Date(alert.createdAt).toLocaleString()}</TableCell>
                         <TableCell>
-                          <Chip
-                            size='small'
-                            color={STATUS_COLOR[alert.status] ?? 'default'}
+                          <AdminStatusBadge
+                            tone={STATUS_COLOR[alert.status] ?? 'neutral'}
                             label={alert.status}
                           />
                           {alert.acknowledgedBy && (

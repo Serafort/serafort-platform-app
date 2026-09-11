@@ -14,7 +14,6 @@ import {
   TableCell,
   TableContainer,
   TableRow,
-  IconButton,
   Chip,
   alpha,
   useTheme,
@@ -51,6 +50,8 @@ import {
   AdminTableHead,
   AdminTableHeadCell,
   AdminTableRow,
+  AdminStatusBadge,
+  AdminRowActionButton,
 } from '@auth/modules/authentication-core/components/shared/admin'
 
 export default function OIDCConfigBrowser() {
@@ -314,9 +315,7 @@ export default function OIDCConfigBrowser() {
                           {client.client_id || client.clientId}
                         </Typography>
                         <Tooltip title={t('auth.common.copy', 'Copy')}>
-                          <IconButton
-                            size='small'
-                            sx={{ minWidth: 44, minHeight: 44, p: 0.5, border: '1px solid', borderColor: 'divider' }}
+                          <AdminRowActionButton
                             onClick={(e) => {
                               e.stopPropagation()
                               navigator.clipboard.writeText(client.client_id || client.clientId)
@@ -324,8 +323,8 @@ export default function OIDCConfigBrowser() {
                             }}
                             aria-label={t('auth.common.copy', 'Copy Client ID')}
                           >
-                            <ContentCopy sx={{ fontSize: 14 }} />
-                          </IconButton>
+                            <ContentCopy fontSize='small' />
+                          </AdminRowActionButton>
                         </Tooltip>
                       </Box>
                     </TableCell>
@@ -344,15 +343,13 @@ export default function OIDCConfigBrowser() {
                       />
                     </TableCell>
                     <TableCell>
-                      <Chip
+                      <AdminStatusBadge
+                        tone={(client.is_active ?? client.isActive) ? 'success' : 'error'}
                         label={
                           (client.is_active ?? client.isActive)
                             ? t('auth.sso.status_active', 'ACTIVE')
                             : t('auth.sso.status_inactive', 'INACTIVE')
                         }
-                        size='small'
-                        color={(client.is_active ?? client.isActive) ? 'success' : 'error'}
-                        sx={{ borderRadius: 'var(--sf-radius-xs, 4px)', fontWeight: 800, fontSize: '0.65rem' }}
                       />
                     </TableCell>
                     <TableCell>
@@ -365,23 +362,16 @@ export default function OIDCConfigBrowser() {
                     <TableCell align='right'>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                         <Tooltip title={t('auth.common.delete', 'Delete')}>
-                          <IconButton
-                            size='small'
+                          <AdminRowActionButton
                             color='error'
                             onClick={(e) => {
                               e.stopPropagation()
                               handleDelete(client.id)
                             }}
-                            sx={{
-                              minWidth: 44,
-                              minHeight: 44,
-                              border: '1px solid',
-                              borderColor: alpha(theme.palette.error.main, 0.2),
-                            }}
                             aria-label={t('auth.common.delete', 'Delete Client')}
                           >
                             <Delete fontSize='small' />
-                          </IconButton>
+                          </AdminRowActionButton>
                         </Tooltip>
                       </Box>
                     </TableCell>

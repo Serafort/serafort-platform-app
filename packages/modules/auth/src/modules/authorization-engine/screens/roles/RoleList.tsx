@@ -49,6 +49,7 @@ import {
   AdminTableHead,
   AdminTableHeadCell,
   AdminTableRow,
+  AdminRowActionButton,
 } from '../../../authentication-core/components/shared/admin'
 
 import {
@@ -475,7 +476,7 @@ export default function RoleList() {
                     {/* Actions */}
                     <TableCell align='right'>
                       <Stack direction='row' spacing={0.5} justifyContent='flex-end'>
-                        <IconButton
+                        <AdminRowActionButton
                           onClick={(e) => {
                             e.stopPropagation()
                             handleMenuOpen(e, role)
@@ -484,10 +485,9 @@ export default function RoleList() {
                             name: role.name,
                             defaultValue: 'More options for {{name}}',
                           })}
-                          sx={{ width: 44, height: 44 }}
                         >
                           <MoreVertIcon fontSize='small' />
-                        </IconButton>
+                        </AdminRowActionButton>
                       </Stack>
                     </TableCell>
                   </AdminTableRow>

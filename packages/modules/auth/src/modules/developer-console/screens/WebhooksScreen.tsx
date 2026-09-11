@@ -47,6 +47,8 @@ import {
   AdminTableHead,
   AdminTableHeadCell,
   AdminTableRow,
+  AdminStatusBadge,
+  AdminRowActionButton,
 } from '../../authentication-core/components/shared/admin'
 
 export const WEBHOOK_EVENT_CATEGORIES = {
@@ -447,12 +449,9 @@ export const WebhooksScreen: React.FC = () => {
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Chip
+                          <AdminStatusBadge
+                            tone={isDisabled ? 'error' : isActiveStatus ? 'success' : 'neutral'}
                             label={statusLabel}
-                            size='small'
-                            color={isDisabled ? 'error' : isActiveStatus ? 'success' : 'default'}
-                            variant='filled'
-                            sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 700 }}
                           />
                         </TableCell>
                         <TableCell>
@@ -507,9 +506,7 @@ export const WebhooksScreen: React.FC = () => {
                         <TableCell align='right'>
                           <Stack direction='row' spacing={1} justifyContent='flex-end'>
                             <Tooltip title={sendTestLabel}>
-                              <IconButton
-                                color='primary'
-                                sx={{ width: 44, height: 44 }}
+                              <AdminRowActionButton
                                 aria-label={sendTestLabel}
                                 onClick={(e) => {
                                   e.stopPropagation()
@@ -517,12 +514,11 @@ export const WebhooksScreen: React.FC = () => {
                                 }}
                               >
                                 <SendIcon fontSize='small' />
-                              </IconButton>
+                              </AdminRowActionButton>
                             </Tooltip>
                             <Tooltip title={deleteLabel}>
-                              <IconButton
+                              <AdminRowActionButton
                                 color='error'
-                                sx={{ width: 44, height: 44 }}
                                 aria-label={deleteLabel}
                                 onClick={(e) => {
                                   e.stopPropagation()
@@ -530,7 +526,7 @@ export const WebhooksScreen: React.FC = () => {
                                 }}
                               >
                                 <DeleteOutlineIcon fontSize='small' />
-                              </IconButton>
+                              </AdminRowActionButton>
                             </Tooltip>
                           </Stack>
                         </TableCell>

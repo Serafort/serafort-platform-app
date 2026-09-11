@@ -9,7 +9,6 @@ import {
   Box,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Container,
   Grid,
@@ -33,6 +32,7 @@ import GppMaybe from '@mui/icons-material/GppMaybe'
 import { useTranslation } from 'react-i18next'
 import { useBlockchainAnchorsQuery } from '../../hooks/useAuditChainQuery'
 import { isPlatformScopeError } from '../../services/audit-chain.service'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 import {
   anchorExplorerUrl,
   type BlockchainAnchorState as AnchorState,
@@ -292,11 +292,7 @@ export const BlockchainAnchorStatus: React.FC = () => {
                       <TableCell>{new Date(anchor.createdAt).toLocaleString()}</TableCell>
                       <TableCell>{anchor.type}</TableCell>
                       <TableCell>
-                        <Chip
-                          size='small'
-                          color={STATE_COLOR[anchor.status]}
-                          label={anchor.status}
-                        />
+                        <AdminStatusBadge tone={STATE_COLOR[anchor.status]} label={anchor.status} />
                       </TableCell>
                       <TableCell>
                         {network ? (

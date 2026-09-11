@@ -11,7 +11,6 @@ import {
   TableContainer,
   TableRow,
   Chip,
-  IconButton,
   Button,
   TextField,
   InputAdornment,
@@ -45,6 +44,7 @@ import {
   AdminTableHead,
   AdminTableHeadCell,
   AdminTableRow,
+  AdminRowActionButton,
 } from '@auth/modules/authentication-core/components/shared/admin'
 
 export default function ScopesRegistry() {
@@ -369,16 +369,16 @@ export default function ScopesRegistry() {
                       <Stack direction='row' spacing={1} justifyContent='flex-end'>
                         {!scope.isSystem && (
                           <Tooltip title={t('auth.developer.deleteScope', 'Delete Scope')}>
-                            <IconButton
-                              size='small'
+                            <AdminRowActionButton
                               color='error'
+                              aria-label={t('auth.developer.deleteScope', 'Delete Scope')}
                               onClick={(e) => {
                                 e.stopPropagation()
                                 setDeleteConfirmationId(Number(scope.id))
                               }}
                             >
                               <Delete fontSize='small' />
-                            </IconButton>
+                            </AdminRowActionButton>
                           </Tooltip>
                         )}
                       </Stack>

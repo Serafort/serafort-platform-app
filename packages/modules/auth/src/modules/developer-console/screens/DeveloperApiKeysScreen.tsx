@@ -19,7 +19,6 @@ import {
   Alert,
   IconButton,
   Tooltip,
-  Chip,
   Stack,
   Skeleton,
 } from '@mui/material'
@@ -36,6 +35,10 @@ import {
   useDeleteApiKeyMutation,
 } from '../hooks/useDeveloperConsoleQuery'
 import { ConfirmDeleteModal } from '../../authentication-core/components/shared'
+import {
+  AdminStatusBadge,
+  AdminRowActionButton,
+} from '../../authentication-core/components/shared/admin'
 
 export const DeveloperApiKeysScreen: React.FC = () => {
   const { t } = useTranslation('auth')
@@ -320,26 +323,16 @@ export const DeveloperApiKeysScreen: React.FC = () => {
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          {expiresAt ? (
-                            <Chip
-                              label={
-                                isExpired
+                          <AdminStatusBadge
+                            tone={expiresAt && isExpired ? 'error' : 'neutral'}
+                            label={
+                              expiresAt
+                                ? isExpired
                                   ? t('auth.developer_console.api_keys.expired', 'Expired')
                                   : new Date(expiresAt).toLocaleDateString()
-                              }
-                              size='small'
-                              color={isExpired ? 'error' : 'default'}
-                              variant='outlined'
-                              sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 700 }}
-                            />
-                          ) : (
-                            <Chip
-                              label={neverLabel}
-                              size='small'
-                              variant='outlined'
-                              sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 700 }}
-                            />
-                          )}
+                                : neverLabel
+                            }
+                          />
                         </TableCell>
                         <TableCell>
                           <Typography variant='body2' color='text.secondary'>
@@ -353,9 +346,8 @@ export const DeveloperApiKeysScreen: React.FC = () => {
                               'Revoke API Key',
                             )}
                           >
-                            <IconButton
+                            <AdminRowActionButton
                               color='error'
-                              sx={{ width: 44, height: 44 }}
                               aria-label={t(
                                 'auth.developer_console.api_keys.revoke_tooltip',
                                 'Revoke API Key',
@@ -363,7 +355,7 @@ export const DeveloperApiKeysScreen: React.FC = () => {
                               onClick={() => setDeleteTarget({ id: key.id, name: displayName })}
                             >
                               <DeleteOutlineIcon fontSize='small' />
-                            </IconButton>
+                            </AdminRowActionButton>
                           </Tooltip>
                         </TableCell>
                       </TableRow>

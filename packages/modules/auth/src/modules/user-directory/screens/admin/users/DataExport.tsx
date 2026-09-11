@@ -13,7 +13,6 @@ import {
   TableRow,
   Paper,
   Chip,
-  IconButton,
   Alert,
   CircularProgress,
   LinearProgress,
@@ -25,8 +24,6 @@ import {
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import Download from '@mui/icons-material/Download'
 import History from '@mui/icons-material/History'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import Pending from '@mui/icons-material/Pending'
 import CloudDownload from '@mui/icons-material/CloudDownload'
 import Delete from '@mui/icons-material/Delete'
 import StorageIcon from '@mui/icons-material/Storage'
@@ -41,6 +38,10 @@ import { getTenantThemeEffects } from '@cap/theme'
 import Path from '../../path'
 import { adminService } from '../../../../authorization-engine/services/adminService'
 import { useChunkProgressTracker } from '../../../../authentication-core/hooks/useChunkProgressTracker'
+import {
+  AdminStatusBadge,
+  AdminRowActionButton,
+} from '../../../../authentication-core/components/shared/admin'
 
 const DataExport: React.FC = () => {
   const { id: userId } = useParams()
@@ -386,12 +387,9 @@ const DataExport: React.FC = () => {
                       {new Date(exp.created_at).toLocaleString()}
                     </TableCell>
                     <TableCell sx={{ py: 2 }}>
-                      <Chip
-                        icon={exp.status === 'COMPLETED' ? <CheckCircle fontSize='small' /> : <Pending fontSize='small' />}
+                      <AdminStatusBadge
+                        tone={exp.status === 'COMPLETED' ? 'success' : 'warning'}
                         label={exp.status}
-                        color={exp.status === 'COMPLETED' ? 'success' : 'warning'}
-                        size='small'
-                        sx={{ borderRadius: 'var(--sf-radius-xs, 4px)', fontWeight: 700 }}
                       />
                     </TableCell>
                     <TableCell sx={{ py: 2 }}>
@@ -408,9 +406,9 @@ const DataExport: React.FC = () => {
                             startIcon={<Download />}
                             href={exp.download_url}
                             sx={{
-                              minHeight: 36,
+                              minHeight: 44,
                               px: 2,
-                              borderRadius: 'var(--sf-radius-xs, 4px)',
+                              borderRadius: 'var(--sf-radius-md, 8px)',
                               textTransform: 'none',
                               fontWeight: 700,
                             }}
@@ -418,21 +416,12 @@ const DataExport: React.FC = () => {
                             {t('auth.common.download', 'Download')}
                           </Button>
                         )}
-                        <IconButton
-                          size='small'
+                        <AdminRowActionButton
                           color='error'
                           aria-label={t('auth.common.delete', 'Delete export')}
-                          sx={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: 'var(--sf-radius-md, 8px)',
-                            '&:hover': {
-                              bgcolor: alpha(theme.palette.error.main, 0.08),
-                            },
-                          }}
                         >
                           <Delete fontSize='small' />
-                        </IconButton>
+                        </AdminRowActionButton>
                       </Box>
                     </TableCell>
                   </TableRow>

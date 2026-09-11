@@ -50,7 +50,6 @@ import ClearIcon from '@mui/icons-material/Clear'
 import LayersIcon from '@mui/icons-material/Layers'
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
-import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -78,6 +77,8 @@ import {
   AdminTableCard,
   AdminTableHead,
   AdminTableHeadCell,
+  AdminStatusBadge,
+  AdminRowActionButton,
 } from '../../../../authentication-core/components/shared/admin'
 
 const STATUS_OPTIONS: Array<{
@@ -275,64 +276,13 @@ export default function UserList() {
   const renderStatusBadge = (status: UserStatus) => {
     switch (status) {
       case 'ACTIVE':
-        return (
-          <Chip
-            size='small'
-            label={t('auth.userList.statusActive', 'Active')}
-            icon={<CheckCircleIcon sx={{ fontSize: '14px !important' }} />}
-            sx={{
-              bgcolor: alpha(theme.palette.success.main, 0.12),
-              color: theme.palette.success.dark,
-              fontWeight: 700,
-              fontSize: '0.75rem',
-              borderRadius: 'var(--sf-radius-xs, 4px)',
-            }}
-          />
-        )
+        return <AdminStatusBadge tone='success' label={t('auth.userList.statusActive', 'Active')} />
       case 'SUSPENDED':
-        return (
-          <Chip
-            size='small'
-            label={t('auth.userList.statusSuspended', 'Suspended')}
-            icon={<BlockIcon sx={{ fontSize: '14px !important' }} />}
-            sx={{
-              bgcolor: alpha(theme.palette.warning.main, 0.12),
-              color: theme.palette.warning.dark,
-              fontWeight: 700,
-              fontSize: '0.75rem',
-              borderRadius: 'var(--sf-radius-xs, 4px)',
-            }}
-          />
-        )
+        return <AdminStatusBadge tone='warning' label={t('auth.userList.statusSuspended', 'Suspended')} />
       case 'BANNED':
-        return (
-          <Chip
-            size='small'
-            label={t('auth.userList.statusBanned', 'Banned')}
-            icon={<HighlightOffIcon sx={{ fontSize: '14px !important' }} />}
-            sx={{
-              bgcolor: alpha(theme.palette.error.main, 0.12),
-              color: theme.palette.error.dark,
-              fontWeight: 700,
-              fontSize: '0.75rem',
-              borderRadius: 'var(--sf-radius-xs, 4px)',
-            }}
-          />
-        )
+        return <AdminStatusBadge tone='error' label={t('auth.userList.statusBanned', 'Banned')} />
       default:
-        return (
-          <Chip
-            size='small'
-            label={t('auth.userList.statusInactive', 'Inactive')}
-            sx={{
-              bgcolor: alpha(theme.palette.text.secondary, 0.1),
-              color: theme.palette.text.secondary,
-              fontWeight: 600,
-              fontSize: '0.75rem',
-              borderRadius: 'var(--sf-radius-xs, 4px)',
-            }}
-          />
-        )
+        return <AdminStatusBadge tone='neutral' label={t('auth.userList.statusInactive', 'Inactive')} />
     }
   }
 
@@ -885,22 +835,12 @@ export default function UserList() {
 
                       {/* Actions Menu */}
                       <TableCell align='right' sx={{ pr: 3 }} onClick={(e) => e.stopPropagation()}>
-                        <IconButton
-                          size='small'
+                        <AdminRowActionButton
                           aria-label='Open actions menu'
                           onClick={(e) => handleOpenActionMenu(e, user)}
-                          sx={{
-                            color: 'text.secondary',
-                            width: 44,
-                            height: 44,
-                            minWidth: 44,
-                            minHeight: 44,
-                            borderRadius: 'var(--sf-radius-md, 8px)',
-                            '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.05) },
-                          }}
                         >
                           <MoreVertIcon fontSize='small' />
-                        </IconButton>
+                        </AdminRowActionButton>
                       </TableCell>
                     </TableRow>
                   )

@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Container,
   Dialog,
@@ -44,7 +43,7 @@ import {
   type NfcCardStatus,
 } from '../../types/accessControl.types'
 import { NoOrganizationNotice } from '../NoOrganizationNotice'
-import { AdminDataState } from '../../../authentication-core/components/shared/admin'
+import { AdminDataState, AdminStatusBadge } from '../../../authentication-core/components/shared/admin'
 import { AuthConfirmDrawer } from '../../../authentication-core/components/shared/auth'
 
 /**
@@ -205,15 +204,13 @@ export const NfcCardInventory: React.FC = () => {
                         </TableCell>
                         <TableCell align='right'>{card.scanCounter}</TableCell>
                         <TableCell>
-                          <Chip
-                            size='small'
-                            color={card.status === 'active' ? 'success' : 'default'}
+                          <AdminStatusBadge
+                            tone={card.status === 'active' ? 'success' : 'neutral'}
                             label={
                               card.status === 'active'
                                 ? t('accessControl.cards.active', 'Active')
                                 : t('accessControl.cards.revoked', 'Revoked')
                             }
-                            sx={{ borderRadius: 'var(--sf-radius-sm, 6px)' }}
                           />
                         </TableCell>
                         <TableCell align='right'>

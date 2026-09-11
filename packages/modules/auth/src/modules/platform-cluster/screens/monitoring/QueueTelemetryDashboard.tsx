@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Container,
   Grid,
@@ -36,6 +35,7 @@ import {
   useRetryFailedQueueMutation,
 } from '../../hooks/useQueueTelemetryQuery'
 import { isPlatformScopeError } from '../../services/audit-chain.service'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 import { queueSeverity, type QueueSummary } from '../../types/queue.types'
 
 /**
@@ -60,7 +60,7 @@ const SEVERITY_COLOR = {
   healthy: 'success',
   warning: 'warning',
   error: 'error',
-  idle: 'default',
+  idle: 'neutral',
 } as const
 
 const SEVERITY_LABEL_FALLBACK = {
@@ -345,9 +345,8 @@ const QueueRow: React.FC<{
       </TableCell>
       <TableCell align='right'>{counts?.completed ?? '—'}</TableCell>
       <TableCell>
-        <Chip
-          size='small'
-          color={SEVERITY_COLOR[severity]}
+        <AdminStatusBadge
+          tone={SEVERITY_COLOR[severity]}
           label={
             queue.reachable
               ? t(`monitoring.queues.severity_${severity}`, SEVERITY_LABEL_FALLBACK[severity])

@@ -48,7 +48,7 @@ import {
   type ReaderPresence,
 } from '../../types/accessControl.types'
 import { NoOrganizationNotice } from '../NoOrganizationNotice'
-import { AdminDataState } from '../../../authentication-core/components/shared/admin'
+import { AdminDataState, AdminStatusBadge } from '../../../authentication-core/components/shared/admin'
 
 /**
  * Access Points (readers).
@@ -69,7 +69,7 @@ import { AdminDataState } from '../../../authentication-core/components/shared/a
 
 const PRESENCE_META: Record<
   ReaderPresence,
-  { color: 'success' | 'warning' | 'error' | 'default'; labelKey: string; fallback: string }
+  { color: 'success' | 'warning' | 'error' | 'neutral'; labelKey: string; fallback: string }
 > = {
   online: { color: 'success', labelKey: 'accessControl.points.online', fallback: 'Online' },
   stale: { color: 'warning', labelKey: 'accessControl.points.stale', fallback: 'No recent scans' },
@@ -79,7 +79,7 @@ const PRESENCE_META: Record<
     fallback: 'Never seen',
   },
   disabled: {
-    color: 'default',
+    color: 'neutral',
     labelKey: 'accessControl.points.disabled',
     fallback: 'Disabled',
   },
@@ -206,12 +206,7 @@ export const AccessPointManagement: React.FC = () => {
                             : t('accessControl.points.never', 'Never')}
                         </TableCell>
                         <TableCell>
-                          <Chip
-                            size='small'
-                            color={meta.color}
-                            label={t(meta.labelKey, meta.fallback)}
-                            sx={{ borderRadius: 'var(--sf-radius-sm, 6px)' }}
-                          />
+                          <AdminStatusBadge tone={meta.color} label={t(meta.labelKey, meta.fallback)} />
                         </TableCell>
                         <TableCell align='right'>
                           <Stack direction='row' spacing={1} justifyContent='flex-end'>

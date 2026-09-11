@@ -1,12 +1,15 @@
-import React from 'react'
+import React, { forwardRef } from 'react'
 import {
+  Box,
   Card,
+  IconButton,
   TableCell,
   TableHead,
   TablePagination,
   TableRow,
   alpha,
   type CardProps,
+  type IconButtonProps,
   type SxProps,
   type TableCellProps,
   type TableHeadProps,
@@ -16,11 +19,12 @@ import {
 } from '@mui/material'
 
 /**
- * Table layout primitives that pin the admin-console table surface to the same
- * anatomy `AccountOverview.tsx` established: a 16px outlined card with a hairline
- * divider and the faint `0 1px 3px rgba(0,0,0,0.03)` shadow, an uppercase
- * caption header row, and body rows that can be made click-through to a detail
- * route without an eye or pencil icon in a trailing action column.
+ * Table layout primitives that pin the admin-console table surface to the
+ * Serafort brand-kit reference (`uikit.html#table`): a 12px outlined card with
+ * a hairline divider, an uppercase caption header row that reads through
+ * typography alone (no tinted band), and body rows that can be made
+ * click-through to a detail route without an eye or pencil icon in a trailing
+ * action column.
  *
  * Every registry and dashboard screen had hand-rolled its own `<Card>` +
  * `<TableContainer>` + `<TableHead sx={{ bgcolor: 'action.hover' }}>`, so the
@@ -59,32 +63,36 @@ export const AdminTableCard: React.FC<AdminTableCardProps> = ({ sx, children, ..
 
 export type AdminTableHeadProps = TableHeadProps
 
-/** `<TableHead>` with the standard faint tint. Pair its cells with `AdminTableHeadCell`. */
+/**
+ * `<TableHead>` with no distinct fill — it sits on the same surface as the
+ * body and reads as a header through typography alone (`AdminTableHeadCell`),
+ * matching the brand-kit table anatomy. The theme's `MuiTableHead` override
+ * still paints an opaque background (required for `stickyHeader`), so this
+ * intentionally does not add its own tint on top of it.
+ */
 export const AdminTableHead: React.FC<AdminTableHeadProps> = ({ sx, children, ...props }) => (
-  <TableHead
-    {...props}
-    sx={mergeSx({ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.5) }, sx)}
-  >
+  <TableHead {...props} sx={sx}>
     {children}
   </TableHead>
 )
 
 export type AdminTableHeadCellProps = TableCellProps
 
-/** Header cell: 0.75rem, 700, uppercase, letter-spaced, `text.secondary`. */
+/** Header cell: 11px mono, 500, uppercase, letter-spaced, tertiary/muted colour. */
 export const AdminTableHeadCell: React.FC<AdminTableHeadCellProps> = ({ sx, children, ...props }) => (
   <TableCell
     {...props}
     sx={mergeSx(
-      {
-        fontSize: '0.75rem',
-        fontWeight: 700,
+      (theme: Theme) => ({
+        fontFamily: 'ui-monospace, monospace',
+        fontSize: 'var(--sf-text-2xs, 0.6875rem)',
+        fontWeight: 500,
         letterSpacing: '0.05em',
         textTransform: 'uppercase',
-        color: 'text.secondary',
+        color: `var(--sf-text-tertiary, ${theme.palette.text.disabled})`,
         borderColor: 'divider',
         whiteSpace: 'nowrap',
-      },
+      }),
       sx,
     )}
   >
@@ -136,7 +144,8 @@ export const AdminTableRow: React.FC<AdminTableRowProps> = ({
           ...(clickable && {
             cursor: 'pointer',
             '&:hover': {
-              backgroundColor: (theme: Theme) => alpha(theme.palette.action.hover, 0.04),
+              backgroundColor: (theme: Theme) =>
+                `var(--sf-surface-sunken, ${theme.palette.mode === 'dark' ? '#0D2653' : '#ECF0F7'})`,
             },
             '&:focus-visible': {
               outline: (theme: Theme) => `2px solid ${theme.palette.primary.main}`,
@@ -151,6 +160,110 @@ export const AdminTableRow: React.FC<AdminTableRowProps> = ({
     </TableRow>
   )
 }
+
+export interface AdminRowActionButtonProps extends Omit<IconButtonProps, 'color'> {
+  /**
+   * `'default'` reads neutral at rest and only tints on hover — the right
+   * choice for an ambiguous trigger (an overflow `MoreVert` menu). `'error'`
+   * keeps a single-purpose destructive action (delete) recognisable at rest.
+   */
+  color?: 'default' | 'primary' | 'error'
+}
+
+/**
+ * Trailing action-column icon button, forwardRef'd so it composes under
+ * `<Tooltip>`. Every registry screen had rebuilt this by hand — some at the
+ * 44×44 Fitts's-law minimum with a radius token, several without either, a
+ * few wrapped in a permanently-outlined square. This is the one shape: a
+ * 44×44 hit target, `--sf-radius-md` corners, and a flat colour that only
+ * reads as a hover tint rather than a permanent outline.
+ */
+export const AdminRowActionButton = forwardRef<HTMLButtonElement, AdminRowActionButtonProps>(
+  ({ color = 'default', sx, ...props }, ref) => (
+    <IconButton
+      ref={ref}
+      {...props}
+      sx={mergeSx(
+        (theme: Theme) => {
+          const swatch = color === 'default' ? theme.palette.text.secondary : theme.palette[color].main
+          const hoverBg =
+            color === 'default'
+              ? alpha(theme.palette.text.primary, 0.05)
+              : alpha(theme.palette[color].main, 0.08)
+          return {
+            width: 44,
+            height: 44,
+            borderRadius: 'var(--sf-radius-md, 8px)',
+            color: swatch,
+            '&:hover': { backgroundColor: hoverBg },
+          }
+        },
+        sx,
+      )}
+    />
+  ),
+)
+AdminRowActionButton.displayName = 'AdminRowActionButton'
+
+export type AdminStatusTone = 'success' | 'warning' | 'error' | 'info' | 'neutral'
+
+export interface AdminStatusBadgeProps {
+  /** Semantic state the badge communicates. `neutral` is for inactive/unset states — no color implies risk or success. */
+  tone: AdminStatusTone
+  label: React.ReactNode
+  sx?: SxProps<Theme>
+}
+
+/**
+ * Pill status badge — dot + label — matching the brand-kit `.badge` anatomy
+ * (`uikit.html#badges`): a full-radius pill with a hairline semantic border,
+ * a mono label, and a solid dot that carries the state. Replaces the ad-hoc
+ * filled square `Chip`s (`borderRadius: 'var(--sf-radius-xs)'`, a leading
+ * icon) that status columns had drifted into — every state now reads the
+ * same shape whether it is "Verified", "Suspended" or "Pending".
+ */
+export const AdminStatusBadge: React.FC<AdminStatusBadgeProps> = ({ tone, label, sx }) => (
+  <Box
+    component='span'
+    sx={mergeSx(
+      (theme: Theme) => {
+        const isNeutral = tone === 'neutral'
+        const main = isNeutral ? theme.palette.text.secondary : theme.palette[tone].main
+        const textColor = isNeutral
+          ? theme.palette.text.secondary
+          : theme.palette.mode === 'dark'
+            ? theme.palette[tone].light
+            : theme.palette[tone].dark
+        return {
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          fontFamily: 'ui-monospace, monospace',
+          fontSize: 'var(--sf-text-xs, 0.75rem)',
+          fontWeight: 500,
+          lineHeight: 1,
+          padding: '4px 10px',
+          borderRadius: 'var(--sf-radius-full, 9999px)',
+          border: '1px solid',
+          borderColor: isNeutral ? 'divider' : alpha(main, 0.35),
+          backgroundColor: alpha(main, isNeutral ? 0.08 : 0.12),
+          color: textColor,
+          '& .dot': {
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            backgroundColor: main,
+            flex: 'none',
+          },
+        }
+      },
+      sx,
+    )}
+  >
+    <Box component='span' className='dot' />
+    {label}
+  </Box>
+)
 
 export type AdminTablePaginationProps = TablePaginationProps
 

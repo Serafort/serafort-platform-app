@@ -19,13 +19,19 @@ const table: Theme["components"] = {
         borderCollapse: "separate",
         borderSpacing: 0,
         width: "100%",
+        fontVariantNumeric: "tabular-nums",
       },
     },
   },
   MuiTableHead: {
     styleOverrides: {
+      // No distinct tint band: the header sits on the same surface as the
+      // body and reads as a header purely through its typography (uppercase,
+      // tracked-out, muted). A solid fill is still required here (not
+      // `transparent`) because `MuiTable` defaults to `stickyHeader` -
+      // scrolled body rows would otherwise show through underneath it.
       root: ({ theme }) => ({
-        backgroundColor: `var(--sf-surface-sunken, ${theme.palette.mode === "dark" ? "#0D2653" : "#ECF0F7"})`,
+        backgroundColor: `var(--sf-surface, ${theme.palette.background.paper})`,
       }),
     },
   },
@@ -36,10 +42,8 @@ const table: Theme["components"] = {
           borderBottom: "none",
         },
         "&.MuiTableRow-hover:hover": {
-          backgroundColor: `var(--table-row-hover, ${
-            theme.palette.mode === "dark"
-              ? "rgba(255, 255, 255, 0.04)"
-              : "rgba(3, 20, 51, 0.02)"
+          backgroundColor: `var(--sf-surface-sunken, ${
+            theme.palette.mode === "dark" ? "#0D2653" : "#ECF0F7"
           })`,
         },
       }),
@@ -54,12 +58,12 @@ const table: Theme["components"] = {
         color: `var(--sf-text-primary, ${theme.palette.text.primary})`,
       }),
       head: ({ theme }) => ({
-        fontSize: "var(--sf-text-xs, 0.75rem)",
-        fontWeight: 600,
+        fontFamily: "ui-monospace, monospace",
+        fontSize: "var(--sf-text-2xs, 0.6875rem)",
+        fontWeight: 500,
         textTransform: "uppercase",
-        letterSpacing: "0.06em",
-        color: `var(--sf-text-secondary, ${theme.palette.text.secondary})`,
-        backgroundColor: `var(--sf-surface-sunken, ${theme.palette.mode === "dark" ? "#0D2653" : "#ECF0F7"})`,
+        letterSpacing: "0.05em",
+        color: `var(--sf-text-tertiary, ${theme.palette.text.disabled})`,
         borderBottom: `var(--sf-border-1, 1px) solid var(--sf-border, ${theme.palette.divider})`,
       }),
       body: ({ theme }) => ({

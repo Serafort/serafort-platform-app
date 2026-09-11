@@ -11,7 +11,6 @@ import {
   TableHead,
   TableRow,
   Chip,
-  IconButton,
   Button,
   TextField,
   InputAdornment,
@@ -49,6 +48,7 @@ import {
 import { Permission } from '@auth/authorization-engine/services/adminService'
 import ConfirmationDialog from '@auth/modules/authentication-core/components/shared/Modals/ConfirmationDialog'
 import { toast } from 'react-toastify'
+import { AdminRowActionButton } from '@auth/authentication-core/components/shared/admin'
 
 const CATEGORY_ICON: Record<string, React.ReactNode> = {
   user: <GroupIcon />,
@@ -606,29 +606,27 @@ export default function PermissionRegistry() {
                     <TableCell align='right'>
                       <Stack direction='row' spacing={0.5} justifyContent='flex-end'>
                         <Tooltip title={t('auth.admin.editDefinition')}>
-                          <IconButton
+                          <AdminRowActionButton
                             aria-label={t('auth.admin.editRoleNamed', {
                               name: perm.name,
                               defaultValue: 'Edit {{name}}',
                             })}
                             onClick={() => handleOpenDialog(perm)}
-                            sx={{ width: 44, height: 44 }}
                           >
                             <SettingsIcon fontSize='small' />
-                          </IconButton>
+                          </AdminRowActionButton>
                         </Tooltip>
                         <Tooltip title={t('auth.common.delete')}>
-                          <IconButton
+                          <AdminRowActionButton
                             color='error'
                             aria-label={t('auth.admin.deleteNamed', {
                               name: perm.name,
                               defaultValue: 'Delete {{name}}',
                             })}
                             onClick={() => handleDeleteClick(perm)}
-                            sx={{ width: 44, height: 44 }}
                           >
                             <DeleteIcon fontSize='small' />
-                          </IconButton>
+                          </AdminRowActionButton>
                         </Tooltip>
                       </Stack>
                     </TableCell>

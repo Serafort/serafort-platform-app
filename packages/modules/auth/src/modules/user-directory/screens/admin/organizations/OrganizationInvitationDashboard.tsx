@@ -12,7 +12,6 @@ import {
   TableRow,
   Paper,
   Chip,
-  IconButton,
   Button,
   TextField,
   InputAdornment,
@@ -37,7 +36,6 @@ import Email from '@mui/icons-material/Email'
 import PersonAdd from '@mui/icons-material/PersonAdd'
 import Timer from '@mui/icons-material/Timer'
 import CheckCircle from '@mui/icons-material/CheckCircle'
-import Cancel from '@mui/icons-material/Cancel'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import Replay from '@mui/icons-material/Replay'
@@ -54,6 +52,10 @@ import {
 import { toast } from 'react-toastify'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
+import {
+  AdminStatusBadge,
+  AdminRowActionButton,
+} from '@auth/authentication-core/components/shared/admin'
 
 interface Invitation {
   id: string | number
@@ -137,21 +139,7 @@ export default function OrganizationInvitationDashboard() {
       case 'revoked':
         return 'error'
       default:
-        return 'default'
-    }
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'accepted':
-        return <CheckCircle sx={{ fontSize: 14 }} />
-      case 'pending':
-        return <Timer sx={{ fontSize: 14 }} />
-      case 'expired':
-      case 'revoked':
-        return <Cancel sx={{ fontSize: 14 }} />
-      default:
-        return undefined
+        return 'neutral'
     }
   }
 
@@ -439,18 +427,10 @@ export default function OrganizationInvitationDashboard() {
                     />
                   </TableCell>
                   <TableCell sx={{ py: 1.75 }}>
-                    <Chip
-                      icon={getStatusIcon(invite.status)}
+                    <AdminStatusBadge
+                      tone={getStatusColor(invite.status)}
                       label={getStatusLabel(invite.status)}
-                      size='small'
-                      color={getStatusColor(invite.status) as any}
-                      variant='filled'
-                      sx={{
-                        fontWeight: 800,
-                        px: 0.5,
-                        textTransform: 'capitalize',
-                        borderRadius: 'var(--sf-radius-xs, 4px)',
-                      }}
+                      sx={{ textTransform: 'capitalize' }}
                     />
                   </TableCell>
                   <TableCell sx={{ py: 1.75 }}>
@@ -473,20 +453,15 @@ export default function OrganizationInvitationDashboard() {
                   </TableCell>
                   <TableCell align='right' sx={{ py: 1.75 }}>
                     <Tooltip title={t('auth.admin.invitationSettings')}>
-                      <IconButton
-                        size='small'
+                      <AdminRowActionButton
+                        aria-label={t('auth.admin.invitationSettings')}
                         onClick={(e) => {
                           setMenuAnchor(e.currentTarget)
                           setMenuInvite(invite)
                         }}
-                        sx={{
-                          width: 44,
-                          height: 44,
-                          borderRadius: 'var(--sf-radius-md, 8px)',
-                        }}
                       >
-                        <MoreVert />
-                      </IconButton>
+                        <MoreVert fontSize='small' />
+                      </AdminRowActionButton>
                     </Tooltip>
                   </TableCell>
                 </TableRow>

@@ -54,6 +54,7 @@ import {
   useProvisioningConnectorLogs,
 } from '@auth/authorization-engine/hooks/useAdminQuery'
 import type { Connector, ConnectorLog } from '@auth/authorization-engine/services/adminService'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 import logger from '@idaas/authentication-core/utils/logger'
 import Path from '../path'
 
@@ -218,11 +219,9 @@ function SyncLogsDialog({
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Chip
+                      <AdminStatusBadge
+                        tone={log.status === 'success' ? 'success' : 'error'}
                         label={log.status.toUpperCase()}
-                        size='small'
-                        color={log.status === 'success' ? 'success' : 'error'}
-                        sx={{ fontWeight: 800, height: 22, borderRadius: 'var(--sf-radius-xs, 4px)' }}
                       />
                     </TableCell>
                     <TableCell>

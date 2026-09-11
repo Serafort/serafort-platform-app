@@ -3,7 +3,6 @@ import {
   Box,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Container,
   FormControlLabel,
@@ -33,7 +32,7 @@ import { useActiveOrganizationId } from '../../../authentication-core/hooks/useA
 import { useAccessLogsQuery, useAccessPointsQuery } from '../../hooks/useAccessControlQuery'
 import type { AccessDecision, AccessLogDirection } from '../../types/accessControl.types'
 import { NoOrganizationNotice } from '../NoOrganizationNotice'
-import { AdminDataState } from '../../../authentication-core/components/shared/admin'
+import { AdminDataState, AdminStatusBadge } from '../../../authentication-core/components/shared/admin'
 
 /**
  * Physical Entry Logs.
@@ -246,12 +245,9 @@ export const PhysicalEntryLogs: React.FC = () => {
                       </TableCell>
                       <TableCell>{log.direction}</TableCell>
                       <TableCell>
-                        <Chip
-                          size='small'
-                          color={DECISION_META[log.status]?.color ?? 'default'}
-                          icon={DECISION_META[log.status]?.icon as any}
+                        <AdminStatusBadge
+                          tone={DECISION_META[log.status]?.color ?? 'neutral'}
                           label={log.status}
-                          sx={{ borderRadius: 'var(--sf-radius-sm, 6px)' }}
                         />
                       </TableCell>
                       <TableCell>{log.reason ?? '—'}</TableCell>

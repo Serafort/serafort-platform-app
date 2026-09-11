@@ -42,6 +42,8 @@ import {
   AdminTableHead,
   AdminTableHeadCell,
   AdminTableRow,
+  AdminStatusBadge,
+  AdminRowActionButton,
 } from '../../../authentication-core/components/shared/admin'
 import { AuthConfirmDrawer } from '../../../authentication-core/components/shared/auth'
 
@@ -323,16 +325,7 @@ const APITokensDashboard: React.FC = () => {
                           Was `status.toUpperCase()`, which printed the raw
                           English enum in every locale.
                         */}
-                        <Chip
-                          label={statusLabel(status)}
-                          size='small'
-                          sx={{
-                            fontWeight: 700,
-                            borderRadius: 'var(--sf-radius-sm, 6px)',
-                            color: theme.palette[STATUS_TONE[status]].main,
-                            bgcolor: alpha(theme.palette[STATUS_TONE[status]].main, 0.12),
-                          }}
-                        />
+                        <AdminStatusBadge tone={STATUS_TONE[status]} label={statusLabel(status)} />
                       </TableCell>
                       <TableCell>{created ? new Date(created).toLocaleDateString() : '—'}</TableCell>
                       <TableCell>
@@ -342,16 +335,15 @@ const APITokensDashboard: React.FC = () => {
                       </TableCell>
                       <TableCell align='right'>
                         <Stack direction='row' spacing={0.5} justifyContent='flex-end'>
-                          <IconButton
+                          <AdminRowActionButton
                             aria-label={t('auth.api_tokens.actions_title', 'Manage token')}
                             onClick={(event) => {
                               event.stopPropagation()
                               handleMenuOpen(event, token)
                             }}
-                            sx={{ width: 44, height: 44 }}
                           >
                             <MoreVertIcon fontSize='small' />
-                          </IconButton>
+                          </AdminRowActionButton>
                         </Stack>
                       </TableCell>
                     </AdminTableRow>

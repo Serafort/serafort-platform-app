@@ -4,13 +4,11 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
   Stack,
   Table,
   TableBody,
@@ -21,8 +19,6 @@ import {
   TextField,
   Tooltip,
   Typography,
-  alpha,
-  useTheme,
 } from '@mui/material'
 import Add from '@mui/icons-material/Add'
 import VpnKey from '@mui/icons-material/VpnKey'
@@ -44,6 +40,8 @@ import {
   AdminPageHeader,
   AdminSearchField,
   AdminStatCard,
+  AdminStatusBadge,
+  AdminRowActionButton,
 } from '../../../authentication-core/components/shared/admin'
 import {
   AuthConfirmDrawer,
@@ -63,7 +61,6 @@ const daysUntil = (iso: string | null): number | null => {
 
 const MachineIdentityManagement: React.FC = () => {
   const { t } = useTranslation()
-  const theme = useTheme()
   const orgId = useActiveOrganizationId()
   const numericOrgId = Number(orgId) || undefined
 
@@ -309,27 +306,13 @@ const MachineIdentityManagement: React.FC = () => {
                             status field on the record, but `expires_at` is
                             enough to tell the two apart.
                           */}
-                          <Chip
+                          <AdminStatusBadge
+                            tone={isExpired ? 'warning' : 'success'}
                             label={
                               isExpired
                                 ? t('auth.api_tokens.expired', 'Expired')
                                 : t('auth.account.active', 'Active')
                             }
-                            size='small'
-                            sx={{
-                              borderRadius: 'var(--sf-radius-sm, 6px)',
-                              fontWeight: 800,
-                              height: 24,
-                              color: isExpired
-                                ? theme.palette.warning.main
-                                : theme.palette.success.main,
-                              bgcolor: alpha(
-                                isExpired
-                                  ? theme.palette.warning.main
-                                  : theme.palette.success.main,
-                                0.12,
-                              ),
-                            }}
                           />
                         </TableCell>
                         <TableCell>
@@ -351,14 +334,13 @@ const MachineIdentityManagement: React.FC = () => {
                         </TableCell>
                         <TableCell align='right'>
                           <Tooltip title={t('auth.admin.machineIdentity.revoke', 'Revoke key')}>
-                            <IconButton
+                            <AdminRowActionButton
                               color='error'
                               aria-label={t('auth.admin.machineIdentity.revoke', 'Revoke key')}
                               onClick={() => setPendingRevoke(identity)}
-                              sx={{ width: 44, height: 44 }}
                             >
                               <Delete fontSize='small' />
-                            </IconButton>
+                            </AdminRowActionButton>
                           </Tooltip>
                         </TableCell>
                       </TableRow>

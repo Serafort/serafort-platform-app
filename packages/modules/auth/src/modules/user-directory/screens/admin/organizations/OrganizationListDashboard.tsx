@@ -60,6 +60,8 @@ import {
   AdminTableHead,
   AdminTableHeadCell,
   AdminTableRow,
+  AdminStatusBadge,
+  AdminRowActionButton,
 } from '@auth/modules/authentication-core/components/shared/admin'
 
 export default function OrganizationListDashboard() {
@@ -378,35 +380,13 @@ export default function OrganizationListDashboard() {
                     </TableCell>
 
                     <TableCell>
-                      <Chip
+                      <AdminStatusBadge
+                        tone={org.status === 'SUSPENDED' ? 'error' : 'success'}
                         label={
                           org.status === 'SUSPENDED'
                             ? t('auth.common.suspended')
                             : t('auth.common.active')
                         }
-                        size='small'
-                        sx={{
-                          fontWeight: 800,
-                          height: 22,
-                          fontSize: '0.625rem',
-                          borderRadius: 'var(--sf-radius-xs, 4px)',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.03em',
-                          color: org.status === 'SUSPENDED' ? 'error.main' : 'success.main',
-                          borderColor: alpha(
-                            org.status === 'SUSPENDED'
-                              ? theme.palette.error.main
-                              : theme.palette.success.main,
-                            0.25,
-                          ),
-                          bgcolor: alpha(
-                            org.status === 'SUSPENDED'
-                              ? theme.palette.error.main
-                              : theme.palette.success.main,
-                            0.12,
-                          ),
-                          border: '1px solid',
-                        }}
                       />
                     </TableCell>
 
@@ -469,21 +449,15 @@ export default function OrganizationListDashboard() {
                     </TableCell>
 
                     <TableCell align='right'>
-                      <IconButton
-                        size='small'
+                      <AdminRowActionButton
                         onClick={(e) => {
                           e.stopPropagation()
                           handleMenuOpen(e, org as any)
                         }}
                         aria-label={`More options for ${org.name}`}
-                        sx={{
-                          width: 44,
-                          height: 44,
-                          borderRadius: 'var(--sf-radius-md, 8px)',
-                        }}
                       >
                         <MoreVertIcon fontSize='small' />
-                      </IconButton>
+                      </AdminRowActionButton>
                     </TableCell>
                   </AdminTableRow>
                 ))

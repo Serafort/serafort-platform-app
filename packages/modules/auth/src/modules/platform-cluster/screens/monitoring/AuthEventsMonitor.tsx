@@ -36,6 +36,7 @@ import { motion } from 'framer-motion'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import { useAuditLogs } from '@cap/module-auth/modules/authentication-core/hooks/useAdminQuery'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 
 export default function AuthEventsMonitor() {
   const { t } = useTranslation('common')
@@ -313,17 +314,9 @@ export default function AuthEventsMonitor() {
                   </Typography>
                 </TableCell>
                 <TableCell align='right'>
-                  <Chip
+                  <AdminStatusBadge
+                    tone={getSeverityColor(event.action)}
                     label={getSeverityLabel(event.action)}
-                    size='small'
-                    color={getSeverityColor(event.action) as any}
-                    variant='outlined'
-                    sx={{
-                      fontWeight: 800,
-                      textTransform: 'uppercase',
-                      fontSize: '0.6rem',
-                      height: 18,
-                    }}
                   />
                 </TableCell>
               </TableRow>

@@ -6,7 +6,6 @@ import {
   CardContent,
   Button,
   IconButton,
-  Chip,
   alpha,
   useTheme,
   Stack,
@@ -35,10 +34,8 @@ import Download from '@mui/icons-material/Download'
 import Security from '@mui/icons-material/Security'
 import History from '@mui/icons-material/History'
 import Person from '@mui/icons-material/Person'
-import CheckCircle from '@mui/icons-material/CheckCircle'
 import MoreVert from '@mui/icons-material/MoreVert'
 import Block from '@mui/icons-material/Block'
-import AssignmentTurnedIn from '@mui/icons-material/AssignmentTurnedIn'
 import Refresh from '@mui/icons-material/Refresh'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -46,6 +43,10 @@ import { motion } from 'framer-motion'
 import { ImpersonationRecord } from '@cap/shared-types'
 import { useImpersonationLogs } from '../../../../authentication-core'
 import { format, formatDistanceToNow } from 'date-fns'
+import {
+  AdminStatusBadge,
+  AdminRowActionButton,
+} from '../../../../authentication-core/components/shared/admin'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import Path from '../../path'
@@ -108,25 +109,10 @@ export default function ImpersonationLogs() {
     switch (status) {
       case 'active':
         return 'success'
-      case 'completed':
-        return 'default'
       case 'revoked':
         return 'error'
       default:
-        return 'default'
-    }
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <CheckCircle fontSize='small' color='success' />
-      case 'completed':
-        return <AssignmentTurnedIn fontSize='small' color='action' />
-      case 'revoked':
-        return <Block fontSize='small' color='error' />
-      default:
-        return null
+        return 'neutral'
     }
   }
 
@@ -594,42 +580,22 @@ export default function ImpersonationLogs() {
                       </Tooltip>
                     </TableCell>
                     <TableCell sx={{ py: 2 }}>
-                      <Chip
-                        icon={getStatusIcon(log.status) || undefined}
+                      <AdminStatusBadge
+                        tone={getStatusColor(log.status)}
                         label={log.status}
-                        size='small'
-                        color={getStatusColor(log.status) as any}
-                        variant={log.status === 'active' ? 'filled' : 'outlined'}
-                        sx={{
-                          height: 24,
-                          fontWeight: 700,
-                          borderRadius: 'var(--sf-radius-xs, 4px)',
-                          textTransform: 'capitalize',
-                          ...(log.status === 'active' && {
-                            bgcolor: alpha(theme.palette.success.main, 0.1),
-                            color: 'success.main',
-                            borderColor: alpha(theme.palette.success.main, 0.2),
-                            border: '1px solid',
-                          }),
-                        }}
+                        sx={{ textTransform: 'capitalize' }}
                       />
                     </TableCell>
                     <TableCell align='right' sx={{ py: 2 }}>
-                      <IconButton
-                        size='small'
+                      <AdminRowActionButton
                         onClick={(e) => {
                           setSelectedLog(log)
                           setActionAnchorEl(e.currentTarget)
                         }}
                         aria-label='More actions'
-                        sx={{
-                          width: 44,
-                          height: 44,
-                          borderRadius: 'var(--sf-radius-md, 8px)',
-                        }}
                       >
                         <MoreVert fontSize='small' />
-                      </IconButton>
+                      </AdminRowActionButton>
                     </TableCell>
                   </TableRow>
                 ))

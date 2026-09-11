@@ -35,6 +35,8 @@ import {
   AdminTableCard,
   AdminTableHead,
   AdminTableHeadCell,
+  AdminStatusBadge,
+  AdminRowActionButton,
 } from '../../../authentication-core/components/shared/admin'
 import { AuthCopyField } from '../../../authentication-core/components/shared/auth'
 
@@ -308,16 +310,13 @@ const DomainVerification: React.FC = () => {
                         </Stack>
                       </TableCell>
                       <TableCell>
-                        <Chip
-                          icon={verified ? <Verified /> : <Pending />}
+                        <AdminStatusBadge
+                          tone={verified ? 'success' : 'warning'}
                           label={
                             verified
                               ? t('auth.admin.domainVerification.status_verified', 'Verified')
                               : t('auth.admin.domainVerification.status_pending', 'Pending')
                           }
-                          color={verified ? 'success' : 'warning'}
-                          size='small'
-                          sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 800 }}
                         />
                       </TableCell>
                       <TableCell>
@@ -339,22 +338,20 @@ const DomainVerification: React.FC = () => {
                             title={t('auth.admin.domainVerification.check_action', 'Check verification status')}
                           >
                             <span>
-                              <IconButton
-                                color='primary'
+                              <AdminRowActionButton
                                 aria-label={t(
                                   'auth.admin.domainVerification.check_action',
                                   'Check verification status',
                                 )}
                                 disabled={checkingId === domain.id}
                                 onClick={() => handleCheckStatus(domain.id, domain.domain)}
-                                sx={{ width: 44, height: 44 }}
                               >
                                 {checkingId === domain.id ? (
                                   <CircularProgress size={18} />
                                 ) : (
                                   <Refresh fontSize='small' />
                                 )}
-                              </IconButton>
+                              </AdminRowActionButton>
                             </span>
                           </Tooltip>
                         )}
