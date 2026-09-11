@@ -37,7 +37,7 @@ export default function MaintenanceScreen() {
         />
       </Box>
 
-      <Typography variant='h3' sx={{ fontWeight: 900, mb: 2, letterSpacing: '-0.04em' }}>
+      <Typography variant='h3' sx={{ fontWeight: 800, mb: 2, letterSpacing: '-0.04em' }}>
         {t('system.maintenanceHeading', 'Scheduled Maintenance')}
       </Typography>
       <Typography

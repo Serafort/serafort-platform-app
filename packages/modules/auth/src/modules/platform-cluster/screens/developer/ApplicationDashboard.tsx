@@ -320,7 +320,7 @@ export default function ApplicationDashboard() {
             <AppRegistration sx={{ fontSize: 32 }} />
           </Avatar>
           <Box>
-            <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 0.5 }}>
+            <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 0.5 }}>
               {t('admin.developer.applications.title')}
             </Typography>
             <Typography variant='body1' color='text.secondary'>
@@ -446,7 +446,7 @@ export default function ApplicationDashboard() {
                   </IconButton>
                 </Box>
 
-                <Typography variant='h6' sx={{ fontWeight: 900, mb: 0.5 }}>
+                <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
                   {app.client_name}
                 </Typography>
                 <Typography
@@ -479,7 +479,7 @@ export default function ApplicationDashboard() {
                     size='small'
                     color={getStatusColor(app.status) as any}
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       borderRadius: 1.5,
                       height: 22,
                       fontSize: '0.65rem',
@@ -491,7 +491,7 @@ export default function ApplicationDashboard() {
                       label='FAPI 2.0'
                       size='small'
                       sx={{
-                        fontWeight: 900,
+                        fontWeight: 800,
                         borderRadius: 1.5,
                         height: 22,
                         fontSize: '0.65rem',
@@ -591,7 +591,7 @@ export default function ApplicationDashboard() {
             >
               <Add sx={{ fontSize: 32 }} />
             </Avatar>
-            <Typography variant='subtitle1' sx={{ fontWeight: 900 }}>
+            <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
               {t('admin.developer.applications.empty.title')}
             </Typography>
             <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 600 }}>
@@ -659,7 +659,7 @@ export default function ApplicationDashboard() {
         fullWidth
         PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
       >
-        <DialogTitle sx={{ fontWeight: 900, px: 3, pt: 3 }}>
+        <DialogTitle sx={{ fontWeight: 800, px: 3, pt: 3 }}>
           {isEditMode
             ? t('admin.developer.applications.dialogs.create.title_edit')
             : t('admin.developer.applications.dialogs.create.title_new')}
@@ -777,7 +777,7 @@ export default function ApplicationDashboard() {
       >
         <DialogTitle
           sx={{
-            fontWeight: 900,
+            fontWeight: 800,
             color: 'warning.main',
             display: 'flex',
             gap: 1.5,
@@ -846,7 +846,7 @@ export default function ApplicationDashboard() {
         PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
       >
         <DialogTitle
-          sx={{ fontWeight: 900, display: 'flex', gap: 1.5, alignItems: 'center', px: 3, pt: 3 }}
+          sx={{ fontWeight: 800, display: 'flex', gap: 1.5, alignItems: 'center', px: 3, pt: 3 }}
         >
           <Warning color='warning' /> {confirmDialog.title}
         </DialogTitle>

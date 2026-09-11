@@ -100,7 +100,7 @@ const SyncLogsView: React.FC = () => {
         label={(eventStr || '').replace(/_/g, ' ').toUpperCase()}
         size='small'
         sx={{
-          fontWeight: 900,
+          fontWeight: 800,
           fontSize: 10,
           bgcolor: isError
             ? alpha(theme.palette.error.main, 0.1)
@@ -175,7 +175,7 @@ const SyncLogsView: React.FC = () => {
             <History sx={{ fontSize: 32 }} />
           </Avatar>
           <Box>
-            <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
+            <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em' }}>
               {t('auth.admin.provisioning.logs.title')}
             </Typography>
             <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
@@ -283,7 +283,7 @@ const SyncLogsView: React.FC = () => {
                       sx={{
                         height: 18,
                         fontSize: 9,
-                        fontWeight: 900,
+                        fontWeight: 800,
                         ml: 1,
                         borderRadius: 'var(--sf-radius-xs, 4px)',
                       }}
@@ -380,7 +380,7 @@ const SyncLogsView: React.FC = () => {
                 >
                   {stat.label}
                 </Typography>
-                <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.01em' }}>
+                <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.01em' }}>
                   {stat.value}
                 </Typography>
               </Box>
@@ -480,7 +480,7 @@ const SyncLogsView: React.FC = () => {
                     <TableRow>
                       <TableCell
                         sx={{
-                          fontWeight: 900,
+                          fontWeight: 800,
                           py: 2,
                           letterSpacing: '0.05em',
                           color: 'text.secondary',
@@ -490,7 +490,7 @@ const SyncLogsView: React.FC = () => {
                       </TableCell>
                       <TableCell
                         sx={{
-                          fontWeight: 900,
+                          fontWeight: 800,
                           py: 2,
                           letterSpacing: '0.05em',
                           color: 'text.secondary',
@@ -500,7 +500,7 @@ const SyncLogsView: React.FC = () => {
                       </TableCell>
                       <TableCell
                         sx={{
-                          fontWeight: 900,
+                          fontWeight: 800,
                           py: 2,
                           letterSpacing: '0.05em',
                           color: 'text.secondary',
@@ -510,7 +510,7 @@ const SyncLogsView: React.FC = () => {
                       </TableCell>
                       <TableCell
                         sx={{
-                          fontWeight: 900,
+                          fontWeight: 800,
                           py: 2,
                           letterSpacing: '0.05em',
                           color: 'text.secondary',
@@ -521,7 +521,7 @@ const SyncLogsView: React.FC = () => {
                       <TableCell
                         align='right'
                         sx={{
-                          fontWeight: 900,
+                          fontWeight: 800,
                           py: 2,
                           letterSpacing: '0.05em',
                           color: 'text.secondary',
@@ -571,7 +571,7 @@ const SyncLogsView: React.FC = () => {
                             <Typography
                               variant='body2'
                               sx={{
-                                fontWeight: 900,
+                                fontWeight: 800,
                                 color: log.status === 'success' ? 'success.dark' : 'error.dark',
                                 textTransform: 'uppercase',
                                 fontSize: 11,
@@ -612,7 +612,7 @@ const SyncLogsView: React.FC = () => {
                     onChange={(_, value) => setPage(value)}
                     sx={{
                       '& .MuiPaginationItem-root': {
-                        fontWeight: 900,
+                        fontWeight: 800,
                         borderRadius: 'var(--sf-radius-xs, 4px)',
                         minWidth: 36,
                         height: 36,
@@ -658,7 +658,7 @@ const SyncLogsView: React.FC = () => {
           <Info />
         </Avatar>
         <Box sx={{ flex: 1 }}>
-          <Typography variant='subtitle1' sx={{ fontWeight: 900, mb: 0.5 }}>
+          <Typography variant='subtitle1' sx={{ fontWeight: 800, mb: 0.5 }}>
             {t('auth.admin.provisioning.logs.helper_title')}
           </Typography>
           <Typography

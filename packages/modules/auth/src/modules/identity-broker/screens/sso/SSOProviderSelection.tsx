@@ -134,7 +134,7 @@ export default function SSOProviderSelection() {
         >
           <ShieldIcon sx={{ fontSize: 32 }} />
         </Avatar>
-        <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 1 }}>
+        <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 1 }}>
           {t('auth.sso.enterpriseLoginTitle', 'Enterprise Sign-In')}
         </Typography>
         <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
@@ -279,7 +279,7 @@ export default function SSOProviderSelection() {
                     minHeight: 52,
                     borderRadius: 'var(--sf-radius-md, 8px)',
                     fontSize: '1rem',
-                    fontWeight: 900,
+                    fontWeight: 800,
                     textTransform: 'none',
                     mb: 4,
                     bgcolor: 'info.main',
@@ -345,7 +345,7 @@ export default function SSOProviderSelection() {
                       width: 28,
                       height: 28,
                       fontSize: '0.65rem',
-                      fontWeight: 900,
+                      fontWeight: 800,
                       bgcolor: alpha(p.color, theme.palette.mode === 'dark' ? 0.2 : 0.1),
                       // The brand hue tints the chip, but the initials take a
                       // theme colour: OneLogin's #000 (and Ping's dark red) are

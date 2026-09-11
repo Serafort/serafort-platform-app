@@ -145,7 +145,7 @@ export default function OIDCConfigBrowser() {
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 900,
+                  fontWeight: 800,
                   letterSpacing: '-0.027em',
                   fontSize: { xs: '1.5rem', md: '2.125rem' },
                 }}
@@ -352,7 +352,7 @@ export default function OIDCConfigBrowser() {
                         }
                         size='small'
                         color={(client.is_active ?? client.isActive) ? 'success' : 'error'}
-                        sx={{ borderRadius: 'var(--sf-radius-xs, 4px)', fontWeight: 900, fontSize: '0.65rem' }}
+                        sx={{ borderRadius: 'var(--sf-radius-xs, 4px)', fontWeight: 800, fontSize: '0.65rem' }}
                       />
                     </TableCell>
                     <TableCell>

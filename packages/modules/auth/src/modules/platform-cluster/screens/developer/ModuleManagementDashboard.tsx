@@ -131,7 +131,7 @@ export default function ModuleManagementDashboard() {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 letterSpacing: '-0.027em',
                 fontSize: { xs: '1.5rem', md: '2.125rem' },
               }}
@@ -190,7 +190,7 @@ export default function ModuleManagementDashboard() {
             <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 700 }}>
               {t('monitoring.modules.stat_total', 'TOTAL INSTALLED')}
             </Typography>
-            <Typography variant='h4' sx={{ fontWeight: 900, mt: 0.5 }}>
+            <Typography variant='h4' sx={{ fontWeight: 800, mt: 0.5 }}>
               {stats.total}
             </Typography>
           </Paper>
@@ -209,7 +209,7 @@ export default function ModuleManagementDashboard() {
             <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 700 }}>
               {t('monitoring.modules.stat_active', 'ACTIVE MODULES')}
             </Typography>
-            <Typography variant='h4' sx={{ fontWeight: 900, mt: 0.5, color: 'success.main' }}>
+            <Typography variant='h4' sx={{ fontWeight: 800, mt: 0.5, color: 'success.main' }}>
               {stats.active}
             </Typography>
           </Paper>
@@ -228,7 +228,7 @@ export default function ModuleManagementDashboard() {
             <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 700 }}>
               {t('monitoring.modules.stat_core', 'CORE PLATFORM MODULES')}
             </Typography>
-            <Typography variant='h4' sx={{ fontWeight: 900, mt: 0.5, color: 'info.main' }}>
+            <Typography variant='h4' sx={{ fontWeight: 800, mt: 0.5, color: 'info.main' }}>
               {stats.core}
             </Typography>
           </Paper>
@@ -247,7 +247,7 @@ export default function ModuleManagementDashboard() {
             <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 700 }}>
               {t('monitoring.modules.stat_routes', 'REGISTERED ROUTES')}
             </Typography>
-            <Typography variant='h4' sx={{ fontWeight: 900, mt: 0.5, color: 'warning.main' }}>
+            <Typography variant='h4' sx={{ fontWeight: 800, mt: 0.5, color: 'warning.main' }}>
               {stats.totalRoutes}
             </Typography>
           </Paper>

@@ -56,7 +56,7 @@ const AuthCardHeader: React.FC<AuthCardHeaderProps> = ({
       component={component}
       variant='h4'
       sx={{
-        fontWeight: 900,
+        fontWeight: 800,
         mb: subtitle ? 1 : 0,
         letterSpacing: '-0.027em',
         fontSize: { xs: '1.5rem', sm: '1.75rem' },

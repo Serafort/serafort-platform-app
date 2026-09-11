@@ -304,7 +304,7 @@ export default function JoinOrganization() {
                 color: 'primary.main',
                 border: '2px solid',
                 borderColor: alpha(theme.palette.primary.main, 0.24),
-                fontWeight: 900,
+                fontWeight: 800,
                 fontSize: '1.75rem',
               }}
             >

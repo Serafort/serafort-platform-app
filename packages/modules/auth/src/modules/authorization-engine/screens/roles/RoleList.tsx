@@ -166,7 +166,7 @@ export default function RoleList() {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 letterSpacing: '-0.027em',
                 fontSize: { xs: '1.5rem', md: '2.125rem' },
                 lineHeight: 1.1,
@@ -272,7 +272,7 @@ export default function RoleList() {
                 >
                   {stat.label}
                 </Typography>
-                <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+                <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
                   {stat.value}
                 </Typography>
               </Box>
@@ -584,7 +584,7 @@ export default function RoleList() {
           sx: { borderRadius: 'var(--sf-radius-lg, 16px)', p: 1, backgroundImage: 'none' },
         }}
       >
-        <DialogTitle sx={{ fontWeight: 900, fontSize: '1.375rem', letterSpacing: '-0.02em' }}>
+        <DialogTitle sx={{ fontWeight: 800, fontSize: '1.375rem', letterSpacing: '-0.02em' }}>
           {t('auth.admin.deleteRoleTitle')} &rdquo;{selectedRole?.name}&rdquo;?
         </DialogTitle>
         <DialogContent>

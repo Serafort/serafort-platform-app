@@ -209,7 +209,7 @@ const WebhookManagement: React.FC = () => {
         label={status.toUpperCase()}
         size='small'
         sx={{
-          fontWeight: 900,
+          fontWeight: 800,
           fontSize: 10,
           bgcolor: isFailing
             ? alpha(theme.palette.error.main, 0.1)
@@ -275,7 +275,7 @@ const WebhookManagement: React.FC = () => {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 letterSpacing: '-0.027em',
                 fontSize: { xs: '1.5rem', md: '2.125rem' },
               }}
@@ -377,7 +377,7 @@ const WebhookManagement: React.FC = () => {
                   >
                     {stat.label}
                   </Typography>
-                  <Typography variant='h5' sx={{ fontWeight: 900, lineHeight: 1.1 }}>
+                  <Typography variant='h5' sx={{ fontWeight: 800, lineHeight: 1.1 }}>
                     {stat.value}
                   </Typography>
                 </Box>
@@ -450,22 +450,22 @@ const WebhookManagement: React.FC = () => {
               <Table size='small'>
                 <TableHead sx={{ bgcolor: 'action.hover' }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 900, py: 2 }}>
+                    <TableCell sx={{ fontWeight: 800, py: 2 }}>
                       {t('admin.developer.webhooks.table.url')}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>
+                    <TableCell sx={{ fontWeight: 800 }}>
                       {t('admin.developer.webhooks.table.events')}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>
+                    <TableCell sx={{ fontWeight: 800 }}>
                       {t('admin.developer.webhooks.table.status')}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 900, display: { xs: 'none', md: 'table-cell' } }}>
+                    <TableCell sx={{ fontWeight: 800, display: { xs: 'none', md: 'table-cell' } }}>
                       {t('admin.developer.webhooks.table.last_triggered')}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>
+                    <TableCell sx={{ fontWeight: 800 }}>
                       {t('admin.developer.webhooks.table.success')}
                     </TableCell>
-                    <TableCell align='right' sx={{ fontWeight: 900 }}>
+                    <TableCell align='right' sx={{ fontWeight: 800 }}>
                       {t('admin.developer.webhooks.table.actions')}
                     </TableCell>
                   </TableRow>
@@ -625,7 +625,7 @@ const WebhookManagement: React.FC = () => {
         fullWidth
         PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
       >
-        <DialogTitle sx={{ fontWeight: 900, px: 3, pt: 3 }}>
+        <DialogTitle sx={{ fontWeight: 800, px: 3, pt: 3 }}>
           {t('admin.developer.webhooks.dialogs.create.title')}
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
@@ -733,7 +733,7 @@ const WebhookManagement: React.FC = () => {
         PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
       >
         <DialogTitle
-          sx={{ fontWeight: 900, px: 3, pt: 3, display: 'flex', alignItems: 'center', gap: 1 }}
+          sx={{ fontWeight: 800, px: 3, pt: 3, display: 'flex', alignItems: 'center', gap: 1 }}
         >
           <CheckCircle color='success' /> {t('admin.developer.webhooks.dialogs.secret.title')}
         </DialogTitle>
@@ -807,7 +807,7 @@ const WebhookManagement: React.FC = () => {
         fullWidth
         PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
       >
-        <DialogTitle sx={{ fontWeight: 900, px: 3, pt: 3 }}>
+        <DialogTitle sx={{ fontWeight: 800, px: 3, pt: 3 }}>
           {t('admin.developer.webhooks.dialogs.delete.title')}
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>

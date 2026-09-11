@@ -118,7 +118,7 @@ function MethodBadge({ method, size = 'medium' }: { method: string; size?: 'smal
       <Typography
         sx={{
           fontFamily: 'monospace',
-          fontWeight: 900,
+          fontWeight: 800,
           fontSize: size === 'small' ? '0.6875rem' : '0.75rem',
           letterSpacing: '0.04em',
           color,
@@ -346,7 +346,7 @@ export default function APIExplorerDashboard() {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 letterSpacing: '-0.027em',
                 fontSize: { xs: '1.5rem', md: '2.125rem' },
               }}

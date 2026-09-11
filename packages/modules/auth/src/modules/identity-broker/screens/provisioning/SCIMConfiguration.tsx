@@ -111,7 +111,7 @@ function StatCard({
         >
           {label}
         </Typography>
-        <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.01em' }}>
+        <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.01em' }}>
           {value}
         </Typography>
       </Box>
@@ -349,7 +349,7 @@ export default function SCIMConfiguration() {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 letterSpacing: '-0.027em',
                 fontFamily: 'Outfit, sans-serif',
                 mb: 0.5,
@@ -815,7 +815,7 @@ export default function SCIMConfiguration() {
                           sx={{
                             height: 22,
                             fontSize: '0.65rem',
-                            fontWeight: 900,
+                            fontWeight: 800,
                             borderRadius: 'var(--sf-radius-xs, 4px)',
                           }}
                         />
@@ -895,7 +895,7 @@ export default function SCIMConfiguration() {
                   <TableRow>
                     <TableCell
                       sx={{
-                        fontWeight: 900,
+                        fontWeight: 800,
                         py: 2,
                         letterSpacing: '0.05em',
                         color: 'text.secondary',
@@ -905,13 +905,13 @@ export default function SCIMConfiguration() {
                     </TableCell>
                     <TableCell
                       align='center'
-                      sx={{ fontWeight: 900, width: 60, color: 'text.secondary' }}
+                      sx={{ fontWeight: 800, width: 60, color: 'text.secondary' }}
                     >
                       <SwapHoriz fontSize='small' />
                     </TableCell>
                     <TableCell
                       sx={{
-                        fontWeight: 900,
+                        fontWeight: 800,
                         py: 2,
                         letterSpacing: '0.05em',
                         color: 'text.secondary',
@@ -922,7 +922,7 @@ export default function SCIMConfiguration() {
                     <TableCell
                       align='center'
                       sx={{
-                        fontWeight: 900,
+                        fontWeight: 800,
                         width: 100,
                         letterSpacing: '0.05em',
                         color: 'text.secondary',
@@ -993,7 +993,7 @@ export default function SCIMConfiguration() {
                             size='small'
                             color='primary'
                             sx={{
-                              fontWeight: 900,
+                              fontWeight: 800,
                               height: 22,
                               fontSize: '0.65rem',
                               borderRadius: 'var(--sf-radius-xs, 4px)',

@@ -213,7 +213,7 @@ export default function PermissionRegistry() {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 letterSpacing: '-0.027em',
                 fontSize: { xs: '1.5rem', md: '2.125rem' },
                 lineHeight: 1.1,
@@ -330,7 +330,7 @@ export default function PermissionRegistry() {
                 >
                   {t('common.all') || 'All'}
                 </Typography>
-                <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+                <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
                   {permissions.length}
                 </Typography>
               </Box>
@@ -384,7 +384,7 @@ export default function PermissionRegistry() {
                   >
                     {cat.label}
                   </Typography>
-                  <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+                  <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
                     {cat.count}
                   </Typography>
                 </Box>
@@ -668,7 +668,7 @@ export default function PermissionRegistry() {
         fullWidth
         PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } }}
       >
-        <DialogTitle sx={{ fontWeight: 900, pb: 1 }}>
+        <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>
           {editingPermission ? t('auth.admin.editAction') : t('auth.admin.defineNewAction')}
         </DialogTitle>
         <DialogContent>

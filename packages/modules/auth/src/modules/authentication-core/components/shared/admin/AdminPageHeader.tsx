@@ -150,7 +150,7 @@ const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
               component='h1'
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 letterSpacing: '-0.027em',
                 fontSize: { xs: '1.5rem', md: '2.125rem' },
                 lineHeight: 1.15,

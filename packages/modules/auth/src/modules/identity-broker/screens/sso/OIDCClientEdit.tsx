@@ -213,7 +213,7 @@ export default function OIDCClientEdit() {
             <Edit sx={{ fontSize: '2rem' }} />
           </Avatar>
           <Box>
-            <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
+            <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em' }}>
               {t('auth.sso.edit_oidc_client', 'Edit Client Details')}
             </Typography>
             <Breadcrumbs separator={<ChevronRight sx={{ fontSize: 12, color: 'text.disabled' }} />}>

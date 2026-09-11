@@ -161,7 +161,7 @@ export default function SAMLMetadataBrowser() {
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 900,
+                  fontWeight: 800,
                   letterSpacing: '-0.027em',
                   fontSize: { xs: '1.5rem', md: '2.125rem' },
                 }}
@@ -406,7 +406,7 @@ export default function SAMLMetadataBrowser() {
                       color={entity.status === 'active' ? 'success' : 'warning'}
                       sx={{
                         borderRadius: 'var(--sf-radius-xs, 4px)',
-                        fontWeight: 900,
+                        fontWeight: 800,
                         fontSize: '0.65rem',
                         letterSpacing: '0.05em',
                         height: 24,

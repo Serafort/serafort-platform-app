@@ -153,7 +153,7 @@ export default function OIDCClientCreate() {
             <Add sx={{ fontSize: '2rem' }} />
           </Avatar>
           <Box>
-            <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
+            <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em' }}>
               {t('auth.sso.create_oidc_client', 'Register New Client')}
             </Typography>
             <Breadcrumbs separator={<ChevronRight sx={{ fontSize: 12, color: 'text.disabled' }} />}>

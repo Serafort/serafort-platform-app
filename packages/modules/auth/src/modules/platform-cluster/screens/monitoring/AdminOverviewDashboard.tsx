@@ -97,7 +97,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, href, on
           >
             {label}
           </Typography>
-          <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+          <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
             {value}
           </Typography>
         </Box>
@@ -253,7 +253,7 @@ const AdminOverviewDashboard: React.FC = () => {
           <Box>
             <Typography
               variant='h4'
-              sx={{ fontWeight: 900, letterSpacing: '-0.027em', lineHeight: 1.1, mb: 0.5 }}
+              sx={{ fontWeight: 800, letterSpacing: '-0.027em', lineHeight: 1.1, mb: 0.5 }}
             >
               Admin overview
             </Typography>
@@ -402,7 +402,7 @@ const AdminOverviewDashboard: React.FC = () => {
                 >
                   <Typography
                     variant='h5'
-                    fontWeight={900}
+                    fontWeight={800}
                     sx={{ color: item.color, letterSpacing: '-0.02em' }}
                   >
                     {item.value}

@@ -135,7 +135,7 @@ function StatCard({
         >
           {label}
         </Typography>
-        <Typography variant='h6' sx={{ fontWeight: 900, letterSpacing: '-0.01em' }}>
+        <Typography variant='h6' sx={{ fontWeight: 800, letterSpacing: '-0.01em' }}>
           {value}
         </Typography>
       </Box>
@@ -242,7 +242,7 @@ const ConnectorDetailView: React.FC = () => {
         label={(event || '').replace(/_/g, ' ').toUpperCase()}
         size='small'
         sx={{
-          fontWeight: 900,
+          fontWeight: 800,
           fontSize: 10,
           bgcolor: isError
             ? alpha(theme.palette.error.main, 0.1)
@@ -280,7 +280,7 @@ const ConnectorDetailView: React.FC = () => {
         >
           <ErrorIcon sx={{ fontSize: 40 }} />
         </Avatar>
-        <Typography variant='h5' sx={{ fontWeight: 900, mb: 1 }}>
+        <Typography variant='h5' sx={{ fontWeight: 800, mb: 1 }}>
           {t('auth.admin.provisioning.connectors.not_found')}
         </Typography>
         <Typography color='text.secondary' sx={{ mb: 4, maxWidth: 400, mx: 'auto' }}>
@@ -360,7 +360,7 @@ const ConnectorDetailView: React.FC = () => {
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 900,
+                  fontWeight: 800,
                   letterSpacing: '-0.027em',
                   fontFamily: 'Outfit, sans-serif',
                 }}
@@ -372,7 +372,7 @@ const ConnectorDetailView: React.FC = () => {
                 size='small'
                 color={connector.status === 'active' ? 'success' : 'default'}
                 sx={{
-                  fontWeight: 900,
+                  fontWeight: 800,
                   fontSize: 10,
                   height: 22,
                   borderRadius: 'var(--sf-radius-xs, 4px)',
@@ -515,7 +515,7 @@ const ConnectorDetailView: React.FC = () => {
                 <Typography
                   variant='h6'
                   sx={{
-                    fontWeight: 900,
+                    fontWeight: 800,
                     mb: 3.5,
                     textTransform: 'uppercase',
                     letterSpacing: '0.02em',
@@ -569,7 +569,7 @@ const ConnectorDetailView: React.FC = () => {
                         minHeight: 48,
                         px: 4,
                         borderRadius: 'var(--sf-radius-md, 8px)',
-                        fontWeight: 900,
+                        fontWeight: 800,
                         bgcolor: 'primary.main',
                         boxShadow: `0 8px 16px -4px ${alpha(theme.palette.primary.main, 0.3)}`,
                         textTransform: 'none',
@@ -597,7 +597,7 @@ const ConnectorDetailView: React.FC = () => {
                   <Typography
                     variant='subtitle2'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       mb: 2,
                       display: 'flex',
                       alignItems: 'center',
@@ -649,7 +649,7 @@ const ConnectorDetailView: React.FC = () => {
                         label={connector.type}
                         size='small'
                         sx={{
-                          fontWeight: 900,
+                          fontWeight: 800,
                           borderRadius: 'var(--sf-radius-xs, 4px)',
                           bgcolor: 'background.paper',
                           border: '1px solid',
@@ -678,7 +678,7 @@ const ConnectorDetailView: React.FC = () => {
               >
                 <CompareArrows sx={{ fontSize: 32 }} />
               </Avatar>
-              <Typography variant='h6' sx={{ fontWeight: 900, mb: 1.5 }}>
+              <Typography variant='h6' sx={{ fontWeight: 800, mb: 1.5 }}>
                 {t('auth.admin.provisioning.connectors.mappings_title')}
               </Typography>
               <Typography
@@ -740,7 +740,7 @@ const ConnectorDetailView: React.FC = () => {
                       <TableRow>
                         <TableCell
                           sx={{
-                            fontWeight: 900,
+                            fontWeight: 800,
                             py: 2,
                             letterSpacing: '0.05em',
                             color: 'text.secondary',
@@ -750,7 +750,7 @@ const ConnectorDetailView: React.FC = () => {
                         </TableCell>
                         <TableCell
                           sx={{
-                            fontWeight: 900,
+                            fontWeight: 800,
                             py: 2,
                             letterSpacing: '0.05em',
                             color: 'text.secondary',
@@ -760,7 +760,7 @@ const ConnectorDetailView: React.FC = () => {
                         </TableCell>
                         <TableCell
                           sx={{
-                            fontWeight: 900,
+                            fontWeight: 800,
                             py: 2,
                             letterSpacing: '0.05em',
                             color: 'text.secondary',
@@ -771,7 +771,7 @@ const ConnectorDetailView: React.FC = () => {
                         <TableCell
                           align='right'
                           sx={{
-                            fontWeight: 900,
+                            fontWeight: 800,
                             py: 2,
                             letterSpacing: '0.05em',
                             color: 'text.secondary',
@@ -806,7 +806,7 @@ const ConnectorDetailView: React.FC = () => {
                               <Typography
                                 variant='body2'
                                 sx={{
-                                  fontWeight: 900,
+                                  fontWeight: 800,
                                   color: log.status === 'success' ? 'success.dark' : 'error.dark',
                                   fontSize: 11,
                                   textTransform: 'uppercase',
@@ -845,7 +845,7 @@ const ConnectorDetailView: React.FC = () => {
                       onChange={(_, value) => setPage(value)}
                       sx={{
                         '& .MuiPaginationItem-root': {
-                          fontWeight: 900,
+                          fontWeight: 800,
                           borderRadius: 'var(--sf-radius-xs, 4px)',
                         },
                         '& .Mui-selected': {
@@ -890,7 +890,7 @@ const ConnectorDetailView: React.FC = () => {
           <Info />
         </Avatar>
         <Box sx={{ flex: 1 }}>
-          <Typography variant='subtitle1' sx={{ fontWeight: 900, mb: 0.5 }}>
+          <Typography variant='subtitle1' sx={{ fontWeight: 800, mb: 0.5 }}>
             {t('auth.admin.provisioning.connectors.helper_title')}
           </Typography>
           <Typography
@@ -905,7 +905,7 @@ const ConnectorDetailView: React.FC = () => {
           variant='outlined'
           color='info'
           sx={{
-            fontWeight: 900,
+            fontWeight: 800,
             textTransform: 'none',
             borderRadius: 'var(--sf-radius-md, 8px)',
             px: 4,

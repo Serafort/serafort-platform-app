@@ -203,7 +203,7 @@ export default function SamlWaitScreen() {
 
             <Typography
               variant='h4'
-              sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 2, color: 'text.primary' }}
+              sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 2, color: 'text.primary' }}
             >
               {t('auth.sso.auth_failed', 'Authentication Failed')}
             </Typography>
@@ -333,7 +333,7 @@ export default function SamlWaitScreen() {
           <Typography
             variant='h4'
             sx={{
-              fontWeight: 900,
+              fontWeight: 800,
               letterSpacing: '-0.027em',
               mb: 2,
               color: 'text.primary',

@@ -240,7 +240,7 @@ export default function ApplicationDetailView() {
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 900,
+                  fontWeight: 800,
                   letterSpacing: '-0.027em',
                   fontSize: { xs: '1.5rem', md: '2.125rem' },
                 }}
@@ -258,7 +258,7 @@ export default function ApplicationDetailView() {
                   size='small'
                   color='primary'
                   variant='filled'
-                  sx={{ fontWeight: 900, height: 20, fontSize: '0.65rem' }}
+                  sx={{ fontWeight: 800, height: 20, fontSize: '0.65rem' }}
                 />
               )}
               <Chip

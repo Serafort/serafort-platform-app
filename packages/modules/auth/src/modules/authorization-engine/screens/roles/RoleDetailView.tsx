@@ -280,7 +280,7 @@ export default function RoleDetailView() {
               </Tooltip>
               <Typography
                 variant='h4'
-                sx={{ fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.1 }}
+                sx={{ fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.1 }}
               >
                 {role.name}
               </Typography>
@@ -304,7 +304,7 @@ export default function RoleDetailView() {
               <Chip
                 label={(role.guard_name || 'web').toUpperCase()}
                 size='small'
-                sx={{ height: 20, fontSize: '0.6rem', fontWeight: 900, borderRadius: 'var(--sf-radius-sm, 6px)' }}
+                sx={{ height: 20, fontSize: '0.6rem', fontWeight: 800, borderRadius: 'var(--sf-radius-sm, 6px)' }}
               />
             </Stack>
           </Box>
@@ -465,7 +465,7 @@ export default function RoleDetailView() {
                                         ml: 1.5,
                                         height: 18,
                                         fontSize: '0.6rem',
-                                        fontWeight: 900,
+                                        fontWeight: 800,
                                         borderRadius: 'var(--sf-radius-sm, 6px)',
                                       }}
                                     />
@@ -511,7 +511,7 @@ export default function RoleDetailView() {
                   <Typography
                     variant='subtitle2'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       mb: 3,
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
@@ -595,7 +595,7 @@ export default function RoleDetailView() {
                   <Typography
                     variant='subtitle2'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       mb: 2,
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
@@ -664,7 +664,7 @@ export default function RoleDetailView() {
             }}
           >
             <Box>
-              <Typography variant='h6' sx={{ fontWeight: 900, textTransform: 'uppercase' }}>
+              <Typography variant='h6' sx={{ fontWeight: 800, textTransform: 'uppercase' }}>
                 {t('auth.admin.equippedMembers')}
               </Typography>
               <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
@@ -714,7 +714,7 @@ export default function RoleDetailView() {
                   <Typography
                     variant='subtitle2'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       mb: 4,
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
@@ -758,7 +758,7 @@ export default function RoleDetailView() {
                     variant='h6'
                     color='error'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       mb: 1.5,
                       display: 'flex',
                       alignItems: 'center',
@@ -808,7 +808,7 @@ export default function RoleDetailView() {
                   <Typography
                     variant='subtitle2'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       mb: 3,
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
@@ -894,7 +894,7 @@ function AutocompleteDialog({
       maxWidth='xs'
       PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 16px)', p: 1 } }}
     >
-      <DialogTitle sx={{ fontWeight: 900, fontSize: '1.4rem' }}>{title}</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 800, fontSize: '1.4rem' }}>{title}</DialogTitle>
       <DialogContent>
         <Typography variant='body2' sx={{ mb: 3, mt: 1, color: 'text.secondary', fontWeight: 500 }}>
           {t('auth.admin.assignedParentsDesc')}

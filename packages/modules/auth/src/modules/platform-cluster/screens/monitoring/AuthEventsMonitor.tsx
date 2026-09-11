@@ -139,7 +139,7 @@ export default function AuthEventsMonitor() {
         }}
       >
         <Box>
-          <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 1 }}>
+          <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 1 }}>
             {t('auth.admin.eventsMonitor')}
           </Typography>
           <Typography variant='body2' color='text.secondary'>
@@ -319,7 +319,7 @@ export default function AuthEventsMonitor() {
                     color={getSeverityColor(event.action) as any}
                     variant='outlined'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       textTransform: 'uppercase',
                       fontSize: '0.6rem',
                       height: 18,

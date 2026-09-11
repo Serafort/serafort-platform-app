@@ -175,7 +175,7 @@ export const CaepEventConsole: React.FC = () => {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 letterSpacing: '-0.027em',
                 mb: 0.5,
                 fontFamily: 'Outfit, sans-serif',

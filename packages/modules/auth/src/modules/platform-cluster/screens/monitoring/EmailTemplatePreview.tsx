@@ -105,7 +105,7 @@ export default function EmailTemplatePreview() {
       {/* Header */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
-          <Typography variant='h4' sx={{ fontWeight: 900, mb: 1 }}>
+          <Typography variant='h4' sx={{ fontWeight: 800, mb: 1 }}>
             {t('auth.admin.emailPreviewTitle', 'Email Template Preview')}
           </Typography>
           <Typography variant='body1' color='text.secondary'>

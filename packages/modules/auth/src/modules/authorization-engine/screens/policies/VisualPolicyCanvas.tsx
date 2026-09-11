@@ -363,7 +363,7 @@ export default function VisualPolicyCanvas() {
           </Box>
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant='h6' sx={{ fontWeight: 900, lineHeight: 1.1 }}>
+              <Typography variant='h6' sx={{ fontWeight: 800, lineHeight: 1.1 }}>
                 {t('auth.admin.policy.canvas_title', 'Policy canvas')}
               </Typography>
             </Box>
@@ -516,7 +516,7 @@ export default function VisualPolicyCanvas() {
             size='small'
             startIcon={<CloudDoneIcon />}
             onClick={handleDeployToEngine}
-            sx={{ minHeight: 44, fontWeight: 900, px: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}
+            sx={{ minHeight: 44, fontWeight: 800, px: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
             {t('auth.admin.policy.deploy', 'Deploy policy')}
           </Button>

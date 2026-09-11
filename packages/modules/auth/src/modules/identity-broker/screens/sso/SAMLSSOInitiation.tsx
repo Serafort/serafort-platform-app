@@ -289,7 +289,7 @@ const SAMLSSOInitiation = () => {
                 <Typography
                   variant='h4'
                   component='h1'
-                  sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 1, color: 'common.white' }}
+                  sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 1, color: 'common.white' }}
                 >
                   {t('auth.sso.title', 'Enterprise Login')}
                 </Typography>

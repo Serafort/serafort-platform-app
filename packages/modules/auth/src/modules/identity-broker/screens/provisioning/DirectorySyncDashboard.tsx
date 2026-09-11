@@ -157,7 +157,7 @@ function SyncLogsDialog({
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <History color='primary' sx={{ fontSize: 24 }} />
-          <Typography variant='h6' sx={{ fontWeight: 900 }}>
+          <Typography variant='h6' sx={{ fontWeight: 800 }}>
             {t('auth.admin.provisioning.dashboard.dialogs.logs.title')} &ldquo;{connectorName}
             &rdquo;
           </Typography>
@@ -187,16 +187,16 @@ function SyncLogsDialog({
             <Table size='small'>
               <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.6) }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900, py: 2 }}>
+                  <TableCell sx={{ fontWeight: 800, py: 2 }}>
                     {t('auth.admin.provisioning.logs.table.event').toUpperCase()}
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>
+                  <TableCell sx={{ fontWeight: 800 }}>
                     {t('auth.admin.provisioning.logs.table.target').toUpperCase()}
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>
+                  <TableCell sx={{ fontWeight: 800 }}>
                     {t('auth.admin.provisioning.logs.table.status').toUpperCase()}
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>
+                  <TableCell sx={{ fontWeight: 800 }}>
                     {t('auth.admin.provisioning.logs.table.timestamp').toUpperCase()}
                   </TableCell>
                 </TableRow>
@@ -222,7 +222,7 @@ function SyncLogsDialog({
                         label={log.status.toUpperCase()}
                         size='small'
                         color={log.status === 'success' ? 'success' : 'error'}
-                        sx={{ fontWeight: 900, height: 22, borderRadius: 'var(--sf-radius-xs, 4px)' }}
+                        sx={{ fontWeight: 800, height: 22, borderRadius: 'var(--sf-radius-xs, 4px)' }}
                       />
                     </TableCell>
                     <TableCell>
@@ -311,7 +311,7 @@ function AddConnectorDialog({
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Add color='primary' sx={{ fontSize: 24 }} />
-          <Typography variant='h6' sx={{ fontWeight: 900 }}>
+          <Typography variant='h6' sx={{ fontWeight: 800 }}>
             {t('auth.admin.provisioning.dashboard.dialogs.add.title')}
           </Typography>
         </Box>
@@ -401,7 +401,7 @@ function AddConnectorDialog({
           sx={{
             bgcolor: 'primary.main',
             boxShadow: (theme) => `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
-            fontWeight: 900,
+            fontWeight: 800,
             textTransform: 'none',
             px: 4,
             height: 48,
@@ -525,7 +525,7 @@ export default function DirectorySyncDashboard() {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 mb: 0.5,
                 letterSpacing: '-0.027em',
                 fontFamily: 'Outfit, sans-serif',
@@ -573,7 +573,7 @@ export default function DirectorySyncDashboard() {
               minHeight: 48,
               px: 4,
               borderRadius: 'var(--sf-radius-md, 8px)',
-              fontWeight: 900,
+              fontWeight: 800,
               textTransform: 'none',
               flex: { xs: 1, sm: 'none' },
             }}
@@ -642,7 +642,7 @@ export default function DirectorySyncDashboard() {
                 >
                   {stat.label}
                 </Typography>
-                <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.01em' }}>
+                <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.01em' }}>
                   {isLoading ? <Skeleton width={60} /> : stat.value}
                 </Typography>
               </Box>
@@ -718,7 +718,7 @@ export default function DirectorySyncDashboard() {
                           <Hub sx={{ fontSize: 26 }} />
                         </Avatar>
                         <Box>
-                          <Typography variant='h6' sx={{ fontWeight: 900, mb: 0.25 }}>
+                          <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.25 }}>
                             {conn.name}
                           </Typography>
                           <Typography
@@ -832,7 +832,7 @@ export default function DirectorySyncDashboard() {
                           >
                             {t('auth.admin.provisioning.dashboard.connector_card.sync_count')}
                           </Typography>
-                          <Typography variant='h6' sx={{ fontWeight: 900, lineHeight: 1.2 }}>
+                          <Typography variant='h6' sx={{ fontWeight: 800, lineHeight: 1.2 }}>
                             {conn.sync_count ?? 0}
                           </Typography>
                         </Card>
@@ -922,7 +922,7 @@ export default function DirectorySyncDashboard() {
               <Box>
                 <Typography
                   variant='h6'
-                  sx={{ fontWeight: 900, mb: 0.5, letterSpacing: '-0.01em' }}
+                  sx={{ fontWeight: 800, mb: 0.5, letterSpacing: '-0.01em' }}
                 >
                   {t('auth.admin.provisioning.dashboard.scim_promo.title')}
                 </Typography>
@@ -944,7 +944,7 @@ export default function DirectorySyncDashboard() {
                 minHeight: 48,
                 px: 4,
                 borderRadius: 'var(--sf-radius-md, 8px)',
-                fontWeight: 900,
+                fontWeight: 800,
                 textTransform: 'none',
                 boxShadow: (theme) => `0 8px 24px ${alpha(theme.palette.secondary.main, 0.25)}`,
                 whiteSpace: 'nowrap',

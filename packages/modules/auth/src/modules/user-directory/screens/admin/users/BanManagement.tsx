@@ -143,7 +143,7 @@ export default function BanManagement() {
             <Gavel sx={{ fontSize: 32 }} />
           </Avatar>
           <Box>
-            <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
+            <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em' }}>
               {t('auth.admin.banManagementTitle')}
             </Typography>
             <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
@@ -216,12 +216,12 @@ export default function BanManagement() {
                     </Typography>
                     {(stat as any).tooltip ? (
                       <Tooltip title={(stat as any).tooltip}>
-                        <Typography variant='h4' sx={{ fontWeight: 900, mt: 0.5, cursor: 'help' }}>
+                        <Typography variant='h4' sx={{ fontWeight: 800, mt: 0.5, cursor: 'help' }}>
                           {stat.value}
                         </Typography>
                       </Tooltip>
                     ) : (
-                      <Typography variant='h4' sx={{ fontWeight: 900, mt: 0.5 }}>
+                      <Typography variant='h4' sx={{ fontWeight: 800, mt: 0.5 }}>
                         {stat.value}
                       </Typography>
                     )}

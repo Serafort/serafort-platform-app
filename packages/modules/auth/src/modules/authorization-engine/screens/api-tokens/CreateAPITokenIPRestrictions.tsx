@@ -249,7 +249,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
 
           {/* Header */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant='h3' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+            <Typography variant='h3' sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.027em' }}>
               {t('auth.api_tokens.restrictions_header', 'Network Security')}
             </Typography>
             <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1.05rem' }}>
@@ -525,7 +525,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                     px: 4,
                     py: 1.2,
                     borderRadius: 'var(--sf-radius-md, 8px)',
-                    fontWeight: 900,
+                    fontWeight: 800,
                     textTransform: 'none',
                     boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
                     '&:hover': {

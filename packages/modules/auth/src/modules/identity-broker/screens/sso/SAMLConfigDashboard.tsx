@@ -207,7 +207,7 @@ export default function SAMLConfigDashboard() {
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 900,
+                  fontWeight: 800,
                   letterSpacing: '-0.027em',
                   fontFamily: 'Outfit, Inter, sans-serif',
                   fontSize: { xs: '1.5rem', md: '2.125rem' },
@@ -751,7 +751,7 @@ export default function SAMLConfigDashboard() {
                           color={idx === 0 ? 'success' : 'info'}
                           sx={{
                             borderRadius: 'var(--sf-radius-xs, 4px)',
-                            fontWeight: 900,
+                            fontWeight: 800,
                             height: 18,
                             fontSize: '0.6rem',
                             letterSpacing: '0.05em',

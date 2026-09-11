@@ -435,7 +435,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
             }}
           >
             <Box>
-              <Typography variant='h3' fontWeight={900} gutterBottom sx={{ color: 'text.primary' }}>
+              <Typography variant='h3' fontWeight={800} gutterBottom sx={{ color: 'text.primary' }}>
                 Real-time Auth Events Monitor
               </Typography>
               <Typography color='text.secondary'>

@@ -168,7 +168,7 @@ export default function ScopesRegistry() {
           <Box>
             <Typography
               variant='h4'
-              sx={{ fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.15 }}
+              sx={{ fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.15 }}
             >
               {t('auth.developer.scopesRegistry', 'Scopes Registry')}
             </Typography>
@@ -322,7 +322,7 @@ export default function ScopesRegistry() {
                         }
                         size='small'
                         sx={{
-                          fontWeight: 900,
+                          fontWeight: 800,
                           height: 20,
                           fontSize: '0.65rem',
                           textTransform: 'uppercase',

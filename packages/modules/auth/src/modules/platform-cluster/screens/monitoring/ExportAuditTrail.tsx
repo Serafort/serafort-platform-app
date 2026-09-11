@@ -123,7 +123,7 @@ export default function ExportAuditTrail() {
       sx={{ p: { xs: 2, md: 4 }, maxWidth: 1000, mx: 'auto' }}
     >
       <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' sx={{ fontWeight: 900, mb: 1 }}>
+        <Typography variant='h4' sx={{ fontWeight: 800, mb: 1 }}>
           {t('auth.admin.exportAudit')}
         </Typography>
         <Typography variant='body1' color='text.secondary'>
@@ -389,7 +389,7 @@ export default function ExportAuditTrail() {
                           color={item.status === 'ready' ? 'success' : 'default'}
                           sx={{
                             textTransform: 'uppercase',
-                            fontWeight: 900,
+                            fontWeight: 800,
                             fontSize: '0.55rem',
                             height: 16,
                           }}

@@ -190,7 +190,7 @@ export default function PermissionConsentScreen() {
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
             <AuthScreenIcon icon={<ShieldIcon sx={{ fontSize: 32 }} />} color='error.main' />
           </Box>
-          <Typography variant='h5' sx={{ fontWeight: 900, mb: 1.5, letterSpacing: '-0.027em' }}>
+          <Typography variant='h5' sx={{ fontWeight: 800, mb: 1.5, letterSpacing: '-0.027em' }}>
             {t('auth.sso.interaction_error_title', 'Interaction Failed')}
           </Typography>
           <Typography variant='body1' color='text.secondary' sx={{ mb: 4, fontWeight: 500 }}>
@@ -260,7 +260,7 @@ export default function PermissionConsentScreen() {
         <Typography
           variant='h4'
           sx={{
-            fontWeight: 900,
+            fontWeight: 800,
             letterSpacing: '-0.027em',
             mb: 1,
             textAlign: 'center',

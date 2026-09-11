@@ -362,7 +362,7 @@ export default function SSFConfiguration() {
           <Typography
             variant='h4'
             sx={{
-              fontWeight: 900,
+              fontWeight: 800,
               letterSpacing: '-0.027em',
               mb: 1,
               fontFamily: 'Outfit, sans-serif',
@@ -375,7 +375,7 @@ export default function SSFConfiguration() {
               label={t('auth.common.beta', 'BETA')}
               size='small'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 borderRadius: 'var(--sf-radius-xs, 4px)',
                 bgcolor: alpha(theme.palette.warning.main, 0.1),
                 color: 'warning.dark',
@@ -755,7 +755,7 @@ export default function SSFConfiguration() {
                               <Typography
                                 variant='caption'
                                 sx={{
-                                  fontWeight: 900,
+                                  fontWeight: 800,
                                   letterSpacing: '0.05em',
                                   color:
                                     signal.action === 'SSF_TEST_SIGNAL'
@@ -933,7 +933,7 @@ export default function SSFConfiguration() {
           <Typography
             variant='h6'
             component='div'
-            sx={{ fontWeight: 900, fontFamily: 'Outfit, sans-serif' }}
+            sx={{ fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}
           >
             {t('auth.sso.add_new_event', 'Add Security Event')}
           </Typography>

@@ -101,7 +101,7 @@ export default function PasskeySetup({
           id='passkey-setup-title'
           component='h2'
           variant='h5'
-          sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}
+          sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.027em' }}
         >
           {t('passkey.setupTitle', 'Set up a passkey')}
         </Typography>

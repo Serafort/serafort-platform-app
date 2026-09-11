@@ -195,7 +195,7 @@ export default function OIDCLoginPrompt({
 
           <CardContent sx={{ p: 3 }}>
             <Box sx={{ mt: { xs: 5, md: 7 }, mb: 4, textAlign: 'center' }}>
-              <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 1 }}>
+              <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 1 }}>
                 {t('sso.loginTitle', 'Sign in to {{appName}}', {
                   appName: themeConfig.templateName,
                 })}

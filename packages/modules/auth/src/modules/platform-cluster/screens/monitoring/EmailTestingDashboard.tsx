@@ -128,7 +128,7 @@ export default function EmailTestingDashboard() {
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1100, mx: 'auto' }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' sx={{ fontWeight: 900, mb: 1 }}>
+        <Typography variant='h4' sx={{ fontWeight: 800, mb: 1 }}>
           {t('auth.admin.emailTesting', 'Transactional Email Testing')}
         </Typography>
         <Typography variant='body1' color='text.secondary'>
@@ -232,7 +232,7 @@ export default function EmailTestingDashboard() {
                     label='Operational'
                     size='small'
                     color='success'
-                    sx={{ height: 16, fontSize: '0.6rem', fontWeight: 900 }}
+                    sx={{ height: 16, fontSize: '0.6rem', fontWeight: 800 }}
                   />
                 </ListItem>
               </List>
@@ -289,7 +289,7 @@ export default function EmailTestingDashboard() {
                             sx={{
                               height: 18,
                               fontSize: '0.6rem',
-                              fontWeight: 900,
+                              fontWeight: 800,
                               textTransform: 'uppercase',
                             }}
                           />

@@ -283,7 +283,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                       : t('auth.admin.policy.effect_deny', 'Deny')
                   }
                   color={simulationResult.effect === 'allow' ? 'success' : 'error'}
-                  sx={{ fontWeight: 900, px: 1, borderRadius: 'var(--sf-radius-sm, 6px)' }}
+                  sx={{ fontWeight: 800, px: 1, borderRadius: 'var(--sf-radius-sm, 6px)' }}
                 />
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <SpeedIcon sx={{ fontSize: 16, color: 'text.secondary' }} />

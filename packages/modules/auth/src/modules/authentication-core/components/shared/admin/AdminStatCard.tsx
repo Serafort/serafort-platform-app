@@ -90,7 +90,7 @@ const AdminStatCard: React.FC<AdminStatCardProps> = ({
           {loading ? (
             <Skeleton variant='text' width={72} height={32} aria-hidden />
           ) : (
-            <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+            <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
               {value}
             </Typography>
           )}

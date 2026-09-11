@@ -185,7 +185,7 @@ export default function JWKSManagement() {
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 900,
+                  fontWeight: 800,
                   letterSpacing: '-0.027em',
                   fontSize: { xs: '1.5rem', md: '2.125rem' },
                 }}
@@ -321,7 +321,7 @@ export default function JWKSManagement() {
           </Avatar>
           <Typography
             variant='h5'
-            sx={{ fontWeight: 900, mb: 1.5, fontFamily: 'Outfit, sans-serif' }}
+            sx={{ fontWeight: 800, mb: 1.5, fontFamily: 'Outfit, sans-serif' }}
           >
             {t('auth.sso.no_keys', 'No Keys Configured')}
           </Typography>
@@ -405,7 +405,7 @@ export default function JWKSManagement() {
                               sx={{
                                 height: 20,
                                 fontSize: '0.65rem',
-                                fontWeight: 900,
+                                fontWeight: 800,
                                 borderRadius: 'var(--sf-radius-xs, 4px)',
                                 bgcolor: alpha(
                                   key.status === 'active'
@@ -487,7 +487,7 @@ export default function JWKSManagement() {
                         <Typography
                           variant='body2'
                           sx={{
-                            fontWeight: 900,
+                            fontWeight: 800,
                             minWidth: 40,
                             color: (key.health ?? 100) > 90 ? 'success.main' : 'warning.main',
                           }}
@@ -662,7 +662,7 @@ export default function JWKSManagement() {
             <Typography
               variant='h6'
               component='div'
-              sx={{ fontWeight: 900, fontFamily: 'Outfit, sans-serif' }}
+              sx={{ fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}
             >
               {t('auth.sso.add_manual_key', 'Add Manual OIDC Key')}
             </Typography>
@@ -853,7 +853,7 @@ export default function JWKSManagement() {
               <Typography
                 variant='h6'
                 component='div'
-                sx={{ fontWeight: 900, fontFamily: 'Outfit, sans-serif' }}
+                sx={{ fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}
               >
                 {t('auth.sso.key_details', 'Key Details')}
               </Typography>
@@ -944,7 +944,7 @@ export default function JWKSManagement() {
                         label={value}
                         size='small'
                         color={color as any}
-                        sx={{ fontWeight: 900, fontSize: '0.7rem', borderRadius: 'var(--sf-radius-xs, 4px)' }}
+                        sx={{ fontWeight: 800, fontSize: '0.7rem', borderRadius: 'var(--sf-radius-xs, 4px)' }}
                       />
                     ) : (
                       <Typography variant='body2' sx={{ fontWeight: 800 }}>
