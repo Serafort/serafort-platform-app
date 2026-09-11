@@ -108,11 +108,7 @@ const CollapsibleMenuSection: React.FC<CollapsibleMenuSectionProps> = ({
       // into a sliver next to the header instead of stacking under it.
       rootStyles={{ flexDirection: 'column', ...rootStyles }}
       menuSectionStyles={getStyles('root')}
-      className={classnames(
-        menuClasses.menuSectionRoot,
-        { [menuClasses.open]: open },
-        className,
-      )}
+      className={classnames(menuClasses.menuSectionRoot, { [menuClasses.open]: open }, className)}
     >
       <div
         className={menuClasses.menuSectionContent}
