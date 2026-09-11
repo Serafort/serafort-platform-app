@@ -163,7 +163,7 @@ export default function EmailVerificationScreen() {
             severity='error'
             sx={{
               mb: 3,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               textAlign: 'left',
               '& .MuiAlert-message': { fontWeight: 600 },
             }}

@@ -254,7 +254,7 @@ export default function DeleteAccount() {
             flexDirection: 'column',
             width: '100%',
             maxWidth: 620,
-            borderRadius: '16px',
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             border: (theme) => `1px solid ${alpha(theme.palette.error.main, 0.3)}`,
             bgcolor: 'background.paper',
             boxShadow: (theme) =>
@@ -281,7 +281,7 @@ export default function DeleteAccount() {
                     ? alpha(theme.palette.error.main, 0.12)
                     : alpha(theme.palette.error.main, 0.06),
                 border: (theme) => `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
-                borderRadius: '14px',
+                borderRadius: 'var(--sf-radius-lg, 12px)',
                 p: { xs: 2, sm: 2.5 },
                 display: 'flex',
                 alignItems: 'center',
@@ -293,7 +293,7 @@ export default function DeleteAccount() {
                 sx={{
                   width: 48,
                   height: 48,
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -346,7 +346,7 @@ export default function DeleteAccount() {
                 severity='error'
                 sx={{
                   mb: 3.5,
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                   bgcolor: (theme) => alpha(theme.palette.error.main, 0.1),
                   color: 'error.main',
                 }}
@@ -384,7 +384,7 @@ export default function DeleteAccount() {
                 <Box
                   sx={{
                     p: 2.5,
-                    borderRadius: '12px',
+                    borderRadius: 'var(--sf-radius-lg, 12px)',
                     border: (theme) => `1px solid ${theme.palette.divider}`,
                     bgcolor: (theme) =>
                       theme.palette.mode === 'dark'
@@ -399,7 +399,7 @@ export default function DeleteAccount() {
                         sx={{
                           width: 36,
                           height: 36,
-                          borderRadius: '8px',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -435,7 +435,7 @@ export default function DeleteAccount() {
                         sx={{
                           width: 36,
                           height: 36,
-                          borderRadius: '8px',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -474,7 +474,7 @@ export default function DeleteAccount() {
                         sx={{
                           width: 36,
                           height: 36,
-                          borderRadius: '8px',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -509,7 +509,7 @@ export default function DeleteAccount() {
               <Box
                 sx={{
                   p: 2.5,
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                   border: (theme) => `1px solid ${theme.palette.divider}`,
                   bgcolor: (theme) =>
                     theme.palette.mode === 'dark'
@@ -687,7 +687,7 @@ export default function DeleteAccount() {
                           }}
                           sx={{
                             '& .MuiOutlinedInput-root': {
-                              borderRadius: '10px',
+                              borderRadius: 'var(--sf-radius-md, 8px)',
                               minHeight: 48,
                               bgcolor: 'background.default',
                               transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
@@ -795,7 +795,7 @@ export default function DeleteAccount() {
                         theme.palette.mode === 'dark'
                           ? alpha(theme.palette.background.default, 0.6)
                           : alpha(theme.palette.grey[50], 0.8),
-                      borderRadius: '10px',
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       border: (theme) => `1px solid ${theme.palette.divider}`,
                     }}
                   >
@@ -986,7 +986,7 @@ export default function DeleteAccount() {
             sx={{
               width: 36,
               height: 36,
-              borderRadius: '8px',
+              borderRadius: 'var(--sf-radius-md, 8px)',
               bgcolor: (theme) => alpha(theme.palette.error.main, 0.12),
               display: 'flex',
               alignItems: 'center',

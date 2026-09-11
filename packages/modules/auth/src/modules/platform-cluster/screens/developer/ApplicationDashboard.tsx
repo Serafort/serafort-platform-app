@@ -370,7 +370,7 @@ export default function ApplicationDashboard() {
                     <Search sx={{ fontSize: 20, color: 'text.secondary' }} />
                   </InputAdornment>
                 ),
-                sx: { borderRadius: 3 },
+                sx: { borderRadius: 'var(--sf-radius-lg, 12px)' },
               },
             }}
             sx={{ maxWidth: 500 }}
@@ -430,7 +430,7 @@ export default function ApplicationDashboard() {
                     sx={{
                       bgcolor: alpha(theme.palette.primary.main, 0.1),
                       color: 'primary.main',
-                      borderRadius: 2.5,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       width: 52,
                       height: 52,
                     }}
@@ -541,7 +541,7 @@ export default function ApplicationDashboard() {
                     sx={{
                       textTransform: 'none',
                       fontWeight: 800,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       bgcolor: alpha(theme.palette.primary.main, 0.1),
                       color: 'primary.main',
                       '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.2) },
@@ -562,7 +562,7 @@ export default function ApplicationDashboard() {
             sx={{
               height: '100%',
               minHeight: 250,
-              borderRadius: 4,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               border: '2px dashed',
               borderColor: 'divider',
               display: 'flex',
@@ -608,7 +608,7 @@ export default function ApplicationDashboard() {
         onClose={handleCloseMenu}
         PaperProps={{
           sx: {
-            borderRadius: 3,
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             minWidth: 200,
             mt: 1,
             boxShadow: '0px 10px 40px rgba(0,0,0,0.12)',
@@ -620,7 +620,7 @@ export default function ApplicationDashboard() {
       >
         <MenuItem
           onClick={() => handleOpenAppDialog(clients.find((c: any) => c.id === selectedAppId))}
-          sx={{ borderRadius: 2, py: 1.25 }}
+          sx={{ borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}
         >
           <ListItemIcon>
             <Edit fontSize='small' />
@@ -629,7 +629,7 @@ export default function ApplicationDashboard() {
             {t('admin.developer.applications.menu.edit')}
           </Typography>
         </MenuItem>
-        <MenuItem onClick={handleRotateSecret} sx={{ borderRadius: 2, py: 1.25 }}>
+        <MenuItem onClick={handleRotateSecret} sx={{ borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}>
           <ListItemIcon>
             <VpnKey fontSize='small' />
           </ListItemIcon>
@@ -640,7 +640,7 @@ export default function ApplicationDashboard() {
         <Divider sx={{ my: 1 }} />
         <MenuItem
           onClick={handleDeleteClient}
-          sx={{ color: 'error.main', borderRadius: 2, py: 1.25 }}
+          sx={{ color: 'error.main', borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}
         >
           <ListItemIcon>
             <Delete fontSize='small' color='error' />
@@ -657,7 +657,7 @@ export default function ApplicationDashboard() {
         onClose={() => setAppDialogOpen(false)}
         maxWidth='sm'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 4 } }}
+        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
       >
         <DialogTitle sx={{ fontWeight: 900, px: 3, pt: 3 }}>
           {isEditMode
@@ -673,7 +673,7 @@ export default function ApplicationDashboard() {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder={t('admin.developer.applications.dialogs.create.name_placeholder')}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
             />
             <TextField
               label={t('admin.developer.applications.dialogs.create.redirect_label')}
@@ -690,7 +690,7 @@ export default function ApplicationDashboard() {
               }
               placeholder={t('admin.developer.applications.dialogs.create.redirect_placeholder')}
               helperText={t('admin.developer.applications.dialogs.create.redirect_helper')}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
             />
             <FormControl fullWidth>
               <InputLabel>
@@ -709,7 +709,7 @@ export default function ApplicationDashboard() {
                 input={
                   <OutlinedInput
                     label={t('admin.developer.applications.dialogs.create.grant_label')}
-                    sx={{ borderRadius: 3 }}
+                    sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}
                   />
                 }
                 renderValue={(selected: string[]) => (
@@ -753,7 +753,7 @@ export default function ApplicationDashboard() {
             sx={{
               fontWeight: 800,
               textTransform: 'none',
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 3,
               bgcolor: 'info.main',
             }}
@@ -773,7 +773,7 @@ export default function ApplicationDashboard() {
         onClose={() => setSecretDialogOpen(false)}
         maxWidth='sm'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 4 } }}
+        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
       >
         <DialogTitle
           sx={{
@@ -801,7 +801,7 @@ export default function ApplicationDashboard() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
             }}
           >
             <Typography
@@ -829,7 +829,7 @@ export default function ApplicationDashboard() {
             sx={{
               fontWeight: 800,
               textTransform: 'none',
-              borderRadius: 2.5,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               py: 1.25,
               bgcolor: 'text.primary',
             }}
@@ -843,7 +843,7 @@ export default function ApplicationDashboard() {
       <Dialog
         open={confirmDialog.open}
         onClose={() => setConfirmDialog((prev: any) => ({ ...prev, open: false }))}
-        PaperProps={{ sx: { borderRadius: 4 } }}
+        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
       >
         <DialogTitle
           sx={{ fontWeight: 900, display: 'flex', gap: 1.5, alignItems: 'center', px: 3, pt: 3 }}
@@ -866,7 +866,7 @@ export default function ApplicationDashboard() {
             variant='contained'
             color='error'
             onClick={confirmDialog.onConfirm}
-            sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 2, px: 3 }}
+            sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 'var(--sf-radius-md, 8px)', px: 3 }}
           >
             {t('admin.developer.applications.dialogs.confirm.confirm_button')}
           </Button>

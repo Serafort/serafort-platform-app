@@ -204,7 +204,7 @@ export default function MFASetupScreen() {
 
           <Alert
             severity='warning'
-            sx={{ mb: 3, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 600 } }}
+            sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)', '& .MuiAlert-message': { fontWeight: 600 } }}
           >
             {t(
               'mfa.backupWarning',
@@ -223,7 +223,7 @@ export default function MFASetupScreen() {
               display: 'grid',
               gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
               gap: 1.5,
-              borderRadius: '16px',
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               border: '1px solid',
               borderColor: 'divider',
               bgcolor: alpha(theme.palette.action.selected, 0.05),
@@ -241,7 +241,7 @@ export default function MFASetupScreen() {
                     fontFamily: 'monospace',
                     fontWeight: 700,
                     fontSize: '0.95rem',
-                    borderRadius: 2,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     bgcolor: alpha(theme.palette.primary.main, 0.04),
                   }}
                 />
@@ -337,7 +337,7 @@ export default function MFASetupScreen() {
             severity='error'
             role='alert'
             aria-live='polite'
-            sx={{ mb: 3, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 600 } }}
+            sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)', '& .MuiAlert-message': { fontWeight: 600 } }}
           >
             {error}
           </Alert>

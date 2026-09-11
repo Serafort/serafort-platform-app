@@ -443,7 +443,7 @@ export default function DomainVerification() {
                   sx={{
                     width: 80,
                     height: 80,
-                    borderRadius: 'var(--sf-radius-xl, 24px)',
+                    borderRadius: 'var(--sf-radius-lg, 12px)',
                     bgcolor: alpha(theme.palette.success.main, 0.12),
                     color: theme.palette.success.main,
                     display: 'flex',

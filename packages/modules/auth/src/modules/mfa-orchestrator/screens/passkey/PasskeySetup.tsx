@@ -68,7 +68,7 @@ export default function PasskeySetup({
       slotProps={{
         paper: {
           sx: {
-            borderRadius: 3,
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             p: 2,
             bgcolor: 'background.paper',
             backgroundImage: 'none',
@@ -88,7 +88,7 @@ export default function PasskeySetup({
               height: 56,
               bgcolor: 'transparent',
               color: 'primary.main',
-              borderRadius: '24px',
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               border: '2px solid',
               borderColor: alpha(theme.palette.primary.main, 0.2),
             }}
@@ -119,7 +119,7 @@ export default function PasskeySetup({
         {error && (
           // `textAlign: 'left'` pinned the message to the left even in Arabic.
           // The logical value follows the writing direction.
-          <Alert severity='error' sx={{ mb: 3, borderRadius: 2, textAlign: 'start' }}>
+          <Alert severity='error' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)', textAlign: 'start' }}>
             {error}
           </Alert>
         )}
@@ -132,7 +132,7 @@ export default function PasskeySetup({
               alignItems='center'
               justifyContent='center'
               role='status'
-              sx={{ bgcolor: 'action.hover', borderRadius: 2, py: 2, px: 3 }}
+              sx={{ bgcolor: 'action.hover', borderRadius: 'var(--sf-radius-md, 8px)', py: 2, px: 3 }}
             >
               <CircularProgress size={20} thickness={4} />
               <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>

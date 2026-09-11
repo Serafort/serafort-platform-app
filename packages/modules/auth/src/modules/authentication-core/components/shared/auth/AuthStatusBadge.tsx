@@ -49,7 +49,7 @@ const AuthStatusBadge: React.FC<AuthStatusBadgeProps> = ({ status, label, size =
       label={label}
       sx={{
         fontWeight: 700,
-        borderRadius: 2,
+        borderRadius: 'var(--sf-radius-md, 8px)',
         color,
         bgcolor: alpha(color, 0.1),
         border: '1px solid',

@@ -61,7 +61,7 @@ export default function MaintenanceScreen() {
         elevation={0}
         sx={{
           p: 3,
-          borderRadius: 3,
+          borderRadius: 'var(--sf-radius-lg, 12px)',
           bgcolor: (t) => alpha(t.palette.info.main, 0.05),
           border: '1px solid',
           borderColor: (t) => alpha(t.palette.info.main, 0.1),

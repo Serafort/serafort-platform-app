@@ -44,7 +44,7 @@ export const AdminTableCard: React.FC<AdminTableCardProps> = ({ sx, children, ..
     {...props}
     sx={mergeSx(
       {
-        borderRadius: '16px',
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         borderColor: 'divider',
         backgroundColor: 'background.paper',
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',

@@ -643,7 +643,7 @@ export default function OrganizationProfile() {
               sx={{
                 mt: 3,
                 p: 2,
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 bgcolor: alpha(theme.palette.info.main, 0.05),
                 border: '1px solid',
                 borderColor: alpha(theme.palette.info.main, 0.1),
@@ -683,7 +683,7 @@ export default function OrganizationProfile() {
           >
             <Card
               sx={(theme: any) => ({
-                borderRadius: 4,
+                borderRadius: 'var(--sf-radius-lg, 12px)',
                 height: '100%',
                 border: '1px solid ' + theme.palette.divider,
                 ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -701,7 +701,7 @@ export default function OrganizationProfile() {
                     p: 4,
                     border: '2px dashed',
                     borderColor: 'divider',
-                    borderRadius: 4,
+                    borderRadius: 'var(--sf-radius-lg, 12px)',
                     textAlign: 'center',
                     cursor: 'pointer',
                     '&:hover': { bgcolor: 'action.hover' },
@@ -749,7 +749,7 @@ export default function OrganizationProfile() {
           >
             <Card
               sx={{
-                borderRadius: 4,
+                borderRadius: 'var(--sf-radius-lg, 12px)',
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
@@ -787,7 +787,7 @@ export default function OrganizationProfile() {
                         width: 56,
                         height: 56,
                         bgcolor: formData?.primaryColor || theme.palette.primary.main,
-                        borderRadius: 2,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         border: '4px solid white',
                         boxShadow: theme.shadows[2],
                         mt: -2.5,
@@ -820,7 +820,7 @@ export default function OrganizationProfile() {
                         width: 56,
                         height: 56,
                         bgcolor: formData?.secondaryColor || theme.palette.secondary.main,
-                        borderRadius: 2,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         border: '4px solid white',
                         boxShadow: theme.shadows[2],
                         mt: -2.5,
@@ -836,7 +836,7 @@ export default function OrganizationProfile() {
 
       <TabPanel value={tab} index={2}>
         <Card
-          sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
+          sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
         >
           <CardContent sx={{ p: 3 }}>
             <Typography variant='h6' sx={{ fontWeight: 800, mb: 3, textTransform: 'uppercase' }}>
@@ -944,7 +944,7 @@ export default function OrganizationProfile() {
                     }
                     navigate(Path.admin.policies.replace(':id', id))
                   }}
-                  sx={{ fontWeight: 700, borderRadius: 2 }}
+                  sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)' }}
                 >
                   {t('auth.admin.managePolicies') || 'Manage Policies'}
                 </Button>

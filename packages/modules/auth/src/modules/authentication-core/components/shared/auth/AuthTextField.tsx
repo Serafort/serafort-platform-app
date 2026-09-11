@@ -19,7 +19,7 @@ const AuthTextField: React.FC<AuthTextFieldProps> = ({ sx, ...props }) => (
     sx={{
       '& .MuiOutlinedInput-root': {
         minHeight: 48,
-        borderRadius: '12px',
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         bgcolor: 'background.paper',
         transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
         '& fieldset': { borderColor: 'divider' },

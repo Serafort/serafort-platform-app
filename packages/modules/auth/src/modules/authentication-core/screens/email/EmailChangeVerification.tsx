@@ -121,7 +121,7 @@ export default function EmailChangeVerification() {
             endIcon={<ArrowForward />}
             sx={{
               minHeight: 48,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               fontWeight: 800,
               fontSize: '1rem',
               textTransform: 'none',

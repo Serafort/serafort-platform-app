@@ -94,7 +94,7 @@ export default function PasskeySetupAuto({
               height: 56,
               bgcolor: 'transparent',
               color: 'primary.main',
-              borderRadius: '24px',
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               border: '2px solid',
               borderColor: alpha(theme.palette.primary.main, 0.2),
             }}

@@ -135,7 +135,7 @@ export default function AdminUserProfile() {
     return (
       <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
         <Skeleton variant='text' width={120} height={32} sx={{ mb: 2 }} />
-        <Card sx={{ p: 4, borderRadius: 3, mb: 3 }}>
+        <Card sx={{ p: 4, borderRadius: 'var(--sf-radius-lg, 12px)', mb: 3 }}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems='center'>
             <Skeleton variant='circular' width={80} height={80} />
             <Box sx={{ flex: 1 }}>
@@ -146,10 +146,10 @@ export default function AdminUserProfile() {
         </Card>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Skeleton variant='rectangular' height={260} sx={{ borderRadius: 3 }} />
+            <Skeleton variant='rectangular' height={260} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
-            <Skeleton variant='rectangular' height={260} sx={{ borderRadius: 3 }} />
+            <Skeleton variant='rectangular' height={260} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
           </Grid>
         </Grid>
       </Box>
@@ -585,7 +585,7 @@ export default function AdminUserProfile() {
                   variant='outlined'
                   sx={{
                     p: 2.5,
-                    borderRadius: 2,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     borderColor: alpha(theme.palette.divider, 0.1),
                   }}
                 >
@@ -649,7 +649,7 @@ export default function AdminUserProfile() {
                   variant='outlined'
                   sx={{
                     p: 2.5,
-                    borderRadius: 2,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     borderColor: alpha(theme.palette.divider, 0.1),
                   }}
                 >
@@ -714,7 +714,7 @@ export default function AdminUserProfile() {
                     variant='outlined'
                     sx={{
                       p: 2.5,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       bgcolor: alpha(theme.palette.background.default, 0.4),
                     }}
                   >
@@ -756,7 +756,7 @@ export default function AdminUserProfile() {
                         variant='outlined'
                         sx={{
                           p: 2.5,
-                          borderRadius: 2,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
                           bgcolor: alpha(theme.palette.primary.main, 0.02),
                         }}
@@ -826,7 +826,7 @@ export default function AdminUserProfile() {
                     <Paper
                       key={sess.id || idx}
                       variant='outlined'
-                      sx={{ p: 2, mb: 1.5, borderRadius: 2 }}
+                      sx={{ p: 2, mb: 1.5, borderRadius: 'var(--sf-radius-md, 8px)' }}
                     >
                       <Stack direction='row' justifyContent='space-between' alignItems='center'>
                         <Stack direction='row' spacing={2} alignItems='center'>
@@ -879,7 +879,7 @@ export default function AdminUserProfile() {
                     <Paper
                       key={log.id || idx}
                       variant='outlined'
-                      sx={{ p: 2, mb: 1.5, borderRadius: 2 }}
+                      sx={{ p: 2, mb: 1.5, borderRadius: 'var(--sf-radius-md, 8px)' }}
                     >
                       <Stack direction='row' spacing={2} alignItems='center'>
                         <HistoryIcon color='action' fontSize='small' />
@@ -911,7 +911,7 @@ export default function AdminUserProfile() {
 
               <Grid container spacing={2.5}>
                 <Grid size={{ xs: 12, md: 6 }}>
-                  <Paper variant='outlined' sx={{ p: 2.5, borderRadius: 2 }}>
+                  <Paper variant='outlined' sx={{ p: 2.5, borderRadius: 'var(--sf-radius-md, 8px)' }}>
                     <Typography variant='subtitle2' fontWeight={700} gutterBottom>
                       Trigger Password Reset
                     </Typography>

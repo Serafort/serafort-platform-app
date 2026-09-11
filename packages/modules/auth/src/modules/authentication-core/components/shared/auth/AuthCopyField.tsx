@@ -64,7 +64,7 @@ const AuthCopyField: React.FC<AuthCopyFieldProps> = ({
       id={id}
       sx={{
         p: 2,
-        borderRadius: '12px',
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         bgcolor: alpha(theme.palette.action.selected, 0.05),
         border: '1px solid',
         borderColor: 'divider',

@@ -80,7 +80,7 @@ const DevicePlatformIcon: React.FC<DevicePlatformIconProps> = ({
       sx={{
         width: size,
         height: size,
-        borderRadius: '12px',
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         bgcolor: alpha(color, 0.1),
         color,
         border: '1px solid',

@@ -110,7 +110,7 @@ export default function PasswordlessInitiation() {
             severity='error'
             role='alert'
             aria-live='polite'
-            sx={{ mb: 3, borderRadius: 2.5, '& .MuiAlert-message': { fontWeight: 600 } }}
+            sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)', '& .MuiAlert-message': { fontWeight: 600 } }}
           >
             {serverError}
           </Alert>
@@ -181,7 +181,7 @@ export default function PasswordlessInitiation() {
           startIcon={<LockOutlined />}
           sx={{
             minHeight: 48,
-            borderRadius: 3,
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             fontWeight: 700,
             textTransform: 'none',
             borderColor: 'divider',

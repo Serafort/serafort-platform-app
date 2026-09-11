@@ -247,7 +247,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
           sx={{
             width: '100%',
             maxWidth: 1200,
-            borderRadius: '12px',
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             overflow: 'hidden',
             border: 1,
             borderColor: 'divider',

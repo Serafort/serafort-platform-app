@@ -126,7 +126,7 @@ export default function EmailTemplatePreview() {
           <Button
             variant='contained'
             startIcon={<Edit />}
-            sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 2, boxShadow: 'none' }}
+            sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)', boxShadow: 'none' }}
           >
             {t('auth.admin.editTemplate', 'Edit Template')}
           </Button>
@@ -151,7 +151,7 @@ export default function EmailTemplatePreview() {
                     border: '1px solid',
                     borderColor: template.id === selectedId ? 'primary.main' : 'divider',
                     boxShadow: 'none',
-                    borderRadius: 3,
+                    borderRadius: 'var(--sf-radius-lg, 12px)',
                     bgcolor:
                       template.id === selectedId
                         ? alpha(theme.palette.primary.main, 0.05)
@@ -188,7 +188,7 @@ export default function EmailTemplatePreview() {
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               minHeight: 600,
               display: 'flex',
               flexDirection: 'column',
@@ -214,7 +214,7 @@ export default function EmailTemplatePreview() {
                   sx={{
                     textTransform: 'none',
                     fontWeight: 700,
-                    borderRadius: 2,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     boxShadow: 'none',
                   }}
                 >
@@ -228,7 +228,7 @@ export default function EmailTemplatePreview() {
                   sx={{
                     textTransform: 'none',
                     fontWeight: 700,
-                    borderRadius: 2,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     boxShadow: 'none',
                   }}
                 >
@@ -239,7 +239,7 @@ export default function EmailTemplatePreview() {
               <Stack
                 direction='row'
                 spacing={1}
-                sx={{ bgcolor: 'action.hover', p: 0.5, borderRadius: 2 }}
+                sx={{ bgcolor: 'action.hover', p: 0.5, borderRadius: 'var(--sf-radius-md, 8px)' }}
               >
                 <Tooltip title={t('auth.admin.desktopView', 'Desktop View (600px)')}>
                   <IconButton
@@ -281,7 +281,7 @@ export default function EmailTemplatePreview() {
                   minHeight: 450,
                   p: 3,
                   bgcolor: '#ffffff',
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                   transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
                 }}

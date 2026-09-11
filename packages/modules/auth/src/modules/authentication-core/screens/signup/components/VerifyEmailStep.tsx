@@ -133,7 +133,7 @@ export const VerifyEmailStep: React.FC<VerifyEmailStepProps> = ({
                 textTransform: 'none',
                 fontWeight: 700,
                 color: 'primary.main',
-                borderRadius: '8px',
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 minHeight: 36,
               }}
             >

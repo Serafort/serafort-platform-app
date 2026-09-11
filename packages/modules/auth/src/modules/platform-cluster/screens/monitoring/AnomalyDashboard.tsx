@@ -187,7 +187,7 @@ export const AnomalyDashboard: React.FC = () => {
                         <LinearProgress
                           variant='determinate'
                           value={(count / max) * 100}
-                          sx={{ height: 6, borderRadius: 3 }}
+                          sx={{ height: 6, borderRadius: 'var(--sf-radius-lg, 12px)' }}
                         />
                       </Box>
                     )
@@ -225,7 +225,7 @@ export const AnomalyDashboard: React.FC = () => {
                         variant='determinate'
                         value={geoMax ? (point.count / geoMax) * 100 : 0}
                         color='secondary'
-                        sx={{ height: 6, borderRadius: 3 }}
+                        sx={{ height: 6, borderRadius: 'var(--sf-radius-lg, 12px)' }}
                       />
                     </Box>
                   ))}

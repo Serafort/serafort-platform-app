@@ -29,7 +29,7 @@ const AuthQrPanel: React.FC<AuthQrPanelProps> = ({ src, alt, size = 200, loading
       justifyContent: 'center',
       p: 3,
       mb: 3,
-      borderRadius: '20px',
+      borderRadius: 'var(--sf-radius-lg, 12px)',
       bgcolor: 'common.white',
       border: '1px solid',
       borderColor: 'divider',
@@ -43,7 +43,7 @@ const AuthQrPanel: React.FC<AuthQrPanelProps> = ({ src, alt, size = 200, loading
         component='img'
         src={src}
         alt={alt}
-        sx={{ width: size, height: size, borderRadius: '8px', display: 'block' }}
+        sx={{ width: size, height: size, borderRadius: 'var(--sf-radius-md, 8px)', display: 'block' }}
       />
     ) : (
       <QrCode2 aria-label={alt} sx={{ fontSize: size * 0.4, color: 'grey.400' }} />

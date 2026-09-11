@@ -217,7 +217,7 @@ export default function RoleDetailView() {
         <Alert
           severity='error'
           variant='filled'
-          sx={{ borderRadius: 3, fontWeight: 700 }}
+          sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', fontWeight: 700 }}
           action={
             <Button color='inherit' onClick={() => navigate(Path.admin.roles)}>
               {t('auth.admin.backToList') || 'Back to List'}

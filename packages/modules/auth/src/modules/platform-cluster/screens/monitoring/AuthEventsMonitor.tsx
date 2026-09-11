@@ -204,7 +204,7 @@ export default function AuthEventsMonitor() {
       <TableContainer
         component={Paper}
         variant='outlined'
-        sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}
+        sx={{ borderRadius: 'var(--sf-radius-md, 8px)', border: '1px solid', borderColor: 'divider' }}
       >
         <Table sx={{ minWidth: 800 }}>
           <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.5) }}>

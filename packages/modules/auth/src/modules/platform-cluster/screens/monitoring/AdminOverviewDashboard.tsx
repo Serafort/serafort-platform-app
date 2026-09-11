@@ -58,7 +58,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, href, on
         border: '1px solid',
         borderColor: 'divider',
         boxShadow: 'none',
-        borderRadius: 4,
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         cursor: href || onClick ? 'pointer' : 'default',
         transition: 'transform 0.15s ease, box-shadow 0.15s ease',
         '&:hover':
@@ -75,7 +75,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, href, on
           sx={{
             width: 52,
             height: 52,
-            borderRadius: '14px',
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             bgcolor: alpha(theme.palette[color].main, 0.1),
             color: `${color}.main`,
           }}
@@ -155,7 +155,7 @@ const QuickAction: React.FC<QuickActionProps> = ({ label, description, href }) =
         px: 2.5,
         py: 2,
         cursor: 'pointer',
-        borderRadius: 2,
+        borderRadius: 'var(--sf-radius-md, 8px)',
         transition: 'background 0.15s',
         '&:hover': { bgcolor: 'action.hover' },
       }}
@@ -243,7 +243,7 @@ const AdminOverviewDashboard: React.FC = () => {
             sx={{
               width: { xs: 52, md: 60 },
               height: { xs: 52, md: 60 },
-              borderRadius: '18px',
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               bgcolor: alpha(theme.palette.primary.main, 0.1),
               color: 'primary.main',
             }}
@@ -271,7 +271,7 @@ const AdminOverviewDashboard: React.FC = () => {
           onClick={() => refetch()}
           disabled={isFetching}
           variant='outlined'
-          sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2, height: 40 }}
+          sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', height: 40 }}
         >
           {isFetching ? 'Refreshing…' : 'Refresh'}
         </Button>
@@ -357,7 +357,7 @@ const AdminOverviewDashboard: React.FC = () => {
                 sx={{
                   width: 36,
                   height: 36,
-                  borderRadius: '10px',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   bgcolor: alpha(theme.palette.error.main, 0.1),
                   color: 'error.main',
                 }}
@@ -395,7 +395,7 @@ const AdminOverviewDashboard: React.FC = () => {
                   sx={{
                     textAlign: 'center',
                     p: 1.5,
-                    borderRadius: 2,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     bgcolor: alpha(item.color, 0.06),
                     border: `1px solid ${alpha(item.color, 0.15)}`,
                   }}
@@ -418,7 +418,7 @@ const AdminOverviewDashboard: React.FC = () => {
               <Alert
                 severity='warning'
                 icon={<WarningAmberIcon fontSize='small' />}
-                sx={{ borderRadius: 2, fontSize: '0.8rem' }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontSize: '0.8rem' }}
                 action={
                   <Button
                     size='small'
@@ -453,7 +453,7 @@ const AdminOverviewDashboard: React.FC = () => {
                 sx={{
                   width: 36,
                   height: 36,
-                  borderRadius: '10px',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   bgcolor: alpha(theme.palette.primary.main, 0.1),
                   color: 'primary.main',
                 }}

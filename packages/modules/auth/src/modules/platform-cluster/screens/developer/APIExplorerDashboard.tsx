@@ -434,7 +434,7 @@ export default function APIExplorerDashboard() {
                     },
                   }}
                   sx={{
-                    '& .MuiOutlinedInput-root': { borderRadius: 2 },
+                    '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' },
                   }}
                 />
                 <Typography
@@ -490,7 +490,7 @@ export default function APIExplorerDashboard() {
                             sx={{
                               px: 1.5,
                               py: 1,
-                              borderRadius: 2,
+                              borderRadius: 'var(--sf-radius-md, 8px)',
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',
@@ -539,7 +539,7 @@ export default function APIExplorerDashboard() {
                   m: 1.5,
                   mt: 0,
                   p: 2,
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   bgcolor: alpha(theme.palette.info.main, 0.05),
                   border: '1px solid',
                   borderColor: alpha(theme.palette.info.main, 0.1),
@@ -732,7 +732,7 @@ export default function APIExplorerDashboard() {
                           sx={{
                             mt: 3,
                             p: 2,
-                            borderRadius: 2,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             bgcolor: alpha(theme.palette.warning.main, 0.04),
                             border: '1px solid',
                             borderColor: alpha(theme.palette.warning.main, 0.15),
@@ -960,7 +960,7 @@ export default function APIExplorerDashboard() {
                       <Box
                         sx={{
                           p: 3,
-                          borderRadius: 3,
+                          borderRadius: 'var(--sf-radius-lg, 12px)',
                           bgcolor: alpha(theme.palette.info.main, 0.04),
                           border: '1px solid',
                           borderColor: alpha(theme.palette.info.main, 0.12),
@@ -1006,7 +1006,7 @@ export default function APIExplorerDashboard() {
                               '& .MuiOutlinedInput-root': {
                                 fontFamily: 'monospace',
                                 fontSize: '0.8125rem',
-                                borderRadius: 3,
+                                borderRadius: 'var(--sf-radius-lg, 12px)',
                                 bgcolor: alpha(theme.palette.text.primary, 0.02),
                               },
                             }}
@@ -1028,7 +1028,7 @@ export default function APIExplorerDashboard() {
                           )
                         }
                         sx={{
-                          borderRadius: 2,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           fontWeight: 700,
                           textTransform: 'none',
                           fontSize: '1rem',
@@ -1085,7 +1085,7 @@ export default function APIExplorerDashboard() {
                               bgcolor: alpha(theme.palette.text.primary, 0.04),
                               border: '1px solid',
                               borderColor: 'divider',
-                              borderRadius: 3,
+                              borderRadius: 'var(--sf-radius-lg, 12px)',
                               p: 2.5,
                               maxHeight: 400,
                               overflow: 'auto',
@@ -1124,7 +1124,7 @@ export default function APIExplorerDashboard() {
                   gap: 1,
                   border: '1px dashed',
                   borderColor: 'divider',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                 }}
               >
                 <ApiIcon sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />

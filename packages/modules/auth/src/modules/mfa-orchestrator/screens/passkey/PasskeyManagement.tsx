@@ -598,7 +598,7 @@ export default function PasskeyManagement() {
                             sx={{
                               width: 40,
                               height: 40,
-                              borderRadius: '10px',
+                              borderRadius: 'var(--sf-radius-md, 8px)',
                               ...iconStyle,
                             }}
                           >
@@ -714,7 +714,7 @@ export default function PasskeyManagement() {
                               width: 44,
                               height: 44,
                               color: 'text.secondary',
-                              borderRadius: '8px',
+                              borderRadius: 'var(--sf-radius-md, 8px)',
                               '&:hover': {
                                 color: 'text.primary',
                                 bgcolor: (theme) => alpha(theme.palette.text.primary, 0.06),

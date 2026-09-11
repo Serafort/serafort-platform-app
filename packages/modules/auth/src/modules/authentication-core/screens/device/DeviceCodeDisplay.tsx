@@ -72,7 +72,7 @@ const DeviceCodeDisplay = () => {
             severity='error'
             role='alert'
             aria-live='polite'
-            sx={{ mb: 3, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 600 } }}
+            sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)', '& .MuiAlert-message': { fontWeight: 600 } }}
           >
             {errorMessage}
           </Alert>
@@ -120,7 +120,7 @@ const DeviceCodeDisplay = () => {
               }
               sx={{
                 minHeight: 48,
-                borderRadius: 3,
+                borderRadius: 'var(--sf-radius-lg, 12px)',
                 fontWeight: 800,
                 fontSize: '1rem',
                 textTransform: 'none',

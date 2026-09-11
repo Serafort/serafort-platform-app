@@ -428,7 +428,7 @@ export default function OidcWaitScreen() {
               gap: 1.5,
               px: 2.5,
               py: 1,
-              borderRadius: '50px',
+              borderRadius: 'var(--sf-radius-full, 9999px)',
               bgcolor: alpha(theme.palette.success.main, 0.04),
               border: '1px solid',
               borderColor: alpha(theme.palette.success.main, 0.1),

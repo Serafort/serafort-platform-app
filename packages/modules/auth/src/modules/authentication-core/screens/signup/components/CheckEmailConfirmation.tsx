@@ -71,7 +71,7 @@ export default function CheckEmailConfirmation() {
             severity='success'
             sx={{
               mb: 3,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               textAlign: 'left',
               '& .MuiAlert-message': { fontWeight: 600 },
             }}
@@ -84,7 +84,7 @@ export default function CheckEmailConfirmation() {
             severity='error'
             sx={{
               mb: 3,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               textAlign: 'left',
               '& .MuiAlert-message': { fontWeight: 600 },
             }}

@@ -136,7 +136,7 @@ const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
                 width: { xs: 52, md: 60 },
                 height: { xs: 52, md: 60 },
                 flexShrink: 0,
-                borderRadius: '18px',
+                borderRadius: 'var(--sf-radius-lg, 12px)',
                 bgcolor: alpha(color, 0.1),
                 color,
                 boxShadow: `0 8px 24px ${alpha(color, 0.12)}`,

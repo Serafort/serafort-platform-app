@@ -55,7 +55,7 @@ const AdminEmptyState: React.FC<AdminEmptyStateProps> = ({
             justifyContent: 'center',
             width: 64,
             height: 64,
-            borderRadius: '20px',
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             bgcolor: alpha(color, 0.1),
             color,
           }}

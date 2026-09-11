@@ -53,7 +53,7 @@ const SecurityMethodCard: React.FC<SecurityMethodCardProps> = ({
         flexDirection: 'column',
         height: '100%',
         p: 2.5,
-        borderRadius: '16px',
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         bgcolor: enabled ? alpha(color, 0.04) : 'background.paper',
         border: '1px solid',
         borderColor: enabled ? alpha(color, 0.28) : 'divider',
@@ -70,7 +70,7 @@ const SecurityMethodCard: React.FC<SecurityMethodCardProps> = ({
             width: 44,
             height: 44,
             flexShrink: 0,
-            borderRadius: '12px',
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             bgcolor: alpha(color, 0.1),
             color,
           }}

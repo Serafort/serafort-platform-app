@@ -109,7 +109,7 @@ const AdminDataState: React.FC<AdminDataStateProps> = ({
               variant='outlined'
               startIcon={<Refresh />}
               onClick={onRetry}
-              sx={{ minHeight: 44, borderRadius: 2, fontWeight: 700, textTransform: 'none' }}
+              sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700, textTransform: 'none' }}
             >
               {t('admin.state.retry', 'Try again')}
             </Button>

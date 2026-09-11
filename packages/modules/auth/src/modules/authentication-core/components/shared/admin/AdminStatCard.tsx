@@ -47,7 +47,7 @@ const AdminStatCard: React.FC<AdminStatCardProps> = ({
         border: '1px solid',
         borderColor: 'divider',
         boxShadow: 'none',
-        borderRadius: 4,
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         transition: 'transform 0.15s ease, border-color 0.15s ease',
         '&:hover': { transform: 'translateY(-2px)', borderColor: alpha(color, 0.4) },
         '@media (prefers-reduced-motion: reduce)': { transition: 'none', '&:hover': { transform: 'none' } },
@@ -64,7 +64,7 @@ const AdminStatCard: React.FC<AdminStatCardProps> = ({
               width: 48,
               height: 48,
               flexShrink: 0,
-              borderRadius: '14px',
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               bgcolor: alpha(color, 0.1),
               color,
             }}

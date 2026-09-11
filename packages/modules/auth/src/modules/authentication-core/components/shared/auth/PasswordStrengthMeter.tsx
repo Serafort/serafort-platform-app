@@ -156,7 +156,7 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
       sx={{
         mt: 1.5,
         p: 1.5,
-        borderRadius: '12px',
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         bgcolor: alpha(theme.palette.background.default, 0.5),
         border: '1px solid',
         borderColor: 'divider',

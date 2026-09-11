@@ -56,7 +56,7 @@ const AuthResendButton: React.FC<AuthResendButtonProps> = ({
       endIcon={endIcon}
       sx={{
         minHeight: 48,
-        borderRadius: 3,
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         fontWeight: 800,
         fontSize: '0.9375rem',
         textTransform: 'none',

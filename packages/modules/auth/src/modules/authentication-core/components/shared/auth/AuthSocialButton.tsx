@@ -84,7 +84,7 @@ const AuthSocialButton: React.FC<AuthSocialButtonProps> = ({
     {...props}
     sx={{
       height: 48,
-      borderRadius: '12px',
+      borderRadius: 'var(--sf-radius-lg, 12px)',
       textTransform: 'none',
       fontWeight: 700,
       fontSize: '0.875rem',

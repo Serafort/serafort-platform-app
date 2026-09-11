@@ -50,7 +50,7 @@ const AdminSearchField: React.FC<AdminSearchFieldProps> = ({
       },
     }}
     sx={{
-      '& .MuiOutlinedInput-root': { borderRadius: 2, minHeight: 48 },
+      '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 48 },
       ...sx,
     }}
   />

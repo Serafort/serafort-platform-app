@@ -193,7 +193,7 @@ const PasswordlessVerification = () => {
               variant='outlined'
               sx={{
                 fontWeight: 600,
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 borderColor: alpha(theme.palette.primary.main, 0.3),
                 bgcolor: alpha(theme.palette.primary.main, 0.05),
               }}
@@ -229,7 +229,7 @@ const PasswordlessVerification = () => {
         securityNote={t('passwordless.encrypted_notice', 'Encrypted & Single-Use Authentication')}
       >
         <Box role='status' aria-live='polite' sx={{ width: '80%', mx: 'auto' }}>
-          <LinearProgress sx={{ borderRadius: 2, height: 6 }} />
+          <LinearProgress sx={{ borderRadius: 'var(--sf-radius-md, 8px)', height: 6 }} />
         </Box>
       </AuthOutcomeScreen>
     )
@@ -249,7 +249,7 @@ const PasswordlessVerification = () => {
         securityNote={t('passwordless.encrypted_notice', 'Encrypted & Single-Use Authentication')}
       >
         <Box role='status' aria-live='polite' sx={{ width: '60%', mx: 'auto' }}>
-          <LinearProgress color='success' sx={{ borderRadius: 2, height: 6 }} />
+          <LinearProgress color='success' sx={{ borderRadius: 'var(--sf-radius-md, 8px)', height: 6 }} />
         </Box>
       </AuthOutcomeScreen>
     )

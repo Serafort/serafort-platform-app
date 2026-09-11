@@ -259,7 +259,7 @@ export default function ModuleManagementDashboard() {
         sx={{
           p: 2,
           mb: 3,
-          borderRadius: 3,
+          borderRadius: 'var(--sf-radius-lg, 12px)',
           border: '1px solid',
           borderColor: 'divider',
           display: 'flex',
@@ -286,7 +286,7 @@ export default function ModuleManagementDashboard() {
               ),
             },
           }}
-          sx={{ flex: 1, minWidth: 260, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+          sx={{ flex: 1, minWidth: 260, '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' } }}
         />
 
         <Stack direction='row' spacing={1}>
@@ -296,7 +296,7 @@ export default function ModuleManagementDashboard() {
               size='small'
               variant={statusFilter === filter ? 'contained' : 'outlined'}
               onClick={() => setStatusFilter(filter)}
-              sx={{ textTransform: 'capitalize', borderRadius: 2, fontWeight: 700 }}
+              sx={{ textTransform: 'capitalize', borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}
             >
               {t('monitoring.modules.filter_' + filter, filter)}
             </Button>
@@ -305,7 +305,7 @@ export default function ModuleManagementDashboard() {
       </Paper>
 
       {error && (
-        <Alert severity='error' sx={{ mb: 3, borderRadius: 2 }}>
+        <Alert severity='error' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)' }}>
           {error}
         </Alert>
       )}
@@ -318,7 +318,7 @@ export default function ModuleManagementDashboard() {
         <Paper
           sx={{
             p: 6,
-            borderRadius: 3,
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             border: '1px solid',
             borderColor: 'divider',
             textAlign: 'center',
@@ -348,7 +348,7 @@ export default function ModuleManagementDashboard() {
               <Grid size={{ xs: 12, md: 6 }} key={module.id}>
                 <Card
                   sx={{
-                    borderRadius: 4,
+                    borderRadius: 'var(--sf-radius-lg, 12px)',
                     border: '1px solid',
                     borderColor: isActive ? alpha(theme.palette.primary.main, 0.2) : 'divider',
                     boxShadow: 'none',
@@ -373,7 +373,7 @@ export default function ModuleManagementDashboard() {
                           sx={{
                             width: 44,
                             height: 44,
-                            borderRadius: 2.5,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             bgcolor: isActive
                               ? alpha(theme.palette.primary.main, 0.1)
                               : alpha(theme.palette.text.secondary, 0.1),

@@ -148,7 +148,7 @@ export default function EmailTestingDashboard() {
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
-                borderRadius: 3,
+                borderRadius: 'var(--sf-radius-lg, 12px)',
               }}
             >
               <CardContent sx={{ p: 4 }}>
@@ -196,7 +196,7 @@ export default function EmailTestingDashboard() {
                       height: 50,
                       fontWeight: 800,
                       textTransform: 'none',
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       boxShadow: 'none',
                     }}
                   >
@@ -216,7 +216,7 @@ export default function EmailTestingDashboard() {
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
               }}
             >
               <List>
@@ -246,7 +246,7 @@ export default function EmailTestingDashboard() {
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
             }}
           >
             <CardContent>
@@ -263,7 +263,7 @@ export default function EmailTestingDashboard() {
                     sx={{
                       py: 2,
                       px: 2,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       mb: 1,
                       '&:hover': { bgcolor: 'action.hover' },
                     }}

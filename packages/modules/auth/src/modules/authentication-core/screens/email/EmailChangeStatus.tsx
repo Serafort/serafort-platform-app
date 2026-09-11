@@ -120,7 +120,7 @@ export default function EmailChangeStatus() {
             endIcon={<ArrowForward />}
             sx={{
               minHeight: 44,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               textTransform: 'none',
               fontWeight: 800,
             }}
@@ -138,7 +138,7 @@ export default function EmailChangeStatus() {
         <Alert
           severity='warning'
           icon={<MarkEmailUnreadOutlined />}
-          sx={{ mb: 3, borderRadius: 2 }}
+          sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)' }}
         >
           <AlertTitle sx={{ fontWeight: 800 }}>
             {t('email.pendingWarningTitle', 'Verification pending')}
@@ -154,7 +154,7 @@ export default function EmailChangeStatus() {
         <Alert
           severity='error'
           role='alert'
-          sx={{ mb: 3, borderRadius: 2 }}
+          sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)' }}
           action={
             <Button color='inherit' size='small' onClick={() => refetch()}>
               {t('common.retry', 'Retry')}
@@ -166,7 +166,7 @@ export default function EmailChangeStatus() {
       )}
 
       <Card
-        sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}
+        sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}
       >
         {!isLoading && !isError && !hasRequests ? (
           <Box sx={{ py: 6 }}>

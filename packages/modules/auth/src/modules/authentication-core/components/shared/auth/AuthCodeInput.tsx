@@ -206,7 +206,7 @@ const AuthCodeInput: React.FC<AuthCodeInputProps> = ({
                         height: 56,
                         // Matches AuthTextField's 12px so a code box and a
                         // text field read as the same control family.
-                        borderRadius: '12px',
+                        borderRadius: 'var(--sf-radius-lg, 12px)',
                         bgcolor: alpha(theme.palette.background.paper, 0.6),
                         '& fieldset': { borderWidth: 2 },
                         '&.Mui-focused': {

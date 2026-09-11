@@ -91,7 +91,7 @@ const AuthConfirmDrawer: React.FC<AuthConfirmDrawerProps> = ({
               width: 44,
               height: 44,
               flexShrink: 0,
-              borderRadius: '12px',
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               bgcolor: alpha(color, 0.12),
               color,
             }}
@@ -137,7 +137,7 @@ const AuthConfirmDrawer: React.FC<AuthConfirmDrawerProps> = ({
             onClick={onConfirm}
             disabled={loading}
             startIcon={loading ? <CircularProgress size={18} color='inherit' /> : undefined}
-            sx={{ minHeight: 48, borderRadius: 3, fontWeight: 800, textTransform: 'none' }}
+            sx={{ minHeight: 48, borderRadius: 'var(--sf-radius-lg, 12px)', fontWeight: 800, textTransform: 'none' }}
           >
             {confirmLabel}
           </Button>
@@ -148,7 +148,7 @@ const AuthConfirmDrawer: React.FC<AuthConfirmDrawerProps> = ({
             disabled={loading}
             sx={{
               minHeight: 48,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               fontWeight: 700,
               textTransform: 'none',
               color: 'text.secondary',

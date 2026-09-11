@@ -124,7 +124,7 @@ export default function EditPasskeyModal({
             sx={{
               width: 36,
               height: 36,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
               display: 'flex',
               alignItems: 'center',
@@ -137,7 +137,7 @@ export default function EditPasskeyModal({
         </DialogTitle>
         <DialogContent>
           {error && (
-            <Alert severity='error' sx={{ mb: 2, borderRadius: 2 }}>
+            <Alert severity='error' sx={{ mb: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}>
               {error}
             </Alert>
           )}
@@ -152,7 +152,7 @@ export default function EditPasskeyModal({
             onChange={(e) => setName(e.target.value)}
             placeholder='e.g., Work Laptop'
             disabled={updateMutation.isPending}
-            sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+            sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' } }}
           />
 
           {/* Device Info */}
@@ -162,7 +162,7 @@ export default function EditPasskeyModal({
           <Box
             sx={{
               bgcolor: 'action.hover',
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               p: 2,
               mb: 3,
               display: 'flex',

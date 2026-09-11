@@ -302,7 +302,7 @@ export default function SSFConfiguration() {
           variant='contained'
           startIcon={<Sync />}
           onClick={() => refetchConfig()}
-          sx={{ textTransform: 'none', fontWeight: 800, borderRadius: '12px', mt: 1 }}
+          sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 'var(--sf-radius-lg, 12px)', mt: 1 }}
         >
           {t('auth.common.retry', 'Retry')}
         </Button>

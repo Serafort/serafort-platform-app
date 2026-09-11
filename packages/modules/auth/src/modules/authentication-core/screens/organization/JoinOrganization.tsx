@@ -147,7 +147,7 @@ export default function JoinOrganization() {
       endIcon={<ArrowForward />}
       sx={{
         minHeight: 48,
-        borderRadius: 3,
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         fontWeight: 800,
         fontSize: '1rem',
         textTransform: 'none',
@@ -299,7 +299,7 @@ export default function JoinOrganization() {
               sx={{
                 width: 72,
                 height: 72,
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 12px)',
                 bgcolor: alpha(theme.palette.primary.main, 0.12),
                 color: 'primary.main',
                 border: '2px solid',
@@ -331,7 +331,7 @@ export default function JoinOrganization() {
               sx={{
                 mb: 3,
                 fontWeight: 800,
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 color: 'success.main',
                 bgcolor: alpha(theme.palette.success.main, 0.1),
                 border: '1px solid',
@@ -351,7 +351,7 @@ export default function JoinOrganization() {
                 alignItems: 'center',
                 gap: 2,
                 p: 2,
-                borderRadius: 3,
+                borderRadius: 'var(--sf-radius-lg, 12px)',
                 bgcolor: alpha(color, 0.04),
                 border: '1px solid',
                 borderColor: alpha(color, 0.12),
@@ -363,7 +363,7 @@ export default function JoinOrganization() {
                   height: 44,
                   bgcolor: alpha(color, 0.1),
                   color,
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                 }}
               >
                 {icon}
@@ -407,7 +407,7 @@ export default function JoinOrganization() {
             }
             sx={{
               minHeight: 48,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               fontWeight: 800,
               fontSize: '1rem',
               textTransform: 'none',
@@ -425,7 +425,7 @@ export default function JoinOrganization() {
             disabled={isBusy}
             sx={{
               minHeight: 48,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               fontWeight: 600,
               color: 'text.secondary',
               textTransform: 'none',

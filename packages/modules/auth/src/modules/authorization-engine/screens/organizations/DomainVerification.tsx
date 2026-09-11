@@ -199,7 +199,7 @@ const DomainVerification: React.FC = () => {
               })}
               color={verifiedCount === totalCount ? 'success' : 'warning'}
               variant='outlined'
-              sx={{ fontWeight: 800, borderRadius: '50px', px: 1, height: 36 }}
+              sx={{ fontWeight: 800, borderRadius: 'var(--sf-radius-full, 9999px)', px: 1, height: 36 }}
             />
           ) : undefined
         }

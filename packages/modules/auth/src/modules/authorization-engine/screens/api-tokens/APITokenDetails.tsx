@@ -153,11 +153,11 @@ const APITokenDetails: React.FC = () => {
         <Skeleton variant='text' width={200} height={48} sx={{ mb: 4 }} />
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 8 }}>
-            <Skeleton variant='rounded' height={320} sx={{ borderRadius: 2, mb: 3 }} />
-            <Skeleton variant='rounded' height={200} sx={{ borderRadius: 2 }} />
+            <Skeleton variant='rounded' height={320} sx={{ borderRadius: 'var(--sf-radius-md, 8px)', mb: 3 }} />
+            <Skeleton variant='rounded' height={200} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Skeleton variant='rounded' height={260} sx={{ borderRadius: 2 }} />
+            <Skeleton variant='rounded' height={260} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
           </Grid>
         </Grid>
       </Box>

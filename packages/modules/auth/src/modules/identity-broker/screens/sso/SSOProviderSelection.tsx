@@ -382,7 +382,7 @@ export default function SSOProviderSelection() {
               gap: 1.5,
               p: 1.5,
               px: 3,
-              borderRadius: '50px',
+              borderRadius: 'var(--sf-radius-full, 9999px)',
               bgcolor: alpha(theme.palette.action.hover, 0.04),
               color: 'text.secondary',
               cursor: 'help',

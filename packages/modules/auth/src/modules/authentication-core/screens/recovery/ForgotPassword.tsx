@@ -88,7 +88,7 @@ export default function ForgotPassword() {
               severity='error'
               role='alert'
               aria-live='polite'
-              sx={{ mb: 3, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 600 } }}
+              sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)', '& .MuiAlert-message': { fontWeight: 600 } }}
             >
               {error}
             </Alert>
