@@ -290,6 +290,11 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
                           size='small'
                           onClick={() => readAllNotifications()}
                           sx={{ color: 'text.primary' }}
+                          aria-label={
+                            readAll
+                              ? t('navigation.markAllUnread', 'Mark all as unread')
+                              : t('navigation.markAllRead', 'Mark all as read')
+                          }
                         >
                           {readAll ? <Email fontSize='small' /> : <Drafts fontSize='small' />}
                         </IconButton>
@@ -402,6 +407,10 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
                                   visibility: read ? 'hidden' : 'visible',
                                 }}
                                 onClick={(e) => handleRemoveNotification(e, index)}
+                                aria-label={t(
+                                  'navigation.removeNotification',
+                                  'Remove notification',
+                                )}
                               >
                                 <Close fontSize='small' />
                               </IconButton>
