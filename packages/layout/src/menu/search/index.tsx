@@ -91,7 +91,7 @@ const NavSearch = () => {
       url: undefined,
       perform: () =>
         item.url.startsWith('http')
-          ? window.open(item.url, '_blank')
+          ? window.open(item.url, '_blank', 'noopener,noreferrer')
           : navigate(getLocalizedUrl(item.url, locale || '')),
     }
   })
