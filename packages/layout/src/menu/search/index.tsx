@@ -127,9 +127,7 @@ const NavSearch = () => {
             transition: 'border-color 150ms ease',
             '&:hover': {
               borderBottomColor: (theme) =>
-                theme.palette.mode === 'dark'
-                  ? 'rgba(0, 0, 0, 0.7)'
-                  : 'rgba(15, 23, 42, 0.22)',
+                theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(15, 23, 42, 0.22)',
             },
           }}
         >

@@ -1,9 +1,5 @@
 import type { Theme } from '@mui/material/styles'
-import {
-  menuTokens,
-  getVerticalNavBackdropColor,
-  getVerticalNavContainerShadow,
-} from '@cap/theme'
+import { menuTokens, getVerticalNavBackdropColor, getVerticalNavContainerShadow } from '@cap/theme'
 import type { VerticalNavState } from '../../../menu/contexts/verticalNavContext'
 import { menuClasses, verticalNavClasses } from '../../../menu/utils/menuClasses'
 

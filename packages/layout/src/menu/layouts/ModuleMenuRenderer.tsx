@@ -60,7 +60,8 @@ const ModuleMenuRenderer: React.FC<Props> = ({ variant, dictionary }) => {
     // SubMenu instead: a menu-bar button sitting under the navbar that opens
     // its section's items as a dropdown panel on click, rather than a static
     // header with every item spilled out inline beneath it.
-    const SectionComponent = variant === 'horizontal' ? HorizontalDropdownSection : CollapsibleMenuSection
+    const SectionComponent =
+      variant === 'horizontal' ? HorizontalDropdownSection : CollapsibleMenuSection
 
     return sections.map((section, idx) => {
       if (section.label) {

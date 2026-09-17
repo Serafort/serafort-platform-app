@@ -27,10 +27,9 @@ describe('confirmUrlInChildren', () => {
   })
 
   it('recurses into nested children to find a matching descendant', () => {
-    const children = React.createElement(
-      'div',
-      { children: React.createElement('div', { component: <Link to='/settings/profile' /> }) },
-    )
+    const children = React.createElement('div', {
+      children: React.createElement('div', { component: <Link to='/settings/profile' /> }),
+    })
 
     expect(confirmUrlInChildren(children, '/settings/profile')).toBe(true)
   })

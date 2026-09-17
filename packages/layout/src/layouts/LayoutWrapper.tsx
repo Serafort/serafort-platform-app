@@ -46,8 +46,7 @@ const LayoutWrapper = ({
   const isHorizontalLayout = layoutOverride === RouteLayoutEnum.HORIZONTAL
 
   const renderDashboardShell = (forcedLayout?: LayoutModeEnum) => {
-    const wantsHorizontal =
-      (forcedLayout || settings.layout) === LayoutModeEnum.HORIZONTAL
+    const wantsHorizontal = (forcedLayout || settings.layout) === LayoutModeEnum.HORIZONTAL
     // Downgrades to vertical on mobile even when a route's layoutOverride
     // explicitly forces horizontal - the constraint is about the viewport,
     // not about who asked for the layout.
