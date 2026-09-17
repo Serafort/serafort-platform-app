@@ -37,22 +37,23 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
       <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
         <TableHead>
           <TableRow>
+            {/* Bolt: Optimization to remove Math.random() in keys which causes unnecessary re-renders. Use stable identifiers. */}
             {data?.header?.map((item: ITableHeader) => (
               <TableCell
-                key={`${item.label}${Math.random()}${item.key}${Math.random()}`}
+                key={`${item.key}`}
               >
                 {item.label}
               </TableCell>
             ))}
             {this.props?.TableOptions && (
-              <TableCell key={`actions${Math.random() * properties.length}}`}>
+              <TableCell key={`actions`}>
                 {/* // {translate('actions')} */}
                 actions
               </TableCell>
             )}
           </TableRow>
         </TableHead>
-        <TableBody key={`TableBody${Math.random()}`}>
+        <TableBody>
           {/* <FixedSizeList
               height={100}
               width={100}
@@ -62,10 +63,10 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
               cc
             </FixedSizeList> */}
           {loading &&
-            fillArray.map(() => (
-              <TableRow key={`TableRow${Math.random()}`}>
+            fillArray.map((_, idx) => (
+              <TableRow key={`TableRowSkeleton-${idx}`}>
                 {data.header.map((item: ITableHeader) => (
-                  <TableCell key={`${item.label}${Math.random()}`}>
+                  <TableCell key={`${item.key}`}>
                     <Skeleton variant="text" sx={{ fontSize: "1rem" }} />
                   </TableCell>
                 ))}
@@ -75,15 +76,11 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
           {!loading &&
             data.rows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row: ITableRow) => (
-                <TableRow hover key={`${row?.id ? row?.id : Math.random()}`}>
+              .map((row: ITableRow, index: number) => (
+                <TableRow hover key={`${row?.id ? row.id : index}`}>
                   {data.header.map((header: ITableHeader) => (
                     <TableCell
-                      key={`${
-                        Object.keys(row).filter(
-                          (value) => value === header.key,
-                        )[0]
-                      }${Math.random()}${header.key}${Math.random()}`}
+                      key={`${header.key}`}
                     >
                       <TableValue property={header} row={row} />
                     </TableCell>
