@@ -50,7 +50,7 @@ export const DataExport: React.FC = () => {
   const handleDownload = useCallback((exportId: number | string) => {
     // Construct the download URL using the endpoint helper
     const url = `/api/gdpr/export/${exportId}/download`
-    window.open(url, '_blank')
+    window.open(url, '_blank', 'noopener,noreferrer')
   }, [])
 
   const handleRequestExport = useCallback(async () => {

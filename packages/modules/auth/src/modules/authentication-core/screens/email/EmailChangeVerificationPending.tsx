@@ -65,7 +65,7 @@ export default function EmailChangeVerificationPending() {
           variant='contained'
           size='large'
           fullWidth
-          onClick={() => window.open('https://mail.google.com', '_blank')}
+          onClick={() => window.open('https://mail.google.com', '_blank', 'noopener,noreferrer')}
           endIcon={<ArrowForward />}
           sx={{
             py: 1.5,

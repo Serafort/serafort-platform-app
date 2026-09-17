@@ -350,17 +350,15 @@ export default function AuthEventsMonitor() {
         </Typography>
       </Box>
 
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-        @keyframes pulse {
-          0% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.3); opacity: 0.5; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-      `,
-        }}
-      />
+      <style>
+        {`
+          @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+        `}
+      </style>
     </Box>
   )
 }
