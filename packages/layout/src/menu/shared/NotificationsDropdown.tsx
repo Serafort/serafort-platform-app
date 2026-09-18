@@ -408,10 +408,6 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
                                   visibility: read ? 'hidden' : 'visible',
                                 }}
                                 onClick={(e) => handleRemoveNotification(e, index)}
-                                aria-label={t(
-                                  'navigation.removeNotification',
-                                  'Remove notification',
-                                )}
                               >
                                 <Close fontSize='small' />
                               </IconButton>
