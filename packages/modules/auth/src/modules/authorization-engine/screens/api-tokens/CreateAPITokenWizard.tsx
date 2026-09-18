@@ -70,7 +70,7 @@ export const CreateAPITokenWizard: React.FC = () => {
       const message =
         error instanceof Error
           ? error.message
-          : t('api_tokens:create_error', 'Failed to create token')
+          : t('auth.api_tokens.create_error', 'Failed to create token')
       toast.error(message)
     },
   })
@@ -101,12 +101,12 @@ export const CreateAPITokenWizard: React.FC = () => {
 
   const stepLabels = [
     {
-      title: t('api_tokens:step_basic', 'Configuration'),
-      subtitle: t('api_tokens:step_basic_sub', 'Name & Scopes'),
+      title: t('auth.api_tokens.step_basic', 'Configuration'),
+      subtitle: t('auth.api_tokens.step_basic_sub', 'Name & Scopes'),
     },
     {
-      title: t('api_tokens:step_restrictions', 'Restrictions'),
-      subtitle: t('api_tokens:step_restrictions_sub', 'IP Whitelisting & CIDR'),
+      title: t('auth.api_tokens.step_restrictions', 'Restrictions'),
+      subtitle: t('auth.api_tokens.step_restrictions_sub', 'IP Whitelisting & CIDR'),
     },
   ]
 
@@ -123,10 +123,10 @@ export const CreateAPITokenWizard: React.FC = () => {
           onClick={() => navigate(Path.apiTokens.dashboard)}
           sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 600 }}
         >
-          {t('api_tokens:title', 'API Tokens')}
+          {t('auth.api_tokens.title', 'API Tokens')}
         </Link>
         <Typography color='text.primary' sx={{ fontWeight: 800 }}>
-          {t('api_tokens:create_title', 'Create New Token')}
+          {t('auth.api_tokens.create_title', 'Create New Token')}
         </Typography>
       </Breadcrumbs>
 
@@ -142,12 +142,12 @@ export const CreateAPITokenWizard: React.FC = () => {
         }}
       >
         <Box>
-          <Typography variant='h3' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
-            {t('api_tokens:create_header', 'Create API Token')}
+          <Typography variant='h3' sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.027em' }}>
+            {t('auth.api_tokens.create_header', 'Create API Token')}
           </Typography>
           <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1.05rem' }}>
             {t(
-              'api_tokens:create_subheader',
+              'auth.api_tokens.create_subheader',
               'Configure authentication and permissions for your integrations.',
             )}
           </Typography>
@@ -155,7 +155,7 @@ export const CreateAPITokenWizard: React.FC = () => {
 
         {/* Step Indicator Pill */}
         <Chip
-          label={t('api_tokens:step_indicator', {
+          label={t('auth.api_tokens.step_indicator', {
             current: activeStep + 1,
             total: stepLabels.length,
             defaultValue: `Step ${activeStep + 1} of ${stepLabels.length}`,

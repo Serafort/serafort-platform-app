@@ -18,15 +18,10 @@ const JoinOrganization = React.lazy(() => import('../screens/organization/JoinOr
 // ---------------------------------------------------------------------------
 // Email flows
 // ---------------------------------------------------------------------------
-const InitiateEmailChange = React.lazy(() => import('../screens/email/InitiateEmailChange'))
 const EmailChangeStatus = React.lazy(() => import('../screens/email/EmailChangeStatus'))
-const EmailChangeVerificationPending = React.lazy(
-  () => import('../screens/email/EmailChangeVerificationPending'),
-)
 const EmailChangeVerification = React.lazy(() => import('../screens/email/EmailChangeVerification'))
 const EmailChangeSuccess = React.lazy(() => import('../screens/email/EmailChangeSuccess'))
 const EmailChangeFailed = React.lazy(() => import('../screens/email/EmailChangeFailed'))
-const ExportVerification = React.lazy(() => import('../screens/email/ExportVerification'))
 
 // ---------------------------------------------------------------------------
 // Recovery
@@ -70,18 +65,16 @@ export const authCoreRouteConfig: AuthRouteConfig[] = [
   { path: Path.deviceCode, element: <DeviceCodeDisplay />, layout: 'noLayout' },
 
   // --- Email flows (auth-guarded) ---
-  // createAuthRoute(Path.initiateEmailChange, <InitiateEmailChange />, {
-  //   requiresVerification: true,
-  //   layout: 'noLayout',
-  // }),
-  createAuthRoute(Path.emailChangeStatus, <EmailChangeStatus />, { requiresVerification: true }),
-  createAuthRoute(Path.emailChangeVerificationPending, <EmailChangeVerificationPending />, {
+  // The email-change *initiation* + status flow is owned by @cap/module-auth's
+  // user-directory sub-module (/user/initiate-email-change, /user/email-change-status).
+  // authentication-core only owns the link-landing screens below.
+  createAuthRoute(Path.emailChangeStatus, <EmailChangeStatus />, {
+    requiresVerification: true,
     layout: 'noLayout',
   }),
-  { path: Path.emailChangeSuccess, element: <EmailChangeSuccess /> },
-  { path: Path.emailChangeFailed, element: <EmailChangeFailed /> },
-  { path: Path.emailChangeVerification, element: <EmailChangeVerification /> },
-  createAuthRoute(Path.exportVerification, <ExportVerification />, { layout: 'noLayout' }),
+  { path: Path.emailChangeSuccess, element: <EmailChangeSuccess />, layout: 'noLayout' },
+  { path: Path.emailChangeFailed, element: <EmailChangeFailed />, layout: 'noLayout' },
+  { path: Path.emailChangeVerification, element: <EmailChangeVerification />, layout: 'noLayout' },
   { path: Path.resendEmailVerification, element: <CheckEmailConfirmation />, layout: 'noLayout' },
   { path: Path.VerificationEmail, element: <EmailVerificationScreen />, layout: 'noLayout' },
 
@@ -143,7 +136,7 @@ export const authCoreRouteConfig: AuthRouteConfig[] = [
   { path: Path.verifyEmailDirect, element: <EmailVerificationScreen />, layout: 'noLayout' },
   { path: Path.verificationLinkExpired, element: <VerificationLinkExpired />, layout: 'noLayout' },
   { path: Path.registrationSuccess, element: <RegistrationSuccess />, layout: 'noLayout' },
-  { path: Path.emailVerifiedSuccess, element: <EmailVerifiedSuccess /> },
+  { path: Path.emailVerifiedSuccess, element: <EmailVerifiedSuccess />, layout: 'noLayout' },
   { path: Path.validate, element: <Validate />, layout: 'noLayout' },
   { path: Path.validateDirect, element: <Validate />, layout: 'noLayout' },
 ]
