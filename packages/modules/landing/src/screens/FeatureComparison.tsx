@@ -170,6 +170,19 @@ const categoryNames = {
   analytics: 'Analytics & Insights',
 }
 
+// ⚡ Bolt Performance Optimization: Hoisted groupedFeatures outside the component
+// to avoid recalculating the array reduction on every render, as features is static.
+const groupedFeatures = features.reduce(
+  (acc, feature) => {
+    if (!acc[feature.category]) {
+      acc[feature.category] = []
+    }
+    acc[feature.category].push(feature)
+    return acc
+  },
+  {} as Record<string, Feature[]>,
+)
+
 export const FeatureComparison: React.FC = () => {
   const navigate = useNavigate()
   const { isGuest } = useGuest()
@@ -181,17 +194,6 @@ export const FeatureComparison: React.FC = () => {
     }
     return <Chip label={value} size='small' color='primary' variant='outlined' />
   }
-
-  const groupedFeatures = features.reduce(
-    (acc, feature) => {
-      if (!acc[feature.category]) {
-        acc[feature.category] = []
-      }
-      acc[feature.category].push(feature)
-      return acc
-    },
-    {} as Record<string, Feature[]>,
-  )
 
   return (
     <Container maxWidth='lg' sx={{ py: 6 }}>

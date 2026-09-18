@@ -186,7 +186,7 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
     <>
       <IconButton
         onClick={handleToggle}
-        aria-label='Open notifications'
+        aria-label={t('navigation.notifications', { defaultValue: 'Notifications' })}
         sx={{ color: 'text.primary' }}
       >
         <Badge
@@ -403,6 +403,7 @@ const NotificationDropdown = ({ notifications }: { notifications: Array<Notifica
                               <IconButton
                                 size='small'
                                 className='group-visible'
+                                aria-label={t('common.remove', { defaultValue: 'Remove' })}
                                 sx={{
                                   visibility: read ? 'hidden' : 'visible',
                                 }}
