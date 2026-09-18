@@ -217,6 +217,7 @@ const ShortcutsDropdown = ({ shortcuts }: { shortcuts: ShortcutsType[] }) => {
                         onClick={handleOpenAddDialog}
                         size='small'
                         sx={{ color: 'text.primary' }}
+                        aria-label={t('navigation.addShortcut', 'Add shortcut')}
                       >
                         <Add fontSize='small' />
                       </IconButton>

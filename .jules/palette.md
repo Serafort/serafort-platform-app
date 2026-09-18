@@ -10,6 +10,10 @@
 **Learning:** When adding ARIA labels to buttons rendered in a `.map()` loop (e.g., deleting a specific dashboard view), it is important to include the unique item name (e.g., `aria-label={"Delete " + name + " view"}`) so that screen readers can distinguish between multiple similar buttons on the page.
 **Action:** When working on lists, tables, or mapped elements, always interpolate the item's unique identifier into the ARIA label for interactive components.
 
+## 2026-09-12 - Missing ARIA Labels on IconButtons in Dropdowns
+**Learning:** Icon-only buttons (like `IconButton`) in complex components such as dropdowns (e.g., NotificationsDropdown, ShortcutsDropdown) frequently miss `aria-label`s, causing screen readers to read them out ambiguously or skip their context entirely.
+**Action:** When implementing or reviewing dropdowns or menus with icon-only controls, explicitly check and assign `aria-label`s, preferably using translation keys for internationalization support (e.g., `t('navigation.actionName')`).
+
 ## 2024-03-20 - Icon Buttons Need ARIA Labels
 **Learning:** Icon buttons that use Tooltip for visual description still need explicit aria-labels for screen readers.
 **Action:** Always add aria-label to IconButton components, even when wrapped in a Tooltip. Use the translation system if possible, or literal strings if none available.
