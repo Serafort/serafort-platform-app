@@ -1,12 +1,13 @@
 import { useAppStore } from '@cap/platform-store'
 
 /**
- * The organization every access-control call is scoped to.
+ * The organization an organization-scoped call is issued for.
  *
- * The NFC routes take an `:orgId` path segment, so the screens need one before
- * they can fetch anything. It is resolved from the authenticated session, never
- * from the URL: an operator must not be able to read another tenant's badge
- * inventory by editing an id in the address bar. The backend scopes its queries
+ * Organization-scoped admin screens -- the NFC badge inventory, the domain
+ * verification registry -- need one before they can fetch anything. It is
+ * resolved from the authenticated session, never from the URL: an operator must
+ * not be able to read another tenant's records by editing an id in the address
+ * bar. The backend scopes its queries
  * independently, so this is defence in depth rather than the only control — but
  * taking the id from the URL would make the frontend the weaker of the two.
  *

@@ -87,11 +87,30 @@ export interface SyncLog {
   error_message?: string | null
 }
 
+/**
+ * `ConnectorsController.sync` (`POST /api/admin/provisioning/:id/sync`)
+ * responds `202 Accepted` with exactly `{ message, connectorId }` — the sync
+ * itself runs on a queued job (`QueueService.addSyncJob`), so there is no
+ * `status`, `jobId`, `synchronizedUsers/Groups` or `errorsCount` in the HTTP
+ * response; those would have to come from polling the connector or its logs
+ * afterward.
+ */
 export interface ConnectorSyncResult {
   message: string
-  status: 'success' | 'queued' | 'syncing' | string
-  jobId?: string
-  synchronizedUsers?: number
-  synchronizedGroups?: number
-  errorsCount?: number
+  connectorId: string | number
+}
+
+/**
+ * `ConnectorsController.logs` (`GET /api/admin/provisioning/:id/logs`) is
+ * AdonisJS's `.paginate()` shape, not a flat array — `{ data, meta }`.
+ */
+export interface PaginatedSyncLogs {
+  data: SyncLog[]
+  meta: {
+    total: number
+    perPage: number
+    currentPage: number
+    lastPage: number
+    firstPage: number
+  }
 }

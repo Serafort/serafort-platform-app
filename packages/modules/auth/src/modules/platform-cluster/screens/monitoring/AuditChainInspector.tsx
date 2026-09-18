@@ -1,4 +1,8 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { useTheme } from '@mui/material/styles'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   Alert,
   AlertTitle,
@@ -69,6 +73,9 @@ const shortHash = (hash?: string | null) => (hash ? `${hash.slice(0, 16)}…` : 
 
 export const AuditChainInspector: React.FC = () => {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const [recordCheckpoint, setRecordCheckpoint] = useState(true)
 
   const statusQuery = useAuditChainStatusQuery()
@@ -127,6 +134,7 @@ export const AuditChainInspector: React.FC = () => {
       : null
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Container maxWidth='lg' sx={{ py: 4 }}>
       <Stack direction='row' alignItems='center' spacing={1.5} sx={{ mb: 1 }}>
         <LinkIcon color='primary' />
@@ -420,6 +428,7 @@ export const AuditChainInspector: React.FC = () => {
         </CardContent>
       </Card>
     </Container>
+    </motion.div>
   )
 }
 

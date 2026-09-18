@@ -28,25 +28,17 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
 
   render() {
     const { loading, data, rowsPerPage, page } = this.props;
-    const fillArray = Array.apply(null, Array(5)).map((_, idx) => idx);
-    const properties = [];
-    for (let i = 0; i < data.header.length; i += 1)
-      properties.push(data.header[i].key);
+    const skeletonRows = Array.from({ length: 5 }, (_, idx) => idx);
 
     return (
       <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
         <TableHead>
           <TableRow>
-            {/* Bolt: Optimization to remove Math.random() in keys which causes unnecessary re-renders. Use stable identifiers. */}
-            {data?.header?.map((item: ITableHeader) => (
-              <TableCell
-                key={`${item.key}`}
-              >
-                {item.label}
-              </TableCell>
+            {data?.header?.map((header: ITableHeader) => (
+              <TableCell key={header.key}>{header.label}</TableCell>
             ))}
             {this.props?.TableOptions && (
-              <TableCell key={`actions`}>
+              <TableCell key="__actions__">
                 {/* // {translate('actions')} */}
                 actions
               </TableCell>
@@ -63,10 +55,10 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
               cc
             </FixedSizeList> */}
           {loading &&
-            fillArray.map((_, idx) => (
-              <TableRow key={`TableRowSkeleton-${idx}`}>
-                {data.header.map((item: ITableHeader) => (
-                  <TableCell key={`${item.key}`}>
+            skeletonRows.map((rowIndex) => (
+              <TableRow key={`skeleton-${rowIndex}`}>
+                {data.header.map((header: ITableHeader) => (
+                  <TableCell key={`skeleton-${rowIndex}-${header.key}`}>
                     <Skeleton variant="text" sx={{ fontSize: "1rem" }} />
                   </TableCell>
                 ))}
@@ -76,22 +68,23 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
           {!loading &&
             data.rows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row: ITableRow, index: number) => (
-                <TableRow hover key={`${row?.id ? row.id : index}`}>
-                  {data.header.map((header: ITableHeader) => (
-                    <TableCell
-                      key={`${header.key}`}
-                    >
-                      <TableValue property={header} row={row} />
-                    </TableCell>
-                  ))}
-                  {/* {this.props?.TableOptions && (
+              .map((row: ITableRow, rowIndex: number) => {
+                const rowKey = row?.id ?? rowIndex;
+                return (
+                  <TableRow hover key={rowKey}>
+                    {data.header.map((header: ITableHeader) => (
+                      <TableCell key={`${rowKey}-${header.key}`}>
+                        <TableValue property={header} row={row} />
+                      </TableCell>
+                    ))}
+                    {/* {this.props?.TableOptions && (
                       <TableCell align='right'>
                         <TableOptions data={row} onClick={onClick} />
                       </TableCell>
                     )} */}
-                </TableRow>
-              ))}
+                  </TableRow>
+                );
+              })}
         </TableBody>
       </Table>
     );

@@ -77,6 +77,10 @@ export class DeveloperService {
 
   /**
    * Update existing webhook configuration
+   *
+   * The backend only registers `PATCH /api/admin/webhooks/:id`
+   * (`webhooks_controller.update`) — there is no `PUT` route for this
+   * resource, so a `PUT` request 404s and every edit silently fails.
    */
   async updateWebhook(
     id: number | string,
@@ -86,7 +90,7 @@ export class DeveloperService {
       isActive?: boolean;
     },
   ): Promise<FetchResponse<WebhookItem>> {
-    return apiClient.put<WebhookItem>(
+    return apiClient.patch<WebhookItem>(
       ENDPOINTS.developer.webhookById(id),
       data,
     );

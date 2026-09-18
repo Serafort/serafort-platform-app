@@ -137,7 +137,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
       setIpError(true)
       toast.error(
         t(
-          'api_tokens:invalid_ip_format',
+          'auth.api_tokens.invalid_ip_format',
           'Invalid IP address or CIDR notation (e.g. 192.168.1.1 or 10.0.0.0/24)',
         ),
       )
@@ -145,7 +145,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
     }
 
     if (ipList.includes(normalized)) {
-      toast.warning(t('api_tokens:ip_already_added', 'IP or CIDR range already in whitelist'))
+      toast.warning(t('auth.api_tokens.ip_already_added', 'IP or CIDR range already in whitelist'))
       return
     }
 
@@ -175,7 +175,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
       const message =
         error instanceof Error
           ? error.message
-          : t('api_tokens:create_error', 'Failed to create token')
+          : t('auth.api_tokens.create_error', 'Failed to create token')
       toast.error(message)
     },
   })
@@ -240,21 +240,21 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
               onClick={() => navigate(Path.apiTokens.dashboard)}
               sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 600 }}
             >
-              {t('api_tokens:title', 'API Tokens')}
+              {t('auth.api_tokens.title', 'API Tokens')}
             </Link>
             <Typography color='text.primary' sx={{ fontWeight: 800 }}>
-              {t('api_tokens:create_title', 'Create New Token')}
+              {t('auth.api_tokens.create_title', 'Create New Token')}
             </Typography>
           </Breadcrumbs>
 
           {/* Header */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant='h3' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
-              {t('api_tokens:restrictions_header', 'Network Security')}
+            <Typography variant='h3' sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.027em' }}>
+              {t('auth.api_tokens.restrictions_header', 'Network Security')}
             </Typography>
             <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1.05rem' }}>
               {t(
-                'api_tokens:restrictions_subheader',
+                'auth.api_tokens.restrictions_subheader',
                 'Enhance security by restricting API calls to specific originating IP addresses.',
               )}
             </Typography>
@@ -265,20 +265,20 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
             <Alert
               severity='warning'
               variant='outlined'
-              sx={{ mb: 4, borderRadius: 2, bgcolor: alpha(theme.palette.warning.main, 0.05) }}
+              sx={{ mb: 4, borderRadius: 'var(--sf-radius-md, 10px)', bgcolor: alpha(theme.palette.warning.main, 0.05) }}
               action={
                 <Button
                   color='inherit'
                   size='small'
                   onClick={() => navigate(Path.apiTokens.createBasic)}
-                  sx={{ fontWeight: 700, textTransform: 'none' }}
+                  sx={{ minHeight: 44, fontWeight: 700, textTransform: 'none' }}
                 >
-                  {t('api_tokens:go_back_config', 'Go back to step 1')}
+                  {t('auth.api_tokens.go_back_config', 'Go back to step 1')}
                 </Button>
               }
             >
               {t(
-                'api_tokens:config_state_lost',
+                'auth.api_tokens.config_state_lost',
                 'Configuration state was lost. Please go back and re-enter the token details.',
               )}
             </Alert>
@@ -290,21 +290,21 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
               <Step>
                 <StepLabel StepIconComponent={() => <CheckCircleIcon color='success' />}>
                   <Typography sx={{ fontWeight: 700, color: 'success.main' }}>
-                    {t('api_tokens:step_basic', 'Configuration')}
+                    {t('auth.api_tokens.step_basic', 'Configuration')}
                   </Typography>
                 </StepLabel>
               </Step>
               <Step>
                 <StepLabel>
                   <Typography sx={{ fontWeight: 700, color: 'primary.main' }}>
-                    {t('api_tokens:step_restrictions', 'Restrictions')}
+                    {t('auth.api_tokens.step_restrictions', 'Restrictions')}
                   </Typography>
                 </StepLabel>
               </Step>
               <Step>
                 <StepLabel>
                   <Typography sx={{ fontWeight: 600, color: 'text.disabled' }}>
-                    {t('api_tokens:step_review', 'Deployment')}
+                    {t('auth.api_tokens.step_review', 'Deployment')}
                   </Typography>
                 </StepLabel>
               </Step>
@@ -318,7 +318,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
           <Card
             variant='outlined'
             sx={{
-              borderRadius: 4,
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
@@ -326,7 +326,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
           >
             <CardContent sx={{ p: { xs: 3, md: 4 } }}>
               <Box sx={{ mb: 4 }}>
-                {/* Section header â€” canonical pattern */}
+                {/* Section header — canonical pattern */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
                   <LanguageIcon color='primary' sx={{ fontSize: 24 }} />
                   <Typography
@@ -337,18 +337,18 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                       letterSpacing: '0.05em',
                     }}
                   >
-                    {t('api_tokens:ip_whitelist', 'IP Whitelist')}
+                    {t('auth.api_tokens.ip_whitelist', 'IP Whitelist')}
                   </Typography>
                   <Tooltip
                     title={t(
-                      'api_tokens:ip_help',
+                      'auth.api_tokens.ip_help',
                       'Support individual IPs (e.g. 1.2.3.4) or CIDR blocks (e.g. 1.2.3.0/24)',
                     )}
                     arrow
                   >
                     <IconButton
                       size='small'
-                      aria-label={t('api_tokens:ip_help_label', 'IP format info')}
+                      aria-label={t('auth.api_tokens.ip_help_label', 'IP format info')}
                       sx={{
                         ml: 'auto',
                         color: 'primary.main',
@@ -361,7 +361,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                 </Box>
                 <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
                   {t(
-                    'api_tokens:ip_whitelist_desc',
+                    'auth.api_tokens.ip_whitelist_desc',
                     'Requests from unauthorized IP addresses will be blocked. Leave empty for global access.',
                   )}
                 </Typography>
@@ -369,15 +369,15 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                 <Box sx={{ display: 'flex', gap: 1.5, mb: 3 }}>
                   <TextField
                     fullWidth
-                    placeholder={t('api_tokens:ip_placeholder', 'e.g. 192.168.1.1')}
+                    placeholder={t('auth.api_tokens.ip_placeholder', 'e.g. 192.168.1.1')}
                     value={ipInput}
                     error={ipError}
-                    helperText={ipError ? t('api_tokens:invalid_ip_format') : ''}
+                    helperText={ipError ? t('auth.api_tokens.invalid_ip_format') : ''}
                     onChange={(e) => handleInputChange(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAddIP()}
                     slotProps={{
                       input: {
-                        sx: { borderRadius: 3, fontWeight: 600, height: 52 },
+                        sx: { borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600, height: 52 },
                         inputProps: {
                           pattern: '^(\\d{1,3}\\.){3}\\d{1,3}(\\/\\d{1,2})?$',
                         },
@@ -399,16 +399,16 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                     variant='outlined'
                     onClick={handleAddIP}
                     disabled={!ipInput.trim()}
-                    sx={{ borderRadius: 3, px: 3, fontWeight: 800, textTransform: 'none' }}
+                    sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', px: 3, fontWeight: 800, textTransform: 'none' }}
                   >
-                    {t('common:add', 'Add')}
+                    {t('auth.common.add', 'Add')}
                   </Button>
                 </Box>
 
                 <Paper
                   variant='outlined'
                   sx={{
-                    borderRadius: 3,
+                    borderRadius: 'var(--sf-radius-md, 10px)',
                     minHeight: 160,
                     maxHeight: 300,
                     overflowY: 'auto',
@@ -433,7 +433,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                         sx={{ fontSize: 48, color: 'text.disabled', mb: 1, transition: '0.3s' }}
                       />
                       <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 600 }}>
-                        {t('api_tokens:no_restrictions', 'No restrictions active')}
+                        {t('auth.api_tokens.no_restrictions', 'No restrictions active')}
                       </Typography>
                     </Box>
                   ) : (
@@ -443,7 +443,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                           key={ip}
                           sx={{
                             mb: index === ipList.length - 1 ? 0 : 1,
-                            borderRadius: 3,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             bgcolor: 'background.paper',
                             boxShadow: 'none',
                             border: '1px solid',
@@ -459,7 +459,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                               edge='end'
                               onClick={() => handleRemoveIP(ip)}
                               color='error'
-                              aria-label={t('common:remove', 'Remove')}
+                              aria-label={t('auth.common.remove', 'Remove')}
                               sx={{
                                 '&:hover': {
                                   bgcolor: alpha(theme.palette.error.main, 0.1),
@@ -488,30 +488,31 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                 alignItems: 'center',
                 borderTop: '1px solid',
                 borderColor: 'divider',
-                borderBottomLeftRadius: 16,
-                borderBottomRightRadius: 16,
+                borderBottomLeftRadius: 'var(--sf-radius-lg, 16px)',
+                borderBottomRightRadius: 'var(--sf-radius-lg, 16px)',
               }}
             >
               <Button
                 startIcon={<ArrowBackIcon />}
                 onClick={handleBackClick}
                 sx={{
+                  minHeight: 44,
                   fontWeight: 800,
                   textTransform: 'none',
                   color: 'text.secondary',
                   '&:hover': { color: 'text.primary', bgcolor: 'transparent' },
                 }}
               >
-                {t('common:back', 'Change Details')}
+                {t('auth.common.back', 'Change Details')}
               </Button>
               <Box sx={{ display: 'flex', gap: 2 }}>
                 <Button
                   variant='text'
                   onClick={onSkipRestrictions}
                   disabled={isPendingSubmit || isMissingState}
-                  sx={{ fontWeight: 800, textTransform: 'none', color: 'text.primary' }}
+                  sx={{ minHeight: 44, fontWeight: 800, textTransform: 'none', color: 'text.primary' }}
                 >
-                  {t('api_tokens:skip_restrictions', 'Skip for now')}
+                  {t('auth.api_tokens.skip_restrictions', 'Skip for now')}
                 </Button>
                 <Button
                   variant='contained'
@@ -520,10 +521,11 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                   loading={isPendingSubmit}
                   disabled={isMissingState}
                   sx={{
+                    minHeight: 48,
                     px: 4,
                     py: 1.2,
-                    borderRadius: 3,
-                    fontWeight: 900,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    fontWeight: 800,
                     textTransform: 'none',
                     boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
                     '&:hover': {
@@ -531,19 +533,19 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                     },
                   }}
                 >
-                  {t('api_tokens:generate_token', 'Generate API Token')}
+                  {t('auth.api_tokens.generate_token', 'Generate API Token')}
                 </Button>
               </Box>
             </Box>
           </Card>
         </Grid>
 
-        {/* Side Panel â€” Security Tips */}
+        {/* Side Panel — Security Tips */}
         <Grid size={{ xs: 12, md: 5 }}>
           <Box
             sx={{
               p: 3,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               bgcolor: alpha(theme.palette.warning.main, 0.05),
               border: '1px solid',
               borderColor: alpha(theme.palette.warning.main, 0.2),
@@ -555,7 +557,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
               <ShieldIcon sx={{ color: 'warning.dark' }} />
               <Typography variant='subtitle1' sx={{ fontWeight: 800, color: 'warning.dark' }}>
-                {t('api_tokens:security_warning_title', 'Security Best Practices')}
+                {t('auth.api_tokens.security_warning_title', 'Security Best Practices')}
               </Typography>
             </Box>
             <Typography
@@ -563,7 +565,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
               sx={{ color: 'warning.dark', lineHeight: 1.6, fontWeight: 500 }}
             >
               {t(
-                'api_tokens:security_warning_msg',
+                'auth.api_tokens.security_warning_msg',
                 'In production environments, we strongly recommend whitelisting the IP addresses of the servers that will be making requests. This prevents unauthorized access even if the token is leaked.',
               )}
             </Typography>
@@ -579,7 +581,7 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                 mb: 1,
               }}
             >
-              {t('api_tokens:quick_tip', 'Quick Tips:')}
+              {t('auth.api_tokens.quick_tip', 'Quick Tips:')}
             </Typography>
             <Box
               component='ul'
@@ -592,9 +594,9 @@ const CreateAPITokenIPRestrictions: React.FC<CreateAPITokenIPRestrictionsProps> 
                 '& li': { mb: 0.5 },
               }}
             >
-              <li>{t('api_tokens:tip_1', 'Use CIDR notation for subnet blocks')}</li>
-              <li>{t('api_tokens:tip_2', 'Always use HTTPS for your requests')}</li>
-              <li>{t('api_tokens:tip_3', 'Rotate your keys regularly')}</li>
+              <li>{t('auth.api_tokens.tip_1', 'Use CIDR notation for subnet blocks')}</li>
+              <li>{t('auth.api_tokens.tip_2', 'Always use HTTPS for your requests')}</li>
+              <li>{t('auth.api_tokens.tip_3', 'Rotate your keys regularly')}</li>
             </Box>
           </Box>
         </Grid>
