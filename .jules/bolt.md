@@ -5,3 +5,7 @@
 ## 2026-09-12 - [Array Reduction Performance]
 **Learning:** When using array reduction `Array.prototype.reduce` in React components where the source data is a static array defined outside the component, moving the reduction to module level prevents O(n) re-computation on every component render.
 **Action:** Hoist pure, static data calculations to the module level rather than leaving them inside the component's render flow or wrapping them in `useMemo`.
+
+## 2024-09-17 - Avoid Math.random() in React keys
+**Learning:** Using `Math.random()` in React component `key` props forces React to see the elements as entirely new instances on every single render. This anti-pattern completely disables React's diffing algorithm and causes the entire component sub-tree to unmount and remount repeatedly, leading to disastrous performance issues (especially in complex data grids like tables).
+**Action:** Always use stable identifiers for React keys (e.g. `item.id`, `column.key`, or index as a last resort). Never use random functions or Date.now() for list items or elements unless you explicitly want to force a full re-initialization (and even then, handle carefully).
