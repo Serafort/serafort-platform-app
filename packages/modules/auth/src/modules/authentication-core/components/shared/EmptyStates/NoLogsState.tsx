@@ -24,7 +24,7 @@ const NoLogsState = ({ title, description, onAction, actionLabel }: NoLogsStateP
         p: 6,
         textAlign: 'center',
         background: alpha(theme.palette.background.paper, 0.5),
-        borderRadius: 4,
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         border: '1px dashed',
         borderColor: 'divider',
         minHeight: 300,
@@ -66,7 +66,7 @@ const NoLogsState = ({ title, description, onAction, actionLabel }: NoLogsStateP
             onClick={onAction}
             sx={{
               mt: 2,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               color: 'text.secondary',
               borderColor: 'divider',
               '&:hover': {

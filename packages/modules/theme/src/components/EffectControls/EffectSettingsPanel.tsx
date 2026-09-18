@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Box, TextField } from "@mui/material";
 import type { EffectConfig, EffectType } from "@cap/theme";
 import { EFFECT_TYPES, getEffectConfigKey } from "@cap/theme";
@@ -176,6 +177,7 @@ export const EffectSettingsPanel: React.FC<EffectSettingsPanelProps> = ({
   effects,
   onChange,
 }) => {
+  const { t } = useTranslation();
   const configKey = getEffectConfigKey(effectType);
   const fields = configKey ? EFFECT_FIELDS[configKey] : undefined;
   const meta = EFFECT_TYPES.find((option) => option.value === effectType);
@@ -183,6 +185,19 @@ export const EffectSettingsPanel: React.FC<EffectSettingsPanelProps> = ({
   if (!configKey || !fields) return null;
 
   const config = (effects[configKey] || {}) as Record<string, unknown>;
+
+  // Field labels are shared across effects that reuse the same config key
+  // ("Blur", "Border width", ...); hints are effect-specific so they key on
+  // both the config record and the field.
+  const fieldLabel = (field: EffectField) =>
+    t(`theme.effects.field.${field.key}`, field.label);
+  const fieldHint = (field: EffectField) =>
+    field.hint
+      ? t(`theme.effects.fieldhint.${configKey}_${field.key}`, field.hint)
+      : undefined;
+  const effectName = meta
+    ? t(`theme.effects.type.${meta.value}`, meta.label)
+    : t("theme.effects.settings_fallback", "Effect");
 
   const setValue = (key: string, value: string | number) => {
     onChange({
@@ -194,15 +209,24 @@ export const EffectSettingsPanel: React.FC<EffectSettingsPanelProps> = ({
   return (
     <Box>
       <PanelHeader
-        title={`${meta?.label ?? "Effect"} settings`}
-        description={meta?.description}
+        title={t("theme.effects.settings_title", {
+          name: effectName,
+          defaultValue: "{{name}} settings",
+        })}
+        description={
+          meta
+            ? t(`theme.effects.desc.${meta.value}`, meta.description)
+            : undefined
+        }
       />
 
       {fields.map((field) => {
         if (field.kind === "color") {
           return (
             <Box key={field.key} sx={{ mb: 5 }}>
-              <FieldLabel hint={field.hint}>{field.label}</FieldLabel>
+              <FieldLabel hint={fieldHint(field)}>
+                {fieldLabel(field)}
+              </FieldLabel>
               <TextField
                 fullWidth
                 size="small"
@@ -223,8 +247,8 @@ export const EffectSettingsPanel: React.FC<EffectSettingsPanelProps> = ({
         return (
           <SliderField
             key={field.key}
-            label={field.label}
-            hint={field.hint}
+            label={fieldLabel(field)}
+            hint={fieldHint(field)}
             value={displayed}
             displayValue={`${displayed}${suffix}`}
             min={field.min}

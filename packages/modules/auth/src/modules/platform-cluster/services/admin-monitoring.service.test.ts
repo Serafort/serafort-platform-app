@@ -93,23 +93,23 @@ describe('adminMonitoringService', () => {
     expect(res.data).toEqual(mockMfa)
   })
 
-  it('exportAuditLogs posts export configuration', async () => {
-    const mockExportRes = {
-      jobId: 'job-9871',
-      status: 'ready' as const,
-      downloadUrl: '/api/admin/audit-logs/download/job-9871',
-    }
-    vi.mocked(apiClient.post).mockResolvedValueOnce(createMockResponse(mockExportRes))
+  it('exportAuditLogs posts export configuration and requests a blob response', async () => {
+    // AuditLogsController.export returns the content directly (a text/csv
+    // attachment or a raw JSON array), never a { jobId, downloadUrl } job
+    // wrapper, so the service asks for responseType: 'blob'.
+    const mockBlob = new Blob(['id,date,action\n1,2026-08-01,login'], { type: 'text/csv' })
+    vi.mocked(apiClient.post).mockResolvedValueOnce(createMockResponse(mockBlob))
 
     const res = await adminMonitoringService.exportAuditLogs({
       format: 'csv',
       startDate: '2026-08-01',
     })
-    expect(apiClient.post).toHaveBeenCalledWith('/api/admin/audit-logs/export', {
-      format: 'csv',
-      startDate: '2026-08-01',
-    })
-    expect(res.data).toEqual(mockExportRes)
+    expect(apiClient.post).toHaveBeenCalledWith(
+      '/api/admin/audit-logs/export',
+      { format: 'csv', startDate: '2026-08-01' },
+      { responseType: 'blob' },
+    )
+    expect(res.data).toBe(mockBlob)
   })
 
   it('acknowledgeAlert posts acknowledge mutation', async () => {
