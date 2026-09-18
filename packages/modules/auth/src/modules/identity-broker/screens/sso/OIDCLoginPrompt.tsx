@@ -62,15 +62,20 @@ export default function OIDCLoginPrompt({
       if (res.data?.url) window.location.assign(res.data.url)
       else navigate(Path.auth.login)
     },
-    onError: () => toast.error(t('sso.errorConfirm', 'Failed to confirm account')),
+    onError: () => toast.error(t('auth.sso.errorConfirm', 'Failed to confirm account')),
   })
 
   const user = useMemo(() => {
     const rawUser =
       initialUser ||
       authUser ||
-      (details?.session?.accountId
-        ? { name: 'User ' + details?.session?.accountId, email: 'user@example.com' }
+      // `OidcController.interaction` nests the raw node-oidc-provider
+      // `interactionDetails()` result under `details.details` (alongside the
+      // spread-out `uid`/`prompt`/`params`/`client`/`organization` siblings),
+      // so an already-authenticated session's accountId lives at
+      // `details.details.session.accountId`, not `details.session.accountId`.
+      ((details as any)?.details?.session?.accountId
+        ? { name: 'User ' + (details as any).details.session.accountId, email: 'user@example.com' }
         : undefined)
     if (!rawUser) return undefined
     const name =
@@ -81,15 +86,15 @@ export default function OIDCLoginPrompt({
         : '')
     return {
       ...rawUser,
-      displayName: name || t('common.guest', 'Guest User'),
-      displayEmail: (rawUser as any).email || t('common.notSignedIn', 'Not signed in'),
+      displayName: name || t('auth.common.guest', 'Guest User'),
+      displayEmail: (rawUser as any).email || t('auth.common.notSignedIn', 'Not signed in'),
       avatar: (rawUser as any).avatar ?? undefined,
     }
   }, [initialUser, authUser, details, t])
 
   const isPending = initialPending || isFetching || isConfirming
-  const displayName = user?.displayName || t('common.guest', 'Guest User')
-  const displayEmail = user?.displayEmail || t('common.notSignedIn', 'Not signed in')
+  const displayName = user?.displayName || t('auth.common.guest', 'Guest User')
+  const displayEmail = user?.displayEmail || t('auth.common.notSignedIn', 'Not signed in')
   const initials = displayName
     .split(' ')
     .filter(Boolean)
@@ -130,7 +135,7 @@ export default function OIDCLoginPrompt({
     >
       <Card
         sx={{
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
@@ -195,13 +200,13 @@ export default function OIDCLoginPrompt({
 
           <CardContent sx={{ p: 3 }}>
             <Box sx={{ mt: { xs: 5, md: 7 }, mb: 4, textAlign: 'center' }}>
-              <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 1 }}>
-                {t('sso.loginTitle', 'Sign in to {{appName}}', {
+              <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 1 }}>
+                {t('auth.sso.loginTitle', 'Sign in to {{appName}}', {
                   appName: themeConfig.templateName,
                 })}
               </Typography>
               <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
-                {t('sso.loginSubtitle', 'Choose your preferred way to continue')}
+                {t('auth.sso.loginSubtitle', 'Choose your preferred way to continue')}
               </Typography>
             </Box>
 
@@ -209,7 +214,7 @@ export default function OIDCLoginPrompt({
               <Skeleton
                 variant='rectangular'
                 height={72}
-                sx={{ borderRadius: 3, mb: 4, transform: 'none' }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 10px)', mb: 4, transform: 'none' }}
               />
             ) : (
               <Paper
@@ -221,7 +226,7 @@ export default function OIDCLoginPrompt({
                 sx={{
                   p: 2,
                   mb: 4,
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-md, 10px)',
                   bgcolor: alpha(theme.palette.primary.main, 0.02),
                   border: '1px solid',
                   borderColor: alpha(theme.palette.primary.main, 0.1),
@@ -285,7 +290,7 @@ export default function OIDCLoginPrompt({
                   color: 'text.secondary',
                 }}
               >
-                {t('sso.orSignInWith', 'Or sign in with')}
+                {t('auth.sso.orSignInWith', 'Or sign in with')}
               </Typography>
             </Divider>
 
@@ -296,7 +301,7 @@ export default function OIDCLoginPrompt({
                     <Skeleton
                       variant='rectangular'
                       height={80}
-                      sx={{ borderRadius: 3, transform: 'none' }}
+                      sx={{ borderRadius: 'var(--sf-radius-md, 8px)', transform: 'none' }}
                     />
                   </Grid>
                 ))
@@ -310,8 +315,9 @@ export default function OIDCLoginPrompt({
                       disabled={isPending}
                       onClick={() => handleProviderClick(provider.id)}
                       sx={{
+                        minHeight: 48,
                         height: { xs: 52, sm: 80 },
-                        borderRadius: 3,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         textTransform: 'none',
                         fontWeight: 700,
                         color: 'text.primary',
@@ -353,7 +359,7 @@ export default function OIDCLoginPrompt({
               ) : (
                 <Grid size={{ xs: 12 }}>
                   <Typography variant='body2' color='text.secondary' textAlign='center'>
-                    {t('sso.noProviders', 'No SSO providers configured.')}
+                    {t('auth.sso.noProviders', 'No SSO providers configured.')}
                   </Typography>
                 </Grid>
               )}
@@ -367,13 +373,13 @@ export default function OIDCLoginPrompt({
                   gap: 1.5,
                   px: 2.5,
                   py: 1.25,
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-md, 10px)',
                   bgcolor: alpha(theme.palette.info.main, 0.05),
                   border: '1px solid',
                   borderColor: alpha(theme.palette.info.main, 0.15),
                 }}
                 role='img'
-                aria-label={t('sso.secureBadge', 'Trusted Authentication Protocol')}
+                aria-label={t('auth.sso.secureBadge', 'Trusted Authentication Protocol')}
               >
                 <CloudDoneIcon sx={{ fontSize: 18, color: 'info.main' }} aria-hidden='true' />
                 <Typography
@@ -385,7 +391,7 @@ export default function OIDCLoginPrompt({
                     color: 'info.main',
                   }}
                 >
-                  {t('sso.trustedAuth', 'Bank-Grade Security Protocol')}
+                  {t('auth.sso.trustedAuth', 'Bank-Grade Security Protocol')}
                 </Typography>
               </Box>
             </Box>

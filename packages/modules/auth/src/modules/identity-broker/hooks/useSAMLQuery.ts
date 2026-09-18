@@ -10,9 +10,9 @@ import samlService from '../services/saml.service'
 import type {
   SAMLConfig,
   UpdateSAMLConfigDTO,
-  SAMLMetadataResponse,
   RemoteMetadataFetchDTO,
   RemoteMetadataResult,
+  UploadSAMLMetadataResult,
   RecentSAMLEntity,
   SAMLSSOInitiateDTO,
   SAMLSSOInitiateResponse,
@@ -57,10 +57,7 @@ export function useUpdateSAMLConfig(
 }
 
 export function useSAMLMetadata(
-  options?: Omit<
-    UseQueryOptions<FetchResponse<SAMLMetadataResponse>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
+  options?: Omit<UseQueryOptions<FetchResponse<string>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: samlKeys.metadata(),
@@ -71,7 +68,7 @@ export function useSAMLMetadata(
 
 export function useUploadSAMLMetadata(
   options?: UseMutationOptions<
-    FetchResponse<RemoteMetadataResult>,
+    FetchResponse<UploadSAMLMetadataResult>,
     HttpError,
     FormData | { metadata: string },
     unknown

@@ -6,7 +6,6 @@ import {
   ButtonGroup,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Container,
   Grid,
@@ -23,12 +22,16 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import NotificationsActive from '@mui/icons-material/NotificationsActive'
 import CheckCircle from '@mui/icons-material/CheckCircle'
 import DoneAll from '@mui/icons-material/DoneAll'
 import Block from '@mui/icons-material/Block'
 import ThumbDown from '@mui/icons-material/ThumbDown'
+import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import { useAdminAlertsQuery } from '../../hooks/useAdminMonitoringQuery'
 import { useTriageAlertMutation } from '../../hooks/useSecurityIntelQuery'
 import {
@@ -39,6 +42,7 @@ import {
   type SecurityAlert,
   type TriageAction,
 } from '../../types/securityIntel.types'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 
 /**
  * Alert Triage Queue.
@@ -62,20 +66,20 @@ import {
  * table and its tests cannot drift apart on that question.
  */
 
-const SEVERITY_COLOR: Record<AlertSeverity, 'error' | 'warning' | 'info' | 'default'> = {
+const SEVERITY_COLOR: Record<AlertSeverity, 'error' | 'warning' | 'info' | 'neutral'> = {
   critical: 'error',
   high: 'error',
   medium: 'warning',
   low: 'info',
-  info: 'default',
+  info: 'neutral',
 }
 
-const STATUS_COLOR: Record<AlertStatus, 'error' | 'warning' | 'success' | 'default'> = {
+const STATUS_COLOR: Record<AlertStatus, 'error' | 'warning' | 'success' | 'neutral'> = {
   open: 'error',
   acknowledged: 'warning',
   resolved: 'success',
-  suppressed: 'default',
-  expired: 'default',
+  suppressed: 'neutral',
+  expired: 'neutral',
 }
 
 const ACTION_META: Record<
@@ -110,6 +114,9 @@ const ACTION_META: Record<
 
 export const AlertTriageQueue: React.FC = () => {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const [severity, setSeverity] = useState<AlertSeverity | ''>('')
   const [status, setStatus] = useState<AlertStatus | ''>('open')
 
@@ -149,6 +156,7 @@ export const AlertTriageQueue: React.FC = () => {
   }
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Container maxWidth='lg' sx={{ py: 4 }}>
       <Stack direction='row' alignItems='center' spacing={1.5} sx={{ mb: 1 }}>
         <NotificationsActive color='primary' />
@@ -164,7 +172,7 @@ export const AlertTriageQueue: React.FC = () => {
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {ALERT_SEVERITY_ORDER.map((level) => (
           <Grid key={level} size={{ xs: 6, md: 12 / 5 }}>
-            <Card variant='outlined'>
+            <Card variant='outlined' sx={{ ...surfaceEffect }}>
               <CardContent>
                 <Typography variant='overline' color='text.secondary'>
                   {level}
@@ -246,9 +254,8 @@ export const AlertTriageQueue: React.FC = () => {
                     return (
                       <TableRow key={alert.id}>
                         <TableCell>
-                          <Chip
-                            size='small'
-                            color={SEVERITY_COLOR[alert.severity] ?? 'default'}
+                          <AdminStatusBadge
+                            tone={SEVERITY_COLOR[alert.severity] ?? 'neutral'}
                             label={alert.severity}
                           />
                         </TableCell>
@@ -268,9 +275,8 @@ export const AlertTriageQueue: React.FC = () => {
                         </TableCell>
                         <TableCell>{new Date(alert.createdAt).toLocaleString()}</TableCell>
                         <TableCell>
-                          <Chip
-                            size='small'
-                            color={STATUS_COLOR[alert.status] ?? 'default'}
+                          <AdminStatusBadge
+                            tone={STATUS_COLOR[alert.status] ?? 'neutral'}
                             label={alert.status}
                           />
                           {alert.acknowledgedBy && (
@@ -319,6 +325,7 @@ export const AlertTriageQueue: React.FC = () => {
         </CardContent>
       </Card>
     </Container>
+    </motion.div>
   )
 }
 

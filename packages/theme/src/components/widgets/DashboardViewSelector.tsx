@@ -165,6 +165,7 @@ export const DashboardViewSelector: React.FC = () => {
                 </Box>
                 <IconButton
                   size="small"
+                  aria-label={`Delete view ${name}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     actions.deleteView(name);
