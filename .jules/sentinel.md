@@ -64,6 +64,11 @@
 **Learning:** Adding `noopener` prevents reverse tabnabbing and `noreferrer` masks the referer URL, providing defense in depth. Found missing attributes in `ChangeEmail.tsx` and `SCIMConfiguration.tsx`.
 **Prevention:** Always add `rel="noopener noreferrer"` to any anchor tag or component that renders an anchor tag with `target="_blank"`.
 
+## 2024-05-24 - Fix reverse tabnabbing vulnerability in window.open
+**Vulnerability:** Found multiple instances of `window.open(url, '_blank')` lacking `rel="noopener noreferrer"`.
+**Learning:** While modern browsers implicitly add `noopener`, older browsers do not, and the `Referer` header may still be leaked to the newly opened site without `noreferrer`.
+**Prevention:** Every external anchor tag using `target="_blank"` MUST declare `rel="noopener noreferrer"` to prevent reverse tabnabbing vulnerabilities.
+
 ## 2026-09-12 - [window.open Reverse Tabnabbing Vulnerabilities]
 **Vulnerability:** External links opened via `window.open` with `target="_blank"` missing the `'noopener,noreferrer'` features argument.
 **Learning:** Just like `rel="noopener noreferrer"` on `<a>` tags, `window.open` requires `'noopener,noreferrer'` in its window features string (the third argument) to prevent reverse tabnabbing and mask the referer URL, ensuring defense in depth. Found in multiple places including CheckEmailConfirmation, EmailChangeVerificationPending, DataExport, SAMLConfigDashboard, and NavSearch.
