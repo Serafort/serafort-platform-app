@@ -10,6 +10,10 @@
 **Learning:** When adding ARIA labels to buttons rendered in a `.map()` loop (e.g., deleting a specific dashboard view), it is important to include the unique item name (e.g., `aria-label={"Delete " + name + " view"}`) so that screen readers can distinguish between multiple similar buttons on the page.
 **Action:** When working on lists, tables, or mapped elements, always interpolate the item's unique identifier into the ARIA label for interactive components.
 
+## 2024-03-20 - Icon Buttons Need ARIA Labels
+**Learning:** Icon buttons that use Tooltip for visual description still need explicit aria-labels for screen readers.
+**Action:** Always add aria-label to IconButton components, even when wrapped in a Tooltip. Use the translation system if possible, or literal strings if none available.
+
 ## 2024-11-20 - Interpolating Context into ARIA Labels in Dynamic Lists
 **Learning:** When rendering dynamic lists with actionable icon buttons (e.g., Delete), screen readers often encounter repetitive and ambiguous labels like "Delete". Without context, users don't know what is being deleted.
 **Action:** Always interpolate the unique identifier or name of the item (e.g., `aria-label={'Delete ' + item.name}`) to provide explicit context to screen reader users.
