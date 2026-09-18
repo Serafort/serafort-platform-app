@@ -6,6 +6,10 @@
 **Learning:** Added ARIA label to the "Delete View" IconButton in the DashboardViewSelector. When dealing with dynamically generated lists where multiple identical buttons exist (like "Delete"), it's crucial to include the dynamic item's name in the `aria-label` (e.g., `aria-label={"Delete view " + name}`). This ensures screen reader users know exactly which item they are acting upon rather than just hearing "Delete" multiple times.
 **Action:** Always interpolate the item's unique identifier or name into ARIA labels for actions rendered within a list or map function.
 
+## 2024-09-14 - Added dynamic aria-label to Dashboard View Delete button
+**Learning:** When adding ARIA labels to buttons rendered in a `.map()` loop (e.g., deleting a specific dashboard view), it is important to include the unique item name (e.g., `aria-label={"Delete " + name + " view"}`) so that screen readers can distinguish between multiple similar buttons on the page.
+**Action:** When working on lists, tables, or mapped elements, always interpolate the item's unique identifier into the ARIA label for interactive components.
+
 ## 2026-09-12 - Missing ARIA Labels on IconButtons in Dropdowns
 **Learning:** Icon-only buttons (like `IconButton`) in complex components such as dropdowns (e.g., NotificationsDropdown, ShortcutsDropdown) frequently miss `aria-label`s, causing screen readers to read them out ambiguously or skip their context entirely.
 **Action:** When implementing or reviewing dropdowns or menus with icon-only controls, explicitly check and assign `aria-label`s, preferably using translation keys for internationalization support (e.g., `t('navigation.actionName')`).
