@@ -4,14 +4,11 @@ const Path = {
   //device paths
   deviceCode: '/auth/device/code',
 
-  // email change paths
-  initiateEmailChange: '/auth/email/initiate-change',
+  // email change link-landing paths (initiation lives in user-directory)
   emailChangeStatus: '/auth/email/change-status',
-  emailChangeVerificationPending: '/auth/email/change-verification-pending',
   emailChangeVerification: '/auth/email/verify-change/:token',
   emailChangeSuccess: '/auth/email/change-success',
   emailChangeFailed: '/auth/email/change-failed',
-  exportVerification: '/auth/export/verification',
   resendEmailVerification: '/auth/email/resend-verification',
   VerificationEmail: '/auth/email/verification',
 
@@ -50,7 +47,5 @@ const Path = {
   emailVerifiedSuccess: '/auth/verify-email/success',
   validate: '/auth/validate/:id?/:token?',
   validateDirect: '/validate',
-
-  requestEmailChange: '/auth/email/initiate-change',
 }
 export default Path

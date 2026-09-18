@@ -199,34 +199,50 @@ export const mfaService = {
 
   // --- SMS MFA ---
   sms: {
+    // `ENDPOINTS.auth.mfa.sms` is a real, fully-typed entry (see
+    // @cap/api-contracts) — the `as any` cast and hardcoded string fallback
+    // this used to have were defensive against a registry entry that
+    // already existed, so both are dropped here.
     sendCode: async (): Promise<FetchResponse<{ message: string }>> => {
-      return apiClient.post<{ message: string }>(
-        (ENDPOINTS.auth.mfa as any).sms?.sendCode || '/api/auth/mfa/sms/send-code',
-      )
+      return apiClient.post<{ message: string }>(ENDPOINTS.auth.mfa.sms.sendCode)
     },
 
     confirm: async (
       code: string,
     ): Promise<FetchResponse<{ message: string; mfaSmsEnabled: boolean }>> => {
       return apiClient.post<{ message: string; mfaSmsEnabled: boolean }>(
-        (ENDPOINTS.auth.mfa as any).sms?.verify || '/api/auth/mfa/sms/verify',
+        ENDPOINTS.auth.mfa.sms.verify,
         { code },
       )
     },
 
     disable: async (): Promise<FetchResponse<{ message: string }>> => {
-      return apiClient.post<{ message: string }>(
-        (ENDPOINTS.auth.mfa as any).sms?.disable || '/api/auth/mfa/sms/disable',
-      )
+      return apiClient.post<{ message: string }>(ENDPOINTS.auth.mfa.sms.disable)
     },
 
+    /**
+     * `SmsMfaController.verifyLogin` resolves the account strictly from the
+     * signed `mfa_token` issued after the password step (same F-01 guard as
+     * `verifyLogin`/`recoveryVerify` above) — it does not accept a bare
+     * `userId`. The call previously sent only `{userId, code}` with no
+     * token at all, so every SMS step of the login-MFA flow 400'd with
+     * "MFA challenge token and verification code are required".
+     */
     verifyLogin: async (payload: {
-      userId: string | number
+      mfaToken?: string
+      mfa_token?: string
+      userId?: string | number
+      user_id?: string | number
       code: string
     }): Promise<FetchResponse<MfaLoginCompletionResponse>> => {
+      const formattedPayload = {
+        mfa_token: payload.mfa_token || payload.mfaToken,
+        userId: payload.userId || payload.user_id,
+        code: payload.code,
+      }
       return apiClient.post<MfaLoginCompletionResponse>(
-        (ENDPOINTS.auth.mfa as any).sms?.verifyLogin || '/api/auth/mfa/sms/verify-login',
-        payload,
+        ENDPOINTS.auth.mfa.sms.verifyLogin,
+        formattedPayload,
       )
     },
   },
@@ -305,6 +321,25 @@ export const mfaService = {
       }
     },
 
+    /**
+     * KNOWN GAP (not fixed here — see report): this hits the same
+     * `passkeys_controller.verifyAuthentication` used for a fresh,
+     * unauthenticated passkey *login*. That handler always calls
+     * `auth.use('web').login(user)` and returns a new access token, but
+     * never writes `session.put('mfa_verified', true)` /
+     * `sessionService.setAuthState(...)` — the state `middleware.mfa()`
+     * actually checks. `stepUp.verifyTotp` avoids this by hitting a
+     * distinct, purpose-built route (`/api/mfa/totp/verify`); no such
+     * distinct route exists for passkey step-up. Concretely: an
+     * already-signed-in user who steps up via passkey gets `success: true`
+     * here (a synthesized `elevationToken` if the server doesn't have one),
+     * but the *server-side* step-up gate is never actually satisfied, so a
+     * subsequent `middleware.mfa()`-protected request still 403s. Fixing
+     * this needs a new, auth-required backend route/controller branch
+     * mirroring `TotpController.verify`'s session promotion — a real
+     * feature addition, not a wiring fix, so it is reported rather than
+     * patched here.
+     */
     verifyBiometric: async (
       assertionResponse: AuthenticationResponseJSON,
     ): Promise<FetchResponse<StepUpVerificationResult>> => {

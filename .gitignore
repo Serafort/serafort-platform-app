@@ -123,3 +123,4 @@ skills-lock.json
 
 # Release packages produced by scripts/package-release.mjs
 release/
+graphify-out/*
