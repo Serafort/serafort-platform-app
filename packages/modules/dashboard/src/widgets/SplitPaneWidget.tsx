@@ -86,7 +86,15 @@ export const SplitPaneWidget: React.FC<SplitPaneWidgetProps> = () => {
                 : "Switch to Horizontal Split"
             }
           >
-            <IconButton size="small" onClick={toggleOrientation}>
+            <IconButton
+              size="small"
+              onClick={toggleOrientation}
+              aria-label={
+                orientation === "horizontal"
+                  ? "Switch to Vertical Split"
+                  : "Switch to Horizontal Split"
+              }
+            >
               {orientation === "horizontal" ? (
                 <ViewColumn fontSize="small" />
               ) : (
