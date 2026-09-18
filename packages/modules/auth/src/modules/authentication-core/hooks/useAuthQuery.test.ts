@@ -260,7 +260,8 @@ describe('useRefreshToken', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('calls authService.refreshToken', async () => {
-    mockRefreshToken.mockResolvedValue(ok({ token: 'newTok', expires_in: 3600 }))
+    // /api/v1/auth/refresh returns `accessToken`, not `token`/`expires_in`.
+    mockRefreshToken.mockResolvedValue(ok({ accessToken: 'newTok', user: { id: 1 } }))
     const { result } = renderHook(() => useRefreshToken(), { wrapper: makeWrapper() })
 
     await act(async () => {
@@ -272,7 +273,7 @@ describe('useRefreshToken', () => {
   })
 
   it('writes new tokens to secureTokenManager when a token is returned', async () => {
-    mockRefreshToken.mockResolvedValue(ok({ token: 'fresh', expires_in: 900 }))
+    mockRefreshToken.mockResolvedValue(ok({ accessToken: 'fresh', user: { id: 1 } }))
     const { result } = renderHook(() => useRefreshToken(), { wrapper: makeWrapper() })
 
     await act(async () => {
@@ -297,7 +298,7 @@ describe('useRefreshToken', () => {
 
   it('calls customOnSuccess with the response', async () => {
     const customOnSuccess = vi.fn()
-    const response = ok({ token: 'tok', expires_in: 3600 })
+    const response = ok({ accessToken: 'tok', user: { id: 1 } })
     mockRefreshToken.mockResolvedValue(response)
     const { result } = renderHook(() => useRefreshToken({ onSuccess: customOnSuccess }), {
       wrapper: makeWrapper(),

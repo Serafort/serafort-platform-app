@@ -50,6 +50,9 @@ import Warning from '@mui/icons-material/Warning'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   useOIDCClients,
   useCreateOIDCClient,
@@ -71,6 +74,8 @@ const DEFAULT_REDIRECT_URI =
 export default function ApplicationDashboard() {
   const navigate = useNavigate()
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const { t } = useTranslation('auth')
   const { data: clientsResponse, isLoading, refetch } = useOIDCClients()
   const createMutation = useCreateOIDCClient()
@@ -289,8 +294,9 @@ export default function ApplicationDashboard() {
   }
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
-      {/* â”€â”€ Pattern 1: Page Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Pattern 1: Page Header ───────────────────────────────────── */}
       <Box
         sx={{
           mb: 4,
@@ -306,7 +312,7 @@ export default function ApplicationDashboard() {
             sx={{
               width: 72,
               height: 72,
-              borderRadius: '20px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               bgcolor: alpha(theme.palette.primary.main, 0.1),
               color: 'primary.main',
             }}
@@ -314,7 +320,7 @@ export default function ApplicationDashboard() {
             <AppRegistration sx={{ fontSize: 32 }} />
           </Avatar>
           <Box>
-            <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 0.5 }}>
+            <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 0.5 }}>
               {t('admin.developer.applications.title')}
             </Typography>
             <Typography variant='body1' color='text.secondary'>
@@ -327,29 +333,27 @@ export default function ApplicationDashboard() {
           startIcon={<Add />}
           onClick={() => handleOpenAppDialog()}
           sx={{
-            bgcolor: 'info.main',
-            boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-            height: 44,
+            minHeight: 48,
             px: 3,
-            borderRadius: 2,
+            borderRadius: 'var(--sf-radius-md, 8px)',
             fontWeight: 700,
             textTransform: 'none',
-            '&:hover': { bgcolor: 'info.dark' },
           }}
         >
           {t('admin.developer.applications.new_app')}
         </Button>
       </Box>
 
-      {/* â”€â”€ Search & Filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Search & Filter ─────────────────────────────────────────── */}
       <Card
         sx={{
           p: 2.5,
           mb: 4,
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
+          ...surfaceEffect,
         }}
       >
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems='center'>
@@ -359,13 +363,15 @@ export default function ApplicationDashboard() {
             size='small'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <Search sx={{ fontSize: 20, color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-              sx: { borderRadius: 3 },
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <Search sx={{ fontSize: 20, color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: 'var(--sf-radius-lg, 12px)' },
+              },
             }}
             sx={{ maxWidth: 500 }}
           />
@@ -404,11 +410,12 @@ export default function ApplicationDashboard() {
           <Grid key={app.id} size={{ xs: 12, md: 6, lg: 4 }}>
             <Card
               sx={{
-                borderRadius: 4,
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
                 transition: 'all 0.2s',
+                ...surfaceEffect,
                 '&:hover': {
                   borderColor: 'primary.main',
                   bgcolor: alpha(theme.palette.primary.main, 0.01),
@@ -423,7 +430,7 @@ export default function ApplicationDashboard() {
                     sx={{
                       bgcolor: alpha(theme.palette.primary.main, 0.1),
                       color: 'primary.main',
-                      borderRadius: 2.5,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       width: 52,
                       height: 52,
                     }}
@@ -439,7 +446,7 @@ export default function ApplicationDashboard() {
                   </IconButton>
                 </Box>
 
-                <Typography variant='h6' sx={{ fontWeight: 900, mb: 0.5 }}>
+                <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
                   {app.client_name}
                 </Typography>
                 <Typography
@@ -472,7 +479,7 @@ export default function ApplicationDashboard() {
                     size='small'
                     color={getStatusColor(app.status) as any}
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       borderRadius: 1.5,
                       height: 22,
                       fontSize: '0.65rem',
@@ -484,7 +491,7 @@ export default function ApplicationDashboard() {
                       label='FAPI 2.0'
                       size='small'
                       sx={{
-                        fontWeight: 900,
+                        fontWeight: 800,
                         borderRadius: 1.5,
                         height: 22,
                         fontSize: '0.65rem',
@@ -522,7 +529,7 @@ export default function ApplicationDashboard() {
                       }}
                     >
                       {app.client_secret
-                        ? 'â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ ab2c'
+                        ? '•••• •••• ••••'
                         : t('admin.developer.applications.card.pkce_protected')}
                     </Typography>
                   </Box>
@@ -534,7 +541,7 @@ export default function ApplicationDashboard() {
                     sx={{
                       textTransform: 'none',
                       fontWeight: 800,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       bgcolor: alpha(theme.palette.primary.main, 0.1),
                       color: 'primary.main',
                       '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.2) },
@@ -555,7 +562,7 @@ export default function ApplicationDashboard() {
             sx={{
               height: '100%',
               minHeight: 250,
-              borderRadius: 4,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               border: '2px dashed',
               borderColor: 'divider',
               display: 'flex',
@@ -584,7 +591,7 @@ export default function ApplicationDashboard() {
             >
               <Add sx={{ fontSize: 32 }} />
             </Avatar>
-            <Typography variant='subtitle1' sx={{ fontWeight: 900 }}>
+            <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
               {t('admin.developer.applications.empty.title')}
             </Typography>
             <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 600 }}>
@@ -601,7 +608,7 @@ export default function ApplicationDashboard() {
         onClose={handleCloseMenu}
         PaperProps={{
           sx: {
-            borderRadius: 3,
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             minWidth: 200,
             mt: 1,
             boxShadow: '0px 10px 40px rgba(0,0,0,0.12)',
@@ -613,7 +620,7 @@ export default function ApplicationDashboard() {
       >
         <MenuItem
           onClick={() => handleOpenAppDialog(clients.find((c: any) => c.id === selectedAppId))}
-          sx={{ borderRadius: 2, py: 1.25 }}
+          sx={{ borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}
         >
           <ListItemIcon>
             <Edit fontSize='small' />
@@ -622,7 +629,7 @@ export default function ApplicationDashboard() {
             {t('admin.developer.applications.menu.edit')}
           </Typography>
         </MenuItem>
-        <MenuItem onClick={handleRotateSecret} sx={{ borderRadius: 2, py: 1.25 }}>
+        <MenuItem onClick={handleRotateSecret} sx={{ borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}>
           <ListItemIcon>
             <VpnKey fontSize='small' />
           </ListItemIcon>
@@ -633,7 +640,7 @@ export default function ApplicationDashboard() {
         <Divider sx={{ my: 1 }} />
         <MenuItem
           onClick={handleDeleteClient}
-          sx={{ color: 'error.main', borderRadius: 2, py: 1.25 }}
+          sx={{ color: 'error.main', borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}
         >
           <ListItemIcon>
             <Delete fontSize='small' color='error' />
@@ -650,9 +657,9 @@ export default function ApplicationDashboard() {
         onClose={() => setAppDialogOpen(false)}
         maxWidth='sm'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 4 } }}
+        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
       >
-        <DialogTitle sx={{ fontWeight: 900, px: 3, pt: 3 }}>
+        <DialogTitle sx={{ fontWeight: 800, px: 3, pt: 3 }}>
           {isEditMode
             ? t('admin.developer.applications.dialogs.create.title_edit')
             : t('admin.developer.applications.dialogs.create.title_new')}
@@ -666,7 +673,7 @@ export default function ApplicationDashboard() {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder={t('admin.developer.applications.dialogs.create.name_placeholder')}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
             />
             <TextField
               label={t('admin.developer.applications.dialogs.create.redirect_label')}
@@ -683,7 +690,7 @@ export default function ApplicationDashboard() {
               }
               placeholder={t('admin.developer.applications.dialogs.create.redirect_placeholder')}
               helperText={t('admin.developer.applications.dialogs.create.redirect_helper')}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
             />
             <FormControl fullWidth>
               <InputLabel>
@@ -702,7 +709,7 @@ export default function ApplicationDashboard() {
                 input={
                   <OutlinedInput
                     label={t('admin.developer.applications.dialogs.create.grant_label')}
-                    sx={{ borderRadius: 3 }}
+                    sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}
                   />
                 }
                 renderValue={(selected: string[]) => (
@@ -746,7 +753,7 @@ export default function ApplicationDashboard() {
             sx={{
               fontWeight: 800,
               textTransform: 'none',
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 3,
               bgcolor: 'info.main',
             }}
@@ -766,11 +773,11 @@ export default function ApplicationDashboard() {
         onClose={() => setSecretDialogOpen(false)}
         maxWidth='sm'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 4 } }}
+        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
       >
         <DialogTitle
           sx={{
-            fontWeight: 900,
+            fontWeight: 800,
             color: 'warning.main',
             display: 'flex',
             gap: 1.5,
@@ -794,7 +801,7 @@ export default function ApplicationDashboard() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
             }}
           >
             <Typography
@@ -822,7 +829,7 @@ export default function ApplicationDashboard() {
             sx={{
               fontWeight: 800,
               textTransform: 'none',
-              borderRadius: 2.5,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               py: 1.25,
               bgcolor: 'text.primary',
             }}
@@ -836,10 +843,10 @@ export default function ApplicationDashboard() {
       <Dialog
         open={confirmDialog.open}
         onClose={() => setConfirmDialog((prev: any) => ({ ...prev, open: false }))}
-        PaperProps={{ sx: { borderRadius: 4 } }}
+        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
       >
         <DialogTitle
-          sx={{ fontWeight: 900, display: 'flex', gap: 1.5, alignItems: 'center', px: 3, pt: 3 }}
+          sx={{ fontWeight: 800, display: 'flex', gap: 1.5, alignItems: 'center', px: 3, pt: 3 }}
         >
           <Warning color='warning' /> {confirmDialog.title}
         </DialogTitle>
@@ -859,12 +866,13 @@ export default function ApplicationDashboard() {
             variant='contained'
             color='error'
             onClick={confirmDialog.onConfirm}
-            sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 2, px: 3 }}
+            sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 'var(--sf-radius-md, 8px)', px: 3 }}
           >
             {t('admin.developer.applications.dialogs.confirm.confirm_button')}
           </Button>
         </DialogActions>
       </Dialog>
     </Box>
+    </motion.div>
   )
 }

@@ -150,21 +150,21 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
               onClick={() => navigate(Path.apiTokens.dashboard)}
               sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', fontWeight: 600 }}
             >
-              {t('api_tokens:title', 'API Tokens')}
+              {t('auth.api_tokens.title', 'API Tokens')}
             </Link>
             <Typography color='text.primary' sx={{ fontWeight: 800 }}>
-              {t('api_tokens:create_title', 'Create New Token')}
+              {t('auth.api_tokens.create_title', 'Create New Token')}
             </Typography>
           </Breadcrumbs>
 
           {/* Header */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant='h3' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
-              {t('api_tokens:create_header', 'Create API Token')}
+            <Typography variant='h3' sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.027em' }}>
+              {t('auth.api_tokens.create_header', 'Create API Token')}
             </Typography>
             <Typography variant='body1' color='text.secondary' sx={{ fontSize: '1.05rem' }}>
               {t(
-                'api_tokens:create_subheader',
+                'auth.api_tokens.create_subheader',
                 'Configure authentication and permissions for your integrations.',
               )}
             </Typography>
@@ -176,21 +176,21 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
               <Step>
                 <StepLabel>
                   <Typography sx={{ fontWeight: 700 }}>
-                    {t('api_tokens:step_basic', 'Configuration')}
+                    {t('auth.api_tokens.step_basic', 'Configuration')}
                   </Typography>
                 </StepLabel>
               </Step>
               <Step>
                 <StepLabel>
                   <Typography sx={{ fontWeight: 600, color: 'text.disabled' }}>
-                    {t('api_tokens:step_restrictions', 'Restrictions')}
+                    {t('auth.api_tokens.step_restrictions', 'Restrictions')}
                   </Typography>
                 </StepLabel>
               </Step>
               <Step>
                 <StepLabel>
                   <Typography sx={{ fontWeight: 600, color: 'text.disabled' }}>
-                    {t('api_tokens:step_review', 'Deployment')}
+                    {t('auth.api_tokens.step_review', 'Deployment')}
                   </Typography>
                 </StepLabel>
               </Step>
@@ -203,7 +203,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
       <Card
         variant='outlined'
         sx={{
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
@@ -227,16 +227,22 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                       color: 'text.primary',
                     }}
                   >
-                    {t('api_tokens:field_name', 'Integration Name')}
+                    {t('auth.api_tokens.field_name', 'Token Name')}
                   </FormLabel>
                   <TextField
                     fullWidth
-                    placeholder={t('api_tokens:name_placeholder', 'e.g. CI/CD Pipeline')}
+                    placeholder={
+                      t('auth.api_tokens.name_placeholder', 'e.g. GitHub Actions Sync') || ''
+                    }
                     value={tokenName}
                     onChange={(e) => setTokenName(e.target.value)}
-                    variant='outlined'
-                    autoFocus
-                    slotProps={{ input: { sx: { borderRadius: 3, fontWeight: 600, height: 52 } } }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        fontWeight: 600,
+                        height: 52,
+                      },
+                    }}
                   />
                   <Typography
                     variant='caption'
@@ -244,7 +250,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                     sx={{ mt: 1, display: 'block' }}
                   >
                     {t(
-                      'api_tokens:name_help',
+                      'auth.api_tokens.name_help',
                       'A unique name to identify this token in your dashboard.',
                     )}
                   </Typography>
@@ -262,28 +268,28 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                       color: 'text.primary',
                     }}
                   >
-                    {t('api_tokens:field_expiration', 'Expiration Interval')}
+                    {t('auth.api_tokens.field_expiration', 'Expiration Interval')}
                   </FormLabel>
                   <Select
                     fullWidth
                     value={expiration}
                     onChange={(e) => setExpiration(e.target.value)}
-                    sx={{ borderRadius: 3, fontWeight: 600, height: 52 }}
+                    sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600, height: 52 }}
                   >
                     <MenuItem value='7 days' sx={{ fontWeight: 600 }}>
-                      {t('api_tokens:exp_7d', '7 Days')}
+                      {t('auth.api_tokens.exp_7d', '7 Days')}
                     </MenuItem>
                     <MenuItem value='30 days' sx={{ fontWeight: 600 }}>
-                      {t('api_tokens:exp_30d', '30 Days')}
+                      {t('auth.api_tokens.exp_30d', '30 Days')}
                     </MenuItem>
                     <MenuItem value='90 days' sx={{ fontWeight: 600 }}>
-                      {t('api_tokens:exp_90d', '90 Days')}
+                      {t('auth.api_tokens.exp_90d', '90 Days')}
                     </MenuItem>
                     <MenuItem value='365 days' sx={{ fontWeight: 600 }}>
-                      {t('api_tokens:exp_1y', '1 Year')}
+                      {t('auth.api_tokens.exp_1y', '1 Year')}
                     </MenuItem>
                     <MenuItem value='never' sx={{ fontWeight: 600, color: 'error.main' }}>
-                      {t('api_tokens:exp_never', 'No Expiration')}
+                      {t('auth.api_tokens.exp_never', 'No Expiration')}
                     </MenuItem>
                   </Select>
                   <Typography
@@ -291,7 +297,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                     color='text.secondary'
                     sx={{ mt: 1, display: 'block' }}
                   >
-                    {t('api_tokens:exp_help', 'Shorter expiration is more secure.')}
+                    {t('auth.api_tokens.exp_help', 'Shorter expiration is more secure.')}
                   </Typography>
                 </Box>
               </Stack>
@@ -305,7 +311,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                   variant='h6'
                   sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}
                 >
-                  {t('api_tokens:permissions_title', 'Access Scopes')}
+                  {t('auth.api_tokens.permissions_title', 'Access Scopes')}
                 </Typography>
               </Box>
 
@@ -313,7 +319,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
               {scopesLoading && (
                 <Stack spacing={1.5}>
                   {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} variant='rounded' height={56} sx={{ borderRadius: 3 }} />
+                    <Skeleton key={i} variant='rounded' height={56} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
                   ))}
                 </Stack>
               )}
@@ -330,12 +336,12 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                       onClick={() => refetchScopes()}
                       sx={{ fontWeight: 700, textTransform: 'none' }}
                     >
-                      {t('common:retry', 'Retry')}
+                      {t('auth.common.retry', 'Retry')}
                     </Button>
                   }
-                  sx={{ borderRadius: 2 }}
+                  sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
                 >
-                  {t('api_tokens:scopes_load_error', 'Failed to load available scopes.')}
+                  {t('auth.api_tokens.scopes_load_error', 'Failed to load available scopes.')}
                 </Alert>
               )}
 
@@ -362,7 +368,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                           }}
                           sx={{
                             p: 2,
-                            borderRadius: 3,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             cursor: 'pointer',
                             transition: 'all 0.15s ease-in-out',
                             position: 'relative',
@@ -429,7 +435,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
                       color='error'
                       sx={{ mt: 2, display: 'block', fontWeight: 600 }}
                     >
-                      {t('api_tokens:scope_required', 'Select at least one scope to continue.')}
+                      {t('auth.api_tokens.scope_required', 'Select at least one scope to continue.')}
                     </Typography>
                   )}
                 </>
@@ -449,21 +455,22 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
             alignItems: 'center',
             borderTop: '1px solid',
             borderColor: 'divider',
-            borderBottomLeftRadius: 16,
-            borderBottomRightRadius: 16,
+            borderBottomLeftRadius: 'var(--sf-radius-lg, 16px)',
+            borderBottomRightRadius: 'var(--sf-radius-lg, 16px)',
           }}
         >
           <Button
             startIcon={<ArrowBackIcon />}
             onClick={() => navigate(Path.apiTokens.dashboard)}
             sx={{
+              minHeight: 44,
               fontWeight: 800,
               textTransform: 'none',
               color: 'text.secondary',
               '&:hover': { color: 'text.primary', bgcolor: 'transparent' },
             }}
           >
-            {t('common:cancel', 'Cancel')}
+            {t('auth.common.cancel', 'Cancel')}
           </Button>
 
           <Button
@@ -476,8 +483,9 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
             sx={{
               px: 4,
               py: 1.2,
-              borderRadius: 3,
-              fontWeight: 900,
+              minHeight: 48,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              fontWeight: 800,
               textTransform: 'none',
               boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
               '&:hover': {
@@ -485,7 +493,7 @@ const CreateAPITokenBasicInfo: React.FC<CreateAPITokenBasicInfoProps> = ({
               },
             }}
           >
-            {t('api_tokens:continue', 'Continue to Restrictions')}
+            {t('auth.api_tokens.continue', 'Continue to Restrictions')}
           </Button>
         </Box>
       </Card>

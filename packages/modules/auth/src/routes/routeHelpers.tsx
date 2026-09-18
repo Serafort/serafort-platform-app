@@ -1,6 +1,6 @@
 import React from 'react'
 import type { ModuleRouteConfig, RouteLayout } from '@cap/shared-types'
-import { Roles, type LayoutOverride } from '@cap/platform-core'
+import { Roles } from '@cap/platform-core'
 import AdminRoute from '../modules/authorization-engine/middlewares/AdminRoute'
 import AuthRoute from '../modules/authentication-core/middlewares/AuthRoute'
 
@@ -28,18 +28,18 @@ export const createAuthRoute = (
   element: React.ReactNode,
   options: {
     requiresVerification?: boolean
-    layout?: LayoutOverride | RouteLayout
+    layout?: RouteLayout
     label?: string
   } = {},
 ): ModuleRouteConfig => ({
   path,
   label: options.label,
-  layout: (options.layout as RouteLayout) || 'admin',
+  layout: options.layout ?? 'admin',
   element: (
     <AuthRoute
       element={element}
       requiresVerification={options.requiresVerification}
-      layout={options.layout as LayoutOverride}
+      layout={options.layout}
     />
   ),
 })

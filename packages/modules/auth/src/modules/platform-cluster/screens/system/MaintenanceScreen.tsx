@@ -37,7 +37,7 @@ export default function MaintenanceScreen() {
         />
       </Box>
 
-      <Typography variant='h3' sx={{ fontWeight: 900, mb: 2, letterSpacing: '-0.04em' }}>
+      <Typography variant='h3' sx={{ fontWeight: 800, mb: 2, letterSpacing: '-0.04em' }}>
         {t('system.maintenanceHeading', 'Scheduled Maintenance')}
       </Typography>
       <Typography
@@ -61,7 +61,7 @@ export default function MaintenanceScreen() {
         elevation={0}
         sx={{
           p: 3,
-          borderRadius: 3,
+          borderRadius: 'var(--sf-radius-lg, 12px)',
           bgcolor: (t) => alpha(t.palette.info.main, 0.05),
           border: '1px solid',
           borderColor: (t) => alpha(t.palette.info.main, 0.1),

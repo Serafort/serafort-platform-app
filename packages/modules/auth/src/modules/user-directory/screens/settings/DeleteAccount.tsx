@@ -42,6 +42,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useErasureMutation, useExportMutation, useUserProfile } from '../../hooks/useUserQuery'
 import { useAuth, useNotifications, themeConfig } from '@cap/platform-core'
+import { motion } from 'framer-motion'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import logger from '@idaas/authentication-core/utils/logger'
@@ -189,6 +190,11 @@ export default function DeleteAccount() {
       <title>
         {t('auth.account.delete_account', 'Delete Account')} - {themeConfig.templateName}
       </title>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
       <Container
         component='main'
         maxWidth='md'
@@ -225,13 +231,14 @@ export default function DeleteAccount() {
               fontSize: '0.875rem',
               fontWeight: 600,
               color: 'text.secondary',
-              px: 1.5,
-              py: 0.75,
-              borderRadius: '8px',
+              px: 2,
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              bgcolor: (theme) => alpha(theme.palette.action.active, 0.04),
               transition: 'all 0.2s ease',
               '&:hover': {
                 color: 'text.primary',
-                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
+                bgcolor: (theme) => alpha(theme.palette.action.active, 0.08),
               },
             }}
           >
@@ -247,7 +254,7 @@ export default function DeleteAccount() {
             flexDirection: 'column',
             width: '100%',
             maxWidth: 620,
-            borderRadius: '16px',
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             border: (theme) => `1px solid ${alpha(theme.palette.error.main, 0.3)}`,
             bgcolor: 'background.paper',
             boxShadow: (theme) =>
@@ -274,7 +281,7 @@ export default function DeleteAccount() {
                     ? alpha(theme.palette.error.main, 0.12)
                     : alpha(theme.palette.error.main, 0.06),
                 border: (theme) => `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
-                borderRadius: '14px',
+                borderRadius: 'var(--sf-radius-lg, 12px)',
                 p: { xs: 2, sm: 2.5 },
                 display: 'flex',
                 alignItems: 'center',
@@ -286,7 +293,7 @@ export default function DeleteAccount() {
                 sx={{
                   width: 48,
                   height: 48,
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -339,7 +346,7 @@ export default function DeleteAccount() {
                 severity='error'
                 sx={{
                   mb: 3.5,
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                   bgcolor: (theme) => alpha(theme.palette.error.main, 0.1),
                   color: 'error.main',
                 }}
@@ -377,7 +384,7 @@ export default function DeleteAccount() {
                 <Box
                   sx={{
                     p: 2.5,
-                    borderRadius: '12px',
+                    borderRadius: 'var(--sf-radius-lg, 12px)',
                     border: (theme) => `1px solid ${theme.palette.divider}`,
                     bgcolor: (theme) =>
                       theme.palette.mode === 'dark'
@@ -392,7 +399,7 @@ export default function DeleteAccount() {
                         sx={{
                           width: 36,
                           height: 36,
-                          borderRadius: '8px',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -428,7 +435,7 @@ export default function DeleteAccount() {
                         sx={{
                           width: 36,
                           height: 36,
-                          borderRadius: '8px',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -467,7 +474,7 @@ export default function DeleteAccount() {
                         sx={{
                           width: 36,
                           height: 36,
-                          borderRadius: '8px',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -502,7 +509,7 @@ export default function DeleteAccount() {
               <Box
                 sx={{
                   p: 2.5,
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                   border: (theme) => `1px solid ${theme.palette.divider}`,
                   bgcolor: (theme) =>
                     theme.palette.mode === 'dark'
@@ -558,7 +565,8 @@ export default function DeleteAccount() {
                       sx={{
                         textTransform: 'none',
                         fontWeight: 600,
-                        borderRadius: '8px',
+                        minHeight: 44,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         borderColor: 'divider',
                         color: 'text.primary',
                         bgcolor: 'background.paper',
@@ -582,7 +590,8 @@ export default function DeleteAccount() {
                       sx={{
                         textTransform: 'none',
                         fontWeight: 600,
-                        borderRadius: '8px',
+                        minHeight: 44,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         borderColor: 'divider',
                         color: 'text.primary',
                         bgcolor: 'background.paper',
@@ -678,7 +687,7 @@ export default function DeleteAccount() {
                           }}
                           sx={{
                             '& .MuiOutlinedInput-root': {
-                              borderRadius: '10px',
+                              borderRadius: 'var(--sf-radius-md, 8px)',
                               minHeight: 48,
                               bgcolor: 'background.default',
                               transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
@@ -786,7 +795,7 @@ export default function DeleteAccount() {
                         theme.palette.mode === 'dark'
                           ? alpha(theme.palette.background.default, 0.6)
                           : alpha(theme.palette.grey[50], 0.8),
-                      borderRadius: '10px',
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       border: (theme) => `1px solid ${theme.palette.divider}`,
                     }}
                   >
@@ -853,7 +862,8 @@ export default function DeleteAccount() {
                   variant='outlined'
                   disabled={isDeleting}
                   sx={{
-                    borderRadius: '10px',
+                    minHeight: 48,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     borderColor: 'divider',
                     color: 'text.secondary',
                     fontWeight: 600,
@@ -883,7 +893,8 @@ export default function DeleteAccount() {
                     )
                   }
                   sx={{
-                    borderRadius: '10px',
+                    minHeight: 48,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     bgcolor: 'error.main',
                     color: 'error.contrastText',
                     fontWeight: 700,
@@ -938,6 +949,7 @@ export default function DeleteAccount() {
           </Typography>
         </Box>
       </Container>
+    </motion.div>
 
       {/* Final Confirmation Modal */}
       <Dialog
@@ -945,17 +957,16 @@ export default function DeleteAccount() {
         onClose={() => !isDeleting && setOpenConfirmDialog(false)}
         maxWidth='xs'
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: '16px',
-            p: 1,
-            bgcolor: 'background.paper',
-            backgroundImage: 'none',
-            border: (theme) => `1px solid ${theme.palette.divider}`,
-            boxShadow: (theme) =>
-              theme.palette.mode === 'dark'
-                ? '0 24px 48px -12px rgba(0, 0, 0, 0.8)'
-                : '0 24px 48px -12px rgba(15, 23, 42, 0.25)',
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              p: 1,
+              bgcolor: 'background.paper',
+              backgroundImage: 'none',
+              border: (theme) => `1px solid ${theme.palette.divider}`,
+              boxShadow: 'var(--sf-shadow-xl)',
+            },
           },
         }}
       >
@@ -975,7 +986,7 @@ export default function DeleteAccount() {
             sx={{
               width: 36,
               height: 36,
-              borderRadius: '8px',
+              borderRadius: 'var(--sf-radius-md, 8px)',
               bgcolor: (theme) => alpha(theme.palette.error.main, 0.12),
               display: 'flex',
               alignItems: 'center',
@@ -1003,7 +1014,8 @@ export default function DeleteAccount() {
             disabled={isDeleting}
             variant='outlined'
             sx={{
-              borderRadius: '10px',
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               textTransform: 'none',
               fontWeight: 600,
               borderColor: 'divider',
@@ -1029,7 +1041,8 @@ export default function DeleteAccount() {
               )
             }
             sx={{
-              borderRadius: '10px',
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               bgcolor: 'error.main',
               color: 'error.contrastText',
               fontWeight: 700,

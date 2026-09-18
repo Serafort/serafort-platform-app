@@ -12,7 +12,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
   Link as MuiLink,
   CircularProgress,
   Alert,
@@ -31,6 +30,7 @@ import Dns from '@mui/icons-material/Dns'
 import { alpha, useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import { useDetailedHealth } from '../../hooks/useHealthQuery'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 
 interface ApiDependency {
   id: string
@@ -64,7 +64,6 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
     data: healthResponse,
     isLoading,
     isError,
-    error,
     refetch,
     isFetching,
   } = useDetailedHealth({
@@ -181,8 +180,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '100vh',
-          bgcolor: 'background.default',
+          minHeight: 400,
           gap: 2,
         }}
       >
@@ -192,7 +190,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
     )
   }
 
-  // Error state
+  // Error state — the raw query error is not surfaced to the user.
   if (isError) {
     return (
       <Box
@@ -201,8 +199,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '100vh',
-          bgcolor: 'background.default',
+          minHeight: 400,
           p: 4,
         }}
       >
@@ -215,9 +212,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
             </Button>
           }
         >
-          {t('monitoring.dashboard.error_failed_to_load', {
-            error: error?.message || 'Unknown error',
-          })}
+          {t('monitoring.dashboard.error_failed_to_load')}
         </Alert>
       </Box>
     )
@@ -252,7 +247,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
           sx={{
             width: '100%',
             maxWidth: 1200,
-            borderRadius: '12px',
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             overflow: 'hidden',
             border: 1,
             borderColor: 'divider',
@@ -512,22 +507,15 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
                         </Box>
                       </TableCell>
                       <TableCell sx={{ py: 2 }}>
-                        <Chip
-                          icon={statusConfig.icon}
+                        <AdminStatusBadge
+                          tone={
+                            dep.status === 'healthy'
+                              ? 'success'
+                              : dep.status === 'degraded'
+                                ? 'warning'
+                                : 'error'
+                          }
                           label={statusConfig.label}
-                          size='small'
-                          sx={{
-                            height: 28,
-                            fontSize: '12px',
-                            fontWeight: 500,
-                            bgcolor: statusConfig.bg,
-                            color: statusConfig.color,
-                            border: 1,
-                            borderColor: statusConfig.border,
-                            '& .MuiChip-icon': {
-                              color: 'inherit',
-                            },
-                          }}
                         />
                       </TableCell>
                       <TableCell sx={{ py: 2 }}>
@@ -604,7 +592,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
               <span>{t('monitoring.dashboard.uptime', { uptime })}</span>
-              <span>â€¢</span>
+              <span>•</span>
               <span>{t('monitoring.dashboard.server', { server })}</span>
             </Box>
           </Box>

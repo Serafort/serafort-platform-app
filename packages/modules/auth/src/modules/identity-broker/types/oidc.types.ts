@@ -16,6 +16,16 @@ export interface OIDCClient {
   updatedAt?: string
 }
 
+/**
+ * `oidcClientValidator` / `updateOidcClientValidator`
+ * (`app/validators/admin.ts`) only allow-list `name`, `redirectUris`,
+ * `grantTypes`, `responseTypes`, `branding`, `is_fapi_compliant` and
+ * `description`. `tokenEndpointAuthMethod` has no backing column on
+ * `OidcClient` at all, and `scope` isn't in either validator even though the
+ * model has a sibling `scopes` (array) column — both are silently dropped by
+ * `request.validateUsing(...)`, not rejected. They stay on the DTO as
+ * forward-looking fields; sending them today is a no-op.
+ */
 export interface CreateOIDCClientDTO {
   name: string
   redirectUris: string[]
@@ -34,6 +44,11 @@ export interface UpdateOIDCClientDTO {
   scope?: string
 }
 
+/**
+ * `ClientsController.rotateSecret` only ever returns `{ message,
+ * client_secret }` — it never echoes the client id, so `oidc.service.ts`
+ * fills `clientId` in from the id the caller already passed to build the URL.
+ */
 export interface RotateClientSecretResult {
   clientId: string
   clientSecret: string

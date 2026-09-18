@@ -34,7 +34,7 @@ export function useSCIMConfig(
 
 export function useUpdateSCIMConfig(
   options?: UseMutationOptions<
-    FetchResponse<{ message: string; config?: SCIMConfig }>,
+    FetchResponse<{ message: string; scimConfig?: SCIMConfig }>,
     HttpError,
     UpdateSCIMConfigDTO,
     unknown

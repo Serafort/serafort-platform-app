@@ -30,6 +30,7 @@ import type {
   PolicySimulationInput,
   PolicySimulationResult,
 } from '@cap/authorization'
+import { useTranslation } from 'react-i18next'
 import { PolicyGraphCompiler } from '@cap/authorization'
 
 interface PolicyLiveSimulatorProps {
@@ -44,6 +45,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
   onClose,
 }) => {
   const theme = useTheme()
+  const { t } = useTranslation()
 
   // Scenario inputs
   const [subjectRoles, setSubjectRoles] = useState<string>('member')
@@ -94,7 +96,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        borderLeft: '1px solid',
+        borderInlineStart: '1px solid',
         borderColor: 'divider',
         bgcolor: alpha(theme.palette.background.paper, 0.95),
         backdropFilter: 'blur(16px)',
@@ -115,10 +117,14 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <ScienceIcon color='primary' />
           <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
-            Live Policy Simulator
+            {t('auth.admin.policy.simulator_title', 'Policy simulator')}
           </Typography>
         </Box>
-        <IconButton size='small' onClick={onClose}>
+        <IconButton
+          onClick={onClose}
+          aria-label={t('auth.common.close', 'Close')}
+          sx={{ width: 44, height: 44 }}
+        >
           <CloseIcon fontSize='small' />
         </IconButton>
       </Box>
@@ -134,22 +140,22 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
             letterSpacing: 0.5,
           }}
         >
-          1. Test Scenario Context
+          {t('auth.admin.policy.step_context', '1. Test scenario')}
         </Typography>
 
         <Stack spacing={2} sx={{ mt: 1.5 }}>
           {/* Subject info */}
           <TextField
-            label='Subject Roles (comma-separated)'
+            label={t('auth.admin.policy.subject_roles', 'Subject roles (comma separated)')}
             size='small'
             fullWidth
             value={subjectRoles}
             onChange={(e) => setSubjectRoles(e.target.value)}
-            placeholder='member, admin, finance'
+            placeholder={t('auth.admin.policy.subject_roles_placeholder', 'member, admin, finance')}
           />
 
           <TextField
-            label='Subject Org ID'
+            label={t('auth.admin.policy.subject_org', 'Subject organization ID')}
             size='small'
             fullWidth
             value={subjectOrgId}
@@ -164,17 +170,21 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                 color='primary'
               />
             }
-            label={<Typography variant='body2'>MFA Verified</Typography>}
+            label={
+              <Typography variant='body2'>
+                {t('auth.admin.policy.mfa_verified', 'MFA verified')}
+              </Typography>
+            }
           />
 
           <Divider sx={{ my: 0.5 }} />
 
           {/* Action selection */}
           <FormControl size='small' fullWidth>
-            <InputLabel>Attempted Action</InputLabel>
+            <InputLabel>{t('auth.admin.policy.action', 'Attempted action')}</InputLabel>
             <Select
               value={action}
-              label='Attempted Action'
+              label={t('auth.admin.policy.action', 'Attempted action')}
               onChange={(e) => setAction(e.target.value)}
             >
               <MenuItem value='read'>read</MenuItem>
@@ -188,10 +198,10 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
 
           {/* Resource info */}
           <FormControl size='small' fullWidth>
-            <InputLabel>Resource Type</InputLabel>
+            <InputLabel>{t('auth.admin.policy.resource_type', 'Resource type')}</InputLabel>
             <Select
               value={resourceType}
-              label='Resource Type'
+              label={t('auth.admin.policy.resource_type', 'Resource type')}
               onChange={(e) => setResourceType(e.target.value)}
             >
               <MenuItem value='document'>document</MenuItem>
@@ -203,7 +213,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
           </FormControl>
 
           <TextField
-            label='Resource Org ID'
+            label={t('auth.admin.policy.resource_org', 'Resource organization ID')}
             size='small'
             fullWidth
             value={resourceOrgId}
@@ -216,9 +226,9 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
             size='medium'
             startIcon={<PlayArrowIcon />}
             onClick={handleRunSimulation}
-            sx={{ fontWeight: 800, py: 1, borderRadius: 2 }}
+            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
-            Run Evaluation Trace
+            {t('auth.admin.policy.run', 'Run evaluation')}
           </Button>
         </Stack>
 
@@ -235,7 +245,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                 letterSpacing: 0.5,
               }}
             >
-              2. Evaluation Outcome
+              {t('auth.admin.policy.step_outcome', '2. Outcome')}
             </Typography>
 
             <Paper
@@ -243,7 +253,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
               sx={{
                 p: 2,
                 mt: 1,
-                borderRadius: 2.5,
+                borderRadius: 'var(--sf-radius-md, 10px)',
                 border: '1.5px solid',
                 borderColor:
                   simulationResult.effect === 'allow'
@@ -267,9 +277,13 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
               >
                 <Chip
                   icon={simulationResult.effect === 'allow' ? <CheckCircleIcon /> : <CancelIcon />}
-                  label={simulationResult.effect.toUpperCase()}
+                  label={
+                    simulationResult.effect === 'allow'
+                      ? t('auth.admin.policy.effect_allow', 'Allow')
+                      : t('auth.admin.policy.effect_deny', 'Deny')
+                  }
                   color={simulationResult.effect === 'allow' ? 'success' : 'error'}
-                  sx={{ fontWeight: 900, px: 1 }}
+                  sx={{ fontWeight: 800, px: 1, borderRadius: 'var(--sf-radius-sm, 6px)' }}
                 />
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <SpeedIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
@@ -296,7 +310,10 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                 display: 'block',
               }}
             >
-              3. Traversal Step Traces ({simulationResult.stepTraces.length})
+              {t('auth.admin.policy.step_traces', {
+                count: simulationResult.stepTraces.length,
+                defaultValue: '3. Evaluation trace ({{count}} steps)',
+              })}
             </Typography>
 
             <Stack spacing={1} sx={{ mt: 1 }}>
@@ -305,7 +322,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                   key={trace.stepNumber}
                   sx={{
                     p: 1,
-                    borderRadius: 1.5,
+                    borderRadius: 'var(--sf-radius-sm, 6px)',
                     border: '1px solid',
                     borderColor: 'divider',
                     bgcolor:
@@ -321,7 +338,7 @@ export const PolicyLiveSimulator: React.FC<PolicyLiveSimulatorProps> = ({
                     label={`#${trace.stepNumber}`}
                     size='small'
                     color={trace.status === 'pass' ? 'success' : 'error'}
-                    sx={{ height: 20, fontSize: 10, fontWeight: 800 }}
+                    sx={{ height: 20, fontSize: 10, fontWeight: 800, borderRadius: 'var(--sf-radius-sm, 6px)' }}
                   />
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Typography
