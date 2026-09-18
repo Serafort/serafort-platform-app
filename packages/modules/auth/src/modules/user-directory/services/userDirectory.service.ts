@@ -1,17 +1,30 @@
 // userDirectory.service.ts
-// Service Layer for User Directory API Integration with dual-endpoint resilience
+// Service layer wiring the User Directory UI to the Serafort Authentication
+// backend (`C:\Node.Js\proj\Authentication`). All paths come from the shared
+// `ENDPOINTS` registry rather than being hand-written, so this file tracks the
+// backend's route table automatically.
+//
+// The backend's admin user model is intentionally narrower than the UI's
+// aspirational DTOs: a `User` has exactly one `roleId` (no many-to-many role
+// assignment), and there is no `jobTitle`/`department` column anywhere in the
+// schema. Where the UI still collects those fields (multi-select roles, job
+// title/department inputs), this layer takes the first selected role and
+// drops the fields the backend cannot persist, rather than pretending they
+// are saved.
 
-import { apiClient, FetchResponse } from '@cap/platform-core'
+import { apiClient, FetchResponse, ENDPOINTS } from '@cap/platform-core'
 import {
   PaginatedUsersResponseDTO,
   UserDetailDTO,
   UserDirectoryFilterParams,
+  UserDirectoryItemDTO,
   InviteUserRequestDTO,
   UpdateUserRequestDTO,
   UpdateUserStatusRequestDTO,
   RoleDTO,
   UserSessionDTO,
   UserActivityLogDTO,
+  UserStatus,
 } from '../types/userDirectory.types'
 
 /**
@@ -28,6 +41,95 @@ function buildQueryString(params: Record<string, any>): string {
   return qs ? `?${qs}` : ''
 }
 
+/**
+ * The backend only ever writes `ACTIVE`, `PENDING` (via `deactivateUser`) or
+ * `SUSPENDED` onto `users.status` — there is no distinct `BANNED` value, and
+ * `PATCH /:id/ban` is a named alias for the same suspend transition. `PENDING`
+ * is this directory's "deactivated" state.
+ */
+function normalizeStatus(rawStatus: unknown): UserStatus {
+  const status = String(rawStatus || '').toUpperCase()
+  if (status === 'ACTIVE') return 'ACTIVE'
+  if (status === 'SUSPENDED') return 'SUSPENDED'
+  if (status === 'PENDING' || status === 'INACTIVE' || status === 'DELETED') return 'INACTIVE'
+  return 'INACTIVE'
+}
+
+/**
+ * Maps a `User.serialize()` payload (optionally with `profile`, `role`, and
+ * `organizationMembers` preloaded) onto the directory's DTO shape.
+ */
+function normalizeUser(raw: any): UserDetailDTO {
+  const role = raw.role
+  const membership = Array.isArray(raw.organizationMembers) ? raw.organizationMembers[0] : null
+
+  return {
+    id: raw.id,
+    email: raw.email,
+    firstName: raw.firstName || '',
+    lastName: raw.lastName || '',
+    fullName: raw.name || `${raw.firstName || ''} ${raw.lastName || ''}`.trim() || raw.email,
+    avatarUrl: raw.avatarUrl || raw.avatar || null,
+    phoneNumber: raw.phoneNumber || null,
+    status: normalizeStatus(raw.status),
+    isEmailVerified: Boolean(raw.isEmailVerified || raw.emailVerified),
+    mfaEnabled: Boolean(raw.mfaEnabled),
+    roles: role ? [{ id: role.id, name: role.name, slug: role.slug, permissions: role.permissions }] : [],
+    tenantId: raw.tenantId || null,
+    tenantName: membership?.organization?.name || null,
+    jobTitle: null,
+    department: null,
+    company: raw.profile?.company || null,
+    location: raw.profile?.location || null,
+    website: raw.profile?.websiteUrl || raw.profile?.website || null,
+    bio: raw.profile?.biography || null,
+    timezone: raw.timezone || 'utc',
+    locale: raw.language || 'en-us',
+    dateFormat: raw.dateFormat || 'mm-dd-yyyy',
+    directReportsCount: 0,
+    permissions: (role?.permissions || []).map((p: any) => p.slug || p.name),
+    securitySummary: {
+      passwordLastChangedAt: null,
+      activeSessionsCount: 0,
+      passkeysCount: 0,
+      mfaEnrolledAt: raw.mfaEnrolledAt || null,
+      failedLoginAttemptsCount: 0,
+      isLockedOut: false,
+    },
+    sessions: [],
+    recentActivity: [],
+    lastLoginAt: raw.lastLoginAt || null,
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
+  }
+}
+
+/**
+ * Applies a bulk action to each id individually via `Promise.allSettled` and
+ * reports back in the same `{ message, results }` shape the backend's own
+ * `/api/admin/users/bulk` endpoint uses — needed for `SUSPENDED` and `DELETE`,
+ * which that endpoint does not support as bulk actions.
+ */
+async function applyPerUser(
+  userIds: Array<string | number>,
+  action: (id: string | number) => Promise<unknown>,
+): Promise<FetchResponse<{ message: string; results: Array<{ id: string | number; status: string }> }>> {
+  const settled = await Promise.allSettled(userIds.map((id) => action(id)))
+  const results = settled.map((outcome, index) => ({
+    id: userIds[index],
+    status: outcome.status === 'fulfilled' ? 'success' : 'error',
+    message: outcome.status === 'rejected' ? String((outcome.reason as any)?.message || outcome.reason) : undefined,
+  }))
+  return {
+    data: { message: 'Bulk action completed', results },
+    status: 200,
+    statusText: 'OK',
+    headers: {} as any,
+    config: {} as any,
+    ok: true,
+  }
+}
+
 export const userDirectoryService = {
   /**
    * List Users (Paginated with search, filters, and sorting)
@@ -35,77 +137,23 @@ export const userDirectoryService = {
   getUsers: async (
     params: UserDirectoryFilterParams = {},
   ): Promise<FetchResponse<PaginatedUsersResponseDTO>> => {
-    const queryParams: Record<string, any> = {
+    const queryString = buildQueryString({
       page: params.page || 1,
       limit: params.perPage || params.limit || 10,
-      perPage: params.perPage || params.limit || 10,
       search: params.search,
       status: params.status === 'ALL' ? undefined : params.status,
       role: params.role,
-      tenantId: params.tenantId,
-      department: params.department,
-      sortBy: params.sortBy || 'createdAt',
-      sortOrder: params.sortOrder || 'desc',
-    }
+    })
 
-    const queryString = buildQueryString(queryParams)
+    const response = await apiClient.get<any>(`${ENDPOINTS.admin.users.index}${queryString}`)
+    const raw = response.data
 
-    try {
-      return await apiClient.get<PaginatedUsersResponseDTO>(
-        `/api/v1/user-directory/users${queryString}`,
-      )
-    } catch {
-      // Fallback to existing admin endpoint
-      const response = await apiClient.get<any>(`/api/admin/users${queryString}`)
-      const raw = response.data
-
-      // Transform admin pagination structure if needed
-      const normalizedData = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : []
-
-      const meta = raw?.meta || {
-        total: raw?.total || normalizedData.length,
-        perPage: raw?.perPage || params.perPage || 10,
-        currentPage: raw?.currentPage || raw?.page || params.page || 1,
-        lastPage:
-          raw?.lastPage ||
-          Math.ceil((raw?.total || normalizedData.length) / (params.perPage || 10)) ||
-          1,
-        firstPage: 1,
-      }
-
-      // Normalize items
-      const formattedItems = normalizedData.map((item: any) => ({
-        id: item.id,
-        email: item.email,
-        firstName: item.firstname || item.firstName || item.profile?.firstname || '',
-        lastName: item.lastname || item.lastName || item.profile?.lastname || '',
-        fullName:
-          item.fullName ||
-          item.profile?.name ||
-          `${item.firstname || ''} ${item.lastname || ''}`.trim() ||
-          item.email?.split('@')[0],
-        avatarUrl: item.avatarUrl || item.profile?.avatarUrl || item.avatar || null,
-        phoneNumber: item.phoneNumber || item.profile?.phone || item.phone || null,
-        status: (item.status || (item.isActif ? 'ACTIVE' : 'INACTIVE')).toUpperCase(),
-        isEmailVerified: Boolean(item.isEmailVerified || item.emailVerifiedAt),
-        mfaEnabled: Boolean(item.mfaEnabled || item.twoFactorEnabled),
-        roles: item.roles || (item.role ? [item.role] : []),
-        tenantId: item.tenantId || item.organizationId || null,
-        tenantName: item.tenantName || item.organization?.name || null,
-        jobTitle: item.jobTitle || item.profile?.jobTitle || null,
-        department: item.department || item.profile?.department || null,
-        lastLoginAt: item.lastLoginAt || item.lastLogin || null,
-        createdAt: item.createdAt || new Date().toISOString(),
-        updatedAt: item.updatedAt || new Date().toISOString(),
-      }))
-
-      return {
-        ...response,
-        data: {
-          data: formattedItems,
-          meta,
-        },
-      }
+    return {
+      ...response,
+      data: {
+        data: (raw?.data || []).map((item: any) => normalizeUser(item) as UserDirectoryItemDTO),
+        meta: raw?.meta,
+      },
     }
   },
 
@@ -113,84 +161,26 @@ export const userDirectoryService = {
    * Get Single User Details & Metadata
    */
   getUserById: async (id: string | number): Promise<FetchResponse<UserDetailDTO>> => {
-    try {
-      return await apiClient.get<UserDetailDTO>(`/api/v1/user-directory/users/${id}`)
-    } catch {
-      const response = await apiClient.get<any>(`/api/admin/users/${id}`)
-      const raw = response.data || {}
-
-      const detail: UserDetailDTO = {
-        id: raw.id,
-        email: raw.email,
-        firstName: raw.firstname || raw.firstName || raw.profile?.firstname || '',
-        lastName: raw.lastname || raw.lastName || raw.profile?.lastname || '',
-        fullName:
-          raw.fullName ||
-          raw.profile?.name ||
-          `${raw.firstname || ''} ${raw.lastname || ''}`.trim() ||
-          raw.email?.split('@')[0],
-        avatarUrl: raw.avatarUrl || raw.profile?.avatarUrl || raw.avatar || null,
-        phoneNumber: raw.phoneNumber || raw.profile?.phone || raw.phone || null,
-        status: (raw.status || (raw.isActif ? 'ACTIVE' : 'INACTIVE')).toUpperCase(),
-        isEmailVerified: Boolean(raw.isEmailVerified || raw.emailVerifiedAt),
-        mfaEnabled: Boolean(raw.mfaEnabled || raw.twoFactorEnabled),
-        roles: raw.roles || (raw.role ? [raw.role] : []),
-        tenantId: raw.tenantId || raw.organizationId || null,
-        tenantName: raw.tenantName || raw.organization?.name || null,
-        jobTitle: raw.jobTitle || raw.profile?.jobTitle || null,
-        department: raw.department || raw.profile?.department || null,
-        company: raw.company || raw.profile?.company || null,
-        location: raw.location || raw.profile?.location || null,
-        website: raw.website || raw.profile?.website || null,
-        bio: raw.bio || raw.profile?.bio || null,
-        timezone: raw.timezone || raw.profile?.timezone || 'utc',
-        locale: raw.locale || raw.profile?.locale || 'en-us',
-        dateFormat: raw.dateFormat || raw.profile?.dateFormat || 'mm-dd-yyyy',
-        directReportsCount: raw.directReportsCount || 0,
-        permissions:
-          raw.permissions || raw.role?.permissions?.map((p: any) => p.slug || p.name) || [],
-        securitySummary: raw.securitySummary || {
-          passwordLastChangedAt: raw.passwordLastChangedAt || null,
-          activeSessionsCount: raw.activeSessionsCount || 1,
-          passkeysCount: raw.passkeysCount || 0,
-          failedLoginAttemptsCount: raw.failedLoginAttemptsCount || 0,
-          isLockedOut: Boolean(raw.isLockedOut),
-        },
-        sessions: raw.sessions || [],
-        recentActivity: raw.recentActivity || [],
-        lastLoginAt: raw.lastLoginAt || raw.lastLogin || null,
-        createdAt: raw.createdAt || new Date().toISOString(),
-        updatedAt: raw.updatedAt || new Date().toISOString(),
-      }
-
-      return {
-        ...response,
-        data: detail,
-      }
-    }
+    const response = await apiClient.get<any>(ENDPOINTS.admin.users.byId(Number(id)))
+    return { ...response, data: normalizeUser(response.data) }
   },
 
   /**
    * Create / Invite Single User
    */
   inviteUser: async (payload: InviteUserRequestDTO): Promise<FetchResponse<any>> => {
-    try {
-      return await apiClient.post('/api/v1/user-directory/users/invite', payload)
-    } catch {
-      return await apiClient.post('/api/admin/users', {
-        email: payload.email,
-        firstname: payload.firstName,
-        lastname: payload.lastName,
-        role_id: payload.roleIds?.[0] || 1,
-        password: payload.temporaryPassword || undefined,
-        department: payload.department,
-        jobTitle: payload.jobTitle,
-      })
-    }
+    return apiClient.post(ENDPOINTS.admin.users.store, {
+      email: payload.email,
+      firstname: payload.firstName,
+      lastname: payload.lastName,
+      roleId: payload.roleIds?.[0],
+      password: payload.temporaryPassword || undefined,
+    })
   },
 
   /**
-   * Bulk Invite Users
+   * Bulk Invite Users — the backend has no batch-create endpoint, so each
+   * invite is issued as its own `POST /api/admin/users` call.
    */
   bulkInviteUsers: async (payload: {
     emails: string[]
@@ -198,53 +188,51 @@ export const userDirectoryService = {
     department?: string
     sendInviteEmail?: boolean
   }): Promise<FetchResponse<any>> => {
-    try {
-      return await apiClient.post('/api/v1/user-directory/users/bulk-invite', payload)
-    } catch {
-      // Create users sequentially as fallback
-      const promises = payload.emails.map((email) =>
-        apiClient.post('/api/admin/users', {
+    const results = await Promise.allSettled(
+      payload.emails.map((email) =>
+        apiClient.post(ENDPOINTS.admin.users.store, {
           email,
           firstname: email.split('@')[0],
           lastname: '',
-          role_id: payload.roleIds[0] || 1,
-          department: payload.department,
+          roleId: payload.roleIds?.[0],
         }),
-      )
-      const results = await Promise.allSettled(promises)
-      const succeeded = results.filter((r) => r.status === 'fulfilled').length
-      return {
-        data: { success: true, count: succeeded, total: payload.emails.length },
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-      } as any
+      ),
+    )
+    const succeeded = results.filter((r) => r.status === 'fulfilled').length
+    return {
+      data: { success: true, count: succeeded, total: payload.emails.length },
+      status: 200,
+      statusText: 'OK',
+      headers: {} as any,
+      config: {} as any,
+      ok: true,
     }
   },
 
   /**
    * Update User Profile Details
+   *
+   * `jobTitle`/`department`/`bio`/`company`/`location`/`website`/`dateFormat`
+   * have no backing column and are intentionally not sent — the backend would
+   * silently ignore them, which is worse than not claiming to save them.
    */
   updateUser: async (
     id: string | number,
     payload: UpdateUserRequestDTO,
   ): Promise<FetchResponse<any>> => {
-    try {
-      return await apiClient.put(`/api/v1/user-directory/users/${id}`, payload)
-    } catch {
-      return await apiClient.put(`/api/admin/users/${id}`, {
-        firstname: payload.firstName,
-        lastname: payload.lastName,
-        email: payload.email,
-        fullName: `${payload.firstName || ''} ${payload.lastName || ''}`.trim(),
-        roleId: payload.roleIds?.[0],
-        phone: payload.phoneNumber,
-        department: payload.department,
-        jobTitle: payload.jobTitle,
-        timezone: payload.timezone,
-        locale: payload.locale,
-      })
-    }
+    return apiClient.put(ENDPOINTS.admin.users.byId(Number(id)), {
+      email: payload.email,
+      firstname: payload.firstName,
+      lastname: payload.lastName,
+      fullName:
+        payload.firstName || payload.lastName
+          ? `${payload.firstName || ''} ${payload.lastName || ''}`.trim()
+          : undefined,
+      phone: payload.phoneNumber || undefined,
+      timezone: payload.timezone,
+      language: payload.locale,
+      roleId: payload.roleIds?.[0],
+    })
   },
 
   /**
@@ -254,162 +242,145 @@ export const userDirectoryService = {
     id: string | number,
     payload: UpdateUserStatusRequestDTO,
   ): Promise<FetchResponse<any>> => {
-    try {
-      return await apiClient.patch(`/api/v1/user-directory/users/${id}/status`, payload)
-    } catch {
-      if (payload.status === 'SUSPENDED' || payload.status === 'BANNED') {
-        return await apiClient.post(`/api/admin/users/${id}/suspend`, { reason: payload.reason })
-      } else if (payload.status === 'ACTIVE') {
-        return await apiClient
-          .post(`/api/admin/users/${id}/unsuspend`)
-          .catch(() => apiClient.patch(`/api/admin/users/${id}/status`, { status: 'ACTIVE' }))
-      } else {
-        return await apiClient.patch(`/api/admin/users/${id}/status`, { status: payload.status })
-      }
+    if (payload.status === 'BANNED') {
+      return apiClient.patch(ENDPOINTS.admin.users.ban(Number(id)), { reason: payload.reason })
     }
+    return apiClient.patch(ENDPOINTS.admin.users.updateStatus(Number(id)), {
+      status: payload.status,
+      reason: payload.reason,
+    })
   },
 
   /**
-   * Soft-delete / Remove User
+   * Soft-delete / Remove User. `reason` is accepted for API-symmetry with the
+   * other status-changing calls but the backend's `destroy()` does not read a
+   * request body, so it is not sent.
    */
-  deleteUser: async (id: string | number, reason?: string): Promise<FetchResponse<any>> => {
-    try {
-      return await apiClient.delete(`/api/v1/user-directory/users/${id}`)
-    } catch {
-      return await apiClient.delete(`/api/admin/users/${id}`, { data: { reason } })
-    }
+  deleteUser: async (id: string | number, _reason?: string): Promise<FetchResponse<any>> => {
+    return apiClient.delete(ENDPOINTS.admin.users.byId(Number(id)))
   },
 
   /**
    * Fetch All Available Roles
    */
   getRoles: async (): Promise<FetchResponse<RoleDTO[]>> => {
-    try {
-      return await apiClient.get<RoleDTO[]>('/api/v1/roles')
-    } catch {
-      const response = await apiClient.get<any>('/api/admin/rbac/roles')
-      const raw = Array.isArray(response.data)
-        ? response.data
-        : Array.isArray(response.data?.data)
-          ? response.data.data
-          : []
+    const response = await apiClient.get<any>(ENDPOINTS.rbac.roles.list)
+    const raw = response.data?.data || []
 
-      const formattedRoles: RoleDTO[] = raw.map((r: any) => ({
+    return {
+      ...response,
+      data: raw.map((r: any) => ({
         id: r.id,
         name: r.name,
         slug: r.slug || r.name.toLowerCase().replace(/\s+/g, '-'),
         description: r.description || '',
         permissions: r.permissions || [],
-        usersCount: r.usersCount || r.users_count || 0,
-        isDefault: Boolean(r.isDefault || r.is_default),
-      }))
-
-      return {
-        ...response,
-        data: formattedRoles,
-      }
+        usersCount: r.usersCount || 0,
+        isDefault: false,
+      })),
     }
   },
 
   /**
-   * Sync / Assign Roles to User
+   * Assign a role to a user. The backend has one `roleId` per user, so a
+   * multi-role selection in the UI resolves to its first entry.
    */
   syncUserRoles: async (
     id: string | number,
     roleIds: number[],
     reason?: string,
   ): Promise<FetchResponse<any>> => {
-    try {
-      return await apiClient.put(`/api/v1/user-directory/users/${id}/roles`, { roleIds, reason })
-    } catch {
-      return await apiClient.post(`/api/admin/users/${id}/assign-role`, {
-        roleId: roleIds[0],
-        roleIds,
-        reason,
-      })
-    }
+    return apiClient.post(ENDPOINTS.admin.users.assignRole(Number(id)), {
+      roleId: roleIds[0],
+      reason,
+    })
   },
 
   /**
-   * Bulk Update User Statuses
+   * Bulk Update User Statuses. `/api/admin/users/bulk` only understands
+   * `activate` / `deactivate` / `restore` / `reset-mfa` / `ban` — `SUSPENDED`
+   * has no bulk action, so it falls back to one `suspend` call per user.
    */
   bulkUpdateStatus: async (
     userIds: number[],
     status: string,
     reason?: string,
   ): Promise<FetchResponse<any>> => {
-    try {
-      return await apiClient.post('/api/v1/user-directory/users/bulk-status', {
-        userIds,
-        status,
-        reason,
-      })
-    } catch {
-      return await apiClient.post('/api/admin/users/bulk', {
-        userIds,
-        action:
-          status === 'ACTIVE' ? 'activate' : status === 'SUSPENDED' ? 'suspend' : 'deactivate',
-        reason,
-      })
+    if (status === 'ACTIVE') {
+      return apiClient.post(ENDPOINTS.admin.users.bulkAction, { userIds, action: 'activate', reason })
     }
+    if (status === 'INACTIVE') {
+      return apiClient.post(ENDPOINTS.admin.users.bulkAction, { userIds, action: 'deactivate', reason })
+    }
+    if (status === 'BANNED') {
+      return applyPerUser(userIds, (id) =>
+        apiClient.patch(ENDPOINTS.admin.users.ban(Number(id)), { reason }),
+      )
+    }
+    // SUSPENDED
+    return applyPerUser(userIds, (id) =>
+      apiClient.post(ENDPOINTS.admin.users.suspend(Number(id)), { reason }),
+    )
   },
 
   /**
-   * Bulk Delete Users
+   * Bulk Delete Users — no bulk-delete action exists server-side, so this
+   * issues one `DELETE` per user.
    */
-  bulkDelete: async (userIds: number[], reason?: string): Promise<FetchResponse<any>> => {
-    try {
-      return await apiClient.post('/api/v1/user-directory/users/bulk-delete', { userIds, reason })
-    } catch {
-      return await apiClient.post('/api/admin/users/bulk', {
-        userIds,
-        action: 'delete',
-        reason,
-      })
-    }
+  bulkDelete: async (userIds: number[], _reason?: string): Promise<FetchResponse<any>> => {
+    return applyPerUser(userIds, (id) => apiClient.delete(ENDPOINTS.admin.users.byId(Number(id))))
   },
 
   /**
-   * Fetch User Active Sessions
+   * Fetch User Active Sessions.
+   *
+   * The backend answers with rows from `auth_access_tokens`
+   * (`id`, `name`, `createdAt`, `lastUsedAt`, `expiresAt`) — there is no
+   * stored IP address, user agent, or device/browser breakdown for this
+   * table, so those DTO fields are left unset rather than fabricated.
    */
   getUserSessions: async (id: string | number): Promise<FetchResponse<UserSessionDTO[]>> => {
-    try {
-      return await apiClient.get<UserSessionDTO[]>(`/api/v1/user-directory/users/${id}/sessions`)
-    } catch {
-      const res = await apiClient.get<any>(`/api/admin/users/${id}/sessions`)
-      return {
-        ...res,
-        data: Array.isArray(res.data) ? res.data : res.data?.data || [],
-      }
+    const res = await apiClient.get<any>(ENDPOINTS.admin.users.sessions(Number(id)))
+    const raw = Array.isArray(res.data) ? res.data : res.data?.data || []
+    return {
+      ...res,
+      data: raw.map((session: any) => ({
+        id: session.id,
+        ipAddress: '',
+        userAgent: '',
+        device: session.name,
+        lastActiveAt: session.lastUsedAt || session.createdAt,
+        createdAt: session.createdAt,
+      })),
     }
   },
 
   /**
-   * Fetch User Activity / Audit Logs
+   * Fetch User Activity / Audit Logs.
+   *
+   * `/api/admin/audit-logs` reads the user filter from the query parameter
+   * `user_id` (snake_case) — it is a request parameter, not a JSON body, so
+   * it is exempt from the backend's camelCase response middleware.
    */
   getUserActivityLogs: async (
     id: string | number,
     limit: number = 20,
   ): Promise<FetchResponse<UserActivityLogDTO[]>> => {
-    try {
-      return await apiClient.get<UserActivityLogDTO[]>(
-        `/api/v1/user-directory/users/${id}/activity?limit=${limit}`,
-      )
-    } catch {
-      const res = await apiClient.get<any>(`/api/admin/audit-logs?userId=${id}&limit=${limit}`)
-      const raw = Array.isArray(res.data) ? res.data : res.data?.data || []
-      return {
-        ...res,
-        data: raw.map((log: any) => ({
-          id: log.id,
-          action: log.action || log.event || 'Activity',
-          description: log.description || log.message || log.action || '',
-          ipAddress: log.ipAddress || log.ip_address,
-          userAgent: log.userAgent || log.user_agent,
-          createdAt: log.createdAt || log.created_at,
-          metadata: log.metadata || log.payload,
-        })),
-      }
+    const res = await apiClient.get<any>(
+      `${ENDPOINTS.admin.auditLogs.index}?user_id=${id}&limit=${limit}`,
+    )
+    const raw = Array.isArray(res.data) ? res.data : res.data?.data || []
+    return {
+      ...res,
+      data: raw.map((log: any) => ({
+        id: log.id,
+        action: log.action,
+        description: log.action,
+        ipAddress: log.ipAddress,
+        userAgent: log.userAgent,
+        createdAt: log.createdAt,
+        metadata: log.metadata,
+      })),
     }
   },
 
@@ -417,84 +388,50 @@ export const userDirectoryService = {
    * Trigger Admin Password Reset Link
    */
   sendPasswordReset: async (id: string | number): Promise<FetchResponse<any>> => {
-    return await apiClient.post(`/api/admin/users/${id}/reset-password`, {})
+    return apiClient.post(ENDPOINTS.admin.users.resetPassword(Number(id)), {})
   },
 
   /**
    * Reset User MFA
    */
   resetMfa: async (id: string | number): Promise<FetchResponse<any>> => {
-    return await apiClient.post(`/api/admin/users/${id}/mfa-reset`, {})
+    return apiClient.post(ENDPOINTS.admin.users.resetMfa(Number(id)), {})
   },
 
   /**
-   * Impersonate User
+   * Impersonate User (platform-admin only, enforced server-side)
    */
   impersonateUser: async (id: string | number): Promise<FetchResponse<any>> => {
-    return await apiClient.post(`/api/admin/users/${id}/impersonate`, {})
+    return apiClient.post(ENDPOINTS.admin.users.impersonate(Number(id)), {})
   },
 
   /**
-   * Export Users as CSV (Server stream or client-side fallback)
+   * Export Users as CSV. There is no server-side export endpoint for the
+   * directory, so this always builds the CSV client-side from whatever page
+   * of results is currently loaded.
    */
-  exportUsers: async (
-    params: UserDirectoryFilterParams = {},
-    fallbackData?: any[],
-  ): Promise<void> => {
-    const queryString = buildQueryString(params)
-    const exportUrl = `/api/v1/user-directory/users/export${queryString}`
+  exportUsers: async (_params: UserDirectoryFilterParams = {}, fallbackData?: any[]): Promise<void> => {
+    const usersToExport = fallbackData || []
+    const headers = ['ID', 'Email', 'Full Name', 'Status', 'Roles', 'Created At']
+    const rows = usersToExport.map((u) => [
+      u.id,
+      `"${(u.email || '').replace(/"/g, '""')}"`,
+      `"${(u.fullName || '').replace(/"/g, '""')}"`,
+      u.status,
+      `"${(u.roles?.map((r: any) => r.name || r).join(', ') || '').replace(/"/g, '""')}"`,
+      u.createdAt,
+    ])
 
-    try {
-      const response = await fetch(exportUrl, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-        },
-      })
-      if (!response.ok) throw new Error(`Export failed with status: ${response.status}`)
-      const blob = await response.blob()
-      const downloadUrl = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = downloadUrl
-      a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      window.URL.revokeObjectURL(downloadUrl)
-    } catch {
-      // Client-side CSV generation fallback
-      const usersToExport = fallbackData || []
-      const headers = [
-        'ID',
-        'Email',
-        'Full Name',
-        'Status',
-        'Roles',
-        'Department',
-        'Job Title',
-        'Created At',
-      ]
-      const rows = usersToExport.map((u) => [
-        u.id,
-        `"${(u.email || '').replace(/"/g, '""')}"`,
-        `"${(u.fullName || '').replace(/"/g, '""')}"`,
-        u.status,
-        `"${(u.roles?.map((r: any) => r.name || r).join(', ') || '').replace(/"/g, '""')}"`,
-        `"${(u.department || '').replace(/"/g, '""')}"`,
-        `"${(u.jobTitle || '').replace(/"/g, '""')}"`,
-        u.createdAt,
-      ])
-
-      const csvContent =
-        'data:text/csv;charset=utf-8,' +
-        [headers.join(','), ...rows.map((e) => e.join(','))].join('\n')
-      const encodedUri = encodeURI(csvContent)
-      const link = document.createElement('a')
-      link.setAttribute('href', encodedUri)
-      link.setAttribute('download', `users-export-${new Date().toISOString().split('T')[0]}.csv`)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-    }
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      [headers.join(','), ...rows.map((e) => e.join(','))].join('\n')
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement('a')
+    link.setAttribute('href', encodedUri)
+    link.setAttribute('download', `users-export-${new Date().toISOString().split('T')[0]}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
   },
 }
 

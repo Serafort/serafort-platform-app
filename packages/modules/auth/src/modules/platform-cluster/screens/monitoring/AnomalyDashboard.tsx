@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   CircularProgress,
   Container,
   Grid,
@@ -23,11 +22,15 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import Insights from '@mui/icons-material/Insights'
 import TravelExplore from '@mui/icons-material/TravelExplore'
 import Refresh from '@mui/icons-material/Refresh'
 import RadarIcon from '@mui/icons-material/Radar'
+import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   useAnomaliesQuery,
   useAnomalyStatsQuery,
@@ -37,6 +40,7 @@ import {
 } from '../../hooks/useSecurityIntelQuery'
 import { useAdminSessionStatsQuery } from '../../hooks/useAdminMonitoringQuery'
 import type { Anomaly, AnomalyStatus } from '../../types/securityIntel.types'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 
 /**
  * Anomaly & Threat Intel Dashboard.
@@ -53,11 +57,11 @@ import type { Anomaly, AnomalyStatus } from '../../types/securityIntel.types'
  * the two to show a security operator.
  */
 
-const STATUS_COLOR: Record<AnomalyStatus, 'error' | 'warning' | 'info' | 'success' | 'default'> = {
+const STATUS_COLOR: Record<AnomalyStatus, 'error' | 'warning' | 'info' | 'success' | 'neutral'> = {
   detected: 'error',
   investigating: 'warning',
   confirmed: 'error',
-  false_positive: 'default',
+  false_positive: 'neutral',
   resolved: 'success',
 }
 
@@ -78,6 +82,9 @@ const GEO_DETECTORS = new Set(['impossible_travel', 'geo_velocity', 'new_country
 
 export const AnomalyDashboard: React.FC = () => {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const [status, setStatus] = useState<AnomalyStatus | ''>('')
 
   const anomaliesQuery = useAnomaliesQuery({ status: status || undefined, limit: 50 })
@@ -109,6 +116,7 @@ export const AnomalyDashboard: React.FC = () => {
   }
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Container maxWidth='lg' sx={{ py: 4 }}>
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
@@ -179,7 +187,7 @@ export const AnomalyDashboard: React.FC = () => {
                         <LinearProgress
                           variant='determinate'
                           value={(count / max) * 100}
-                          sx={{ height: 6, borderRadius: 3 }}
+                          sx={{ height: 6, borderRadius: 'var(--sf-radius-lg, 12px)' }}
                         />
                       </Box>
                     )
@@ -217,7 +225,7 @@ export const AnomalyDashboard: React.FC = () => {
                         variant='determinate'
                         value={geoMax ? (point.count / geoMax) * 100 : 0}
                         color='secondary'
-                        sx={{ height: 6, borderRadius: 3 }}
+                        sx={{ height: 6, borderRadius: 'var(--sf-radius-lg, 12px)' }}
                       />
                     </Box>
                   ))}
@@ -308,9 +316,8 @@ export const AnomalyDashboard: React.FC = () => {
                       </TableCell>
                       <TableCell align='right'>{anomaly.score}</TableCell>
                       <TableCell>
-                        <Chip
-                          size='small'
-                          color={STATUS_COLOR[anomaly.status] ?? 'default'}
+                        <AdminStatusBadge
+                          tone={STATUS_COLOR[anomaly.status] ?? 'neutral'}
                           label={anomaly.status}
                         />
                       </TableCell>
@@ -351,6 +358,7 @@ export const AnomalyDashboard: React.FC = () => {
         </CardContent>
       </Card>
     </Container>
+    </motion.div>
   )
 }
 

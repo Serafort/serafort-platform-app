@@ -17,6 +17,10 @@ import {
   normalizeEffectConfig,
   DEFAULT_THEME_CONFIG,
   DirectionProvider,
+  elevationShadowCssVars,
+  semanticTextCssVars,
+  serafortAliasCssVars,
+  brandCssVariables,
 } from '@cap/theme'
 import type { TenantThemeConfig } from '@cap/theme'
 import type { Settings, Mode, SystemMode, Direction } from '@cap/shared-types'
@@ -240,59 +244,77 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
   return (
     <StyledEngineProvider injectFirst>
       <DirectionProvider direction={direction} locale={activeLocale}>
-        <ThemeSettingsProvider settings={settings}>
-          <TenantThemeProvider
-            theme={activeConfig as any}
-            isLoading={isLoadingTheme}
-            error={errorTheme}
-            refetch={refetchTheme}
-            updateTheme={handleUpdateTheme}
-            saveTheme={handleSaveTheme}
-          >
-            <MuiThemeProvider theme={theme}>
-              <CssBaseline />
-              <GlobalStyles
-                styles={(theme) => ({
-                  ':root': {
-                    // Core Layout Variables derived from MUI theme
-                    '--border-color': theme.palette.divider,
-                    '--border-radius': `${theme.shape.borderRadius}px`,
+      <ThemeSettingsProvider settings={settings}>
+        <TenantThemeProvider
+          theme={activeConfig as any}
+          isLoading={isLoadingTheme}
+          error={errorTheme}
+          refetch={refetchTheme}
+          updateTheme={handleUpdateTheme}
+          saveTheme={handleSaveTheme}
+        >
+          <MuiThemeProvider theme={theme}>
+            <CssBaseline />
+            <GlobalStyles
+              styles={(theme) => ({
+                ':root': {
+                  // Text-safe feedback colours (--semantic-*-text), the brand
+                  // emphasis glow (--shadow-glow) and the full Serafort `--sf-*`
+                  // scale-alias layer (space / radius / shadow / feedback text),
+                  // all mode-resolved. These carry no per-tenant knob, so they
+                  // are emitted here from the composed MUI theme rather than
+                  // through applyThemeVariablesSync. The `@cap/theme`
+                  // GlobalStyles also emits them, but it only renders under
+                  // DesignSystemProvider (Storybook / tests), not in the app
+                  // shell — this is the live path.
+                  ...brandCssVariables(theme.palette.mode === 'dark' ? 'dark' : 'light'),
+                  ...semanticTextCssVars(theme.palette.mode === 'dark' ? 'dark' : 'light'),
+                  ...serafortAliasCssVars(theme.palette.mode === 'dark' ? 'dark' : 'light'),
+                  '--shadow-glow':
+                    elevationShadowCssVars(theme.palette.mode === 'dark' ? 'dark' : 'light')[
+                      '--shadow-glow'
+                    ],
 
-                    // Derived Background Variables
-                    '--background-color-rgb':
-                      'var(--color-background-h) var(--color-background-s) var(--color-background-l)',
-                    '--backdrop-color':
-                      'hsl(var(--color-background-h) var(--color-background-s) var(--color-background-l) / 0.6)',
+                  // Core Layout Variables derived from MUI theme
+                  '--border-color': theme.palette.divider,
+                  '--border-radius': `${theme.shape.borderRadius}px`,
 
-                    // Z-Index Layers (Source of Truth)
-                    '--header-z-index': String(theme.zIndex.appBar),
-                    '--drawer-z-index': String(theme.zIndex.drawer),
-                    '--footer-z-index': String(footerTokens.positioning.defaultZIndex),
-                    '--z-behind': '-1',
 
-                    // Layout Constants
-                    '--header-height': headerTokens.layout.minBlockSize,
-                  },
-                  // The ambient wash for blur-based effects goes on <body> as
-                  // well as on the content area, so that fixed chrome - the
-                  // sidebar, a floating navbar - blurs it too rather than
-                  // blurring whatever happens to sit directly behind it. It
-                  // resolves to `none` for every effect that does not ask for
-                  // one.
-                  //
-                  // Only the background-*image* is set here. index.html's
-                  // anti-flash block carries `html.light body {
-                  // background-color: #ffffff }`, whose specificity a bare
-                  // `body` rule cannot beat, so the page ground is not ours to
-                  // set from here - and it does not need to be, since the wash
-                  // is what the blur reveals.
-                  body: effectCanvasCss,
-                })}
-              />
-              {children}
-            </MuiThemeProvider>
-          </TenantThemeProvider>
-        </ThemeSettingsProvider>
+                  // Derived Background Variables
+                  '--background-color-rgb':
+                    'var(--color-background-h) var(--color-background-s) var(--color-background-l)',
+                  '--backdrop-color':
+                    'hsl(var(--color-background-h) var(--color-background-s) var(--color-background-l) / 0.6)',
+
+                  // Z-Index Layers (Source of Truth)
+                  '--header-z-index': String(theme.zIndex.appBar),
+                  '--drawer-z-index': String(theme.zIndex.drawer),
+                  '--footer-z-index': String(footerTokens.positioning.defaultZIndex),
+                  '--z-behind': '-1',
+
+                  // Layout Constants
+                  '--header-height': headerTokens.layout.minBlockSize,
+                },
+                // The ambient wash for blur-based effects goes on <body> as
+                // well as on the content area, so that fixed chrome - the
+                // sidebar, a floating navbar - blurs it too rather than
+                // blurring whatever happens to sit directly behind it. It
+                // resolves to `none` for every effect that does not ask for
+                // one.
+                //
+                // Only the background-*image* is set here. index.html's
+                // anti-flash block carries `html.light body {
+                // background-color: #ffffff }`, whose specificity a bare
+                // `body` rule cannot beat, so the page ground is not ours to
+                // set from here - and it does not need to be, since the wash
+                // is what the blur reveals.
+                body: effectCanvasCss,
+              })}
+            />
+            {children}
+          </MuiThemeProvider>
+        </TenantThemeProvider>
+      </ThemeSettingsProvider>
       </DirectionProvider>
     </StyledEngineProvider>
   )

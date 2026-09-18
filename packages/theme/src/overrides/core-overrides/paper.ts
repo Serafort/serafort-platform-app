@@ -21,6 +21,12 @@ const paper: Theme["components"] = {
         backgroundImage: "none",
         backgroundColor: `var(--effect-bg, ${theme.palette.background.paper})`,
         backdropFilter: "var(--effect-backdrop, none)",
+        // A hairline token border on every Paper surface (menus, popovers,
+        // table containers, standalone panels), so a raised surface still
+        // reads as contained where its ink-tinted shadow is faint — on the
+        // light canvas, or under a flat effect. `--glass-border` wins when a
+        // glass effect is active; then the brand border colour; then divider.
+        border: `var(--sf-border-1, 1px) solid var(--glass-border, var(--sf-border, ${theme.palette.divider}))`,
       }),
     },
   },
