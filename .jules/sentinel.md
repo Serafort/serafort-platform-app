@@ -68,3 +68,8 @@
 **Vulnerability:** Found multiple instances of `window.open(url, '_blank')` lacking `rel="noopener noreferrer"`.
 **Learning:** While modern browsers implicitly add `noopener`, older browsers do not, and the `Referer` header may still be leaked to the newly opened site without `noreferrer`.
 **Prevention:** Every external anchor tag using `target="_blank"` MUST declare `rel="noopener noreferrer"` to prevent reverse tabnabbing vulnerabilities.
+
+## 2026-09-12 - [window.open Reverse Tabnabbing Vulnerabilities]
+**Vulnerability:** External links opened via `window.open` with `target="_blank"` missing the `'noopener,noreferrer'` features argument.
+**Learning:** Just like `rel="noopener noreferrer"` on `<a>` tags, `window.open` requires `'noopener,noreferrer'` in its window features string (the third argument) to prevent reverse tabnabbing and mask the referer URL, ensuring defense in depth. Found in multiple places including CheckEmailConfirmation, EmailChangeVerificationPending, DataExport, SAMLConfigDashboard, and NavSearch.
+**Prevention:** Always add `'noopener,noreferrer'` as the third argument when using `window.open` with `'_blank'`.
