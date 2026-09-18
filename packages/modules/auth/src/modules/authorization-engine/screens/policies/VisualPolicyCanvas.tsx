@@ -60,14 +60,12 @@ import {
   type PolicySimulationResult,
 } from '@cap/authorization'
 import { toast } from 'react-toastify'
-import { useTranslation } from 'react-i18next'
 
 import { PolicyLiveSimulator } from './components/PolicyLiveSimulator'
 import { PolicyTemplatePicker } from './components/PolicyTemplatePicker'
 
 export default function VisualPolicyCanvas() {
   const theme = useTheme()
-  const { t } = useTranslation()
   const initialTemplate = POLICY_CANVAS_TEMPLATES[0]
 
   const [nodes, setNodes, onNodesChange] = useNodesState<PolicyCanvasNode>(initialTemplate.nodes)
@@ -133,12 +131,7 @@ export default function VisualPolicyCanvas() {
     setNodes(template.nodes)
     setEdges(template.edges)
     setSimulationResult(null)
-    toast.info(
-      t('auth.admin.policy.toast_loaded', {
-        name: template.name,
-        defaultValue: 'Loaded template: {{name}}',
-      }),
-    )
+    toast.info(`Loaded template: ${template.name}`)
   }
 
   // Adding node dynamically to center of view
@@ -215,12 +208,7 @@ export default function VisualPolicyCanvas() {
 
     setNodes((nds) => [...nds, newNode])
     setAddNodeAnchor(null)
-    toast.success(
-      t('auth.admin.policy.toast_node_added', {
-        type: t(`auth.admin.policy.node_${type}`, type),
-        defaultValue: 'Added a {{type}} node',
-      }),
-    )
+    toast.success(`Added ${type.toUpperCase()} node to canvas`)
   }
 
   // Export graph to JSON
@@ -233,7 +221,7 @@ export default function VisualPolicyCanvas() {
     document.body.appendChild(downloadAnchor)
     downloadAnchor.click()
     downloadAnchor.remove()
-    toast.success(t('auth.admin.policy.toast_exported', 'Policy graph exported.'))
+    toast.success('Exported policy canvas JSON')
   }
 
   // Import JSON file
@@ -248,20 +236,10 @@ export default function VisualPolicyCanvas() {
         if (parsed.nodes && parsed.edges) {
           handleLoadTemplate(parsed)
         } else {
-          toast.error(
-            t(
-              'auth.admin.policy.toast_invalid_json',
-              'That file is not a policy graph — it has no nodes or edges.',
-            ),
-          )
+          toast.error('Invalid policy graph JSON format')
         }
-      } catch (err: unknown) {
-        toast.error(
-          t('auth.admin.policy.toast_import_failed', {
-            reason: err instanceof Error ? err.message : '',
-            defaultValue: 'The file could not be imported. {{reason}}',
-          }),
-        )
+      } catch (err: any) {
+        toast.error(`Import failed: ${err.message}`)
       }
     }
     reader.readAsText(file)
@@ -271,20 +249,13 @@ export default function VisualPolicyCanvas() {
   const handleDeployToEngine = () => {
     const validation = PolicyGraphCompiler.validateGraph(currentGraph)
     if (!validation.isValid) {
-      toast.error(
-        t('auth.admin.policy.toast_invalid_graph', {
-          errors: validation.errors.join('; '),
-          defaultValue: 'This graph cannot be deployed: {{errors}}',
-        }),
-      )
+      toast.error(`Cannot deploy invalid graph: ${validation.errors.join('; ')}`)
       return
     }
 
     const compiledPolicySet = PolicyGraphCompiler.compileGraphToPolicySet(currentGraph)
     policyEngine.setPolicySet(compiledPolicySet)
-    toast.success(
-      t('auth.admin.policy.toast_deployed', 'Policy compiled and deployed to the engine.'),
-    )
+    toast.success(`Successfully compiled and deployed PolicySet to active Authorization Engine!`)
   }
 
   // Handle simulation result highlighting
@@ -353,7 +324,7 @@ export default function VisualPolicyCanvas() {
           <Box
             sx={{
               p: 1,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               bgcolor: alpha(theme.palette.primary.main, 0.12),
               color: 'primary.main',
               display: 'flex',
@@ -363,17 +334,18 @@ export default function VisualPolicyCanvas() {
           </Box>
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant='h6' sx={{ fontWeight: 800, lineHeight: 1.1 }}>
-                {t('auth.admin.policy.canvas_title', 'Policy canvas')}
+              <Typography variant='h6' sx={{ fontWeight: 900, lineHeight: 1.1 }}>
+                Visual Policy & ABAC Canvas
               </Typography>
+              <Chip
+                label='V3 Flagship'
+                size='small'
+                color='primary'
+                sx={{ height: 20, fontSize: 10, fontWeight: 900 }}
+              />
             </Box>
             <Typography variant='caption' color='text.secondary'>
-              {t('auth.admin.policy.canvas_summary', {
-                name: currentGraph.name,
-                nodes: nodes.length,
-                edges: edges.length,
-                defaultValue: '{{name}} — {{nodes}} nodes, {{edges}} connections',
-              })}
+              {currentGraph.name} • {nodes.length} Nodes • {edges.length} Connections
             </Typography>
           </Box>
         </Box>
@@ -386,71 +358,52 @@ export default function VisualPolicyCanvas() {
             size='small'
             startIcon={<AddCircleOutlineIcon />}
             onClick={(e) => setAddNodeAnchor(e.currentTarget)}
-            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
+            sx={{ fontWeight: 800, borderRadius: 2 }}
           >
-            {t('auth.admin.policy.add_node', 'Add node')}
+            Add Node
           </Button>
 
           <Menu
             anchorEl={addNodeAnchor}
             open={Boolean(addNodeAnchor)}
             onClose={() => setAddNodeAnchor(null)}
-            PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
           >
-            <MenuItem onClick={() => handleAddNode('subject')} sx={{ minHeight: 44 }}>
+            <MenuItem onClick={() => handleAddNode('subject')}>
               <ListItemIcon>
                 <PersonIcon fontSize='small' color='primary' />
               </ListItemIcon>
-              <ListItemText
-                primary={t('auth.admin.policy.node_subject', 'Subject')}
-                secondary={t('auth.admin.policy.node_subject_desc', 'Roles and principal attributes')}
-              />
+              <ListItemText primary='Subject Node' secondary='Roles & principal attributes' />
             </MenuItem>
-            <MenuItem onClick={() => handleAddNode('action')} sx={{ minHeight: 44 }}>
+            <MenuItem onClick={() => handleAddNode('action')}>
               <ListItemIcon>
                 <TouchAppIcon fontSize='small' color='info' />
               </ListItemIcon>
-              <ListItemText
-                primary={t('auth.admin.policy.node_action', 'Action')}
-                secondary={t('auth.admin.policy.node_action_desc', 'Operations such as read, write or delete')}
-              />
+              <ListItemText primary='Action Node' secondary='Operations (read, write, delete)' />
             </MenuItem>
-            <MenuItem onClick={() => handleAddNode('resource')} sx={{ minHeight: 44 }}>
+            <MenuItem onClick={() => handleAddNode('resource')}>
               <ListItemIcon>
                 <FolderIcon fontSize='small' color='secondary' />
               </ListItemIcon>
-              <ListItemText
-                primary={t('auth.admin.policy.node_resource', 'Resource')}
-                secondary={t('auth.admin.policy.node_resource_desc', 'Entity types and attributes')}
-              />
+              <ListItemText primary='Resource Node' secondary='Entity types and attributes' />
             </MenuItem>
-            <MenuItem onClick={() => handleAddNode('condition')} sx={{ minHeight: 44 }}>
+            <MenuItem onClick={() => handleAddNode('condition')}>
               <ListItemIcon>
                 <RuleIcon fontSize='small' color='warning' />
               </ListItemIcon>
-              <ListItemText
-                primary={t('auth.admin.policy.node_condition', 'Condition')}
-                secondary={t('auth.admin.policy.node_condition_desc', 'An attribute test that must pass')}
-              />
+              <ListItemText primary='Condition Node' secondary='ABAC predicate comparator' />
             </MenuItem>
             <Divider />
-            <MenuItem onClick={() => handleAddNode('decision', 'allow')} sx={{ minHeight: 44 }}>
+            <MenuItem onClick={() => handleAddNode('decision', 'allow')}>
               <ListItemIcon>
                 <CheckCircleIcon fontSize='small' color='success' />
               </ListItemIcon>
-              <ListItemText
-                primary={t('auth.admin.policy.node_allow', 'Allow decision')}
-                secondary={t('auth.admin.policy.node_allow_desc', 'Ends the path by granting access')}
-              />
+              <ListItemText primary='ALLOW Decision Node' secondary='Terminal allow effect' />
             </MenuItem>
-            <MenuItem onClick={() => handleAddNode('decision', 'deny')} sx={{ minHeight: 44 }}>
+            <MenuItem onClick={() => handleAddNode('decision', 'deny')}>
               <ListItemIcon>
                 <BlockIcon fontSize='small' color='error' />
               </ListItemIcon>
-              <ListItemText
-                primary={t('auth.admin.policy.node_deny', 'Deny decision')}
-                secondary={t('auth.admin.policy.node_deny_desc', 'Ends the path by refusing access')}
-              />
+              <ListItemText primary='DENY Decision Node' secondary='Terminal deny effect' />
             </MenuItem>
           </Menu>
 
@@ -461,9 +414,9 @@ export default function VisualPolicyCanvas() {
             color='secondary'
             startIcon={<AutoAwesomeIcon />}
             onClick={() => setTemplatePickerOpen(true)}
-            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
+            sx={{ fontWeight: 800, borderRadius: 2 }}
           >
-            {t('auth.admin.policy.templates', 'Templates')}
+            Templates
           </Button>
 
           {/* Live Simulator Toggle */}
@@ -473,31 +426,23 @@ export default function VisualPolicyCanvas() {
             color='info'
             startIcon={<PlayArrowIcon />}
             onClick={() => setSimulatorOpen((prev) => !prev)}
-            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
+            sx={{ fontWeight: 800, borderRadius: 2 }}
           >
-            {t('auth.admin.policy.simulator', 'Simulator')}
+            Live Simulator
           </Button>
 
           <Divider orientation='vertical' flexItem sx={{ mx: 0.5 }} />
 
           {/* Export JSON */}
-          <Tooltip title={t('auth.admin.policy.export', 'Export policy graph')}>
-            <IconButton
-              onClick={handleExportJSON}
-              aria-label={t('auth.admin.policy.export', 'Export policy graph')}
-              sx={{ width: 44, height: 44 }}
-            >
+          <Tooltip title='Export Policy Graph JSON'>
+            <IconButton size='small' onClick={handleExportJSON}>
               <FileDownloadIcon fontSize='small' />
             </IconButton>
           </Tooltip>
 
           {/* Import JSON */}
-          <Tooltip title={t('auth.admin.policy.import', 'Import policy graph')}>
-            <IconButton
-              onClick={() => fileInputRef.current?.click()}
-              aria-label={t('auth.admin.policy.import', 'Import policy graph')}
-              sx={{ width: 44, height: 44 }}
-            >
+          <Tooltip title='Import Policy Graph JSON'>
+            <IconButton size='small' onClick={() => fileInputRef.current?.click()}>
               <FileUploadIcon fontSize='small' />
             </IconButton>
           </Tooltip>
@@ -516,9 +461,9 @@ export default function VisualPolicyCanvas() {
             size='small'
             startIcon={<CloudDoneIcon />}
             onClick={handleDeployToEngine}
-            sx={{ minHeight: 44, fontWeight: 800, px: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}
+            sx={{ fontWeight: 900, px: 2, borderRadius: 2 }}
           >
-            {t('auth.admin.policy.deploy', 'Deploy policy')}
+            Deploy Policy
           </Button>
         </Stack>
       </Paper>
@@ -536,13 +481,13 @@ export default function VisualPolicyCanvas() {
             fitView
             snapToGrid
             snapGrid={[15, 15]}
-            // Was two hex literals approximating the surfaces. Reading
-            // the palette keeps the canvas on the tenant's own colours.
-            style={{ backgroundColor: theme.palette.background.default }}
+            style={{
+              backgroundColor: theme.palette.mode === 'dark' ? '#0b0f19' : '#f8fafc',
+            }}
           >
             <Controls
               style={{
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: 8,
                 overflow: 'hidden',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               }}
@@ -563,11 +508,11 @@ export default function VisualPolicyCanvas() {
                       ? theme.palette.success.main
                       : theme.palette.error.main
                   default:
-                    return theme.palette.text.disabled
+                    return '#999'
                 }
               }}
               style={{
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: 8,
                 overflow: 'hidden',
                 backgroundColor: alpha(theme.palette.background.paper, 0.9),
               }}

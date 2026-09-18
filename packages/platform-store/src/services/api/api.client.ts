@@ -355,46 +355,9 @@ export const onBeforeRequest = (
   return () => beforeRequestHandlers.delete(handler);
 };
 
-/**
- * `POST /api/v1/auth/refresh` answers 400 "Refresh token is required" when no
- * refresh cookie reached it, and 401 "Invalid, expired, or reused refresh
- * token" when one did but did not survive rotation. The first means "you are
- * anonymous", the second means "your session is over" — only the second is a
- * terminal authentication failure.
- */
-const NO_SESSION_STATUS = 400;
-
-/**
- * Reports whether the app believes a session exists. The access token lives in
- * memory only, so after a reload it is empty even for a signed-in user; the
- * persisted (encrypted) store is the only other witness. The store registers
- * this probe itself — api.client must not import the store, which imports it.
- */
-export type SessionProbe = () => boolean;
-let sessionProbe: SessionProbe | null = null;
-
-export const setSessionProbe = (probe: SessionProbe | null) => {
-  sessionProbe = probe;
-};
-
-const hasKnownSession = (): boolean => {
-  if (secureTokenManager.hasTokens()) return true;
-  try {
-    return sessionProbe?.() ?? false;
-  } catch {
-    return false;
-  }
-};
-
 class TokenRefreshManager {
   private isRefreshing = false;
   private isPaused = false;
-  /**
-   * Latched once the server confirms there is no renewable session, so public
-   * pages do not re-probe `/auth/refresh` on every subsequent 401. Cleared
-   * automatically as soon as tokens exist again (i.e. after a sign-in).
-   */
-  private noSessionDetected = false;
   private refreshPromise: Promise<string> | null = null;
   private failedQueue: Array<{
     resolve: (token: string) => void;
@@ -496,28 +459,11 @@ class TokenRefreshManager {
 
       return accessToken;
     } catch (error) {
-      const status = (error as { status?: number }).status;
-
-      // 400 is the backend's "Refresh token is required" — no refresh cookie
-      // was presented at all, which is the normal state of a visitor who has
-      // never signed in. It is not a failure worth shouting about.
-      if (status === NO_SESSION_STATUS) {
-        if (import.meta.env.DEV) {
-          console.log(
-            "[Token Refresh] No refresh token presented; treating as anonymous",
-          );
-        }
-      } else {
-        console.error("[Token Refresh] Failed:", (error as Error).message);
-      }
+      console.error("[Token Refresh] Failed:", (error as Error).message);
       throw error;
     }
   }
 
-  /**
-   * Terminal failure: a session existed and can no longer be renewed. Wipes
-   * local state and tells the app to send the user back to login.
-   */
   private handleRefreshFailure() {
     secureTokenManager.clearTokens();
 
@@ -536,35 +482,7 @@ class TokenRefreshManager {
     notifyTerminalError();
   }
 
-  /**
-   * Benign outcome: there was no session to renew in the first place. Drops any
-   * stray token remnants, but must NOT wipe storage or notify terminal-error
-   * subscribers — doing so logs out a user who was never logged in and clears
-   * anonymous state (locale, theme, consent, guest session) on every page load.
-   */
-  private handleNoSession() {
-    this.noSessionDetected = true;
-    secureTokenManager.clearTokens();
-
-    if (import.meta.env.DEV) {
-      console.log(
-        "[TokenRefreshManager] No renewable session; continuing as anonymous",
-      );
-    }
-  }
-
   async attemptRefresh(): Promise<string> {
-    // A sign-in repopulates the token store, which invalidates the latch.
-    if (this.noSessionDetected && hasKnownSession()) {
-      this.noSessionDetected = false;
-    }
-
-    if (this.noSessionDetected) {
-      throw Object.assign(new Error("No session to refresh"), {
-        status: NO_SESSION_STATUS,
-      });
-    }
-
     if (this.isPaused) {
       if (import.meta.env.DEV) {
         console.log(
@@ -579,10 +497,6 @@ class TokenRefreshManager {
     if (this.refreshPromise) {
       return this.refreshPromise;
     }
-
-    // Captured before the request: distinguishes "this client had a session
-    // that just died" from "this client never had one".
-    const hadSession = hasKnownSession();
 
     this.broadcast({ type: "REFRESH_STARTED" });
 
@@ -628,18 +542,8 @@ class TokenRefreshManager {
                 ? 403
                 : undefined);
 
-        // A 400 while a session is known is a real dead end: the session
-        // existed but its refresh cookie is gone, so it can never be renewed.
-        // A 400 with no known session simply means nobody was signed in.
-        const isNoSession = status === NO_SESSION_STATUS && !hadSession;
         const isAuthFailure =
-          status === NO_SESSION_STATUS || status === 401 || status === 403;
-
-        if (isNoSession) {
-          this.handleNoSession();
-          this.processQueue(error, null);
-          throw error;
-        }
+          status === 400 || status === 401 || status === 403;
 
         if (isAuthFailure) {
           this.handleRefreshFailure();

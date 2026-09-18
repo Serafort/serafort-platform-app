@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/AuthWaitScreen.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // FIXES: Added header; replaced bare strings with t(); refined h5 to h4; added aria-hidden to decorative icons; implemented page-level entry motion
-// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
+// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
 
 import {
   Box,
@@ -177,7 +177,7 @@ export default function AuthWaitScreen() {
           <Typography
             variant='h4'
             sx={{
-              fontWeight: 800,
+              fontWeight: 900,
               letterSpacing: '-0.027em',
               mb: 1,
             }}
@@ -198,10 +198,10 @@ export default function AuthWaitScreen() {
               value={progressValue}
               sx={{
                 height: 6,
-                borderRadius: 'var(--sf-radius-xs, 4px)',
+                borderRadius: 3,
                 backgroundColor: alpha(theme.palette.primary.main, 0.1),
                 '& .MuiLinearProgress-bar': {
-                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                  borderRadius: 3,
                 },
               }}
             />
@@ -212,7 +212,7 @@ export default function AuthWaitScreen() {
                   severity='warning'
                   sx={{
                     textAlign: 'left',
-                    borderRadius: 'var(--sf-radius-md, 10px)',
+                    borderRadius: 3,
                     bgcolor: alpha(theme.palette.warning.main, 0.06),
                     border: '1px solid',
                     borderColor: alpha(theme.palette.warning.main, 0.2),
@@ -230,15 +230,15 @@ export default function AuthWaitScreen() {
                       setError(null)
                       setSecondsElapsed(0)
                     }}
-                    sx={{ minHeight: 44, textTransform: 'none', fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
+                    sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 3 }}
                   >
-                    {t('auth.common.retry', 'Retry')}
+                    {t('common.retry', 'Retry')}
                   </Button>
                   <Button
                     fullWidth
                     variant='outlined'
                     onClick={() => navigate(Path.auth.signin, { replace: true })}
-                    sx={{ minHeight: 44, textTransform: 'none', fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)' }}
+                    sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 3 }}
                   >
                     {t('auth.signin', 'Sign in')}
                   </Button>
@@ -274,6 +274,22 @@ export default function AuthWaitScreen() {
           </Box>
         </motion.div>
       </Container>
+
+      {/* Footer Branding */}
+      <Box sx={{ position: 'absolute', bottom: 40, width: '100%', textAlign: 'center' }}>
+        <Typography
+          variant='caption'
+          color='text.secondary'
+          sx={{
+            opacity: 0.4,
+            fontWeight: 700,
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+          }}
+        >
+          {t('auth.sso.nexus_version', 'Nexus Protocol Engine v2.4')}
+        </Typography>
+      </Box>
     </Box>
   )
 }

@@ -4,7 +4,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
 import { startAuthentication } from '@simplewebauthn/browser'
-import { IStatus, useAppStore, API_CONFIG, ENDPOINTS } from '@cap/platform-core'
+import { IStatus, Roles, useAppStore, API_CONFIG, ENDPOINTS } from '@cap/platform-core'
 import { useSignin, useSsoDiscovery } from '../../../hooks/useAuthQuery'
 import {
   usePasskeyLogin,
@@ -18,7 +18,6 @@ import { LoginSchema } from '../../../utils/schema'
 import { useActionLock } from '../../../hooks/useActionLock'
 import { resolveRedirectPathForUser } from '../../../utils/resolveRedirect'
 import { normalizeAuthUser } from '../../../utils/normalizeAuthUser'
-import { parseAuthRequestError } from '../../../utils/authRequestError'
 
 // [SECURITY] F-09: previously pre-filled from VITE_DEV_LOGIN_EMAIL/PASSWORD.
 // The `import.meta.env.DEV` guard here only compiled out this *usage* in
@@ -149,23 +148,24 @@ export function useSignInFlow() {
       // /api/v1/auth/login describes the user with a `roles` array of names and
       // carries no `role` field. Normalising first derives one, so the redirect
       // does not silently fall through to the default for every user.
-      const userData = normalizeAuthUser(body?.user ?? body)
-      const redirectPath = resolveRedirectPathForUser(userData?.role)
+      const userData = normalizeAuthUser<any>(body?.user ?? body)
+      const userRole = userData?.role as unknown as Roles | undefined
+      const redirectPath = resolveRedirectPathForUser(userRole)
 
       navigate(redirectPath, { replace: true })
     },
-    onError: (error: unknown) => {
-      const err = parseAuthRequestError(error)
-      if (err.status === 423) {
+    onError: (error: any) => {
+      if (error.response?.status === 423) {
         setMode('locked')
-        if (err.retryAfterSeconds) {
-          setTimeLeft(err.retryAfterSeconds)
+        const retryAfterSeconds = parseInt(error.response.headers?.['retry-after'], 10)
+        if (retryAfterSeconds) {
+          setTimeLeft(retryAfterSeconds)
         }
         return
       }
 
-      const attemptsRemaining = err.attemptsRemaining
-      if (err.status === 401 && attemptsRemaining !== undefined) {
+      const attemptsRemaining = error.response?.data?.attemptsRemaining
+      if (error.response?.status === 401 && attemptsRemaining !== undefined) {
         // No client-side call to record the attempt: the backend counts failures
         // inside the sign-in handler itself. The endpoint that used to be called
         // here was unauthenticated, which let anyone drive another account
@@ -184,8 +184,8 @@ export function useSignInFlow() {
         type: 'error',
         state: 'error',
         msg:
-          err.detail ||
-          err.serverMessage ||
+          error.response?.data?.detail ||
+          error.response?.data?.message ||
           t('auth.login.login_failed', 'Login failed. Please check your credentials.'),
       })
     },
@@ -202,20 +202,20 @@ export function useSignInFlow() {
       setMode('login')
       setMfaCode('')
       setPendingMfaUser(null)
-      const userData = normalizeAuthUser(useAppStore.getState().user)
+      const userData = useAppStore.getState().user as any
+      const userRole = userData?.role || userData?.user?.role
 
-      const redirectPath = resolveRedirectPathForUser(userData?.role)
+      const redirectPath = resolveRedirectPathForUser(userRole)
       navigate(redirectPath, { replace: true })
     },
-    onError: (error: unknown) => {
-      const err = parseAuthRequestError(error)
+    onError: (error: any) => {
       setStatus({
         open: true,
         type: 'error',
         state: 'error',
         msg:
-          err.detail ||
-          err.serverMessage ||
+          error.response?.data?.detail ||
+          error.response?.data?.message ||
           t('auth.mfa.invalid_code', 'Invalid verification code. Please try again.'),
       })
     },
@@ -229,19 +229,19 @@ export function useSignInFlow() {
         state: 'success',
         msg: t('auth.login.passkey_login_successful', 'Passkey sign in successful!'),
       })
-      const userData = normalizeAuthUser(useAppStore.getState().user)
+      const userData = useAppStore.getState().user as any
+      const userRole = (userData?.role || userData?.user?.role) as Roles
 
-      const redirectPath = resolveRedirectPathForUser(userData?.role)
+      const redirectPath = resolveRedirectPathForUser(userRole)
       navigate(redirectPath, { replace: true })
     },
-    onError: (error: unknown) => {
-      const err = parseAuthRequestError(error)
+    onError: (error: any) => {
       setStatus({
         open: true,
         type: 'error',
         state: 'error',
         msg:
-          err.serverMessage ||
+          error.response?.data?.message ||
           t('auth.login.passkey_login_failed', 'Passkey authentication failed'),
       })
     },
@@ -256,9 +256,10 @@ export function useSignInFlow() {
       state: 'success',
       msg: t('auth.login.passkey_login_successful', 'Passkey sign in successful!'),
     })
-    const userData = normalizeAuthUser(useAppStore.getState().user)
+    const userData = useAppStore.getState().user as any
+    const userRole = (userData?.role || userData?.user?.role) as Roles
 
-    const redirectPath = resolveRedirectPathForUser(userData?.role)
+    const redirectPath = resolveRedirectPathForUser(userRole)
     navigate(redirectPath, { replace: true })
   }, [navigate, t])
 
@@ -274,15 +275,14 @@ export function useSignInFlow() {
 
       const authenticationResponse = await startAuthentication({ optionsJSON: options })
       passkeyLoginMutation.mutate(authenticationResponse)
-    } catch (error: unknown) {
-      const err = parseAuthRequestError(error)
-      if (err.name !== 'NotAllowedError') {
+    } catch (error: any) {
+      if (error.name !== 'NotAllowedError') {
         setStatus({
           open: true,
           type: 'error',
           state: 'error',
           msg:
-            err.message ||
+            error.message ||
             t('auth.login.login_failed', 'Login failed. Please check your credentials.'),
         })
       }
@@ -393,7 +393,6 @@ export function useSignInFlow() {
     mode,
     pendingMfaUser,
     mfaCode,
-    setMfaCode,
     timeLeft,
     countdownDisplay,
     isDiscovering,

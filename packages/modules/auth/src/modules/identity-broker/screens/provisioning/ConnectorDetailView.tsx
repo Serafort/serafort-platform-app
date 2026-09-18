@@ -46,7 +46,6 @@ import Save from '@mui/icons-material/Save'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
 import Path from '../path'
 import {
   useProvisioningConnector,
@@ -78,7 +77,7 @@ function TabPanel(props: TabPanelProps) {
   )
 }
 
-// ─── Stat Card ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Stat Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StatCard({
   label,
   value,
@@ -95,7 +94,7 @@ function StatCard({
     <Card
       sx={{
         p: 3,
-        borderRadius: 'var(--sf-radius-lg, 16px)',
+        borderRadius: 4,
         border: '1px solid',
         borderColor: 'divider',
         boxShadow: 'none',
@@ -116,7 +115,7 @@ function StatCard({
           color: `${color}.main`,
           width: 56,
           height: 56,
-          borderRadius: 'var(--sf-radius-md, 12px)',
+          borderRadius: 3,
         }}
       >
         {icon}
@@ -135,7 +134,7 @@ function StatCard({
         >
           {label}
         </Typography>
-        <Typography variant='h6' sx={{ fontWeight: 800, letterSpacing: '-0.01em' }}>
+        <Typography variant='h6' sx={{ fontWeight: 900, letterSpacing: '-0.01em' }}>
           {value}
         </Typography>
       </Box>
@@ -155,7 +154,7 @@ const ConnectorDetailView: React.FC = () => {
 
   const connectorId = Number(id)
 
-  // ── Queries & Mutations ──────────────────────────────────────────
+  // â”€â”€ Queries & Mutations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const {
     data: connectorData,
     isLoading,
@@ -165,52 +164,43 @@ const ConnectorDetailView: React.FC = () => {
   const connector = connectorData?.data
 
   const { data: logsData, isLoading: isLogsLoading } = useProvisioningConnectorLogs(connectorId)
-  // `ConnectorsController.logs` returns AdonisJS's `.paginate()` envelope
-  // (`{ data, meta }`), not a flat array — reading `logsData.data` directly
-  // as an array left this list permanently empty.
-  const logs = logsData?.data?.data ?? []
-  const pagination = logsData?.data?.meta ?? {
-    total: logs.length,
-    perPage: logs.length || 1,
-    currentPage: 1,
-    lastPage: 1,
-    firstPage: 1,
-  }
+  const logs = Array.isArray(logsData?.data) ? logsData.data : []
+  const pagination = { total: logs.length, last_page: 1 }
 
   const syncMutation = useSyncProvisioningConnector({
     onSuccess: () => {
-      toast.success(t('auth.admin.provisioning.connectors.messages.sync_queued'))
+      toast.success(t('admin.provisioning.connector.messages.sync_queued'))
       refetchConnector()
     },
     onError: (err: any) => {
       logger.error('Sync failed', { error: err })
-      toast.error(t('auth.admin.provisioning.connectors.messages.error_generic'))
+      toast.error(t('admin.provisioning.connector.messages.error_generic'))
     },
   })
 
   const updateMutation = useUpdateProvisioningConnector(connectorId, {
     onSuccess: () => {
-      toast.success(t('auth.admin.provisioning.connectors.messages.config_saved'))
+      toast.success(t('admin.provisioning.connector.messages.config_saved'))
       refetchConnector()
     },
     onError: (err: any) => {
       logger.error('Update failed', { error: err })
-      toast.error(t('auth.admin.provisioning.connectors.messages.error_generic'))
+      toast.error(t('admin.provisioning.connector.messages.error_generic'))
     },
   })
 
   const deleteMutation = useDeleteProvisioningConnector({
     onSuccess: () => {
-      toast.success(t('auth.admin.provisioning.connectors.messages.deleted'))
+      toast.success(t('admin.provisioning.connector.messages.deleted'))
       navigate(Path.provisioning)
     },
     onError: (err: any) => {
       logger.error('Delete failed', { error: err })
-      toast.error(t('auth.admin.provisioning.connectors.messages.error_generic'))
+      toast.error(t('admin.provisioning.connector.messages.error_generic'))
     },
   })
 
-  // ── Form State ───────────────────────────────────────────────────
+  // â”€â”€ Form State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [configName, setConfigName] = React.useState('')
   const [configStatus, setConfigStatus] = React.useState('')
 
@@ -221,7 +211,7 @@ const ConnectorDetailView: React.FC = () => {
     }
   }, [connector])
 
-  // ── Handlers ─────────────────────────────────────────────────────
+  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
   }
@@ -231,7 +221,7 @@ const ConnectorDetailView: React.FC = () => {
   }
 
   const handleDelete = () => {
-    if (window.confirm(t('auth.admin.provisioning.connectors.delete_confirm'))) {
+    if (window.confirm(t('admin.provisioning.connector.delete_confirm'))) {
       deleteMutation.mutate(connectorId)
     }
   }
@@ -251,7 +241,7 @@ const ConnectorDetailView: React.FC = () => {
         label={(event || '').replace(/_/g, ' ').toUpperCase()}
         size='small'
         sx={{
-          fontWeight: 800,
+          fontWeight: 900,
           fontSize: 10,
           bgcolor: isError
             ? alpha(theme.palette.error.main, 0.1)
@@ -289,58 +279,28 @@ const ConnectorDetailView: React.FC = () => {
         >
           <ErrorIcon sx={{ fontSize: 40 }} />
         </Avatar>
-        <Typography variant='h5' sx={{ fontWeight: 800, mb: 1 }}>
-          {t('auth.admin.provisioning.connectors.not_found')}
+        <Typography variant='h5' sx={{ fontWeight: 900, mb: 1 }}>
+          {t('admin.provisioning.connector.not_found')}
         </Typography>
         <Typography color='text.secondary' sx={{ mb: 4, maxWidth: 400, mx: 'auto' }}>
-          {t('auth.admin.provisioning.connectors.not_found_desc') ||
+          {t('admin.provisioning.connector.not_found_desc') ||
             'The connector you are looking for does not exist or has been removed.'}
         </Typography>
         <Button
           variant='contained'
           onClick={() => navigate(Path.provisioning)}
           startIcon={<ArrowBack />}
-          sx={{
-            fontWeight: 800,
-            px: 4,
-            py: 1.5,
-            minHeight: 48,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-          }}
+          sx={{ fontWeight: 800, px: 4, py: 1.5, borderRadius: 3 }}
         >
-          {t('auth.admin.provisioning.connectors.back_to_list')}
+          {t('admin.provisioning.connector.back_to_list')}
         </Button>
       </Box>
     )
   }
 
   return (
-    <Box
-      component={motion.div}
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, md: 4 } }}
-    >
-      {/* ── Back button ────────────────────────────────────────────── */}
-      <Box sx={{ mb: 2 }}>
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={() => navigate(Path.provisioning)}
-          sx={{
-            p: 1,
-            minHeight: 44,
-            color: 'text.secondary',
-            textTransform: 'none',
-            fontWeight: 700,
-            '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
-          }}
-        >
-          {t('auth.common.back', 'Back to Connectors')}
-        </Button>
-      </Box>
-
-      {/* ── Pattern 1: Page Header ───────────────────────────────────── */}
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, md: 4 } }}>
+      {/* â”€â”€ Pattern 1: Page Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Box
         sx={{
           mb: 4,
@@ -354,9 +314,9 @@ const ConnectorDetailView: React.FC = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
           <Avatar
             sx={{
-              width: 64,
-              height: 64,
-              borderRadius: 'var(--sf-radius-lg, 24px)',
+              width: 72,
+              height: 72,
+              borderRadius: '20px',
               bgcolor: alpha(theme.palette.primary.main, 0.12),
               color: 'primary.main',
               boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.15)}`,
@@ -365,32 +325,30 @@ const ConnectorDetailView: React.FC = () => {
             <Hub sx={{ fontSize: 32 }} />
           </Avatar>
           <Box>
+            <IconButton
+              onClick={() => navigate(Path.provisioning)}
+              sx={{
+                p: 0,
+                mb: 0.5,
+                color: 'text.secondary',
+                '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
+              }}
+            >
+              <ArrowBack sx={{ fontSize: 20 }} />
+            </IconButton>
             <Stack direction='row' alignItems='center' spacing={1.5}>
-              <Typography
-                variant='h4'
-                sx={{
-                  fontWeight: 800,
-                  letterSpacing: '-0.027em',
-                  fontFamily: 'Outfit, sans-serif',
-                }}
-              >
+              <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
                 {connector.name}
               </Typography>
               <Chip
                 label={(connector.status || '').toUpperCase()}
                 size='small'
                 color={connector.status === 'active' ? 'success' : 'default'}
-                sx={{
-                  fontWeight: 800,
-                  fontSize: 10,
-                  height: 22,
-                  borderRadius: 'var(--sf-radius-xs, 4px)',
-                }}
+                sx={{ fontWeight: 900, fontSize: 10, height: 20, borderRadius: 1 }}
               />
             </Stack>
             <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-              {connector.type} {t('auth.admin.provisioning.connectors.type_label')} • ID:{' '}
-              {connector.id}
+              {connector.type} {t('admin.provisioning.connector.type_label')} â€¢ ID: {connector.id}
             </Typography>
           </Box>
         </Box>
@@ -403,16 +361,15 @@ const ConnectorDetailView: React.FC = () => {
             onClick={handleDelete}
             sx={{
               height: 44,
-              minHeight: 44,
               px: 3,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2.5,
               fontWeight: 800,
               textTransform: 'none',
               borderColor: 'divider',
               flex: { xs: 1, sm: 'none' },
             }}
           >
-            {t('auth.admin.provisioning.connectors.delete')}
+            {t('admin.provisioning.connector.delete')}
           </Button>
           <Button
             variant='contained'
@@ -423,9 +380,8 @@ const ConnectorDetailView: React.FC = () => {
               bgcolor: 'info.main',
               boxShadow: '0 4px 14px 0 rgba(0,118,255,0.35)',
               height: 44,
-              minHeight: 44,
               px: 3,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2.5,
               fontWeight: 800,
               textTransform: 'none',
               '&:hover': { bgcolor: 'info.dark' },
@@ -433,21 +389,21 @@ const ConnectorDetailView: React.FC = () => {
             }}
           >
             {syncMutation.isPending
-              ? t('auth.admin.provisioning.connectors.syncing')
-              : t('auth.admin.provisioning.connectors.sync_now')}
+              ? t('admin.provisioning.connector.syncing')
+              : t('admin.provisioning.connector.sync_now')}
           </Button>
         </Stack>
       </Box>
 
-      {/* ── Pattern 2: Quick Stats ─────────────────────────────────────── */}
+      {/* â”€â”€ Pattern 2: Quick Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('auth.admin.provisioning.connectors.stats.last_sync')}
+            label={t('admin.provisioning.connector.stats.last_sync')}
             value={
               connector.last_sync_at
                 ? new Date(connector.last_sync_at).toLocaleString()
-                : t('auth.admin.provisioning.connectors.never')
+                : t('admin.provisioning.connector.never')
             }
             icon={<History />}
             color='primary'
@@ -455,7 +411,7 @@ const ConnectorDetailView: React.FC = () => {
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('auth.admin.provisioning.connectors.stats.records')}
+            label={t('admin.provisioning.connector.stats.records')}
             value={connector.sync_count || 0}
             icon={<Storage />}
             color='success'
@@ -463,11 +419,11 @@ const ConnectorDetailView: React.FC = () => {
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('auth.admin.provisioning.connectors.stats.status')}
+            label={t('admin.provisioning.connector.stats.status')}
             value={
               connector.status === 'active'
-                ? t('auth.admin.provisioning.scim.status_active')
-                : t('auth.admin.provisioning.scim.status_inactive')
+                ? t('admin.provisioning.scim.status_active')
+                : t('admin.provisioning.scim.status_inactive')
             }
             icon={<Security />}
             color='info'
@@ -475,10 +431,10 @@ const ConnectorDetailView: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* ── Main Content: Tabs ─────────────────────────────────────────── */}
+      {/* â”€â”€ Main Content: Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Card
         sx={{
-          borderRadius: 'var(--sf-radius-lg, 16px)',
+          borderRadius: 4,
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
@@ -502,17 +458,17 @@ const ConnectorDetailView: React.FC = () => {
             <Tab
               icon={<Settings sx={{ mr: 1, fontSize: 20 }} />}
               iconPosition='start'
-              label={t('auth.admin.provisioning.connectors.tabs.config')}
+              label={t('admin.provisioning.connector.tabs.config')}
             />
             <Tab
               icon={<CompareArrows sx={{ mr: 1, fontSize: 20 }} />}
               iconPosition='start'
-              label={t('auth.admin.provisioning.connectors.tabs.mappings')}
+              label={t('admin.provisioning.connector.tabs.mappings')}
             />
             <Tab
               icon={<History sx={{ mr: 1, fontSize: 20 }} />}
               iconPosition='start'
-              label={t('auth.admin.provisioning.connectors.tabs.history')}
+              label={t('admin.provisioning.connector.tabs.history')}
             />
           </Tabs>
         </Box>
@@ -524,45 +480,45 @@ const ConnectorDetailView: React.FC = () => {
                 <Typography
                   variant='h6'
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: 900,
                     mb: 3.5,
                     textTransform: 'uppercase',
                     letterSpacing: '0.02em',
                   }}
                 >
-                  {t('auth.admin.provisioning.connectors.general_settings')}
+                  {t('admin.provisioning.connector.general_settings')}
                 </Typography>
                 <Stack spacing={3.5}>
                   <TextField
                     fullWidth
-                    label={t('auth.admin.provisioning.connectors.fields.name')}
+                    label={t('admin.provisioning.connector.fields.name')}
                     value={configName}
                     onChange={(e) => setConfigName(e.target.value)}
                     variant='outlined'
                     slotProps={{
-                      input: { sx: { borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600 } },
+                      input: { sx: { borderRadius: 3, fontWeight: 600 } },
                       inputLabel: { sx: { fontWeight: 700 } },
                     }}
                   />
                   <FormControl fullWidth>
                     <InputLabel id='status-label' sx={{ fontWeight: 700 }}>
-                      {t('auth.admin.provisioning.connectors.fields.status')}
+                      {t('admin.provisioning.connector.fields.status')}
                     </InputLabel>
                     <Select
                       labelId='status-label'
                       value={configStatus}
-                      label={t('auth.admin.provisioning.connectors.fields.status')}
+                      label={t('admin.provisioning.connector.fields.status')}
                       onChange={(e) => setConfigStatus(e.target.value as any)}
-                      sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}
+                      sx={{ borderRadius: 3, fontWeight: 700 }}
                     >
                       <MenuItem value='active' sx={{ fontWeight: 700 }}>
-                        {t('auth.admin.provisioning.scim.status_active').toUpperCase()}
+                        {t('admin.provisioning.scim.status_active').toUpperCase()}
                       </MenuItem>
                       <MenuItem value='inactive' sx={{ fontWeight: 700 }}>
-                        {t('auth.admin.provisioning.scim.status_inactive').toUpperCase()}
+                        {t('admin.provisioning.scim.status_inactive').toUpperCase()}
                       </MenuItem>
                       <MenuItem value='error' sx={{ fontWeight: 700 }}>
-                        {t('auth.common.error').toUpperCase()}
+                        {t('common.error').toUpperCase()}
                       </MenuItem>
                     </Select>
                   </FormControl>
@@ -575,18 +531,17 @@ const ConnectorDetailView: React.FC = () => {
                       disabled={updateMutation.isPending}
                       sx={{
                         height: 48,
-                        minHeight: 48,
                         px: 4,
-                        borderRadius: 'var(--sf-radius-md, 8px)',
-                        fontWeight: 800,
+                        borderRadius: 3,
+                        fontWeight: 900,
                         bgcolor: 'primary.main',
                         boxShadow: `0 8px 16px -4px ${alpha(theme.palette.primary.main, 0.3)}`,
                         textTransform: 'none',
                       }}
                     >
                       {updateMutation.isPending
-                        ? t('auth.admin.provisioning.connectors.saving')
-                        : t('auth.admin.provisioning.connectors.save_changes')}
+                        ? t('admin.provisioning.connector.saving')
+                        : t('admin.provisioning.connector.save_changes')}
                     </Button>
                   </Box>
                 </Stack>
@@ -597,7 +552,7 @@ const ConnectorDetailView: React.FC = () => {
                   variant='outlined'
                   sx={{
                     p: 3,
-                    borderRadius: 'var(--sf-radius-md, 12px)',
+                    borderRadius: 4,
                     bgcolor: alpha(theme.palette.action.hover, 0.4),
                     border: '1px solid',
                     borderColor: 'divider',
@@ -606,7 +561,7 @@ const ConnectorDetailView: React.FC = () => {
                   <Typography
                     variant='subtitle2'
                     sx={{
-                      fontWeight: 800,
+                      fontWeight: 900,
                       mb: 2,
                       display: 'flex',
                       alignItems: 'center',
@@ -616,7 +571,7 @@ const ConnectorDetailView: React.FC = () => {
                     }}
                   >
                     <Storage fontSize='small' color='primary' />{' '}
-                    {t('auth.admin.provisioning.connectors.metadata')}
+                    {t('admin.provisioning.connector.metadata')}
                   </Typography>
                   <Divider sx={{ mb: 2.5 }} />
                   <Stack spacing={2}>
@@ -631,14 +586,14 @@ const ConnectorDetailView: React.FC = () => {
                         variant='caption'
                         sx={{ fontWeight: 800, color: 'text.secondary' }}
                       >
-                        {t('auth.admin.provisioning.connectors.metadata_fields.created_on')}
+                        {t('admin.provisioning.connector.metadata_fields.created_on')}
                       </Typography>
                       <Typography variant='body2' sx={{ fontWeight: 800 }}>
                         {connector.created_at
                           ? new Date(connector.created_at).toLocaleDateString(undefined, {
                               dateStyle: 'medium',
                             })
-                          : '—'}
+                          : 'â€”'}
                       </Typography>
                     </Box>
                     <Box
@@ -652,14 +607,14 @@ const ConnectorDetailView: React.FC = () => {
                         variant='caption'
                         sx={{ fontWeight: 800, color: 'text.secondary' }}
                       >
-                        {t('auth.admin.provisioning.connectors.metadata_fields.type')}
+                        {t('admin.provisioning.connector.metadata_fields.type')}
                       </Typography>
                       <Chip
                         label={connector.type}
                         size='small'
                         sx={{
-                          fontWeight: 800,
-                          borderRadius: 'var(--sf-radius-xs, 4px)',
+                          fontWeight: 900,
+                          borderRadius: 1.5,
                           bgcolor: 'background.paper',
                           border: '1px solid',
                           borderColor: 'divider',
@@ -680,34 +635,26 @@ const ConnectorDetailView: React.FC = () => {
                   mb: 3,
                   width: 64,
                   height: 64,
-                  borderRadius: 'var(--sf-radius-md, 12px)',
                   bgcolor: alpha(theme.palette.primary.main, 0.1),
                   color: 'primary.main',
                 }}
               >
                 <CompareArrows sx={{ fontSize: 32 }} />
               </Avatar>
-              <Typography variant='h6' sx={{ fontWeight: 800, mb: 1.5 }}>
-                {t('auth.admin.provisioning.connectors.mappings_title')}
+              <Typography variant='h6' sx={{ fontWeight: 900, mb: 1.5 }}>
+                {t('admin.provisioning.connector.mappings_title')}
               </Typography>
               <Typography
                 color='text.secondary'
                 sx={{ maxWidth: 450, mx: 'auto', fontWeight: 500, lineHeight: 1.6 }}
               >
-                {t('auth.admin.provisioning.connectors.mappings_desc')}
+                {t('admin.provisioning.connector.mappings_desc')}
               </Typography>
               <Button
                 variant='outlined'
-                sx={{
-                  mt: 4,
-                  borderRadius: 'var(--sf-radius-md, 8px)',
-                  minHeight: 44,
-                  px: 3,
-                  fontWeight: 800,
-                  textTransform: 'none',
-                }}
+                sx={{ mt: 4, borderRadius: 2.5, fontWeight: 800, textTransform: 'none' }}
               >
-                {t('auth.admin.provisioning.connectors.configure_mappings')}
+                {t('admin.provisioning.connector.configure_mappings')}
               </Button>
             </Box>
           </TabPanel>
@@ -723,7 +670,6 @@ const ConnectorDetailView: React.FC = () => {
                   sx={{
                     mx: 'auto',
                     mb: 2,
-                    borderRadius: 'var(--sf-radius-md, 10px)',
                     bgcolor: alpha(theme.palette.action.hover, 0.5),
                     color: 'text.disabled',
                   }}
@@ -731,7 +677,7 @@ const ConnectorDetailView: React.FC = () => {
                   <History />
                 </Avatar>
                 <Typography color='text.secondary' sx={{ fontWeight: 700 }}>
-                  {t('auth.admin.provisioning.connectors.no_logs')}
+                  {t('admin.provisioning.connector.no_logs')}
                 </Typography>
               </Box>
             ) : (
@@ -740,7 +686,7 @@ const ConnectorDetailView: React.FC = () => {
                   sx={{
                     border: '1px solid',
                     borderColor: 'divider',
-                    borderRadius: 'var(--sf-radius-md, 12px)',
+                    borderRadius: 4,
                     overflow: 'hidden',
                   }}
                 >
@@ -749,44 +695,44 @@ const ConnectorDetailView: React.FC = () => {
                       <TableRow>
                         <TableCell
                           sx={{
-                            fontWeight: 800,
+                            fontWeight: 900,
                             py: 2,
                             letterSpacing: '0.05em',
                             color: 'text.secondary',
                           }}
                         >
-                          {t('auth.admin.provisioning.connectors.table.timestamp').toUpperCase()}
+                          {t('admin.provisioning.connector.table.timestamp').toUpperCase()}
                         </TableCell>
                         <TableCell
                           sx={{
-                            fontWeight: 800,
+                            fontWeight: 900,
                             py: 2,
                             letterSpacing: '0.05em',
                             color: 'text.secondary',
                           }}
                         >
-                          {t('auth.admin.provisioning.connectors.table.event').toUpperCase()}
+                          {t('admin.provisioning.connector.table.event').toUpperCase()}
                         </TableCell>
                         <TableCell
                           sx={{
-                            fontWeight: 800,
+                            fontWeight: 900,
                             py: 2,
                             letterSpacing: '0.05em',
                             color: 'text.secondary',
                           }}
                         >
-                          {t('auth.admin.provisioning.connectors.table.status').toUpperCase()}
+                          {t('admin.provisioning.connector.table.status').toUpperCase()}
                         </TableCell>
                         <TableCell
                           align='right'
                           sx={{
-                            fontWeight: 800,
+                            fontWeight: 900,
                             py: 2,
                             letterSpacing: '0.05em',
                             color: 'text.secondary',
                           }}
                         >
-                          {t('auth.admin.provisioning.connectors.table.actions').toUpperCase()}
+                          {t('admin.provisioning.connector.table.actions').toUpperCase()}
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -815,7 +761,7 @@ const ConnectorDetailView: React.FC = () => {
                               <Typography
                                 variant='body2'
                                 sx={{
-                                  fontWeight: 800,
+                                  fontWeight: 900,
                                   color: log.status === 'success' ? 'success.dark' : 'error.dark',
                                   fontSize: 11,
                                   textTransform: 'uppercase',
@@ -830,11 +776,7 @@ const ConnectorDetailView: React.FC = () => {
                             <Tooltip title='View Log Entry'>
                               <IconButton
                                 size='small'
-                                sx={{
-                                  width: 44,
-                                  height: 44,
-                                  bgcolor: alpha(theme.palette.action.hover, 0.5),
-                                }}
+                                sx={{ bgcolor: alpha(theme.palette.action.hover, 0.5) }}
                               >
                                 <ChevronRight fontSize='small' />
                               </IconButton>
@@ -846,17 +788,14 @@ const ConnectorDetailView: React.FC = () => {
                   </Table>
                 </TableContainer>
 
-                {pagination.lastPage > 1 && (
+                {pagination.last_page > 1 && (
                   <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
                     <Pagination
-                      count={pagination.lastPage}
+                      count={pagination.last_page}
                       page={page}
                       onChange={(_, value) => setPage(value)}
                       sx={{
-                        '& .MuiPaginationItem-root': {
-                          fontWeight: 800,
-                          borderRadius: 'var(--sf-radius-xs, 4px)',
-                        },
+                        '& .MuiPaginationItem-root': { fontWeight: 900, borderRadius: 2 },
                         '& .Mui-selected': {
                           bgcolor: alpha(theme.palette.primary.main, 0.1),
                           color: 'primary.main',
@@ -877,7 +816,7 @@ const ConnectorDetailView: React.FC = () => {
         sx={{
           mt: 4,
           p: 3,
-          borderRadius: 'var(--sf-radius-lg, 16px)',
+          borderRadius: 5,
           border: '1px solid',
           borderColor: alpha(theme.palette.info.main, 0.2),
           bgcolor: alpha(theme.palette.info.main, 0.03),
@@ -893,37 +832,36 @@ const ConnectorDetailView: React.FC = () => {
             color: 'info.main',
             width: 52,
             height: 52,
-            borderRadius: 'var(--sf-radius-md, 10px)',
+            borderRadius: 2.5,
           }}
         >
           <Info />
         </Avatar>
         <Box sx={{ flex: 1 }}>
-          <Typography variant='subtitle1' sx={{ fontWeight: 800, mb: 0.5 }}>
-            {t('auth.admin.provisioning.connectors.helper_title')}
+          <Typography variant='subtitle1' sx={{ fontWeight: 900, mb: 0.5 }}>
+            {t('admin.provisioning.connector.helper_title')}
           </Typography>
           <Typography
             variant='body2'
             color='text.secondary'
             sx={{ fontWeight: 500, lineHeight: 1.5 }}
           >
-            {t('auth.admin.provisioning.connectors.helper_desc')}
+            {t('admin.provisioning.connector.helper_desc')}
           </Typography>
         </Box>
         <Button
           variant='outlined'
           color='info'
           sx={{
-            fontWeight: 800,
+            fontWeight: 900,
             textTransform: 'none',
-            borderRadius: 'var(--sf-radius-md, 8px)',
+            borderRadius: 2.5,
             px: 4,
             height: 44,
-            minHeight: 44,
             borderColor: alpha(theme.palette.info.main, 0.3),
           }}
         >
-          {t('auth.admin.provisioning.connectors.view_docs')}
+          {t('admin.provisioning.connector.view_docs')}
         </Button>
       </Card>
     </Box>

@@ -435,7 +435,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
             }}
           >
             <Box>
-              <Typography variant='h3' fontWeight={800} gutterBottom sx={{ color: 'text.primary' }}>
+              <Typography variant='h3' fontWeight={900} gutterBottom sx={{ color: 'text.primary' }}>
                 Real-time Auth Events Monitor
               </Typography>
               <Typography color='text.secondary'>
@@ -447,7 +447,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
               startIcon={<Download />}
               variant='outlined'
               onClick={handleExportCSV}
-              sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 'var(--sf-radius-md, 8px)' }}
+              sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
             >
               Export CSV ({filteredEvents.length})
             </Button>
@@ -472,7 +472,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                   key={index}
                   sx={(theme: any) => ({
                     p: 3,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    borderRadius: 2,
                     border: '1px solid ' + theme.palette.divider,
                     ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
                   })}
@@ -522,7 +522,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
             mb: 3,
             p: 1.5,
             bgcolor: 'background.paper',
-            borderRadius: 'var(--sf-radius-md, 8px)',
+            borderRadius: 2,
             border: 1,
             borderColor: 'divider',
           }}
@@ -536,7 +536,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
               sx={{
                 textTransform: 'none',
                 fontWeight: 600,
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: 2,
               }}
             >
               {isPaused ? `Resume (${bufferedCount} buffered)` : 'Pause Stream'}
@@ -562,7 +562,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
             sx={{
               minWidth: 260,
               '& .MuiOutlinedInput-root': {
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: 2,
               },
             }}
           />
@@ -662,7 +662,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               overflow: 'hidden',
               border: '1px solid ' + theme.palette.divider,
               ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -824,7 +824,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                 width: { xs: '100%', lg: 440 },
                 display: 'flex',
                 flexDirection: 'column',
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: 2,
                 overflow: 'hidden',
                 border: '1px solid ' + theme.palette.divider,
                 ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),

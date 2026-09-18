@@ -61,9 +61,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Controller, useForm, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { motion } from 'framer-motion'
-import { buildLayoutSurfaceEffect } from '@cap/layout'
-import { getTenantThemeEffects } from '@cap/theme'
 import { Path } from '@cap/module-auth/routes/path'
 import {
   useUserProfile,
@@ -173,8 +170,6 @@ export default function ProfileView({
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const theme = useTheme()
-  const effects = getTenantThemeEffects(theme)
-  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const { t } = useTranslation()
   const { user: authUser } = useAuth()
   const {
@@ -850,12 +845,12 @@ export default function ProfileView({
             <Skeleton variant='text' width={220} height={40} />
             <Skeleton variant='text' width={340} height={20} />
           </Box>
-          <Skeleton variant='rounded' width={120} height={40} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
+          <Skeleton variant='rounded' width={120} height={40} sx={{ borderRadius: '10px' }} />
         </Box>
 
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, lg: 8 }}>
-            <Card variant='outlined' sx={{ p: 3.5, borderRadius: 'var(--sf-radius-lg, 12px)', mb: 3 }}>
+            <Card variant='outlined' sx={{ p: 3.5, borderRadius: '16px', mb: 3 }}>
               <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
                 <Skeleton variant='circular' width={120} height={120} />
                 <Box sx={{ flex: 1 }}>
@@ -863,23 +858,23 @@ export default function ProfileView({
                   <Skeleton variant='text' width={240} height={20} sx={{ mb: 2 }} />
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 4 }}>
-                      <Skeleton variant='rounded' height={60} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
+                      <Skeleton variant='rounded' height={60} sx={{ borderRadius: '12px' }} />
                     </Grid>
                     <Grid size={{ xs: 4 }}>
-                      <Skeleton variant='rounded' height={60} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
+                      <Skeleton variant='rounded' height={60} sx={{ borderRadius: '12px' }} />
                     </Grid>
                     <Grid size={{ xs: 4 }}>
-                      <Skeleton variant='rounded' height={60} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
+                      <Skeleton variant='rounded' height={60} sx={{ borderRadius: '12px' }} />
                     </Grid>
                   </Grid>
                 </Box>
               </Box>
             </Card>
-            <Card variant='outlined' sx={{ p: 3, borderRadius: 'var(--sf-radius-lg, 12px)' }}>
+            <Card variant='outlined' sx={{ p: 3, borderRadius: '16px' }}>
               <Grid container spacing={2.5}>
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <Grid key={i} size={{ xs: 12, sm: 6 }}>
-                    <Skeleton variant='rounded' height={56} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
+                    <Skeleton variant='rounded' height={56} sx={{ borderRadius: '12px' }} />
                   </Grid>
                 ))}
               </Grid>
@@ -887,14 +882,14 @@ export default function ProfileView({
           </Grid>
 
           <Grid size={{ xs: 12, lg: 4 }}>
-            <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', p: 2 }}>
+            <Card variant='outlined' sx={{ borderRadius: '16px', p: 2 }}>
               <Skeleton variant='text' width={120} height={28} sx={{ m: 1 }} />
               {[1, 2, 3, 4, 5].map((i) => (
                 <Skeleton
                   key={i}
                   variant='rounded'
                   height={52}
-                  sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', mb: 1.5 }}
+                  sx={{ borderRadius: '12px', mb: 1.5 }}
                 />
               ))}
             </Card>
@@ -905,24 +900,19 @@ export default function ProfileView({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
+    <Box
+      component='form'
+      onSubmit={handleProfileSubmit(onFormSubmit)}
+      noValidate
+      sx={{
+        width: '100%',
+        maxWidth: 1280,
+        mx: 'auto',
+        py: { xs: 2.5, md: 4 },
+        px: { xs: 2, sm: 3, md: 4 },
+        boxSizing: 'border-box',
+      }}
     >
-      <Box
-        component='form'
-        onSubmit={handleProfileSubmit(onFormSubmit)}
-        noValidate
-        sx={{
-          width: '100%',
-          maxWidth: 1280,
-          mx: 'auto',
-          py: { xs: 2.5, md: 4 },
-          px: { xs: 2, sm: 3, md: 4 },
-          boxSizing: 'border-box',
-        }}
-      >
       {/* ── Page Header ── */}
       <Box
         sx={{
@@ -983,7 +973,7 @@ export default function ProfileView({
                   fontWeight: 600,
                   fontSize: '0.875rem',
                   textTransform: 'none',
-                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  borderRadius: '10px',
                   px: 2,
                   py: 0.8,
                   backgroundColor: 'background.paper',
@@ -1011,7 +1001,7 @@ export default function ProfileView({
                   fontWeight: 600,
                   fontSize: '0.875rem',
                   textTransform: 'none',
-                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  borderRadius: '10px',
                   px: 2.5,
                   py: 0.8,
                   boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
@@ -1033,7 +1023,7 @@ export default function ProfileView({
                 fontWeight: 600,
                 fontSize: '0.875rem',
                 textTransform: 'none',
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: '10px',
                 px: 2,
                 py: 0.8,
                 backgroundColor: 'background.paper',
@@ -1062,7 +1052,7 @@ export default function ProfileView({
               variant='outlined'
               sx={{
                 p: { xs: 2.5, sm: 3.5 },
-                borderRadius: 'var(--sf-radius-lg, 12px)',
+                borderRadius: '16px',
                 borderColor: 'divider',
                 backgroundColor: 'background.paper',
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
@@ -1268,7 +1258,7 @@ export default function ProfileView({
                   <Grid size={{ xs: 12, sm: 4 }}>
                     <Box
                       sx={{
-                        borderRadius: 'var(--sf-radius-lg, 12px)',
+                        borderRadius: '12px',
                         backgroundColor: alpha(theme.palette.action.hover, 0.04),
                         border: '1px solid',
                         borderColor: 'divider',
@@ -1330,7 +1320,7 @@ export default function ProfileView({
                   <Grid size={{ xs: 12, sm: 4 }}>
                     <Box
                       sx={{
-                        borderRadius: 'var(--sf-radius-lg, 12px)',
+                        borderRadius: '12px',
                         backgroundColor: alpha(theme.palette.action.hover, 0.04),
                         border: '1px solid',
                         borderColor: 'divider',
@@ -1366,7 +1356,7 @@ export default function ProfileView({
                     <Box
                       sx={{
                         p: 1.5,
-                        borderRadius: 'var(--sf-radius-lg, 12px)',
+                        borderRadius: '12px',
                         backgroundColor: alpha(theme.palette.action.hover, 0.04),
                         border: '1px solid',
                         borderColor: 'divider',
@@ -1404,7 +1394,7 @@ export default function ProfileView({
                 <Card
                   variant='outlined'
                   sx={{
-                    borderRadius: 'var(--sf-radius-lg, 12px)',
+                    borderRadius: '16px',
                     borderColor: 'divider',
                     backgroundColor: 'background.paper',
                     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
@@ -1431,7 +1421,7 @@ export default function ProfileView({
                             label={t('user.profile.first_name', 'First Name')}
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
-                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                           />
                         )}
                       />
@@ -1449,7 +1439,7 @@ export default function ProfileView({
                             label={t('user.profile.last_name', 'Last Name')}
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
-                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                           />
                         )}
                       />
@@ -1468,7 +1458,7 @@ export default function ProfileView({
                             placeholder='e.g. Alex Morgan'
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
-                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                           />
                         )}
                       />
@@ -1487,7 +1477,7 @@ export default function ProfileView({
                             placeholder='+1 (555) 000-0000'
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
-                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                           />
                         )}
                       />
@@ -1524,7 +1514,7 @@ export default function ProfileView({
                             }}
                             sx={{
                               '& .MuiOutlinedInput-root': {
-                                borderRadius: 'var(--sf-radius-lg, 12px)',
+                                borderRadius: '12px',
                                 bgcolor: !isSuperAdmin
                                   ? alpha(theme.palette.action.disabledBackground, 0.04)
                                   : 'transparent',
@@ -1548,7 +1538,7 @@ export default function ProfileView({
                             placeholder='e.g. Lead Platform Engineer'
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
-                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                           />
                         )}
                       />
@@ -1567,7 +1557,7 @@ export default function ProfileView({
                             placeholder='e.g. Engineering / Security'
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
-                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                           />
                         )}
                       />
@@ -1585,7 +1575,7 @@ export default function ProfileView({
                             label={t('user.profile.company', 'Company')}
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
-                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                           />
                         )}
                       />
@@ -1604,7 +1594,7 @@ export default function ProfileView({
                             placeholder='e.g. San Francisco, CA'
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
-                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                           />
                         )}
                       />
@@ -1623,7 +1613,7 @@ export default function ProfileView({
                             placeholder='https://example.com'
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
-                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                           />
                         )}
                       />
@@ -1649,7 +1639,7 @@ export default function ProfileView({
                             helperText={
                               fieldState.error?.message || `${(field.value || '').length}/500`
                             }
-                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                           />
                         )}
                       />
@@ -1661,7 +1651,7 @@ export default function ProfileView({
                 <Card
                   variant='outlined'
                   sx={{
-                    borderRadius: 'var(--sf-radius-lg, 12px)',
+                    borderRadius: '16px',
                     borderColor: 'divider',
                     backgroundColor: 'background.paper',
                     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
@@ -1690,7 +1680,7 @@ export default function ProfileView({
                               labelId='profile-lang-label'
                               label={t('user.profile.language', 'Language')}
                               IconComponent={ExpandMore}
-                              sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}
+                              sx={{ borderRadius: '12px' }}
                             >
                               {LANGUAGES.map((lang) => (
                                 <MenuItem key={lang.value} value={lang.value}>
@@ -1717,7 +1707,7 @@ export default function ProfileView({
                               labelId='profile-tz-label'
                               label={t('user.profile.timezone', 'Timezone')}
                               IconComponent={ExpandMore}
-                              sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}
+                              sx={{ borderRadius: '12px' }}
                             >
                               {TIMEZONES.map((tz) => (
                                 <MenuItem key={tz.value} value={tz.value}>
@@ -1744,7 +1734,7 @@ export default function ProfileView({
                               labelId='profile-date-label'
                               label={t('user.profile.date_format', 'Date Format')}
                               IconComponent={ExpandMore}
-                              sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}
+                              sx={{ borderRadius: '12px' }}
                             >
                               {DATE_FORMATS.map((df) => (
                                 <MenuItem key={df.value} value={df.value}>
@@ -1763,7 +1753,7 @@ export default function ProfileView({
                 <Card
                   variant='outlined'
                   sx={{
-                    borderRadius: 'var(--sf-radius-lg, 12px)',
+                    borderRadius: '16px',
                     borderColor: 'divider',
                     backgroundColor: 'background.paper',
                     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
@@ -1846,7 +1836,7 @@ export default function ProfileView({
                       borderColor: 'divider',
                       color: 'text.primary',
                       fontWeight: 600,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      borderRadius: '10px',
                       px: 3,
                       py: 1,
                       textTransform: 'none',
@@ -1870,7 +1860,7 @@ export default function ProfileView({
                     }
                     sx={{
                       fontWeight: 600,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      borderRadius: '10px',
                       px: 3.5,
                       py: 1,
                       textTransform: 'none',
@@ -1904,7 +1894,7 @@ export default function ProfileView({
                         variant='outlined'
                         sx={{
                           p: 2.5,
-                          borderRadius: 'var(--sf-radius-lg, 12px)',
+                          borderRadius: '12px',
                           borderColor: 'divider',
                           backgroundColor: 'background.paper',
                           boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',
@@ -1954,7 +1944,7 @@ export default function ProfileView({
           <Card
             variant='outlined'
             sx={{
-              borderRadius: 'var(--sf-radius-lg, 12px)',
+              borderRadius: '16px',
               borderColor: 'divider',
               backgroundColor: 'background.paper',
               boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
@@ -1995,7 +1985,7 @@ export default function ProfileView({
                     <ListItemButton
                       onClick={action.onClick}
                       sx={{
-                        borderRadius: 'var(--sf-radius-lg, 12px)',
+                        borderRadius: '12px',
                         py: 1.25,
                         px: 1.5,
                         bgcolor: action.danger
@@ -2030,7 +2020,7 @@ export default function ProfileView({
                           sx={{
                             width: 36,
                             height: 36,
-                            borderRadius: 'var(--sf-radius-md, 8px)',
+                            borderRadius: '9px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -2090,7 +2080,7 @@ export default function ProfileView({
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: 'var(--sf-radius-lg, 12px)',
+            borderRadius: '16px',
             p: 1.5,
             backgroundColor: 'background.paper',
           },
@@ -2145,7 +2135,7 @@ export default function ProfileView({
                       ),
                     },
                   }}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                 />
               )}
             />
@@ -2181,7 +2171,7 @@ export default function ProfileView({
                       ),
                     },
                   }}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                 />
               )}
             />
@@ -2217,7 +2207,7 @@ export default function ProfileView({
                       ),
                     },
                   }}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                 />
               )}
             />
@@ -2231,7 +2221,7 @@ export default function ProfileView({
               }}
               variant='outlined'
               disabled={changePasswordMutation.isPending}
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 600 }}
+              sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
             >
               {t('user.profile.cancel', 'Cancel')}
             </Button>
@@ -2247,7 +2237,7 @@ export default function ProfileView({
                   <Check />
                 )
               }
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 600 }}
+              sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
             >
               {changePasswordMutation.isPending
                 ? t('user.profile.updating', 'Updating...')
@@ -2270,7 +2260,7 @@ export default function ProfileView({
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: 'var(--sf-radius-lg, 12px)',
+            borderRadius: '16px',
             p: 1.5,
             backgroundColor: 'background.paper',
           },
@@ -2288,7 +2278,7 @@ export default function ProfileView({
         >
           <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
             <Box
-              sx={{ p: 2, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 'var(--sf-radius-lg, 12px)' }}
+              sx={{ p: 2, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: '12px' }}
             >
               <Typography variant='caption' color='text.secondary' fontWeight={600} display='block'>
                 {t('user.profile.current_email', 'Current Email')}
@@ -2338,7 +2328,7 @@ export default function ProfileView({
                   placeholder='alex@company.com'
                   error={!!fieldState.error}
                   helperText={fieldState.error?.message}
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                 />
               )}
             />
@@ -2352,7 +2342,7 @@ export default function ProfileView({
               }}
               variant='outlined'
               disabled={requestEmailChangeMutation.isPending}
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 600 }}
+              sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
             >
               {t('user.profile.cancel', 'Cancel')}
             </Button>
@@ -2368,7 +2358,7 @@ export default function ProfileView({
                   <Send sx={{ fontSize: 16 }} />
                 )
               }
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 600 }}
+              sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
             >
               {requestEmailChangeMutation.isPending
                 ? t('user.profile.sending', 'Sending...')
@@ -2384,7 +2374,7 @@ export default function ProfileView({
         onClose={() => setUnsavedChangesDialogOpen(false)}
         PaperProps={{
           sx: {
-            borderRadius: 'var(--sf-radius-lg, 12px)',
+            borderRadius: '16px',
             p: 1,
             maxWidth: 420,
             backgroundColor: 'background.paper',
@@ -2417,7 +2407,7 @@ export default function ProfileView({
           <Button
             onClick={() => setUnsavedChangesDialogOpen(false)}
             variant='outlined'
-            sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 600 }}
+            sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
           >
             {t('user.profile.keep_editing', 'Keep Editing')}
           </Button>
@@ -2426,7 +2416,7 @@ export default function ProfileView({
             onClick={handleDiscardChanges}
             variant='contained'
             color='warning'
-            sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 600 }}
+            sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
           >
             {t('user.profile.discard_changes', 'Discard Changes')}
           </Button>
@@ -2441,7 +2431,7 @@ export default function ProfileView({
         aria-describedby='delete-account-dialog-description'
         PaperProps={{
           sx: {
-            borderRadius: 'var(--sf-radius-lg, 12px)',
+            borderRadius: '16px',
             p: 1,
             maxWidth: 440,
             backgroundColor: 'background.paper',
@@ -2478,7 +2468,7 @@ export default function ProfileView({
           <Button
             onClick={() => setDeleteDialogOpen(false)}
             variant='outlined'
-            sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 600 }}
+            sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
           >
             {t('user.profile.cancel', 'Cancel')}
           </Button>
@@ -2490,13 +2480,12 @@ export default function ProfileView({
             }}
             variant='contained'
             color='error'
-            sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 600, boxShadow: 'none' }}
+            sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600, boxShadow: 'none' }}
           >
             {t('user.profile.proceed_to_delete', 'Proceed to Delete')}
           </Button>
         </DialogActions>
       </Dialog>
     </Box>
-    </motion.div>
   )
 }

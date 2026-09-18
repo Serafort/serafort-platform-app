@@ -12,6 +12,7 @@ import {
   TableRow,
   Paper,
   Chip,
+  IconButton,
   Button,
   TextField,
   InputAdornment,
@@ -28,7 +29,6 @@ import {
   Menu,
   ListItemIcon,
   ListItemText,
-  Container,
 } from '@mui/material'
 import Search from '@mui/icons-material/Search'
 import MoreVert from '@mui/icons-material/MoreVert'
@@ -36,11 +36,11 @@ import Email from '@mui/icons-material/Email'
 import PersonAdd from '@mui/icons-material/PersonAdd'
 import Timer from '@mui/icons-material/Timer'
 import CheckCircle from '@mui/icons-material/CheckCircle'
+import Cancel from '@mui/icons-material/Cancel'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import Replay from '@mui/icons-material/Replay'
 import BlockOutlined from '@mui/icons-material/BlockOutlined'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Path } from '@cap/module-auth/routes/path'
@@ -52,10 +52,6 @@ import {
 import { toast } from 'react-toastify'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
-import {
-  AdminStatusBadge,
-  AdminRowActionButton,
-} from '@auth/authentication-core/components/shared/admin'
 
 interface Invitation {
   id: string | number
@@ -139,7 +135,21 @@ export default function OrganizationInvitationDashboard() {
       case 'revoked':
         return 'error'
       default:
-        return 'neutral'
+        return 'default'
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'accepted':
+        return <CheckCircle sx={{ fontSize: 14 }} />
+      case 'pending':
+        return <Timer sx={{ fontSize: 14 }} />
+      case 'expired':
+      case 'revoked':
+        return <Cancel sx={{ fontSize: 14 }} />
+      default:
+        return undefined
     }
   }
 
@@ -159,166 +169,117 @@ export default function OrganizationInvitationDashboard() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-    >
-      <Container maxWidth='xl' sx={{ py: 4 }}>
-        {/* Navigation & Back Action */}
-        <Box sx={{ mb: 3 }}>
-          <Button
-            startIcon={<ArrowBack />}
-            onClick={() => navigate(Path.admin.organizationProfile.replace(':id', id))}
-            sx={{
-              minHeight: 44,
-              px: 2,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              textTransform: 'none',
-              fontWeight: 600,
-              color: 'text.secondary',
-              '&:hover': {
-                color: 'text.primary',
-                bgcolor: 'action.hover',
-              },
-            }}
-          >
-            {t('auth.admin.backToProfile')}
-          </Button>
-        </Box>
-
-        {/* Header */}
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', sm: 'center' },
-            flexDirection: { xs: 'column', sm: 'row' },
-            gap: 2.5,
-            mb: 4,
-          }}
+    <Box className='animate-scale-in' sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate(Path.admin.organizationProfile.replace(':id', id))}
+          sx={{ mb: 2, color: 'text.secondary', textTransform: 'none', fontWeight: 600 }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-            <Box
-              sx={{
-                width: 64,
-                height: 64,
-                borderRadius: 'var(--sf-radius-lg, 24px)',
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                color: 'primary.main',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <PersonAdd sx={{ fontSize: 32 }} />
-            </Box>
-            <Box>
-              <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.02em', mb: 0.5 }}>
-                {t('auth.admin.memberInvitations')}
-              </Typography>
-              <Typography variant='body2' color='text.secondary'>
-                {t('auth.admin.memberInvitationsSubtitle')}
-              </Typography>
-            </Box>
+          {t('auth.admin.backToProfile')}
+        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box>
+            <Typography variant='h4' sx={{ fontWeight: 900, mb: 1 }}>
+              {t('auth.admin.memberInvitations')}
+            </Typography>
+            <Typography variant='body1' color='text.secondary'>
+              {t('auth.admin.memberInvitationsSubtitle')}
+            </Typography>
           </Box>
+          {/* â”€â”€ SYSTEM PATTERN: cta_button (info.main variant) â”€â”€ */}
           <Button
             variant='contained'
             startIcon={<PersonAdd />}
             onClick={() => setInviteModalOpen(true)}
             sx={{
-              minHeight: 48,
               px: 3,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              py: 1.2,
+              borderRadius: 2,
               fontWeight: 700,
               textTransform: 'none',
-              boxShadow: 'none',
+              bgcolor: 'info.main',
+              color: 'info.contrastText',
+              boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.2)',
+              '&:hover': { bgcolor: 'info.dark' },
             }}
           >
             {t('auth.admin.inviteNewMember')}
           </Button>
         </Box>
+      </Box>
 
-        {/* Stats */}
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: 2.5,
-            mb: 4,
-          }}
-        >
-          {[
-            {
-              label: t('auth.admin.totalSent'),
-              count: totalSent,
-              icon: <Email />,
-              color: theme.palette.primary.main,
-            },
-            {
-              label: t('auth.admin.pendingAcceptance'),
-              count: pending,
-              icon: <Timer />,
-              color: theme.palette.warning.main,
-            },
-            {
-              label: t('auth.admin.acceptanceRate'),
-              count: acceptanceRate,
-              icon: <CheckCircle />,
-              color: theme.palette.success.main,
-            },
-          ].map((stat, i) => (
-            <Card
-              key={i}
-              variant='outlined'
-              sx={(theme: any) => ({
-                borderRadius: 'var(--sf-radius-lg, 16px)',
-                borderColor: theme.palette.divider,
-                ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-              })}
-            >
-              <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2.5, p: 2.5 }}>
-                <Avatar
-                  sx={{
-                    bgcolor: alpha(stat.color, 0.1),
-                    color: stat.color,
-                    width: 48,
-                    height: 48,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
-                  }}
-                >
-                  {stat.icon}
-                </Avatar>
-                <Box>
-                  <Typography
-                    variant='caption'
-                    color='text.secondary'
-                    sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}
-                  >
-                    {stat.label}
-                  </Typography>
-                  <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.02em', mt: 0.25 }}>
-                    {stat.count}
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
+      {/* Stats */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: 2,
+          mb: 4,
+        }}
+      >
+        {[
+          {
+            label: t('auth.admin.totalSent'),
+            count: totalSent,
+            icon: <Email />,
+            color: theme.palette.primary.main,
+          },
+          {
+            label: t('auth.admin.pendingAcceptance'),
+            count: pending,
+            icon: <Timer />,
+            color: theme.palette.warning.main,
+          },
+          {
+            label: t('auth.admin.acceptanceRate'),
+            count: acceptanceRate,
+            icon: <CheckCircle />,
+            color: theme.palette.success.main,
+          },
+        ].map((stat, i) => (
+          <Card
+            key={i}
+            sx={(theme: any) => ({
+              borderRadius: 3,
+              border: '1px solid ' + theme.palette.divider,
+              ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+            })}
+          >
+            {/* ── SYSTEM PATTERN: metric_card (OrganizationProfile style) ── */}
+            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Avatar
+                sx={{ bgcolor: alpha(stat.color, 0.1), color: stat.color, width: 44, height: 44 }}
+              >
+                {stat.icon}
+              </Avatar>
+              <Box>
+                <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 700 }}>
+                  {stat.label}
+                </Typography>
+                <Typography variant='h5' sx={{ fontWeight: 800 }}>
+                  {stat.count}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
 
-        {/* Table */}
-        <Paper
+      {/* Table */}
+      <Paper
         sx={(theme: any) => ({
-          borderRadius: 'var(--sf-radius-lg, 16px)',
+          borderRadius: 4,
           border: '1px solid ' + theme.palette.divider,
           overflow: 'hidden',
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
         })}
       >
         <Box
-          sx={{ p: 2.5, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', gap: 2 }}
+          sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', gap: 2 }}
         >
+          {/* â”€â”€ SYSTEM PATTERN: text_field (InputProps -> slotProps.input) â”€â”€ */}
           <TextField
             fullWidth
             placeholder={t('auth.common.searchUsers')}
@@ -334,78 +295,19 @@ export default function OrganizationInvitationDashboard() {
                 ),
               },
             }}
-            sx={{
-              maxWidth: 400,
-              '& .MuiOutlinedInput-root': {
-                minHeight: 44,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-              },
-            }}
+            sx={{ maxWidth: 400 }}
           />
         </Box>
         <TableContainer>
           <Table>
-            <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.4) }}>
+            <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.5) }}>
               <TableRow>
-                <TableCell
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {t('auth.admin.invitedEmail')}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {t('auth.admin.assignedRole')}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {t('auth.common.status')}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {t('auth.admin.sentDate')}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {t('auth.admin.expiresAt')}
-                </TableCell>
-                <TableCell
-                  align='right'
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
+                <TableCell sx={{ fontWeight: 700 }}>{t('auth.admin.invitedEmail')}</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>{t('auth.admin.assignedRole')}</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>{t('auth.common.status')}</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>{t('auth.admin.sentDate')}</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>{t('auth.admin.expiresAt')}</TableCell>
+                <TableCell align='right' sx={{ fontWeight: 700 }}>
                   {t('auth.common.actions')}
                 </TableCell>
               </TableRow>
@@ -413,62 +315,65 @@ export default function OrganizationInvitationDashboard() {
             <TableBody>
               {filteredInvitations.map((invite) => (
                 <TableRow key={invite.id} hover>
-                  <TableCell sx={{ py: 1.75 }}>
+                  <TableCell>
                     <Typography variant='body2' sx={{ fontWeight: 600 }}>
                       {invite.email}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ py: 1.75 }}>
+                  <TableCell>
                     <Chip
                       label={invite.role}
                       size='small'
                       variant='outlined'
-                      sx={{ fontWeight: 700, textTransform: 'capitalize', borderRadius: 'var(--sf-radius-xs, 4px)' }}
+                      sx={{ fontWeight: 700, textTransform: 'capitalize' }}
                     />
                   </TableCell>
-                  <TableCell sx={{ py: 1.75 }}>
-                    <AdminStatusBadge
-                      tone={getStatusColor(invite.status)}
+                  <TableCell>
+                    <Chip
+                      icon={getStatusIcon(invite.status)}
                       label={getStatusLabel(invite.status)}
-                      sx={{ textTransform: 'capitalize' }}
+                      size='small'
+                      color={getStatusColor(invite.status) as any}
+                      variant='filled'
+                      sx={{ fontWeight: 800, px: 0.5, textTransform: 'capitalize' }}
                     />
                   </TableCell>
-                  <TableCell sx={{ py: 1.75 }}>
+                  <TableCell>
                     <Typography variant='body2' color='text.secondary'>
                       {invite.created_at || (invite as any).createdAt
                         ? new Date(
                             invite.created_at || (invite as any).createdAt!,
                           ).toLocaleDateString()
-                        : '—'}
+                        : 'â€”'}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ py: 1.75 }}>
+                  <TableCell>
                     <Typography variant='body2' color='text.secondary'>
                       {invite.expires_at || (invite as any).expiresAt
                         ? new Date(
                             invite.expires_at || (invite as any).expiresAt!,
                           ).toLocaleDateString()
-                        : '—'}
+                        : 'â€”'}
                     </Typography>
                   </TableCell>
-                  <TableCell align='right' sx={{ py: 1.75 }}>
+                  <TableCell align='right'>
                     <Tooltip title={t('auth.admin.invitationSettings')}>
-                      <AdminRowActionButton
-                        aria-label={t('auth.admin.invitationSettings')}
+                      <IconButton
+                        size='small'
                         onClick={(e) => {
                           setMenuAnchor(e.currentTarget)
                           setMenuInvite(invite)
                         }}
                       >
-                        <MoreVert fontSize='small' />
-                      </AdminRowActionButton>
+                        <MoreVert />
+                      </IconButton>
                     </Tooltip>
                   </TableCell>
                 </TableRow>
               ))}
               {filteredInvitations.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} sx={{ textAlign: 'center', py: 6 }}>
+                  <TableCell colSpan={6} sx={{ textAlign: 'center', py: 4 }}>
                     <Typography variant='body2' color='text.secondary'>
                       {isLoading ? t('auth.common.loading') : t('auth.admin.noInvitationsFound')}
                     </Typography>
@@ -490,7 +395,7 @@ export default function OrganizationInvitationDashboard() {
         slotProps={{
           paper: {
             sx: (theme: any) => ({
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 3,
               minWidth: 200,
               ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
             }),
@@ -568,34 +473,25 @@ export default function OrganizationInvitationDashboard() {
         onClose={() => setInviteModalOpen(false)}
         fullWidth
         maxWidth='xs'
-        slotProps={{
-          paper: {
-            sx: (theme: any) => ({
-              borderRadius: 'var(--sf-radius-lg, 16px)',
-              p: 1,
-              ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-            }),
-          },
+        PaperProps={{
+          sx: (theme: any) => ({
+            borderRadius: 4,
+            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+          }),
         }}
       >
-        <DialogTitle sx={{ fontWeight: 800, fontSize: '1.25rem' }}>{t('auth.admin.inviteMemberModalTitle')}</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 800 }}>{t('auth.admin.inviteMemberModalTitle')}</DialogTitle>
         <DialogContent>
           <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
             {t('auth.admin.inviteMemberModalSubtitle')}
           </Typography>
-          <Stack spacing={2.5}>
+          <Stack spacing={3}>
             <TextField
               fullWidth
               label={t('auth.common.email')}
               placeholder={t('auth.admin.emailPlaceholder')}
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  minHeight: 44,
-                  borderRadius: 'var(--sf-radius-md, 8px)',
-                },
-              }}
             />
             <TextField
               select
@@ -603,12 +499,6 @@ export default function OrganizationInvitationDashboard() {
               label={t('auth.admin.assignedRole')}
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value)}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  minHeight: 44,
-                  borderRadius: 'var(--sf-radius-md, 8px)',
-                },
-              }}
             >
               <MenuItem value='Admin'>{t('auth.common.admin')}</MenuItem>
               <MenuItem value='Member'>{t('auth.common.member')}</MenuItem>
@@ -616,17 +506,10 @@ export default function OrganizationInvitationDashboard() {
             </TextField>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5, gap: 1 }}>
+        <DialogActions sx={{ p: 3, pt: 0 }}>
           <Button
             onClick={() => setInviteModalOpen(false)}
-            sx={{
-              minHeight: 44,
-              px: 2.5,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              textTransform: 'none',
-              fontWeight: 600,
-              color: 'text.secondary',
-            }}
+            sx={{ textTransform: 'none', fontWeight: 600 }}
           >
             {t('auth.common.cancel')}
           </Button>
@@ -635,19 +518,20 @@ export default function OrganizationInvitationDashboard() {
             onClick={handleInvite}
             disabled={inviteMutation.isPending || !inviteEmail.trim()}
             sx={{
-              minHeight: 44,
-              px: 3,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               fontWeight: 700,
               textTransform: 'none',
-              boxShadow: 'none',
+              px: 3,
+              bgcolor: 'info.main',
+              color: 'info.contrastText',
+              boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.2)',
+              '&:hover': { bgcolor: 'info.dark' },
             }}
           >
             {t('auth.admin.sendInvitation')}
           </Button>
         </DialogActions>
       </Dialog>
-      </Container>
-    </motion.div>
+    </Box>
   )
 }

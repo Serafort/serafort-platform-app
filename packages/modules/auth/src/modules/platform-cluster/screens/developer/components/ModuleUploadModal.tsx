@@ -174,7 +174,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 'var(--sf-radius-lg, 12px)',
+          borderRadius: 4,
           bgcolor: 'background.paper',
           backgroundImage: 'none',
           border: '1px solid',
@@ -198,7 +198,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
             sx={{
               width: 40,
               height: 40,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               bgcolor: alpha(theme.palette.primary.main, 0.1),
               color: 'primary.main',
               display: 'flex',
@@ -224,7 +224,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
 
       <DialogContent sx={{ p: 3 }}>
         {errorMessage && (
-          <Alert severity='error' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)' }}>
+          <Alert severity='error' sx={{ mb: 3, borderRadius: 2 }}>
             {errorMessage}
           </Alert>
         )}
@@ -242,7 +242,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
             sx={{
               p: 5,
               textAlign: 'center',
-              borderRadius: 'var(--sf-radius-lg, 12px)',
+              borderRadius: 3,
               border: '2px dashed',
               borderColor: isDragOver ? 'primary.main' : selectedFile ? 'success.main' : 'divider',
               bgcolor: isDragOver
@@ -357,7 +357,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
 
             {/* Status Alert */}
             {activeJob.currentStage === 'COMPLETE' && (
-              <Alert severity='success' icon={<CheckCircleIcon />} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+              <Alert severity='success' icon={<CheckCircleIcon />} sx={{ borderRadius: 2 }}>
                 Module <strong>"{activeJob.moduleId}"</strong> has been successfully validated,
                 tested, and auto-registered!
               </Alert>
@@ -368,7 +368,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
               sx={{
                 bgcolor: '#0d1117',
                 color: '#c9d1d9',
-                borderRadius: 'var(--sf-radius-lg, 12px)',
+                borderRadius: 3,
                 border: '1px solid',
                 borderColor: '#30363d',
                 overflow: 'hidden',
@@ -448,7 +448,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
               onClick={handleClose}
               variant='outlined'
               color='inherit'
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
+              sx={{ borderRadius: 2 }}
             >
               Cancel
             </Button>
@@ -457,7 +457,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
               variant='contained'
               disabled={!selectedFile || isUploading}
               startIcon={isUploading ? <CircularProgress size={18} /> : <CloudUploadIcon />}
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', px: 3, fontWeight: 700 }}
+              sx={{ borderRadius: 2, px: 3, fontWeight: 700 }}
             >
               Start Pipeline & Register
             </Button>
@@ -468,7 +468,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
               onClick={handleReset}
               variant='outlined'
               disabled={isUploading}
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
+              sx={{ borderRadius: 2 }}
             >
               Upload Another Package
             </Button>
@@ -476,7 +476,7 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
               onClick={handleClose}
               variant='contained'
               disabled={isUploading}
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', px: 3, fontWeight: 700 }}
+              sx={{ borderRadius: 2, px: 3, fontWeight: 700 }}
             >
               Done
             </Button>

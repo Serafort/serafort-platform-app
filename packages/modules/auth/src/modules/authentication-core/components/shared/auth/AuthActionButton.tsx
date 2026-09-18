@@ -76,7 +76,7 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
       {...props}
       sx={{
         height: 48,
-        borderRadius: 'var(--sf-radius-lg, 12px)',
+        borderRadius: '12px',
         fontWeight: 700,
         fontSize: '0.9375rem',
         textTransform: 'none',

@@ -100,11 +100,9 @@ export const userDirectoryRouteConfig: Array<AuthRouteConfig> = [
   // the point of use rather than relying on the route guard alone. ---
   createAuthRoute(Path.settings.privacy, <PrivacyCenter />, {
     requiresVerification: true,
-    layout: 'admin',
   }),
   createAuthRoute(Path.settings.erasure, <ErasureConfirmation />, {
     requiresVerification: true,
-    layout: 'admin',
   }),
 
   createAuthRoute(Path.profile.view, <Profile />, { requiresVerification: true, layout: 'admin' }),

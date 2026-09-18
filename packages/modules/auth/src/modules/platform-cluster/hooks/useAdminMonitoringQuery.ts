@@ -10,6 +10,7 @@ import adminMonitoringService, {
   EmailPreviewResult,
   SendTestEmailPayload,
   AuditLogExportRequest,
+  AuditLogExportResponse,
 } from '../services/admin-monitoring.service'
 
 export const ADMIN_MONITORING_KEYS = {
@@ -74,8 +75,9 @@ export function useAdminMfaStatsQuery() {
 export function useAdminAuditLogsQuery(params?: {
   page?: number
   limit?: number
+  actor?: string
   action?: string
-  userId?: string | number
+  severity?: string
   startDate?: string
   endDate?: string
 }) {
@@ -92,15 +94,12 @@ export function useAdminAuditLogsQuery(params?: {
           limit: params?.limit ?? 50,
         }
       }
-      // Real shape from AuditLog.query().paginate(): { data, meta: { total,
-      // currentPage, perPage, ... } } — the meta is nested, not flat.
       if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
-        const meta = 'meta' in data ? (data as { meta?: Partial<import('../services/admin-monitoring.service').PaginationMeta> }).meta : undefined
         return {
           logs: data.data,
-          total: meta?.total ?? data.data.length,
-          page: meta?.currentPage ?? params?.page ?? 1,
-          limit: meta?.perPage ?? params?.limit ?? 50,
+          total: data.total ?? data.data.length,
+          page: data.page ?? params?.page ?? 1,
+          limit: data.limit ?? params?.limit ?? 50,
         }
       }
       return {

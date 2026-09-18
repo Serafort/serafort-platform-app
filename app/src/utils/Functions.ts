@@ -10,6 +10,16 @@ interface Member {
   [key: string]: any
 }
 
+// interface ZoneRow {
+//   DEPARTEMENT: string
+//   CODE_DEP: string
+//   CODE_POSTAL: string
+//   ARRONDISSEMENT: string
+//   CODE_ARR: string
+//   COMMUNE: string
+//   LOCALITE: string
+// }
+
 type Localite = string
 
 interface Commune {
@@ -60,152 +70,69 @@ export function converTimestampToDate(date: Timestamp): Date {
   return new Date(date.seconds * 1000)
 }
 
-/**
- * Optimized version of getDepartements:
- * Reduces complexity from O(N^2) to O(N) by grouping data using Hash Maps first
- * and then building the nested data structure, preserving the exact original logic.
- */
 export function getDepartements(): Departement[] {
   if (!zone) return []
 
   const zoneData = zone as unknown as ZoneRow[]
 
-  // Build indexes for O(1) lookups instead of O(N) filters
-  const byCodeDep = new Map<string, ZoneRow[]>()
-  const byCodeArr = new Map<string, ZoneRow[]>()
-  const byCommune = new Map<string, ZoneRow[]>()
+  const departements = zoneData
+    .map((el: ZoneRow) => el.DEPARTEMENT)
+    .filter(
+      (value: string, index: number, self: string[]) =>
+        value !== 'NULL' && value != null && self.indexOf(value) === index,
+    )
+    .map((el: string) => (typeof el === 'string' ? el.trim() : el))
+    .map((dept: string) => {
+      const row = zoneData.find((value: ZoneRow) => value.DEPARTEMENT === dept)
+      if (!row) return null
 
-  for (let i = 0; i < zoneData.length; i++) {
-    const row = zoneData[i]
-    if (row.CODE_DEP) {
-      let arr = byCodeDep.get(row.CODE_DEP)
-      if (!arr) {
-        arr = []
-        byCodeDep.set(row.CODE_DEP, arr)
-      }
-      arr.push(row)
-    }
-    if (row.CODE_ARR) {
-      let arr = byCodeArr.get(row.CODE_ARR)
-      if (!arr) {
-        arr = []
-        byCodeArr.set(row.CODE_ARR, arr)
-      }
-      arr.push(row)
-    }
-    if (row.COMMUNE) {
-      let arr = byCommune.get(row.COMMUNE)
-      if (!arr) {
-        arr = []
-        byCommune.set(row.COMMUNE, arr)
-      }
-      arr.push(row)
-    }
-  }
+      const arrondissements: Arrondissement[] = zoneData
+        .filter((value: ZoneRow) => value.CODE_DEP === row.CODE_DEP)
+        .reduce((acc: Arrondissement[], zoneRow: ZoneRow) => {
+          const arr = zoneRow.ARRONDISSEMENT
+          if (arr && arr !== 'NULL' && !acc.some((a) => a.arrondissement === arr)) {
+            const communes: Commune[] = zoneData
+              .filter((r: ZoneRow) => r.CODE_ARR === zoneRow.CODE_ARR)
+              .reduce((commAcc: Commune[], commRow: ZoneRow) => {
+                const comm = commRow.COMMUNE
+                if (comm && comm !== 'NULL' && !commAcc.some((c) => c.commune === comm)) {
+                  const localites: Localite[] = zoneData
+                    .filter((r: ZoneRow) => r.COMMUNE === comm)
+                    .map((r: ZoneRow) => r.LOCALITE)
+                    .filter(
+                      (l: string, i: number, self: string[]) =>
+                        l && l !== 'NULL' && self.indexOf(l) === i,
+                    )
+                    .map((l: string) => (typeof l === 'string' ? l.trim() : l))
 
-  // 1. Departements
-  const deptRawNames: string[] = []
-  const seenDepts = new Set<string>()
+                  commAcc.push({
+                    codePostal: commRow.CODE_POSTAL,
+                    commune: typeof comm === 'string' ? comm.trim() : comm,
+                    localite: localites,
+                  })
+                }
+                return commAcc
+              }, [])
 
-  for (let i = 0; i < zoneData.length; i++) {
-    const d = zoneData[i].DEPARTEMENT
-    if (d !== 'NULL' && d != null && !seenDepts.has(d)) {
-      seenDepts.add(d)
-      deptRawNames.push(d)
-    }
-  }
-
-  const result: Departement[] = []
-
-  for (let i = 0; i < deptRawNames.length; i++) {
-    const rawDept = deptRawNames[i]
-    const trimmedDept = typeof rawDept === 'string' ? rawDept.trim() : rawDept
-
-    // Original: find first row matching trimmed dept
-    let row: ZoneRow | undefined
-    for (let j = 0; j < zoneData.length; j++) {
-      if (zoneData[j].DEPARTEMENT === trimmedDept) {
-        row = zoneData[j]
-        break
-      }
-    }
-    if (!row) continue
-
-    // 2. Arrondissements
-    const arrondissements: Arrondissement[] = []
-    const arrRows = byCodeDep.get(row.CODE_DEP) || []
-
-    for (let j = 0; j < arrRows.length; j++) {
-      const zoneRow = arrRows[j]
-      const arrName = zoneRow.ARRONDISSEMENT
-
-      // Keep exact duplicate buggy behaviour of original implementation for backward compatibility
-      let hasArr = false
-      for (let x = 0; x < arrondissements.length; x++) {
-        if (arrondissements[x].arrondissement === arrName) {
-          hasArr = true
-          break
-        }
-      }
-
-      if (arrName && arrName !== 'NULL' && !hasArr) {
-        // 3. Communes
-        const communes: Commune[] = []
-        const commRows = byCodeArr.get(zoneRow.CODE_ARR) || []
-
-        for (let k = 0; k < commRows.length; k++) {
-          const commRow = commRows[k]
-          const commName = commRow.COMMUNE
-
-          let hasComm = false
-          for (let y = 0; y < communes.length; y++) {
-            if (communes[y].commune === commName) {
-              hasComm = true
-              break
-            }
-          }
-
-          if (commName && commName !== 'NULL' && !hasComm) {
-            // 4. Localites
-            const locRows = byCommune.get(commName) || []
-            const localiteRawNames: string[] = []
-            const seenLocs = new Set<string>()
-
-            for (let l = 0; l < locRows.length; l++) {
-              const loc = locRows[l].LOCALITE
-              if (loc && loc !== 'NULL' && !seenLocs.has(loc)) {
-                seenLocs.add(loc)
-                localiteRawNames.push(loc)
-              }
-            }
-
-            const localites = localiteRawNames.map((l) => (typeof l === 'string' ? l.trim() : l))
-
-            communes.push({
-              codePostal: commRow.CODE_POSTAL,
-              commune: typeof commName === 'string' ? commName.trim() : commName,
-              localite: localites,
+            acc.push({
+              codeDep: zoneRow.CODE_DEP,
+              code: zoneRow.CODE_ARR,
+              codePostal: zoneRow.CODE_POSTAL,
+              arrondissement: typeof arr === 'string' ? arr.trim() : arr,
+              commune: communes,
             })
           }
-        }
+          return acc
+        }, [])
 
-        arrondissements.push({
-          codeDep: zoneRow.CODE_DEP,
-          code: zoneRow.CODE_ARR,
-          codePostal: zoneRow.CODE_POSTAL,
-          arrondissement: typeof arrName === 'string' ? arrName.trim() : arrName,
-          commune: communes,
-        })
+      return {
+        code: row.CODE_DEP,
+        codePostal: row.CODE_POSTAL,
+        departement: typeof dept === 'string' ? dept.trim() : dept,
+        arrondissement: arrondissements,
       }
-    }
-
-    result.push({
-      code: row.CODE_DEP,
-      codePostal: row.CODE_POSTAL,
-      departement: trimmedDept,
-      arrondissement: arrondissements,
     })
-  }
+    .filter((dept): dept is Departement => dept !== null)
 
-  return result
+  return departements
 }

@@ -1,14 +1,7 @@
 import React from "react";
-import { useTranslation, Trans } from "react-i18next";
 import { Box, TextField, Typography, useTheme } from "@mui/material";
 import { directionalRadius } from "@cap/theme";
 import { PanelHeader, SectionLabel, useSurfaceSx } from "./studioUi";
-
-const MonoCode: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
-  <Box component="code" sx={{ fontFamily: "monospace" }}>
-    {children}
-  </Box>
-);
 
 interface SpacingEditorProps {
   spacing: Record<string, string>;
@@ -105,12 +98,8 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
   onBorderStyleChange,
   onSemanticBordersChange,
 }) => {
-  const { t } = useTranslation();
   const theme = useTheme();
   const surface = useSurfaceSx();
-
-  const rowLabel = (group: string, key: string, fallback: string) =>
-    t(`theme.spacing.${group}.${key}`, fallback);
 
   const patch =
     (
@@ -191,22 +180,17 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
   return (
     <Box>
       <PanelHeader
-        title={t("theme.spacing.title", "Spacing, radius & elevation")}
-        description={t(
-          "theme.spacing.description",
-          "The scale everything else is built from. Any CSS length works — 8px, 1rem, 0.5em.",
-        )}
+        title="Spacing, radius & elevation"
+        description="The scale everything else is built from. Any CSS length works — 8px, 1rem, 0.5em."
       />
 
       <Box sx={{ mb: 7 }}>
-        <SectionLabel>
-          {t("theme.spacing.scale_label", "Spacing scale")}
-        </SectionLabel>
+        <SectionLabel>Spacing scale</SectionLabel>
         <Box sx={{ ...surface, overflow: "hidden" }}>
           {Object.entries(spacingLabels).map(([key, label], index) => (
             <TokenRow
               key={key}
-              label={rowLabel("scale", key, label)}
+              label={label}
               value={spacing[key] || ""}
               placeholder="1rem"
               onValueChange={(value) => handleSpacingChange(key, value)}
@@ -218,24 +202,22 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
 
       {onFluidSpacingChange && (
         <Box sx={{ mb: 7 }}>
-          <SectionLabel>
-            {t("theme.spacing.fluid_label", "Fluid spacing")}
-          </SectionLabel>
+          <SectionLabel>Fluid spacing</SectionLabel>
           <Typography
             variant="caption"
             sx={{ display: "block", color: "text.secondary", mb: 1.5 }}
           >
-            <Trans
-              i18nKey="theme.spacing.fluid_desc"
-              defaults="Viewport-responsive. Use a <code>clamp(min, preferred, max)</code> so layout tightens on small screens and opens up on large ones."
-              components={{ code: <MonoCode /> }}
-            />
+            Viewport-responsive. Use a{" "}
+            <Box component="code" sx={{ fontFamily: "monospace" }}>
+              clamp(min, preferred, max)
+            </Box>{" "}
+            so layout tightens on small screens and opens up on large ones.
           </Typography>
           <Box sx={{ ...surface, overflow: "hidden" }}>
             {Object.entries(fluidSpacingLabels).map(([key, label], index) => (
               <TokenRow
                 key={key}
-                label={rowLabel("fluid", key, label)}
+                label={label}
                 value={(fluidSpacing ?? {})[key] || ""}
                 placeholder="clamp(1rem, 0.6rem + 2vw, 2.5rem)"
                 onValueChange={(value) => handleFluidChange(key, value)}
@@ -250,14 +232,12 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
       <Box
         sx={{ mb: onBorderWidthChange || onShadowsChange ? 7 : 0 }}
       >
-        <SectionLabel>
-          {t("theme.spacing.radius_label", "Corner radius")}
-        </SectionLabel>
+        <SectionLabel>Corner radius</SectionLabel>
         <Box sx={{ ...surface, overflow: "hidden" }}>
           {Object.entries(borderRadiusLabels).map(([key, label], index) => (
             <TokenRow
               key={key}
-              label={rowLabel("radius", key, label)}
+              label={label}
               value={borderRadius[key] || ""}
               placeholder="8px"
               onValueChange={(value) => handleBorderRadiusChange(key, value)}
@@ -293,7 +273,7 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
           }}
         >
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
-            {t("theme.spacing.grouped_controls", "Grouped controls")}
+            Grouped controls
           </Typography>
           <Box sx={{ display: "flex" }} aria-hidden>
             {["a", "b", "c"].map((seg, i) => (
@@ -325,24 +305,26 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
 
       {onBorderWidthChange && (
         <Box sx={{ mb: onShadowsChange ? 7 : 0 }}>
-          <SectionLabel>
-            {t("theme.spacing.borders_label", "Borders")}
-          </SectionLabel>
+          <SectionLabel>Borders</SectionLabel>
           <Typography
             variant="caption"
             sx={{ display: "block", color: "text.secondary", mb: 1.5 }}
           >
-            <Trans
-              i18nKey="theme.spacing.borders_desc"
-              defaults="Line weight and style for every container edge. Any CSS <code>border-width</code> or <code2>border-style</code2> works."
-              components={{ code: <MonoCode />, code2: <MonoCode /> }}
-            />
+            Line weight and style for every container edge. Any CSS{" "}
+            <Box component="code" sx={{ fontFamily: "monospace" }}>
+              border-width
+            </Box>{" "}
+            or{" "}
+            <Box component="code" sx={{ fontFamily: "monospace" }}>
+              border-style
+            </Box>{" "}
+            works.
           </Typography>
           <Box sx={{ ...surface, overflow: "hidden" }}>
             {Object.entries(borderWidthLabels).map(([key, label], index) => (
               <TokenRow
                 key={`w-${key}`}
-                label={rowLabel("borderwidth", key, label)}
+                label={label}
                 value={(borderWidth ?? {})[key] || ""}
                 placeholder="1px"
                 onValueChange={(value) => handleBorderWidthChange(key, value)}
@@ -367,7 +349,7 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
               Object.entries(borderStyleLabels).map(([key, label]) => (
                 <TokenRow
                   key={`s-${key}`}
-                  label={rowLabel("borderstyle", key, label)}
+                  label={label}
                   value={(borderStyle ?? {})[key] || ""}
                   placeholder="solid"
                   onValueChange={(value) => handleBorderStyleChange(key, value)}
@@ -396,16 +378,14 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
                 variant="caption"
                 sx={{ display: "block", color: "text.secondary", mt: 3, mb: 1.5 }}
               >
-                {t(
-                  "theme.spacing.border_roles_desc",
-                  "The colour a border takes by role — a barely-there row divider through to the brand-coloured focus ring. Any CSS colour works.",
-                )}
+                The colour a border takes by role — a barely-there row divider
+                through to the brand-coloured focus ring. Any CSS colour works.
               </Typography>
               <Box sx={{ ...surface, overflow: "hidden" }}>
                 {Object.entries(borderRoleLabels).map(([key, label], index) => (
                   <TokenRow
                     key={`role-${key}`}
-                    label={rowLabel("borderrole", key, label)}
+                    label={label}
                     value={(semanticBorders ?? {})[key] || ""}
                     placeholder="rgba(3, 20, 51, 0.12)"
                     onValueChange={(value) => handleBorderRoleChange(key, value)}
@@ -436,24 +416,22 @@ export const SpacingEditor: React.FC<SpacingEditorProps> = ({
 
       {onShadowsChange && (
         <Box>
-          <SectionLabel>
-            {t("theme.spacing.elevation_label", "Elevation")}
-          </SectionLabel>
+          <SectionLabel>Elevation</SectionLabel>
           <Typography
             variant="caption"
             sx={{ display: "block", color: "text.secondary", mb: 1.5 }}
           >
-            <Trans
-              i18nKey="theme.spacing.elevation_desc"
-              defaults="The five shadow steps surfaces use for depth. Any <code>box-shadow</code> value works."
-              components={{ code: <MonoCode /> }}
-            />
+            The five shadow steps surfaces use for depth. Any{" "}
+            <Box component="code" sx={{ fontFamily: "monospace" }}>
+              box-shadow
+            </Box>{" "}
+            value works.
           </Typography>
           <Box sx={{ ...surface, overflow: "hidden" }}>
             {Object.entries(shadowLabels).map(([key, label], index) => (
               <TokenRow
                 key={key}
-                label={rowLabel("shadow", key, label)}
+                label={label}
                 value={(shadows ?? {})[key] || ""}
                 placeholder="0px 4px 18px rgba(0,0,0,0.16)"
                 onValueChange={(value) => handleShadowChange(key, value)}

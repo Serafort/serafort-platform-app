@@ -68,8 +68,8 @@ export const platformClusterRouteConfig: AuthRouteConfig[] = [
   createAdminRoute(Path.monitor.mfa_analytics, <MFAUsageAnalytics />),
   createAdminRoute(Path.monitor.real_time, <RealTimeAuthEventsMonitor />),
   createAdminRoute(Path.monitor.real_time_v2, <RealTimeAuthEventsMonitorV2 />),
-  createAdminRoute(Path.monitor.health, <SystemHealthDashboard />),
-  createAdminRoute(Path.monitor.security_health, <SecurityHealthCheck />),
+  createAdminRoute(Path.monitor.health, <SecurityHealthCheck />),
+  createAdminRoute(Path.monitor.security_health, <SystemHealthDashboard />),
 
   // Audit-chain, anchor and queue views are platform-scoped on the backend: an
   // organization admin reaching them gets a 403 the screens render as an

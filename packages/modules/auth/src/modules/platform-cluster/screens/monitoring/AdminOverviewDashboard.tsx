@@ -26,9 +26,6 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { buildLayoutSurfaceEffect } from '@cap/layout'
-import { getTenantThemeEffects } from '@cap/theme'
 import { useAdminDashboard } from '@idaas/authentication-core/hooks/useAdminQuery'
 import { Path } from '@cap/module-auth/routes/path'
 
@@ -58,7 +55,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, href, on
         border: '1px solid',
         borderColor: 'divider',
         boxShadow: 'none',
-        borderRadius: 'var(--sf-radius-lg, 12px)',
+        borderRadius: 4,
         cursor: href || onClick ? 'pointer' : 'default',
         transition: 'transform 0.15s ease, box-shadow 0.15s ease',
         '&:hover':
@@ -75,7 +72,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, href, on
           sx={{
             width: 52,
             height: 52,
-            borderRadius: 'var(--sf-radius-lg, 12px)',
+            borderRadius: '14px',
             bgcolor: alpha(theme.palette[color].main, 0.1),
             color: `${color}.main`,
           }}
@@ -97,7 +94,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, href, on
           >
             {label}
           </Typography>
-          <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+          <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
             {value}
           </Typography>
         </Box>
@@ -155,7 +152,7 @@ const QuickAction: React.FC<QuickActionProps> = ({ label, description, href }) =
         px: 2.5,
         py: 2,
         cursor: 'pointer',
-        borderRadius: 'var(--sf-radius-md, 8px)',
+        borderRadius: 2,
         transition: 'background 0.15s',
         '&:hover': { bgcolor: 'action.hover' },
       }}
@@ -176,8 +173,6 @@ const QuickAction: React.FC<QuickActionProps> = ({ label, description, href }) =
 // ─── Main screen ─────────────────────────────────────────────────────────────
 const AdminOverviewDashboard: React.FC = () => {
   const theme = useTheme()
-  const effects = getTenantThemeEffects(theme)
-  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const { t: _t } = useTranslation('common')
   const navigate = useNavigate()
 
@@ -225,7 +220,6 @@ const AdminOverviewDashboard: React.FC = () => {
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
       {/* ── Page header ── */}
       <Box
@@ -243,7 +237,7 @@ const AdminOverviewDashboard: React.FC = () => {
             sx={{
               width: { xs: 52, md: 60 },
               height: { xs: 52, md: 60 },
-              borderRadius: 'var(--sf-radius-lg, 12px)',
+              borderRadius: '18px',
               bgcolor: alpha(theme.palette.primary.main, 0.1),
               color: 'primary.main',
             }}
@@ -253,7 +247,7 @@ const AdminOverviewDashboard: React.FC = () => {
           <Box>
             <Typography
               variant='h4'
-              sx={{ fontWeight: 800, letterSpacing: '-0.027em', lineHeight: 1.1, mb: 0.5 }}
+              sx={{ fontWeight: 900, letterSpacing: '-0.027em', lineHeight: 1.1, mb: 0.5 }}
             >
               Admin overview
             </Typography>
@@ -271,7 +265,7 @@ const AdminOverviewDashboard: React.FC = () => {
           onClick={() => refetch()}
           disabled={isFetching}
           variant='outlined'
-          sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', height: 40 }}
+          sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2, height: 40 }}
         >
           {isFetching ? 'Refreshing…' : 'Refresh'}
         </Button>
@@ -346,9 +340,8 @@ const AdminOverviewDashboard: React.FC = () => {
             border: '1px solid',
             borderColor: 'divider',
             boxShadow: 'none',
-            borderRadius: 'var(--sf-radius-lg, 16px)',
+            borderRadius: 4,
             overflow: 'hidden',
-            ...surfaceEffect,
           }}
         >
           <CardContent sx={{ p: 3, pb: '16px !important' }}>
@@ -357,7 +350,7 @@ const AdminOverviewDashboard: React.FC = () => {
                 sx={{
                   width: 36,
                   height: 36,
-                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  borderRadius: '10px',
                   bgcolor: alpha(theme.palette.error.main, 0.1),
                   color: 'error.main',
                 }}
@@ -395,14 +388,14 @@ const AdminOverviewDashboard: React.FC = () => {
                   sx={{
                     textAlign: 'center',
                     p: 1.5,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    borderRadius: 2,
                     bgcolor: alpha(item.color, 0.06),
                     border: `1px solid ${alpha(item.color, 0.15)}`,
                   }}
                 >
                   <Typography
                     variant='h5'
-                    fontWeight={800}
+                    fontWeight={900}
                     sx={{ color: item.color, letterSpacing: '-0.02em' }}
                   >
                     {item.value}
@@ -418,7 +411,7 @@ const AdminOverviewDashboard: React.FC = () => {
               <Alert
                 severity='warning'
                 icon={<WarningAmberIcon fontSize='small' />}
-                sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontSize: '0.8rem' }}
+                sx={{ borderRadius: 2, fontSize: '0.8rem' }}
                 action={
                   <Button
                     size='small'
@@ -442,9 +435,8 @@ const AdminOverviewDashboard: React.FC = () => {
             border: '1px solid',
             borderColor: 'divider',
             boxShadow: 'none',
-            borderRadius: 'var(--sf-radius-lg, 16px)',
+            borderRadius: 4,
             overflow: 'hidden',
-            ...surfaceEffect,
           }}
         >
           <CardContent sx={{ p: 3, pb: '16px !important' }}>
@@ -453,7 +445,7 @@ const AdminOverviewDashboard: React.FC = () => {
                 sx={{
                   width: 36,
                   height: 36,
-                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  borderRadius: '10px',
                   bgcolor: alpha(theme.palette.primary.main, 0.1),
                   color: 'primary.main',
                 }}
@@ -496,7 +488,6 @@ const AdminOverviewDashboard: React.FC = () => {
         </Card>
       </Box>
     </Box>
-    </motion.div>
   )
 }
 

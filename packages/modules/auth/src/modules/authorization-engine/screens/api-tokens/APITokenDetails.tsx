@@ -97,12 +97,12 @@ const APITokenDetails: React.FC = () => {
 
   const revokeTokenMutation = useRevokeToken({
     onSuccess: () => {
-      toast.success(t('auth.api_tokens.revoke_success', 'Token revoked successfully'), {})
+      toast.success(t('api_tokens:revoke_success', 'Token revoked successfully'), {})
       navigate(Path.apiTokens.dashboard)
     },
     onError: (error: unknown) => {
       const message =
-        error instanceof Error ? error.message : t('auth.api_tokens.revoke_error', 'Failed to revoke')
+        error instanceof Error ? error.message : t('api_tokens:revoke_error', 'Failed to revoke')
       toast.error(message)
     },
   })
@@ -114,7 +114,7 @@ const APITokenDetails: React.FC = () => {
   }
 
   const formatDate = (dateStr: string | null | undefined): string => {
-    if (!dateStr) return t('auth.common.never', 'Never')
+    if (!dateStr) return t('common:never', 'Never')
     try {
       return new Date(dateStr).toLocaleDateString(undefined, {
         year: 'numeric',
@@ -130,22 +130,22 @@ const APITokenDetails: React.FC = () => {
 
   const getExpiryStatus = () => {
     if (!token?.expiresAt)
-      return { label: t('auth.api_tokens.no_expiry', 'No Expiry'), color: 'info' as const }
+      return { label: t('api_tokens:no_expiry', 'No Expiry'), color: 'info' as const }
     const expiresAt = new Date(token.expiresAt)
     const now = new Date()
     const daysUntilExpiry = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 
     if (daysUntilExpiry <= 0)
-      return { label: t('auth.api_tokens.expired', 'Expired'), color: 'error' as const }
+      return { label: t('api_tokens:expired', 'Expired'), color: 'error' as const }
     if (daysUntilExpiry <= 7)
-      return { label: t('auth.api_tokens.expiring_soon', 'Expiring Soon'), color: 'warning' as const }
+      return { label: t('api_tokens:expiring_soon', 'Expiring Soon'), color: 'warning' as const }
     return {
-      label: `${daysUntilExpiry} ${t('auth.common.daysRemaining', 'days remaining')}`,
+      label: `${daysUntilExpiry} ${t('common:days_remaining', 'days remaining')}`,
       color: 'success' as const,
     }
   }
 
-  // ── Loading State ────────────────────────────────────────────────────────
+  // â”€â”€ Loading State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (isLoading) {
     return (
       <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
@@ -153,18 +153,18 @@ const APITokenDetails: React.FC = () => {
         <Skeleton variant='text' width={200} height={48} sx={{ mb: 4 }} />
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 8 }}>
-            <Skeleton variant='rounded' height={320} sx={{ borderRadius: 'var(--sf-radius-md, 8px)', mb: 3 }} />
-            <Skeleton variant='rounded' height={200} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
+            <Skeleton variant='rounded' height={320} sx={{ borderRadius: 2, mb: 3 }} />
+            <Skeleton variant='rounded' height={200} sx={{ borderRadius: 2 }} />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Skeleton variant='rounded' height={260} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
+            <Skeleton variant='rounded' height={260} sx={{ borderRadius: 2 }} />
           </Grid>
         </Grid>
       </Box>
     )
   }
 
-  // ── Error / Not Found State ──────────────────────────────────────────────
+  // â”€â”€ Error / Not Found State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (isError || !token) {
     return (
       <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
@@ -177,11 +177,11 @@ const APITokenDetails: React.FC = () => {
               onClick={() => navigate(Path.apiTokens.dashboard)}
               sx={{ fontWeight: 700, textTransform: 'none' }}
             >
-              {t('auth.common.goBack', 'Go Back')}
+              {t('common:go_back', 'Go Back')}
             </Button>
           }
         >
-          {t('auth.api_tokens.token_not_found', 'Token not found or you do not have access to it.')}
+          {t('api_tokens:token_not_found', 'Token not found or you do not have access to it.')}
         </Alert>
       </Box>
     )
@@ -191,7 +191,7 @@ const APITokenDetails: React.FC = () => {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* ── Top Banner ─────────────────────────────────────────────────── */}
+      {/* â”€â”€ Top Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Box
         sx={{
           mb: 4,
@@ -209,7 +209,7 @@ const APITokenDetails: React.FC = () => {
               sx={{
                 width: { xs: 56, md: 80 },
                 height: { xs: 56, md: 80 },
-                borderRadius: 'var(--sf-radius-lg, 24px)',
+                borderRadius: '24px',
                 bgcolor: 'primary.main',
                 boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
               }}
@@ -234,13 +234,11 @@ const APITokenDetails: React.FC = () => {
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
               <Button
-                aria-label={t('auth.common.back', 'Back')}
                 startIcon={<ArrowBackIcon />}
                 onClick={() => navigate(Path.apiTokens.dashboard)}
                 sx={{
                   p: 0,
-                  minWidth: 44,
-                  minHeight: 44,
+                  minWidth: 'auto',
                   color: 'text.secondary',
                   '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
                 }}
@@ -248,7 +246,7 @@ const APITokenDetails: React.FC = () => {
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: 900,
                   letterSpacing: '-0.027em',
                   fontSize: { xs: '1.5rem', md: '2.125rem' },
                 }}
@@ -263,8 +261,8 @@ const APITokenDetails: React.FC = () => {
               <Chip
                 label={
                   token.status === 'active'
-                    ? t('auth.common.active', 'Active')
-                    : t('auth.common.expired', 'Expired')
+                    ? t('common:active', 'Active')
+                    : t('common:expired', 'Expired')
                 }
                 size='small'
                 color={token.status === 'active' ? 'success' : 'error'}
@@ -282,7 +280,7 @@ const APITokenDetails: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Primary CTA — Revoke (single location, no duplicate) */}
+        {/* Primary CTA â€” Revoke (single location, no duplicate) */}
         <Stack
           direction='row'
           spacing={2}
@@ -293,11 +291,11 @@ const APITokenDetails: React.FC = () => {
             startIcon={<DeleteIcon />}
             onClick={handleRevoke}
             disabled={revokeTokenMutation.isPending}
-            color='error'
             sx={{
-              minHeight: 44,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              bgcolor: 'error.main',
+              color: 'white',
               boxShadow: `0 4px 14px 0 ${alpha(theme.palette.error.main, 0.39)}`,
+              '&:hover': { bgcolor: 'error.dark' },
               textTransform: 'none',
               fontWeight: 700,
               flex: { xs: 1, sm: 'none' },
@@ -306,32 +304,32 @@ const APITokenDetails: React.FC = () => {
             }}
           >
             {revokeTokenMutation.isPending
-              ? t('auth.common.revoking', 'Revoking...')
-              : t('auth.common.revoke', 'Revoke Token')}
+              ? t('common:revoking', 'Revoking...')
+              : t('common:revoke', 'Revoke Token')}
           </Button>
         </Stack>
       </Box>
 
-      {/* ── Main Grid ──────────────────────────────────────────────────── */}
+      {/* â”€â”€ Main Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Grid container spacing={3}>
         {/* Main Column */}
         <Grid size={{ xs: 12, md: 8 }}>
           {/* Overview Card */}
-          <Card sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', border: '1px solid', borderColor: 'divider', boxShadow: 'none', mb: 3 }}>
+          <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none', mb: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <SectionHeading
                 icon={<VpnKeyIcon color='primary' sx={{ fontSize: 24 }} />}
-                title={t('auth.api_tokens.overview', 'Overview')}
+                title={t('api_tokens:overview', 'Overview')}
               />
 
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                <MetaRow label={t('auth.api_tokens.created_at', 'Created')}>
+                <MetaRow label={t('api_tokens:created_at', 'Created')}>
                   {formatDate(token.createdAt)}
                 </MetaRow>
-                <MetaRow label={t('auth.api_tokens.expires_at', 'Expires')}>
+                <MetaRow label={t('api_tokens:expires_at', 'Expires')}>
                   {formatDate(token.expiresAt)}
                 </MetaRow>
-                <MetaRow label={t('auth.api_tokens.last_used', 'Last Used')}>
+                <MetaRow label={t('api_tokens:last_used', 'Last Used')}>
                   {formatDate(token.lastUsedAt)}
                 </MetaRow>
               </Box>
@@ -339,11 +337,11 @@ const APITokenDetails: React.FC = () => {
           </Card>
 
           {/* Permissions Card */}
-          <Card sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
+          <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
             <CardContent sx={{ p: 3 }}>
               <SectionHeading
                 icon={<ShieldIcon color='primary' sx={{ fontSize: 24 }} />}
-                title={t('auth.api_tokens.permissions', 'Permissions & Scopes')}
+                title={t('api_tokens:permissions', 'Permissions & Scopes')}
               />
 
               {token.abilities && token.abilities.length > 0 ? (
@@ -357,7 +355,7 @@ const APITokenDetails: React.FC = () => {
                         fontWeight: 700,
                         fontSize: '0.75rem',
                         height: 20,
-                        borderRadius: 'var(--sf-radius-sm, 6px)',
+                        borderRadius: 1.5,
                         bgcolor: alpha(theme.palette.primary.main, 0.08),
                         color: 'primary.main',
                         border: '1px solid',
@@ -371,7 +369,7 @@ const APITokenDetails: React.FC = () => {
                   sx={{
                     p: 3,
                     textAlign: 'center',
-                    borderRadius: 'var(--sf-radius-md, 10px)',
+                    borderRadius: 2,
                     bgcolor: alpha(theme.palette.action.hover, 0.3),
                     border: '1px dashed',
                     borderColor: 'divider',
@@ -379,7 +377,7 @@ const APITokenDetails: React.FC = () => {
                 >
                   <GlobeIcon sx={{ fontSize: 36, color: 'text.disabled', mb: 1 }} />
                   <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 600 }}>
-                    {t('auth.api_tokens.full_access', 'Full access — no scope restrictions')}
+                    {t('api_tokens:full_access', 'Full access â€” no scope restrictions')}
                   </Typography>
                 </Box>
               )}
@@ -392,7 +390,6 @@ const APITokenDetails: React.FC = () => {
           {/* Quick Actions Card */}
           <Card
             sx={{
-              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
@@ -404,7 +401,7 @@ const APITokenDetails: React.FC = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
                 <VpnKeyIcon sx={{ color: 'primary.main', fontSize: 24 }} />
                 <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
-                  {t('auth.api_tokens.quick_actions', 'Quick Actions')}
+                  {t('api_tokens:quick_actions', 'Quick Actions')}
                 </Typography>
               </Box>
 
@@ -417,14 +414,12 @@ const APITokenDetails: React.FC = () => {
                     navigate(Path.apiTokens.display.replace(':tokenId', String(token.id)))
                   }
                   sx={{
-                    minHeight: 44,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
                     justifyContent: 'flex-start',
                     textTransform: 'none',
                     fontWeight: 700,
                   }}
                 >
-                  {t('auth.api_tokens.usage_guide', 'Usage Guide')}
+                  {t('api_tokens:usage_guide', 'Usage Guide')}
                 </Button>
                 <Button
                   variant='outlined'
@@ -434,16 +429,14 @@ const APITokenDetails: React.FC = () => {
                   onClick={handleRevoke}
                   disabled={revokeTokenMutation.isPending}
                   sx={{
-                    minHeight: 44,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
                     justifyContent: 'flex-start',
                     textTransform: 'none',
                     fontWeight: 700,
                   }}
                 >
                   {revokeTokenMutation.isPending
-                    ? t('auth.common.revoking', 'Revoking...')
-                    : t('auth.api_tokens.revoke_this_token', 'Revoke This Token')}
+                    ? t('common:revoking', 'Revoking...')
+                    : t('api_tokens:revoke_this_token', 'Revoke This Token')}
                 </Button>
               </Stack>
             </CardContent>
@@ -453,7 +446,7 @@ const APITokenDetails: React.FC = () => {
           <Box
             sx={{
               p: 2,
-              borderRadius: 'var(--sf-radius-md, 10px)',
+              borderRadius: 2,
               bgcolor: alpha(theme.palette.info.main, 0.05),
               border: '1px solid',
               borderColor: alpha(theme.palette.info.main, 0.1),
@@ -471,11 +464,11 @@ const APITokenDetails: React.FC = () => {
               }}
             >
               <InfoIcon fontSize='small' />
-              {t('auth.api_tokens.security_tip_title', 'Security Reminder')}
+              {t('api_tokens:security_tip_title', 'Security Reminder')}
             </Typography>
             <Typography variant='body2' color='text.secondary' sx={{ lineHeight: 1.6 }}>
               {t(
-                'auth.api_tokens.revoke_warning',
+                'api_tokens:revoke_warning',
                 'Once revoked, this token will immediately stop working. Any applications using this token will lose access.',
               )}
             </Typography>

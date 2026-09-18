@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/OIDCConfigBrowser.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // FIXES: Added header; implemented entry motion; modernized MUI component attributes (slotProps); standardized Card/Avatar styles to match golden standard; fully translated labels; added accessibility aria-labels
-// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
+// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
 
 import { useState } from 'react'
 import {
@@ -9,11 +9,14 @@ import {
   Button,
   Container,
   Typography,
+  Card,
   Table,
   TableBody,
   TableCell,
   TableContainer,
+  TableHead,
   TableRow,
+  IconButton,
   Chip,
   alpha,
   useTheme,
@@ -30,6 +33,7 @@ import {
   DialogActions,
 } from '@mui/material'
 import Add from '@mui/icons-material/Add'
+import Edit from '@mui/icons-material/Edit'
 import Delete from '@mui/icons-material/Delete'
 import Search from '@mui/icons-material/Search'
 import VpnKey from '@mui/icons-material/VpnKey'
@@ -39,25 +43,16 @@ import Warning from '@mui/icons-material/Warning'
 import ChevronRight from '@mui/icons-material/ChevronRight'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useOIDCClients, useDeleteOIDCClient, Path } from '@auth'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
-import {
-  AdminTableCard,
-  AdminTableHead,
-  AdminTableHeadCell,
-  AdminTableRow,
-  AdminStatusBadge,
-  AdminRowActionButton,
-} from '@auth/modules/authentication-core/components/shared/admin'
 
 export default function OIDCConfigBrowser() {
   const { t } = useTranslation()
   const theme = useTheme()
-  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [clientToDelete, setClientToDelete] = useState<string | number | null>(null)
@@ -82,12 +77,12 @@ export default function OIDCConfigBrowser() {
     if (clientToDelete) {
       deleteMutation.mutate(String(clientToDelete), {
         onSuccess: () => {
-          toast.success(t('auth.common.deleted_successfully', 'Deleted successfully'))
+          toast.success(t('common.deleted_successfully', 'Deleted successfully'))
           setDeleteDialogOpen(false)
           setClientToDelete(null)
         },
         onError: (err: any) => {
-          toast.error(err.message || t('auth.common.error_deleting', 'Error deleting client'))
+          toast.error(err.message || t('common.error_deleting', 'Error deleting client'))
           setDeleteDialogOpen(false)
           setClientToDelete(null)
         },
@@ -120,7 +115,7 @@ export default function OIDCConfigBrowser() {
               sx={{
                 width: { xs: 56, md: 80 },
                 height: { xs: 56, md: 80 },
-                borderRadius: 'var(--sf-radius-lg, 24px)',
+                borderRadius: '24px',
                 bgcolor: 'primary.main',
                 boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
               }}
@@ -146,7 +141,7 @@ export default function OIDCConfigBrowser() {
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: 900,
                   letterSpacing: '-0.027em',
                   fontSize: { xs: '1.5rem', md: '2.125rem' },
                 }}
@@ -169,7 +164,7 @@ export default function OIDCConfigBrowser() {
                   size='small'
                   color='primary'
                   variant='outlined'
-                  sx={{ fontWeight: 700, height: 20, mr: 1, borderRadius: 'var(--sf-radius-xs, 4px)' }}
+                  sx={{ fontWeight: 700, height: 20, mr: 1 }}
                 />
                 <Typography variant='body2' color='text.secondary'>
                   {t(
@@ -187,24 +182,26 @@ export default function OIDCConfigBrowser() {
           variant='contained'
           startIcon={<Add />}
           sx={{
-            bgcolor: 'primary.main',
-            boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
+            bgcolor: 'info.main',
+            boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
             textTransform: 'none',
             fontWeight: 700,
-            minHeight: 48,
-            borderRadius: 'var(--sf-radius-md, 8px)',
+            height: 48,
+            borderRadius: '12px',
             px: 4,
-            '&:hover': { bgcolor: 'primary.dark' },
+            '&:hover': { bgcolor: 'info.dark' },
           }}
         >
           {t('auth.sso.create_client', 'Create New Client')}
         </Button>
       </Box>
 
-      <AdminTableCard
-        sx={(theme) => ({
+      <Card
+        sx={(theme: any) => ({
+          borderRadius: 4,
           mb: 5,
-          borderRadius: 'var(--sf-radius-lg, 16px)',
+          border: '1px solid ' + theme.palette.divider,
+          overflow: 'hidden',
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
         })}
       >
@@ -223,7 +220,7 @@ export default function OIDCConfigBrowser() {
             sx={{
               width: { xs: '100%', md: 400 },
               '& .MuiOutlinedInput-root': {
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: '12px',
                 bgcolor: 'background.paper',
               },
             }}
@@ -241,20 +238,72 @@ export default function OIDCConfigBrowser() {
 
         <TableContainer>
           <Table sx={{ minWidth: 800 }}>
-            <AdminTableHead>
-              <TableRow>
-                <AdminTableHeadCell sx={{ py: 2.5 }}>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: alpha(theme.palette.action.hover, 0.04) }}>
+                <TableCell
+                  sx={{
+                    fontWeight: 800,
+                    py: 2.5,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontSize: '0.75rem',
+                  }}
+                >
                   {t('auth.sso.client_name', 'Client Name')}
-                </AdminTableHeadCell>
-                <AdminTableHeadCell>{t('auth.sso.client_id', 'Client ID')}</AdminTableHeadCell>
-                <AdminTableHeadCell>{t('auth.sso.client_type', 'Type')}</AdminTableHeadCell>
-                <AdminTableHeadCell>{t('auth.common.status', 'Status')}</AdminTableHeadCell>
-                <AdminTableHeadCell>{t('auth.sso.last_active', 'Last Active')}</AdminTableHeadCell>
-                <AdminTableHeadCell align='right'>
-                  {t('auth.common.actions', 'Actions')}
-                </AdminTableHeadCell>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  {t('auth.sso.client_id', 'Client ID')}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  {t('auth.sso.client_type', 'Type')}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  {t('common.status', 'Status')}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  {t('auth.sso.last_active', 'Last Active')}
+                </TableCell>
+                <TableCell
+                  align='right'
+                  sx={{
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  {t('common.actions', 'Actions')}
+                </TableCell>
               </TableRow>
-            </AdminTableHead>
+            </TableHead>
             <TableBody>
               {isLoading ? (
                 <TableRow>
@@ -272,13 +321,12 @@ export default function OIDCConfigBrowser() {
                 </TableRow>
               ) : (
                 filteredClients.map((client: any) => (
-                  <AdminTableRow
+                  <TableRow
                     key={client.id}
-                    clickable
-                    onClick={() =>
-                      navigate(Path.identity.oidcClientEdit.replace(':id', client.id))
-                    }
-                    aria-label={t('auth.common.edit', 'Edit Client')}
+                    sx={{
+                      '&:hover': { backgroundColor: alpha(theme.palette.primary.main, 0.01) },
+                      transition: 'background-color 0.2s',
+                    }}
                   >
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -288,7 +336,7 @@ export default function OIDCConfigBrowser() {
                             height: 36,
                             backgroundColor: alpha(theme.palette.primary.main, 0.08),
                             color: 'primary.main',
-                            borderRadius: 'var(--sf-radius-sm, 8px)',
+                            borderRadius: '10px',
                           }}
                         >
                           <VpnKey sx={{ fontSize: 18 }} />
@@ -309,22 +357,23 @@ export default function OIDCConfigBrowser() {
                             bgcolor: alpha(theme.palette.action.hover, 0.06),
                             px: 1,
                             py: 0.25,
-                            borderRadius: 'var(--sf-radius-xs, 4px)',
+                            borderRadius: '4px',
                           }}
                         >
                           {client.client_id || client.clientId}
                         </Typography>
-                        <Tooltip title={t('auth.common.copy', 'Copy')}>
-                          <AdminRowActionButton
-                            onClick={(e) => {
-                              e.stopPropagation()
+                        <Tooltip title={t('common.copy', 'Copy')}>
+                          <IconButton
+                            size='small'
+                            sx={{ p: 0.5, border: '1px solid', borderColor: 'divider' }}
+                            onClick={() => {
                               navigator.clipboard.writeText(client.client_id || client.clientId)
-                              toast.success(t('auth.common.copied', 'Copied to clipboard'))
+                              toast.success(t('common.copied', 'Copied to clipboard'))
                             }}
-                            aria-label={t('auth.common.copy', 'Copy Client ID')}
+                            aria-label={t('common.copy', 'Copy Client ID')}
                           >
-                            <ContentCopy fontSize='small' />
-                          </AdminRowActionButton>
+                            <ContentCopy sx={{ fontSize: 14 }} />
+                          </IconButton>
                         </Tooltip>
                       </Box>
                     </TableCell>
@@ -339,17 +388,15 @@ export default function OIDCConfigBrowser() {
                         }
                         size='small'
                         variant='outlined'
-                        sx={{ borderRadius: 'var(--sf-radius-xs, 4px)', fontWeight: 800, fontSize: '0.65rem' }}
+                        sx={{ borderRadius: '6px', fontWeight: 800, fontSize: '0.65rem' }}
                       />
                     </TableCell>
                     <TableCell>
-                      <AdminStatusBadge
-                        tone={(client.is_active ?? client.isActive) ? 'success' : 'error'}
-                        label={
-                          (client.is_active ?? client.isActive)
-                            ? t('auth.sso.status_active', 'ACTIVE')
-                            : t('auth.sso.status_inactive', 'INACTIVE')
-                        }
+                      <Chip
+                        label={(client.is_active ?? client.isActive) ? 'ACTIVE' : 'INACTIVE'}
+                        size='small'
+                        color={(client.is_active ?? client.isActive) ? 'success' : 'error'}
+                        sx={{ borderRadius: '6px', fontWeight: 900, fontSize: '0.65rem' }}
                       />
                     </TableCell>
                     <TableCell>
@@ -361,27 +408,40 @@ export default function OIDCConfigBrowser() {
                     </TableCell>
                     <TableCell align='right'>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        <Tooltip title={t('auth.common.delete', 'Delete')}>
-                          <AdminRowActionButton
+                        <Tooltip title={t('common.edit', 'Edit')}>
+                          <IconButton
+                            component={RouterLink}
+                            to={Path.identity.oidcClientEdit.replace(':id', client.id)}
+                            size='small'
+                            sx={{ border: '1px solid', borderColor: 'divider' }}
+                            aria-label={t('common.edit', 'Edit Client')}
+                          >
+                            <Edit fontSize='small' />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t('common.delete', 'Delete')}>
+                          <IconButton
+                            size='small'
                             color='error'
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleDelete(client.id)
+                            onClick={() => handleDelete(client.id)}
+                            sx={{
+                              border: '1px solid',
+                              borderColor: alpha(theme.palette.error.main, 0.2),
                             }}
-                            aria-label={t('auth.common.delete', 'Delete Client')}
+                            aria-label={t('common.delete', 'Delete Client')}
                           >
                             <Delete fontSize='small' />
-                          </AdminRowActionButton>
+                          </IconButton>
                         </Tooltip>
                       </Box>
                     </TableCell>
-                  </AdminTableRow>
+                  </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
         </TableContainer>
-      </AdminTableCard>
+      </Card>
 
       <Box
         sx={{
@@ -390,7 +450,7 @@ export default function OIDCConfigBrowser() {
           alignItems: 'center',
           gap: 2,
           p: 3,
-          borderRadius: 'var(--sf-radius-lg, 16px)',
+          borderRadius: 4,
           backgroundColor: alpha(theme.palette.info.main, 0.05),
           border: '1px solid',
           borderColor: alpha(theme.palette.info.main, 0.1),
@@ -422,35 +482,30 @@ export default function OIDCConfigBrowser() {
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'error.main' }}>
-          <Warning /> {t('auth.common.confirm_delete_title', 'Delete Client?')}
+          <Warning /> {t('common.confirm_delete_title', 'Delete Client?')}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
             {t(
-              'auth.common.confirm_delete_desc',
+              'common.confirm_delete_desc',
               'Are you sure you want to delete this OIDC client? This action cannot be undone and any applications depending on it will lose access immediately.',
             )}
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button
-            onClick={() => setDeleteDialogOpen(false)}
-            color='inherit'
-            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
-          >
-            {t('auth.common.cancel', 'Cancel')}
+          <Button onClick={() => setDeleteDialogOpen(false)} color='inherit'>
+            {t('common.cancel', 'Cancel')}
           </Button>
           <Button
             onClick={confirmDelete}
             color='error'
             variant='contained'
             disabled={deleteMutation.isPending}
-            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
             autoFocus
           >
             {deleteMutation.isPending
-              ? t('auth.common.deleting', 'Deleting...')
-              : t('auth.common.delete', 'Delete')}
+              ? t('common.deleting', 'Deleting...')
+              : t('common.delete', 'Delete')}
           </Button>
         </DialogActions>
       </Dialog>

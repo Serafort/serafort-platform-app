@@ -1,23 +1,18 @@
 import React from 'react'
-import { Box, Button, Typography, Stack } from '@mui/material'
+import { Box, Button, TextField, Typography, Link as MuiLink, Stack, alpha } from '@mui/material'
 import MarkEmailRead from '@mui/icons-material/MarkEmailRead'
 import ArrowForward from '@mui/icons-material/ArrowForward'
 import Timer from '@mui/icons-material/Timer'
 import ArrowBack from '@mui/icons-material/ArrowBack'
-import {
-  AuthCardHeader,
-  AuthCodeInput,
-  AuthActionButton,
-} from '../../../components/shared/auth'
+import { AuthScreenIcon, AuthActionButton } from '../../../components/shared/auth'
 
 interface VerifyEmailStepProps {
   t: any
   pendingEmail: string
   otpCode: string
-  onOtpCodeChange?: (code: string) => void
-  otpInputRefs?: React.MutableRefObject<(HTMLInputElement | null)[]>
-  handleOtpDigitChange?: (value: string, index: number) => void
-  handleOtpKeyDown?: (e: React.KeyboardEvent, index: number) => void
+  otpInputRefs: React.MutableRefObject<(HTMLInputElement | null)[]>
+  handleOtpDigitChange: (value: string, index: number) => void
+  handleOtpKeyDown: (e: React.KeyboardEvent, index: number) => void
   countdownDisplay: string
   isVerifyingOtp: boolean
   isResendPending: boolean
@@ -31,7 +26,9 @@ export const VerifyEmailStep: React.FC<VerifyEmailStepProps> = ({
   t,
   pendingEmail,
   otpCode,
-  onOtpCodeChange,
+  otpInputRefs,
+  handleOtpDigitChange,
+  handleOtpKeyDown,
   countdownDisplay,
   isVerifyingOtp,
   isResendPending,
@@ -40,12 +37,6 @@ export const VerifyEmailStep: React.FC<VerifyEmailStepProps> = ({
   onResendCode,
   onBackToRegister,
 }) => {
-  const handleCodeChange = (val: string) => {
-    if (onOtpCodeChange) {
-      onOtpCodeChange(val)
-    }
-  }
-
   return (
     <Box
       sx={{
@@ -57,50 +48,105 @@ export const VerifyEmailStep: React.FC<VerifyEmailStepProps> = ({
       }}
     >
       {/* Header Section */}
-      <AuthCardHeader
-        icon={<MarkEmailRead sx={{ fontSize: 32 }} />}
-        title={t('signUp.verifyTitle', 'Verify your email')}
-        subtitle={
-          <>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+          gap: 2,
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+          <AuthScreenIcon icon={<MarkEmailRead sx={{ fontSize: 32 }} />} />
+        </Box>
+        <Box>
+          <Typography
+            variant='h5'
+            sx={{
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              mb: 1,
+              fontFamily: 'var(--font-h5, inherit)',
+            }}
+          >
+            {t('signUp.verifyTitle', 'Verify your email')}
+          </Typography>
+          <Typography variant='body2' color='text.secondary' sx={{ lineHeight: 1.6 }}>
             {t('signUp.verifySubtitle', "We've sent a 6-digit confirmation code to")}
             <br />
             <Box component='span' sx={{ fontWeight: 700, color: 'text.primary' }}>
               {pendingEmail || 'your email'}
             </Box>
-          </>
-        }
-      />
+          </Typography>
+        </Box>
+      </Box>
 
-      {/* 6-Digit OTP Code Input with Miller's Law chunking */}
-      <Box sx={{ my: 1 }}>
-        <AuthCodeInput
-          id='signup-otp-input'
-          value={otpCode}
-          onChange={handleCodeChange}
-          onComplete={onVerifyOtp}
-          length={6}
-          groups={[3, 3]}
-          mode='numeric'
-          disabled={isVerifyingOtp}
-          autoFocus
-          label={t('signUp.verifyTitle', 'Verify your email')}
-        />
+      {/* 6-Digit OTP Inputs */}
+      <Box>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: { xs: 1, sm: 1.5 },
+            mb: 2,
+          }}
+        >
+          {[0, 1, 2, 3, 4, 5].map((index) => (
+            <TextField
+              key={index}
+              inputRef={(el) => (otpInputRefs.current[index] = el)}
+              id={`signup-otp-digit-${index}`}
+              value={otpCode[index] || ''}
+              onChange={(e) => handleOtpDigitChange(e.target.value, index)}
+              onKeyDown={(e) => handleOtpKeyDown(e, index)}
+              placeholder='-'
+              inputProps={{
+                maxLength: 1,
+                inputMode: 'numeric',
+                style: {
+                  textAlign: 'center',
+                  fontSize: '1.5rem',
+                  fontWeight: 800,
+                  padding: '12px 0',
+                },
+              }}
+              sx={{
+                width: { xs: 44, sm: 54 },
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '12px',
+                  bgcolor: 'background.paper',
+                  '& fieldset': {
+                    borderColor: otpCode[index] ? 'primary.main' : 'divider',
+                    borderWidth: otpCode[index] ? '2px' : '1px',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'primary.main',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'primary.main',
+                    borderWidth: '2px',
+                  },
+                },
+              }}
+            />
+          ))}
+        </Box>
       </Box>
 
       {/* Action Buttons */}
       <Stack spacing={2}>
         <AuthActionButton
           fullWidth
-          isLoading={isVerifyingOtp}
-          disabled={otpCode.length < 6 || isVerifyingOtp}
+          loading={isVerifyingOtp}
+          disabled={otpCode.length < 6}
           onClick={onVerifyOtp}
-          label={
-            isVerifyingOtp
-              ? t('signUp.verifying', 'Verifying Code...')
-              : t('signUp.verifyAction', 'Confirm & Activate')
-          }
           endIcon={<ArrowForward />}
-        />
+        >
+          {isVerifyingOtp
+            ? t('signUp.verifying', 'Verifying Code...')
+            : t('signUp.verifyAction', 'Confirm & Activate')}
+        </AuthActionButton>
 
         {/* Resend Code Section */}
         <Box
@@ -120,7 +166,7 @@ export const VerifyEmailStep: React.FC<VerifyEmailStepProps> = ({
             >
               <Timer sx={{ fontSize: 16 }} />
               {t('signUp.resendCooldown', 'Resend code in')}{' '}
-              <Box component='span' sx={{ fontWeight: 700, color: 'text.primary', fontVariantNumeric: 'tabular-nums' }}>
+              <Box component='span' sx={{ fontWeight: 700, color: 'text.primary' }}>
                 {countdownDisplay}
               </Box>
             </Typography>
@@ -133,8 +179,7 @@ export const VerifyEmailStep: React.FC<VerifyEmailStepProps> = ({
                 textTransform: 'none',
                 fontWeight: 700,
                 color: 'primary.main',
-                borderRadius: 'var(--sf-radius-md, 8px)',
-                minHeight: 36,
+                borderRadius: '8px',
               }}
             >
               {isResendPending
@@ -154,7 +199,6 @@ export const VerifyEmailStep: React.FC<VerifyEmailStepProps> = ({
               textTransform: 'none',
               fontWeight: 600,
               color: 'text.secondary',
-              minHeight: 44,
               '&:hover': { color: 'text.primary' },
             }}
           >

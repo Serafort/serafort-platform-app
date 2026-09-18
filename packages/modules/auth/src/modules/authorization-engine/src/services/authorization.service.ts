@@ -1,4 +1,4 @@
-import { adminService, Role, Permission, normalizeRole } from '../../services/adminService'
+import { adminService, Role, Permission } from '../../services/adminService'
 import { useAppStore } from '@cap/platform-store'
 import type {
   IRoleReader,
@@ -45,14 +45,10 @@ export class RoleService implements IRoleReader, IRoleWriter, IRolePermissionMan
     search?: string
   }): Promise<{ roles: RoleDto[]; total: number }> {
     const response = await adminService.listRoles(params)
-    // The backend paginates with AdonisJS's `.paginate()`, whose JSON shape
-    // is `{ data: [...], meta: { total, ... } }` — the total lives under
-    // `meta`, not as a sibling of `data`. Reading `data.total` (the previous
-    // code) always evaluated to `undefined` and silently reported 0.
-    const { data, meta } = response.data
+    const data = response.data as unknown as { data: Role[]; total: number }
     return {
-      roles: (data ?? []).map(mapRoleToDto),
-      total: meta?.total ?? data?.length ?? 0,
+      roles: data.data.map(mapRoleToDto),
+      total: data.total ?? 0,
     }
   }
 
@@ -298,10 +294,7 @@ export class UserRoleService implements IUserRoleManager {
     const response = await adminService.getUser(userId)
     const user = response.data as unknown as { role?: Role }
     if (user.role) {
-      // `getUser` doesn't route through adminService's role normalizer (it
-      // returns a User, not a Role), so the nested `role` still needs the
-      // same camelCase-to-snake_case backfill applied here.
-      return [mapRoleToDto(normalizeRole(user.role))]
+      return [mapRoleToDto(user.role)]
     }
     return []
   }

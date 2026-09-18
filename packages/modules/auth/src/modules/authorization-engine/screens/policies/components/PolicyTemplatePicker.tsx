@@ -17,7 +17,6 @@ import {
 } from '@mui/material'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
-import { useTranslation } from 'react-i18next'
 import { POLICY_CANVAS_TEMPLATES, type VisualPolicyGraph } from '@cap/authorization'
 
 interface PolicyTemplatePickerProps {
@@ -32,29 +31,20 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
   onSelectTemplate,
 }) => {
   const theme = useTheme()
-  const { t } = useTranslation()
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth='md'
-      fullWidth
-      PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } }}
-    >
+    <Dialog open={open} onClose={onClose} maxWidth='md' fullWidth>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <AutoAwesomeIcon color='primary' />
         <Typography variant='h6' sx={{ fontWeight: 800 }}>
-          {t('auth.admin.policy.template_title', 'Choose a policy template')}
+          Select Pre-Built Enterprise Policy Template
         </Typography>
       </DialogTitle>
 
       <DialogContent dividers sx={{ p: 3 }}>
         <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-          {t(
-            'auth.admin.policy.template_help',
-            'A template populates the canvas with a working policy you can then edit, extend or simulate.',
-          )}
+          Choose a battle-tested template to populate your visual canvas. You can customize, connect
+          extra conditions, or simulate immediately.
         </Typography>
 
         <Grid container spacing={2.5}>
@@ -63,7 +53,7 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
               <Card
                 variant='outlined'
                 sx={{
-                  borderRadius: 'var(--sf-radius-lg, 12px)',
+                  borderRadius: 3,
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -102,14 +92,11 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
                     </Typography>
                     <Chip
                       icon={<AccountTreeIcon sx={{ fontSize: '14px !important' }} />}
-                      label={t('auth.admin.policy.node_count', {
-                        count: template.nodes.length,
-                        defaultValue: '{{count}} nodes',
-                      })}
+                      label={`${template.nodes.length} Nodes`}
                       size='small'
                       color='primary'
                       variant='outlined'
-                      sx={{ fontWeight: 700, fontSize: 11, borderRadius: 'var(--sf-radius-sm, 6px)' }}
+                      sx={{ fontWeight: 700, fontSize: 11 }}
                     />
                   </Box>
 
@@ -119,20 +106,14 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
 
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, width: '100%' }}>
                     <Chip
-                      label={t('auth.admin.policy.default_effect', {
-                        effect: template.defaultEffect,
-                        defaultValue: 'Default: {{effect}}',
-                      })}
+                      label={`Default: ${template.defaultEffect.toUpperCase()}`}
                       size='small'
-                      sx={{ fontSize: 10, fontWeight: 700, borderRadius: 'var(--sf-radius-sm, 6px)' }}
+                      sx={{ fontSize: 10, fontWeight: 700 }}
                     />
                     <Chip
-                      label={t('auth.admin.policy.algorithm', {
-                        algorithm: template.combiningAlgorithm,
-                        defaultValue: 'Algorithm: {{algorithm}}',
-                      })}
+                      label={`Algorithm: ${template.combiningAlgorithm}`}
                       size='small'
-                      sx={{ fontSize: 10, fontWeight: 700, borderRadius: 'var(--sf-radius-sm, 6px)' }}
+                      sx={{ fontSize: 10, fontWeight: 700 }}
                     />
                   </Box>
                 </CardActionArea>
@@ -143,8 +124,8 @@ export const PolicyTemplatePicker: React.FC<PolicyTemplatePickerProps> = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}>
-          {t('auth.common.cancel', 'Cancel')}
+        <Button onClick={onClose} sx={{ fontWeight: 700 }}>
+          Cancel
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,45 +1,21 @@
 import { apiClient, FetchResponse, ENDPOINTS } from '@cap/platform-core'
 
-/**
- * `OidcClient` (app/models/oidc/oidc_client.ts) does NOT use the app-wide
- * CamelCaseNamingStrategy for every field — several columns carry an explicit
- * `serializeAs` override and are ONLY ever emitted snake_case, regardless of
- * `CamelCaseResponseMiddleware` (which is also not registered in
- * start/kernel.ts, so it never runs anyway): `clientId` -> `client_id`,
- * `clientSecret` -> `client_secret`, `name` -> `client_name` (there is no
- * `name` key on the wire at all), `redirectUris` -> `redirect_uris`,
- * `grantTypes` -> `grant_types`, `responseTypes` -> `response_types`. Columns
- * without an override (`status`, `isActive`, `type`, `description`,
- * `createdAt`, `updatedAt`, `organizationId`) do stay camelCase, since the
- * naming strategy camelCases an already-camelCase property name as a no-op.
- * The camelCase variants below are kept only for forward-compat; the
- * snake_case ones are what actually arrives today. `allowedOrigins`,
- * `scope` (singular) and `logoUri` have no backing column on this model at
- * all (branding lives in a separate untyped `branding` JSON blob) and will
- * always be undefined.
- */
 export interface ClientApp {
   id: string
-  name?: string
-  client_name?: string
+  name: string
   clientId?: string
-  client_id?: string
   clientSecret?: string
-  client_secret?: string
   redirectUris?: string[]
   redirect_uris?: string[]
   allowedOrigins?: string[]
   allowed_origins?: string[]
   grantTypes?: string[]
   grant_types?: string[]
-  responseTypes?: string[]
-  response_types?: string[]
   scope?: string
   scopes?: string[]
   logoUri?: string
   logo_uri?: string
-  status?: 'active' | 'inactive' | 'suspended' | string
-  isActive?: boolean
+  status?: 'active' | 'inactive' | 'suspended'
   createdAt?: string
   created_at?: string
   updatedAt?: string
@@ -106,18 +82,8 @@ export const developerService = {
     return apiClient.post<ClientApp>(ENDPOINTS.admin.clients.store, body)
   },
 
-  updateClient: async (
-    id: string,
-    body: Partial<ClientApp>,
-  ): Promise<FetchResponse<ClientApp>> => {
-    // ClientsController.update returns { message, client }, not the client
-    // flat at the top level like show()/store() do — unwrap it so every
-    // client-shaped response this service returns has the same shape.
-    const response = await apiClient.patch<{ message: string; client: ClientApp }>(
-      ENDPOINTS.admin.clients.update(id),
-      body,
-    )
-    return { ...response, data: response.data.client }
+  updateClient: (id: string, body: Partial<ClientApp>): Promise<FetchResponse<ClientApp>> => {
+    return apiClient.patch<ClientApp>(ENDPOINTS.admin.clients.update(id), body)
   },
 
   deleteClient: (id: string): Promise<FetchResponse<{ message: string }>> => {
@@ -126,12 +92,8 @@ export const developerService = {
 
   rotateClientSecret: (
     id: string,
-    // ClientsController.rotateSecret builds its response as a plain object
-    // literal (not through the model's naming strategy), and only ever
-    // writes the key `client_secret` — there is no camelCase `clientSecret`
-    // key on the wire. Kept optional only for forward-compat.
-  ): Promise<FetchResponse<{ message: string; client_secret: string; clientSecret?: string }>> => {
-    return apiClient.post<{ message: string; client_secret: string; clientSecret?: string }>(
+  ): Promise<FetchResponse<{ clientSecret: string; client_secret?: string }>> => {
+    return apiClient.post<{ clientSecret: string; client_secret?: string }>(
       ENDPOINTS.admin.clients.rotateSecret(id),
     )
   },

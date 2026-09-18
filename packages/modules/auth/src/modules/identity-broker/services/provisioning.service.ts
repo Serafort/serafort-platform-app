@@ -3,8 +3,8 @@ import type {
   DirectoryConnector,
   CreateConnectorDTO,
   UpdateConnectorDTO,
+  SyncLog,
   ConnectorSyncResult,
-  PaginatedSyncLogs,
 } from '../types/provisioning.types'
 
 export const provisioningService = {
@@ -38,12 +38,8 @@ export const provisioningService = {
     return apiClient.post<ConnectorSyncResult>(ENDPOINTS.admin.provisioning.sync(Number(id)))
   },
 
-  /**
-   * `ConnectorsController.logs` returns AdonisJS's `.paginate()` envelope
-   * (`{ data, meta }`), not a flat array.
-   */
-  getConnectorLogs: async (id: number | string): Promise<FetchResponse<PaginatedSyncLogs>> => {
-    return apiClient.get<PaginatedSyncLogs>(ENDPOINTS.admin.provisioning.logs(Number(id)))
+  getConnectorLogs: async (id: number | string): Promise<FetchResponse<SyncLog[]>> => {
+    return apiClient.get<SyncLog[]>(ENDPOINTS.admin.provisioning.logs(Number(id)))
   },
 }
 

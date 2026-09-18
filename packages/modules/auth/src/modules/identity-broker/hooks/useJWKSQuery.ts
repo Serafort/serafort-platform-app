@@ -10,7 +10,6 @@ import jwksService from '../services/jwks.service'
 import type {
   JWKKey,
   CreateJWKSKeyRequest,
-  CreateJWKSKeyResult,
   JWKSKeyDetailResponse,
   RotateJWKSResponse,
 } from '../types/jwks.types'
@@ -47,12 +46,7 @@ export function useGetJWKSKeyDetail(
 }
 
 export function useCreateJWKSKey(
-  options?: UseMutationOptions<
-    FetchResponse<CreateJWKSKeyResult>,
-    HttpError,
-    CreateJWKSKeyRequest,
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<JWKKey>, HttpError, CreateJWKSKeyRequest, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}

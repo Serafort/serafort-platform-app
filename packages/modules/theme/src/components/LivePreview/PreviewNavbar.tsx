@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { Box, Typography, Avatar } from "@mui/material";
 import styled from "@emotion/styled";
 
@@ -57,14 +56,8 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
   effectStyle = "standard",
   label,
 }) => {
-  const { t } = useTranslation();
   const NavbarComponent =
     effectStyle === "effect" ? EffectNavbar : StandardNavbar;
-  const variantLabel =
-    label ??
-    (effectStyle === "effect"
-      ? t("theme.preview.variant.effect", "Effect")
-      : t("theme.preview.variant.standard", "Standard"));
 
   return (
     <Box>
@@ -73,25 +66,20 @@ export const PreviewNavbar: React.FC<PreviewNavbarProps> = ({
         color="text.secondary"
         sx={{ mb: 1, display: "block" }}
       >
-        {t("theme.preview.caption.navbar", {
-          variant: variantLabel,
-          defaultValue: "{{variant}} Navbar",
-        })}
+        {label ?? (effectStyle === "effect" ? "Effect" : "Standard")} Navbar
       </Typography>
       <NavbarComponent>
         <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-          <Box sx={{ fontWeight: 600, fontSize: "1.125rem" }}>
-            {t("theme.preview.navbar.logo", "Logo")}
-          </Box>
+          <Box sx={{ fontWeight: 600, fontSize: "1.125rem" }}>Logo</Box>
           <Box sx={{ display: "flex", gap: 1 }}>
-            <NavLink active>{t("theme.preview.navbar.home", "Home")}</NavLink>
-            <NavLink>{t("theme.preview.navbar.about", "About")}</NavLink>
-            <NavLink>{t("theme.preview.navbar.services", "Services")}</NavLink>
+            <NavLink active>Home</NavLink>
+            <NavLink>About</NavLink>
+            <NavLink>Services</NavLink>
           </Box>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Avatar sx={{ width: 32, height: 32, fontSize: "0.875rem" }}>
-            {t("theme.preview.navbar.avatar_initials", "JD")}
+            JD
           </Avatar>
         </Box>
       </NavbarComponent>

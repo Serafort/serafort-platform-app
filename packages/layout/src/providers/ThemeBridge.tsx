@@ -17,10 +17,6 @@ import {
   normalizeEffectConfig,
   DEFAULT_THEME_CONFIG,
   DirectionProvider,
-  elevationShadowCssVars,
-  semanticTextCssVars,
-  serafortAliasCssVars,
-  brandCssVariables,
 } from '@cap/theme'
 import type { TenantThemeConfig } from '@cap/theme'
 import type { Settings, Mode, SystemMode, Direction } from '@cap/shared-types'
@@ -258,23 +254,6 @@ export const ThemeBridge = ({ children }: { children: React.ReactNode }) => {
             <GlobalStyles
               styles={(theme) => ({
                 ':root': {
-                  // Text-safe feedback colours (--semantic-*-text), the brand
-                  // emphasis glow (--shadow-glow) and the full Serafort `--sf-*`
-                  // scale-alias layer (space / radius / shadow / feedback text),
-                  // all mode-resolved. These carry no per-tenant knob, so they
-                  // are emitted here from the composed MUI theme rather than
-                  // through applyThemeVariablesSync. The `@cap/theme`
-                  // GlobalStyles also emits them, but it only renders under
-                  // DesignSystemProvider (Storybook / tests), not in the app
-                  // shell — this is the live path.
-                  ...brandCssVariables(theme.palette.mode === 'dark' ? 'dark' : 'light'),
-                  ...semanticTextCssVars(theme.palette.mode === 'dark' ? 'dark' : 'light'),
-                  ...serafortAliasCssVars(theme.palette.mode === 'dark' ? 'dark' : 'light'),
-                  '--shadow-glow':
-                    elevationShadowCssVars(theme.palette.mode === 'dark' ? 'dark' : 'light')[
-                      '--shadow-glow'
-                    ],
-
                   // Core Layout Variables derived from MUI theme
                   '--border-color': theme.palette.divider,
                   '--border-radius': `${theme.shape.borderRadius}px`,

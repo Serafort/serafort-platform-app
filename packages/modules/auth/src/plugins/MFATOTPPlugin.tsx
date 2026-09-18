@@ -20,7 +20,7 @@ export const MFATOTPPlugin: IAuthPlugin = {
         disabled={disabled}
         sx={{
           py: 1.2,
-          borderRadius: 'var(--sf-radius-lg, 12px)',
+          borderRadius: 3,
           fontWeight: 700,
           textTransform: 'none',
           color: 'text.primary',

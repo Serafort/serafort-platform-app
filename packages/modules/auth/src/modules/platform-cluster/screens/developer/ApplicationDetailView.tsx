@@ -1,7 +1,4 @@
 import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { buildLayoutSurfaceEffect } from '@cap/layout'
-import { getTenantThemeEffects } from '@cap/theme'
 import {
   Box,
   Typography,
@@ -85,8 +82,6 @@ export default function ApplicationDetailView() {
   const { t } = useTranslation('common')
   const navigate = useNavigate()
   const theme = useTheme()
-  const effects = getTenantThemeEffects(theme)
-  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const { id } = useParams()
   const { data: clientResponse, isLoading } = useOIDCClient(id)
   const updateMutation = useUpdateOIDCClient()
@@ -184,7 +179,6 @@ export default function ApplicationDetailView() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
       {/* Hero row: avatar + title + CTA */}
       <Box
@@ -203,7 +197,7 @@ export default function ApplicationDetailView() {
               sx={{
                 width: { xs: 56, md: 80 },
                 height: { xs: 56, md: 80 },
-                borderRadius: 'var(--sf-radius-lg, 16px)',
+                borderRadius: '24px',
                 bgcolor: 'primary.main',
                 color: 'white',
                 boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
@@ -240,7 +234,7 @@ export default function ApplicationDetailView() {
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: 900,
                   letterSpacing: '-0.027em',
                   fontSize: { xs: '1.5rem', md: '2.125rem' },
                 }}
@@ -258,7 +252,7 @@ export default function ApplicationDetailView() {
                   size='small'
                   color='primary'
                   variant='filled'
-                  sx={{ fontWeight: 800, height: 20, fontSize: '0.65rem' }}
+                  sx={{ fontWeight: 900, height: 20, fontSize: '0.65rem' }}
                 />
               )}
               <Chip
@@ -282,12 +276,14 @@ export default function ApplicationDetailView() {
             onClick={handleSave}
             disabled={updateMutation.isPending}
             sx={{
-              bgcolor: 'primary.main',
+              bgcolor: 'info.main',
               color: 'white',
+              boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
+              '&:hover': { bgcolor: 'info.dark' },
               textTransform: 'none',
               fontWeight: 700,
               flex: { xs: 1, sm: 'none' },
-              minHeight: 48,
+              height: 44,
               px: 3,
             }}
           >
@@ -435,7 +431,7 @@ export default function ApplicationDetailView() {
               sx={{
                 mt: 3,
                 p: 2,
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: 2,
                 bgcolor: alpha(theme.palette.info.main, 0.05),
                 border: '1px solid',
                 borderColor: alpha(theme.palette.info.main, 0.1),
@@ -488,7 +484,7 @@ export default function ApplicationDetailView() {
                     sx={{
                       p: 2,
                       bgcolor: alpha(theme.palette.primary.main, 0.05),
-                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      borderRadius: 2,
                       border: '1px solid',
                       borderColor: alpha(theme.palette.primary.main, 0.1),
                     }}
@@ -590,10 +586,10 @@ export default function ApplicationDetailView() {
                   </Typography>
                   <Stack spacing={1}>
                     <Typography variant='body2'>
-                      • {t('auth.admin.fapi2MandatoryPkce')}
+                      â€¢ {t('auth.admin.fapi2MandatoryPkce')}
                     </Typography>
-                    <Typography variant='body2'>• {t('auth.admin.fapi2DpopRequired')}</Typography>
-                    <Typography variant='body2'>• {t('auth.admin.fapi2ParRequired')}</Typography>
+                    <Typography variant='body2'>â€¢ {t('auth.admin.fapi2DpopRequired')}</Typography>
+                    <Typography variant='body2'>â€¢ {t('auth.admin.fapi2ParRequired')}</Typography>
                   </Stack>
                 </Stack>
               </CardContent>
@@ -603,7 +599,7 @@ export default function ApplicationDetailView() {
               sx={{
                 mt: 3,
                 p: 2,
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: 2,
                 bgcolor: alpha(theme.palette.info.main, 0.05),
                 border: '1px solid',
                 borderColor: alpha(theme.palette.info.main, 0.1),
@@ -753,7 +749,7 @@ export default function ApplicationDetailView() {
               sx={{
                 mt: 3,
                 p: 2,
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: 2,
                 bgcolor: alpha(theme.palette.info.main, 0.05),
                 border: '1px solid',
                 borderColor: alpha(theme.palette.info.main, 0.1),
@@ -918,7 +914,7 @@ export default function ApplicationDetailView() {
               sx={{
                 mt: 3,
                 p: 2,
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: 2,
                 bgcolor: alpha(theme.palette.info.main, 0.05),
                 border: '1px solid',
                 borderColor: alpha(theme.palette.info.main, 0.1),
@@ -961,6 +957,5 @@ export default function ApplicationDetailView() {
         severity='warning'
       />
     </Box>
-    </motion.div>
   )
 }

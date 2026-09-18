@@ -5,33 +5,28 @@ import {
   Button,
   Typography,
   Alert,
+  TextField,
+  Avatar,
   CircularProgress,
   alpha,
   useTheme,
   Stack,
+  Card,
   Chip,
+  IconButton,
+  Tooltip,
 } from '@mui/material'
+import QrCode2 from '@mui/icons-material/QrCode2'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import Check from '@mui/icons-material/Check'
 import Download from '@mui/icons-material/Download'
-import Print from '@mui/icons-material/Print'
 import ArrowForward from '@mui/icons-material/ArrowForward'
 import Security from '@mui/icons-material/Security'
 import VpnKey from '@mui/icons-material/VpnKey'
+import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import {
-  AuthPageLayout,
-  AuthCard,
-  AuthCardHeader,
-  AuthInputLabel,
-  AuthCodeInput,
-  AuthCopyField,
-  AuthQrPanel,
-} from '../../../authentication-core/components/shared/auth'
 import { mfaService, TOTPSetupResponse } from '../../services/mfa.service'
 import Path from '../path'
-
-const TOTP_CODE_LENGTH = 6
 
 export default function MFASetupScreen() {
   const { t } = useTranslation('auth')
@@ -43,6 +38,7 @@ export default function MFASetupScreen() {
   const [code, setCode] = useState('')
   const [verifying, setVerifying] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [copiedSecret, setCopiedSecret] = useState(false)
 
   // Step 3: Success & Recovery Codes
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([])
@@ -81,8 +77,15 @@ export default function MFASetupScreen() {
     }
   }, [t])
 
+  const handleCopySecret = useCallback(() => {
+    if (!setupData?.manualEntry) return
+    navigator.clipboard.writeText(setupData.manualEntry)
+    setCopiedSecret(true)
+    setTimeout(() => setCopiedSecret(false), 2000)
+  }, [setupData?.manualEntry])
+
   const handleVerify = useCallback(async () => {
-    if (code.length !== TOTP_CODE_LENGTH) return
+    if (code.length !== 6) return
     try {
       setVerifying(true)
       setError(null)
@@ -127,284 +130,342 @@ export default function MFASetupScreen() {
     URL.revokeObjectURL(url)
   }, [recoveryCodes])
 
-  const handlePrintCodes = useCallback(() => {
-    if (!recoveryCodes.length) return
-    // Opened as a standalone document rather than printing the app: the setup
-    // card's surface effects and dark palette waste ink and can render the
-    // codes illegibly on paper.
-    const sheet = window.open('', '_blank', 'noopener,noreferrer,width=720,height=900')
-    if (!sheet) return
-    const title = t('mfa.saveBackupCodesTitle', 'Save Recovery Codes')
-    const generated = new Date().toLocaleString()
-    sheet.document.write(
-      '<!doctype html><html><head><meta charset="utf-8"><title>' +
-        title +
-        '</title><style>' +
-        'body{font-family:system-ui,sans-serif;padding:40px;color:#111}' +
-        'h1{font-size:20px;margin:0 0 4px}p{color:#555;font-size:13px;margin:0 0 24px}' +
-        'ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}' +
-        'li{font-family:ui-monospace,monospace;font-size:16px;font-weight:700;' +
-        'border:1px solid #ccc;border-radius:8px;padding:10px 14px;letter-spacing:1px}' +
-        '</style></head><body><h1>' +
-        title +
-        '</h1><p>' +
-        generated +
-        '</p><ul>' +
-        recoveryCodes.map((entry) => '<li>' + entry + '</li>').join('') +
-        '</ul></body></html>',
-    )
-    sheet.document.close()
-    sheet.focus()
-    sheet.print()
-  }, [recoveryCodes, t])
-
-  // --- Loading: the authenticator secret is being provisioned -------------
   if (loading) {
     return (
-      <AuthPageLayout maxWidth={520} backdrop='subtle'>
-        <AuthCard padding='comfortable'>
-          <Box
-            role='status'
-            aria-live='polite'
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 2,
-              py: 6,
-            }}
-          >
-            <CircularProgress size={44} thickness={4} />
-            <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 600 }}>
-              {t('mfa.loadingSetup', 'Initializing authenticator setup...')}
-            </Typography>
-          </Box>
-        </AuthCard>
-      </AuthPageLayout>
+      <Box
+        sx={{
+          height: '100dvh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'background.default',
+        }}
+      >
+        <CircularProgress size={48} sx={{ mb: 3 }} />
+        <Typography variant='h6' sx={{ fontWeight: 600, color: 'text.secondary' }}>
+          {t('mfa.loadingSetup', 'Initializing authenticator setup...')}
+        </Typography>
+      </Box>
     )
   }
 
-  // --- Step 2: recovery codes --------------------------------------------
   if (step === 'recovery') {
     return (
-      <AuthPageLayout maxWidth={560}>
-        <AuthCard padding='standard'>
-          <Box sx={{ textAlign: 'center' }}>
-            <AuthCardHeader
-              icon={<VpnKey sx={{ fontSize: 32 }} />}
-              title={t('mfa.saveBackupCodesTitle', 'Save Recovery Codes')}
-              subtitle={t(
-                'mfa.saveBackupCodesSubtitle',
-                'If you lose access to your authenticator app, these one-time codes are the only way to recover your account.',
-              )}
-              tone='success'
-              iconSize={64}
-            />
-          </Box>
-
-          <Alert
-            severity='warning'
-            sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)', '& .MuiAlert-message': { fontWeight: 600 } }}
-          >
-            {t(
-              'mfa.backupWarning',
-              'Keep these codes in a safe place. They will not be displayed again.',
-            )}
-          </Alert>
-
-          <Box
-            component='ul'
-            aria-label={t('mfa.recoveryCodesLabel', 'Recovery codes')}
+      <Box
+        className='animate-scale-in'
+        component={motion.div}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        sx={{ width: '100%', maxWidth: 520, mx: 'auto', p: { xs: 3, md: 5 }, textAlign: 'center' }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+          <Avatar
+            variant='square'
             sx={{
-              listStyle: 'none',
-              p: 2,
-              m: 0,
-              mb: 3,
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
-              gap: 1.5,
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              border: '1px solid',
-              borderColor: 'divider',
-              bgcolor: alpha(theme.palette.action.selected, 0.05),
+              width: 56,
+              height: 56,
+              bgcolor: 'transparent',
+              color: 'success.main',
+              borderRadius: '24px',
+              border: '2px solid',
+              borderColor: alpha(theme.palette.success.main, 0.2),
             }}
           >
-            {recoveryCodes.map((codeItem) => (
-              <Box component='li' key={codeItem}>
-                <Chip
-                  label={codeItem}
-                  variant='outlined'
-                  dir='ltr'
-                  sx={{
-                    width: '100%',
-                    height: 40,
-                    fontFamily: 'monospace',
-                    fontWeight: 700,
-                    fontSize: '0.95rem',
-                    borderRadius: 'var(--sf-radius-md, 8px)',
-                    bgcolor: alpha(theme.palette.primary.main, 0.04),
-                  }}
-                />
-              </Box>
+            <VpnKey sx={{ fontSize: 32 }} />
+          </Avatar>
+        </Box>
+
+        <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+          {t('mfa.saveBackupCodesTitle', 'Save Recovery Codes')}
+        </Typography>
+        <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500, mb: 3 }}>
+          {t(
+            'mfa.saveBackupCodesSubtitle',
+            'If you lose access to your authenticator app, these one-time codes are the only way to recover your account.',
+          )}
+        </Typography>
+
+        <Alert
+          severity='warning'
+          sx={{
+            mb: 3,
+            textAlign: 'left',
+            borderRadius: 2,
+            '& .MuiAlert-message': { fontWeight: 600 },
+          }}
+        >
+          {t(
+            'mfa.backupWarning',
+            'Keep these codes in a safe place. They will not be displayed again.',
+          )}
+        </Alert>
+
+        <Card
+          variant='outlined'
+          sx={{
+            p: 3,
+            mb: 3,
+            borderRadius: 3,
+            bgcolor: alpha(theme.palette.background.paper, 0.8),
+            borderColor: 'divider',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: 1.5,
+            }}
+          >
+            {recoveryCodes.map((codeItem, index) => (
+              <Chip
+                key={index}
+                label={codeItem}
+                variant='outlined'
+                sx={{
+                  width: '100%',
+                  fontFamily: 'monospace',
+                  fontWeight: 700,
+                  fontSize: '0.95rem',
+                  py: 2,
+                  borderRadius: 2,
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                }}
+              />
             ))}
           </Box>
+        </Card>
 
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ mb: 3 }}>
-            <Button
-              fullWidth
-              variant='outlined'
-              onClick={handleCopyCodes}
-              startIcon={copiedCodes ? <Check /> : <ContentCopy />}
-              sx={{
-                minHeight: 44,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-                fontWeight: 700,
-                textTransform: 'none',
-              }}
-            >
-              {copiedCodes ? t('common.copied', 'Copied!') : t('mfa.copyCodes', 'Copy Codes')}
-            </Button>
-            <Button
-              fullWidth
-              variant='outlined'
-              onClick={handleDownloadCodes}
-              startIcon={<Download />}
-              sx={{
-                minHeight: 44,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-                fontWeight: 700,
-                textTransform: 'none',
-              }}
-            >
-              {t('mfa.downloadCodes', 'Download .txt')}
-            </Button>
-            <Button
-              fullWidth
-              variant='outlined'
-              onClick={handlePrintCodes}
-              startIcon={<Print />}
-              sx={{
-                minHeight: 44,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-                fontWeight: 700,
-                textTransform: 'none',
-              }}
-            >
-              {t('mfa.printCodes', 'Print')}
-            </Button>
-          </Stack>
-
+        <Stack direction='row' spacing={2} sx={{ mb: 4 }}>
           <Button
             fullWidth
-            variant='contained'
-            size='large'
-            onClick={() => navigate(Path.mfa.management || Path.mfa.dashboard)}
-            endIcon={<ArrowForward />}
-            sx={{
-              minHeight: 48,
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              fontWeight: 800,
-              fontSize: '1rem',
-              textTransform: 'none',
-              boxShadow: 'var(--sf-shadow-glow, none)',
-            }}
+            variant='outlined'
+            onClick={handleCopyCodes}
+            startIcon={copiedCodes ? <Check /> : <ContentCopy />}
+            sx={{ py: 1.25, borderRadius: 2.5, fontWeight: 700, textTransform: 'none' }}
           >
-            {t('mfa.finishSetup', 'Finish & Continue')}
+            {copiedCodes ? t('common.copied', 'Copied!') : t('mfa.copyCodes', 'Copy Codes')}
           </Button>
-        </AuthCard>
-      </AuthPageLayout>
+          <Button
+            fullWidth
+            variant='outlined'
+            onClick={handleDownloadCodes}
+            startIcon={<Download />}
+            sx={{ py: 1.25, borderRadius: 2.5, fontWeight: 700, textTransform: 'none' }}
+          >
+            {t('mfa.downloadCodes', 'Download .txt')}
+          </Button>
+        </Stack>
+
+        <Button
+          fullWidth
+          variant='contained'
+          size='large'
+          onClick={() => navigate(Path.mfa.management || Path.mfa.dashboard)}
+          endIcon={<ArrowForward />}
+          sx={{
+            py: 1.5,
+            borderRadius: 3,
+            fontWeight: 800,
+            fontSize: '1rem',
+            textTransform: 'none',
+            bgcolor: 'primary.main',
+            boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`,
+            '&:hover': { bgcolor: 'primary.dark', transform: 'translateY(-1px)' },
+          }}
+        >
+          {t('mfa.finishSetup', 'Finish & Continue')}
+        </Button>
+      </Box>
     )
   }
 
-  // --- Step 1: scan and confirm ------------------------------------------
   return (
-    <AuthPageLayout maxWidth={520}>
-      <AuthCard padding='standard'>
-        <Box sx={{ textAlign: 'center' }}>
-          <AuthCardHeader
-            icon={<Security sx={{ fontSize: 32 }} />}
-            title={t('mfa.setupHeading', 'Set Up Authenticator')}
-            subtitle={t(
-              'mfa.setupDescription',
-              'Scan the QR code with Google Authenticator, Authy, or 1Password, then enter the 6-digit confirmation code.',
-            )}
-            iconSize={64}
+    <Box
+      className='animate-scale-in'
+      component={motion.div}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+      sx={{ width: '100%', maxWidth: 480, mx: 'auto', p: { xs: 3, md: 5 }, textAlign: 'center' }}
+    >
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+        <Avatar
+          variant='square'
+          sx={{
+            width: 56,
+            height: 56,
+            bgcolor: 'transparent',
+            color: 'primary.main',
+            borderRadius: '24px',
+            border: '2px solid',
+            borderColor: alpha(theme.palette.primary.main, 0.2),
+          }}
+        >
+          <Security sx={{ fontSize: 32 }} />
+        </Avatar>
+      </Box>
+
+      <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
+        {t('mfa.setupHeading', 'Set Up Authenticator')}
+      </Typography>
+      <Typography
+        variant='body1'
+        color='text.secondary'
+        sx={{ fontWeight: 500, mb: 3, lineHeight: 1.6 }}
+      >
+        {t(
+          'mfa.setupDescription',
+          'Scan the QR code with Google Authenticator, Authy, or 1Password, then enter the 6-digit confirmation code.',
+        )}
+      </Typography>
+
+      {error && (
+        <Alert
+          severity='error'
+          sx={{
+            mb: 3,
+            borderRadius: 2,
+            textAlign: 'left',
+            '& .MuiAlert-message': { fontWeight: 600 },
+          }}
+        >
+          {error}
+        </Alert>
+      )}
+
+      {setupData?.qrDataUrl ? (
+        <Card
+          variant='outlined'
+          sx={{
+            p: 3,
+            mb: 3,
+            borderRadius: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            bgcolor: '#FFFFFF',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.06)',
+          }}
+        >
+          <Box
+            component='img'
+            src={setupData.qrDataUrl}
+            alt='Authenticator QR Code'
+            sx={{ width: 200, height: 200, borderRadius: 2 }}
+          />
+        </Card>
+      ) : (
+        <Box
+          sx={{ p: 4, mb: 3, borderRadius: 3, bgcolor: alpha(theme.palette.action.selected, 0.05) }}
+        >
+          <QrCode2 sx={{ fontSize: 64, color: 'text.disabled' }} />
+        </Box>
+      )}
+
+      {setupData?.manualEntry && (
+        <Box
+          sx={{
+            mb: 3,
+            p: 2,
+            borderRadius: 2.5,
+            bgcolor: alpha(theme.palette.action.selected, 0.05),
+            border: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Typography
+            variant='caption'
+            sx={{ color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}
+          >
+            {t('mfa.manualKeyLabel', 'Manual Entry Secret Key')}
+          </Typography>
+          <Stack direction='row' alignItems='center' justifyContent='center' spacing={1}>
+            <Typography
+              variant='body2'
+              sx={{ fontFamily: 'monospace', fontWeight: 700, letterSpacing: '2px' }}
+            >
+              {setupData.manualEntry}
+            </Typography>
+            <Tooltip
+              title={copiedSecret ? t('common.copied', 'Copied!') : t('common.copy', 'Copy')}
+            >
+              <IconButton size='small' onClick={handleCopySecret}>
+                {copiedSecret ? (
+                  <Check color='success' fontSize='small' />
+                ) : (
+                  <ContentCopy fontSize='small' />
+                )}
+              </IconButton>
+            </Tooltip>
+          </Stack>
+        </Box>
+      )}
+
+      <Stack spacing={3}>
+        <Box>
+          <Typography
+            variant='caption'
+            sx={{
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              ml: 1,
+              mb: 1,
+              display: 'block',
+              color: 'text.secondary',
+              textAlign: 'left',
+            }}
+          >
+            {t('mfa.enterCode', '6-Digit Verification Code')}
+          </Typography>
+          <TextField
+            fullWidth
+            variant='outlined'
+            placeholder='000 000'
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            disabled={verifying}
+            inputProps={{
+              style: {
+                textAlign: 'center',
+                fontSize: '1.5rem',
+                letterSpacing: '8px',
+                fontWeight: 700,
+              },
+            }}
+            slotProps={{
+              input: {
+                sx: { borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.6) },
+              },
+            }}
           />
         </Box>
 
-        {error && (
-          <Alert
-            severity='error'
-            role='alert'
-            aria-live='polite'
-            sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)', '& .MuiAlert-message': { fontWeight: 600 } }}
-          >
-            {error}
-          </Alert>
-        )}
-
-        <AuthQrPanel src={setupData?.qrDataUrl} alt={t('mfa.qrAlt', 'Authenticator QR code')} />
-
-        {setupData?.manualEntry && (
-          <Box sx={{ mb: 3 }}>
-            <AuthCopyField
-              value={setupData.manualEntry}
-              label={t('mfa.manualKeyLabel', 'Manual Entry Secret Key')}
-              copyLabel={t('mfa.copySecret', 'Copy secret key')}
-            />
-          </Box>
-        )}
-
-        <Stack spacing={3}>
-          <Box>
-            <Box sx={{ textAlign: 'center' }}>
-              <AuthInputLabel>{t('mfa.enterCode', '6-Digit Verification Code')}</AuthInputLabel>
-            </Box>
-            <AuthCodeInput
-              id='mfa-totp-code'
-              value={code}
-              onChange={setCode}
-              onComplete={handleVerify}
-              length={TOTP_CODE_LENGTH}
-              groups={[3, 3]}
-              separator=''
-              mode='numeric'
-              disabled={verifying}
-              error={Boolean(error)}
-              autoFocus
-              label={t('mfa.enterCode', '6-Digit Verification Code')}
-              boxLabel={(position, total) =>
-                t('mfa.codeBoxLabel', {
-                  position,
-                  total,
-                  defaultValue: 'Verification code digit {{position}} of {{total}}',
-                })
-              }
-            />
-          </Box>
-
-          <Button
-            fullWidth
-            variant='contained'
-            size='large'
-            disabled={code.length !== TOTP_CODE_LENGTH || verifying}
-            onClick={handleVerify}
-            endIcon={verifying ? <CircularProgress size={20} color='inherit' /> : <ArrowForward />}
-            sx={{
-              minHeight: 48,
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              fontWeight: 800,
-              fontSize: '1rem',
-              textTransform: 'none',
-              boxShadow: 'var(--sf-shadow-glow, none)',
-            }}
-          >
-            {verifying
-              ? t('mfa.verifying', 'Verifying...')
-              : t('mfa.verifySetupButton', 'Verify & Activate MFA')}
-          </Button>
-        </Stack>
-      </AuthCard>
-    </AuthPageLayout>
+        <Button
+          fullWidth
+          variant='contained'
+          size='large'
+          disabled={code.length !== 6 || verifying}
+          onClick={handleVerify}
+          endIcon={verifying ? <CircularProgress size={20} color='inherit' /> : <ArrowForward />}
+          sx={{
+            py: 1.5,
+            borderRadius: 3,
+            fontWeight: 800,
+            fontSize: '1rem',
+            textTransform: 'none',
+            bgcolor: 'primary.main',
+            boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`,
+            '&:hover': { bgcolor: 'primary.dark', transform: 'translateY(-1px)' },
+          }}
+        >
+          {verifying
+            ? t('mfa.verifying', 'Verifying...')
+            : t('mfa.verifySetupButton', 'Verify & Activate MFA')}
+        </Button>
+      </Stack>
+    </Box>
   )
 }

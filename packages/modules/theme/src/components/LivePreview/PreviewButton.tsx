@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { Box, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import type { EffectType } from "@cap/theme";
@@ -97,33 +96,18 @@ export const PreviewButton: React.FC<PreviewButtonProps> = ({
   effectStyle = "standard",
   label,
 }) => {
-  const { t } = useTranslation();
   const ButtonComponent =
     effectStyle === "effect" ? EffectButton : StandardButton;
-  const variantLabel =
-    label ??
-    (effectStyle === "effect"
-      ? t("theme.preview.variant.effect", "Effect")
-      : t("theme.preview.variant.standard", "Standard"));
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Typography variant="caption" color="text.secondary">
-        {t("theme.preview.caption.button", {
-          variant: variantLabel,
-          defaultValue: "{{variant}} Button",
-        })}
+        {label ?? (effectStyle === "effect" ? "Effect" : "Standard")} Button
       </Typography>
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-        <ButtonComponent variant={variant}>
-          {t("theme.preview.button.primary", "Primary")}
-        </ButtonComponent>
-        <ButtonComponent variant="secondary">
-          {t("theme.preview.button.secondary", "Secondary")}
-        </ButtonComponent>
-        <ButtonComponent variant="outline">
-          {t("theme.preview.button.outline", "Outline")}
-        </ButtonComponent>
+        <ButtonComponent variant={variant}>Primary</ButtonComponent>
+        <ButtonComponent variant="secondary">Secondary</ButtonComponent>
+        <ButtonComponent variant="outline">Outline</ButtonComponent>
       </Box>
     </Box>
   );

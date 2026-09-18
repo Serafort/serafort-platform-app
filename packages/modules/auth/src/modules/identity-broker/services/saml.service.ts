@@ -2,9 +2,9 @@ import { apiClient, ENDPOINTS, type FetchResponse } from '@cap/platform-core'
 import type {
   SAMLConfig,
   UpdateSAMLConfigDTO,
+  SAMLMetadataResponse,
   RemoteMetadataFetchDTO,
   RemoteMetadataResult,
-  UploadSAMLMetadataResult,
   RecentSAMLEntity,
   SAMLSSOInitiateDTO,
   SAMLSSOInitiateResponse,
@@ -21,21 +21,14 @@ export const samlService = {
     return apiClient.put(ENDPOINTS.admin.saml.config, data)
   },
 
-  /**
-   * `SamlConfigController.getMetadata` responds with raw
-   * `Content-Type: application/xml`, not JSON — `apiClient`'s default parser
-   * calls `response.json()`, which throws on an XML body and silently
-   * resolves to `null`. Requesting `text` avoids that and gets the real
-   * metadata document back as a string.
-   */
-  getMetadata: async (): Promise<FetchResponse<string>> => {
-    return apiClient.get<string>(ENDPOINTS.admin.saml.metadata, { responseType: 'text' })
+  getMetadata: async (): Promise<FetchResponse<SAMLMetadataResponse>> => {
+    return apiClient.get<SAMLMetadataResponse>(ENDPOINTS.admin.saml.metadata)
   },
 
   uploadMetadata: async (
     metadataXmlOrFormData: FormData | { metadata: string },
-  ): Promise<FetchResponse<UploadSAMLMetadataResult>> => {
-    return apiClient.post<UploadSAMLMetadataResult>(
+  ): Promise<FetchResponse<RemoteMetadataResult>> => {
+    return apiClient.post<RemoteMetadataResult>(
       ENDPOINTS.admin.saml.uploadMetadata,
       metadataXmlOrFormData,
     )

@@ -33,11 +33,7 @@ import Security from '@mui/icons-material/Security'
 import CancelOutlined from '@mui/icons-material/CancelOutlined'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { buildLayoutSurfaceEffect } from '@cap/layout'
-import { getTenantThemeEffects } from '@cap/theme'
 import { useNotifications } from '@cap/platform-core'
-import { Path } from '../../../../routes/path'
 import { useGetUser, useRequestEmailChange } from '../../hooks/useUserQuery'
 
 export default function EmailChangeStatusDashboard() {
@@ -46,8 +42,6 @@ export default function EmailChangeStatusDashboard() {
   const navigate = useNavigate()
   const location = useLocation()
   const { addNotification } = useNotifications()
-  const effects = getTenantThemeEffects(theme)
-  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
 
   const { data: userData } = useGetUser()
   const currentUser = userData?.data
@@ -103,8 +97,7 @@ export default function EmailChangeStatusDashboard() {
         label: t('auth.account.verify_current_email', 'Request Email Change'),
         description: t(
           'auth.account.current_email_desc',
-          'Identity verified for current account ({{email}}).',
-          { email: currentEmail },
+          `Identity verified for current account (${currentEmail}).`,
         ),
         completed: true,
       },
@@ -112,8 +105,7 @@ export default function EmailChangeStatusDashboard() {
         label: t('auth.account.confirm_new_email', 'Confirm New Email Address'),
         description: t(
           'auth.account.confirm_new_email_desc',
-          "We've dispatched a secure confirmation link to {{newEmail}}. Please click the link to finalize your new login credentials.",
-          { newEmail: stateNewEmail },
+          `We've dispatched a secure confirmation link to ${stateNewEmail}. Please click the link to finalize your new login credentials.`,
         ),
         completed: false,
       },
@@ -143,311 +135,281 @@ export default function EmailChangeStatusDashboard() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-    >
-      <Container maxWidth='md' sx={{ py: { xs: 3, md: 5 } }}>
-        {/* Navigation and Title */}
-        <Box sx={{ mb: 4 }}>
-          <Button
-            startIcon={<ArrowBack />}
-            onClick={() => navigate(Path.account.view || '/profile')}
-            sx={{
-              mb: 2.5,
-              textTransform: 'none',
-              fontWeight: 600,
-              color: 'text.secondary',
-              minHeight: 44,
-              px: 2,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              bgcolor: alpha(theme.palette.action.active, 0.04),
-              '&:hover': {
-                bgcolor: alpha(theme.palette.action.active, 0.08),
-                color: 'text.primary',
-              },
-            }}
-          >
-            {t('common.backToProfile', 'Back to Profile')}
-          </Button>
-
-          <Typography variant='h4' fontWeight={800} letterSpacing='-0.025em' gutterBottom>
-            {t('auth.account.email_change_request', 'Email Change Request')}
-          </Typography>
-          <Typography variant='body2' color='text.secondary'>
-            {t(
-              'auth.account.email_change_request_desc',
-              'Follow the verification steps below to securely transition your account email.'
-            )}
-          </Typography>
-        </Box>
-
-        {/* Main Stepper Card */}
-        <Card
-          variant='outlined'
+    <Container maxWidth='md' sx={{ py: { xs: 3, md: 5 } }}>
+      {/* Navigation and Title */}
+      <Box sx={{ mb: 4 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate('/profile')}
           sx={{
-            borderRadius: 'var(--sf-radius-lg, 16px)',
-            borderColor: alpha(theme.palette.divider, 0.1),
-            overflow: 'hidden',
-            bgcolor: 'background.paper',
-            mb: 3,
-            ...surfaceEffect,
+            mb: 1.5,
+            textTransform: 'none',
+            fontWeight: 600,
+            color: 'text.secondary',
+            p: 0,
+            minWidth: 0,
+            '&:hover': { bgcolor: 'transparent', color: 'text.primary' },
           }}
         >
-          <CardContent sx={{ p: { xs: 2.5, md: 4 } }}>
-            <Stepper orientation='vertical' nonLinear activeStep={1}>
-              {steps.map((step, index) => (
-                <Step key={step.label} expanded active={index === 1}>
-                  <StepLabel
-                    StepIconComponent={() => (
-                      <Box
-                        sx={{
-                          width: 36,
-                          height: 36,
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          bgcolor:
-                            step.completed || index <= 1
-                              ? theme.palette.primary.main
-                              : alpha(theme.palette.text.disabled, 0.2),
-                          color: theme.palette.primary.contrastText,
-                          boxShadow:
-                            index === 1
-                              ? `0 0 0 4px ${alpha(theme.palette.primary.main, 0.15)}`
-                              : 'none',
-                        }}
-                      >
-                        {step.completed ? (
-                          <CheckCircle sx={{ fontSize: 20 }} />
-                        ) : (
-                          <Typography variant='caption' fontWeight={800}>
-                            {index + 1}
-                          </Typography>
-                        )}
-                      </Box>
-                    )}
-                  >
-                    <Typography variant='subtitle1' fontWeight={700}>
-                      {step.label}
-                    </Typography>
-                  </StepLabel>
-                  <StepContent>
-                    <Typography variant='body2' color='text.secondary' sx={{ mb: 2, mt: 0.5 }}>
-                      {step.description}
-                    </Typography>
-                    {index === 1 && (
-                      <Stack direction='row' spacing={1.5} alignItems='center' sx={{ mb: 1 }}>
-                        <Button
-                          variant='outlined'
-                          size='small'
-                          onClick={handleResend}
-                          disabled={isResending || secondsRemaining === 0}
-                          startIcon={
-                            isResending ? (
-                              <CircularProgress size={16} color='inherit' />
-                            ) : (
-                              <Mail sx={{ fontSize: 16 }} />
-                            )
-                          }
-                          sx={{
-                            textTransform: 'none',
-                            borderRadius: 'var(--sf-radius-md, 8px)',
-                            minHeight: 44,
-                            px: 2,
-                            fontWeight: 600,
-                            borderColor: alpha(theme.palette.divider, 0.2),
-                          }}
-                        >
-                          {isResending
-                            ? t('auth.account.resending_link', 'Resending Link...')
-                            : t('auth.account.resend_confirmation_link', 'Resend Confirmation Link')}
-                        </Button>
-                      </Stack>
-                    )}
-                  </StepContent>
-                </Step>
-              ))}
-            </Stepper>
+          {t('common.backToProfile', 'Back to Profile')}
+        </Button>
+        <Typography variant='h4' fontWeight={800} letterSpacing='-0.025em' gutterBottom>
+          {t('auth.account.email_change_request', 'Email Change Request')}
+        </Typography>
+        <Typography variant='body2' color='text.secondary'>
+          {t(
+            'auth.account.email_change_request_desc',
+            'Follow the verification steps below to securely transition your account email.',
+          )}
+        </Typography>
+      </Box>
 
-            <Divider sx={{ my: 3.5, opacity: 0.6 }} />
-
-            {/* Expiration Countdown */}
-            <Box
-              sx={{
-                p: 3,
-                borderRadius: 'var(--sf-radius-md, 12px)',
-                bgcolor: alpha(theme.palette.background.default, 0.6),
-                border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                textAlign: 'center',
-              }}
-            >
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                textTransform='uppercase'
-                fontWeight={700}
-                letterSpacing='0.08em'
-              >
-                {t('auth.account.security_link_expires_in', 'Security Link Expires In')}
-              </Typography>
-              <Stack direction='row' spacing={2} justifyContent='center' sx={{ mt: 2 }}>
-                {[
-                  { value: hours, label: t('common.hours', 'Hours') },
-                  { value: minutes, label: t('common.minutes', 'Minutes') },
-                  { value: seconds, label: t('common.seconds', 'Seconds') },
-                ].map((unit, i) => (
-                  <Box key={i} sx={{ textAlign: 'center' }}>
-                    <Paper
-                      variant='outlined'
+      {/* Main Stepper Card */}
+      <Card
+        sx={{
+          borderRadius: 3,
+          border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
+          overflow: 'hidden',
+          bgcolor: 'background.paper',
+          mb: 3,
+        }}
+      >
+        <CardContent sx={{ p: { xs: 2.5, md: 4 } }}>
+          <Stepper orientation='vertical' nonLinear activeStep={1}>
+            {steps.map((step, index) => (
+              <Step key={step.label} expanded active={index === 1}>
+                <StepLabel
+                  StepIconComponent={() => (
+                    <Box
                       sx={{
-                        width: 60,
-                        height: 60,
+                        width: 34,
+                        height: 34,
+                        borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        borderRadius: 'var(--sf-radius-md, 8px)',
-                        mb: 0.75,
-                        bgcolor: 'background.paper',
-                        borderColor: alpha(theme.palette.divider, 0.15),
+                        bgcolor:
+                          step.completed || index <= 1
+                            ? theme.palette.primary.main
+                            : alpha(theme.palette.text.disabled, 0.2),
+                        color: theme.palette.primary.contrastText,
+                        boxShadow:
+                          index === 1
+                            ? `0 0 0 4px ${alpha(theme.palette.primary.main, 0.15)}`
+                            : 'none',
                       }}
                     >
-                      <Typography
-                        variant='h5'
-                        fontWeight={800}
-                        color={secondsRemaining < 120 ? 'error.main' : 'primary.main'}
-                      >
-                        {unit.value}
-                      </Typography>
-                    </Paper>
-                    <Typography variant='caption' color='text.secondary' fontWeight={600}>
-                      {unit.label}
-                    </Typography>
-                  </Box>
-                ))}
-              </Stack>
-              {secondsRemaining === 0 && (
-                <Alert severity='warning' sx={{ mt: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}>
-                  {t(
-                    'auth.account.link_expired_alert',
-                    'The confirmation link has expired. Please click "Resend Confirmation Link" to generate a new one.'
+                      {step.completed ? (
+                        <CheckCircle sx={{ fontSize: 20 }} />
+                      ) : (
+                        <Typography variant='caption' fontWeight={800}>
+                          {index + 1}
+                        </Typography>
+                      )}
+                    </Box>
                   )}
-                </Alert>
-              )}
-            </Box>
-          </CardContent>
-        </Card>
+                >
+                  <Typography variant='subtitle1' fontWeight={700}>
+                    {step.label}
+                  </Typography>
+                </StepLabel>
+                <StepContent>
+                  <Typography variant='body2' color='text.secondary' sx={{ mb: 2, mt: 0.5 }}>
+                    {step.description}
+                  </Typography>
+                  {index === 1 && (
+                    <Stack direction='row' spacing={1.5} alignItems='center' sx={{ mb: 1 }}>
+                      <Button
+                        variant='outlined'
+                        size='small'
+                        onClick={handleResend}
+                        disabled={isResending || secondsRemaining === 0}
+                        startIcon={
+                          isResending ? (
+                            <CircularProgress size={16} color='inherit' />
+                          ) : (
+                            <Mail sx={{ fontSize: 16 }} />
+                          )
+                        }
+                        sx={{
+                          textTransform: 'none',
+                          borderRadius: 2,
+                          fontWeight: 600,
+                          borderColor: alpha(theme.palette.divider, 0.2),
+                        }}
+                      >
+                        {isResending
+                          ? t('auth.account.resending_link', 'Resending Link...')
+                          : t('auth.account.resend_confirmation_link', 'Resend Confirmation Link')}
+                      </Button>
+                    </Stack>
+                  )}
+                </StepContent>
+              </Step>
+            ))}
+          </Stepper>
 
-        {/* Info & Cancellation Banner */}
-        <Box
-          sx={{
-            p: 2.5,
-            borderRadius: 'var(--sf-radius-md, 12px)',
-            bgcolor: alpha(theme.palette.info.main, 0.05),
-            border: `1px solid ${alpha(theme.palette.info.main, 0.15)}`,
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            flexDirection: { xs: 'column', sm: 'row' },
-            gap: 2,
-          }}
-        >
-          <Stack direction='row' spacing={1.5} alignItems='flex-start'>
-            <Info color='info' sx={{ mt: 0.25 }} />
-            <Box>
-              <Typography variant='subtitle2' fontWeight={700} color='info.main'>
-                {t('auth.account.cancel_change_prompt', 'Need to cancel this change?')}
-              </Typography>
-              <Typography variant='body2' color='text.secondary'>
-                {t(
-                  'auth.account.cancel_change_prompt_desc',
-                  "If you didn't initiate this request or prefer to keep your existing email address, you can cancel the process at any time."
-                )}
-              </Typography>
-            </Box>
-          </Stack>
-          <Button
-            variant='outlined'
-            color='error'
-            size='small'
-            onClick={() => setIsCancelDialogOpen(true)}
+          <Divider sx={{ my: 3.5, opacity: 0.6 }} />
+
+          {/* Expiration Countdown */}
+          <Box
             sx={{
-              textTransform: 'none',
-              fontWeight: 700,
-              minHeight: 44,
-              px: 2,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              whiteSpace: 'nowrap',
-              alignSelf: { xs: 'flex-start', sm: 'center' },
+              p: 3,
+              borderRadius: 2.5,
+              bgcolor: alpha(theme.palette.background.default, 0.6),
+              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              textAlign: 'center',
             }}
           >
-            {t('auth.account.cancel_request', 'Cancel Request')}
-          </Button>
-        </Box>
-
-        {/* Cancel Confirmation Dialog */}
-        <Dialog
-          open={isCancelDialogOpen}
-          onClose={() => setIsCancelDialogOpen(false)}
-          maxWidth='xs'
-          fullWidth
-          slotProps={{
-            paper: {
-              sx: {
-                borderRadius: 'var(--sf-radius-lg, 16px)',
-                p: 1,
-                border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
-                ...surfaceEffect,
-              },
-            },
-          }}
-        >
-          <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <CancelOutlined color='error' />
-            <Typography variant='h6' fontWeight={700}>
-              {t('auth.account.cancel_email_change_dialog_title', 'Cancel Email Change?')}
+            <Typography
+              variant='caption'
+              color='text.secondary'
+              textTransform='uppercase'
+              fontWeight={700}
+              letterSpacing='0.08em'
+            >
+              {t('auth.account.security_link_expires_in', 'Security Link Expires In')}
             </Typography>
-          </DialogTitle>
-          <DialogContent>
+            <Stack direction='row' spacing={2} justifyContent='center' sx={{ mt: 2 }}>
+              {[
+                { value: hours, label: t('common.hours', 'Hours') },
+                { value: minutes, label: t('common.minutes', 'Minutes') },
+                { value: seconds, label: t('common.seconds', 'Seconds') },
+              ].map((unit, i) => (
+                <Box key={i} sx={{ textAlign: 'center' }}>
+                  <Paper
+                    variant='outlined'
+                    sx={{
+                      width: 60,
+                      height: 60,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 2,
+                      mb: 0.75,
+                      bgcolor: 'background.paper',
+                      borderColor: alpha(theme.palette.divider, 0.15),
+                    }}
+                  >
+                    <Typography
+                      variant='h5'
+                      fontWeight={800}
+                      color={secondsRemaining < 120 ? 'error.main' : 'primary.main'}
+                    >
+                      {unit.value}
+                    </Typography>
+                  </Paper>
+                  <Typography variant='caption' color='text.secondary' fontWeight={600}>
+                    {unit.label}
+                  </Typography>
+                </Box>
+              ))}
+            </Stack>
+            {secondsRemaining === 0 && (
+              <Alert severity='warning' sx={{ mt: 2, borderRadius: 2 }}>
+                {t(
+                  'auth.account.link_expired_alert',
+                  'The confirmation link has expired. Please click "Resend Confirmation Link" to generate a new one.',
+                )}
+              </Alert>
+            )}
+          </Box>
+        </CardContent>
+      </Card>
+
+      {/* Info & Cancellation Banner */}
+      <Box
+        sx={{
+          p: 2.5,
+          borderRadius: 2.5,
+          bgcolor: alpha(theme.palette.info.main, 0.05),
+          border: `1px solid ${alpha(theme.palette.info.main, 0.15)}`,
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: 2,
+        }}
+      >
+        <Stack direction='row' spacing={1.5} alignItems='flex-start'>
+          <Info color='info' sx={{ mt: 0.25 }} />
+          <Box>
+            <Typography variant='subtitle2' fontWeight={700} color='info.main'>
+              {t('auth.account.cancel_change_prompt', 'Need to cancel this change?')}
+            </Typography>
             <Typography variant='body2' color='text.secondary'>
               {t(
-                'auth.account.cancel_email_change_dialog_desc',
-                'Are you sure you want to cancel this pending email change? Your account will continue to use {{email}}.',
-                { email: currentEmail }
+                'auth.account.cancel_change_prompt_desc',
+                "If you didn't initiate this request or prefer to keep your existing email address, you can cancel the process at any time.",
               )}
             </Typography>
-          </DialogContent>
-          <DialogActions sx={{ px: 3, pb: 2 }}>
-            <Button
-              onClick={() => setIsCancelDialogOpen(false)}
-              color='inherit'
-              sx={{
-                textTransform: 'none',
-                fontWeight: 600,
-                minHeight: 44,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-              }}
-            >
-              {t('auth.account.keep_pending', 'Keep Pending')}
-            </Button>
-            <Button
-              onClick={handleCancelRequest}
-              variant='contained'
-              color='error'
-              sx={{
-                textTransform: 'none',
-                fontWeight: 700,
-                minHeight: 44,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-              }}
-            >
-              {t('auth.account.confirm_cancel', 'Confirm Cancel')}
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Container>
-    </motion.div>
+          </Box>
+        </Stack>
+        <Button
+          variant='outlined'
+          color='error'
+          size='small'
+          onClick={() => setIsCancelDialogOpen(true)}
+          sx={{
+            textTransform: 'none',
+            fontWeight: 700,
+            borderRadius: 2,
+            whiteSpace: 'nowrap',
+            alignSelf: { xs: 'flex-start', sm: 'center' },
+          }}
+        >
+          {t('auth.account.cancel_request', 'Cancel Request')}
+        </Button>
+      </Box>
+
+      {/* Cancel Confirmation Dialog */}
+      <Dialog
+        open={isCancelDialogOpen}
+        onClose={() => setIsCancelDialogOpen(false)}
+        maxWidth='xs'
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            p: 1,
+            border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
+          },
+        }}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <CancelOutlined color='error' />
+          <Typography variant='h6' fontWeight={700}>
+            {t('auth.account.cancel_email_change_dialog_title', 'Cancel Email Change?')}
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant='body2' color='text.secondary'>
+            {t(
+              'auth.account.cancel_email_change_dialog_desc',
+              'Are you sure you want to cancel this pending email change? Your account will continue to use {{email}}.',
+              { email: currentEmail },
+            )}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setIsCancelDialogOpen(false)}
+            color='inherit'
+            sx={{ textTransform: 'none', fontWeight: 600 }}
+          >
+            {t('auth.account.keep_pending', 'Keep Pending')}
+          </Button>
+          <Button
+            onClick={handleCancelRequest}
+            variant='contained'
+            color='error'
+            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
+          >
+            {t('auth.account.confirm_cancel', 'Confirm Cancel')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
   )
 }

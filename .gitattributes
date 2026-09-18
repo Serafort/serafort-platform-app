@@ -15,4 +15,3 @@
 
 # Lock files should preserve their format
 pnpm-lock.yaml -diff
-graphify-out/graph.json merge=graphify

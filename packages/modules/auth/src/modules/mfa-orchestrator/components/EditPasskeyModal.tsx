@@ -100,16 +100,7 @@ export default function EditPasskeyModal({
         onClose={updateMutation.isPending ? undefined : onClose}
         maxWidth='sm'
         fullWidth
-        slotProps={{
-          paper: {
-            sx: {
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              bgcolor: 'background.paper',
-              border: '1px solid',
-              borderColor: 'divider',
-            },
-          },
-        }}
+        PaperProps={{ sx: { borderRadius: 3 } }}
       >
         <DialogTitle
           sx={{
@@ -124,7 +115,7 @@ export default function EditPasskeyModal({
             sx={{
               width: 36,
               height: 36,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
               display: 'flex',
               alignItems: 'center',
@@ -137,7 +128,7 @@ export default function EditPasskeyModal({
         </DialogTitle>
         <DialogContent>
           {error && (
-            <Alert severity='error' sx={{ mb: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}>
+            <Alert severity='error' sx={{ mb: 2, borderRadius: 2 }}>
               {error}
             </Alert>
           )}
@@ -152,7 +143,7 @@ export default function EditPasskeyModal({
             onChange={(e) => setName(e.target.value)}
             placeholder='e.g., Work Laptop'
             disabled={updateMutation.isPending}
-            sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' } }}
+            sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
           />
 
           {/* Device Info */}
@@ -162,7 +153,7 @@ export default function EditPasskeyModal({
           <Box
             sx={{
               bgcolor: 'action.hover',
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               p: 2,
               mb: 3,
               display: 'flex',
@@ -265,22 +256,17 @@ export default function EditPasskeyModal({
               startIcon={<Delete />}
               onClick={() => setShowDeleteConfirm(true)}
               disabled={deleteMutation.isPending}
-              sx={{
-                minHeight: 44,
-                textTransform: 'none',
-                fontWeight: 600,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-              }}
+              sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
             >
               {t('common.remove', 'Remove')}
             </Button>
           </Box>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button
             onClick={onClose}
             disabled={updateMutation.isPending}
-            sx={{ minHeight: 44, textTransform: 'none', fontWeight: 600 }}
+            sx={{ textTransform: 'none', fontWeight: 600 }}
           >
             {t('common.cancel', 'Cancel')}
           </Button>
@@ -291,13 +277,7 @@ export default function EditPasskeyModal({
             startIcon={
               updateMutation.isPending ? <CircularProgress size={16} color='inherit' /> : null
             }
-            sx={{
-              minHeight: 44,
-              textTransform: 'none',
-              fontWeight: 700,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              boxShadow: 'var(--sf-shadow-glow, none)',
-            }}
+            sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
           >
             {updateMutation.isPending
               ? t('common.saving', 'Saving...')
@@ -312,16 +292,7 @@ export default function EditPasskeyModal({
         onClose={deleteMutation.isPending ? undefined : () => setShowDeleteConfirm(false)}
         maxWidth='xs'
         fullWidth
-        slotProps={{
-          paper: {
-            sx: {
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              bgcolor: 'background.paper',
-              border: '1px solid',
-              borderColor: 'divider',
-            },
-          },
-        }}
+        PaperProps={{ sx: { borderRadius: 3 } }}
       >
         <DialogTitle sx={{ fontWeight: 700 }}>
           {t('passkey.confirm_remove', 'Remove Passkey?')}
@@ -334,11 +305,11 @@ export default function EditPasskeyModal({
             )}
           </Typography>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button
             onClick={() => setShowDeleteConfirm(false)}
             disabled={deleteMutation.isPending}
-            sx={{ minHeight: 44, textTransform: 'none', fontWeight: 600 }}
+            sx={{ textTransform: 'none', fontWeight: 600 }}
           >
             {t('common.cancel', 'Cancel')}
           </Button>
@@ -350,12 +321,7 @@ export default function EditPasskeyModal({
             startIcon={
               deleteMutation.isPending ? <CircularProgress size={16} color='inherit' /> : null
             }
-            sx={{
-              minHeight: 44,
-              textTransform: 'none',
-              fontWeight: 700,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-            }}
+            sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
           >
             {deleteMutation.isPending
               ? t('common.removing', 'Removing...')

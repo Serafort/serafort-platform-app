@@ -5,7 +5,6 @@ import type {
   AccessPoint,
   AccessPointWithToken,
   CreateAccessPointPayload,
-  NfcCard,
   NfcCardPage,
   NfcCardStatus,
   RegisterNfcCardPayload,
@@ -40,8 +39,8 @@ const accessControlService = {
   registerCard: (
     orgId: string | number,
     payload: RegisterNfcCardPayload,
-  ): Promise<FetchResponse<NfcCard>> => {
-    return apiClient.post<NfcCard>(ENDPOINTS.accessControl.nfc.cards(orgId), {
+  ): Promise<FetchResponse<{ message?: string }>> => {
+    return apiClient.post(ENDPOINTS.accessControl.nfc.cards(orgId), {
       ...payload,
       uid: normaliseCardUid(payload.uid),
     })
@@ -58,22 +57,18 @@ const accessControlService = {
     orgId: string | number,
     cardId: string | number,
     status: NfcCardStatus,
-  ): Promise<FetchResponse<NfcCard>> => {
-    return apiClient.patch<NfcCard>(ENDPOINTS.accessControl.nfc.cardStatus(orgId, cardId), {
-      status,
-    })
+  ): Promise<FetchResponse<{ message?: string }>> => {
+    return apiClient.patch(ENDPOINTS.accessControl.nfc.cardStatus(orgId, cardId), { status })
   },
 
   /**
    * Permanently delete a card record. Prefer `updateCardStatus('revoked')`:
    * deleting removes the registration an access log entry refers back to.
-   *
-   * The backend answers `204 No Content` — there is no body to type.
    */
   deleteCard: (
     orgId: string | number,
     cardId: string | number,
-  ): Promise<FetchResponse<void>> => {
+  ): Promise<FetchResponse<{ message?: string }>> => {
     return apiClient.delete(ENDPOINTS.accessControl.nfc.cardById(orgId, cardId))
   },
 
@@ -109,11 +104,10 @@ const accessControlService = {
     )
   },
 
-  /** The backend answers `204 No Content` — there is no body to type. */
   deleteAccessPoint: (
     orgId: string | number,
     pointId: string | number,
-  ): Promise<FetchResponse<void>> => {
+  ): Promise<FetchResponse<{ message?: string }>> => {
     return apiClient.delete(ENDPOINTS.accessControl.nfc.accessPointById(orgId, pointId))
   },
 

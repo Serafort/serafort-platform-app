@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import {
   Box,
   Chip,
@@ -264,44 +263,36 @@ export const SwitchHeader: React.FC<{
   description?: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
-}> = ({ title, description, checked, onChange }) => {
-  const { t } = useTranslation();
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        gap: 3,
-      }}
-    >
-      <Box sx={{ minWidth: 0 }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-          {title}
+}> = ({ title, description, checked, onChange }) => (
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      gap: 3,
+    }}
+  >
+    <Box sx={{ minWidth: 0 }}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+        {title}
+      </Typography>
+      {description && (
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: "block", mt: 0.5, lineHeight: 1.5 }}
+        >
+          {description}
         </Typography>
-        {description && (
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ display: "block", mt: 0.5, lineHeight: 1.5 }}
-          >
-            {description}
-          </Typography>
-        )}
-      </Box>
-      <Switch
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        inputProps={{
-          "aria-label": t("theme.common.enable_feature", {
-            name: title,
-            defaultValue: "Enable {{name}}",
-          }),
-        }}
-      />
+      )}
     </Box>
-  );
-};
+    <Switch
+      checked={checked}
+      onChange={(e) => onChange(e.target.checked)}
+      inputProps={{ "aria-label": `Enable ${title}` }}
+    />
+  </Box>
+);
 
 /**
  * The "nothing to configure yet" state. The design system asks for a real

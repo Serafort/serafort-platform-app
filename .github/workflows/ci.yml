@@ -238,7 +238,7 @@ jobs:
       - name: Scan repository history for committed secrets
         run: |
           docker run --rm -v "$PWD:/repo" \
-            zricethezav/gitleaks:latest \
+            ghcr.io/zricethezav/gitleaks:latest \
             detect --source=/repo --redact --verbose \
             --config=/repo/.gitleaks.toml \
             --report-format=sarif --report-path=/repo/gitleaks.sarif

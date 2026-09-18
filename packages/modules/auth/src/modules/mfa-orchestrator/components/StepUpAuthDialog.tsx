@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogTitle,
   Typography,
+  TextField,
   Tabs,
   Tab,
   Alert,
@@ -26,7 +27,6 @@ import Security from '@mui/icons-material/Security'
 import DeleteForever from '@mui/icons-material/DeleteForever'
 import Key from '@mui/icons-material/Key'
 import { useTranslation } from 'react-i18next'
-import { AuthCodeInput } from '../../authentication-core/components/shared/auth'
 import { StepUpActionMetadata } from '../hooks/useStepUpAuth'
 
 export interface StepUpAuthDialogProps {
@@ -97,14 +97,13 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
       onClose={isVerifying ? undefined : onClose}
       maxWidth='xs'
       fullWidth
-      slotProps={{
-        paper: {
-          sx: {
-            borderRadius: 'var(--sf-radius-lg, 12px)',
-            p: 1,
-            border: '1px solid ' + theme.palette.divider,
-            bgcolor: 'background.paper',
-          },
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          p: 1,
+          border: '1px solid ' + theme.palette.divider,
+          boxShadow: '0 24px 48px -12px rgba(0,0,0,0.25)',
+          bgcolor: 'background.paper',
         },
       }}
     >
@@ -116,7 +115,7 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
             sx={{
               width: 44,
               height: 44,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: '16px',
               bgcolor: alpha(theme.palette.primary.main, 0.1),
               display: 'flex',
               alignItems: 'center',
@@ -138,8 +137,8 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
           size='small'
           onClick={onClose}
           disabled={isVerifying}
-          aria-label={t('common.close', 'Close')}
-          sx={{ color: 'text.secondary', width: 44, height: 44 }}
+          aria-label='close'
+          sx={{ color: 'text.secondary' }}
         >
           <Close fontSize='small' />
         </IconButton>
@@ -157,14 +156,7 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
         {error && (
           <Alert
             severity='error'
-            role='alert'
-            aria-live='polite'
-            sx={{
-              mb: 2.5,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              textAlign: 'start',
-              fontWeight: 600,
-            }}
+            sx={{ mb: 2.5, borderRadius: 2, textAlign: 'left', fontWeight: 600 }}
           >
             {error}
           </Alert>
@@ -176,11 +168,11 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
           variant='fullWidth'
           sx={{
             mb: 3,
-            minHeight: 44,
+            minHeight: 40,
             borderBottom: 1,
             borderColor: 'divider',
             '& .MuiTab-root': {
-              minHeight: 44,
+              minHeight: 40,
               textTransform: 'none',
               fontWeight: 700,
               fontSize: '0.875rem',
@@ -266,13 +258,12 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
               onClick={handleBiometricClick}
               disabled={isVerifying}
               sx={{
-                minHeight: 48,
-                borderRadius: 'var(--sf-radius-lg, 12px)',
+                py: 1.3,
+                borderRadius: 2.5,
                 fontWeight: 800,
                 textTransform: 'none',
                 bgcolor: 'info.main',
-                color: 'info.contrastText',
-                boxShadow: 'var(--sf-shadow-glow, none)',
+                boxShadow: `0 4px 14px ${alpha(theme.palette.info.main, 0.4)}`,
                 '&:hover': { bgcolor: 'info.dark' },
               }}
             >
@@ -283,25 +274,47 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
           </Box>
         ) : (
           <Box component='form' onSubmit={handleTotpSubmit} sx={{ py: 1 }}>
-            <Box sx={{ mb: 3 }}>
-              <AuthCodeInput
-                id='step-up-totp-code'
-                value={totpCode}
-                onChange={setTotpCode}
-                onComplete={(val) => {
-                  if (val.length === 6) {
-                    onVerifyTotp(val)
-                  }
-                }}
-                length={6}
-                groups={[3, 3]}
-                separator=''
-                mode='numeric'
-                disabled={isVerifying}
-                autoFocus
-                label={t('mfa.enterTotp', '6-Digit Authenticator Code')}
-              />
-            </Box>
+            <Typography
+              variant='caption'
+              sx={{
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                ml: 0.5,
+                mb: 1,
+                display: 'block',
+                color: 'text.secondary',
+                textAlign: 'left',
+              }}
+            >
+              {t('mfa.enterTotp', '6-Digit Authenticator Code')}
+            </Typography>
+            <TextField
+              fullWidth
+              autoFocus
+              variant='outlined'
+              placeholder='000 000'
+              value={totpCode}
+              onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              disabled={isVerifying}
+              inputProps={{
+                style: {
+                  textAlign: 'center',
+                  fontSize: '1.5rem',
+                  letterSpacing: '8px',
+                  fontWeight: 800,
+                },
+                maxLength: 6,
+              }}
+              slotProps={{
+                input: {
+                  sx: {
+                    borderRadius: 3,
+                    bgcolor: alpha(theme.palette.background.paper, 0.6),
+                    mb: 3,
+                  },
+                },
+              }}
+            />
 
             <Button
               fullWidth
@@ -311,13 +324,12 @@ export const StepUpAuthDialog: React.FC<StepUpAuthDialogProps> = ({
               endIcon={<ArrowForward />}
               disabled={totpCode.length !== 6 || isVerifying}
               sx={{
-                minHeight: 48,
-                borderRadius: 'var(--sf-radius-lg, 12px)',
+                py: 1.3,
+                borderRadius: 2.5,
                 fontWeight: 800,
                 textTransform: 'none',
                 bgcolor: 'info.main',
-                color: 'info.contrastText',
-                boxShadow: 'var(--sf-shadow-glow, none)',
+                boxShadow: `0 4px 14px ${alpha(theme.palette.info.main, 0.4)}`,
                 '&:hover': { bgcolor: 'info.dark' },
               }}
             >

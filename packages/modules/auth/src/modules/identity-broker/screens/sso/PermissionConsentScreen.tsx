@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/PermissionConsentScreen.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // FIXES: Added header; implemented entry motion; modernized component attributes (slotProps); standardized Avatar/Card/Stack styles; translated all scope labels and descriptions; added accessibility aria-labels; improved responsive layout
-// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
+// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
 
 import { useEffect, useMemo } from 'react'
 import {
@@ -177,7 +177,7 @@ export default function PermissionConsentScreen() {
             textTransform: 'uppercase',
           }}
         >
-          {t('auth.common.initializing', 'Initializing secure connection...')}
+          {t('common.initializing', 'Initializing secure connection...')}
         </Typography>
       </Box>
     )
@@ -190,7 +190,7 @@ export default function PermissionConsentScreen() {
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
             <AuthScreenIcon icon={<ShieldIcon sx={{ fontSize: 32 }} />} color='error.main' />
           </Box>
-          <Typography variant='h5' sx={{ fontWeight: 800, mb: 1.5, letterSpacing: '-0.027em' }}>
+          <Typography variant='h5' sx={{ fontWeight: 900, mb: 1.5, letterSpacing: '-0.027em' }}>
             {t('auth.sso.interaction_error_title', 'Interaction Failed')}
           </Typography>
           <Typography variant='body1' color='text.secondary' sx={{ mb: 4, fontWeight: 500 }}>
@@ -214,8 +214,8 @@ export default function PermissionConsentScreen() {
         <IconButton
           onClick={handleDeny}
           size='small'
-          aria-label={t('auth.common.back', 'Back')}
-          sx={{ width: 44, height: 44, border: '1px solid', borderColor: 'divider' }}
+          aria-label={t('common.back', 'Back')}
+          sx={{ border: '1px solid', borderColor: 'divider' }}
         >
           <ArrowBackIcon sx={{ fontSize: 16 }} />
         </IconButton>
@@ -260,7 +260,7 @@ export default function PermissionConsentScreen() {
         <Typography
           variant='h4'
           sx={{
-            fontWeight: 800,
+            fontWeight: 900,
             letterSpacing: '-0.027em',
             mb: 1,
             textAlign: 'center',
@@ -272,9 +272,7 @@ export default function PermissionConsentScreen() {
           {t(
             'auth.sso.consent_subtitle',
             'is requesting permission to access your {{tenantName}}',
-            {
-              tenantName: organization?.name || tenant?.name || t('auth.common.account', 'account'),
-            },
+            { tenantName: organization?.name || tenant?.name || t('common.account', 'account') },
           )}
         </Typography>
       </Box>
@@ -290,7 +288,7 @@ export default function PermissionConsentScreen() {
               sx={{
                 px: 2,
                 py: 2,
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: 3,
                 mb: 1.5,
                 bgcolor: alpha(theme.palette.action.hover, 0.02),
                 border: '1px solid',
@@ -310,7 +308,7 @@ export default function PermissionConsentScreen() {
                     height: 32,
                     bgcolor: alpha(theme.palette.primary.main, 0.1),
                     color: 'primary.main',
-                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    borderRadius: '8px',
                   }}
                 >
                   {scope.icon}
@@ -358,11 +356,10 @@ export default function PermissionConsentScreen() {
           onClick={handleDeny}
           disabled={confirmMutation.isPending || abortMutation.isPending}
           sx={{
-            minHeight: 48,
             fontWeight: 800,
             textTransform: 'none',
             height: 52,
-            borderRadius: 'var(--sf-radius-md, 8px)',
+            borderRadius: 3,
             borderColor: 'divider',
             color: 'text.primary',
             '&:hover': {

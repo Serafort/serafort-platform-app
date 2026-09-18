@@ -54,8 +54,6 @@ import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount'
 
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
-import Path from '../../path'
 import {
   useUserDetailQuery,
   useUserSessionsQuery,
@@ -135,7 +133,7 @@ export default function AdminUserProfile() {
     return (
       <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
         <Skeleton variant='text' width={120} height={32} sx={{ mb: 2 }} />
-        <Card sx={{ p: 4, borderRadius: 'var(--sf-radius-lg, 12px)', mb: 3 }}>
+        <Card sx={{ p: 4, borderRadius: 3, mb: 3 }}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems='center'>
             <Skeleton variant='circular' width={80} height={80} />
             <Box sx={{ flex: 1 }}>
@@ -146,10 +144,10 @@ export default function AdminUserProfile() {
         </Card>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Skeleton variant='rectangular' height={260} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
+            <Skeleton variant='rectangular' height={260} sx={{ borderRadius: 3 }} />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
-            <Skeleton variant='rectangular' height={260} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
+            <Skeleton variant='rectangular' height={260} sx={{ borderRadius: 3 }} />
           </Grid>
         </Grid>
       </Box>
@@ -171,14 +169,8 @@ export default function AdminUserProfile() {
         </Alert>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(Path.admin.users.list)}
-          sx={{
-            mt: 2,
-            textTransform: 'none',
-            fontWeight: 700,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            minHeight: 44,
-          }}
+          onClick={() => navigate('/admin/users')}
+          sx={{ mt: 2, textTransform: 'none' }}
         >
           Back to User Directory
         </Button>
@@ -187,25 +179,17 @@ export default function AdminUserProfile() {
   }
 
   return (
-    <Box
-      component={motion.div}
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      sx={{ p: { xs: 2, md: 4 }, maxWidth: 1280, mx: 'auto' }}
-    >
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1280, mx: 'auto' }}>
       {/* Back button */}
       <Button
         startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(Path.admin.users.list)}
+        onClick={() => navigate('/admin/users')}
         sx={{
           mb: 2.5,
           textTransform: 'none',
-          fontWeight: 700,
+          fontWeight: 600,
           color: 'text.secondary',
-          minHeight: 44,
-          borderRadius: 'var(--sf-radius-md, 8px)',
-          '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
+          '&:hover': { color: 'text.primary' },
         }}
       >
         Back to User Directory
@@ -214,7 +198,7 @@ export default function AdminUserProfile() {
       {/* Main Profile Header Card */}
       <Card
         sx={{
-          borderRadius: 'var(--sf-radius-lg, 16px)',
+          borderRadius: 3,
           p: { xs: 2.5, md: 4 },
           mb: 3.5,
           border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
@@ -236,7 +220,6 @@ export default function AdminUserProfile() {
               sx={{
                 width: 80,
                 height: 80,
-                borderRadius: 'var(--sf-radius-lg, 24px)',
                 bgcolor: theme.palette.primary.main,
                 fontSize: '1.75rem',
                 fontWeight: 700,
@@ -258,7 +241,7 @@ export default function AdminUserProfile() {
                     label='Active'
                     color='success'
                     icon={<CheckCircleIcon sx={{ fontSize: '14px !important' }} />}
-                    sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-xs, 4px)' }}
+                    sx={{ fontWeight: 700 }}
                   />
                 ) : user.status === 'SUSPENDED' ? (
                   <Chip
@@ -266,14 +249,10 @@ export default function AdminUserProfile() {
                     label='Suspended'
                     color='warning'
                     icon={<BlockIcon sx={{ fontSize: '14px !important' }} />}
-                    sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-xs, 4px)' }}
+                    sx={{ fontWeight: 700 }}
                   />
                 ) : (
-                  <Chip
-                    size='small'
-                    label={user.status}
-                    sx={{ fontWeight: 600, borderRadius: 'var(--sf-radius-xs, 4px)' }}
-                  />
+                  <Chip size='small' label={user.status} sx={{ fontWeight: 600 }} />
                 )}
 
                 {user.isEmailVerified && (
@@ -283,7 +262,7 @@ export default function AdminUserProfile() {
                     color='info'
                     variant='outlined'
                     icon={<VerifiedUserIcon sx={{ fontSize: '14px !important' }} />}
-                    sx={{ fontWeight: 600, borderRadius: 'var(--sf-radius-xs, 4px)' }}
+                    sx={{ fontWeight: 600 }}
                   />
                 )}
               </Stack>
@@ -302,20 +281,11 @@ export default function AdminUserProfile() {
                       size='small'
                       variant='outlined'
                       color='primary'
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: '0.75rem',
-                        borderRadius: 'var(--sf-radius-xs, 4px)',
-                      }}
+                      sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                     />
                   ))
                 ) : (
-                  <Chip
-                    label='User'
-                    size='small'
-                    variant='outlined'
-                    sx={{ borderRadius: 'var(--sf-radius-xs, 4px)' }}
-                  />
+                  <Chip label='User' size='small' variant='outlined' />
                 )}
               </Stack>
             </Box>
@@ -327,13 +297,7 @@ export default function AdminUserProfile() {
               variant='outlined'
               startIcon={<EditIcon />}
               onClick={() => setIsEditDrawerOpen(true)}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 700,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-                minHeight: 44,
-                px: 2,
-              }}
+              sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
             >
               Edit Profile
             </Button>
@@ -341,13 +305,7 @@ export default function AdminUserProfile() {
               variant='outlined'
               startIcon={<AdminPanelSettingsIcon />}
               onClick={() => setIsAssignRolesOpen(true)}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 700,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-                minHeight: 44,
-                px: 2,
-              }}
+              sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
             >
               Assign Roles
             </Button>
@@ -357,27 +315,16 @@ export default function AdminUserProfile() {
               startIcon={user.status === 'ACTIVE' ? <BlockIcon /> : <CheckCircleIcon />}
               onClick={handleToggleStatus}
               disabled={updateStatusMutation.isPending}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 700,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-                minHeight: 44,
-                px: 2.5,
-              }}
+              sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
             >
               {user.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
             </Button>
             <IconButton
               color='error'
-              aria-label='Delete user'
               onClick={() => setIsDeleteDialogOpen(true)}
               sx={{
                 border: `1px solid ${alpha(theme.palette.error.main, 0.3)}`,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-                width: 44,
-                height: 44,
-                minWidth: 44,
-                minHeight: 44,
+                borderRadius: 2,
               }}
             >
               <DeleteIcon fontSize='small' />
@@ -392,7 +339,7 @@ export default function AdminUserProfile() {
           <Card
             sx={{
               p: 2.5,
-              borderRadius: 'var(--sf-radius-lg, 16px)',
+              borderRadius: 3,
               border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
               boxShadow: 'none',
               bgcolor: alpha(theme.palette.background.paper, 0.8),
@@ -402,7 +349,7 @@ export default function AdminUserProfile() {
               <Box
                 sx={{
                   p: 1,
-                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  borderRadius: 2,
                   bgcolor: alpha(theme.palette.primary.main, 0.1),
                   color: 'primary.main',
                 }}
@@ -425,7 +372,7 @@ export default function AdminUserProfile() {
           <Card
             sx={{
               p: 2.5,
-              borderRadius: 'var(--sf-radius-lg, 16px)',
+              borderRadius: 3,
               border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
               boxShadow: 'none',
               bgcolor: alpha(theme.palette.background.paper, 0.8),
@@ -435,7 +382,7 @@ export default function AdminUserProfile() {
               <Box
                 sx={{
                   p: 1,
-                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  borderRadius: 2,
                   bgcolor: alpha(theme.palette.success.main, 0.1),
                   color: 'success.main',
                 }}
@@ -458,7 +405,7 @@ export default function AdminUserProfile() {
           <Card
             sx={{
               p: 2.5,
-              borderRadius: 'var(--sf-radius-lg, 16px)',
+              borderRadius: 3,
               border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
               boxShadow: 'none',
               bgcolor: alpha(theme.palette.background.paper, 0.8),
@@ -468,7 +415,7 @@ export default function AdminUserProfile() {
               <Box
                 sx={{
                   p: 1,
-                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  borderRadius: 2,
                   bgcolor: alpha(theme.palette.info.main, 0.1),
                   color: 'info.main',
                 }}
@@ -491,7 +438,7 @@ export default function AdminUserProfile() {
           <Card
             sx={{
               p: 2.5,
-              borderRadius: 'var(--sf-radius-lg, 16px)',
+              borderRadius: 3,
               border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
               boxShadow: 'none',
               bgcolor: alpha(theme.palette.background.paper, 0.8),
@@ -501,7 +448,7 @@ export default function AdminUserProfile() {
               <Box
                 sx={{
                   p: 1,
-                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  borderRadius: 2,
                   bgcolor: alpha(theme.palette.warning.main, 0.1),
                   color: 'warning.main',
                 }}
@@ -529,7 +476,7 @@ export default function AdminUserProfile() {
       {/* Tabs Container */}
       <Card
         sx={{
-          borderRadius: 'var(--sf-radius-lg, 16px)',
+          borderRadius: 3,
           border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
           boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
           overflow: 'hidden',
@@ -585,7 +532,7 @@ export default function AdminUserProfile() {
                   variant='outlined'
                   sx={{
                     p: 2.5,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    borderRadius: 2,
                     borderColor: alpha(theme.palette.divider, 0.1),
                   }}
                 >
@@ -649,7 +596,7 @@ export default function AdminUserProfile() {
                   variant='outlined'
                   sx={{
                     p: 2.5,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    borderRadius: 2,
                     borderColor: alpha(theme.palette.divider, 0.1),
                   }}
                 >
@@ -714,7 +661,7 @@ export default function AdminUserProfile() {
                     variant='outlined'
                     sx={{
                       p: 2.5,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      borderRadius: 2,
                       bgcolor: alpha(theme.palette.background.default, 0.4),
                     }}
                   >
@@ -756,7 +703,7 @@ export default function AdminUserProfile() {
                         variant='outlined'
                         sx={{
                           p: 2.5,
-                          borderRadius: 'var(--sf-radius-md, 8px)',
+                          borderRadius: 2,
                           border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
                           bgcolor: alpha(theme.palette.primary.main, 0.02),
                         }}
@@ -826,7 +773,7 @@ export default function AdminUserProfile() {
                     <Paper
                       key={sess.id || idx}
                       variant='outlined'
-                      sx={{ p: 2, mb: 1.5, borderRadius: 'var(--sf-radius-md, 8px)' }}
+                      sx={{ p: 2, mb: 1.5, borderRadius: 2 }}
                     >
                       <Stack direction='row' justifyContent='space-between' alignItems='center'>
                         <Stack direction='row' spacing={2} alignItems='center'>
@@ -879,7 +826,7 @@ export default function AdminUserProfile() {
                     <Paper
                       key={log.id || idx}
                       variant='outlined'
-                      sx={{ p: 2, mb: 1.5, borderRadius: 'var(--sf-radius-md, 8px)' }}
+                      sx={{ p: 2, mb: 1.5, borderRadius: 2 }}
                     >
                       <Stack direction='row' spacing={2} alignItems='center'>
                         <HistoryIcon color='action' fontSize='small' />
@@ -911,7 +858,7 @@ export default function AdminUserProfile() {
 
               <Grid container spacing={2.5}>
                 <Grid size={{ xs: 12, md: 6 }}>
-                  <Paper variant='outlined' sx={{ p: 2.5, borderRadius: 'var(--sf-radius-md, 8px)' }}>
+                  <Paper variant='outlined' sx={{ p: 2.5, borderRadius: 2 }}>
                     <Typography variant='subtitle2' fontWeight={700} gutterBottom>
                       Trigger Password Reset
                     </Typography>
@@ -924,12 +871,7 @@ export default function AdminUserProfile() {
                       startIcon={<LockResetIcon />}
                       onClick={handleSendResetPassword}
                       disabled={sendPasswordResetMutation.isPending}
-                      sx={{
-                        textTransform: 'none',
-                        fontWeight: 700,
-                        minHeight: 44,
-                        borderRadius: 'var(--sf-radius-md, 8px)',
-                      }}
+                      sx={{ textTransform: 'none', fontWeight: 600 }}
                     >
                       Send Password Reset Link
                     </Button>
@@ -937,10 +879,7 @@ export default function AdminUserProfile() {
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 6 }}>
-                  <Paper
-                    variant='outlined'
-                    sx={{ p: 2.5, borderRadius: 'var(--sf-radius-md, 12px)' }}
-                  >
+                  <Paper variant='outlined' sx={{ p: 2.5, borderRadius: 2 }}>
                     <Typography variant='subtitle2' fontWeight={700} gutterBottom>
                       Reset MFA Enrollment
                     </Typography>
@@ -954,12 +893,7 @@ export default function AdminUserProfile() {
                       startIcon={<VpnKeyIcon />}
                       onClick={handleResetMfa}
                       disabled={resetMfaMutation.isPending}
-                      sx={{
-                        textTransform: 'none',
-                        fontWeight: 700,
-                        minHeight: 44,
-                        borderRadius: 'var(--sf-radius-md, 8px)',
-                      }}
+                      sx={{ textTransform: 'none', fontWeight: 600 }}
                     >
                       Reset Two-Factor Authentication
                     </Button>
@@ -993,7 +927,7 @@ export default function AdminUserProfile() {
         open={isDeleteDialogOpen}
         user={user}
         onClose={() => setIsDeleteDialogOpen(false)}
-        onSuccess={() => navigate(Path.admin.users.list)}
+        onSuccess={() => navigate('/admin/users')}
       />
     </Box>
   )

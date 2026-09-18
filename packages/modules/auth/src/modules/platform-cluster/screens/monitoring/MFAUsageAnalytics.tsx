@@ -153,7 +153,7 @@ export default function MFAUsageAnalytics() {
             sx={{
               width: 48,
               height: 48,
-              borderRadius: 'var(--sf-radius-lg, 12px)',
+              borderRadius: 3,
               bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
               display: 'flex',
               alignItems: 'center',
@@ -182,7 +182,7 @@ export default function MFAUsageAnalytics() {
           <Grid key={stat.label} size={{ xs: 6, md: 3 }}>
             <Card
               sx={{
-                borderRadius: 'var(--sf-radius-lg, 12px)',
+                borderRadius: 3,
                 border: 1,
                 borderColor: 'divider',
                 transition: 'all 0.2s ease',
@@ -197,7 +197,7 @@ export default function MFAUsageAnalytics() {
                   sx={{
                     width: 40,
                     height: 40,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    borderRadius: 2,
                     bgcolor: (theme) => alpha((theme.palette as any)[stat.color].main, 0.1),
                     display: 'flex',
                     alignItems: 'center',
@@ -228,7 +228,7 @@ export default function MFAUsageAnalytics() {
         {/* Left Column */}
         <Grid size={{ xs: 12, md: 7 }}>
           {/* Top Failure Reasons */}
-          <Card sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', border: 1, borderColor: 'divider', mb: 3 }}>
+          <Card sx={{ borderRadius: 3, border: 1, borderColor: 'divider', mb: 3 }}>
             <CardContent>
               <Typography variant='subtitle1' fontWeight={600} sx={{ mb: 3 }}>
                 {t('auth.mfa.top_failures', 'Top Failure Reasons')}
@@ -248,10 +248,10 @@ export default function MFAUsageAnalytics() {
                     value={failure.percentage}
                     sx={{
                       height: 8,
-                      borderRadius: 'var(--sf-radius-lg, 12px)',
+                      borderRadius: 4,
                       bgcolor: alpha(failure.color, 0.15),
                       '& .MuiLinearProgress-bar': {
-                        borderRadius: 'var(--sf-radius-lg, 12px)',
+                        borderRadius: 4,
                         bgcolor: failure.color,
                       },
                     }}
@@ -264,7 +264,7 @@ export default function MFAUsageAnalytics() {
           {/* Unusual Locations */}
           <Card
             sx={{
-              borderRadius: 'var(--sf-radius-lg, 12px)',
+              borderRadius: 3,
               border: 1,
               borderColor: (theme) => alpha(theme.palette.warning.main, 0.4),
               bgcolor: (theme) => alpha(theme.palette.warning.main, 0.04),
@@ -293,7 +293,7 @@ export default function MFAUsageAnalytics() {
           </Card>
 
           {/* Method Effectiveness Scorecard */}
-          <Card sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', border: 1, borderColor: 'divider' }}>
+          <Card sx={{ borderRadius: 3, border: 1, borderColor: 'divider' }}>
             <CardContent>
               <Typography variant='subtitle1' fontWeight={600} sx={{ mb: 2 }}>
                 {t('auth.mfa.method_scorecard', 'Method Effectiveness Scorecard')}
@@ -337,10 +337,10 @@ export default function MFAUsageAnalytics() {
                       value={method.score}
                       sx={{
                         height: 6,
-                        borderRadius: 'var(--sf-radius-lg, 12px)',
+                        borderRadius: 3,
                         bgcolor: 'action.hover',
                         '& .MuiLinearProgress-bar': {
-                          borderRadius: 'var(--sf-radius-lg, 12px)',
+                          borderRadius: 3,
                           bgcolor:
                             method.score >= 90
                               ? 'success.main'
@@ -368,7 +368,7 @@ export default function MFAUsageAnalytics() {
 
         {/* Right Column — Security Insights */}
         <Grid size={{ xs: 12, md: 5 }}>
-          <Card sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', border: 1, borderColor: 'divider' }}>
+          <Card sx={{ borderRadius: 3, border: 1, borderColor: 'divider' }}>
             <CardContent sx={{ p: 0 }}>
               <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider' }}>
                 <Typography variant='subtitle1' fontWeight={600}>

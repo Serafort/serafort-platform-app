@@ -3,8 +3,6 @@ import { alpha } from "@mui/material/styles";
 import type { Theme } from "@mui/material/styles";
 import { zIndexScale } from "../assets/themes/definitions/zIndex";
 import { brandCssVariables } from "../tokens/brand";
-import { semanticTextCssVars } from "../tokens/semantics";
-import { elevationShadowCssVars } from "../utils/elevation";
 
 declare module "@mui/material/styles" {
   interface PaletteColor {
@@ -16,22 +14,12 @@ const GlobalStyles = () => {
   return (
     <MuiGlobalStyles
       styles={(theme: Theme) => ({
-        // Serafort brand role layer plus the house elevation scale and
-        // text-safe feedback colours. All three are constant across tenants
-        // (not tunable via the per-tenant `applyThemeVariables` pipeline), so
-        // they are emitted here, mode-resolved. See tokens/brand.ts,
-        // utils/elevation.ts and tokens/semantics.ts.
-        ":root": {
-          ...brandCssVariables(
-            theme.palette.mode === "dark" ? "dark" : "light",
-          ),
-          ...elevationShadowCssVars(
-            theme.palette.mode === "dark" ? "dark" : "light",
-          ),
-          ...semanticTextCssVars(
-            theme.palette.mode === "dark" ? "dark" : "light",
-          ),
-        },
+        // Serafort brand role layer. These are the house brand and are constant
+        // across tenants, so they are emitted here rather than through the
+        // per-tenant `applyThemeVariables` pipeline. See tokens/brand.ts.
+        ":root": brandCssVariables(
+          theme.palette.mode === "dark" ? "dark" : "light",
+        ),
         html: {
           scrollbarGutter: "stable",
           WebkitFontSmoothing: "antialiased",

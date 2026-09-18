@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { Box, useTheme } from "@mui/material";
 import { PreviewCard } from "./PreviewCard";
 import { PreviewButton } from "./PreviewButton";
@@ -14,18 +13,14 @@ interface LivePreviewProps {
 }
 
 export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
-  const { t } = useTranslation();
   const muiTheme = useTheme();
   const surface = useSurfaceSx();
   const effects = theme.effects || ({} as any);
   const components = theme.components || ({} as any);
   const globalEffectType: EffectType = effects.globalType || "standard";
-  const effectMeta = EFFECT_TYPES.find(
+  const effectLabel = EFFECT_TYPES.find(
     (option) => option.value === globalEffectType,
-  );
-  const effectLabel = effectMeta
-    ? t(`theme.effects.type.${effectMeta.value}`, effectMeta.label)
-    : undefined;
+  )?.label;
 
   // The preview used to show a glass row and a neumorphic row side by side
   // whenever either config had `enabled` set, whatever the selected effect
@@ -50,20 +45,15 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
   return (
     <Box sx={{ ...surface, p: 5 }}>
       <PanelHeader
-        title={t("theme.preview.title", "Live preview")}
-        description={t(
-          "theme.preview.description",
-          "Your tokens on real components, updating as you edit.",
-        )}
+        title="Live preview"
+        description="Your tokens on real components, updating as you edit."
       />
 
       {/* The stage sits on the tenant's own background so the components are
           judged against the surface they will actually live on. */}
       <Box
         sx={{
-          backgroundColor:
-            theme.tokens?.colors?.background?.value ||
-            muiTheme.palette.background.default,
+          backgroundColor: theme.tokens?.colors?.background?.value || "#f8fafc",
           border: `1px solid ${muiTheme.palette.divider}`,
           borderRadius: 1.5,
           p: 4,
@@ -73,9 +63,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
         }}
       >
         <Box>
-          <SectionLabel>
-            {t("theme.preview.section.navigation", "Navigation")}
-          </SectionLabel>
+          <SectionLabel>Navigation</SectionLabel>
           <PreviewNavbar
             effectStyle={getEffectStyle("navbar")}
             label={effectLabel}
@@ -83,9 +71,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
         </Box>
 
         <Box>
-          <SectionLabel>
-            {t("theme.preview.section.cards", "Cards")}
-          </SectionLabel>
+          <SectionLabel>Cards</SectionLabel>
           {/* AutoGrid reflows on this stage's width rather than the browser
               viewport, so the preview stays honest inside the editor drawer. */}
           <AutoGrid min={150} gap={3}>
@@ -96,9 +82,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
 
         <AutoGrid min={220} gap={7}>
           <Box>
-            <SectionLabel>
-              {t("theme.preview.section.buttons", "Buttons")}
-            </SectionLabel>
+            <SectionLabel>Buttons</SectionLabel>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <PreviewButton effectStyle="standard" />
               <PreviewButton
@@ -109,9 +93,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ theme }) => {
           </Box>
 
           <Box>
-            <SectionLabel>
-              {t("theme.preview.section.inputs", "Inputs")}
-            </SectionLabel>
+            <SectionLabel>Inputs</SectionLabel>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <PreviewInput effectStyle="standard" />
               <PreviewInput

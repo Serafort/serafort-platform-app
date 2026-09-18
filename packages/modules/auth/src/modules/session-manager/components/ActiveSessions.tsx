@@ -125,7 +125,7 @@ export function ActiveSessions() {
 
   return (
     <>
-      <Card sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}>
+      <Card sx={{ borderRadius: 2 }}>
         <CardContent sx={{ padding: { xs: 3, sm: 4 } }}>
           <Box
             display='flex'
@@ -144,7 +144,7 @@ export function ActiveSessions() {
               size='small'
               onClick={handleOpenRevokeAll}
               disabled={isLoading || otherSessions.length === 0}
-              sx={{ minHeight: 44, textTransform: 'none', fontWeight: 600, borderRadius: 'var(--sf-radius-md, 8px)' }}
+              sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
             >
               {t('auth.active_sessions.button_end_all', 'Sign Out All Other Devices')}
             </Button>
@@ -154,11 +154,11 @@ export function ActiveSessions() {
             <Alert
               severity='error'
               action={
-                <Button color='inherit' size='small' onClick={() => refetch()} sx={{ minHeight: 44 }}>
+                <Button color='inherit' size='small' onClick={() => refetch()}>
                   {t('common.retry', 'Retry')}
                 </Button>
               }
-              sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)' }}
+              sx={{ mb: 3, borderRadius: 2 }}
             >
               {error?.message ||
                 t('auth.account.error_loading_sessions', 'Failed to load sessions.')}
@@ -168,7 +168,7 @@ export function ActiveSessions() {
           {isLoading ? (
             <Stack spacing={2}>
               {[1, 2].map((i) => (
-                <Skeleton key={i} variant='rectangular' height={64} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
+                <Skeleton key={i} variant='rectangular' height={64} sx={{ borderRadius: 2 }} />
               ))}
             </Stack>
           ) : sessions.length === 0 ? (
@@ -202,7 +202,6 @@ export function ActiveSessions() {
                           size='small'
                           aria-label='Revoke session'
                           disabled={isPending}
-                          sx={{ minHeight: 44, minWidth: 44 }}
                         >
                           <DeleteIcon fontSize='small' />
                         </IconButton>
@@ -216,7 +215,7 @@ export function ActiveSessions() {
                         justifyContent: 'center',
                         width: 40,
                         height: 40,
-                        borderRadius: 'var(--sf-radius-sm, 8px)',
+                        borderRadius: 1,
                         backgroundColor: alpha(theme.palette.primary.main, 0.1),
                         mr: 2,
                       }}

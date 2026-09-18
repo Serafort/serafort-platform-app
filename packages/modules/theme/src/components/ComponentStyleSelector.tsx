@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import {
   Box,
   Chip,
@@ -41,38 +40,29 @@ const componentLabels: Record<keyof ComponentStyles, string> = {
   nav: "Sidebars",
 };
 
+// Both pickers are derived from EFFECT_TYPES rather than hand-listed. They
+// used to offer three of the eight effects between them, so brutalism, bento,
+// organic, immersive and liquid-glass were selectable only by picking a preset
+// that happened to use one - and never overridable per component at all.
+const globalOptions: Array<{ value: EffectType; label: string }> =
+  EFFECT_TYPES.map(({ value, label }) => ({ value, label }));
+
+const effectOptions: Array<{ value: ComponentEffectStyle; label: string }> = [
+  { value: "global", label: "Use global" },
+  ...EFFECT_TYPES.map(({ value, label }) => ({
+    value: value as ComponentEffectStyle,
+    label,
+  })),
+];
+
 export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
   components,
   globalEffectType,
   onChange,
   onGlobalChange,
 }) => {
-  const { t } = useTranslation();
   const theme = useTheme();
   const surface = useSurfaceSx();
-
-  // Both pickers are derived from EFFECT_TYPES rather than hand-listed. They
-  // used to offer three of the eight effects between them, so brutalism, bento,
-  // organic, immersive and liquid-glass were selectable only by picking a
-  // preset that happened to use one - and never overridable per component.
-  const effectLabel = (value: string, fallback: string) =>
-    t(`theme.effects.type.${value}`, fallback);
-
-  const globalOptions = EFFECT_TYPES.map(({ value, label }) => ({
-    value,
-    label: effectLabel(value, label),
-  }));
-
-  const effectOptions: Array<{ value: ComponentEffectStyle; label: string }> = [
-    { value: "global", label: t("theme.components.use_global", "Use global") },
-    ...EFFECT_TYPES.map(({ value, label }) => ({
-      value: value as ComponentEffectStyle,
-      label: effectLabel(value, label),
-    })),
-  ];
-
-  const componentLabel = (key: keyof ComponentStyles) =>
-    t(`theme.components.label.${key}`, componentLabels[key] ?? key);
 
   const activeEffectMeta = EFFECT_TYPES.find(
     (option) => option.value === globalEffectType,
@@ -96,17 +86,12 @@ export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
   return (
     <Box>
       <PanelHeader
-        title={t("theme.components.title", "Component styles")}
-        description={t(
-          "theme.components.description",
-          "Everything follows the global effect unless you override it here.",
-        )}
+        title="Component styles"
+        description="Everything follows the global effect unless you override it here."
       />
 
       <Box sx={{ mb: 7 }}>
-        <SectionLabel>
-          {t("theme.components.global_effect", "Global effect")}
-        </SectionLabel>
+        <SectionLabel>Global effect</SectionLabel>
         <Stack direction="row" useFlexGap spacing={1.5} sx={{ flexWrap: "wrap" }}>
           {globalOptions.map((option) => (
             <ChoiceChip
@@ -123,10 +108,7 @@ export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
             color="text.secondary"
             sx={{ display: "block", mt: 2 }}
           >
-            {t(
-              `theme.effects.desc.${activeEffectMeta.value}`,
-              activeEffectMeta.description,
-            )}
+            {activeEffectMeta.description}
           </Typography>
         )}
       </Box>
@@ -135,15 +117,12 @@ export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
         action={
           overriddenCount > 0 ? (
             <Typography variant="caption" color="text.secondary">
-              {t("theme.components.overridden_count", {
-                n: overriddenCount,
-                defaultValue: "{{n}} overridden",
-              })}
+              {overriddenCount} overridden
             </Typography>
           ) : undefined
         }
       >
-        {t("theme.components.per_component", "Per component")}
+        Per component
       </SectionLabel>
 
       {/*
@@ -177,12 +156,12 @@ export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
                 variant="body2"
                 sx={{ flex: 1, minWidth: 0, fontWeight: 500, ...ellipsis }}
               >
-                {componentLabel(key)}
+                {componentLabels[key] ?? key}
               </Typography>
               {isOverridden && (
                 <Chip
                   size="small"
-                  label={t("theme.components.override", "Override")}
+                  label="Override"
                   sx={{ blockSize: 20, fontSize: "0.6875rem", fontWeight: 600 }}
                 />
               )}
@@ -195,10 +174,7 @@ export const ComponentStyleSelector: React.FC<ComponentStyleSelectorProps> = ({
                     e.target.value as ComponentEffectStyle,
                   )
                 }
-                aria-label={t("theme.components.style_for", {
-                  component: componentLabel(key),
-                  defaultValue: "{{component}} effect style",
-                })}
+                aria-label={`${componentLabels[key] ?? key} effect style`}
                 sx={{
                   minInlineSize: 132,
                   "& .MuiSelect-select": { paddingBlock: 1.5 },

@@ -70,31 +70,18 @@ export default function PasskeySetupAuto({
       onClose={handleCancel}
       maxWidth='xs'
       fullWidth
-      aria-labelledby='passkey-setup-auto-title'
-      slotProps={{
-        paper: {
-          sx: {
-            borderRadius: 'var(--sf-radius-lg, 12px)',
-            p: 2,
-            bgcolor: 'background.paper',
-            backgroundImage: 'none',
-            border: '1px solid',
-            borderColor: 'divider',
-          },
-        },
-      }}
+      PaperProps={{ sx: { borderRadius: 3, p: 2 } }}
     >
       <DialogContent sx={{ px: 4, py: 5, textAlign: 'center' }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
           <Avatar
             variant='square'
-            aria-hidden
             sx={{
               width: 56,
               height: 56,
               bgcolor: 'transparent',
               color: 'primary.main',
-              borderRadius: 'var(--sf-radius-lg, 12px)',
+              borderRadius: '24px',
               border: '2px solid',
               borderColor: alpha(theme.palette.primary.main, 0.2),
             }}
@@ -103,12 +90,7 @@ export default function PasskeySetupAuto({
           </Avatar>
         </Box>
 
-        <Typography
-          id='passkey-setup-auto-title'
-          component='h2'
-          variant='h5'
-          sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.027em' }}
-        >
+        <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
           {t('passkey.setupTitle', 'Set up a passkey')}
         </Typography>
         <Typography
@@ -123,17 +105,16 @@ export default function PasskeySetupAuto({
         </Typography>
 
         {error && (
-          <Alert severity='error' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)', textAlign: 'start' }}>
+          <Alert severity='error' sx={{ mb: 3, borderRadius: 2, textAlign: 'left' }}>
             {error}
           </Alert>
         )}
 
         {(waitingForConfirmation || (autoStart && !isLoading && open)) && (
           <Box
-            role='status'
             sx={{
               bgcolor: 'action.hover',
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               py: 2,
               px: 3,
               mb: 3,
@@ -159,17 +140,18 @@ export default function PasskeySetupAuto({
           <Button
             fullWidth
             variant='contained'
-            color='info'
             startIcon={<Security />}
             onClick={handleSetupPasskey}
             disabled={isLoading}
             sx={{
-              minHeight: 48,
+              py: 1.5,
               mb: 2,
-              borderRadius: 'var(--sf-radius-lg, 12px)',
+              borderRadius: 3,
               fontWeight: 800,
               textTransform: 'none',
-              boxShadow: 'var(--sf-shadow-glow, none)',
+              bgcolor: 'info.main',
+              boxShadow: (t) => `0 4px 14px ${alpha(t.palette.info.main, 0.4)}`,
+              '&:hover': { bgcolor: 'info.dark', transform: 'translateY(-1px)' },
             }}
           >
             {isLoading
@@ -178,21 +160,23 @@ export default function PasskeySetupAuto({
           </Button>
         )}
 
-        <Button
-          fullWidth
-          variant='text'
+        <Link
+          component='button'
+          variant='body2'
           onClick={handleCancel}
+          underline='none'
           disabled={isLoading}
           sx={{
-            minHeight: 44,
-            fontWeight: 600,
-            textTransform: 'none',
+            display: 'block',
             color: 'text.secondary',
+            fontWeight: 500,
+            cursor: 'pointer',
+            mt: waitingForConfirmation ? 0 : 2,
             '&:hover': { color: 'text.primary' },
           }}
         >
           {t('common.cancel', 'Cancel')}
-        </Button>
+        </Link>
 
         <Box
           sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 4 }}

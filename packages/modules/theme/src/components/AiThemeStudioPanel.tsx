@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
 import {
   Box,
   Button,
@@ -43,7 +42,6 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
   currentTheme,
   onThemeGenerated,
 }) => {
-  const { t } = useTranslation();
   const theme = useTheme();
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -56,8 +54,6 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
   const [promptHistory, setPromptHistory] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
-  // Values double as the filter key matched against `suggestion.category`, so
-  // they stay in English; `categoryLabel` renders the localized display text.
   const categories = [
     "All",
     "Modern Dark",
@@ -66,8 +62,6 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
     "Warm & Earthy",
     "Luxury & Boutique",
   ];
-  const categoryLabel = (cat: string) =>
-    t(`theme.ai.category.${cat.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`, cat);
 
   const filteredSuggestions =
     selectedCategory === "All"
@@ -123,22 +117,10 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
 
   const swatches = lastAnalysis
     ? ([
-        {
-          label: t("theme.colors.label.primary", "Primary"),
-          hex: lastAnalysis.primaryHex,
-        },
-        {
-          label: t("theme.colors.label.secondary", "Secondary"),
-          hex: lastAnalysis.secondaryHex,
-        },
-        {
-          label: t("theme.colors.label.background", "Background"),
-          hex: lastAnalysis.backgroundHex,
-        },
-        {
-          label: t("theme.colors.label.surface", "Surface"),
-          hex: lastAnalysis.surfaceHex,
-        },
+        { label: "Primary", hex: lastAnalysis.primaryHex },
+        { label: "Secondary", hex: lastAnalysis.secondaryHex },
+        { label: "Background", hex: lastAnalysis.backgroundHex },
+        { label: "Surface", hex: lastAnalysis.surfaceHex },
       ] as const)
     : [];
 
@@ -178,11 +160,8 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
               handleGenerate();
             }
           }}
-          placeholder={t(
-            "theme.ai.prompt_placeholder",
-            "Describe a look — e.g. calm fintech console, deep navy primary, soft neutral surfaces, gently rounded cards",
-          )}
-          aria-label={t("theme.ai.prompt_aria", "Theme description prompt")}
+          placeholder="Describe a look — e.g. calm fintech console, deep navy primary, soft neutral surfaces, gently rounded cards"
+          aria-label="Theme description prompt"
           slotProps={{
             input: {
               sx: {
@@ -238,7 +217,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
             >
               ⌘ ↵
             </Box>
-            {t("theme.ai.to_generate", "to generate")}
+            to generate
           </Typography>
           <Button
             variant="contained"
@@ -264,9 +243,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
               "&:hover": { boxShadow: "none" },
             }}
           >
-            {isGenerating
-              ? t("theme.ai.synthesizing", "Synthesizing…")
-              : t("theme.ai.generate", "Generate theme")}
+            {isGenerating ? "Synthesizing…" : "Generate theme"}
           </Button>
         </Box>
       </Box>
@@ -310,10 +287,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
                 variant="subtitle2"
                 sx={{ fontWeight: 600, flex: 1, minWidth: 0, ...ellipsis }}
               >
-                {t("theme.ai.applied", {
-                  mood: lastAnalysis.detectedMood,
-                  defaultValue: "Applied · {{mood}}",
-                })}
+                Applied · {lastAnalysis.detectedMood}
               </Typography>
             </Box>
 
@@ -328,14 +302,8 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
                 variant="outlined"
                 label={
                   synthesisSource === "heuristic"
-                    ? t("theme.ai.local_synthesis", {
-                        preset: lastAnalysis.presetMatch,
-                        defaultValue: "Local synthesis · {{preset}}",
-                      })
-                    : t("theme.ai.ai_synthesis", {
-                        preset: lastAnalysis.presetMatch,
-                        defaultValue: "AI synthesis · {{preset}}",
-                      })
+                    ? `Local synthesis · ${lastAnalysis.presetMatch}`
+                    : `AI synthesis · ${lastAnalysis.presetMatch}`
                 }
                 sx={{ fontWeight: 500, textTransform: "capitalize" }}
               />
@@ -344,10 +312,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
                   size="small"
                   variant="outlined"
                   color={contrastBadge.color}
-                  label={t("theme.ai.body_text_contrast", {
-                    rating: contrastBadge.label,
-                    defaultValue: "Body text {{rating}}",
-                  })}
+                  label={`Body text ${contrastBadge.label}`}
                   sx={{ fontWeight: 500 }}
                 />
               )}
@@ -382,22 +347,12 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
         <SectionLabel
           action={
             <Typography variant="caption" color="text.secondary">
-              {t(
-                filteredSuggestions.length === 1
-                  ? "theme.ai.style_count_one"
-                  : "theme.ai.style_count_other",
-                {
-                  count: filteredSuggestions.length,
-                  defaultValue:
-                    filteredSuggestions.length === 1
-                      ? "{{count}} style"
-                      : "{{count}} styles",
-                },
-              )}
+              {filteredSuggestions.length}{" "}
+              {filteredSuggestions.length === 1 ? "style" : "styles"}
             </Typography>
           }
         >
-          {t("theme.ai.style_inspiration", "Style inspiration")}
+          Style inspiration
         </SectionLabel>
 
         <Stack
@@ -409,7 +364,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
           {categories.map((cat) => (
             <ChoiceChip
               key={cat}
-              label={categoryLabel(cat)}
+              label={cat}
               selected={selectedCategory === cat}
               onClick={() => setSelectedCategory(cat)}
             />
@@ -426,10 +381,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
             }}
           >
             <Typography variant="body2" color="text.secondary">
-              {t(
-                "theme.ai.no_styles",
-                "No styles in this category yet — describe your own above.",
-              )}
+              No styles in this category yet — describe your own above.
             </Typography>
           </Box>
         ) : (
@@ -560,9 +512,7 @@ export const AiThemeStudioPanel: React.FC<AiThemeStudioPanelProps> = ({
       {/* Recent prompts */}
       {promptHistory.length > 0 && (
         <Box>
-          <SectionLabel>
-            {t("theme.ai.recent_prompts", "Recent prompts")}
-          </SectionLabel>
+          <SectionLabel>Recent prompts</SectionLabel>
           <Stack spacing={1}>
             {promptHistory.map((histPrompt) => (
               <Box

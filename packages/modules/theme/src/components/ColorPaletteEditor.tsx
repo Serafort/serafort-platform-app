@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useTranslation, Trans } from "react-i18next";
 import {
   Box,
   Chip,
@@ -66,7 +65,6 @@ const ColorSwatch = ({
   modeKey?: PreviewMode;
   isFirst: boolean;
 }) => {
-  const { t } = useTranslation();
   const theme = useTheme();
   const displayValue = (modeKey ? color[modeKey] : undefined) ?? color.value;
   const isInherited = Boolean(modeKey) && color[modeKey!] === undefined;
@@ -90,10 +88,7 @@ const ColorSwatch = ({
       {/* The well is the picker: clicking anywhere on the color opens it. */}
       <Box
         component="label"
-        title={t("theme.colors.pick", {
-          label,
-          defaultValue: "Pick {{label}}",
-        })}
+        title={`Pick ${label}`}
         sx={{
           position: "relative",
           inlineSize: 40,
@@ -117,10 +112,7 @@ const ColorSwatch = ({
           type="color"
           value={displayValue}
           onChange={(e) => onColorChange(e.target.value)}
-          aria-label={t("theme.colors.pick_for", {
-            label,
-            defaultValue: "Pick color for {{label}}",
-          })}
+          aria-label={`Pick color for ${label}`}
           style={{
             position: "absolute",
             inset: 0,
@@ -157,7 +149,7 @@ const ColorSwatch = ({
             )}
             {isInherited && (
               <Typography variant="caption" color="text.disabled">
-                {t("theme.colors.inherits_light", "inherits light")}
+                inherits light
               </Typography>
             )}
           </Box>
@@ -169,10 +161,7 @@ const ColorSwatch = ({
         value={displayValue}
         onChange={(e) => onColorChange(e.target.value)}
         placeholder="#000000"
-        aria-label={t("theme.colors.hex_value", {
-          label,
-          defaultValue: "{{label}} hex value",
-        })}
+        aria-label={`${label} hex value`}
         sx={{ inlineSize: 108 }}
         slotProps={{
           input: { sx: { fontFamily: "monospace", fontSize: "0.8125rem" } },
@@ -193,12 +182,8 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
   // a brand blue is a brand blue in both modes - so they ignore this toggle
   // and always edit `.value` directly.
   const [previewMode, setPreviewMode] = useState<PreviewMode>("light");
-  const { t } = useTranslation();
   const surface = useSurfaceSx();
   const theme = useTheme();
-
-  const colorLabel = (key: string) =>
-    t(`theme.colors.label.${key}`, colorLabels[key] ?? key);
 
   const handleColorChange = (key: string, value: string) => {
     onChange({ ...colors, [key]: { ...colors[key], value } });
@@ -216,27 +201,24 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
   return (
     <Box>
       <PanelHeader
-        title={t("theme.colors.title", "Color palette")}
-        description={t(
-          "theme.colors.description",
-          "Brand and semantic colors are shared by both modes. Surface and text colors can differ.",
-        )}
+        title="Color palette"
+        description="Brand and semantic colors are shared by both modes. Surface and text colors can differ."
       />
 
       <Box sx={{ mb: 7 }}>
-        <SectionLabel>{t("theme.colors.brand", "Brand")}</SectionLabel>
+        <SectionLabel>Brand</SectionLabel>
         <Box sx={{ ...surface, overflow: "hidden" }}>
           <ColorSwatch
             isFirst
             color={colors.primary || { value: "#6366f1" }}
-            label={colorLabel("primary")}
+            label={colorLabels.primary}
             contrastTarget={brandTarget}
             onColorChange={(value) => handleColorChange("primary", value)}
           />
           <ColorSwatch
             isFirst={false}
             color={colors.secondary || { value: "#8b5cf6" }}
-            label={colorLabel("secondary")}
+            label={colorLabels.secondary}
             contrastTarget={brandTarget}
             onColorChange={(value) => handleColorChange("secondary", value)}
           />
@@ -253,30 +235,21 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
               onChange={(_e, next: PreviewMode | null) => {
                 if (next) setPreviewMode(next);
               }}
-              aria-label={t(
-                "theme.colors.mode_toggle_aria",
-                "Mode being edited for surface and text colors",
-              )}
+              aria-label="Mode being edited for surface and text colors"
               sx={{ "& .MuiToggleButton-root": { paddingInline: 2.5 } }}
             >
-              <ToggleButton
-                value="light"
-                aria-label={t("theme.colors.light_mode", "Light mode")}
-              >
+              <ToggleButton value="light" aria-label="Light mode">
                 <LightModeIcon sx={{ fontSize: 16, mr: 1 }} />
-                {t("theme.colors.light", "Light")}
+                Light
               </ToggleButton>
-              <ToggleButton
-                value="dark"
-                aria-label={t("theme.colors.dark_mode", "Dark mode")}
-              >
+              <ToggleButton value="dark" aria-label="Dark mode">
                 <DarkModeIcon sx={{ fontSize: 16, mr: 1 }} />
-                {t("theme.colors.dark", "Dark")}
+                Dark
               </ToggleButton>
             </ToggleButtonGroup>
           }
         >
-          {t("theme.colors.surface_text", "Surface & text")}
+          Surface & text
         </SectionLabel>
 
         <Typography
@@ -284,10 +257,8 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
           color="text.secondary"
           sx={{ display: "block", mb: 3, lineHeight: 1.5 }}
         >
-          {t(
-            "theme.colors.mode_fallback_note",
-            "A swatch left unset for a mode falls back to its light value — set dark explicitly where the light one would not survive a dark screen.",
-          )}
+          A swatch left unset for a mode falls back to its light value — set
+          dark explicitly where the light one would not survive a dark screen.
         </Typography>
 
         <AutoGrid min={260} gap={3}>
@@ -295,7 +266,7 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
             <ColorSwatch
               isFirst
               color={colors.background || { value: "#f8fafc" }}
-              label={colorLabel("background")}
+              label={colorLabels.background}
               modeKey={previewMode}
               onColorChange={(value) =>
                 handleChromeColorChange("background", value)
@@ -304,7 +275,7 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
             <ColorSwatch
               isFirst={false}
               color={colors.surface || { value: "#ffffff" }}
-              label={colorLabel("surface")}
+              label={colorLabels.surface}
               modeKey={previewMode}
               onColorChange={(value) =>
                 handleChromeColorChange("surface", value)
@@ -313,7 +284,7 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
             <ColorSwatch
               isFirst={false}
               color={colors.border || { value: "#e2e8f0" }}
-              label={colorLabel("border")}
+              label={colorLabels.border}
               modeKey={previewMode}
               onColorChange={(value) => handleChromeColorChange("border", value)}
             />
@@ -323,7 +294,7 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
             <ColorSwatch
               isFirst
               color={colors.text || { value: "#0f172a" }}
-              label={colorLabel("text")}
+              label={colorLabels.text}
               modeKey={previewMode}
               contrastTarget={chromeContrastTarget}
               onColorChange={(value) => handleChromeColorChange("text", value)}
@@ -331,7 +302,7 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
             <ColorSwatch
               isFirst={false}
               color={colors.textMuted || { value: "#64748b" }}
-              label={colorLabel("textMuted")}
+              label={colorLabels.textMuted}
               modeKey={previewMode}
               contrastTarget={chromeContrastTarget}
               onColorChange={(value) =>
@@ -343,30 +314,30 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
       </Box>
 
       <Box>
-        <SectionLabel>{t("theme.colors.semantic", "Semantic")}</SectionLabel>
+        <SectionLabel>Semantic</SectionLabel>
         <Box sx={{ ...surface, overflow: "hidden" }}>
           <ColorSwatch
             isFirst
             color={colors.success || { value: "#22c55e" }}
-            label={colorLabel("success")}
+            label={colorLabels.success}
             onColorChange={(value) => handleColorChange("success", value)}
           />
           <ColorSwatch
             isFirst={false}
             color={colors.warning || { value: "#f59e0b" }}
-            label={colorLabel("warning")}
+            label={colorLabels.warning}
             onColorChange={(value) => handleColorChange("warning", value)}
           />
           <ColorSwatch
             isFirst={false}
             color={colors.error || { value: "#ef4444" }}
-            label={colorLabel("error")}
+            label={colorLabels.error}
             onColorChange={(value) => handleColorChange("error", value)}
           />
           <ColorSwatch
             isFirst={false}
             color={colors.info || { value: "#3b82f6" }}
-            label={colorLabel("info")}
+            label={colorLabels.info}
             onColorChange={(value) => handleColorChange("info", value)}
           />
         </Box>
@@ -374,23 +345,17 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
 
       {onGradientsChange && (
         <Box sx={{ mt: 7 }}>
-          <SectionLabel>
-            {t("theme.colors.brand_gradient", "Brand gradient")}
-          </SectionLabel>
+          <SectionLabel>Brand gradient</SectionLabel>
           <Typography
             variant="caption"
             color="text.secondary"
             sx={{ display: "block", mb: 3, lineHeight: 1.5 }}
           >
-            <Trans
-              i18nKey="theme.colors.brand_gradient_desc"
-              defaults="A four-lobe mesh wash built from Primary and Secondary, published as <code>--gradient-brand-mesh</code>. Intensity scales every lobe’s opacity."
-              components={{
-                code: (
-                  <Box component="code" sx={{ fontFamily: "monospace" }} />
-                ),
-              }}
-            />
+            A four-lobe mesh wash built from Primary and Secondary, published as{" "}
+            <Box component="code" sx={{ fontFamily: "monospace" }}>
+              --gradient-brand-mesh
+            </Box>
+            . Intensity scales every lobe&rsquo;s opacity.
           </Typography>
           <Box sx={{ ...surface, overflow: "hidden" }}>
             <Box
@@ -425,7 +390,7 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
                 variant="body2"
                 sx={{ flex: 1, minWidth: 0, fontWeight: 500 }}
               >
-                {t("theme.colors.mesh_intensity", "Mesh intensity")}
+                Mesh intensity
               </Typography>
               <TextField
                 size="small"
@@ -445,10 +410,7 @@ export const ColorPaletteEditor: React.FC<ColorPaletteEditorProps> = ({
                     min: 0,
                     max: 2,
                     step: 0.1,
-                    "aria-label": t(
-                      "theme.colors.mesh_intensity",
-                      "Mesh intensity",
-                    ),
+                    "aria-label": "Mesh intensity",
                   },
                   input: {
                     sx: { fontFamily: "monospace", fontSize: "0.8125rem" },

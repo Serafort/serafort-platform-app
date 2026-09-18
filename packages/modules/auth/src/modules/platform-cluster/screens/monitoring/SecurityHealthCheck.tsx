@@ -26,7 +26,6 @@ import PersonOff from '@mui/icons-material/PersonOff'
 import Settings from '@mui/icons-material/Settings'
 import Schedule from '@mui/icons-material/Schedule'
 import Password from '@mui/icons-material/Password'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useSecurityHealth } from '../../hooks/useHealthQuery'
 
@@ -65,7 +64,7 @@ const REC_ICON_MAP: Record<string, React.ReactNode> = {
 
 export const SecurityHealthCheck: React.FC = () => {
   const { t } = useTranslation()
-  const { data: healthRes, isLoading, error, refetch } = useSecurityHealth()
+  const { data: healthRes, isLoading, error } = useSecurityHealth()
 
   const healthData = (healthRes as any)?.data || healthRes
   const securityScore = healthData?.score ?? 85
@@ -89,14 +88,7 @@ export const SecurityHealthCheck: React.FC = () => {
   if (error) {
     return (
       <Container maxWidth='lg' sx={{ py: 4 }}>
-        <Alert
-          severity='error'
-          action={
-            <Button color='inherit' size='small' onClick={() => refetch()}>
-              {t('monitoring.security.retry', 'Retry')}
-            </Button>
-          }
-        >
+        <Alert severity='error'>
           {t('monitoring.security.error_loading', 'Failed to load security health data')}
         </Alert>
       </Container>
@@ -104,14 +96,7 @@ export const SecurityHealthCheck: React.FC = () => {
   }
 
   return (
-    <Container
-      maxWidth='lg'
-      component={motion.div}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-      sx={{ py: 4 }}
-    >
+    <Container maxWidth='lg' sx={{ py: 4 }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -119,7 +104,7 @@ export const SecurityHealthCheck: React.FC = () => {
             sx={{
               width: 48,
               height: 48,
-              borderRadius: 'var(--sf-radius-lg, 16px)',
+              borderRadius: 3,
               bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
               display: 'flex',
               alignItems: 'center',
@@ -148,7 +133,7 @@ export const SecurityHealthCheck: React.FC = () => {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card
             sx={{
-              borderRadius: 'var(--sf-radius-lg, 16px)',
+              borderRadius: 3,
               border: 1,
               borderColor: 'divider',
               height: '100%',
@@ -237,7 +222,7 @@ export const SecurityHealthCheck: React.FC = () => {
               <Grid key={stat.label} size={{ xs: 12 }}>
                 <Card
                   sx={{
-                    borderRadius: 'var(--sf-radius-lg, 16px)',
+                    borderRadius: 3,
                     border: 1,
                     borderColor: 'divider',
                     boxShadow: 'none',
@@ -256,7 +241,7 @@ export const SecurityHealthCheck: React.FC = () => {
                       sx={{
                         width: 40,
                         height: 40,
-                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        borderRadius: 2,
                         bgcolor: (theme) =>
                           alpha(
                             (theme.palette as any)[stat.color as any]?.main ??
@@ -291,7 +276,7 @@ export const SecurityHealthCheck: React.FC = () => {
       </Grid>
 
       {/* Prioritized Recommendations */}
-      <Card sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', border: 1, borderColor: 'divider', mb: 3, boxShadow: 'none' }}>
+      <Card sx={{ borderRadius: 3, border: 1, borderColor: 'divider', mb: 3, boxShadow: 'none' }}>
         <CardContent sx={{ p: 0 }}>
           <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider' }}>
             <Typography variant='subtitle1' fontWeight={600}>

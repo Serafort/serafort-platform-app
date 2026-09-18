@@ -24,7 +24,6 @@ vi.mock('@cap/platform-core', async (importOriginal) => {
         activityTimeline: '/api/user/activity-timeline',
         securityStatus: '/api/user/security-status',
         changePassword: '/api/user/change-password',
-        deactivateSelf: '/api/user/deactivate',
       },
     },
   }

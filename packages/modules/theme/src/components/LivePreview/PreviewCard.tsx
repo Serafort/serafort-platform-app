@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { Box, Typography, Paper } from "@mui/material";
 import styled from "@emotion/styled";
 import type { EffectType } from "@cap/theme";
@@ -57,27 +56,16 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({
   label,
   style,
 }) => {
-  const { t } = useTranslation();
   const CardComponent = variant === "effect" ? EffectCardPreview : StandardCard;
-  const title =
-    label ??
-    (variant === "effect"
-      ? t("theme.preview.variant.effect", "Effect")
-      : t("theme.preview.variant.standard", "Standard"));
+  const title = label ?? (variant === "effect" ? "Effect" : "Standard");
 
   return (
     <CardComponent style={style}>
       <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-        {t("theme.preview.caption.card", {
-          variant: title,
-          defaultValue: "{{variant}} Card",
-        })}
+        {title} Card
       </Typography>
       <Typography variant="body2" color="text.secondary">
-        {t(
-          "theme.preview.card.body",
-          "A card as the app draws it. Hover to see the interactive state.",
-        )}
+        A card as the app draws it. Hover to see the interactive state.
       </Typography>
       <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
         <Box

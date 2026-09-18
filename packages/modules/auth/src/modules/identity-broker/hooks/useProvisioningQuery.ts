@@ -11,8 +11,8 @@ import type {
   DirectoryConnector,
   CreateConnectorDTO,
   UpdateConnectorDTO,
+  SyncLog,
   ConnectorSyncResult,
-  PaginatedSyncLogs,
 } from '../types/provisioning.types'
 
 export const provisioningKeys = {
@@ -145,10 +145,7 @@ export function useSyncProvisioningConnector(
 
 export function useProvisioningConnectorLogs(
   id: string | number | null | undefined,
-  options?: Omit<
-    UseQueryOptions<FetchResponse<PaginatedSyncLogs>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
+  options?: Omit<UseQueryOptions<FetchResponse<SyncLog[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: provisioningKeys.logs(id || ''),

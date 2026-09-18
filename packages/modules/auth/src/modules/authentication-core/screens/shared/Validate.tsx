@@ -1,28 +1,24 @@
 import React from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Box, CircularProgress, Stack } from '@mui/material'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import ErrorOutline from '@mui/icons-material/ErrorOutline'
-import VerifiedUser from '@mui/icons-material/VerifiedUser'
-import ArrowForward from '@mui/icons-material/ArrowForward'
+import {
+  Backdrop,
+  Button,
+  CircularProgress,
+  Container,
+  Card,
+  CardContent,
+  Typography,
+} from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { themeConfig, useTenant } from '@cap/platform-core'
+import { themeConfig, IStatus } from '@cap/platform-core'
+import { Alert as MAlert } from '@cap/platform-core'
 import { QUERY_KEYS } from '../../services/query'
 import authService from '../../services/auth.service'
 import { Path } from '@cap/module-auth/routes/path'
-import {
-  AuthPageLayout,
-  AuthCard,
-  AuthCardHeader,
-  AuthActionButton,
-  AuthBackLink,
-} from '../../components/shared/auth'
 
 export default function Validate() {
   const { t } = useTranslation('auth')
-  const { tenant } = useTenant()
-  const appName = tenant?.name || themeConfig.templateName
   const { id, token } = useParams<{ id?: string; token?: string; email?: string }>()
   const [searchParams] = useSearchParams()
   const emailParam = useParams<{ email?: string }>().email || searchParams.get('email')
@@ -52,138 +48,110 @@ export default function Validate() {
   })
 
   const validateUser = validateUserData?.data
-  const isValidating = !!id && !!token && !isSuccessValidateUser && !isErrorValidateUser
+  const [status, setStatus] = React.useState<IStatus>({
+    open: false,
+    type: '',
+    state: '',
+    msg: '',
+  })
 
-  const outcomeType = React.useMemo(() => {
-    if (isErrorValidateUser) return 'error'
+  const handleClickStatus = (newState: Partial<IStatus>) => {
+    setStatus((prev) => ({ ...prev, ...newState, open: true }))
+  }
+
+  React.useEffect(() => {
     if (isSuccessValidateUser && validateUser) {
-      return validateUser.type === 'already validate' ? 'warning' : 'success'
-    }
-    return null
-  }, [isErrorValidateUser, isSuccessValidateUser, validateUser])
-
-  const outcomeMessage = React.useMemo(() => {
-    if (outcomeType === 'error') {
-      return t('auth.validate.error_message', 'Validation failed or expired token.')
-    }
-    if (validateUser) {
       const { firstname = '', lastname = '' } = validateUser.user ?? {}
-      if (outcomeType === 'warning') {
-        return t('auth.validate.already_validated', {
-          firstname,
-          lastname,
-          defaultValue: 'Account is already validated.',
+      const type = validateUser.type
+      if (type === 'already validate') {
+        handleClickStatus({
+          type: 'warning',
+          state: 'save',
+          msg: t('auth.validate.already_validated', {
+            firstname,
+            lastname,
+            defaultValue: 'Account is already validated.',
+          }),
+        })
+      } else {
+        handleClickStatus({
+          type: 'info',
+          state: 'save',
+          msg: t('auth.validate.success_message', {
+            firstname,
+            lastname,
+            defaultValue: 'Account validated successfully!',
+          }),
         })
       }
-      return t('auth.validate.success_message', {
-        firstname,
-        lastname,
-        defaultValue: 'Account validated successfully!',
+    }
+    if (isErrorValidateUser) {
+      handleClickStatus({
+        type: 'error',
+        state: 'save',
+        msg: t('auth.validate.error_message', 'Validation failed or expired token.'),
       })
     }
-    return ''
-  }, [outcomeType, validateUser, t])
+  }, [isErrorValidateUser, isSuccessValidateUser, validateUser, t])
 
   return (
-    <>
+    <React.Fragment>
       <title>
-        {t('auth.validate.title_page', 'Validate Account')} - {appName}
+        {t('auth.validate.title_page', 'Validate Account')} - {themeConfig.templateName}
       </title>
       <meta name='description' content={t('auth.validate.meta_desc', 'Account validation')} />
+      <meta
+        name='keywords'
+        content={`registration validation, account validation, ${themeConfig.templateName}`}
+      />
 
-      <AuthPageLayout maxWidth={480} backdrop='subtle'>
-        <AuthCard padding='comfortable'>
-          {isValidating ? (
-            <Box
-              role='status'
-              aria-live='polite'
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                py: 6,
-                gap: 2,
-              }}
+      <Container
+        maxWidth='sm'
+        sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <Backdrop
+          sx={{ color: '#FFFFFF', zIndex: (theme) => theme.zIndex.drawer + 10 }}
+          open={false}
+        >
+          <CircularProgress color='inherit' />
+        </Backdrop>
+
+        <Card sx={{ my: { xs: 3, md: 6 }, width: '100%', maxWidth: 450, borderRadius: 3 }}>
+          <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+            <Typography
+              component='h1'
+              variant='h5'
+              sx={{ textAlign: 'center', mb: 1, fontWeight: 700 }}
             >
-              <CircularProgress size={48} thickness={4} />
-              <AuthCardHeader
-                title={t('auth.validate.checkingTitle', 'Validating Account')}
-                subtitle={t('auth.validate.checking', 'Checking your verification link…')}
-              />
-            </Box>
-          ) : outcomeType === 'error' ? (
-            <Box sx={{ textAlign: 'center' }}>
-              <AuthCardHeader
-                icon={<ErrorOutline sx={{ fontSize: 32 }} />}
-                tone='error'
-                toneTitle
-                title={t('auth.validate.failedTitle', 'Validation Failed')}
-                subtitle={outcomeMessage}
-              />
-              <Stack spacing={2} sx={{ mt: 3 }}>
-                <AuthActionButton
-                  fullWidth
-                  onClick={() => navigate(Path.auth.signin)}
-                  label={t('auth.validate.button_connect', 'Sign In')}
-                />
-                <AuthBackLink
-                  label={t('common.backToLogin', 'Back to log in')}
-                  onClick={() => navigate(Path.auth.signin)}
-                />
-              </Stack>
-            </Box>
-          ) : outcomeType === 'warning' ? (
-            <Box sx={{ textAlign: 'center' }}>
-              <AuthCardHeader
-                icon={<VerifiedUser sx={{ fontSize: 32 }} />}
-                tone='warning'
-                toneTitle
-                title={t('auth.validate.alreadyValidatedTitle', 'Already Validated')}
-                subtitle={outcomeMessage}
-              />
-              <Stack spacing={2} sx={{ mt: 3 }}>
-                <AuthActionButton
-                  fullWidth
-                  onClick={() => navigate(Path.auth.signin)}
-                  endIcon={<ArrowForward />}
-                  label={t('auth.validate.button_connect', 'Sign In')}
-                />
-              </Stack>
-            </Box>
-          ) : outcomeType === 'success' ? (
-            <Box sx={{ textAlign: 'center' }}>
-              <AuthCardHeader
-                icon={<CheckCircle sx={{ fontSize: 32 }} />}
-                tone='success'
-                toneTitle
-                title={t('auth.validate.successTitle', 'Account Validated!')}
-                subtitle={outcomeMessage}
-              />
-              <Stack spacing={2} sx={{ mt: 3 }}>
-                <AuthActionButton
-                  fullWidth
-                  onClick={() => navigate(Path.auth.signin)}
-                  endIcon={<ArrowForward />}
-                  label={t('auth.validate.button_connect', 'Sign In')}
-                />
-              </Stack>
-            </Box>
-          ) : (
-            <Box sx={{ textAlign: 'center' }}>
-              <AuthCardHeader
-                title={t('auth.validate.title', 'Account Validation')}
-                subtitle={t('auth.validate.prompt', 'Please check your link or sign in below.')}
-              />
-              <AuthActionButton
+              {themeConfig.templateName}
+            </Typography>
+            <Typography
+              component='h5'
+              variant='body1'
+              sx={{ mb: 2, textAlign: 'center', color: 'text.secondary' }}
+            >
+              {t('auth.validate.title', 'Account Validation')}
+            </Typography>
+            {status.open && (
+              <MAlert sx={{ width: '100%' }} severity={status.type || 'info'}>
+                {status.msg}
+              </MAlert>
+            )}
+            {status?.type !== 'error' && (
+              <Button
                 fullWidth
-                onClick={() => navigate(Path.auth.signin)}
-                label={t('auth.validate.button_connect', 'Sign In')}
-              />
-            </Box>
-          )}
-        </AuthCard>
-      </AuthPageLayout>
-    </>
+                variant='contained'
+                sx={{ mt: 3, mb: 2, borderRadius: 2, py: 1.2, fontWeight: 700 }}
+                onClick={() => {
+                  navigate(Path.auth.signin)
+                }}
+              >
+                {t('auth.validate.button_connect', 'Sign In')}
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </Container>
+    </React.Fragment>
   )
 }

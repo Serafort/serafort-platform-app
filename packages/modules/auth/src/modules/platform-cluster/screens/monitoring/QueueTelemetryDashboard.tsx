@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardContent,
+  Chip,
   CircularProgress,
   Container,
   Grid,
@@ -26,7 +27,6 @@ import Replay from '@mui/icons-material/Replay'
 import GppMaybe from '@mui/icons-material/GppMaybe'
 import PauseCircle from '@mui/icons-material/PauseCircle'
 import PowerOff from '@mui/icons-material/PowerOff'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import {
   useQueueTelemetryQuery,
@@ -35,7 +35,6 @@ import {
   useRetryFailedQueueMutation,
 } from '../../hooks/useQueueTelemetryQuery'
 import { isPlatformScopeError } from '../../services/audit-chain.service'
-import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 import { queueSeverity, type QueueSummary } from '../../types/queue.types'
 
 /**
@@ -60,14 +59,7 @@ const SEVERITY_COLOR = {
   healthy: 'success',
   warning: 'warning',
   error: 'error',
-  idle: 'neutral',
-} as const
-
-const SEVERITY_LABEL_FALLBACK = {
-  healthy: 'Healthy',
-  warning: 'Warning',
-  error: 'Error',
-  idle: 'Idle',
+  idle: 'default',
 } as const
 
 export const QueueTelemetryDashboard: React.FC = () => {
@@ -116,14 +108,7 @@ export const QueueTelemetryDashboard: React.FC = () => {
   const selectedQueue = queues.find((queue) => queue.name === selected) ?? null
 
   return (
-    <Container
-      maxWidth='lg'
-      component={motion.div}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-      sx={{ py: 4 }}
-    >
+    <Container maxWidth='lg' sx={{ py: 4 }}>
       <Stack direction='row' alignItems='center' spacing={1.5} sx={{ mb: 1 }}>
         <Layers color='primary' />
         <Typography variant='h4'>{t('monitoring.queues.title', 'Background queues')}</Typography>
@@ -345,11 +330,12 @@ const QueueRow: React.FC<{
       </TableCell>
       <TableCell align='right'>{counts?.completed ?? '—'}</TableCell>
       <TableCell>
-        <AdminStatusBadge
-          tone={SEVERITY_COLOR[severity]}
+        <Chip
+          size='small'
+          color={SEVERITY_COLOR[severity]}
           label={
             queue.reachable
-              ? t(`monitoring.queues.severity_${severity}`, SEVERITY_LABEL_FALLBACK[severity])
+              ? severity
               : t('monitoring.queues.unreachable_label', 'unreachable')
           }
         />

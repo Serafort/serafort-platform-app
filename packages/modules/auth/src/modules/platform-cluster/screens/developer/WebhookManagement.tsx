@@ -52,8 +52,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
-import { buildLayoutSurfaceEffect } from '@cap/layout'
-import { getTenantThemeEffects } from '@cap/theme'
 import logger from '@idaas/authentication-core/utils/logger'
 import {
   useWebhooks,
@@ -74,7 +72,7 @@ const AVAILABLE_EVENTS = [
   'provisioning.sync',
 ]
 
-// ── Chip overflow helper: show max N chips + "+X more" badge ─────────────────
+// â”€â”€ Chip overflow helper: show max N chips + "+X more" badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function EventChips({ events, max = 2 }: { events: string[]; max?: number }) {
   const theme = useTheme()
   const visible = events.slice(0, max)
@@ -119,10 +117,8 @@ function EventChips({ events, max = 2 }: { events: string[]; max?: number }) {
 const WebhookManagement: React.FC = () => {
   const { t } = useTranslation('auth')
   const theme = useTheme()
-  const effects = getTenantThemeEffects(theme)
-  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const navigate = useNavigate()
-  // ── Queries & Mutations ──────────────────────────────────────────
+  // â”€â”€ Queries & Mutations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const { data: webhooksData, isLoading } = useWebhooks()
   const createWebhook = useCreateWebhook()
   const deleteWebhook = useDeleteWebhook()
@@ -130,7 +126,7 @@ const WebhookManagement: React.FC = () => {
 
   const webhooks = (webhooksData?.data as any)?.data ?? webhooksData?.data ?? []
 
-  // ── State ────────────────────────────────────────────────────────
+  // â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isSecretDialogOpen, setIsSecretDialogOpen] = useState(false)
@@ -142,7 +138,7 @@ const WebhookManagement: React.FC = () => {
   const [selectedEvents, setSelectedEvents] = useState<string[]>([])
   const [secretVisible, setSecretVisible] = useState(false)
 
-  // ── Handlers ─────────────────────────────────────────────────────
+  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleCreate = () => {
     if (!url || selectedEvents.length === 0) {
       toast.warning(t('admin.developer.webhooks.messages.form_error'))
@@ -200,7 +196,7 @@ const WebhookManagement: React.FC = () => {
     toast.info(t('admin.developer.webhooks.messages.copied', { label }))
   }
 
-  // ── Render Helpers ───────────────────────────────────────────────
+  // â”€â”€ Render Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const getStatusChip = (status: string) => {
     const isFailing = status === 'failing'
     const isDisabled = status === 'disabled'
@@ -209,7 +205,7 @@ const WebhookManagement: React.FC = () => {
         label={status.toUpperCase()}
         size='small'
         sx={{
-          fontWeight: 800,
+          fontWeight: 900,
           fontSize: 10,
           bgcolor: isFailing
             ? alpha(theme.palette.error.main, 0.1)
@@ -234,7 +230,7 @@ const WebhookManagement: React.FC = () => {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* ── Rule 2: Page Header ─────────────────────────────────────────────── */}
+      {/* â”€â”€ Rule 2: Page Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Box
         sx={{
           mb: 4,
@@ -251,7 +247,7 @@ const WebhookManagement: React.FC = () => {
             sx={{
               width: { xs: 56, md: 80 },
               height: { xs: 56, md: 80 },
-              borderRadius: 'var(--sf-radius-lg, 12px)',
+              borderRadius: '24px',
               bgcolor: alpha(theme.palette.secondary.main, 0.12),
               color: 'secondary.main',
             }}
@@ -275,7 +271,7 @@ const WebhookManagement: React.FC = () => {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 800,
+                fontWeight: 900,
                 letterSpacing: '-0.027em',
                 fontSize: { xs: '1.5rem', md: '2.125rem' },
               }}
@@ -293,21 +289,23 @@ const WebhookManagement: React.FC = () => {
           startIcon={<Add />}
           onClick={() => setIsCreateDialogOpen(true)}
           sx={{
-            bgcolor: 'primary.main',
+            bgcolor: 'info.main',
             color: 'white',
-            minHeight: 48,
+            boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
+            height: 44,
             px: 3,
-            borderRadius: 'var(--sf-radius-md, 8px)',
+            borderRadius: 2,
             fontWeight: 700,
             textTransform: 'none',
             flex: { xs: 1, sm: 'none' },
+            '&:hover': { bgcolor: 'info.dark' },
           }}
         >
           {t('admin.developer.webhooks.create_button')}
         </Button>
       </Box>
 
-      {/* ── Rule 7: Stats Cards Row ───────────────────────────────────────────────── */}
+      {/* â”€â”€ Rule 7: Stats Cards Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {[
           {
@@ -335,8 +333,7 @@ const WebhookManagement: React.FC = () => {
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
-                borderRadius: 'var(--sf-radius-lg, 16px)',
-                ...surfaceEffect,
+                borderRadius: 4,
               }}
             >
               <CardContent
@@ -357,7 +354,7 @@ const WebhookManagement: React.FC = () => {
                     color: `${stat.color}.main`,
                     width: 48,
                     height: 48,
-                    borderRadius: 'var(--sf-radius-lg, 12px)',
+                    borderRadius: 3,
                     flexShrink: 0,
                   }}
                 >
@@ -377,7 +374,7 @@ const WebhookManagement: React.FC = () => {
                   >
                     {stat.label}
                   </Typography>
-                  <Typography variant='h5' sx={{ fontWeight: 800, lineHeight: 1.1 }}>
+                  <Typography variant='h5' sx={{ fontWeight: 900, lineHeight: 1.1 }}>
                     {stat.value}
                   </Typography>
                 </Box>
@@ -387,14 +384,13 @@ const WebhookManagement: React.FC = () => {
         ))}
       </Grid>
 
-      {/* ── Main Section: Configured Webhooks ─────────────────────── */}
+      {/* â”€â”€ Main Section: Configured Webhooks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Card
         sx={{
-          borderRadius: 'var(--sf-radius-lg, 16px)',
+          borderRadius: 4,
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
-          ...surfaceEffect,
         }}
       >
         <CardContent sx={{ p: 3 }}>
@@ -418,7 +414,7 @@ const WebhookManagement: React.FC = () => {
                   mx: 'auto',
                   mb: 2,
                   bgcolor: alpha(theme.palette.primary.main, 0.05),
-                  borderRadius: 'var(--sf-radius-lg, 12px)',
+                  borderRadius: 4,
                 }}
               >
                 <Link sx={{ color: 'primary.main' }} />
@@ -433,7 +429,7 @@ const WebhookManagement: React.FC = () => {
                 variant='outlined'
                 startIcon={<Add />}
                 onClick={() => setIsCreateDialogOpen(true)}
-                sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700, minHeight: 44 }}
+                sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700 }}
               >
                 {t('admin.developer.webhooks.empty.button')}
               </Button>
@@ -443,29 +439,29 @@ const WebhookManagement: React.FC = () => {
               sx={{
                 border: '1px solid',
                 borderColor: 'divider',
-                borderRadius: 'var(--sf-radius-lg, 12px)',
+                borderRadius: 3,
                 overflow: 'hidden',
               }}
             >
               <Table size='small'>
                 <TableHead sx={{ bgcolor: 'action.hover' }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800, py: 2 }}>
+                    <TableCell sx={{ fontWeight: 900, py: 2 }}>
                       {t('admin.developer.webhooks.table.url')}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800 }}>
+                    <TableCell sx={{ fontWeight: 900 }}>
                       {t('admin.developer.webhooks.table.events')}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800 }}>
+                    <TableCell sx={{ fontWeight: 900 }}>
                       {t('admin.developer.webhooks.table.status')}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800, display: { xs: 'none', md: 'table-cell' } }}>
+                    <TableCell sx={{ fontWeight: 900, display: { xs: 'none', md: 'table-cell' } }}>
                       {t('admin.developer.webhooks.table.last_triggered')}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800 }}>
+                    <TableCell sx={{ fontWeight: 900 }}>
                       {t('admin.developer.webhooks.table.success')}
                     </TableCell>
-                    <TableCell align='right' sx={{ fontWeight: 800 }}>
+                    <TableCell align='right' sx={{ fontWeight: 900 }}>
                       {t('admin.developer.webhooks.table.actions')}
                     </TableCell>
                   </TableRow>
@@ -473,7 +469,7 @@ const WebhookManagement: React.FC = () => {
                 <TableBody>
                   {webhooks.map((hook: any) => (
                     <TableRow key={hook.id} hover sx={{ '& td': { py: 2 } }}>
-                      {/* Rule 8/116: URL — long text truncation with Tooltip */}
+                      {/* Rule 8/116: URL â€” long text truncation with Tooltip */}
                       <TableCell sx={{ maxWidth: { xs: 120, md: 220 } }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                           <Tooltip title={hook.url} placement='top'>
@@ -510,7 +506,7 @@ const WebhookManagement: React.FC = () => {
                         </Box>
                       </TableCell>
 
-                      {/* Rule 8/117: Events — overflow chips */}
+                      {/* Rule 8/117: Events â€” overflow chips */}
                       <TableCell sx={{ maxWidth: 160 }}>
                         <EventChips events={hook.events ?? []} max={2} />
                       </TableCell>
@@ -533,7 +529,7 @@ const WebhookManagement: React.FC = () => {
                             sx={{
                               width: 56,
                               height: 6,
-                              borderRadius: 'var(--sf-radius-lg, 12px)',
+                              borderRadius: 3,
                               bgcolor: alpha(theme.palette.success.main, 0.1),
                               '& .MuiLinearProgress-bar': { bgcolor: 'success.main' },
                             }}
@@ -591,7 +587,7 @@ const WebhookManagement: React.FC = () => {
         sx={{
           mt: 3,
           p: 2,
-          borderRadius: 'var(--sf-radius-md, 8px)',
+          borderRadius: 2,
           bgcolor: alpha(theme.palette.info.main, 0.05),
           border: '1px solid',
           borderColor: alpha(theme.palette.info.main, 0.1),
@@ -617,15 +613,15 @@ const WebhookManagement: React.FC = () => {
         </Typography>
       </Box>
 
-      {/* ── Rule 12: Dialogs ────────────────────────────────────────── */}
+      {/* â”€â”€ Rule 12: Dialogs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <Dialog
         open={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
         maxWidth='sm'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+        PaperProps={{ sx: { borderRadius: 4 } }}
       >
-        <DialogTitle sx={{ fontWeight: 800, px: 3, pt: 3 }}>
+        <DialogTitle sx={{ fontWeight: 900, px: 3, pt: 3 }}>
           {t('admin.developer.webhooks.dialogs.create.title')}
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
@@ -645,7 +641,7 @@ const WebhookManagement: React.FC = () => {
                   startAdornment: <Link sx={{ mr: 1, color: 'text.disabled', fontSize: 20 }} />,
                 },
               }}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
             />
             <FormControl fullWidth>
               <InputLabel id='events-label'>
@@ -663,7 +659,7 @@ const WebhookManagement: React.FC = () => {
                 input={
                   <OutlinedInput
                     label={t('admin.developer.webhooks.dialogs.create.events_label')}
-                    sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}
+                    sx={{ borderRadius: 3 }}
                   />
                 }
                 renderValue={(selected) => (
@@ -690,7 +686,7 @@ const WebhookManagement: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-            <Alert icon={<Info fontSize='inherit' />} severity='info' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}>
+            <Alert icon={<Info fontSize='inherit' />} severity='info' sx={{ borderRadius: 3 }}>
               {t('admin.developer.webhooks.dialogs.create.info_alert')}
             </Alert>
           </Stack>
@@ -708,7 +704,7 @@ const WebhookManagement: React.FC = () => {
             disabled={createWebhook.isPending}
             sx={{
               bgcolor: 'info.main',
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               fontWeight: 700,
               px: 3,
               textTransform: 'none',
@@ -730,21 +726,21 @@ const WebhookManagement: React.FC = () => {
         onClose={() => setIsSecretDialogOpen(false)}
         maxWidth='sm'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+        PaperProps={{ sx: { borderRadius: 4 } }}
       >
         <DialogTitle
-          sx={{ fontWeight: 800, px: 3, pt: 3, display: 'flex', alignItems: 'center', gap: 1 }}
+          sx={{ fontWeight: 900, px: 3, pt: 3, display: 'flex', alignItems: 'center', gap: 1 }}
         >
           <CheckCircle color='success' /> {t('admin.developer.webhooks.dialogs.secret.title')}
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
-          <Alert severity='warning' sx={{ mb: 3, borderRadius: 'var(--sf-radius-lg, 12px)' }}>
+          <Alert severity='warning' sx={{ mb: 3, borderRadius: 3 }}>
             {t('admin.developer.webhooks.dialogs.secret.alert')}
           </Alert>
           <Box
             sx={{
               p: 2.5,
-              borderRadius: 'var(--sf-radius-lg, 12px)',
+              borderRadius: 3,
               bgcolor: alpha(theme.palette.text.primary, 0.04),
               border: '1px solid',
               borderColor: 'divider',
@@ -758,7 +754,7 @@ const WebhookManagement: React.FC = () => {
               variant='body2'
               sx={{ fontWeight: 700, letterSpacing: 1, wordBreak: 'break-all' }}
             >
-              {secretVisible ? newWebhookSecret : '•'.repeat(32)}
+              {secretVisible ? newWebhookSecret : 'â€¢'.repeat(32)}
             </Typography>
             <Box sx={{ display: 'flex', flexShrink: 0, ml: 1 }}>
               <IconButton size='small' onClick={() => setSecretVisible(!secretVisible)}>
@@ -788,7 +784,7 @@ const WebhookManagement: React.FC = () => {
             fullWidth
             onClick={() => setIsSecretDialogOpen(false)}
             sx={{
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               fontWeight: 700,
               bgcolor: 'text.primary',
               textTransform: 'none',
@@ -805,9 +801,9 @@ const WebhookManagement: React.FC = () => {
         onClose={() => setIsDeleteDialogOpen(false)}
         maxWidth='sm'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+        PaperProps={{ sx: { borderRadius: 4 } }}
       >
-        <DialogTitle sx={{ fontWeight: 800, px: 3, pt: 3 }}>
+        <DialogTitle sx={{ fontWeight: 900, px: 3, pt: 3 }}>
           {t('admin.developer.webhooks.dialogs.delete.title')}
         </DialogTitle>
         <DialogContent sx={{ px: 3 }}>
@@ -827,7 +823,7 @@ const WebhookManagement: React.FC = () => {
             color='error'
             onClick={handleDelete}
             disabled={deleteWebhook.isPending}
-            sx={{ fontWeight: 700, textTransform: 'none', borderRadius: 'var(--sf-radius-md, 8px)', px: 3 }}
+            sx={{ fontWeight: 700, textTransform: 'none', borderRadius: 2, px: 3 }}
           >
             {deleteWebhook.isPending ? (
               <CircularProgress size={18} color='inherit' />

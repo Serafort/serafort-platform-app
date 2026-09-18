@@ -40,14 +40,7 @@ const passkeyService = {
   },
 
   registerFinish: async (attestation: any): Promise<FetchResponse> => {
-    // PasskeysController.verifyRegistration passes `request.all()` straight
-    // into @simplewebauthn/server's verifyRegistrationResponse({ response })
-    // and reads `body.id`/`body.rawId` off the top level — it expects the
-    // browser's RegistrationResponseJSON verbatim as the request body, not
-    // wrapped in an envelope key (confirmed against the sibling
-    // mfa-orchestrator module's passkeys.verifyRegistration, which posts the
-    // same object unwrapped to this same endpoint).
-    return apiClient.post(ENDPOINTS.auth.passkey.registerFinish, attestation)
+    return apiClient.post(ENDPOINTS.auth.passkey.registerFinish, { attestation })
   },
 
   loginStart: async (
@@ -57,11 +50,7 @@ const passkeyService = {
   },
 
   loginFinish: async (assertion: any): Promise<FetchResponse<PasskeyLoginResult>> => {
-    // Same shape requirement as registerFinish above: PasskeysController.
-    // verifyAuthentication reads `body.id`/`body.rawId` and passes the whole
-    // body into verifyAuthenticationResponse({ response }) — it must be the
-    // raw AuthenticationResponseJSON, not `{ assertion }`.
-    return apiClient.post(ENDPOINTS.auth.passkey.loginFinish, assertion)
+    return apiClient.post(ENDPOINTS.auth.passkey.loginFinish, { assertion })
   },
 }
 

@@ -1,6 +1,6 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/OidcWaitScreen.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md, Error-handling.md
-// PURPOSE: OIDC Authorization Redirect Screen — handles the initial redirect to the backend
+// PURPOSE: OIDC Authorization Redirect Screen â€” handles the initial redirect to the backend
 // OIDC authorization endpoint with proper query parameters, interaction resume, and error states.
 
 import React from 'react'
@@ -122,7 +122,7 @@ export default function OidcWaitScreen() {
       return
     }
 
-    // Case 2: Fresh OIDC authorization — validate required params
+    // Case 2: Fresh OIDC authorization â€” validate required params
     if (!clientId) {
       setPhase('error')
       setErrorMessage(
@@ -145,7 +145,7 @@ export default function OidcWaitScreen() {
       return
     }
 
-    // All good — build URL and redirect
+    // All good â€” build URL and redirect
     const authUrl = buildAuthUrl()
     logger.info('OidcWaitScreen: Redirecting to OIDC authorization endpoint', { authUrl })
     doRedirect(authUrl)
@@ -234,7 +234,7 @@ export default function OidcWaitScreen() {
               sx={{
                 width: 80,
                 height: 80,
-                borderRadius: 'var(--sf-radius-lg, 24px)',
+                borderRadius: '24px',
                 bgcolor: alpha(theme.palette.error.main, 0.08),
                 display: 'flex',
                 alignItems: 'center',
@@ -250,7 +250,7 @@ export default function OidcWaitScreen() {
 
             <Typography
               variant='h4'
-              sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 2, color: 'text.primary' }}
+              sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 2, color: 'text.primary' }}
             >
               {t('auth.sso.auth_failed', 'Authentication Failed')}
             </Typography>
@@ -259,7 +259,7 @@ export default function OidcWaitScreen() {
               severity='error'
               sx={{
                 mb: 4,
-                borderRadius: 'var(--sf-radius-md, 10px)',
+                borderRadius: '16px',
                 textAlign: 'left',
                 '& .MuiAlert-message': { fontWeight: 600 },
               }}
@@ -273,10 +273,9 @@ export default function OidcWaitScreen() {
                 startIcon={<ArrowBackIcon />}
                 onClick={() => navigate(Path.auth.login)}
                 sx={{
-                  minHeight: 44,
                   fontWeight: 700,
                   textTransform: 'none',
-                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  borderRadius: '12px',
                   px: 3,
                   borderColor: 'divider',
                 }}
@@ -288,14 +287,13 @@ export default function OidcWaitScreen() {
                 startIcon={<RefreshIcon />}
                 onClick={handleRetry}
                 sx={{
-                  minHeight: 44,
                   fontWeight: 700,
                   textTransform: 'none',
-                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  borderRadius: '12px',
                   px: 3,
                 }}
               >
-                {t('auth.common.retry', 'Retry')}
+                {t('common.retry', 'Retry')}
               </Button>
             </Box>
           </motion.div>
@@ -350,7 +348,7 @@ export default function OidcWaitScreen() {
             sx={{
               width: 80,
               height: 80,
-              borderRadius: 'var(--sf-radius-lg, 24px)',
+              borderRadius: '24px',
               bgcolor: alpha(theme.palette.primary.main, 0.08),
               display: 'flex',
               alignItems: 'center',
@@ -372,7 +370,7 @@ export default function OidcWaitScreen() {
 
           <Typography
             variant='h4'
-            sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 2, color: 'text.primary' }}
+            sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 2, color: 'text.primary' }}
           >
             {t('auth.sso.redirecting_title', 'Authenticating with SSO')}
           </Typography>
@@ -410,10 +408,10 @@ export default function OidcWaitScreen() {
               <LinearProgress
                 sx={{
                   height: 6,
-                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                  borderRadius: 3,
                   bgcolor: alpha(theme.palette.primary.main, 0.06),
                   '& .MuiLinearProgress-bar': {
-                    borderRadius: 'var(--sf-radius-xs, 4px)',
+                    borderRadius: 3,
                     boxShadow: `0 0 10px ${alpha(theme.palette.primary.main, 0.4)}`,
                   },
                 }}
@@ -428,7 +426,7 @@ export default function OidcWaitScreen() {
               gap: 1.5,
               px: 2.5,
               py: 1,
-              borderRadius: 'var(--sf-radius-full, 9999px)',
+              borderRadius: '50px',
               bgcolor: alpha(theme.palette.success.main, 0.04),
               border: '1px solid',
               borderColor: alpha(theme.palette.success.main, 0.1),

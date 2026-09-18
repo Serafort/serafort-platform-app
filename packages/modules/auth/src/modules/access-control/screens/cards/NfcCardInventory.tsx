@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardContent,
+  Chip,
   CircularProgress,
   Container,
   Dialog,
@@ -31,20 +32,14 @@ import AddCard from '@mui/icons-material/AddCard'
 import Block from '@mui/icons-material/Block'
 import RestartAlt from '@mui/icons-material/RestartAlt'
 import { useTranslation } from 'react-i18next'
-import { useActiveOrganizationId } from '../../../authentication-core/hooks/useActiveOrganizationId'
+import { useActiveOrganizationId } from '../../hooks/useActiveOrganizationId'
 import {
   useNfcCardsQuery,
   useRegisterNfcCardMutation,
   useUpdateCardStatusMutation,
 } from '../../hooks/useAccessControlQuery'
-import {
-  normaliseCardUid,
-  type NfcCard,
-  type NfcCardStatus,
-} from '../../types/accessControl.types'
+import { normaliseCardUid, type NfcCardStatus } from '../../types/accessControl.types'
 import { NoOrganizationNotice } from '../NoOrganizationNotice'
-import { AdminDataState, AdminStatusBadge } from '../../../authentication-core/components/shared/admin'
-import { AuthConfirmDrawer } from '../../../authentication-core/components/shared/auth'
 
 /**
  * NFC Card Inventory.
@@ -66,7 +61,6 @@ export const NfcCardInventory: React.FC = () => {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<NfcCardStatus | ''>('')
   const [registerOpen, setRegisterOpen] = useState(false)
-  const [pendingRevoke, setPendingRevoke] = useState<NfcCard | null>(null)
 
   const cardsQuery = useNfcCardsQuery(orgId, {
     page: page + 1,
@@ -96,17 +90,7 @@ export const NfcCardInventory: React.FC = () => {
             {t('accessControl.cards.title', 'NFC card inventory')}
           </Typography>
         </Stack>
-        <Button
-          variant='contained'
-          startIcon={<AddCard />}
-          onClick={() => setRegisterOpen(true)}
-          sx={{
-            minHeight: 44,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
-        >
+        <Button variant='contained' startIcon={<AddCard />} onClick={() => setRegisterOpen(true)}>
           {t('accessControl.cards.register', 'Register badge')}
         </Button>
       </Stack>
@@ -118,12 +102,12 @@ export const NfcCardInventory: React.FC = () => {
       </Typography>
 
       {updateStatus.error && (
-        <Alert severity='error' sx={{ mb: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}>
+        <Alert severity='error' sx={{ mb: 2 }}>
           {t('accessControl.cards.update_failed', 'The card status could not be changed.')}
         </Alert>
       )}
 
-      <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}>
+      <Card variant='outlined'>
         <CardContent>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 2 }}>
             <TextField
@@ -135,7 +119,6 @@ export const NfcCardInventory: React.FC = () => {
                 setSearch(event.target.value)
                 setPage(0)
               }}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' } }}
             />
             <Select
               size='small'
@@ -146,7 +129,7 @@ export const NfcCardInventory: React.FC = () => {
                 setPage(0)
               }}
               inputProps={{ 'aria-label': t('accessControl.cards.filter_status', 'Status') }}
-              sx={{ minWidth: 160, borderRadius: 'var(--sf-radius-md, 8px)' }}
+              sx={{ minWidth: 160 }}
             >
               <MenuItem value=''>{t('accessControl.cards.all', 'All')}</MenuItem>
               <MenuItem value='active'>{t('accessControl.cards.active', 'Active')}</MenuItem>
@@ -154,20 +137,17 @@ export const NfcCardInventory: React.FC = () => {
             </Select>
           </Stack>
 
-          <AdminDataState
-            loading={cardsQuery.isLoading}
-            error={cardsQuery.isError || undefined}
-            onRetry={() => void cardsQuery.refetch()}
-            empty={cards.length === 0}
-            emptyIcon={<CreditCard sx={{ fontSize: 32 }} />}
-            emptyTitle={t('accessControl.cards.empty', 'No badges registered for this filter.')}
-            emptyDescription={t(
-              'accessControl.cards.empty_help',
-              'Register a badge, or clear the filters to see the full inventory.',
-            )}
-          >
+          {cardsQuery.isLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+              <CircularProgress />
+            </Box>
+          ) : cards.length === 0 ? (
+            <Typography variant='body2' color='text.secondary'>
+              {t('accessControl.cards.empty', 'No badges registered for this filter.')}
+            </Typography>
+          ) : (
             <>
-              <TableContainer component={Paper} variant='outlined' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+              <TableContainer component={Paper} variant='outlined'>
                 <Table size='small'>
                   <TableHead>
                     <TableRow>
@@ -204,13 +184,10 @@ export const NfcCardInventory: React.FC = () => {
                         </TableCell>
                         <TableCell align='right'>{card.scanCounter}</TableCell>
                         <TableCell>
-                          <AdminStatusBadge
-                            tone={card.status === 'active' ? 'success' : 'neutral'}
-                            label={
-                              card.status === 'active'
-                                ? t('accessControl.cards.active', 'Active')
-                                : t('accessControl.cards.revoked', 'Revoked')
-                            }
+                          <Chip
+                            size='small'
+                            color={card.status === 'active' ? 'success' : 'default'}
+                            label={card.status}
                           />
                         </TableCell>
                         <TableCell align='right'>
@@ -222,11 +199,13 @@ export const NfcCardInventory: React.FC = () => {
                               )}
                             >
                               <Button
+                                size='small'
                                 color='error'
                                 startIcon={<Block />}
                                 disabled={updateStatus.isPending}
-                                onClick={() => setPendingRevoke(card)}
-                                sx={{ minHeight: 44, textTransform: 'none' }}
+                                onClick={() =>
+                                  updateStatus.mutate({ cardId: card.id, status: 'revoked' })
+                                }
                               >
                                 {t('accessControl.cards.revoke', 'Revoke')}
                               </Button>
@@ -239,7 +218,6 @@ export const NfcCardInventory: React.FC = () => {
                               onClick={() =>
                                 updateStatus.mutate({ cardId: card.id, status: 'active' })
                               }
-                              sx={{ minHeight: 44, textTransform: 'none' }}
                             >
                               {t('accessControl.cards.restore', 'Restore')}
                             </Button>
@@ -264,7 +242,7 @@ export const NfcCardInventory: React.FC = () => {
                 }}
               />
             </>
-          </AdminDataState>
+          )}
         </CardContent>
       </Card>
 
@@ -272,28 +250,6 @@ export const NfcCardInventory: React.FC = () => {
         orgId={orgId}
         open={registerOpen}
         onClose={() => setRegisterOpen(false)}
-      />
-
-      <AuthConfirmDrawer
-        id='revoke-nfc-card'
-        open={Boolean(pendingRevoke)}
-        onClose={() => setPendingRevoke(null)}
-        onConfirm={() => {
-          if (!pendingRevoke) return
-          updateStatus.mutate(
-            { cardId: pendingRevoke.id, status: 'revoked' },
-            { onSuccess: () => setPendingRevoke(null) },
-          )
-        }}
-        loading={updateStatus.isPending}
-        tone='error'
-        title={t('accessControl.cards.revoke_title', 'Revoke this badge?')}
-        description={t('accessControl.cards.revoke_confirm', {
-          uid: pendingRevoke?.uid ?? '',
-          defaultValue:
-            'Badge {{uid}} stops opening doors immediately. Its entry history is kept, and it can be restored later.',
-        })}
-        confirmLabel={t('accessControl.cards.revoke', 'Revoke')}
       />
     </Container>
   )
@@ -333,24 +289,12 @@ const RegisterCardDialog: React.FC<{
   }
 
   return (
-    <Dialog
-      open={open}
-      onClose={close}
-      fullWidth
-      maxWidth='sm'
-      slotProps={{
-        paper: {
-          sx: {
-            borderRadius: 'var(--sf-radius-lg, 16px)',
-          },
-        },
-      }}
-    >
+    <Dialog open={open} onClose={close} fullWidth maxWidth='sm'>
       <DialogTitle>{t('accessControl.cards.register_title', 'Register NFC badge')}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           {register.error && (
-            <Alert severity='error' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+            <Alert severity='error'>
               {t(
                 'accessControl.cards.register_failed',
                 'The badge could not be registered. A UID that is already in this organization is rejected.',
@@ -369,7 +313,6 @@ const RegisterCardDialog: React.FC<{
               'Read from the badge. Stored upper-cased, so casing does not create a duplicate.',
             )}
             inputProps={{ style: { fontFamily: 'monospace' } }}
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' } }}
           />
           <TextField
             fullWidth
@@ -380,7 +323,6 @@ const RegisterCardDialog: React.FC<{
               'accessControl.cards.assign_help',
               'Leave blank to assign the badge to yourself.',
             )}
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' } }}
           />
           <TextField
             fullWidth
@@ -391,24 +333,15 @@ const RegisterCardDialog: React.FC<{
               'accessControl.cards.label_help',
               'Optional. What is written on the badge, so a physical card can be matched to this row.',
             )}
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' } }}
           />
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={close} sx={{ minHeight: 44, textTransform: 'none' }}>
-          {t('accessControl.common.cancel', 'Cancel')}
-        </Button>
+      <DialogActions>
+        <Button onClick={close}>{t('accessControl.common.cancel', 'Cancel')}</Button>
         <Button
           variant='contained'
           disabled={!uid.trim() || register.isPending}
           onClick={submit}
-          sx={{
-            minHeight: 44,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
         >
           {t('accessControl.cards.register', 'Register badge')}
         </Button>

@@ -69,7 +69,7 @@ export default function DeleteUserDialog({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 'var(--sf-radius-lg, 12px)',
+          borderRadius: 3,
           boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.25)',
           overflow: 'hidden',
           border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
@@ -89,7 +89,7 @@ export default function DeleteUserDialog({
           <Box
             sx={{
               p: 1,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               bgcolor: alpha(theme.palette.error.main, 0.1),
               color: theme.palette.error.main,
               display: 'flex',
@@ -117,7 +117,7 @@ export default function DeleteUserDialog({
             <Box
               sx={{
                 p: 2,
-                borderRadius: 'var(--sf-radius-md, 8px)',
+                borderRadius: 2,
                 bgcolor: alpha(theme.palette.background.default, 0.6),
                 border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                 display: 'flex',
@@ -191,7 +191,7 @@ export default function DeleteUserDialog({
             textTransform: 'none',
             fontWeight: 700,
             px: 3,
-            borderRadius: 'var(--sf-radius-md, 8px)',
+            borderRadius: 2,
             minWidth: 120,
           }}
         >

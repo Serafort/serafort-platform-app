@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Box,
   Button,
+  Container,
   Typography,
   Card,
   CardContent,
@@ -10,6 +11,7 @@ import {
   Radio,
   RadioGroup,
   FormControlLabel,
+  TextField,
   Alert,
   alpha,
   Collapse,
@@ -17,6 +19,7 @@ import {
   Stack,
   useTheme,
 } from '@mui/material'
+import ArrowBack from '@mui/icons-material/ArrowBack'
 import Shield from '@mui/icons-material/Shield'
 import Smartphone from '@mui/icons-material/Smartphone'
 import Sms from '@mui/icons-material/Sms'
@@ -28,55 +31,37 @@ import ContentCopy from '@mui/icons-material/ContentCopy'
 import Check from '@mui/icons-material/Check'
 import Download from '@mui/icons-material/Download'
 import { useTranslation } from 'react-i18next'
-import {
-  AuthPageLayout,
-  AuthCard,
-  AuthCardHeader,
-  AuthBackLink,
-  AuthCodeInput,
-  AuthInputLabel,
-  AuthQrPanel,
-  AuthCopyField,
-} from '../../../authentication-core/components/shared/auth'
 import { mfaService, TOTPSetupResponse } from '../../services/mfa.service'
+
+const RECOVERY_OPTIONS = [
+  {
+    value: 'authenticator',
+    icon: <Smartphone />,
+    label: 'Authenticator App',
+    description: 'Use Google Authenticator, Authy, or 1Password for time-based verification codes.',
+    recommended: true,
+  },
+  {
+    value: 'sms',
+    icon: <Sms />,
+    label: 'SMS Recovery',
+    description:
+      'Receive a one-time recovery code via text message to your registered phone number.',
+    recommended: false,
+  },
+  {
+    value: 'backup_codes',
+    icon: <Key />,
+    label: 'Recovery Codes',
+    description: 'Generate a set of one-time-use codes to store securely offline.',
+    recommended: false,
+  },
+]
 
 export default function PasskeyRecoveryOptions() {
   const { t } = useTranslation('auth')
   const theme = useTheme()
   const navigate = useNavigate()
-
-  const RECOVERY_OPTIONS = [
-    {
-      value: 'authenticator',
-      icon: <Smartphone />,
-      label: t('passkey.recovery_authenticator', 'Authenticator App'),
-      description: t(
-        'passkey.recovery_authenticator_desc',
-        'Use Google Authenticator, Authy, or 1Password for time-based verification codes.',
-      ),
-      recommended: true,
-    },
-    {
-      value: 'sms',
-      icon: <Sms />,
-      label: t('passkey.recovery_sms', 'SMS Recovery'),
-      description: t(
-        'passkey.recovery_sms_desc',
-        'Receive a one-time recovery code via text message to your registered phone number.',
-      ),
-      recommended: false,
-    },
-    {
-      value: 'backup_codes',
-      icon: <Key />,
-      label: t('passkey.recovery_backup_codes', 'Recovery Codes'),
-      description: t(
-        'passkey.recovery_backup_codes_desc',
-        'Generate a set of one-time-use codes to store securely offline.',
-      ),
-      recommended: false,
-    },
-  ]
   const [selectedMethod, setSelectedMethod] = useState('authenticator')
   const [showSetup, setShowSetup] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
@@ -102,17 +87,13 @@ export default function PasskeyRecoveryOptions() {
         setBackupCodes(res.data?.recoveryCodes || [])
       }
     } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          t('passkey.recovery_init_failed', 'Failed to initialize recovery setup.'),
-      )
+      setError(err.response?.data?.message || err.message || 'Failed to initialize recovery setup.')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleConfirmSetup = useCallback(async () => {
+  const handleConfirmSetup = async () => {
     setError(null)
     setLoading(true)
     try {
@@ -129,15 +110,11 @@ export default function PasskeyRecoveryOptions() {
       }
       setTimeout(() => navigate(-1), 1500)
     } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          t('passkey.recovery_verify_failed', 'Failed to verify recovery setup.'),
-      )
+      setError(err.response?.data?.message || err.message || 'Failed to verify recovery setup.')
     } finally {
       setLoading(false)
     }
-  }, [selectedMethod, verificationCode, navigate, t])
+  }
 
   const handleCopyCodes = () => {
     if (!backupCodes.length) return
@@ -164,265 +141,241 @@ export default function PasskeyRecoveryOptions() {
   }
 
   return (
-    <AuthPageLayout maxWidth={560}>
-      <AuthCard padding='comfortable'>
-        <Box sx={{ mb: 2 }}>
-          <AuthBackLink onClick={() => (showSetup ? setShowSetup(false) : navigate(-1))}>
-            {showSetup ? t('common.back', 'Back to options') : t('common.back', 'Back')}
-          </AuthBackLink>
+    <Container maxWidth='sm' sx={{ py: 4 }}>
+      {/* Breadcrumb */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate(-1)}
+          sx={{ textTransform: 'none', color: 'text.secondary', fontWeight: 500 }}
+        >
+          {t('common.back', 'Back')}
+        </Button>
+        <Typography variant='body2' color='text.secondary'>
+          /
+        </Typography>
+        <Typography variant='body2' color='text.secondary'>
+          {t('passkey.passkeys', 'Passkeys')}
+        </Typography>
+      </Box>
+
+      {/* Header */}
+      <Box sx={{ mb: 4, textAlign: 'center' }}>
+        <Box
+          sx={{
+            width: 56,
+            height: 56,
+            borderRadius: 3,
+            bgcolor: (theme) => alpha(theme.palette.warning.main, 0.1),
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mx: 'auto',
+            mb: 2,
+          }}
+        >
+          <Shield sx={{ fontSize: 28, color: 'warning.main' }} />
         </Box>
+        <Typography variant='h5' fontWeight={700} letterSpacing='-0.02em' sx={{ mb: 0.5 }}>
+          {t('passkey.recovery_title', 'Passkey Recovery Options')}
+        </Typography>
+        <Typography variant='body1' color='text.secondary'>
+          {t(
+            'passkey.recovery_subtitle',
+            'Set up a backup method in case you lose access to your passkey device.',
+          )}
+        </Typography>
+      </Box>
 
-        <AuthCardHeader
-          icon={<Shield sx={{ fontSize: 32 }} />}
-          iconSize={64}
-          tone='warning'
-          title={
-            showSetup
-              ? t('passkey.verify_recovery', 'Verify Recovery Method')
-              : t('passkey.recovery_title', 'Passkey Recovery Options')
-          }
-          subtitle={
-            showSetup
-              ? t(
-                  'passkey.verify_recovery_desc',
-                  'Confirm your backup factor to protect your account.',
-                )
-              : t(
-                  'passkey.recovery_subtitle',
-                  'Set up a backup method in case you lose access to your passkey device.',
-                )
-          }
-        />
-
-        {!showSetup && (
-          <Alert
-            severity='warning'
-            icon={<WarningAmber />}
-            sx={{
-              mb: 3,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              '& .MuiAlert-message': { fontWeight: 500 },
-            }}
-          >
-            {t(
-              'passkey.recovery_warning',
-              'Without a recovery method, losing your passkey device means losing access to your account permanently.',
-            )}
-          </Alert>
+      {/* Warning Banner */}
+      <Alert
+        severity='warning'
+        icon={<WarningAmber />}
+        sx={{ mb: 3, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 500 } }}
+      >
+        {t(
+          'passkey.recovery_warning',
+          'Without a recovery method, losing your passkey device means losing access to your account permanently.',
         )}
+      </Alert>
 
-        {error && (
-          <Alert
-            severity='error'
-            role='alert'
-            aria-live='polite'
-            sx={{
-              mb: 3,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              '& .MuiAlert-message': { fontWeight: 600 },
-            }}
-          >
-            {error}
-          </Alert>
-        )}
-        {successMsg && (
-          <Alert
-            severity='success'
-            role='status'
-            aria-live='polite'
-            sx={{
-              mb: 3,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              '& .MuiAlert-message': { fontWeight: 600 },
-            }}
-          >
-            {successMsg}
-          </Alert>
-        )}
+      {error && (
+        <Alert severity='error' sx={{ mb: 3, borderRadius: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {successMsg && (
+        <Alert severity='success' sx={{ mb: 3, borderRadius: 2 }}>
+          {successMsg}
+        </Alert>
+      )}
 
-        {/* Method Selection */}
-        {!showSetup && (
-          <Card
-            variant='outlined'
-            sx={{
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              borderColor: 'divider',
-              mb: 3,
-              overflow: 'hidden',
+      {/* Method Selection */}
+      <Card sx={{ borderRadius: 3, border: 1, borderColor: 'divider', mb: 3 }}>
+        <CardContent sx={{ p: 0 }}>
+          <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider' }}>
+            <Typography variant='subtitle1' fontWeight={600}>
+              {t('passkey.select_recovery', 'Select Recovery Method')}
+            </Typography>
+          </Box>
+          <RadioGroup
+            value={selectedMethod}
+            onChange={(e) => {
+              setSelectedMethod(e.target.value)
+              setShowSetup(false)
+              setError(null)
             }}
           >
-            <CardContent sx={{ p: 0 }}>
-              <Box sx={{ px: 2.5, py: 1.75, borderBottom: 1, borderColor: 'divider' }}>
-                <Typography variant='subtitle2' fontWeight={700}>
-                  {t('passkey.select_recovery', 'Select Recovery Method')}
-                </Typography>
-              </Box>
-              <RadioGroup
-                value={selectedMethod}
-                onChange={(e) => {
-                  setSelectedMethod(e.target.value)
-                  setShowSetup(false)
-                  setError(null)
-                }}
-              >
-                {RECOVERY_OPTIONS.map((option, index) => (
-                  <FormControlLabel
-                    key={option.value}
-                    value={option.value}
-                    control={<Radio sx={{ ml: 1.5 }} />}
-                    label={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
-                        <Box
-                          sx={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: 'var(--sf-radius-md, 8px)',
-                            bgcolor:
-                              selectedMethod === option.value
-                                ? alpha(theme.palette.primary.main, 0.1)
-                                : 'action.hover',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            '& .MuiSvgIcon-root': {
-                              fontSize: 20,
-                              color:
-                                selectedMethod === option.value
-                                  ? 'primary.main'
-                                  : 'text.secondary',
-                            },
-                          }}
-                        >
-                          {option.icon}
-                        </Box>
-                        <Box sx={{ flex: 1 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography variant='subtitle2' fontWeight={700}>
-                              {option.label}
-                            </Typography>
-                            {option.recommended && (
-                              <Chip
-                                label={t('passkey.recommended', 'Recommended')}
-                                size='small'
-                                color='primary'
-                                sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700 }}
-                              />
-                            )}
-                          </Box>
-                          <Typography variant='caption' color='text.secondary'>
-                            {option.description}
-                          </Typography>
-                        </Box>
+            {RECOVERY_OPTIONS.map((option, index) => (
+              <FormControlLabel
+                key={option.value}
+                value={option.value}
+                control={<Radio sx={{ ml: 2 }} />}
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 2,
+                        bgcolor: (theme) =>
+                          selectedMethod === option.value
+                            ? alpha(theme.palette.primary.main, 0.1)
+                            : 'action.hover',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        '& .MuiSvgIcon-root': {
+                          fontSize: 20,
+                          color:
+                            selectedMethod === option.value ? 'primary.main' : 'text.secondary',
+                        },
+                      }}
+                    >
+                      {option.icon}
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant='subtitle2' fontWeight={600}>
+                          {option.label}
+                        </Typography>
+                        {option.recommended && (
+                          <Chip
+                            label='Recommended'
+                            size='small'
+                            color='primary'
+                            sx={{ height: 20, fontSize: '0.65rem', fontWeight: 600 }}
+                          />
+                        )}
                       </Box>
-                    }
-                    sx={{
-                      mx: 0,
-                      px: 1,
-                      borderBottom: index < RECOVERY_OPTIONS.length - 1 ? 1 : 0,
-                      borderColor: 'divider',
-                      '&:hover': { bgcolor: 'action.hover' },
-                      transition: 'background-color 0.15s',
-                    }}
-                  />
-                ))}
-              </RadioGroup>
-            </CardContent>
-          </Card>
-        )}
+                      <Typography variant='caption' color='text.secondary'>
+                        {option.description}
+                      </Typography>
+                    </Box>
+                  </Box>
+                }
+                sx={{
+                  mx: 0,
+                  px: 1,
+                  borderBottom: index < RECOVERY_OPTIONS.length - 1 ? 1 : 0,
+                  borderColor: 'divider',
+                  '&:hover': { bgcolor: 'action.hover' },
+                  transition: 'background-color 0.15s',
+                }}
+              />
+            ))}
+          </RadioGroup>
+        </CardContent>
+      </Card>
 
-        {/* Setup Section */}
-        <Collapse in={showSetup}>
-          <Box sx={{ mb: 3 }}>
+      {/* Setup Section */}
+      <Collapse in={showSetup}>
+        <Card sx={{ borderRadius: 3, border: 1, borderColor: 'divider', mb: 3 }}>
+          <CardContent>
+            <Typography variant='subtitle1' fontWeight={600} sx={{ mb: 2 }}>
+              {t('passkey.verify_recovery', 'Verify Recovery Method')}
+            </Typography>
+
             {loading && (
-              <Box sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
-                <CircularProgress size={36} thickness={4} />
+              <Box sx={{ py: 3, display: 'flex', justifyContent: 'center' }}>
+                <CircularProgress size={32} />
               </Box>
             )}
 
             {!loading && selectedMethod === 'authenticator' && setupData && (
-              <Stack spacing={3}>
-                <AuthQrPanel
-                  src={setupData.qrDataUrl}
-                  alt={t('passkey.qr_alt', 'QR code')}
-                />
-                {setupData.manualEntry && (
-                  <AuthCopyField
-                    value={setupData.manualEntry}
-                    label={t('mfa.manualKeyLabel', 'Manual Entry Secret Key')}
-                    copyLabel={t('mfa.copySecret', 'Copy secret key')}
+              <Box sx={{ textAlign: 'center', mb: 2 }}>
+                {setupData.qrDataUrl && (
+                  <Box
+                    component='img'
+                    src={setupData.qrDataUrl}
+                    alt='QR Code'
+                    sx={{ width: 160, height: 160, mx: 'auto', mb: 2, borderRadius: 2 }}
                   />
                 )}
-                <Box>
-                  <Box sx={{ textAlign: 'center', mb: 1 }}>
-                    <AuthInputLabel>
-                      {t('mfa.enterCode', '6-Digit Verification Code')}
-                    </AuthInputLabel>
-                  </Box>
-                  <AuthCodeInput
-                    id='recovery-totp-code'
-                    value={verificationCode}
-                    onChange={setVerificationCode}
-                    onComplete={handleConfirmSetup}
-                    length={6}
-                    groups={[3, 3]}
-                    separator=''
-                    mode='numeric'
-                    autoFocus
-                    label={t('mfa.enterCode', '6-Digit Verification Code')}
-                  />
-                </Box>
-              </Stack>
+                <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+                  Scan the QR code with your authenticator app, then enter the 6-digit code.
+                </Typography>
+                <TextField
+                  fullWidth
+                  value={verificationCode}
+                  onChange={(e) =>
+                    setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+                  }
+                  placeholder='000 000'
+                  inputProps={{
+                    maxLength: 6,
+                    style: {
+                      textAlign: 'center',
+                      fontSize: '1.5rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.3em',
+                    },
+                  }}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                />
+              </Box>
             )}
 
             {!loading && selectedMethod === 'sms' && (
-              <Stack spacing={3}>
-                <Typography variant='body2' color='text.secondary' textAlign='center'>
-                  {t(
-                    'passkey.sms_instruction',
-                    'Enter the 6-digit verification code sent to your registered phone number.',
-                  )}
+              <Box sx={{ textAlign: 'center', mb: 2 }}>
+                <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+                  Enter the 6-digit verification code sent to your registered phone number.
                 </Typography>
-                <Box>
-                  <Box sx={{ textAlign: 'center', mb: 1 }}>
-                    <AuthInputLabel>
-                      {t('mfa.smsCodeLabel', '6-Digit SMS Code')}
-                    </AuthInputLabel>
-                  </Box>
-                  <AuthCodeInput
-                    id='recovery-sms-code'
-                    value={verificationCode}
-                    onChange={setVerificationCode}
-                    onComplete={handleConfirmSetup}
-                    length={6}
-                    groups={[3, 3]}
-                    separator=''
-                    mode='numeric'
-                    autoFocus
-                    label={t('mfa.smsCodeLabel', '6-Digit SMS Code')}
-                  />
-                </Box>
-              </Stack>
+                <TextField
+                  fullWidth
+                  value={verificationCode}
+                  onChange={(e) =>
+                    setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+                  }
+                  placeholder='000 000'
+                  inputProps={{
+                    maxLength: 6,
+                    style: {
+                      textAlign: 'center',
+                      fontSize: '1.5rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.3em',
+                    },
+                  }}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                />
+              </Box>
             )}
 
             {!loading && selectedMethod === 'backup_codes' && (
-              <Box sx={{ textAlign: 'center' }}>
-                <Typography variant='body2' color='text.secondary' sx={{ mb: 2.5 }}>
-                  {t(
-                    'passkey.backup_instruction',
-                    'Save these backup codes in a secure password manager.',
-                  )}
+              <Box sx={{ textAlign: 'center', mb: 2 }}>
+                <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+                  Save these backup codes in a secure password manager.
                 </Typography>
                 <Box
                   sx={{
                     display: 'grid',
-                    gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+                    gridTemplateColumns: 'repeat(2, 1fr)',
                     gap: 1.5,
                     p: 2,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    borderRadius: 2,
                     bgcolor: 'action.hover',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    mb: 2.5,
+                    mb: 2,
                   }}
                 >
                   {backupCodes.map((c, i) => (
@@ -430,113 +383,68 @@ export default function PasskeyRecoveryOptions() {
                       key={i}
                       label={c}
                       variant='outlined'
-                      dir='ltr'
-                      sx={{
-                        fontFamily: 'monospace',
-                        fontWeight: 700,
-                        fontSize: '0.9rem',
-                        height: 38,
-                        borderRadius: 'var(--sf-radius-md, 8px)',
-                      }}
+                      sx={{ fontFamily: 'monospace', fontWeight: 700 }}
                     />
                   ))}
                 </Box>
                 <Stack direction='row' spacing={1.5} justifyContent='center'>
                   <Button
                     variant='outlined'
+                    size='small'
                     onClick={handleCopyCodes}
                     startIcon={copiedCodes ? <Check /> : <ContentCopy />}
-                    sx={{
-                      minHeight: 44,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
-                      fontWeight: 700,
-                      textTransform: 'none',
-                    }}
                   >
-                    {copiedCodes
-                      ? t('passkey.copied', 'Copied')
-                      : t('passkey.copy_codes', 'Copy Codes')}
+                    {copiedCodes ? 'Copied' : 'Copy Codes'}
                   </Button>
                   <Button
                     variant='outlined'
+                    size='small'
                     onClick={handleDownloadCodes}
                     startIcon={<Download />}
-                    sx={{
-                      minHeight: 44,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
-                      fontWeight: 700,
-                      textTransform: 'none',
-                    }}
                   >
-                    {t('passkey.download_txt', 'Download .txt')}
+                    Download .txt
                   </Button>
                 </Stack>
               </Box>
             )}
-          </Box>
-        </Collapse>
+          </CardContent>
+        </Card>
+      </Collapse>
 
-        {/* Actions */}
-        <Stack spacing={1.5} sx={{ mt: 1 }}>
-          <Button
-            fullWidth
-            variant='contained'
-            size='large'
-            onClick={showSetup ? handleConfirmSetup : handleStartSetup}
-            disabled={
-              loading ||
-              (showSetup &&
-                selectedMethod !== 'backup_codes' &&
-                verificationCode.length !== 6)
-            }
-            endIcon={showSetup ? undefined : <ArrowForward />}
-            sx={{
-              minHeight: 48,
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              fontWeight: 800,
-              fontSize: '1rem',
-              textTransform: 'none',
-              boxShadow: 'var(--sf-shadow-glow, none)',
-            }}
-          >
-            {showSetup
-              ? selectedMethod === 'backup_codes'
-                ? t('common.done', 'Done')
-                : t('passkey.confirm_recovery', 'Confirm Recovery')
-              : t('common.continue', 'Continue')}
-          </Button>
+      {/* Actions */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Button onClick={() => navigate(-1)} sx={{ textTransform: 'none', fontWeight: 600 }}>
+          {t('common.cancel', 'Cancel')}
+        </Button>
+        <Button
+          variant='contained'
+          onClick={showSetup ? handleConfirmSetup : handleStartSetup}
+          disabled={
+            loading ||
+            (showSetup && selectedMethod !== 'backup_codes' && verificationCode.length !== 6)
+          }
+          endIcon={showSetup ? undefined : <ArrowForward />}
+          sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2, px: 4 }}
+        >
+          {showSetup
+            ? selectedMethod === 'backup_codes'
+              ? t('common.done', 'Done')
+              : t('passkey.confirm_recovery', 'Confirm Recovery')
+            : t('common.continue', 'Continue')}
+        </Button>
+      </Box>
 
-          <Button
-            fullWidth
-            variant='text'
-            onClick={() => navigate(-1)}
-            disabled={loading}
-            sx={{
-              minHeight: 44,
-              color: 'text.secondary',
-              fontWeight: 600,
-              textTransform: 'none',
-              '&:hover': { color: 'text.primary' },
-            }}
-          >
-            {t('common.cancel', 'Cancel')}
-          </Button>
-        </Stack>
-
-        <Box sx={{ mt: 4, textAlign: 'center' }}>
-          <Typography
-            variant='caption'
-            color='text.disabled'
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}
-          >
-            <Lock sx={{ fontSize: 13 }} />
-            {t(
-              'passkey.recovery_encrypted',
-              'All recovery data is securely hashed and encrypted.',
-            )}
-          </Typography>
-        </Box>
-      </AuthCard>
-    </AuthPageLayout>
+      {/* Footer */}
+      <Box sx={{ mt: 4, textAlign: 'center' }}>
+        <Typography
+          variant='caption'
+          color='text.disabled'
+          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}
+        >
+          <Lock sx={{ fontSize: 12 }} />
+          {t('passkey.recovery_encrypted', 'All recovery data is securely hashed and encrypted.')}
+        </Typography>
+      </Box>
+    </Container>
   )
 }

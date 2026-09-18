@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/SAMLMetadataDisplay.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // FIXES: Added header; implemented entry motion; unified notification system with notistack; standardized Card/Tabs styles to match project design language; translated all labels; added accessibility aria-labels
-// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
+// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
 
 import { useMemo, useState, type ReactNode } from 'react'
 import {
@@ -103,7 +103,7 @@ const MetadataField = ({
           alignItems: 'center',
           gap: 1.5,
           p: 2,
-          borderRadius: 'var(--sf-radius-md, 8px)',
+          borderRadius: 3,
           backgroundColor: alpha(theme.palette.text.primary, 0.03),
           border: '1px solid',
           borderColor: 'divider',
@@ -125,16 +125,13 @@ const MetadataField = ({
             flex: 1,
           }}
         >
-          {value || '—'}
+          {value || 'â€”'}
         </Typography>
-        <Tooltip title={t('auth.common.copy', 'Copy')}>
+        <Tooltip title={t('common.copy', 'Copy')}>
           <IconButton
             size='small'
-            aria-label={t('auth.common.copy', 'Copy')}
             onClick={() => onCopy(value)}
             sx={{
-              minWidth: 44,
-              minHeight: 44,
               color: 'text.secondary',
               '&:hover': { color: 'primary.main', bgcolor: alpha(theme.palette.primary.main, 0.1) },
             }}
@@ -186,9 +183,9 @@ export default function SAMLMetadataDisplay() {
       const data = remoteResponse.data
       return {
         entityId: data.entityId,
-        acsUrl: '—', // We might not have this in remote check unless we parse XML deeply
-        sloUrl: '—',
-        certificate: '—',
+        acsUrl: 'â€”', // We might not have this in remote check unless we parse XML deeply
+        sloUrl: 'â€”',
+        certificate: 'â€”',
         enabled: true,
         wantAssertionsSigned: false,
         xml: data.xml,
@@ -237,9 +234,9 @@ export default function SAMLMetadataDisplay() {
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      toast.error(t('auth.common.copied_to_clipboard', 'Copied to clipboard!'))
+      toast.error(t('common.copied_to_clipboard', 'Copied to clipboard!'))
     } catch {
-      toast.warning(t('auth.common.copy_failed', 'Copy failed'))
+      toast.warning(t('common.copy_failed', 'Copy failed'))
     }
   }
 
@@ -292,7 +289,7 @@ export default function SAMLMetadataDisplay() {
               sx={{
                 width: { xs: 56, md: 80 },
                 height: { xs: 56, md: 80 },
-                borderRadius: 'var(--sf-radius-lg, 24px)',
+                borderRadius: '24px',
                 bgcolor: 'primary.main',
                 boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
               }}
@@ -317,11 +314,9 @@ export default function SAMLMetadataDisplay() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
               <IconButton
                 onClick={() => navigate(-1)}
-                aria-label={t('auth.common.back', 'Back')}
                 sx={{
-                  p: 1,
-                  minWidth: 44,
-                  minHeight: 44,
+                  p: 0,
+                  minWidth: 'auto',
                   color: 'text.secondary',
                   '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
                 }}
@@ -331,7 +326,7 @@ export default function SAMLMetadataDisplay() {
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: 900,
                   letterSpacing: '-0.027em',
                   fontSize: { xs: '1.5rem', md: '2.125rem' },
                 }}
@@ -351,11 +346,11 @@ export default function SAMLMetadataDisplay() {
                     )}
               </Typography>
               <Chip
-                label={metadata.isRemote ? t('auth.sso.external_badge', 'EXTERNAL') : 'SAML 2.0'}
+                label={metadata.isRemote ? 'EXTERNAL' : 'SAML 2.0'}
                 size='small'
                 color={metadata.isRemote ? 'info' : 'primary'}
                 variant='outlined'
-                sx={{ fontWeight: 700, height: 20, borderRadius: 'var(--sf-radius-xs, 4px)' }}
+                sx={{ fontWeight: 700, height: 20 }}
               />
             </Stack>
           </Box>
@@ -371,15 +366,14 @@ export default function SAMLMetadataDisplay() {
             onClick={handleDownloadXml}
             disabled={isLoading || !metadata.xml}
             sx={{
-              bgcolor: 'primary.main',
+              bgcolor: 'info.main',
               color: 'white',
-              boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
-              '&:hover': { bgcolor: 'primary.dark' },
+              boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
+              '&:hover': { bgcolor: 'info.dark' },
               textTransform: 'none',
               fontWeight: 700,
               flex: { xs: 1, sm: 'none' },
-              minHeight: 48,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              height: 44,
               px: 3,
             }}
           >
@@ -399,7 +393,7 @@ export default function SAMLMetadataDisplay() {
           <Alert
             severity='error'
             sx={{
-              borderRadius: 'var(--sf-radius-md, 10px)',
+              borderRadius: 3,
               border: '1px solid',
               borderColor: alpha(theme.palette.error.main, 0.2),
               bgcolor: alpha(theme.palette.error.main, 0.02),
@@ -410,9 +404,9 @@ export default function SAMLMetadataDisplay() {
                 color='inherit'
                 size='small'
                 onClick={refetch}
-                sx={{ fontWeight: 800, textTransform: 'none', minHeight: 44, px: 2 }}
+                sx={{ fontWeight: 800, textTransform: 'none' }}
               >
-                {t('auth.common.retry', 'Retry')}
+                {t('common.retry', 'Retry')}
               </Button>
             }
           >
@@ -423,7 +417,7 @@ export default function SAMLMetadataDisplay() {
 
       <Card
         sx={{
-          borderRadius: 'var(--sf-radius-lg, 16px)',
+          borderRadius: 4,
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
@@ -498,7 +492,7 @@ export default function SAMLMetadataDisplay() {
               severity='info'
               icon={<Info />}
               sx={{
-                borderRadius: 'var(--sf-radius-md, 10px)',
+                borderRadius: 3,
                 mt: 2,
                 border: '1px solid',
                 borderColor: alpha(theme.palette.info.main, 0.2),
@@ -517,36 +511,29 @@ export default function SAMLMetadataDisplay() {
             <Box
               sx={{
                 p: { xs: 2, md: 3 },
-                borderRadius: 'var(--sf-radius-md, 12px)',
-                backgroundColor: theme.palette.grey[900],
-                color: theme.palette.grey[400],
+                borderRadius: 4,
+                backgroundColor: '#0F172A',
+                color: '#94A3B8',
                 fontFamily: 'JetBrains Mono, monospace',
                 fontSize: '0.8125rem',
                 overflowX: 'auto',
                 position: 'relative',
-                border: '1px solid',
-                borderColor: theme.palette.grey[800],
-                boxShadow: `inset 0 2px 8px ${alpha(theme.palette.common.black, 0.4)}`,
+                border: '1px solid #1E293B',
+                boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.4)',
               }}
             >
               <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 1 }}>
-                <Tooltip title={t('auth.common.copy', 'Copy')}>
+                <Tooltip title={t('common.copy', 'Copy')}>
                   <IconButton
                     size='small'
                     onClick={() => handleCopy(metadata.xml)}
                     aria-label={t('auth.sso.copy_raw_xml', 'Copy Raw XML')}
                     sx={{
-                      minWidth: 44,
-                      minHeight: 44,
-                      color: theme.palette.grey[400],
-                      bgcolor: alpha(theme.palette.grey[800], 0.8),
+                      color: '#94A3B8',
+                      bgcolor: alpha('#1E293B', 0.8),
                       backdropFilter: 'blur(4px)',
-                      border: '1px solid',
-                      borderColor: theme.palette.grey[700],
-                      '&:hover': {
-                        color: theme.palette.common.white,
-                        bgcolor: theme.palette.grey[800],
-                      },
+                      border: '1px solid #334155',
+                      '&:hover': { color: '#F8FAFC', bgcolor: '#1E293B' },
                     }}
                   >
                     <ContentCopy sx={{ fontSize: 16 }} />
@@ -556,7 +543,7 @@ export default function SAMLMetadataDisplay() {
               <pre
                 style={{
                   margin: 0,
-                  color: theme.palette.grey[300],
+                  color: '#E2E8F0',
                   lineHeight: 1.7,
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-all',

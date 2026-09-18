@@ -1,14 +1,11 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { useTheme } from '@mui/material/styles'
-import { buildLayoutSurfaceEffect } from '@cap/layout'
-import { getTenantThemeEffects } from '@cap/theme'
 import {
   Alert,
   AlertTitle,
   Box,
   Card,
   CardContent,
+  Chip,
   CircularProgress,
   Container,
   Grid,
@@ -32,7 +29,6 @@ import GppMaybe from '@mui/icons-material/GppMaybe'
 import { useTranslation } from 'react-i18next'
 import { useBlockchainAnchorsQuery } from '../../hooks/useAuditChainQuery'
 import { isPlatformScopeError } from '../../services/audit-chain.service'
-import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 import {
   anchorExplorerUrl,
   type BlockchainAnchorState as AnchorState,
@@ -69,9 +65,6 @@ const ANCHOR_TYPES: BlockchainAnchorType[] = [
 
 export const BlockchainAnchorStatus: React.FC = () => {
   const { t } = useTranslation()
-  const theme = useTheme()
-  const effects = getTenantThemeEffects(theme)
-  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const [state, setState] = useState<AnchorState | ''>('')
   const [type, setType] = useState<BlockchainAnchorType | ''>('')
 
@@ -121,7 +114,6 @@ export const BlockchainAnchorStatus: React.FC = () => {
   const lastConfirmed = anchors.find((anchor) => anchor.status === 'CONFIRMED') ?? null
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Container maxWidth='lg' sx={{ py: 4 }}>
       <Stack direction='row' alignItems='center' spacing={1.5} sx={{ mb: 1 }}>
         <AccountTree color='primary' />
@@ -292,7 +284,11 @@ export const BlockchainAnchorStatus: React.FC = () => {
                       <TableCell>{new Date(anchor.createdAt).toLocaleString()}</TableCell>
                       <TableCell>{anchor.type}</TableCell>
                       <TableCell>
-                        <AdminStatusBadge tone={STATE_COLOR[anchor.status]} label={anchor.status} />
+                        <Chip
+                          size='small'
+                          color={STATE_COLOR[anchor.status]}
+                          label={anchor.status}
+                        />
                       </TableCell>
                       <TableCell>
                         {network ? (
@@ -319,7 +315,6 @@ export const BlockchainAnchorStatus: React.FC = () => {
         </CardContent>
       </Card>
     </Container>
-    </motion.div>
   )
 }
 

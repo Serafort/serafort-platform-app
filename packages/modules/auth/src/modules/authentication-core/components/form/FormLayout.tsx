@@ -22,7 +22,7 @@ export default function FormLayout({
       padding='10px'
       sx={{
         bgcolor: 'background.paper',
-        borderRadius: 'var(--sf-radius-md, 8px)',
+        borderRadius: 2,
       }}
     >
       <Grid size={{ xs: 12, sm: 4 }}>

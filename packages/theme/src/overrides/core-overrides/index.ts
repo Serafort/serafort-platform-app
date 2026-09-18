@@ -30,7 +30,6 @@ import select from "./select";
 import slider from "./slider";
 import snackbar from "./snackbar";
 import switchOverrides from "./switch";
-import table from "./table";
 import tablePagination from "./table-pagination";
 import tabs from "./tabs";
 import timeline from "./timeline";
@@ -72,7 +71,6 @@ const overrides = (skin: Skin) => {
     slider,
     snackbar(skin),
     switchOverrides,
-    table,
     tablePagination,
     tabs,
     timeline,

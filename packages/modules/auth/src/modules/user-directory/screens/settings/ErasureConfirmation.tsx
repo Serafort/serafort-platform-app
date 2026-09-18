@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
   Alert,
   AlertTitle,
@@ -20,19 +20,12 @@ import {
   Stepper,
   TextField,
   Typography,
-  useTheme,
-  alpha,
-  Stack,
 } from '@mui/material'
 import DeleteForever from '@mui/icons-material/DeleteForever'
 import WarningAmber from '@mui/icons-material/WarningAmber'
 import RemoveCircleOutline from '@mui/icons-material/RemoveCircleOutline'
-import ArrowBack from '@mui/icons-material/ArrowBack'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { buildLayoutSurfaceEffect } from '@cap/layout'
-import { getTenantThemeEffects } from '@cap/theme'
 import { useRequestErasureMutation } from '../../hooks/useComplianceQuery'
 import {
   ERASURE_CONFIRMATION_PHRASE,
@@ -64,9 +57,6 @@ import Path from '../path'
 export const ErasureConfirmation: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const theme = useTheme()
-  const effects = getTenantThemeEffects(theme)
-  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
 
   const [step, setStep] = useState(0)
   const [acknowledged, setAcknowledged] = useState(false)
@@ -82,25 +72,14 @@ export const ErasureConfirmation: React.FC = () => {
   if (erasure.data) {
     return (
       <Container maxWidth='sm' sx={{ py: 6 }}>
-        <Alert severity='success' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
-          <AlertTitle sx={{ fontWeight: 700 }}>
-            {t('user.erasure.submitted_title', 'Erasure request received')}
-          </AlertTitle>
+        <Alert severity='success'>
+          <AlertTitle>{t('user.erasure.submitted_title', 'Erasure request received')}</AlertTitle>
           {t(
             'user.erasure.submitted_body',
-            'Your request is being processed in the background. You will be signed out shortly and will not be able to sign back in.'
+            'Your request is being processed in the background. You will be signed out shortly and will not be able to sign back in.',
           )}
         </Alert>
-        <Button
-          sx={{
-            mt: 2.5,
-            minHeight: 44,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
-          onClick={() => navigate(Path.settings.privacy)}
-        >
+        <Button sx={{ mt: 2 }} onClick={() => navigate(Path.settings.privacy)}>
           {t('user.erasure.back', 'Back to privacy')}
         </Button>
       </Container>
@@ -108,71 +87,19 @@ export const ErasureConfirmation: React.FC = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-    >
-      <Container maxWidth='sm' sx={{ py: { xs: 3, md: 5 } }}>
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={() => navigate(Path.settings.privacy)}
-          sx={{
-            mb: 2.5,
-            textTransform: 'none',
-            fontWeight: 600,
-            color: 'text.secondary',
-            minHeight: 44,
-            px: 2,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            bgcolor: alpha(theme.palette.action.active, 0.04),
-            '&:hover': {
-              bgcolor: alpha(theme.palette.action.active, 0.08),
-              color: 'text.primary',
-            },
-          }}
-        >
-          {t('user.erasure.backToPrivacy', 'Back to Privacy')}
-        </Button>
+    <Container maxWidth='sm' sx={{ py: 4 }}>
+      <Typography variant='h4' sx={{ mb: 1 }}>
+        {t('user.erasure.title', 'Erase your data')}
+      </Typography>
+      <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+        {t(
+          'user.erasure.subtitle',
+          'This cannot be undone. Read what will happen, then confirm twice — once in writing and once with your password.',
+        )}
+      </Typography>
 
-        <Stack direction='row' alignItems='center' spacing={2.5} sx={{ mb: 3 }}>
-          <Box
-            sx={{
-              width: 64,
-              height: 64,
-              borderRadius: 'var(--sf-radius-lg, 16px)',
-              bgcolor: alpha(theme.palette.error.main, 0.1),
-              color: theme.palette.error.main,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <DeleteForever sx={{ fontSize: 32 }} />
-          </Box>
-          <Box>
-            <Typography variant='h4' fontWeight={800} letterSpacing='-0.025em'>
-              {t('user.erasure.title', 'Erase your data')}
-            </Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ mt: 0.5 }}>
-              {t(
-                'user.erasure.subtitle',
-                'This cannot be undone. Read what will happen, then confirm twice — once in writing and once with your password.'
-              )}
-            </Typography>
-          </Box>
-        </Stack>
-
-        <Card
-          variant='outlined'
-          sx={{
-            borderRadius: 'var(--sf-radius-lg, 16px)',
-            borderColor: alpha(theme.palette.divider, 0.1),
-            ...surfaceEffect,
-          }}
-        >
-          <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+      <Card variant='outlined'>
+        <CardContent>
           <Stepper activeStep={step} orientation='vertical'>
             <Step>
               <StepLabel>{t('user.erasure.step_consequences', 'What will happen')}</StepLabel>
@@ -218,30 +145,16 @@ export const ErasureConfirmation: React.FC = () => {
                   )}
                 />
 
-                <Box sx={{ mt: 2.5, display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                <Box sx={{ mt: 2 }}>
                   <Button
                     variant='contained'
                     color='error'
                     disabled={!acknowledged}
                     onClick={() => setStep(1)}
-                    sx={{
-                      minHeight: 44,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                    }}
                   >
                     {t('user.erasure.continue', 'Continue')}
                   </Button>
-                  <Button
-                    onClick={() => navigate(Path.settings.privacy)}
-                    sx={{
-                      minHeight: 44,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                    }}
-                  >
+                  <Button sx={{ ml: 1 }} onClick={() => navigate(Path.settings.privacy)}>
                     {t('user.erasure.cancel', 'Cancel')}
                   </Button>
                 </Box>
@@ -255,7 +168,7 @@ export const ErasureConfirmation: React.FC = () => {
                   {t(
                     'user.erasure.phrase_help',
                     'Type {{phrase}} exactly, to confirm this is deliberate.',
-                    { phrase: ERASURE_CONFIRMATION_PHRASE }
+                    { phrase: ERASURE_CONFIRMATION_PHRASE },
                   )}
                 </Typography>
                 <TextField
@@ -265,36 +178,17 @@ export const ErasureConfirmation: React.FC = () => {
                   onChange={(event) => setConfirmationPhrase(event.target.value)}
                   error={confirmationPhrase.length > 0 && !phraseMatches}
                   label={ERASURE_CONFIRMATION_PHRASE}
-                  slotProps={{
-                    input: {
-                      sx: { minHeight: 48, borderRadius: 'var(--sf-radius-md, 8px)' },
-                    },
-                  }}
                 />
-                <Box sx={{ mt: 2.5, display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                <Box sx={{ mt: 2 }}>
                   <Button
                     variant='contained'
                     color='error'
                     disabled={!phraseMatches}
                     onClick={() => setStep(2)}
-                    sx={{
-                      minHeight: 44,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                    }}
                   >
                     {t('user.erasure.continue', 'Continue')}
                   </Button>
-                  <Button
-                    onClick={() => setStep(0)}
-                    sx={{
-                      minHeight: 44,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                    }}
-                  >
+                  <Button sx={{ ml: 1 }} onClick={() => setStep(0)}>
                     {t('user.erasure.back_step', 'Back')}
                   </Button>
                 </Box>
@@ -307,7 +201,7 @@ export const ErasureConfirmation: React.FC = () => {
                 <Typography variant='body2' color='text.secondary' sx={{ mb: 1.5 }}>
                   {t(
                     'user.erasure.password_help',
-                    'Your password is checked before anything is deleted.'
+                    'Your password is checked before anything is deleted.',
                   )}
                 </Typography>
                 <TextField
@@ -320,15 +214,10 @@ export const ErasureConfirmation: React.FC = () => {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   label={t('user.erasure.password', 'Current password')}
-                  slotProps={{
-                    input: {
-                      sx: { minHeight: 48, borderRadius: 'var(--sf-radius-md, 8px)' },
-                    },
-                  }}
                 />
 
                 <FormControlLabel
-                  sx={{ mt: 1.5 }}
+                  sx={{ mt: 1 }}
                   control={
                     <Checkbox
                       checked={hardDelete}
@@ -337,61 +226,40 @@ export const ErasureConfirmation: React.FC = () => {
                   }
                   label={t(
                     'user.erasure.hard_delete',
-                    'Remove my records entirely rather than anonymising them'
+                    'Remove my records entirely rather than anonymising them',
                   )}
                 />
                 <Typography variant='caption' color='text.secondary' display='block'>
                   {t(
                     'user.erasure.hard_delete_help',
-                    'Anonymising already satisfies your erasure right and keeps security audit trails intact. Choose full removal only if you need it.'
+                    'Anonymising already satisfies your erasure right and keeps security audit trails intact. Choose full removal only if you need it.',
                   )}
                 </Typography>
 
                 {erasure.error && (
-                  <Alert
-                    severity='error'
-                    sx={{ mt: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}
-                  >
+                  <Alert severity='error' sx={{ mt: 2 }}>
                     {t(
                       'user.erasure.failed',
-                      'The request could not be submitted. If the password was wrong, try again — repeated attempts are rate limited.'
+                      'The request could not be submitted. If the password was wrong, try again — repeated attempts are rate limited.',
                     )}
                   </Alert>
                 )}
 
-                <Alert
-                  severity='warning'
-                  icon={<WarningAmber />}
-                  sx={{ mt: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}
-                >
+                <Alert severity='warning' icon={<WarningAmber />} sx={{ mt: 2 }}>
                   {t('user.erasure.final_warning', 'This is the last step. There is no undo.')}
                 </Alert>
 
-                <Box sx={{ mt: 2.5, display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                <Box sx={{ mt: 2 }}>
                   <Button
                     variant='contained'
                     color='error'
                     startIcon={<DeleteForever />}
                     disabled={!canSubmit || erasure.isPending}
                     onClick={() => erasure.mutate({ password, hardDelete })}
-                    sx={{
-                      minHeight: 48,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
-                      textTransform: 'none',
-                      fontWeight: 700,
-                    }}
                   >
                     {t('user.erasure.submit', 'Erase my data')}
                   </Button>
-                  <Button
-                    onClick={() => setStep(1)}
-                    sx={{
-                      minHeight: 44,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                    }}
-                  >
+                  <Button sx={{ ml: 1 }} onClick={() => setStep(1)}>
                     {t('user.erasure.back_step', 'Back')}
                   </Button>
                 </Box>
@@ -399,17 +267,16 @@ export const ErasureConfirmation: React.FC = () => {
             </Step>
           </Stepper>
 
-          <Divider sx={{ my: 2.5 }} />
+          <Divider sx={{ my: 2 }} />
           <Typography variant='caption' color='text.secondary'>
             {t(
               'user.erasure.footer',
-              'Prefer to keep the account but stop using it? Deactivating suspends access without destroying your data.'
+              'Prefer to keep the account but stop using it? Deactivating suspends access without destroying your data.',
             )}
           </Typography>
         </CardContent>
       </Card>
     </Container>
-    </motion.div>
   )
 }
 

@@ -17,7 +17,7 @@ const dialog = (skin: Skin): Theme["components"] => ({
         maxWidth: "var(--form-modal-max-width, 480px)",
         ...(skin !== "bordered"
           ? {
-              boxShadow: `var(--effect-shadow, var(--sf-shadow-lg, ${(theme as Theme).customShadows.lg}))`,
+              boxShadow: `var(--effect-shadow, ${(theme as Theme).customShadows.lg})`,
             }
           : {
               boxShadow: "none",

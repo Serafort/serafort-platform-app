@@ -86,9 +86,9 @@ describe('useSCIMQuery hooks', () => {
   it('useCreateSCIMToken creates a token', async () => {
     mockCreateToken.mockResolvedValue({ data: { token: 'scim-tok-xyz' } })
     const { result } = renderHook(() => useCreateSCIMToken(), { wrapper: makeWrapper() })
-    result.current.mutate({ label: 'New Token' })
+    result.current.mutate({ name: 'New Token' })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(mockCreateToken).toHaveBeenCalledWith({ label: 'New Token' })
+    expect(mockCreateToken).toHaveBeenCalledWith({ name: 'New Token' })
   })
 
   it('useRevokeSCIMToken revokes a token', async () => {

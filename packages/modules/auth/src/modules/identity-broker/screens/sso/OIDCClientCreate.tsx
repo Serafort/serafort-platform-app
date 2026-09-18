@@ -111,7 +111,7 @@ export default function OIDCClientCreate() {
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
     toast.success(
-      t('auth.common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }),
+      t('common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }),
     )
   }
 
@@ -133,19 +133,18 @@ export default function OIDCClientCreate() {
           startIcon={<ArrowBack />}
           sx={{
             mb: 2,
-            minHeight: 44,
             color: 'text.secondary',
             '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
           }}
         >
-          {t('auth.common.back_to_list', 'Back to OIDC Clients')}
+          {t('common.back_to_list', 'Back to OIDC Clients')}
         </Button>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar
             sx={{
               width: 64,
               height: 64,
-              borderRadius: 'var(--sf-radius-lg, 24px)',
+              borderRadius: '20px',
               bgcolor: 'primary.main',
               boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
             }}
@@ -153,7 +152,7 @@ export default function OIDCClientCreate() {
             <Add sx={{ fontSize: '2rem' }} />
           </Avatar>
           <Box>
-            <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em' }}>
+            <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
               {t('auth.sso.create_oidc_client', 'Register New Client')}
             </Typography>
             <Breadcrumbs separator={<ChevronRight sx={{ fontSize: 12, color: 'text.disabled' }} />}>
@@ -173,7 +172,7 @@ export default function OIDCClientCreate() {
         <Card
           sx={(theme: any) => ({
             p: 4,
-            borderRadius: 'var(--sf-radius-lg, 16px)',
+            borderRadius: 4,
             border: '1px solid ' + theme.palette.success.main,
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
           })}
@@ -188,7 +187,6 @@ export default function OIDCClientCreate() {
                 color: 'success.main',
                 width: 48,
                 height: 48,
-                borderRadius: 'var(--sf-radius-md, 12px)',
               }}
             >
               <Add />
@@ -206,7 +204,7 @@ export default function OIDCClientCreate() {
             </Box>
           </Box>
 
-          <Alert severity='warning' icon={<Warning />} sx={{ mb: 4, borderRadius: 'var(--sf-radius-md, 10px)' }}>
+          <Alert severity='warning' icon={<Warning />} sx={{ mb: 4, borderRadius: 2 }}>
             <AlertTitle sx={{ fontWeight: 700 }}>
               {t('auth.sso.important_notice', 'Important Notice')}
             </AlertTitle>
@@ -229,7 +227,7 @@ export default function OIDCClientCreate() {
                     fontWeight: 600,
                     bgcolor: 'background.paper',
                     p: 1.5,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    borderRadius: 2,
                     border: '1px solid',
                     borderColor: 'divider',
                     flexGrow: 1,
@@ -239,11 +237,8 @@ export default function OIDCClientCreate() {
                 </Typography>
                 <Tooltip title='Copy Client ID'>
                   <IconButton
-                    aria-label='Copy Client ID'
                     onClick={() => handleCopy(newCredentials.clientId, 'Client ID')}
                     sx={{
-                      minWidth: 44,
-                      minHeight: 44,
                       bgcolor: 'background.paper',
                       border: '1px solid',
                       borderColor: 'divider',
@@ -268,7 +263,7 @@ export default function OIDCClientCreate() {
                     color: 'error.main',
                     bgcolor: alpha(theme.palette.error.main, 0.05),
                     p: 1.5,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    borderRadius: 2,
                     border: '1px solid',
                     borderColor: alpha(theme.palette.error.main, 0.2),
                     flexGrow: 1,
@@ -278,11 +273,8 @@ export default function OIDCClientCreate() {
                 </Typography>
                 <Tooltip title='Copy Client Secret'>
                   <IconButton
-                    aria-label='Copy Client Secret'
                     onClick={() => handleCopy(newCredentials.clientSecret, 'Client Secret')}
                     sx={{
-                      minWidth: 44,
-                      minHeight: 44,
                       bgcolor: 'background.paper',
                       border: '1px solid',
                       borderColor: 'divider',
@@ -296,13 +288,8 @@ export default function OIDCClientCreate() {
           </Stack>
 
           <Box sx={{ mt: 5, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-            <Button
-              variant='outlined'
-              component={RouterLink}
-              to={Path.identity.oidcConfigBrowser}
-              sx={{ minHeight: 44, px: 3, borderRadius: 'var(--sf-radius-md, 8px)' }}
-            >
-              {t('auth.common.done', 'Done')}
+            <Button variant='outlined' component={RouterLink} to={Path.identity.oidcConfigBrowser}>
+              {t('common.done', 'Done')}
             </Button>
           </Box>
         </Card>
@@ -310,7 +297,7 @@ export default function OIDCClientCreate() {
         /* CREATION FORM */
         <Card
           sx={(theme: any) => ({
-            borderRadius: 'var(--sf-radius-lg, 16px)',
+            borderRadius: 4,
             border: '1px solid ' + theme.palette.divider,
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
           })}
@@ -415,7 +402,7 @@ export default function OIDCClientCreate() {
               />
             </Box>
 
-            <Alert severity='info' icon={<Warning />} sx={{ mb: 4, borderRadius: 'var(--sf-radius-md, 10px)' }}>
+            <Alert severity='info' icon={<Warning />} sx={{ mb: 4, borderRadius: 2 }}>
               <AlertTitle sx={{ fontWeight: 700 }}>
                 {t('auth.sso.security_notice', 'Security Notice')}
               </AlertTitle>
@@ -439,9 +426,9 @@ export default function OIDCClientCreate() {
                 component={RouterLink}
                 to={Path.identity.oidcConfigBrowser}
                 color='inherit'
-                sx={{ fontWeight: 600, minHeight: 48, borderRadius: 'var(--sf-radius-md, 8px)' }}
+                sx={{ fontWeight: 600 }}
               >
-                {t('auth.common.cancel', 'Cancel')}
+                {t('common.cancel', 'Cancel')}
               </Button>
               <Button
                 type='submit'
@@ -450,15 +437,12 @@ export default function OIDCClientCreate() {
                 sx={{
                   fontWeight: 700,
                   px: 4,
-                  minHeight: 48,
-                  borderRadius: 'var(--sf-radius-md, 8px)',
-                  bgcolor: 'primary.main',
-                  boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
-                  '&:hover': { bgcolor: 'primary.dark' },
+                  borderRadius: 2,
+                  boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
                 }}
               >
                 {isSubmitting
-                  ? t('auth.common.creating', 'Creating...')
+                  ? t('common.creating', 'Creating...')
                   : t('auth.sso.register_client', 'Register Client')}
               </Button>
             </Box>

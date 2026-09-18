@@ -33,7 +33,7 @@ import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import Autorenew from '@mui/icons-material/Autorenew'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import { useTranslation } from 'react-i18next'
-import { useActiveOrganizationId } from '../../../authentication-core/hooks/useActiveOrganizationId'
+import { useActiveOrganizationId } from '../../hooks/useActiveOrganizationId'
 import {
   useAccessPointsQuery,
   useCreateAccessPointMutation,
@@ -48,7 +48,6 @@ import {
   type ReaderPresence,
 } from '../../types/accessControl.types'
 import { NoOrganizationNotice } from '../NoOrganizationNotice'
-import { AdminDataState, AdminStatusBadge } from '../../../authentication-core/components/shared/admin'
 
 /**
  * Access Points (readers).
@@ -69,7 +68,7 @@ import { AdminDataState, AdminStatusBadge } from '../../../authentication-core/c
 
 const PRESENCE_META: Record<
   ReaderPresence,
-  { color: 'success' | 'warning' | 'error' | 'neutral'; labelKey: string; fallback: string }
+  { color: 'success' | 'warning' | 'error' | 'default'; labelKey: string; fallback: string }
 > = {
   online: { color: 'success', labelKey: 'accessControl.points.online', fallback: 'Online' },
   stale: { color: 'warning', labelKey: 'accessControl.points.stale', fallback: 'No recent scans' },
@@ -79,7 +78,7 @@ const PRESENCE_META: Record<
     fallback: 'Never seen',
   },
   disabled: {
-    color: 'neutral',
+    color: 'default',
     labelKey: 'accessControl.points.disabled',
     fallback: 'Disabled',
   },
@@ -122,12 +121,6 @@ export const AccessPointManagement: React.FC = () => {
           variant='contained'
           startIcon={<AddCircleOutline />}
           onClick={() => setCreateOpen(true)}
-          sx={{
-            minHeight: 44,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
         >
           {t('accessControl.points.add', 'Add reader')}
         </Button>
@@ -139,121 +132,117 @@ export const AccessPointManagement: React.FC = () => {
         )}
       </Typography>
 
-      <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}>
-        <CardContent>
-          <AdminDataState
-            loading={pointsQuery.isLoading}
-            error={pointsQuery.isError || undefined}
-            onRetry={() => void pointsQuery.refetch()}
-            empty={points.length === 0}
-            emptyIcon={<SensorDoor sx={{ fontSize: 32 }} />}
-            emptyTitle={t('accessControl.points.empty', 'No readers configured yet.')}
-            emptyDescription={t(
-              'accessControl.points.empty_help',
-              'Add an access point to begin tracking entries.',
-            )}
-          >
-            <TableContainer component={Paper} variant='outlined' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
-              <Table size='small'>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>{t('accessControl.points.name', 'Location')}</TableCell>
-                    <TableCell>{t('accessControl.points.direction', 'Direction')}</TableCell>
-                    <TableCell>{t('accessControl.points.token', 'Token')}</TableCell>
-                    <TableCell>{t('accessControl.points.last_seen', 'Last scan')}</TableCell>
-                    <TableCell>{t('accessControl.points.presence', 'Presence')}</TableCell>
-                    <TableCell align='right'>
-                      {t('accessControl.points.actions', 'Actions')}
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {points.map((point) => {
-                    const presence = readerPresence(point)
-                    const meta = PRESENCE_META[presence]
-                    return (
-                      <TableRow key={point.id}>
-                        <TableCell>{point.name}</TableCell>
-                        <TableCell>
-                          <Select
-                            size='small'
-                            value={point.direction}
-                            disabled={updatePoint.isPending}
-                            onChange={(event) =>
-                              updatePoint.mutate({
-                                pointId: point.id,
-                                payload: { direction: event.target.value as AccessDirection },
-                              })
-                            }
-                            inputProps={{
-                              'aria-label': t('accessControl.points.direction', 'Direction'),
-                            }}
-                            sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
-                          >
-                            {DIRECTIONS.map((value) => (
-                              <MenuItem key={value} value={value}>
-                                {value}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </TableCell>
-                        <TableCell sx={{ fontFamily: 'monospace' }}>
-                          {point.apiTokenPrefix}…
-                        </TableCell>
-                        <TableCell>
-                          {point.lastSeenAt
-                            ? new Date(point.lastSeenAt).toLocaleString()
-                            : t('accessControl.points.never', 'Never')}
-                        </TableCell>
-                        <TableCell>
-                          <AdminStatusBadge tone={meta.color} label={t(meta.labelKey, meta.fallback)} />
-                        </TableCell>
-                        <TableCell align='right'>
-                          <Stack direction='row' spacing={1} justifyContent='flex-end'>
-                            <Button
+      {pointsQuery.isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Card variant='outlined'>
+          <CardContent>
+            {points.length === 0 ? (
+              <Typography variant='body2' color='text.secondary'>
+                {t('accessControl.points.empty', 'No readers configured yet.')}
+              </Typography>
+            ) : (
+              <TableContainer component={Paper} variant='outlined'>
+                <Table size='small'>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t('accessControl.points.name', 'Location')}</TableCell>
+                      <TableCell>{t('accessControl.points.direction', 'Direction')}</TableCell>
+                      <TableCell>{t('accessControl.points.token', 'Token')}</TableCell>
+                      <TableCell>{t('accessControl.points.last_seen', 'Last scan')}</TableCell>
+                      <TableCell>{t('accessControl.points.presence', 'Presence')}</TableCell>
+                      <TableCell align='right'>
+                        {t('accessControl.points.actions', 'Actions')}
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {points.map((point) => {
+                      const presence = readerPresence(point)
+                      const meta = PRESENCE_META[presence]
+                      return (
+                        <TableRow key={point.id}>
+                          <TableCell>{point.name}</TableCell>
+                          <TableCell>
+                            <Select
                               size='small'
-                              onClick={() =>
+                              value={point.direction}
+                              disabled={updatePoint.isPending}
+                              onChange={(event) =>
                                 updatePoint.mutate({
                                   pointId: point.id,
-                                  payload: {
-                                    status: point.status === 'active' ? 'inactive' : 'active',
-                                  },
+                                  payload: { direction: event.target.value as AccessDirection },
                                 })
                               }
-                              disabled={updatePoint.isPending}
-                              sx={{ minHeight: 44, textTransform: 'none' }}
+                              inputProps={{
+                                'aria-label': t('accessControl.points.direction', 'Direction'),
+                              }}
                             >
-                              {point.status === 'active'
-                                ? t('accessControl.points.disable', 'Disable')
-                                : t('accessControl.points.enable', 'Enable')}
-                            </Button>
-                            <Tooltip
-                              title={t(
-                                'accessControl.points.regenerate_help',
-                                'Issues a new token and invalidates the current one immediately.',
-                              )}
-                            >
+                              {DIRECTIONS.map((value) => (
+                                <MenuItem key={value} value={value}>
+                                  {value}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </TableCell>
+                          <TableCell sx={{ fontFamily: 'monospace' }}>
+                            {point.apiTokenPrefix}…
+                          </TableCell>
+                          <TableCell>
+                            {point.lastSeenAt
+                              ? new Date(point.lastSeenAt).toLocaleString()
+                              : t('accessControl.points.never', 'Never')}
+                          </TableCell>
+                          <TableCell>
+                            <Chip size='small' color={meta.color} label={t(meta.labelKey, meta.fallback)} />
+                          </TableCell>
+                          <TableCell align='right'>
+                            <Stack direction='row' spacing={1} justifyContent='flex-end'>
                               <Button
                                 size='small'
-                                color='warning'
-                                startIcon={<Autorenew />}
-                                onClick={() => setConfirmRegenerate(point)}
-                                sx={{ minHeight: 44, textTransform: 'none' }}
+                                onClick={() =>
+                                  updatePoint.mutate({
+                                    pointId: point.id,
+                                    payload: {
+                                      status: point.status === 'active' ? 'inactive' : 'active',
+                                    },
+                                  })
+                                }
+                                disabled={updatePoint.isPending}
                               >
-                                {t('accessControl.points.regenerate', 'Regenerate token')}
+                                {point.status === 'active'
+                                  ? t('accessControl.points.disable', 'Disable')
+                                  : t('accessControl.points.enable', 'Enable')}
                               </Button>
-                            </Tooltip>
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </AdminDataState>
-        </CardContent>
-      </Card>
+                              <Tooltip
+                                title={t(
+                                  'accessControl.points.regenerate_help',
+                                  'Issues a new token and invalidates the current one immediately.',
+                                )}
+                              >
+                                <Button
+                                  size='small'
+                                  color='warning'
+                                  startIcon={<Autorenew />}
+                                  onClick={() => setConfirmRegenerate(point)}
+                                >
+                                  {t('accessControl.points.regenerate', 'Regenerate token')}
+                                </Button>
+                              </Tooltip>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <CreateReaderDialog
         orgId={orgId}
@@ -267,22 +256,12 @@ export const AccessPointManagement: React.FC = () => {
 
       {/* Regeneration takes a live reader offline until somebody walks the new
           token to it, so it is confirmed rather than fired from the table. */}
-      <Dialog
-        open={Boolean(confirmRegenerate)}
-        onClose={() => setConfirmRegenerate(null)}
-        slotProps={{
-          paper: {
-            sx: {
-              borderRadius: 'var(--sf-radius-lg, 16px)',
-            },
-          },
-        }}
-      >
+      <Dialog open={Boolean(confirmRegenerate)} onClose={() => setConfirmRegenerate(null)}>
         <DialogTitle>
           {t('accessControl.points.regenerate_title', 'Regenerate reader token?')}
         </DialogTitle>
         <DialogContent>
-          <Alert severity='warning' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+          <Alert severity='warning'>
             {t(
               'accessControl.points.regenerate_warning',
               '{{name}} will stop accepting badges the moment the new token is issued. It will not work again until the new token is installed on the device.',
@@ -290,8 +269,8 @@ export const AccessPointManagement: React.FC = () => {
             )}
           </Alert>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button onClick={() => setConfirmRegenerate(null)} sx={{ minHeight: 44, textTransform: 'none' }}>
+        <DialogActions>
+          <Button onClick={() => setConfirmRegenerate(null)}>
             {t('accessControl.common.cancel', 'Cancel')}
           </Button>
           <Button
@@ -307,12 +286,6 @@ export const AccessPointManagement: React.FC = () => {
                   setIssuedToken(issued)
                 },
               })
-            }}
-            sx={{
-              minHeight: 44,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              textTransform: 'none',
-              fontWeight: 600,
             }}
           >
             {t('accessControl.points.regenerate', 'Regenerate token')}
@@ -344,24 +317,12 @@ const CreateReaderDialog: React.FC<{
   }
 
   return (
-    <Dialog
-      open={open}
-      onClose={close}
-      fullWidth
-      maxWidth='sm'
-      slotProps={{
-        paper: {
-          sx: {
-            borderRadius: 'var(--sf-radius-lg, 16px)',
-          },
-        },
-      }}
-    >
+    <Dialog open={open} onClose={close} fullWidth maxWidth='sm'>
       <DialogTitle>{t('accessControl.points.add_title', 'Add access point')}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           {create.error && (
-            <Alert severity='error' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+            <Alert severity='error'>
               {t('accessControl.points.create_failed', 'The reader could not be created.')}
             </Alert>
           )}
@@ -376,14 +337,12 @@ const CreateReaderDialog: React.FC<{
               'accessControl.points.name_help',
               'Where the reader is, in the words someone standing next to it would use.',
             )}
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' } }}
           />
           <Select
             fullWidth
             value={direction}
             onChange={(event) => setDirection(event.target.value as AccessDirection)}
             inputProps={{ 'aria-label': t('accessControl.points.direction', 'Direction') }}
-            sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
             {DIRECTIONS.map((value) => (
               <MenuItem key={value} value={value}>
@@ -393,20 +352,12 @@ const CreateReaderDialog: React.FC<{
           </Select>
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={close} sx={{ minHeight: 44, textTransform: 'none' }}>
-          {t('accessControl.common.cancel', 'Cancel')}
-        </Button>
+      <DialogActions>
+        <Button onClick={close}>{t('accessControl.common.cancel', 'Cancel')}</Button>
         <Button
           variant='contained'
           disabled={!name.trim() || create.isPending}
           onClick={() => create.mutate({ name, direction }, { onSuccess: onCreated })}
-          sx={{
-            minHeight: 44,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
         >
           {t('accessControl.points.create', 'Create')}
         </Button>
@@ -451,17 +402,10 @@ const IssuedTokenDialog: React.FC<{
       disableEscapeKeyDown
       fullWidth
       maxWidth='sm'
-      slotProps={{
-        paper: {
-          sx: {
-            borderRadius: 'var(--sf-radius-lg, 16px)',
-          },
-        },
-      }}
     >
       <DialogTitle>{t('accessControl.points.token_title', 'Reader token')}</DialogTitle>
       <DialogContent>
-        <Alert severity='warning' sx={{ mb: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}>
+        <Alert severity='warning' sx={{ mb: 2 }}>
           <AlertTitle>{t('accessControl.points.token_once', 'Shown once')}</AlertTitle>
           {t(
             'accessControl.points.token_once_body',
@@ -474,9 +418,8 @@ const IssuedTokenDialog: React.FC<{
             value={point?.api_token ?? ''}
             slotProps={{ input: { readOnly: true, sx: { fontFamily: 'monospace' } } }}
             label={point?.name}
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' } }}
           />
-          <IconButton onClick={copy} aria-label={t('accessControl.common.copy', 'Copy')} sx={{ minWidth: 44, minHeight: 44 }}>
+          <IconButton onClick={copy} aria-label={t('accessControl.common.copy', 'Copy')}>
             <ContentCopy />
           </IconButton>
         </Stack>
@@ -486,17 +429,8 @@ const IssuedTokenDialog: React.FC<{
           </Typography>
         )}
       </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button
-          variant='contained'
-          onClick={onClose}
-          sx={{
-            minHeight: 44,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
-        >
+      <DialogActions>
+        <Button variant='contained' onClick={onClose}>
           {t('accessControl.points.token_done', 'I have saved it')}
         </Button>
       </DialogActions>

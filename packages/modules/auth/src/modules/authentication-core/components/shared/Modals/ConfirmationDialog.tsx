@@ -64,7 +64,7 @@ const ConfirmationDialog = ({
       onClose={isSubmitting ? undefined : onClose}
       PaperProps={{
         sx: {
-          borderRadius: 'var(--sf-radius-lg, 12px)',
+          borderRadius: 4,
           p: 2,
           maxWidth: 400,
           boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
@@ -105,7 +105,7 @@ const ConfirmationDialog = ({
             disabled={isSubmitting}
             sx={{
               py: 1.2,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               fontWeight: 700,
               textTransform: 'none',
               boxShadow: 'none',
@@ -127,7 +127,7 @@ const ConfirmationDialog = ({
             disabled={isSubmitting}
             sx={{
               py: 1.2,
-              borderRadius: 'var(--sf-radius-md, 8px)',
+              borderRadius: 2,
               fontWeight: 600,
               textTransform: 'none',
               color: 'text.secondary',

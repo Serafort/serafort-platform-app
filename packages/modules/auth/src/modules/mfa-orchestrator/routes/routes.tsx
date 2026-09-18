@@ -14,8 +14,10 @@ const MFAManagement = React.lazy(() => import('../screens/mfa/MFAManagement'))
 // ---------------------------------------------------------------------------
 // Passkeys – internal screens
 // ---------------------------------------------------------------------------
+const PasskeyCreationOptions = React.lazy(() => import('../screens/passkey/PasskeyCreationOptions'))
 const PasskeyLoginOption = React.lazy(() => import('../screens/passkey/PasskeyLoginOption'))
 const PasskeyManagement = React.lazy(() => import('../screens/passkey/PasskeyManagement'))
+const PasskeyNamingConfig = React.lazy(() => import('../screens/passkey/PasskeyNamingConfig'))
 const PasskeyRecoveryOptions = React.lazy(() => import('../screens/passkey/PasskeyRecoveryOptions'))
 const PasskeyRegistrationPrompt = React.lazy(
   () => import('../screens/passkey/PasskeyRegistrationPrompt'),
@@ -45,6 +47,9 @@ export const mfaOrchestratorRouteConfig: AuthRouteConfig[] = [
   }),
 
   // --- Passkey flows ---
+  createAuthRoute(Path.passkey.creation_options, <PasskeyCreationOptions />, {
+    layout: 'noLayout',
+  }),
   {
     path: Path.passkey.login,
     element: <GuestRoute element={<PasskeyLoginOption />} />,
@@ -54,6 +59,7 @@ export const mfaOrchestratorRouteConfig: AuthRouteConfig[] = [
     requiresVerification: true,
     layout: 'admin',
   }),
+  createAuthRoute(Path.passkey.naming_config, <PasskeyNamingConfig />, { layout: 'noLayout' }),
   createAuthRoute(Path.passkey.recovery, <PasskeyRecoveryOptions />, { layout: 'noLayout' }),
   createAuthRoute(Path.passkey.prompt, <PasskeyRegistrationPrompt />, { layout: 'noLayout' }),
   createAdminRoute(Path.passkey.setup, <PasskeySetup />),

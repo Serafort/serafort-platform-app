@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { Box, TextField, Typography } from "@mui/material";
 import type { GlassmorphismConfig } from "@cap/theme";
 import {
@@ -19,7 +18,6 @@ export const GlassmorphismPanel: React.FC<GlassmorphismPanelProps> = ({
   config,
   onChange,
 }) => {
-  const { t } = useTranslation();
   const surface = useSurfaceSx();
 
   const handleChange = <K extends keyof GlassmorphismConfig>(
@@ -35,28 +33,20 @@ export const GlassmorphismPanel: React.FC<GlassmorphismPanelProps> = ({
   return (
     <Box sx={{ ...surface, p: 5 }}>
       <SwitchHeader
-        title={t("theme.effects.glass.title", "Glassmorphism")}
-        description={t(
-          "theme.effects.glass.description",
-          "Frosted panels: a blurred view of whatever sits behind, with a bright hairline edge.",
-        )}
+        title="Glassmorphism"
+        description="Frosted panels: a blurred view of whatever sits behind, with a bright hairline edge."
         checked={Boolean(config.enabled)}
         onChange={(checked) => handleChange("enabled", checked)}
       />
 
       {!config.enabled ? (
         <Box sx={{ mt: 4 }}>
-          <EmptyHint>
-            {t(
-              "theme.effects.glass.empty",
-              "Turn glassmorphism on to tune blur and tint.",
-            )}
-          </EmptyHint>
+          <EmptyHint>Turn glassmorphism on to tune blur and tint.</EmptyHint>
         </Box>
       ) : (
         <Box sx={{ mt: 6 }}>
           <SliderField
-            label={t("theme.effects.glass.blur", "Blur")}
+            label="Blur"
             value={blur}
             displayValue={`${blur}px`}
             min={0}
@@ -71,7 +61,7 @@ export const GlassmorphismPanel: React.FC<GlassmorphismPanelProps> = ({
           />
 
           <SliderField
-            label={t("theme.effects.glass.opacity", "Opacity")}
+            label="Opacity"
             value={(config.opacity ?? 0.8) * 100}
             displayValue={`${((config.opacity ?? 0.8) * 100).toFixed(0)}%`}
             min={0}
@@ -85,7 +75,7 @@ export const GlassmorphismPanel: React.FC<GlassmorphismPanelProps> = ({
           />
 
           <SliderField
-            label={t("theme.effects.glass.border_width", "Border width")}
+            label="Border width"
             value={borderWidth}
             displayValue={`${borderWidth}px`}
             min={0}
@@ -99,13 +89,8 @@ export const GlassmorphismPanel: React.FC<GlassmorphismPanelProps> = ({
           />
 
           <Box sx={{ mb: 5 }}>
-            <FieldLabel
-              hint={t(
-                "theme.effects.glass.tint_hint",
-                "rgba() so the blur behind it stays visible",
-              )}
-            >
-              {t("theme.effects.glass.tint", "Tint")}
+            <FieldLabel hint="rgba() so the blur behind it stays visible">
+              Tint
             </FieldLabel>
             <TextField
               fullWidth
@@ -118,9 +103,7 @@ export const GlassmorphismPanel: React.FC<GlassmorphismPanelProps> = ({
           </Box>
 
           <Box sx={{ mb: 6 }}>
-            <FieldLabel>
-              {t("theme.effects.glass.border_color", "Border color")}
-            </FieldLabel>
+            <FieldLabel>Border color</FieldLabel>
             <TextField
               fullWidth
               size="small"
@@ -137,10 +120,7 @@ export const GlassmorphismPanel: React.FC<GlassmorphismPanelProps> = ({
             tint over white paper, which was invisible in light mode. A fixed
             colored ground makes the blur and the edge legible in either mode.
           */}
-          <FieldLabel>{t("theme.effects.preview_label", "Preview")}</FieldLabel>
-          {/* Fixed colored ground (not a theme token) so the blur and edge
-              stay legible in both light and dark mode — this is a preview
-              stage, not app chrome. */}
+          <FieldLabel>Preview</FieldLabel>
           <Box
             sx={{
               position: "relative",
@@ -180,16 +160,13 @@ export const GlassmorphismPanel: React.FC<GlassmorphismPanelProps> = ({
                 variant="body2"
                 sx={{ fontWeight: 600, color: "#fff" }}
               >
-                {t("theme.effects.glass.frosted_surface", "Frosted surface")}
+                Frosted surface
               </Typography>
               <Typography
                 variant="caption"
                 sx={{ color: "rgba(255,255,255,0.8)" }}
               >
-                {t(
-                  "theme.effects.glass.frosted_caption",
-                  "How cards read with glassmorphism on",
-                )}
+                How cards read with glassmorphism on
               </Typography>
             </Box>
           </Box>
@@ -198,10 +175,8 @@ export const GlassmorphismPanel: React.FC<GlassmorphismPanelProps> = ({
             color="text.secondary"
             sx={{ display: "block", mt: 2 }}
           >
-            {t(
-              "theme.effects.glass.preview_note",
-              "Preview ground is fixed so the effect stays readable in both modes; your own surfaces use the tenant background.",
-            )}
+            Preview ground is fixed so the effect stays readable in both modes;
+            your own surfaces use the tenant background.
           </Typography>
         </Box>
       )}
