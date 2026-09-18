@@ -655,7 +655,7 @@ export default function SAMLConfigDashboard() {
                     fullWidth
                     size='small'
                     startIcon={<CloudDownload />}
-                    onClick={() => window.open('/api/admin/saml/metadata', '_blank')}
+                    onClick={() => window.open('/api/admin/saml/metadata', '_blank', 'noopener,noreferrer')}
                     sx={{ textTransform: 'none', fontWeight: 600, minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
                   >
                     {t('auth.sso.download_xml', 'Download XML')}

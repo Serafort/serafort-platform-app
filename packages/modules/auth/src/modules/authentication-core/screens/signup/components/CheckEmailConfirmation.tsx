@@ -97,7 +97,7 @@ export default function CheckEmailConfirmation() {
           <AuthActionButton
             fullWidth
             onClick={() => {
-              window.open('https://mail.google.com', '_blank')
+              window.open('https://mail.google.com', '_blank', 'noopener,noreferrer')
             }}
             endIcon={<ArrowForward />}
             label={t('email.openEmailApp', 'Open Gmail')}
