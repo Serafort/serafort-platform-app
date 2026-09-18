@@ -683,7 +683,9 @@
       "timestamp": "Commencé à",
       "user": "Utilisateur",
       "viewDetails": "Voir les détails",
-      "yes": "Oui"
+      "yes": "Oui",
+      "noLogsTitle": "Aucun journal d'activité trouvé",
+      "noLogsDesc": "Nous n'avons trouvé aucun événement de sécurité pour la période sélectionnée."
     },
     "deactivate": {
       "success_description": "Votre compte a été désactivé avec succès.",
@@ -785,7 +787,8 @@
       "title_welcome": "Bon retour",
       "toggle_password": "basculer la visibilité du mot de passe",
       "welcome_back": "Bon retour",
-      "welcome_user": "Bienvenue sur {{templateName}} ! 👋🏻"
+      "welcome_user": "Bienvenue sur {{templateName}} ! 👋🏻",
+      "title": "Se connecter"
     },
     "mfa": {
       "active_methods_count": "Vous avez {{count}} méthodes d'authentification actives protégeant votre compte.",
@@ -879,7 +882,8 @@
       "verify_step2": "2. Enregistrez ces codes de secours dans un endroit sûr :",
       "verify_subtitle": "Entrez le code à 6 chiffres que nous avons envoyé à",
       "verify_title": "Vérification en deux étapes",
-      "verifying": "Vérification..."
+      "verifying": "Vérification...",
+      "invalid_code": "Code de vérification invalide. Veuillez réessayer."
     },
     "monitoring": {
       "health_title": "Santé et performance du système",
@@ -1299,7 +1303,16 @@
       "meta_desc": "Validation du compte",
       "title": "Validation du compte",
       "checking": "Vérification de votre lien…",
-      "button_connect": "Se connecter"
+      "button_connect": "Se connecter",
+      "checkingTitle": "Validation du compte",
+      "failedTitle": "Échec de la validation",
+      "alreadyValidatedTitle": "Déjà validé",
+      "successTitle": "Compte validé !",
+      "prompt": "Veuillez vérifier votre lien ou vous connecter ci-dessous."
+    },
+    "user_form": {
+      "success_reset_password": "Mot de passe réinitialisé avec succès",
+      "error_reset_password": "Échec de la réinitialisation du mot de passe. Veuillez réessayer."
     }
   },
   "common": {
@@ -1334,7 +1347,11 @@
     "secureConnection": "Connexion sécurisée",
     "showPassword": "Afficher le mot de passe",
     "success": "Succès",
-    "terms": "Conditions"
+    "terms": "Conditions",
+    "confirm_deletion": "Confirmer la suppression",
+    "delete_warning": "Êtes-vous sûr ? Cette action est définitive et ne peut pas être annulée.",
+    "deleting": "Suppression en cours...",
+    "delete": "Supprimer définitivement"
   },
   "device": {
     "activateTitle": "Activer l'appareil",
@@ -1385,7 +1402,24 @@
     "trackRequest": "Suivre cette demande",
     "updateButton": "Mettre à jour l'e-mail",
     "verifyNewDescription": "Nous avons envoyé un dernier lien de vérification à votre nouvelle adresse e-mail. Cliquez dessus pour terminer le changement.",
-    "verifyNewHeading": "Une dernière étape"
+    "verifyNewHeading": "Une dernière étape",
+    "resendError": "Échec du renvoi de l'e-mail. Veuillez réessayer.",
+    "checkHeading": "Vérifiez votre e-mail",
+    "checkDescription": "Nous avons envoyé un lien de vérification à",
+    "yourEmail": "votre adresse e-mail",
+    "clickLink": "Veuillez cliquer sur le lien pour vérifier votre compte.",
+    "resendSuccess": "L'e-mail de vérification a été renvoyé avec succès !",
+    "openEmailApp": "Ouvrir Gmail",
+    "resending": "Renvoi en cours...",
+    "resendButton": "Renvoyer l'e-mail",
+    "missingParams": "Lien de vérification invalide.",
+    "failedGeneric": "Échec de la vérification de l'e-mail. Le lien a peut-être expiré.",
+    "verifyingTitle": "Vérification de votre e-mail...",
+    "failedHeading": "Échec de la vérification",
+    "failedDescription": "Nous n'avons pas pu vérifier votre e-mail. Le lien est peut-être invalide ou expiré.",
+    "newLinkSent": "Un nouveau lien de vérification a été envoyé à votre e-mail.",
+    "newLinkError": "Échec de l'envoi du nouveau lien. Veuillez réessayer plus tard.",
+    "sending": "Envoi en cours..."
   },
   "email_test": {
     "col_recipient": "Destinataire",
@@ -1653,5 +1687,13 @@
     "verifyButton": "Vérifier et déverrouiller",
     "verifyingDesc": "Nous avons envoyé un code à 6 chiffres à votre adresse e-mail enregistrée.",
     "verifyingHeading": "Vérifier l'identité"
+  },
+  "admin": {
+    "state": {
+      "errorTitle": "Cette liste n'a pas pu être chargée",
+      "errorDescription": "La requête ne s'est pas terminée. Rien n'a été modifié — réessayez, et si le problème persiste, le service est peut-être indisponible.",
+      "retry": "Réessayer",
+      "emptyTitle": "Rien ici pour l'instant"
+    }
   }
 }

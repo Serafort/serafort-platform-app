@@ -60,7 +60,8 @@
       "title": "Entry logs",
       "uid": "Badge UID",
       "unknown": "Unknown badge",
-      "unknown_help": "This UID matched no registered badge — an unknown card was presented, not a member being turned away."
+      "unknown_help": "This UID matched no registered badge — an unknown card was presented, not a member being turned away.",
+      "empty_help": "Adjust your filters or wait for badges to be scanned at configured access points."
     },
     "points": {
       "actions": "Actions",
@@ -91,7 +92,8 @@
       "token_done": "I have saved it",
       "token_once": "Shown once",
       "token_once_body": "Only a hash of this token is stored. Copy it into the reader now — if you close this dialog without it, the token has to be regenerated, taking the reader offline again.",
-      "token_title": "Reader token"
+      "token_title": "Reader token",
+      "empty_help": "Add an access point to begin tracking entries."
     }
   }
 }

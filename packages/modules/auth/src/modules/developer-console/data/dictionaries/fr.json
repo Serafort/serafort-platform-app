@@ -868,7 +868,12 @@
       "timestamp": "Commencé à",
       "unknown_error": "Erreur inconnue",
       "user": "Utilisateur",
-      "yes": "Oui"
+      "yes": "Oui",
+      "retry": "Réessayer",
+      "never": "Jamais",
+      "cancel": "Annuler",
+      "copied": "Copié !",
+      "close": "Fermer"
     },
     "deactivate": {
       "success_description": "Votre compte a été désactivé avec succès.",

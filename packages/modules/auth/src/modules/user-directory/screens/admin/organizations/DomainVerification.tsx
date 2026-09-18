@@ -62,7 +62,8 @@ export default function DomainVerification() {
         title: t('auth.domainVerification.successTitle', 'Domain Verified'),
         message: t(
           'auth.domainVerification.successMessage',
-          `Ownership of ${domain} has been successfully validated.`
+          'Ownership of {{domain}} has been successfully validated.',
+          { domain }
         ),
       })
     },

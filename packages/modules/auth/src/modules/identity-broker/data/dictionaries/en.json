@@ -73,7 +73,25 @@
       "save_config": "Save Configuration",
       "updated": "Updated",
       "view_details": "View Technical Details",
-      "workEmail": "Work Email Address"
+      "workEmail": "Work Email Address",
+      "back": "Back",
+      "cancel": "Cancel",
+      "close": "Close",
+      "copied": "Copied to clipboard",
+      "deleting": "Deleting...",
+      "error": "ERROR",
+      "never": "Never",
+      "processing": "Processing...",
+      "remove": "Remove",
+      "retry": "Retry",
+      "status": "Status",
+      "actions": "Actions",
+      "copy": "Copy",
+      "delete": "Delete",
+      "loading": "Loading...",
+      "saving": "Saving...",
+      "yes": "YES",
+      "edit": "Edit Client"
     },
     "nav": {
       "sso": "SSO"
@@ -348,7 +366,212 @@
       "ssf_load_error_desc": "The Shared Signals transmitter settings are unavailable right now. Retry, or check back shortly.",
       "ssf_save_disabled_loading": "Loading the current configuration…",
       "loading_signals": "Loading recent signals…",
-      "signals_load_error": "Could not load the signal stream."
+      "signals_load_error": "Could not load the signal stream.",
+      "add_mapping": "Add Mapping"
+    },
+    "admin": {
+      "provisioning": {
+        "connectors": {
+          "title": "Directory Connectors",
+          "back_to_list": "Back to Connectors",
+          "configure_mappings": "Configure Mappings",
+          "delete": "Delete Connector",
+          "delete_confirm": "Are you sure you want to delete this connector? This will stop directory synchronization and cannot be undone.",
+          "fields": {
+            "name": "Connector Name",
+            "status": "Status"
+          },
+          "general_settings": "General Settings",
+          "helper_title": "Need help configuring this connector?",
+          "helper_desc": "Check our documentation for step-by-step setup guides for each directory provider.",
+          "mappings_desc": "Map directory attributes to user profile fields.",
+          "mappings_title": "Attribute Mappings",
+          "messages": {
+            "config_saved": "Connector settings saved successfully",
+            "deleted": "Connector deleted successfully",
+            "error_generic": "Something went wrong. Please try again.",
+            "sync_queued": "Synchronization job queued successfully"
+          },
+          "metadata": "Metadata",
+          "metadata_fields": {
+            "created_on": "Created On",
+            "type": "Connector Type"
+          },
+          "never": "Never",
+          "no_logs": "No sync logs yet",
+          "not_found": "Connector Not Found",
+          "not_found_desc": "The connector you are looking for does not exist or has been removed.",
+          "save_changes": "Save Changes",
+          "saving": "Saving...",
+          "stats": {
+            "last_sync": "Last Sync",
+            "records": "Records Synced",
+            "status": "Status"
+          },
+          "sync_now": "Sync Now",
+          "syncing": "Syncing...",
+          "table": {
+            "actions": "Actions",
+            "event": "Event",
+            "status": "Status",
+            "timestamp": "Timestamp"
+          },
+          "tabs": {
+            "config": "Configuration",
+            "history": "History",
+            "mappings": "Mappings"
+          },
+          "type_label": "Connector",
+          "view_docs": "View Documentation"
+        },
+        "dashboard": {
+          "title": "Directory Synchronization",
+          "subtitle": "Manage identity provider connectors and monitor sync activity.",
+          "add_connector": "Add Connector",
+          "sync_logs": "Sync Logs",
+          "empty": "No directory connectors configured yet. Add one to start syncing users.",
+          "stats": {
+            "total_users": "Total Users Synced",
+            "active_connectors": "Active Connectors",
+            "success_rate": "Sync Success Rate"
+          },
+          "messages": {
+            "sync_started": "Synchronization started",
+            "sync_failed": "Failed to start synchronization"
+          },
+          "connector_card": {
+            "status_label": "Status",
+            "last_sync": "Last sync",
+            "never": "Never",
+            "sync_count": "Syncs completed",
+            "healthy": "Healthy",
+            "standby": "STANDBY",
+            "manage": "Manage"
+          },
+          "dialogs": {
+            "add": {
+              "title": "Add Directory Connector",
+              "name_label": "Connector Name",
+              "name_placeholder": "e.g. Corporate Azure AD",
+              "type_label": "Connector Type",
+              "types": {
+                "azure": "Azure AD",
+                "okta": "Okta",
+                "google": "Google Workspace",
+                "ldap": "LDAP / Active Directory",
+                "scim": "Generic SCIM"
+              },
+              "org_label": "Organization ID",
+              "org_placeholder": "e.g. 42",
+              "org_helper": "The organization this connector will provision users into.",
+              "cancel": "Cancel",
+              "submit": "Add Connector",
+              "submitting": "Adding...",
+              "success": "Connector added successfully",
+              "error": "Failed to add connector"
+            },
+            "logs": {
+              "title": "Sync Logs for",
+              "no_logs": "No sync logs available for this connector yet.",
+              "close": "Close"
+            }
+          },
+          "scim_promo": {
+            "title": "Prefer SCIM?",
+            "subtitle": "Let your identity provider push users to Serafort automatically over the SCIM protocol instead of polling.",
+            "configure": "Configure SCIM"
+          }
+        },
+        "logs": {
+          "title": "Synchronization Logs",
+          "subtitle": "Review every sync event across your directory connectors.",
+          "export": "Export",
+          "refresh": "Refresh",
+          "connector_label": "Connector",
+          "filters": "Filters",
+          "stats": {
+            "sync_count": "Total Syncs",
+            "success_rate": "Success Rate",
+            "errors": "Errors"
+          },
+          "event_logs": "Event Logs",
+          "messages": {
+            "fetching": "Loading sync logs...",
+            "refreshed": "Sync logs refreshed",
+            "exporting": "Preparing export..."
+          },
+          "no_logs_title": "No logs found",
+          "no_logs_desc": "No synchronization activity matches the current filters.",
+          "table": {
+            "details": "Details",
+            "event": "Event",
+            "status": "Status",
+            "target": "Target",
+            "timestamp": "Timestamp"
+          },
+          "helper_title": "Interpreting sync events",
+          "helper_desc": "Each row records one change a connector made or attempted — a user created, a group synced, or an error it ran into.",
+          "refresh_action": "Refresh Logs"
+        },
+        "scim": {
+          "title": "SCIM Provisioning",
+          "subtitle": "Automate user provisioning and deprovisioning from your identity provider.",
+          "status_active": "Active",
+          "status_inactive": "Inactive",
+          "protocol_status": "Protocol Status",
+          "enabled": "Enabled",
+          "disabled": "Disabled",
+          "messages": {
+            "disabled_warning": "SCIM provisioning is currently disabled. Enable it to let your identity provider sync users automatically.",
+            "token_generated": "SCIM token generated successfully",
+            "token_revoked": "Token revoked",
+            "config_saved": "SCIM configuration saved",
+            "error_generic": "Something went wrong. Please try again.",
+            "test_failed": "SCIM connection test failed",
+            "copied": "copied to clipboard"
+          },
+          "base_url": "SCIM Base URL",
+          "tokens_title": "Bearer Token",
+          "token_help": "Your identity provider uses this bearer token to authenticate SCIM requests. Store it securely — it will not be shown again after you navigate away.",
+          "no_token": "No active token",
+          "rotate": "Rotate",
+          "rotating": "Rotating...",
+          "create_token": "Generate Token",
+          "generating": "Generating...",
+          "tooltips": {
+            "copy_url": "Copy URL",
+            "open": "Open in new tab",
+            "hide": "Hide token",
+            "show": "Show token",
+            "copy": "Copy token",
+            "token_desc": "This token authenticates SCIM requests from your identity provider."
+          },
+          "supported_ops": "Supported Operations",
+          "ops_notes": {
+            "users": "Create, update, and deactivate user accounts.",
+            "groups": "Sync group membership for role-based access.",
+            "schemas": "Read-only. Describes the SCIM resource schemas we support.",
+            "config": "Read-only. Advertises which SCIM features this server supports."
+          },
+          "attribute_mapping": "Attribute Mapping",
+          "mapping_subtitle": "Map incoming SCIM attributes to your internal user fields.",
+          "reset_defaults": "Reset to Defaults",
+          "table": {
+            "scim_attr": "SCIM Attribute",
+            "internal_field": "Internal Field",
+            "required": "Required"
+          },
+          "test_connection": "Test Connection",
+          "testing": "Testing...",
+          "save_config": "Save Configuration",
+          "saving": "Saving...",
+          "stats": {
+            "users": "Provisioned Users",
+            "sync": "Last Sync",
+            "errors": "Error Rate"
+          }
+        }
+      }
     }
   }
 }

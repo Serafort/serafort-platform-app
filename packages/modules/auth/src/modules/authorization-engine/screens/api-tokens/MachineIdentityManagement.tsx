@@ -90,13 +90,13 @@ const MachineIdentityManagement: React.FC = () => {
    */
   const stats = useMemo(() => {
     const expiring = identities.filter((key) => {
-      const days = daysUntil(key.expires_at)
+      const days = daysUntil(key.expiresAt)
       return days !== null && days >= 0 && days <= EXPIRY_WARNING_DAYS
     }).length
     return {
       total: identities.length,
       expiring,
-      neverUsed: identities.filter((key) => !key.last_used_at).length,
+      neverUsed: identities.filter((key) => !key.lastUsedAt).length,
     }
   }, [identities])
 
@@ -268,7 +268,7 @@ const MachineIdentityManagement: React.FC = () => {
                   emptyAction={search ? undefined : provisionButton}
                 >
                   {filteredIdentities.map((identity) => {
-                    const days = daysUntil(identity.expires_at)
+                    const days = daysUntil(identity.expiresAt)
                     const isExpired = days !== null && days < 0
                     return (
                       <TableRow key={identity.id} hover>
@@ -303,7 +303,7 @@ const MachineIdentityManagement: React.FC = () => {
                           {/*
                             This chip was hardcoded to "ACTIVE" for every row,
                             so an expired key was labelled active. There is no
-                            status field on the record, but `expires_at` is
+                            status field on the record, but `expiresAt` is
                             enough to tell the two apart.
                           */}
                           <AdminStatusBadge
@@ -317,18 +317,18 @@ const MachineIdentityManagement: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <Typography variant='caption'>
-                            {identity.last_used_at
-                              ? new Date(identity.last_used_at).toLocaleString()
+                            {identity.lastUsedAt
+                              ? new Date(identity.lastUsedAt).toLocaleString()
                               : t('auth.api_tokens.never_used', 'Never used')}
                           </Typography>
                         </TableCell>
                         <TableCell>
                           <Typography
                             variant='caption'
-                            sx={{ color: identity.expires_at ? 'text.primary' : 'text.disabled' }}
+                            sx={{ color: identity.expiresAt ? 'text.primary' : 'text.disabled' }}
                           >
-                            {identity.expires_at
-                              ? new Date(identity.expires_at).toLocaleDateString()
+                            {identity.expiresAt
+                              ? new Date(identity.expiresAt).toLocaleDateString()
                               : t('auth.admin.machineIdentity.permanent', 'Permanent')}
                           </Typography>
                         </TableCell>

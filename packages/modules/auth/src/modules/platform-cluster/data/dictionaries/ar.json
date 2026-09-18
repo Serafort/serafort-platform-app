@@ -259,6 +259,12 @@
       "stat_inactive": "الحسابات غير النشطة",
       "stat_mfa": "اعتماد المصادقة الثنائية",
       "stat_tokens": "الرموز النشطة"
+    },
+    "mfa": {
+      "totp_count": "مصادقات TOTP",
+      "passkey_count": "مفتاح المرور / FIDO2",
+      "adoption_rate": "معدل التبني العالمي",
+      "recovery_used": "رموز الاسترداد المستخدمة"
     }
   },
   "auth": {
@@ -322,7 +328,44 @@
       "exportStatEta": "الوقت المتبقي",
       "exportStatRate": "{{rate}} سجل/ث",
       "exportHistoryReady": "جاهز",
-      "exportHistoryExpired": "منتهٍ"
+      "exportHistoryExpired": "منتهٍ",
+      "description": "الوصف",
+      "lastUpdated": "آخر تحديث",
+      "eventsMonitor": "مراقب أحداث المصادقة",
+      "eventsMonitor_subtitle": "تدفق فوري لأحداث تسجيل الدخول والمصادقة الثنائية وأمان الحساب عبر المنصة.",
+      "searchEventsPlaceholder": "ابحث عن الأحداث حسب المستخدم أو عنوان IP أو النوع...",
+      "colEventType": "نوع الحدث",
+      "colSubjectUser": "الموضوع / المستخدم",
+      "colSourceIp": "عنوان IP المصدر",
+      "colSeverity": "الخطورة",
+      "loadingEvents": "جارٍ تحميل الأحداث...",
+      "errorLoadingEvents": "فشل تحميل الأحداث. يرجى المحاولة مرة أخرى.",
+      "noEventsFound": "لم يتم العثور على أحداث",
+      "emailPreviewTitle": "معاينة قالب البريد الإلكتروني",
+      "emailPreviewSubtitle": "افحص قوالب البريد الإلكتروني التفاعلية الديناميكية عبر أشكال سطح المكتب والجوال.",
+      "versionHistory": "سجل الإصدارات",
+      "editTemplate": "تعديل القالب",
+      "preview": "معاينة",
+      "source": "شفرة HTML المصدر",
+      "desktopView": "عرض سطح المكتب (600 بكسل)",
+      "mobileView": "عرض الجوال (360 بكسل)",
+      "emailTesting": "اختبار البريد الإلكتروني التفاعلي",
+      "emailTesting_subtitle": "تحقق من مرحلات البريد الإلكتروني التفاعلي، وعاين المعاملات الديناميكية، وافحص بيانات تتبع التسليم.",
+      "sendTestEmail": "إرسال بريد إلكتروني تجريبي",
+      "recipientAddress": "البريد الإلكتروني للمستلم",
+      "selectTemplate": "القالب",
+      "dispatchTestEmail": "إرسال البريد الإلكتروني التجريبي",
+      "emailLogs": "عمليات الإرسال التجريبية الأخيرة",
+      "exportAudit": "تصدير سجل التدقيق",
+      "exportParameters": "معاملات التصدير",
+      "reportType": "نوع التقرير",
+      "outputFormat": "تنسيق الإخراج",
+      "generating": "جارٍ الإنشاء…",
+      "startExport": "بدء التصدير",
+      "complianceTitle": "الامتثال والسلامة",
+      "complianceDesc": "يتم توقيع الصادرات رقميًا وربطها بسلسلة تجزئة، بحيث يمكن اكتشاف أي تلاعب لاحق.",
+      "recentExports": "الصادرات الأخيرة",
+      "downloadFormat": "تنسيق التنزيل"
     },
     "developer": {
       "actions": "إجراءات",
@@ -392,6 +435,25 @@
     "security": {
       "scan_info": "تُجرى فحوص الأمان تلقائيًا. آخر فحص: الآن.",
       "configure_scan": "تكوين إعدادات الفحص"
+    },
+    "common": {
+      "saving": "جارٍ الحفظ...",
+      "saveChanges": "حفظ التغييرات",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "delete": "حذف",
+      "filters": "عوامل التصفية",
+      "timestamp": "الطابع الزمني",
+      "retry": "إعادة المحاولة",
+      "rowsPerPage": "عدد الصفوف في الصفحة:"
+    },
+    "mfa": {
+      "analytics_title": "تحليلات استخدام المصادقة الثنائية",
+      "analytics_subtitle": "راقب سلامة المصادقة، وتحقق من أنماط الفشل، وحسّن أساليب الأمان.",
+      "top_failures": "أهم أسباب الفشل",
+      "unusual_locations": "المواقع غير المعتادة",
+      "method_scorecard": "بطاقة أداء الأساليب",
+      "security_insights": "رؤى أمنية"
     }
   },
   "admin": {
@@ -454,6 +516,73 @@
             "submit": "لقد حفظته"
           }
         }
+      },
+      "webhooks": {
+        "messages": {
+          "form_error": "أدخل رابطًا صالحًا واختر حدثًا واحدًا على الأقل.",
+          "create_success": "تم إنشاء الويب هوك بنجاح.",
+          "create_error": "فشل إنشاء الويب هوك.",
+          "delete_success": "تم حذف الويب هوك بنجاح.",
+          "delete_error": "فشل حذف الويب هوك.",
+          "test_success": "تم إرسال حدث الاختبار بنجاح.",
+          "test_error": "فشل إرسال الاختبار.",
+          "copied": "تم نسخ {{label}} إلى الحافظة"
+        },
+        "back_to_dashboard": "العودة إلى لوحة تحكم المطور",
+        "title": "إدارة الويب هوك",
+        "subtitle": "قم بتكوين إشعارات الأحداث الصادرة إلى نقاط نهاية خارجية.",
+        "create_button": "إنشاء ويب هوك",
+        "stats": {
+          "total": "إجمالي الويب هوك",
+          "active": "نشط",
+          "failed": "عمليات التسليم الفاشلة"
+        },
+        "configured_title": "الويب هوك المُهيّأة",
+        "empty": {
+          "title": "لا توجد ويب هوك مُهيّأة بعد",
+          "desc": "أنشئ ويب هوك لتلقي إشعارات فورية عند حدوث أحداث في حسابك.",
+          "button": "إنشاء أول ويب هوك"
+        },
+        "table": {
+          "url": "الرابط",
+          "events": "الأحداث",
+          "status": "الحالة",
+          "last_triggered": "آخر تفعيل",
+          "success": "نجاح",
+          "actions": "الإجراءات",
+          "copy_url": "نسخ الرابط",
+          "never": "أبدًا",
+          "test_connection": "اختبار الاتصال",
+          "delete_webhook": "حذف الويب هوك"
+        },
+        "dialogs": {
+          "create": {
+            "url_label": "رابط الويب هوك",
+            "title": "إنشاء ويب هوك",
+            "desc": "أدخل نقطة النهاية التي يجب أن تستقبل إشعارات الأحداث.",
+            "url_placeholder": "https://example.com/webhooks",
+            "events_label": "الأحداث",
+            "info_alert": "سيتم إنشاء سر توقيع حتى تتمكن من التحقق من صحة كل عملية إرسال.",
+            "cancel": "إلغاء",
+            "submit": "إنشاء الويب هوك"
+          },
+          "secret": {
+            "title": "تم إنشاء الويب هوك",
+            "alert": "انسخ سر التوقيع هذا الآن — لن يتم عرضه مرة أخرى.",
+            "copy_label": "سر التوقيع",
+            "submit": "تم"
+          },
+          "delete": {
+            "title": "هل تريد حذف الويب هوك؟",
+            "desc": "سيتوقف هذا الويب هوك عن استقبال إشعارات الأحداث فورًا. لا يمكن التراجع عن هذا الإجراء.",
+            "cancel": "إلغاء",
+            "submit": "حذف"
+          }
+        },
+        "platform_tip": {
+          "title": "نصيحة المنصة",
+          "desc": "تحقق من كل عملية إرسال باستخدام سر التوقيع للتأكد من أنها صادرة فعلاً من هذه المنصة."
+        }
       }
     }
   },
@@ -467,10 +596,37 @@
     "csrfErrorDescription": "تعذّر التحقق من طلبك. يحدث هذا عادةً عند فتح عدة علامات تبويب أو انتهاء مهلة جلستك.",
     "refreshButton": "حدّث وحاول مجددًا",
     "backHome": "العودة إلى الصفحة الرئيسية",
-    "whyThisHappening": "لماذا أرى هذا؟"
+    "whyThisHappening": "لماذا أرى هذا؟",
+    "maintenanceHeading": "صيانة مجدولة",
+    "maintenanceDescription": "نقوم حاليًا بإجراء تحديث مخطط له لتحسين خدماتنا. سنعود للعمل قريبًا.",
+    "maintenanceExpectedTitle": "مدة التوقف المتوقعة",
+    "maintenanceExpectedDesc": "من المتوقع أن تنتهي الصيانة خلال 45 دقيقة تقريبًا. شكرًا لصبركم.",
+    "statusPage": "صفحة الحالة",
+    "error": "خطأ",
+    "unauthorizedHeading": "تم رفض الوصول",
+    "unauthorizedDescription": "ليس لديك إذن للوصول إلى هذه الصفحة. يرجى التأكد من تسجيل الدخول بالحساب الصحيح.",
+    "incidentId": "معرّف الحادثة",
+    "limitReached": "تم بلوغ حد الطلبات",
+    "rateLimitHeading": "يرجى تقليل وتيرة الطلبات",
+    "rateLimitDescription": "لقد اكتشفنا عددًا كبيرًا من الطلبات من اتصالك. ستتم إعادة المحاولة تلقائيًا خلال لحظات.",
+    "retryNow": "إعادة المحاولة الآن"
   },
   "common": {
     "clear": "مسح",
-    "learnMore": "معرفة المزيد"
+    "learnMore": "معرفة المزيد",
+    "loading": "جارٍ التحميل...",
+    "sending": "جارٍ الإرسال...",
+    "error": "خطأ",
+    "loginButton": "تسجيل الدخول",
+    "goBack": "رجوع",
+    "contactSupport": "الحصول على المساعدة"
+  },
+  "errors": {
+    "forbidden": "ممنوع",
+    "forbiddenTitle": "الوصول ممنوع",
+    "forbiddenDesc": "ليس لديك إذن للوصول إلى هذا المورد. يرجى التواصل مع المسؤول إذا كنت تعتقد أن هذا خطأ."
+  },
+  "signin": {
+    "title": "تسجيل الدخول"
   }
 }

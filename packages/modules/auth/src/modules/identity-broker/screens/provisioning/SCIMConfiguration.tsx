@@ -210,7 +210,7 @@ export default function SCIMConfiguration() {
   const testConnectionMutation = useTestSCIMConnection({
     onSuccess: (resp) => {
       const data = resp.data
-      if (data.success) {
+      if (data.status === 'success') {
         toast.success(data.message, { autoClose: 5000 })
       } else {
         toast.warning(data.message, { autoClose: 5000 })
@@ -260,7 +260,7 @@ export default function SCIMConfiguration() {
     updateConfigMutation.mutate({
       enabled: scimEnabled,
       attributeMapping,
-    } as any)
+    })
   }
 
   const handleRotateToken = () => {
@@ -268,12 +268,15 @@ export default function SCIMConfiguration() {
       revokeTokenMutation.mutate(activeToken.id)
     }
     setNewlyCreatedToken(null)
-    createTokenMutation.mutate({ name: 'SCIM Bearer Token' })
+    // `ScimTokensController.store` reads `request.only(['label', 'expiresAt'])`
+    // and 400s with "Token label is required" when the field is missing — the
+    // previous `{ name: ... }` payload never satisfied that check.
+    createTokenMutation.mutate({ label: 'SCIM Bearer Token' })
   }
 
   const handleGenerateToken = () => {
     setNewlyCreatedToken(null)
-    createTokenMutation.mutate({ name: 'SCIM Bearer Token' })
+    createTokenMutation.mutate({ label: 'SCIM Bearer Token' })
   }
 
   const handleMappingChange = (index: number, value: string) => {

@@ -143,6 +143,7 @@ export default function MFAVerificationScreen() {
       } else if (activeMethod === 'sms') {
         if (smsCode.length !== 6) return
         response = await mfaService.sms.verifyLogin({
+          mfaToken: mfaToken || undefined,
           userId: userId || undefined,
           code: smsCode,
         })

@@ -530,7 +530,9 @@ export default function LinkedAccountsDashboard() {
                         px: 2.5,
                       }}
                     >
-                      {t('auth.linkedAccounts.connectProvider', `Connect ${selectedProvider.name}`)}
+                      {t('auth.linkedAccounts.connectProvider', 'Connect {{provider}}', {
+                        provider: selectedProvider.name,
+                      })}
                     </Button>
                   )}
                 </Stack>
@@ -675,12 +677,15 @@ export default function LinkedAccountsDashboard() {
                           color='error.main'
                           gutterBottom
                         >
-                          {t('auth.linkedAccounts.disconnectWarningTitle', `Disconnect ${selectedProvider.name} Account`)}
+                          {t('auth.linkedAccounts.disconnectWarningTitle', 'Disconnect {{provider}} Account', {
+                            provider: selectedProvider.name,
+                          })}
                         </Typography>
                         <Typography variant='body2' color='text.secondary' mb={2}>
                           {t(
                             'auth.linkedAccounts.disconnectWarningBody',
-                            `Disconnecting will remove ${selectedProvider.name} as a single sign-on method. You will need to use your password or another connected provider to log in.`
+                            'Disconnecting will remove {{provider}} as a single sign-on method. You will need to use your password or another connected provider to log in.',
+                            { provider: selectedProvider.name }
                           )}
                         </Typography>
                         <Button
@@ -718,12 +723,15 @@ export default function LinkedAccountsDashboard() {
                           color='primary.main'
                           gutterBottom
                         >
-                          {t('auth.linkedAccounts.enableOneClick', `Enable 1-Click Login with ${selectedProvider.name}`)}
+                          {t('auth.linkedAccounts.enableOneClick', 'Enable 1-Click Login with {{provider}}', {
+                            provider: selectedProvider.name,
+                          })}
                         </Typography>
                         <Typography variant='body2' color='text.secondary' mb={2}>
                           {t(
                             'auth.linkedAccounts.oneClickDescription',
-                            `Link your ${selectedProvider.name} account to securely log in with a single click without having to enter your password each time.`
+                            'Link your {{provider}} account to securely log in with a single click without having to enter your password each time.',
+                            { provider: selectedProvider.name }
                           )}
                         </Typography>
                         <Button
@@ -736,7 +744,9 @@ export default function LinkedAccountsDashboard() {
                             borderRadius: 'var(--sf-radius-md, 8px)',
                           }}
                         >
-                          {t('auth.linkedAccounts.connectProvider', `Connect ${selectedProvider.name}`)}
+                          {t('auth.linkedAccounts.connectProvider', 'Connect {{provider}}', {
+                            provider: selectedProvider.name,
+                          })}
                         </Button>
                       </Box>
                     </Stack>

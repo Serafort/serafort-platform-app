@@ -259,6 +259,12 @@
       "stat_inactive": "Comptes inactifs",
       "stat_mfa": "Adoption de la MFA",
       "stat_tokens": "Jetons actifs"
+    },
+    "mfa": {
+      "totp_count": "Authentifications TOTP",
+      "passkey_count": "Clé d'accès / FIDO2",
+      "adoption_rate": "Taux d'adoption global",
+      "recovery_used": "Codes de récupération utilisés"
     }
   },
   "auth": {
@@ -322,7 +328,44 @@
       "exportStatEta": "Temps restant",
       "exportStatRate": "{{rate}} journaux/s",
       "exportHistoryReady": "Prêt",
-      "exportHistoryExpired": "Expiré"
+      "exportHistoryExpired": "Expiré",
+      "description": "Description",
+      "lastUpdated": "Dernière mise à jour",
+      "eventsMonitor": "Moniteur des événements d'authentification",
+      "eventsMonitor_subtitle": "Flux en temps réel des événements de connexion, de MFA et de sécurité des comptes sur la plateforme.",
+      "searchEventsPlaceholder": "Rechercher des événements par utilisateur, IP ou type...",
+      "colEventType": "Type d'événement",
+      "colSubjectUser": "Sujet / Utilisateur",
+      "colSourceIp": "IP source",
+      "colSeverity": "Gravité",
+      "loadingEvents": "Chargement des événements...",
+      "errorLoadingEvents": "Échec du chargement des événements. Veuillez réessayer.",
+      "noEventsFound": "Aucun événement trouvé",
+      "emailPreviewTitle": "Aperçu du modèle d'e-mail",
+      "emailPreviewSubtitle": "Inspectez les modèles d'e-mails transactionnels dynamiques sur les formats bureau et mobile.",
+      "versionHistory": "Historique des versions",
+      "editTemplate": "Modifier le modèle",
+      "preview": "Aperçu",
+      "source": "HTML source",
+      "desktopView": "Vue bureau (600px)",
+      "mobileView": "Vue mobile (360px)",
+      "emailTesting": "Test des e-mails transactionnels",
+      "emailTesting_subtitle": "Validez les relais d'e-mails transactionnels, prévisualisez les paramètres dynamiques et inspectez la télémétrie de livraison.",
+      "sendTestEmail": "Envoyer l'e-mail de test",
+      "recipientAddress": "E-mail du destinataire",
+      "selectTemplate": "Modèle",
+      "dispatchTestEmail": "Envoyer l'e-mail de test",
+      "emailLogs": "Envois de test récents",
+      "exportAudit": "Exporter le journal d'audit",
+      "exportParameters": "Paramètres d'exportation",
+      "reportType": "Type de rapport",
+      "outputFormat": "Format de sortie",
+      "generating": "Génération…",
+      "startExport": "Démarrer l'exportation",
+      "complianceTitle": "Conformité et intégrité",
+      "complianceDesc": "Les exportations sont signées numériquement et chaînées par hachage, de sorte que toute falsification ultérieure est détectable.",
+      "recentExports": "Exportations récentes",
+      "downloadFormat": "Format de téléchargement"
     },
     "developer": {
       "actions": "Actions",
@@ -392,6 +435,25 @@
     "security": {
       "scan_info": "Les analyses de sécurité s'exécutent automatiquement. Dernière analyse : à l'instant.",
       "configure_scan": "Configurer les paramètres d'analyse"
+    },
+    "common": {
+      "saving": "Enregistrement...",
+      "saveChanges": "Enregistrer les modifications",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "delete": "Supprimer",
+      "filters": "Filtres",
+      "timestamp": "Horodatage",
+      "retry": "Réessayer",
+      "rowsPerPage": "Lignes par page :"
+    },
+    "mfa": {
+      "analytics_title": "Analyse de l'utilisation de la MFA",
+      "analytics_subtitle": "Surveillez la santé de l'authentification, examinez les schémas d'échec et optimisez les méthodes de sécurité.",
+      "top_failures": "Principales causes d'échec",
+      "unusual_locations": "Emplacements inhabituels",
+      "method_scorecard": "Tableau d'efficacité des méthodes",
+      "security_insights": "Analyses de sécurité"
     }
   },
   "admin": {
@@ -454,6 +516,73 @@
             "submit": "Je l’ai enregistré"
           }
         }
+      },
+      "webhooks": {
+        "messages": {
+          "form_error": "Saisissez une URL valide et sélectionnez au moins un événement.",
+          "create_success": "Webhook créé avec succès.",
+          "create_error": "Échec de la création du webhook.",
+          "delete_success": "Webhook supprimé avec succès.",
+          "delete_error": "Échec de la suppression du webhook.",
+          "test_success": "Événement de test envoyé avec succès.",
+          "test_error": "Échec de l'envoi de test.",
+          "copied": "{{label}} copié dans le presse-papiers"
+        },
+        "back_to_dashboard": "Retour au tableau de bord développeur",
+        "title": "Gestion des webhooks",
+        "subtitle": "Configurez les notifications d'événements sortants vers des points de terminaison externes.",
+        "create_button": "Créer un webhook",
+        "stats": {
+          "total": "Total des webhooks",
+          "active": "Actifs",
+          "failed": "Envois échoués"
+        },
+        "configured_title": "Webhooks configurés",
+        "empty": {
+          "title": "Aucun webhook configuré pour le moment",
+          "desc": "Créez un webhook pour recevoir des notifications en temps réel lorsque des événements se produisent dans votre compte.",
+          "button": "Créer votre premier webhook"
+        },
+        "table": {
+          "url": "URL",
+          "events": "Événements",
+          "status": "Statut",
+          "last_triggered": "Dernier déclenchement",
+          "success": "Succès",
+          "actions": "Actions",
+          "copy_url": "Copier l'URL",
+          "never": "Jamais",
+          "test_connection": "Tester la connexion",
+          "delete_webhook": "Supprimer le webhook"
+        },
+        "dialogs": {
+          "create": {
+            "url_label": "URL du webhook",
+            "title": "Créer un webhook",
+            "desc": "Saisissez le point de terminaison qui doit recevoir les notifications d'événements.",
+            "url_placeholder": "https://exemple.com/webhooks",
+            "events_label": "Événements",
+            "info_alert": "Un secret de signature sera généré afin que vous puissiez vérifier l'authenticité de chaque envoi.",
+            "cancel": "Annuler",
+            "submit": "Créer le webhook"
+          },
+          "secret": {
+            "title": "Webhook créé",
+            "alert": "Copiez ce secret de signature maintenant — il ne sera plus jamais affiché.",
+            "copy_label": "Secret de signature",
+            "submit": "Terminé"
+          },
+          "delete": {
+            "title": "Supprimer le webhook ?",
+            "desc": "Ce webhook cessera immédiatement de recevoir des notifications d'événements. Cette action est irréversible.",
+            "cancel": "Annuler",
+            "submit": "Supprimer"
+          }
+        },
+        "platform_tip": {
+          "title": "Astuce de la plateforme",
+          "desc": "Vérifiez chaque envoi à l'aide du secret de signature pour confirmer qu'il provient bien de cette plateforme."
+        }
       }
     }
   },
@@ -467,10 +596,37 @@
     "csrfErrorDescription": "Nous n’avons pas pu vérifier votre requête. Cela se produit généralement lorsque plusieurs onglets sont ouverts ou que votre session a expiré.",
     "refreshButton": "Actualiser et réessayer",
     "backHome": "Retour à l’accueil",
-    "whyThisHappening": "Pourquoi est-ce que je vois ceci ?"
+    "whyThisHappening": "Pourquoi est-ce que je vois ceci ?",
+    "maintenanceHeading": "Maintenance planifiée",
+    "maintenanceDescription": "Nous effectuons une mise à jour planifiée pour améliorer nos services. Nous serons de retour en ligne sous peu.",
+    "maintenanceExpectedTitle": "Durée d'interruption prévue",
+    "maintenanceExpectedDesc": "La maintenance devrait se terminer dans environ 45 minutes. Merci de votre patience.",
+    "statusPage": "Page de statut",
+    "error": "Erreur",
+    "unauthorizedHeading": "Accès refusé",
+    "unauthorizedDescription": "Vous n'avez pas la permission d'accéder à cette page. Veuillez vérifier que vous êtes connecté avec le bon compte.",
+    "incidentId": "ID de l'incident",
+    "limitReached": "Limite de requêtes atteinte",
+    "rateLimitHeading": "Veuillez ralentir",
+    "rateLimitDescription": "Nous avons détecté un nombre élevé de requêtes provenant de votre connexion. Nouvelle tentative automatique dans quelques instants.",
+    "retryNow": "Réessayer maintenant"
   },
   "common": {
     "clear": "Effacer",
-    "learnMore": "En savoir plus"
+    "learnMore": "En savoir plus",
+    "loading": "Chargement...",
+    "sending": "Envoi en cours...",
+    "error": "Erreur",
+    "loginButton": "Se connecter",
+    "goBack": "Retour",
+    "contactSupport": "Obtenir de l'aide"
+  },
+  "errors": {
+    "forbidden": "Interdit",
+    "forbiddenTitle": "Accès interdit",
+    "forbiddenDesc": "Vous n'avez pas la permission d'accéder à cette ressource. Veuillez contacter votre administrateur si vous pensez qu'il s'agit d'une erreur."
+  },
+  "signin": {
+    "title": "Connexion"
   }
 }

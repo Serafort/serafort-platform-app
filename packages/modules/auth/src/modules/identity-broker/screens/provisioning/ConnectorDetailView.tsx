@@ -165,8 +165,17 @@ const ConnectorDetailView: React.FC = () => {
   const connector = connectorData?.data
 
   const { data: logsData, isLoading: isLogsLoading } = useProvisioningConnectorLogs(connectorId)
-  const logs = Array.isArray(logsData?.data) ? logsData.data : []
-  const pagination = { total: logs.length, last_page: 1 }
+  // `ConnectorsController.logs` returns AdonisJS's `.paginate()` envelope
+  // (`{ data, meta }`), not a flat array — reading `logsData.data` directly
+  // as an array left this list permanently empty.
+  const logs = logsData?.data?.data ?? []
+  const pagination = logsData?.data?.meta ?? {
+    total: logs.length,
+    perPage: logs.length || 1,
+    currentPage: 1,
+    lastPage: 1,
+    firstPage: 1,
+  }
 
   const syncMutation = useSyncProvisioningConnector({
     onSuccess: () => {
@@ -837,10 +846,10 @@ const ConnectorDetailView: React.FC = () => {
                   </Table>
                 </TableContainer>
 
-                {pagination.last_page > 1 && (
+                {pagination.lastPage > 1 && (
                   <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
                     <Pagination
-                      count={pagination.last_page}
+                      count={pagination.lastPage}
                       page={page}
                       onChange={(_, value) => setPage(value)}
                       sx={{

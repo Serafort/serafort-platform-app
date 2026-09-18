@@ -604,7 +604,209 @@
       "view_provider": "Voir les détails du fournisseur pour {{provider}}",
       "workspaceSlug": "Slug de l'espace de travail",
       "workspaceSlugHelper": "Identifiant URL pour cet espace de travail",
-      "workspaceSlugLabel": "Slug de l'espace de travail"
+      "workspaceSlugLabel": "Slug de l'espace de travail",
+      "provisioning": {
+        "connectors": {
+          "title": "Connecteurs d’annuaire",
+          "back_to_list": "Retour aux connecteurs",
+          "configure_mappings": "Configurer les mappages",
+          "delete": "Supprimer le connecteur",
+          "delete_confirm": "Êtes-vous sûr de vouloir supprimer ce connecteur ? Cela arrêtera la synchronisation de l’annuaire et cette action est irréversible.",
+          "fields": {
+            "name": "Nom du connecteur",
+            "status": "Statut"
+          },
+          "general_settings": "Paramètres généraux",
+          "helper_title": "Besoin d’aide pour configurer ce connecteur ?",
+          "helper_desc": "Consultez notre documentation pour des guides de configuration étape par étape pour chaque fournisseur d’annuaire.",
+          "mappings_desc": "Associez les attributs de l’annuaire aux champs du profil utilisateur.",
+          "mappings_title": "Mappages d’attributs",
+          "messages": {
+            "config_saved": "Paramètres du connecteur enregistrés avec succès",
+            "deleted": "Connecteur supprimé avec succès",
+            "error_generic": "Une erreur est survenue. Veuillez réessayer.",
+            "sync_queued": "Le tâche de synchronisation a été mise en file d’attente avec succès"
+          },
+          "metadata": "Métadonnées",
+          "metadata_fields": {
+            "created_on": "Créé le",
+            "type": "Type de connecteur"
+          },
+          "never": "Jamais",
+          "no_logs": "Aucun journal de synchronisation pour le moment",
+          "not_found": "Connecteur introuvable",
+          "not_found_desc": "Le connecteur que vous recherchez n’existe pas ou a été supprimé.",
+          "save_changes": "Enregistrer les modifications",
+          "saving": "Enregistrement...",
+          "stats": {
+            "last_sync": "Dernière synchronisation",
+            "records": "Enregistrements synchronisés",
+            "status": "Statut"
+          },
+          "sync_now": "Synchroniser maintenant",
+          "syncing": "Synchronisation...",
+          "table": {
+            "actions": "Actions",
+            "event": "Événement",
+            "status": "Statut",
+            "timestamp": "Horodatage"
+          },
+          "tabs": {
+            "config": "Configuration",
+            "history": "Historique",
+            "mappings": "Mappages"
+          },
+          "type_label": "Connecteur",
+          "view_docs": "Consulter la documentation"
+        },
+        "dashboard": {
+          "title": "Synchronisation de l’annuaire",
+          "subtitle": "Gérez les connecteurs de fournisseurs d’identité et surveillez l’activité de synchronisation.",
+          "add_connector": "Ajouter un connecteur",
+          "sync_logs": "Journaux de synchronisation",
+          "empty": "Aucun connecteur d’annuaire configuré pour le moment. Ajoutez-en un pour commencer à synchroniser les utilisateurs.",
+          "stats": {
+            "total_users": "Total des utilisateurs synchronisés",
+            "active_connectors": "Connecteurs actifs",
+            "success_rate": "Taux de réussite de synchronisation"
+          },
+          "messages": {
+            "sync_started": "Synchronisation démarrée",
+            "sync_failed": "Échec du démarrage de la synchronisation"
+          },
+          "connector_card": {
+            "status_label": "Statut",
+            "last_sync": "Dernière synchronisation",
+            "never": "Jamais",
+            "sync_count": "Synchronisations terminées",
+            "healthy": "Opérationnel",
+            "standby": "EN VEILLE",
+            "manage": "Gérer"
+          },
+          "dialogs": {
+            "add": {
+              "title": "Ajouter un connecteur d’annuaire",
+              "name_label": "Nom du connecteur",
+              "name_placeholder": "ex. Azure AD de l’entreprise",
+              "type_label": "Type de connecteur",
+              "types": {
+                "azure": "Azure AD",
+                "okta": "Okta",
+                "google": "Google Workspace",
+                "ldap": "LDAP / Active Directory",
+                "scim": "SCIM générique"
+              },
+              "org_label": "ID de l’organisation",
+              "org_placeholder": "ex. 42",
+              "org_helper": "L’organisation dans laquelle ce connecteur approvisionnera les utilisateurs.",
+              "cancel": "Annuler",
+              "submit": "Ajouter le connecteur",
+              "submitting": "Ajout en cours...",
+              "success": "Connecteur ajouté avec succès",
+              "error": "Échec de l’ajout du connecteur"
+            },
+            "logs": {
+              "title": "Journaux de synchronisation pour",
+              "no_logs": "Aucun journal de synchronisation disponible pour ce connecteur pour le moment.",
+              "close": "Fermer"
+            }
+          },
+          "scim_promo": {
+            "title": "Vous préférez SCIM ?",
+            "subtitle": "Laissez votre fournisseur d’identité transmettre automatiquement les utilisateurs à Serafort via le protocole SCIM au lieu de l’interrogation périodique.",
+            "configure": "Configurer SCIM"
+          }
+        },
+        "logs": {
+          "title": "Journaux de synchronisation",
+          "subtitle": "Consultez chaque événement de synchronisation de vos connecteurs d’annuaire.",
+          "export": "Exporter",
+          "refresh": "Actualiser",
+          "connector_label": "Connecteur",
+          "filters": "Filtres",
+          "stats": {
+            "sync_count": "Total des synchronisations",
+            "success_rate": "Taux de réussite",
+            "errors": "Erreurs"
+          },
+          "event_logs": "Journaux d’événements",
+          "messages": {
+            "fetching": "Chargement des journaux de synchronisation...",
+            "refreshed": "Journaux de synchronisation actualisés",
+            "exporting": "Préparation de l’exportation..."
+          },
+          "no_logs_title": "Aucun journal trouvé",
+          "no_logs_desc": "Aucune activité de synchronisation ne correspond aux filtres actuels.",
+          "table": {
+            "details": "Détails",
+            "event": "Événement",
+            "status": "Statut",
+            "target": "Cible",
+            "timestamp": "Horodatage"
+          },
+          "helper_title": "Comprendre les événements de synchronisation",
+          "helper_desc": "Chaque ligne enregistre une modification effectuée ou tentée par un connecteur — un utilisateur créé, un groupe synchronisé, ou une erreur rencontrée.",
+          "refresh_action": "Actualiser les journaux"
+        },
+        "scim": {
+          "title": "Approvisionnement SCIM",
+          "subtitle": "Automatisez l’approvisionnement et le désapprovisionnement des utilisateurs depuis votre fournisseur d’identité.",
+          "status_active": "Actif",
+          "status_inactive": "Inactif",
+          "protocol_status": "Statut du protocole",
+          "enabled": "Activé",
+          "disabled": "Désactivé",
+          "messages": {
+            "disabled_warning": "’approvisionnement SCIM est actuellement désactivé. Activez-le pour permettre à votre fournisseur d’identité de synchroniser les utilisateurs automatiquement.",
+            "token_generated": "Jeton SCIM généré avec succès",
+            "token_revoked": "Jeton révoqué",
+            "config_saved": "Configuration SCIM enregistrée",
+            "error_generic": "Une erreur est survenue. Veuillez réessayer.",
+            "test_failed": "Échec du test de connexion SCIM",
+            "copied": "copié dans le presse-papiers"
+          },
+          "base_url": "URL de base SCIM",
+          "tokens_title": "Jeton d’accès",
+          "token_help": "رودرر فورنيسور هويتكم يستخدم هذا الرمز للمصادقة على طلبات SCIM.",
+          "no_token": "Aucun jeton actif",
+          "rotate": "Renouveler",
+          "rotating": "Renouvellement...",
+          "create_token": "Générer un jeton",
+          "generating": "Génération...",
+          "tooltips": {
+            "copy_url": "Copier l’URL",
+            "open": "Ouvrir dans un nouvel onglet",
+            "hide": "Masquer le jeton",
+            "show": "Afficher le jeton",
+            "copy": "Copier le jeton",
+            "token_desc": "Ce jeton authentifie les requêtes SCIM provenant de votre fournisseur d’identité."
+          },
+          "supported_ops": "Opérations prises en charge",
+          "ops_notes": {
+            "users": "Créez, mettez à jour et désactivez les comptes utilisateurs.",
+            "groups": "Synchronisez l’appartenance aux groupes pour un accès basé sur les rôles.",
+            "schemas": "Lecture seule. Décrit les schémas de ressources SCIM pris en charge.",
+            "config": "Lecture seule. Indique les fonctionnalités SCIM prises en charge par ce serveur."
+          },
+          "attribute_mapping": "Mappage des attributs",
+          "mapping_subtitle": "Associez les attributs SCIM entrants à vos champs utilisateur internes.",
+          "reset_defaults": "Réinitialiser par défaut",
+          "table": {
+            "scim_attr": "Attribut SCIM",
+            "internal_field": "Champ interne",
+            "required": "Obligatoire"
+          },
+          "test_connection": "Tester la connexion",
+          "testing": "Test en cours...",
+          "save_config": "Enregistrer la configuration",
+          "saving": "Enregistrement...",
+          "stats": {
+            "users": "Utilisateurs approvisionnés",
+            "sync": "Dernière synchronisation",
+            "errors": "Taux d’erreur"
+          }
+        }
+      }
     },
     "browser": {
       "not_supported_title": "Mise à jour requise"
@@ -682,7 +884,7 @@
       "documentation": "Documentation",
       "documents": "Documents",
       "done": "Terminé",
-      "edit": "Modifier le profil",
+      "edit": "Modifier le client",
       "emailVerified": "Email vérifié",
       "enabled": "Activé",
       "errorOccurred": "Une erreur s'est produite",
@@ -729,7 +931,18 @@
       "user": "Utilisateur",
       "view_details": "Voir les détails techniques",
       "workEmail": "Adresse e-mail professionnelle",
-      "yes": "Oui"
+      "yes": "Oui",
+      "back": "Retour",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "copied": "Copié dans le presse-papiers",
+      "deleting": "Suppression...",
+      "error": "ERREUR",
+      "never": "Jamais",
+      "processing": "Traitement en cours...",
+      "remove": "Retirer",
+      "retry": "Réessayer",
+      "status": "Statut"
     },
     "deactivate": {
       "success_description": "Votre compte a été désactivé avec succès.",
@@ -1479,7 +1692,8 @@
       "ssf_load_error_desc": "Les paramètres de l'émetteur Shared Signals sont indisponibles pour le moment. Réessayez ou revenez dans quelques instants.",
       "ssf_save_disabled_loading": "Chargement de la configuration actuelle…",
       "loading_signals": "Chargement des signaux récents…",
-      "signals_load_error": "Impossible de charger le flux de signaux."
+      "signals_load_error": "Impossible de charger le flux de signaux.",
+      "add_mapping": "Ajouter un mappage"
     },
     "twoFactor": {
       "backToLogin": "Retour à la connexion",

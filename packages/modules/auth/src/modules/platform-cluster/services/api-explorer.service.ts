@@ -62,7 +62,7 @@ export interface SandboxExecutionResult {
 
 const apiExplorerService = {
   getSpec: (): Promise<FetchResponse<OpenAPISpec>> => {
-    return apiClient.get<OpenAPISpec>(ENDPOINTS.admin.docs || '/api/admin/docs')
+    return apiClient.get<OpenAPISpec>(ENDPOINTS.admin.docs)
   },
 
   executeSandbox: async (
@@ -70,9 +70,12 @@ const apiExplorerService = {
   ): Promise<FetchResponse<SandboxExecutionResult>> => {
     const startTime = performance.now()
     try {
-      // First attempt execution via backend sandbox endpoint
+      // First attempt execution via backend sandbox endpoint. This is
+      // feature-flagged off by default server-side (SANDBOX_ENABLED) and
+      // disabled entirely in production, so the direct-fallback path below
+      // is the common case, not a last resort for a broken endpoint.
       const response = await apiClient.post<SandboxExecutionResult>(
-        '/api/admin/sandbox/execute',
+        ENDPOINTS.admin.sandboxExecute,
         params,
       )
       const duration = Math.round(performance.now() - startTime)

@@ -60,7 +60,8 @@
       "title": "Journaux d'entrée",
       "uid": "UID du badge",
       "unknown": "Badge inconnu",
-      "unknown_help": "Cet UID ne correspond à aucun badge enregistré — une carte inconnue a été présentée, il ne s'agit pas d'un membre écarté."
+      "unknown_help": "Cet UID ne correspond à aucun badge enregistré — une carte inconnue a été présentée, il ne s'agit pas d'un membre écarté.",
+      "empty_help": "Ajustez vos filtres ou attendez que des badges soient présentés aux points d'accès configurés."
     },
     "points": {
       "actions": "Actions",
@@ -91,7 +92,8 @@
       "token_done": "Je l'ai enregistré",
       "token_once": "Affiché une seule fois",
       "token_once_body": "Seule une empreinte de ce jeton est conservée. Copiez-le dans le lecteur maintenant — si vous fermez cette fenêtre sans le faire, il faudra le régénérer, ce qui remettra le lecteur hors service.",
-      "token_title": "Jeton du lecteur"
+      "token_title": "Jeton du lecteur",
+      "empty_help": "Ajoutez un point d'accès pour commencer à suivre les entrées."
     }
   }
 }

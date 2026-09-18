@@ -427,7 +427,7 @@ export default function OIDCConfigBrowser() {
         <DialogContent>
           <DialogContentText>
             {t(
-              'common.confirm_delete_desc',
+              'auth.common.confirm_delete_desc',
               'Are you sure you want to delete this OIDC client? This action cannot be undone and any applications depending on it will lose access immediately.',
             )}
           </DialogContentText>

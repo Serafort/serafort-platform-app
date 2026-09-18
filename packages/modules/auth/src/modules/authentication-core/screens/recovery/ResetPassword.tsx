@@ -90,9 +90,16 @@ export default function ResetPassword() {
 
       try {
         if (isMounted) setLoading(true)
+        // The backend's GET /reset-password/:email handler validates the whole
+        // signed URL (`request.hasValidSignature()`) *and* separately requires a
+        // `token` query param (`request.input('token')`) — the signed link the
+        // backend mails out always carries both. Passing just the bare
+        // `signature` value here (as opposed to the full query string) used to
+        // build a URL missing `token`, which the backend rejects as
+        // 'Invalid password reset parameters.' every time this branch ran.
         const response: FetchResponse<any> = tokenParam
           ? await authService.verifyResetToken(decodedEmail, tokenParam)
-          : await authService.verifyResetPassword(decodedEmail, signature || '')
+          : await authService.verifyResetPassword(decodedEmail, searchParams.toString())
 
         if (!isMounted) return
         setLoading(false)

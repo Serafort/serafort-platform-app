@@ -78,7 +78,8 @@ const SyncLogsView: React.FC = () => {
 
   const rawData = logsData?.data as any
   const logs = Array.isArray(rawData) ? rawData : rawData?.data ?? []
-  const pagination = rawData?.meta ?? { total: 0, last_page: 1 }
+  // AdonisJS's `.paginate()` meta uses `lastPage` (camelCase), not `last_page`.
+  const pagination = rawData?.meta ?? { total: 0, lastPage: 1 }
 
   const handleRefresh = () => {
     refetch()
@@ -604,10 +605,10 @@ const SyncLogsView: React.FC = () => {
                 </Table>
               </TableContainer>
 
-              {pagination.last_page > 1 && (
+              {pagination.lastPage > 1 && (
                 <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
                   <Pagination
-                    count={pagination.last_page}
+                    count={pagination.lastPage}
                     page={page}
                     onChange={(_, value) => setPage(value)}
                     sx={{

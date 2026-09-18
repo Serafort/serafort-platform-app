@@ -866,6 +866,45 @@
       "super_admin_employee": "Super Admin Employee",
       "unknown": "Unknown Role",
       "user": "User"
+    },
+    "common": {
+      "add": "Add",
+      "back": "Back",
+      "backToDashboard": "Back to dashboard",
+      "cancel": "Cancel",
+      "close": "Close",
+      "copied": "Copied!",
+      "daysRemaining": "days remaining",
+      "duplicate": "Duplicate",
+      "expired": "Expired",
+      "goBack": "Go Back",
+      "hide": "Hide",
+      "never": "Never",
+      "of": "of",
+      "remove": "Remove",
+      "retry": "Retry",
+      "returnToTokens": "Return to API Tokens",
+      "revoke": "Revoke Token",
+      "revokePermanently": "Revoke Permanently",
+      "revoking": "Revoking...",
+      "saveChanges": "Save Changes",
+      "saveConfiguration": "Save configuration",
+      "show": "Show",
+      "viewDetails": "View details",
+      "actions": "Actions",
+      "active": "Active",
+      "copy": "Copy",
+      "delete": "Delete",
+      "learnMore": "Learn more",
+      "noResults": "No results found",
+      "saving": "Saving…"
+    },
+    "account": {
+      "active": "Active",
+      "overview_title": "Account Overview"
     }
+  },
+  "common": {
+    "all": "All"
   }
 }

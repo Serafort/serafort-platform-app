@@ -259,6 +259,12 @@
       "stat_inactive": "Inactive accounts",
       "stat_mfa": "MFA adoption",
       "stat_tokens": "Active tokens"
+    },
+    "mfa": {
+      "totp_count": "TOTP Authentications",
+      "passkey_count": "Passkey / FIDO2",
+      "adoption_rate": "Global Adoption Rate",
+      "recovery_used": "Recovery Codes Used"
     }
   },
   "auth": {
@@ -332,7 +338,34 @@
       "exportStatEta": "ETA",
       "exportStatRate": "{{rate}} logs/s",
       "exportHistoryReady": "Ready",
-      "exportHistoryExpired": "Expired"
+      "exportHistoryExpired": "Expired",
+      "description": "Description",
+      "lastUpdated": "Last Updated",
+      "eventsMonitor": "Authentication Events Monitor",
+      "eventsMonitor_subtitle": "Real-time feed of sign-in, MFA, and account security events across the platform.",
+      "searchEventsPlaceholder": "Search events by user, IP, or event type...",
+      "colEventType": "Event Type",
+      "colSubjectUser": "Subject / User",
+      "colSourceIp": "Source IP",
+      "colSeverity": "Severity",
+      "loadingEvents": "Loading events...",
+      "errorLoadingEvents": "Failed to load events. Please try again.",
+      "noEventsFound": "No events found",
+      "emailPreviewTitle": "Email Template Preview",
+      "emailPreviewSubtitle": "Inspect dynamic transactional email templates across desktop and mobile form factors.",
+      "versionHistory": "Version History",
+      "editTemplate": "Edit Template",
+      "preview": "Preview",
+      "source": "Source HTML",
+      "desktopView": "Desktop View (600px)",
+      "mobileView": "Mobile View (360px)",
+      "emailTesting": "Transactional Email Testing",
+      "emailTesting_subtitle": "Validate transactional email relays, preview dynamic parameters, and inspect delivery telemetry.",
+      "sendTestEmail": "Dispatch Test Email",
+      "recipientAddress": "Recipient Email",
+      "selectTemplate": "Template",
+      "dispatchTestEmail": "Send Test Email",
+      "emailLogs": "Recent Test Dispatches"
     },
     "developer": {
       "actions": "Actions",
@@ -402,6 +435,25 @@
     "security": {
       "scan_info": "Security scans run automatically. Last scan: just now.",
       "configure_scan": "Configure scan settings"
+    },
+    "common": {
+      "saving": "Saving...",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel",
+      "save": "Save",
+      "delete": "Delete",
+      "filters": "Filters",
+      "timestamp": "Timestamp",
+      "retry": "Retry",
+      "rowsPerPage": "Rows per page:"
+    },
+    "mfa": {
+      "analytics_title": "MFA Usage Analytics",
+      "analytics_subtitle": "Monitor authentication health, investigate failure patterns, and optimize security methods.",
+      "top_failures": "Top Failure Reasons",
+      "unusual_locations": "Unusual Locations",
+      "method_scorecard": "Method Effectiveness Scorecard",
+      "security_insights": "Security Insights"
     }
   },
   "admin": {
@@ -464,6 +516,73 @@
             "submit": "I've saved it"
           }
         }
+      },
+      "webhooks": {
+        "messages": {
+          "form_error": "Enter a valid URL and select at least one event.",
+          "create_success": "Webhook created successfully.",
+          "create_error": "Failed to create webhook.",
+          "delete_success": "Webhook deleted successfully.",
+          "delete_error": "Failed to delete webhook.",
+          "test_success": "Test event delivered successfully.",
+          "test_error": "Test delivery failed.",
+          "copied": "{{label}} copied to clipboard"
+        },
+        "back_to_dashboard": "Back to Developer Dashboard",
+        "title": "Webhook Management",
+        "subtitle": "Configure outbound event notifications to external endpoints.",
+        "create_button": "Create Webhook",
+        "stats": {
+          "total": "Total Webhooks",
+          "active": "Active",
+          "failed": "Failed Deliveries"
+        },
+        "configured_title": "Configured Webhooks",
+        "empty": {
+          "title": "No webhooks configured yet",
+          "desc": "Create a webhook to receive real-time notifications when events happen in your account.",
+          "button": "Create Your First Webhook"
+        },
+        "table": {
+          "url": "URL",
+          "events": "Events",
+          "status": "Status",
+          "last_triggered": "Last Triggered",
+          "success": "Success",
+          "actions": "Actions",
+          "copy_url": "Copy URL",
+          "never": "Never",
+          "test_connection": "Test Connection",
+          "delete_webhook": "Delete Webhook"
+        },
+        "dialogs": {
+          "create": {
+            "url_label": "Webhook URL",
+            "title": "Create Webhook",
+            "desc": "Enter the endpoint that should receive event notifications.",
+            "url_placeholder": "https://example.com/webhooks",
+            "events_label": "Events",
+            "info_alert": "A signing secret will be generated so you can verify each delivery's authenticity.",
+            "cancel": "Cancel",
+            "submit": "Create Webhook"
+          },
+          "secret": {
+            "title": "Webhook Created",
+            "alert": "Copy this signing secret now — it will not be shown again.",
+            "copy_label": "Signing Secret",
+            "submit": "Done"
+          },
+          "delete": {
+            "title": "Delete Webhook?",
+            "desc": "This webhook will stop receiving event notifications immediately. This cannot be undone.",
+            "cancel": "Cancel",
+            "submit": "Delete"
+          }
+        },
+        "platform_tip": {
+          "title": "Platform Tip",
+          "desc": "Verify each delivery using the signing secret to confirm it genuinely came from this platform."
+        }
       }
     }
   },
@@ -477,10 +596,37 @@
     "csrfErrorDescription": "We couldn't verify your request. This usually happens when several tabs are open or your session has timed out.",
     "refreshButton": "Refresh and try again",
     "backHome": "Return to Home",
-    "whyThisHappening": "Why am I seeing this?"
+    "whyThisHappening": "Why am I seeing this?",
+    "maintenanceHeading": "Scheduled Maintenance",
+    "maintenanceDescription": "We're performing a planned update to improve our services. We'll be back online shortly.",
+    "maintenanceExpectedTitle": "Expected downtime",
+    "maintenanceExpectedDesc": "The maintenance is scheduled to conclude in approximately 45 minutes. Thank you for your patience.",
+    "statusPage": "Status Page",
+    "error": "Error",
+    "unauthorizedHeading": "Access Denied",
+    "unauthorizedDescription": "You don't have permission to access this page. Please make sure you're signed in with the correct account.",
+    "incidentId": "Incident ID",
+    "limitReached": "Rate Limit Reached",
+    "rateLimitHeading": "Please Slow Down",
+    "rateLimitDescription": "We've detected a high number of requests from your connection. Auto-retrying in a few moments.",
+    "retryNow": "Try Again Now"
   },
   "common": {
     "clear": "Clear",
-    "learnMore": "Learn more"
+    "learnMore": "Learn more",
+    "loading": "Loading...",
+    "sending": "Sending...",
+    "error": "Error",
+    "loginButton": "Log In",
+    "goBack": "Go Back",
+    "contactSupport": "Get Help"
+  },
+  "errors": {
+    "forbidden": "Forbidden",
+    "forbiddenTitle": "Access Forbidden",
+    "forbiddenDesc": "You don't have permission to access this resource. Please contact your administrator if you believe this is an error."
+  },
+  "signin": {
+    "title": "Sign In"
   }
 }

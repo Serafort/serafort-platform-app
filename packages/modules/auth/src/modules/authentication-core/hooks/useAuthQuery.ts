@@ -200,12 +200,17 @@ export function useRefreshToken(
     mutationFn: () => authService.refreshToken(),
     onSuccess: (...args) => {
       const [response] = args
-      if (response.data.token) {
-        const expiresIn = response.data.expires_in || 3600
+      // /api/v1/auth/refresh (the only route this hook calls) returns
+      // `accessToken` — never a bare `token` or `expires_in`. `token` is kept
+      // as a fallback for tolerance with any legacy caller, same as useSignin.
+      const body: any = response.data
+      const accessToken = body.accessToken ?? body.token
+      if (accessToken) {
+        const expiresIn = body.expiresIn || body.expires_in || 3600
         const expiresAt = Date.now() + expiresIn * 1000
 
         secureTokenManager.setTokens({
-          accessToken: response.data.token,
+          accessToken,
           // refresh_token is handled via HttpOnly cookie
           expiresAt,
         })

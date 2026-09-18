@@ -563,7 +563,13 @@
       "download_as_txt": "Download as .txt file",
       "not_available": "—",
       "optional": "OPTIONAL",
-      "unknown_error": "Unknown error"
+      "unknown_error": "Unknown error",
+      "retry": "Retry",
+      "never": "Never",
+      "cancel": "Cancel",
+      "copied": "Copied!",
+      "close": "Close",
+      "actions": "Actions"
     },
     "developer_console": {
       "api_keys": {

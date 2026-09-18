@@ -32,7 +32,11 @@
         "today_at": "اليوم الساعة {{time}}",
         "token_details": "ID الرمز: tok_123... • صلاحية القراءة",
         "view_full_history": "عرض السجل بالكامل",
-        "yesterday_at": "أمس الساعة {{time}}"
+        "yesterday_at": "أمس الساعة {{time}}",
+        "retry": "إعادة المحاولة",
+        "load_failed": "تعذر تحميل النشاط. يرجى المحاولة مرة أخرى.",
+        "no_activity_desc": "ستظهر أحداث الأمان وتسجيل الدخول هنا بالترتيب الزمني.",
+        "refresh": "تحديث النشاط"
       },
       "address": "العنوان",
       "api_tokens": "رموز API",
@@ -261,7 +265,36 @@
       "verification_required": "التحقق مطلوب",
       "verification_required_desc": "من أجل أمانك، ستحتاج إلى التحقق من عنوان بريدك الإلكتروني الجديد. سيتم إرسال رابط التحقق بعد التحديث بفترة وجيزة.",
       "verified": "مؤقق",
-      "verify_identity": "تأكد من هويتك"
+      "verify_identity": "تأكد من هويتك",
+      "error_loading_sessions": "فشل تحميل الجلسات.",
+      "no_other_sessions": "لم يتم العثور على جلسات نشطة.",
+      "deactivate_success": "تم إلغاء تفعيل حسابك بنجاح.",
+      "deactivate_failed": "فشل إلغاء تفعيل الحساب.",
+      "deactivate_warning_desc": "سيؤدي إلغاء تفعيل حسابك إلى تعطيل إمكانية تسجيل الدخول وإنهاء جميع الجلسات النشطة. يمكنك التواصل مع أحد المسؤولين لإعادة التفعيل.",
+      "confirm_deactivate_title": "تأكيد إلغاء تفعيل الحساب",
+      "confirm_deactivate_msg": "هل أنت متأكد من رغبتك في إلغاء تفعيل حسابك؟ سيتم إنهاء جميع الجلسات النشطة وسيتم تسجيل خروجك فورًا.",
+      "session_revoked": "تم إبطال الجلسة بنجاح",
+      "revoke_failed": "فشل إبطال الجلسة",
+      "all_others_revoked": "تم إبطال جميع الجلسات الأخرى بنجاح",
+      "revoke_all_failed": "فشل إبطال جميع الجلسات",
+      "active_sessions_title": "الجلسات النشطة",
+      "active_sessions_desc": "اعرض الأجهزة التي قمت بتسجيل الدخول منها حاليًا وقم بإدارتها. إذا رأيت جهازًا لا تتعرف عليه، فقم بإبطال وصوله فورًا.",
+      "current_session": "الجلسة الحالية",
+      "active_now": "نشط الآن",
+      "no_current_session": "تعذر تحديد الجلسة الحالية.",
+      "other_active_sessions": "الجلسات النشطة الأخرى",
+      "revoke": "إبطال",
+      "no_other_sessions_desc": "حسابك غير مستخدم حاليًا على أي جهاز آخر.",
+      "logout_all_others": "تسجيل الخروج من جميع الجلسات الأخرى",
+      "security_tip": "نصيحة أمان",
+      "security_tip_desc": "هل وجدت جلسة لا تتعرف عليها؟ قم بإبطالها وتغيير كلمة المرور الخاصة بك لتأمين حسابك.",
+      "confirm_revoke_title": "إبطال الجلسة",
+      "confirm_revoke_all_title": "إبطال جميع الجلسات الأخرى",
+      "confirm_revoke_msg": "هل أنت متأكد من رغبتك في إنهاء هذه الجلسة ({{name}})؟ سيتم تسجيل خروج الجهاز فورًا.",
+      "confirm_revoke_all_msg": "هل أنت متأكد من رغبتك في إنهاء جميع الجلسات النشطة الأخرى؟ سيتعين على جميع الأجهزة المسجلة الدخول الأخرى تسجيل الدخول مرة أخرى.",
+      "revoke_all": "إبطال الكل",
+      "activity_timeline_title": "الجدول الزمني للنشاط",
+      "activity_timeline_desc": "موجز زمني لأحداث تسجيل الدخول وتغييرات الأمان وتحديثات الملف الشخصي لمساعدتك على مراقبة أمان حسابك."
     },
     "account_verification": {
       "button_verify": "تحقق واستمر",
@@ -278,7 +311,15 @@
       "last_active": "آخر نشاط: {{date}}",
       "success_end_all": "تم إنهاء جميع الجلسات الأخرى بنجاح",
       "success_end_session": "تم إنهاء الجلسة بنجاح",
-      "title": "الجلسات النشطة"
+      "title": "الجلسات النشطة",
+      "error_end_session": "فشل إنهاء الجلسة.",
+      "error_end_all": "فشل إنهاء جميع الجلسات.",
+      "dialog_title_all": "هل تريد إبطال جميع الجلسات الأخرى؟",
+      "dialog_title_single": "هل تريد إبطال جلسة هذا الجهاز؟",
+      "dialog_desc_all": "سيؤدي هذا إلى تسجيل خروج حسابك من جميع المتصفحات والأجهزة المحمولة الأخرى. ستبقى مسجلاً للدخول على هذا الجهاز.",
+      "dialog_desc_single": "هل أنت متأكد من رغبتك في إنهاء هذه الجلسة ({{name}})؟ سيفقد الجهاز الوصول فورًا وسيتعين عليه تسجيل الدخول مرة أخرى.",
+      "confirm_revoke_all": "إبطال الكل",
+      "confirm_revoke_single": "إبطال الجلسة"
     },
     "admin": {
       "accentColor": "لون التأكيد",
@@ -673,7 +714,11 @@
       "view_provider": "عرض تفاصيل المزود لـ {{provider}}",
       "workspaceSlug": "معرف مساحة العمل",
       "workspaceSlugHelper": "معرف صديق للروابط لمساحة العمل هذه",
-      "workspaceSlugLabel": "معرف مساحة العمل"
+      "workspaceSlugLabel": "معرف مساحة العمل",
+      "investigateSessions": "فحص الجلسات",
+      "investigateDesc": "تحليل تقني مفصل لجميع سياقات الأمان النشطة للمستخدم {{name}}.",
+      "activeTokens": "رموز الوصول النشطة",
+      "terminateAll": "إنهاء جميع جلسات المستخدم"
     },
     "browser": {
       "not_supported_title": "تحديث مطلوب"
@@ -1345,7 +1390,8 @@
     "save": "حفظ",
     "save_changes": "حفظ التغييرات",
     "success": "نجاح",
-    "unknown_location": "موقع غير معروف"
+    "unknown_location": "موقع غير معروف",
+    "processing": "جارٍ إلغاء التفعيل..."
   },
   "email_test": {
     "col_recipient": "المستلم",

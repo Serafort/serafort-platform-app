@@ -62,15 +62,20 @@ export default function OIDCLoginPrompt({
       if (res.data?.url) window.location.assign(res.data.url)
       else navigate(Path.auth.login)
     },
-    onError: () => toast.error(t('sso.errorConfirm', 'Failed to confirm account')),
+    onError: () => toast.error(t('auth.sso.errorConfirm', 'Failed to confirm account')),
   })
 
   const user = useMemo(() => {
     const rawUser =
       initialUser ||
       authUser ||
-      (details?.session?.accountId
-        ? { name: 'User ' + details?.session?.accountId, email: 'user@example.com' }
+      // `OidcController.interaction` nests the raw node-oidc-provider
+      // `interactionDetails()` result under `details.details` (alongside the
+      // spread-out `uid`/`prompt`/`params`/`client`/`organization` siblings),
+      // so an already-authenticated session's accountId lives at
+      // `details.details.session.accountId`, not `details.session.accountId`.
+      ((details as any)?.details?.session?.accountId
+        ? { name: 'User ' + (details as any).details.session.accountId, email: 'user@example.com' }
         : undefined)
     if (!rawUser) return undefined
     const name =
@@ -196,12 +201,12 @@ export default function OIDCLoginPrompt({
           <CardContent sx={{ p: 3 }}>
             <Box sx={{ mt: { xs: 5, md: 7 }, mb: 4, textAlign: 'center' }}>
               <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 1 }}>
-                {t('sso.loginTitle', 'Sign in to {{appName}}', {
+                {t('auth.sso.loginTitle', 'Sign in to {{appName}}', {
                   appName: themeConfig.templateName,
                 })}
               </Typography>
               <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
-                {t('sso.loginSubtitle', 'Choose your preferred way to continue')}
+                {t('auth.sso.loginSubtitle', 'Choose your preferred way to continue')}
               </Typography>
             </Box>
 
@@ -285,7 +290,7 @@ export default function OIDCLoginPrompt({
                   color: 'text.secondary',
                 }}
               >
-                {t('sso.orSignInWith', 'Or sign in with')}
+                {t('auth.sso.orSignInWith', 'Or sign in with')}
               </Typography>
             </Divider>
 
@@ -354,7 +359,7 @@ export default function OIDCLoginPrompt({
               ) : (
                 <Grid size={{ xs: 12 }}>
                   <Typography variant='body2' color='text.secondary' textAlign='center'>
-                    {t('sso.noProviders', 'No SSO providers configured.')}
+                    {t('auth.sso.noProviders', 'No SSO providers configured.')}
                   </Typography>
                 </Grid>
               )}
@@ -374,7 +379,7 @@ export default function OIDCLoginPrompt({
                   borderColor: alpha(theme.palette.info.main, 0.15),
                 }}
                 role='img'
-                aria-label={t('sso.secureBadge', 'Trusted Authentication Protocol')}
+                aria-label={t('auth.sso.secureBadge', 'Trusted Authentication Protocol')}
               >
                 <CloudDoneIcon sx={{ fontSize: 18, color: 'info.main' }} aria-hidden='true' />
                 <Typography
@@ -386,7 +391,7 @@ export default function OIDCLoginPrompt({
                     color: 'info.main',
                   }}
                 >
-                  {t('sso.trustedAuth', 'Bank-Grade Security Protocol')}
+                  {t('auth.sso.trustedAuth', 'Bank-Grade Security Protocol')}
                 </Typography>
               </Box>
             </Box>

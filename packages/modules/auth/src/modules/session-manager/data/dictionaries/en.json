@@ -19,7 +19,11 @@
         "success": "Success",
         "unknown_device": "Unknown Device",
         "unknown_location": "Unknown Location",
-        "view_full_history": "View Full History"
+        "view_full_history": "View Full History",
+        "retry": "Retry",
+        "load_failed": "Unable to load activity. Please try again.",
+        "no_activity_desc": "Security and login events will appear here in chronological order.",
+        "refresh": "Refresh activity"
       },
       "api_tokens": "API Tokens",
       "back_to_security": "Back to Security & Account",
@@ -111,7 +115,40 @@
       "unknown_browser": "Unknown browser",
       "unknown_device": "Unknown device",
       "update_password": "Update Password",
-      "user": "User"
+      "user": "User",
+      "error_loading_sessions": "Failed to load sessions.",
+      "no_other_sessions": "No active sessions found.",
+      "deactivate_success": "Your account has been deactivated successfully.",
+      "deactivate_failed": "Failed to deactivate account.",
+      "deactivate_warning_desc": "Deactivating your account will disable your login access and terminate all active sessions. You can contact an administrator to reactivate.",
+      "confirm_deactivate_title": "Confirm Account Deactivation",
+      "confirm_deactivate_msg": "Are you sure you want to deactivate your account? All active sessions will be terminated and you will be signed out immediately.",
+      "session_revoked": "Session revoked successfully",
+      "revoke_failed": "Failed to revoke session",
+      "all_others_revoked": "All other sessions revoked successfully",
+      "revoke_all_failed": "Failed to revoke all sessions",
+      "active_sessions_title": "Active Sessions",
+      "active_sessions_desc": "View and manage the devices where you're currently signed in. If you see a device you don't recognize, revoke access immediately.",
+      "current_session": "Current Session",
+      "active_now": "Active Now",
+      "no_current_session": "Unable to identify current session.",
+      "other_active_sessions": "Other Active Sessions",
+      "revoke": "Revoke",
+      "no_other_sessions_desc": "Your account is not currently in use on any other devices.",
+      "logout_all_others": "Log out of all other sessions",
+      "security_tip": "Security Tip",
+      "security_tip_desc": "Did you find a session you don't recognize? Revoke it and change your password to secure your account.",
+      "confirm_revoke_title": "Revoke Session",
+      "confirm_revoke_all_title": "Revoke All Other Sessions",
+      "confirm_revoke_msg": "Are you sure you want to terminate this session ({{name}})? The device will be signed out immediately.",
+      "confirm_revoke_all_msg": "Are you sure you want to terminate all other active sessions? All other logged-in devices will need to sign in again.",
+      "revoke_all": "Revoke All",
+      "activity_timeline_title": "Activity Timeline",
+      "activity_timeline_desc": "Chronological feed of login events, security changes, and profile updates to help you monitor your account security.",
+      "delete_account": "Deactivate Account",
+      "deactivate_confirm": "I understand that my account will be deactivated immediately.",
+      "deactivate_submit_button": "Deactivate Account",
+      "verified": "Verified"
     },
     "active_sessions": {
       "button_end_all": "Sign Out All Other Sessions",
@@ -121,10 +158,22 @@
       "last_active": "Last active: {{date}}",
       "success_end_all": "All other sessions have been terminated",
       "success_end_session": "Session terminated successfully",
-      "title": "Active Sessions"
+      "title": "Active Sessions",
+      "error_end_session": "Failed to terminate session.",
+      "error_end_all": "Failed to terminate all sessions.",
+      "dialog_title_all": "Revoke All Other Sessions?",
+      "dialog_title_single": "Revoke Device Session?",
+      "dialog_desc_all": "This will sign out your account from all other browsers and mobile devices. You will remain signed in on this device.",
+      "dialog_desc_single": "Are you sure you want to terminate this session ({{name}})? The device will immediately lose access and must sign in again.",
+      "confirm_revoke_all": "Revoke All",
+      "confirm_revoke_single": "Revoke Session"
     },
     "admin": {
-      "viewSessionMetadata": "View session metadata"
+      "viewSessionMetadata": "View session metadata",
+      "investigateSessions": "Investigate Sessions",
+      "investigateDesc": "Detailed technical breakdown of all active security contexts for user {{name}}.",
+      "activeTokens": "Active Access Tokens",
+      "terminateAll": "Terminate All User Sessions"
     },
     "common": {
       "allRightsReserved": "All rights reserved.",
@@ -159,6 +208,7 @@
     "close": "Close",
     "error": "Error",
     "retry": "Retry",
-    "unknown_location": "Unknown Location"
+    "unknown_location": "Unknown Location",
+    "processing": "Deactivating..."
   }
 }

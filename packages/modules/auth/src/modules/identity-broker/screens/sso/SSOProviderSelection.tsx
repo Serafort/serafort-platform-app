@@ -369,7 +369,7 @@ export default function SSOProviderSelection() {
       <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Tooltip
           title={t(
-            'sso.whatIsSsoDesc',
+            'auth.sso.whatIsSsoDesc',
             'Single Sign-On allows you to access multiple applications with one set of credentials managed by your organization.',
           )}
         >

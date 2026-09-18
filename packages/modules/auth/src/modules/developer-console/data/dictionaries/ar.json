@@ -868,7 +868,12 @@
       "timestamp": "بدأ في",
       "unknown_error": "خطأ غير معروف",
       "user": "مستخدم",
-      "yes": "نعم"
+      "yes": "نعم",
+      "retry": "إعادة المحاولة",
+      "never": "أبدًا",
+      "cancel": "إلغاء",
+      "copied": "تم النسخ!",
+      "close": "إغلاق"
     },
     "deactivate": {
       "success_description": "تم تعطيل حسابك بنجاح.",

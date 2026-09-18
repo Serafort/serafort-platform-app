@@ -32,7 +32,11 @@
         "today_at": "Aujourd'hui à {{time}}",
         "token_details": "ID du jeton : tok_123... • Accès en lecture",
         "view_full_history": "Voir l'historique complet",
-        "yesterday_at": "Hier à {{time}}"
+        "yesterday_at": "Hier à {{time}}",
+        "retry": "Réessayer",
+        "load_failed": "Impossible de charger l'activité. Veuillez réessayer.",
+        "no_activity_desc": "Les événements de sécurité et de connexion s'afficheront ici par ordre chronologique.",
+        "refresh": "Actualiser l'activité"
       },
       "address": "Adresse",
       "api_tokens": "Jetons API",
@@ -261,7 +265,36 @@
       "verification_required": "Vérification requise",
       "verification_required_desc": "Pour votre sécurité, vous devrez vérifier votre nouvelle adresse e-mail. Un lien de vérification sera envoyé peu après la mise à jour.",
       "verified": "Vérifié",
-      "verify_identity": "Vérifiez votre identité"
+      "verify_identity": "Vérifiez votre identité",
+      "error_loading_sessions": "Échec du chargement des sessions.",
+      "no_other_sessions": "Aucune session active trouvée.",
+      "deactivate_success": "Votre compte a été désactivé avec succès.",
+      "deactivate_failed": "Échec de la désactivation du compte.",
+      "deactivate_warning_desc": "La désactivation de votre compte désactivera votre accès de connexion et mettra fin à toutes les sessions actives. Vous pouvez contacter un administrateur pour le réactiver.",
+      "confirm_deactivate_title": "Confirmer la désactivation du compte",
+      "confirm_deactivate_msg": "Voulez-vous vraiment désactiver votre compte ? Toutes les sessions actives seront terminées et vous serez déconnecté immédiatement.",
+      "session_revoked": "Session révoquée avec succès",
+      "revoke_failed": "Échec de la révocation de la session",
+      "all_others_revoked": "Toutes les autres sessions ont été révoquées avec succès",
+      "revoke_all_failed": "Échec de la révocation de toutes les sessions",
+      "active_sessions_title": "Sessions actives",
+      "active_sessions_desc": "Consultez et gérez les appareils sur lesquels vous êtes actuellement connecté. Si vous voyez un appareil que vous ne reconnaissez pas, révoquez son accès immédiatement.",
+      "current_session": "Session actuelle",
+      "active_now": "Actif maintenant",
+      "no_current_session": "Impossible d'identifier la session actuelle.",
+      "other_active_sessions": "Autres sessions actives",
+      "revoke": "Révoquer",
+      "no_other_sessions_desc": "Votre compte n'est actuellement utilisé sur aucun autre appareil.",
+      "logout_all_others": "Se déconnecter de toutes les autres sessions",
+      "security_tip": "Conseil de sécurité",
+      "security_tip_desc": "Avez-vous trouvé une session que vous ne reconnaissez pas ? Révoquez-la et changez votre mot de passe pour sécuriser votre compte.",
+      "confirm_revoke_title": "Révoquer la session",
+      "confirm_revoke_all_title": "Révoquer toutes les autres sessions",
+      "confirm_revoke_msg": "Voulez-vous vraiment mettre fin à cette session ({{name}}) ? L'appareil sera déconnecté immédiatement.",
+      "confirm_revoke_all_msg": "Voulez-vous vraiment mettre fin à toutes les autres sessions actives ? Tous les autres appareils connectés devront se reconnecter.",
+      "revoke_all": "Tout révoquer",
+      "activity_timeline_title": "Chronologie d'activité",
+      "activity_timeline_desc": "Flux chronologique des connexions, des modifications de sécurité et des mises à jour de profil pour vous aider à surveiller la sécurité de votre compte."
     },
     "account_verification": {
       "button_verify": "Vérifier et continuer",
@@ -278,7 +311,15 @@
       "last_active": "Dernière activité : {{date}}",
       "success_end_all": "Toutes les autres sessions ont été fermées",
       "success_end_session": "Session fermée avec succès",
-      "title": "Sessions actives"
+      "title": "Sessions actives",
+      "error_end_session": "Échec de la fermeture de la session.",
+      "error_end_all": "Échec de la fermeture de toutes les sessions.",
+      "dialog_title_all": "Révoquer toutes les autres sessions ?",
+      "dialog_title_single": "Révoquer la session de cet appareil ?",
+      "dialog_desc_all": "Cette action déconnectera votre compte de tous les autres navigateurs et appareils mobiles. Vous resterez connecté sur cet appareil.",
+      "dialog_desc_single": "Voulez-vous vraiment mettre fin à cette session ({{name}}) ? L'appareil perdra immédiatement l'accès et devra se reconnecter.",
+      "confirm_revoke_all": "Tout révoquer",
+      "confirm_revoke_single": "Révoquer la session"
     },
     "admin": {
       "accentColor": "Couleur d'accentuation",
@@ -673,7 +714,11 @@
       "view_provider": "Voir les détails du fournisseur pour {{provider}}",
       "workspaceSlug": "Slug de l'espace de travail",
       "workspaceSlugHelper": "Identifiant URL pour cet espace de travail",
-      "workspaceSlugLabel": "Slug de l'espace de travail"
+      "workspaceSlugLabel": "Slug de l'espace de travail",
+      "investigateSessions": "Examiner les sessions",
+      "investigateDesc": "Analyse technique détaillée de tous les contextes de sécurité actifs pour l'utilisateur {{name}}.",
+      "activeTokens": "Jetons d'accès actifs",
+      "terminateAll": "Mettre fin à toutes les sessions de l'utilisateur"
     },
     "browser": {
       "not_supported_title": "Mise à jour requise"
@@ -1345,7 +1390,8 @@
     "save": "Enregistrer",
     "save_changes": "Enregistrer les modifications",
     "success": "Succès",
-    "unknown_location": "Lieu inconnu"
+    "unknown_location": "Lieu inconnu",
+    "processing": "Désactivation en cours..."
   },
   "email_test": {
     "col_recipient": "Destinataire",

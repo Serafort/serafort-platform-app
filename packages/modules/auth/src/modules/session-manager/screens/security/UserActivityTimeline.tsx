@@ -107,8 +107,11 @@ const toActivityItems = (logs: AuditLogItem[]): ActivityItem[] =>
       category = 'error'
     }
 
-    const rawTime = log.created_at || (log as any).createdAt
+    const rawTime = log.createdAt || log.created_at
     const timestamp = rawTime ? new Date(rawTime) : new Date()
+    const targetType = log.targetType || log.target_type
+    const targetId = log.targetId || log.target_id
+    const ipAddress = log.ipAddress || log.ip_address
 
     return {
       id: String(log.id),
@@ -116,7 +119,7 @@ const toActivityItems = (logs: AuditLogItem[]): ActivityItem[] =>
       title: log.action
         ? log.action.charAt(0).toUpperCase() + log.action.slice(1).replace(/[._-]/g, ' ')
         : 'Activity Event',
-      description: `${log.resource_type || 'Account'}${log.resource_id ? ` #${log.resource_id}` : ''}${log.ip_address ? ` • IP: ${log.ip_address}` : ''}`,
+      description: `${targetType || 'Account'}${targetId ? ` #${targetId}` : ''}${ipAddress ? ` • IP: ${ipAddress}` : ''}`,
       date: Number.isNaN(timestamp.getTime()) ? String(rawTime) : timestamp.toLocaleDateString(),
       time: Number.isNaN(timestamp.getTime()) ? '' : timestamp.toLocaleTimeString(),
       icon,
