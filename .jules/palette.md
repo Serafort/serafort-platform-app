@@ -10,6 +10,10 @@
 **Learning:** Icon-only buttons (like `IconButton`) in complex components such as dropdowns (e.g., NotificationsDropdown, ShortcutsDropdown) frequently miss `aria-label`s, causing screen readers to read them out ambiguously or skip their context entirely.
 **Action:** When implementing or reviewing dropdowns or menus with icon-only controls, explicitly check and assign `aria-label`s, preferably using translation keys for internationalization support (e.g., `t('navigation.actionName')`).
 
+## 2024-03-20 - Icon Buttons Need ARIA Labels
+**Learning:** Icon buttons that use Tooltip for visual description still need explicit aria-labels for screen readers.
+**Action:** Always add aria-label to IconButton components, even when wrapped in a Tooltip. Use the translation system if possible, or literal strings if none available.
+
 ## 2024-11-20 - Interpolating Context into ARIA Labels in Dynamic Lists
 **Learning:** When rendering dynamic lists with actionable icon buttons (e.g., Delete), screen readers often encounter repetitive and ambiguous labels like "Delete". Without context, users don't know what is being deleted.
 **Action:** Always interpolate the unique identifier or name of the item (e.g., `aria-label={'Delete ' + item.name}`) to provide explicit context to screen reader users.
