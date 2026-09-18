@@ -1,104 +1,56 @@
-import type { Theme } from "@mui/material/styles";
+import { alpha, type Theme } from "@mui/material/styles";
+
+const PALETTE_COLORS = [
+  "primary",
+  "secondary",
+  "error",
+  "warning",
+  "info",
+  "success",
+] as const;
 
 const chip: Theme["components"] = {
   MuiChip: {
     variants: [
-      {
-        props: { variant: "filled", color: "primary" },
-        style: {
-          backgroundColor: "var(--mui-palette-primary-lightOpacity)",
-          color: "var(--mui-palette-primary-main)",
-          "&.Mui-focusVisible": {
-            backgroundColor: "var(--mui-palette-primary-mainOpacity)",
-          },
-          "& .MuiChip-deleteIcon": {
-            color: "rgb(var(--mui-palette-primary-mainChannel) / 0.7)",
-            "&:hover": {
-              color: "var(--mui-palette-primary-main)",
+      ...PALETTE_COLORS.map((color) => ({
+        props: { variant: "filled" as const, color },
+        style: ({ theme }: { theme: unknown }) => {
+          const swatch = (theme as Theme).palette[color];
+          return {
+            backgroundColor: `var(--mui-palette-${color}-lightOpacity, ${alpha(swatch.main, 0.12)})`,
+            color: `var(--mui-palette-${color}-main, ${swatch.main})`,
+            "&.Mui-focusVisible": {
+              backgroundColor: `var(--mui-palette-${color}-mainOpacity, ${alpha(swatch.main, 0.24)})`,
             },
-          },
-        },
-      },
-      {
-        props: { variant: "outlined", color: "secondary" },
-        style: {
-          backgroundColor: "var(--mui-palette-secondary-lightOpacity)",
-          color: "var(--mui-palette-secondary-main)",
-          "&.Mui-focusVisible": {
-            backgroundColor: "var(--mui-palette-secondary-mainOpacity)",
-          },
-          "& .MuiChip-deleteIcon": {
-            color: "rgb(var(--mui-palette-secondary-mainChannel) / 0.7)",
-            "&:hover": {
-              color: "var(--mui-palette-secondary-main)",
+            "& .MuiChip-deleteIcon": {
+              color: alpha(swatch.main, 0.7),
+              "&:hover": {
+                color: swatch.main,
+              },
             },
-          },
+          };
         },
-      },
-      {
-        props: { variant: "filled", color: "error" },
-        style: {
-          backgroundColor: "var(--mui-palette-error-lightOpacity)",
-          color: "var(--mui-palette-error-main)",
-          "&.Mui-focusVisible": {
-            backgroundColor: "var(--mui-palette-error-mainOpacity)",
-          },
-          "& .MuiChip-deleteIcon": {
-            color: "rgb(var(--mui-palette-error-mainChannel) / 0.7)",
-            "&:hover": {
-              color: "var(--mui-palette-error-main)",
+      })),
+      ...PALETTE_COLORS.map((color) => ({
+        props: { variant: "outlined" as const, color },
+        style: ({ theme }: { theme: unknown }) => {
+          const swatch = (theme as Theme).palette[color];
+          return {
+            borderColor: `var(--mui-palette-${color}-main, ${swatch.main})`,
+            color: `var(--mui-palette-${color}-main, ${swatch.main})`,
+            backgroundColor: "transparent",
+            "&.Mui-focusVisible": {
+              backgroundColor: `var(--mui-palette-${color}-lighterOpacity, ${alpha(swatch.main, 0.08)})`,
             },
-          },
-        },
-      },
-      {
-        props: { variant: "outlined", color: "warning" },
-        style: {
-          backgroundColor: "var(--mui-palette-warning-lightOpacity)",
-          color: "var(--mui-palette-warning-main)",
-          "&.Mui-focusVisible": {
-            backgroundColor: "var(--mui-palette-warning-mainOpacity)",
-          },
-          "& .MuiChip-deleteIcon": {
-            color: "rgb(var(--mui-palette-warning-mainChannel) / 0.7)",
-            "&:hover": {
-              color: "var(--mui-palette-warning-main)",
+            "& .MuiChip-deleteIcon": {
+              color: alpha(swatch.main, 0.7),
+              "&:hover": {
+                color: swatch.main,
+              },
             },
-          },
+          };
         },
-      },
-      {
-        props: { variant: "outlined", color: "info" },
-        style: {
-          backgroundColor: "var(--mui-palette-info-lightOpacity)",
-          color: "var(--mui-palette-info-main)",
-          "&.Mui-focusVisible": {
-            backgroundColor: "var(--mui-palette-info-mainOpacity)",
-          },
-          "& .MuiChip-deleteIcon": {
-            color: "rgb(var(--mui-palette-info-mainChannel) / 0.7)",
-            "&:hover": {
-              color: "var(--mui-palette-info-main)",
-            },
-          },
-        },
-      },
-      {
-        props: { variant: "filled", color: "success" },
-        style: {
-          backgroundColor: "var(--mui-palette-success-lightOpacity)",
-          color: "var(--mui-palette-success-main)",
-          "&.Mui-focusVisible": {
-            backgroundColor: "var(--mui-palette-success-mainOpacity)",
-          },
-          "& .MuiChip-deleteIcon": {
-            color: "rgb(var(--mui-palette-success-mainChannel) / 0.7)",
-            "&:hover": {
-              color: "var(--mui-palette-success-main)",
-            },
-          },
-        },
-      },
+      })),
     ],
     styleOverrides: {
       root: ({ ownerState, theme }) => ({

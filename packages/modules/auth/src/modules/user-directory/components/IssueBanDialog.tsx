@@ -94,7 +94,7 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
           </DialogTitle>
           <DialogContent dividers>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}>
-              <Alert severity='warning' sx={{ borderRadius: 2 }}>
+              <Alert severity='warning' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
                 {t(
                   'auth.admin.banWarning',
                   'Suspending an account revokes all active sessions, API keys, and access tokens.',

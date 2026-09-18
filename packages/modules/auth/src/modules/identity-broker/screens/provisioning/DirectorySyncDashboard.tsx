@@ -46,6 +46,7 @@ import Hub from '@mui/icons-material/Hub'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { motion } from 'framer-motion'
 import {
   useProvisioningConnectors,
   useSyncProvisioningConnector,
@@ -53,15 +54,16 @@ import {
   useProvisioningConnectorLogs,
 } from '@auth/authorization-engine/hooks/useAdminQuery'
 import type { Connector, ConnectorLog } from '@auth/authorization-engine/services/adminService'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 import logger from '@idaas/authentication-core/utils/logger'
-import { Path } from '@cap/module-auth/routes/path'
+import Path from '../path'
 
-// â”€â”€â”€ Skeleton Loader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Skeleton Loader ──────────────────────────────────────────────────
 function ConnectorSkeleton() {
   return (
     <Card
       sx={{
-        borderRadius: 4,
+        borderRadius: 'var(--sf-radius-lg, 16px)',
         border: '1px solid',
         borderColor: 'divider',
         boxShadow: 'none',
@@ -69,7 +71,7 @@ function ConnectorSkeleton() {
     >
       <CardContent sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 3 }}>
-          <Skeleton variant='rounded' width={48} height={48} sx={{ borderRadius: 2 }} />
+          <Skeleton variant='rounded' width={48} height={48} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
           <Box sx={{ flex: 1 }}>
             <Skeleton width='60%' height={24} />
             <Skeleton width='30%' height={16} />
@@ -91,7 +93,7 @@ function ConnectorSkeleton() {
   )
 }
 
-// â”€â”€â”€ Status Chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Status Chip ──────────────────────────────────────────────────────
 function StatusChip({ status }: { status: string }) {
   const { t } = useTranslation('auth')
   const map: Record<
@@ -99,17 +101,17 @@ function StatusChip({ status }: { status: string }) {
     { label: string; color: 'success' | 'error' | 'warning' | 'default'; icon: React.ReactElement }
   > = {
     active: {
-      label: t('admin.provisioning.scim.status_active'),
+      label: t('auth.admin.provisioning.scim.status_active'),
       color: 'success',
       icon: <CheckCircle sx={{ fontSize: 14 }} />,
     },
     error: {
-      label: t('common.error') || 'ERROR',
+      label: t('auth.common.error') || 'ERROR',
       color: 'error',
       icon: <ErrorIcon sx={{ fontSize: 14 }} />,
     },
     inactive: {
-      label: t('admin.provisioning.scim.status_inactive'),
+      label: t('auth.admin.provisioning.scim.status_inactive'),
       color: 'default',
       icon: <CloudQueue sx={{ fontSize: 14 }} />,
     },
@@ -122,12 +124,12 @@ function StatusChip({ status }: { status: string }) {
       color={cfg.color}
       variant='outlined'
       icon={cfg.icon}
-      sx={{ fontWeight: 800, height: 20, borderRadius: 1.5 }}
+      sx={{ fontWeight: 800, height: 22, borderRadius: 'var(--sf-radius-xs, 4px)' }}
     />
   )
 }
 
-// â”€â”€â”€ Sync Logs Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Sync Logs Dialog ─────────────────────────────────────────────────
 function SyncLogsDialog({
   open,
   onClose,
@@ -149,18 +151,24 @@ function SyncLogsDialog({
       onClose={onClose}
       maxWidth='md'
       fullWidth
-      PaperProps={{ sx: { borderRadius: 4 } }}
+      slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } } }}
     >
       <DialogTitle
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 3 }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <History color='primary' sx={{ fontSize: 24 }} />
-          <Typography variant='h6' sx={{ fontWeight: 900 }}>
-            {t('admin.provisioning.dashboard.dialogs.logs.title')} &ldquo;{connectorName}&rdquo;
+          <Typography variant='h6' sx={{ fontWeight: 800 }}>
+            {t('auth.admin.provisioning.dashboard.dialogs.logs.title')} &ldquo;{connectorName}
+            &rdquo;
           </Typography>
         </Box>
-        <IconButton aria-label='Close sync logs' onClick={onClose} size='small'>
+        <IconButton
+          aria-label='Close sync logs'
+          onClick={onClose}
+          size='small'
+          sx={{ minWidth: 44, minHeight: 44 }}
+        >
           <Close />
         </IconButton>
       </DialogTitle>
@@ -171,8 +179,8 @@ function SyncLogsDialog({
           </Box>
         ) : logs.length === 0 ? (
           <Box sx={{ p: 4 }}>
-            <Alert severity='info' sx={{ borderRadius: 3, fontWeight: 600 }}>
-              {t('admin.provisioning.dashboard.dialogs.logs.no_logs')}
+            <Alert severity='info' sx={{ borderRadius: 'var(--sf-radius-md, 10px)', fontWeight: 600 }}>
+              {t('auth.admin.provisioning.dashboard.dialogs.logs.no_logs')}
             </Alert>
           </Box>
         ) : (
@@ -180,17 +188,17 @@ function SyncLogsDialog({
             <Table size='small'>
               <TableHead sx={{ bgcolor: (theme) => alpha(theme.palette.action.hover, 0.6) }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900, py: 2 }}>
-                    {t('admin.provisioning.logs.table.event').toUpperCase()}
+                  <TableCell sx={{ fontWeight: 800, py: 2 }}>
+                    {t('auth.admin.provisioning.logs.table.event').toUpperCase()}
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>
-                    {t('admin.provisioning.logs.table.target').toUpperCase()}
+                  <TableCell sx={{ fontWeight: 800 }}>
+                    {t('auth.admin.provisioning.logs.table.target').toUpperCase()}
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>
-                    {t('admin.provisioning.logs.table.status').toUpperCase()}
+                  <TableCell sx={{ fontWeight: 800 }}>
+                    {t('auth.admin.provisioning.logs.table.status').toUpperCase()}
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>
-                    {t('admin.provisioning.logs.table.timestamp').toUpperCase()}
+                  <TableCell sx={{ fontWeight: 800 }}>
+                    {t('auth.admin.provisioning.logs.table.timestamp').toUpperCase()}
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -207,15 +215,13 @@ function SyncLogsDialog({
                         variant='body2'
                         sx={{ fontWeight: 800, fontFamily: 'monospace', fontSize: 13 }}
                       >
-                        {log.details || 'â€”'}
+                        {log.details || '—'}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Chip
+                      <AdminStatusBadge
+                        tone={log.status === 'success' ? 'success' : 'error'}
                         label={log.status.toUpperCase()}
-                        size='small'
-                        color={log.status === 'success' ? 'success' : 'error'}
-                        sx={{ fontWeight: 900, height: 20, borderRadius: 1 }}
                       />
                     </TableCell>
                     <TableCell>
@@ -234,15 +240,24 @@ function SyncLogsDialog({
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} sx={{ textTransform: 'none', fontWeight: 800 }}>
-          {t('admin.provisioning.dashboard.dialogs.logs.close')}
+        <Button
+          onClick={onClose}
+          sx={{
+            minHeight: 44,
+            px: 3,
+            textTransform: 'none',
+            fontWeight: 800,
+            borderRadius: 'var(--sf-radius-md, 8px)',
+          }}
+        >
+          {t('auth.admin.provisioning.dashboard.dialogs.logs.close')}
         </Button>
       </DialogActions>
     </Dialog>
   )
 }
 
-// â”€â”€â”€ Add Connector Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Add Connector Dialog ─────────────────────────────────────────────
 function AddConnectorDialog({
   open,
   onClose,
@@ -259,7 +274,7 @@ function AddConnectorDialog({
 
   const createMutation = useCreateProvisioningConnector({
     onSuccess: () => {
-      toast.success(t('admin.provisioning.dashboard.dialogs.add.success'))
+      toast.success(t('auth.admin.provisioning.dashboard.dialogs.add.success'))
       setName('')
       setType('azure_ad')
       setOrgId('')
@@ -268,7 +283,7 @@ function AddConnectorDialog({
     },
     onError: (error: unknown) => {
       logger.error('Failed to create connector', { error })
-      toast.error(t('admin.provisioning.dashboard.dialogs.add.error'))
+      toast.error(t('auth.admin.provisioning.dashboard.dialogs.add.error'))
     },
   })
 
@@ -288,81 +303,95 @@ function AddConnectorDialog({
       onClose={onClose}
       maxWidth='sm'
       fullWidth
-      PaperProps={{ sx: { borderRadius: 4 } }}
+      slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } } }}
     >
       <DialogTitle
         sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 3 }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Add color='primary' sx={{ fontSize: 24 }} />
-          <Typography variant='h6' sx={{ fontWeight: 900 }}>
-            {t('admin.provisioning.dashboard.dialogs.add.title')}
+          <Typography variant='h6' sx={{ fontWeight: 800 }}>
+            {t('auth.admin.provisioning.dashboard.dialogs.add.title')}
           </Typography>
         </Box>
-        <IconButton aria-label='Close add connector' onClick={onClose} size='small'>
+        <IconButton
+          aria-label='Close add connector'
+          onClick={onClose}
+          size='small'
+          sx={{ minWidth: 44, minHeight: 44 }}
+        >
           <Close />
         </IconButton>
       </DialogTitle>
       <DialogContent dividers sx={{ p: 3 }}>
         <Stack spacing={3.5} sx={{ mt: 1 }}>
           <TextField
-            label={t('admin.provisioning.dashboard.dialogs.add.name_label')}
+            label={t('auth.admin.provisioning.dashboard.dialogs.add.name_label')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             fullWidth
-            placeholder={t('admin.provisioning.dashboard.dialogs.add.name_placeholder')}
+            placeholder={t('auth.admin.provisioning.dashboard.dialogs.add.name_placeholder')}
             required
             slotProps={{
-              input: { sx: { borderRadius: 3, fontWeight: 600 } },
+              input: { sx: { borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600 } },
               inputLabel: { sx: { fontWeight: 700 } },
             }}
           />
           <FormControl fullWidth>
             <InputLabel sx={{ fontWeight: 700 }}>
-              {t('admin.provisioning.dashboard.dialogs.add.type_label')}
+              {t('auth.admin.provisioning.dashboard.dialogs.add.type_label')}
             </InputLabel>
             <Select
               value={type}
-              label={t('admin.provisioning.dashboard.dialogs.add.type_label')}
+              label={t('auth.admin.provisioning.dashboard.dialogs.add.type_label')}
               onChange={(e) => setType(e.target.value as Connector['type'])}
-              sx={{ borderRadius: 3, fontWeight: 700 }}
+              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}
             >
               <MenuItem value='azure_ad' sx={{ fontWeight: 700 }}>
-                {t('admin.provisioning.dashboard.dialogs.add.types.azure')}
+                {t('auth.admin.provisioning.dashboard.dialogs.add.types.azure')}
               </MenuItem>
               <MenuItem value='okta' sx={{ fontWeight: 700 }}>
-                {t('admin.provisioning.dashboard.dialogs.add.types.okta')}
+                {t('auth.admin.provisioning.dashboard.dialogs.add.types.okta')}
               </MenuItem>
               <MenuItem value='google' sx={{ fontWeight: 700 }}>
-                {t('admin.provisioning.dashboard.dialogs.add.types.google')}
+                {t('auth.admin.provisioning.dashboard.dialogs.add.types.google')}
               </MenuItem>
               <MenuItem value='ldap' sx={{ fontWeight: 700 }}>
-                {t('admin.provisioning.dashboard.dialogs.add.types.ldap')}
+                {t('auth.admin.provisioning.dashboard.dialogs.add.types.ldap')}
               </MenuItem>
               <MenuItem value='scim' sx={{ fontWeight: 700 }}>
-                {t('admin.provisioning.dashboard.dialogs.add.types.scim')}
+                {t('auth.admin.provisioning.dashboard.dialogs.add.types.scim')}
               </MenuItem>
             </Select>
           </FormControl>
           <TextField
-            label={t('admin.provisioning.dashboard.dialogs.add.org_label')}
+            label={t('auth.admin.provisioning.dashboard.dialogs.add.org_label')}
             value={orgId}
             onChange={(e) => setOrgId(e.target.value)}
             fullWidth
             type='number'
-            placeholder={t('admin.provisioning.dashboard.dialogs.add.org_placeholder')}
+            placeholder={t('auth.admin.provisioning.dashboard.dialogs.add.org_placeholder')}
             required
-            helperText={t('admin.provisioning.dashboard.dialogs.add.org_helper')}
+            helperText={t('auth.admin.provisioning.dashboard.dialogs.add.org_helper')}
             slotProps={{
-              input: { sx: { borderRadius: 3, fontWeight: 600 } },
+              input: { sx: { borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600 } },
               inputLabel: { sx: { fontWeight: 700 } },
             }}
           />
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 2.5 }}>
-        <Button onClick={onClose} sx={{ textTransform: 'none', fontWeight: 800 }}>
-          {t('admin.provisioning.dashboard.dialogs.add.cancel')}
+        <Button
+          onClick={onClose}
+          sx={{
+            minHeight: 48,
+            px: 3,
+            textTransform: 'none',
+            fontWeight: 800,
+            borderRadius: 'var(--sf-radius-md, 8px)',
+          }}
+        >
+          {t('auth.admin.provisioning.dashboard.dialogs.add.cancel')}
         </Button>
         <Button
           variant='contained'
@@ -371,23 +400,24 @@ function AddConnectorDialog({
           sx={{
             bgcolor: 'primary.main',
             boxShadow: (theme) => `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
-            fontWeight: 900,
+            fontWeight: 800,
             textTransform: 'none',
             px: 4,
             height: 48,
-            borderRadius: 3,
+            minHeight: 48,
+            borderRadius: 'var(--sf-radius-md, 8px)',
           }}
         >
           {createMutation.isPending
-            ? t('admin.provisioning.dashboard.dialogs.add.submitting')
-            : t('admin.provisioning.dashboard.dialogs.add.submit')}
+            ? t('auth.admin.provisioning.dashboard.dialogs.add.submitting')
+            : t('auth.admin.provisioning.dashboard.dialogs.add.submit')}
         </Button>
       </DialogActions>
     </Dialog>
   )
 }
 
-// â”€â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Main Component ───────────────────────────────────────────────────
 export default function DirectorySyncDashboard() {
   const navigate = useNavigate()
   const { t } = useTranslation('auth')
@@ -399,13 +429,13 @@ export default function DirectorySyncDashboard() {
 
   const syncMutation = useSyncProvisioningConnector({
     onSuccess: () => {
-      toast.success(t('admin.provisioning.dashboard.messages.sync_started'))
+      toast.success(t('auth.admin.provisioning.dashboard.messages.sync_started'))
       setSyncingId(null)
       refetch()
     },
     onError: (error: unknown) => {
       logger.error('Directory sync failed', { error })
-      toast.error(t('admin.provisioning.dashboard.messages.sync_failed'))
+      toast.error(t('auth.admin.provisioning.dashboard.messages.sync_failed'))
       setSyncingId(null)
     },
   })
@@ -420,7 +450,7 @@ export default function DirectorySyncDashboard() {
     syncMutation.mutate(id)
   }
 
-  // â”€â”€ Derived stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Derived stats ─────────────────────────────────────────────────
   const statsValues = useMemo(() => {
     const activeCount = connectors.filter((c: Connector) => c.status === 'active').length
     const totalSynced = connectors.reduce(
@@ -437,12 +467,18 @@ export default function DirectorySyncDashboard() {
   }, [connectors])
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}
+    >
       <style>
         {`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}
       </style>
 
-      {/* â”€â”€ Dialogs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Dialogs ──────────────────────────────────────────────────── */}
       <AddConnectorDialog
         open={addOpen}
         onClose={() => setAddOpen(false)}
@@ -460,7 +496,7 @@ export default function DirectorySyncDashboard() {
         />
       )}
 
-      {/* â”€â”€ Pattern 1: Page Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Pattern 1: Page Header ───────────────────────────────────── */}
       <Box
         sx={{
           mb: 5,
@@ -474,22 +510,30 @@ export default function DirectorySyncDashboard() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
           <Avatar
             sx={{
-              width: 72,
-              height: 72,
-              borderRadius: '22px',
+              width: 64,
+              height: 64,
+              borderRadius: 'var(--sf-radius-lg, 24px)',
               bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12),
               color: 'primary.main',
               boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.primary.main, 0.18)}`,
             }}
           >
-            <CloudDone sx={{ fontSize: 34 }} />
+            <CloudDone sx={{ fontSize: 32 }} />
           </Avatar>
           <Box>
-            <Typography variant='h4' sx={{ fontWeight: 900, mb: 0.5, letterSpacing: '-0.03em' }}>
-              {t('admin.provisioning.dashboard.title')}
+            <Typography
+              variant='h4'
+              sx={{
+                fontWeight: 800,
+                mb: 0.5,
+                letterSpacing: '-0.027em',
+                fontFamily: 'Outfit, sans-serif',
+              }}
+            >
+              {t('auth.admin.provisioning.dashboard.title')}
             </Typography>
             <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
-              {t('admin.provisioning.dashboard.subtitle')}
+              {t('auth.admin.provisioning.dashboard.subtitle')}
             </Typography>
           </Box>
         </Box>
@@ -497,11 +541,12 @@ export default function DirectorySyncDashboard() {
           <Button
             variant='outlined'
             startIcon={<History />}
-            onClick={() => navigate(Path.admin.syncLogs)}
+            onClick={() => navigate(Path.syncLogs)}
             sx={{
               height: 48,
+              minHeight: 48,
               px: 3.5,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               fontWeight: 800,
               textTransform: 'none',
               borderColor: 'divider',
@@ -513,7 +558,7 @@ export default function DirectorySyncDashboard() {
               flex: { xs: 1, sm: 'none' },
             }}
           >
-            {t('admin.provisioning.dashboard.sync_logs')}
+            {t('auth.admin.provisioning.dashboard.sync_logs')}
           </Button>
           <Button
             variant='contained'
@@ -524,14 +569,15 @@ export default function DirectorySyncDashboard() {
               boxShadow: (theme) => `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
               '&:hover': { bgcolor: 'primary.dark' },
               height: 48,
+              minHeight: 48,
               px: 4,
-              borderRadius: 3,
-              fontWeight: 900,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              fontWeight: 800,
               textTransform: 'none',
               flex: { xs: 1, sm: 'none' },
             }}
           >
-            {t('admin.provisioning.dashboard.add_connector')}
+            {t('auth.admin.provisioning.dashboard.add_connector')}
           </Button>
         </Stack>
       </Box>
@@ -539,19 +585,19 @@ export default function DirectorySyncDashboard() {
       <Grid container spacing={3} sx={{ mb: 6 }}>
         {[
           {
-            label: t('admin.provisioning.dashboard.stats.total_users'),
+            label: t('auth.admin.provisioning.dashboard.stats.total_users'),
             value: statsValues.totalSynced,
             icon: <CheckCircle />,
             color: 'success' as const,
           },
           {
-            label: t('admin.provisioning.dashboard.stats.active_connectors'),
+            label: t('auth.admin.provisioning.dashboard.stats.active_connectors'),
             value: statsValues.activeRatio,
             icon: <Sync />,
             color: 'primary' as const,
           },
           {
-            label: t('admin.provisioning.dashboard.stats.success_rate'),
+            label: t('auth.admin.provisioning.dashboard.stats.success_rate'),
             value: statsValues.successRate,
             icon: <Security />,
             color: 'info' as const,
@@ -561,7 +607,7 @@ export default function DirectorySyncDashboard() {
             <Card
               sx={{
                 p: 3,
-                borderRadius: 4,
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
@@ -576,7 +622,7 @@ export default function DirectorySyncDashboard() {
                   color: `${stat.color}.main`,
                   width: 60,
                   height: 60,
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-md, 12px)',
                 }}
               >
                 {stat.icon}
@@ -595,7 +641,7 @@ export default function DirectorySyncDashboard() {
                 >
                   {stat.label}
                 </Typography>
-                <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.01em' }}>
+                <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.01em' }}>
                   {isLoading ? <Skeleton width={60} /> : stat.value}
                 </Typography>
               </Box>
@@ -614,7 +660,7 @@ export default function DirectorySyncDashboard() {
             letterSpacing: '0.05em',
           }}
         >
-          {t('admin.provisioning.connectors.title')}
+          {t('auth.admin.provisioning.connectors.title')}
         </Typography>
       </Box>
 
@@ -630,8 +676,8 @@ export default function DirectorySyncDashboard() {
           </>
         ) : connectors.length === 0 ? (
           <Grid size={{ xs: 12 }}>
-            <Alert severity='info' sx={{ borderRadius: 3, p: 2, fontWeight: 600 }}>
-              {t('admin.provisioning.dashboard.empty')}
+            <Alert severity='info' sx={{ borderRadius: 'var(--sf-radius-md, 10px)', p: 2, fontWeight: 600 }}>
+              {t('auth.admin.provisioning.dashboard.empty')}
             </Alert>
           </Grid>
         ) : (
@@ -641,7 +687,7 @@ export default function DirectorySyncDashboard() {
               <Grid key={conn.id} size={{ xs: 12, md: 6 }}>
                 <Card
                   sx={{
-                    borderRadius: 5,
+                    borderRadius: 'var(--sf-radius-lg, 16px)',
                     border: '1px solid',
                     borderColor: 'divider',
                     boxShadow: 'none',
@@ -661,7 +707,7 @@ export default function DirectorySyncDashboard() {
                           sx={{
                             width: 52,
                             height: 52,
-                            borderRadius: 2.5,
+                            borderRadius: 'var(--sf-radius-md, 10px)',
                             bgcolor: (theme) => alpha(theme.palette.action.hover, 0.7),
                             color: 'primary.main',
                             border: '1px solid',
@@ -671,7 +717,7 @@ export default function DirectorySyncDashboard() {
                           <Hub sx={{ fontSize: 26 }} />
                         </Avatar>
                         <Box>
-                          <Typography variant='h6' sx={{ fontWeight: 900, mb: 0.25 }}>
+                          <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.25 }}>
                             {conn.name}
                           </Typography>
                           <Typography
@@ -694,9 +740,9 @@ export default function DirectorySyncDashboard() {
                         sx={{
                           border: '1px solid',
                           borderColor: 'divider',
-                          borderRadius: 2.5,
-                          width: 48,
-                          height: 48,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                          width: 44,
+                          height: 44,
                           bgcolor: (theme) => alpha(theme.palette.action.hover, 0.4),
                         }}
                       >
@@ -726,7 +772,7 @@ export default function DirectorySyncDashboard() {
                           letterSpacing: '0.075em',
                         }}
                       >
-                        {t('admin.provisioning.dashboard.connector_card.status_label')}
+                        {t('auth.admin.provisioning.dashboard.connector_card.status_label')}
                       </Typography>
                       <StatusChip status={conn.status} />
                     </Box>
@@ -737,7 +783,7 @@ export default function DirectorySyncDashboard() {
                           variant='outlined'
                           sx={{
                             p: 2,
-                            borderRadius: 3,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             bgcolor: (theme) => alpha(theme.palette.action.hover, 0.3),
                             borderStyle: 'dashed',
                           }}
@@ -753,12 +799,12 @@ export default function DirectorySyncDashboard() {
                               letterSpacing: '0.05em',
                             }}
                           >
-                            {t('admin.provisioning.dashboard.connector_card.last_sync')}
+                            {t('auth.admin.provisioning.dashboard.connector_card.last_sync')}
                           </Typography>
                           <Typography variant='body2' sx={{ fontWeight: 800, fontSize: 13 }}>
                             {conn.last_sync_at
                               ? new Date(conn.last_sync_at).toLocaleDateString()
-                              : t('admin.provisioning.dashboard.connector_card.never')}
+                              : t('auth.admin.provisioning.dashboard.connector_card.never')}
                           </Typography>
                         </Card>
                       </Grid>
@@ -767,7 +813,7 @@ export default function DirectorySyncDashboard() {
                           variant='outlined'
                           sx={{
                             p: 2,
-                            borderRadius: 3,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             bgcolor: (theme) => alpha(theme.palette.action.hover, 0.3),
                             borderStyle: 'dashed',
                           }}
@@ -783,9 +829,9 @@ export default function DirectorySyncDashboard() {
                               letterSpacing: '0.05em',
                             }}
                           >
-                            {t('admin.provisioning.dashboard.connector_card.sync_count')}
+                            {t('auth.admin.provisioning.dashboard.connector_card.sync_count')}
                           </Typography>
-                          <Typography variant='h6' sx={{ fontWeight: 900, lineHeight: 1.2 }}>
+                          <Typography variant='h6' sx={{ fontWeight: 800, lineHeight: 1.2 }}>
                             {conn.sync_count ?? 0}
                           </Typography>
                         </Card>
@@ -813,9 +859,9 @@ export default function DirectorySyncDashboard() {
                           sx={{ fontWeight: 800, color: 'text.secondary' }}
                         >
                           {conn.status === 'active'
-                            ? t('admin.provisioning.dashboard.connector_card.healthy')
+                            ? t('auth.admin.provisioning.dashboard.connector_card.healthy')
                             : conn.error_message ||
-                              t('admin.provisioning.dashboard.connector_card.standby') ||
+                              t('auth.admin.provisioning.dashboard.connector_card.standby') ||
                               'STANDBY'}
                         </Typography>
                       </Box>
@@ -823,11 +869,17 @@ export default function DirectorySyncDashboard() {
                         size='small'
                         endIcon={<ArrowForward />}
                         onClick={() =>
-                          navigate(Path.admin.connectorDetail.replace(':id', String(conn.id)))
+                          navigate(Path.connectorDetail.replace(':id', String(conn.id)))
                         }
-                        sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 2 }}
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 800,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                          minHeight: 44,
+                          px: 2,
+                        }}
                       >
-                        {t('admin.provisioning.dashboard.connector_card.manage')}
+                        {t('auth.admin.provisioning.dashboard.connector_card.manage')}
                       </Button>
                     </Box>
                   </CardContent>
@@ -841,7 +893,7 @@ export default function DirectorySyncDashboard() {
           <Card
             sx={{
               p: 4,
-              borderRadius: 5,
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
@@ -858,9 +910,9 @@ export default function DirectorySyncDashboard() {
                 sx={{
                   bgcolor: (theme) => alpha(theme.palette.secondary.main, 0.12),
                   color: 'secondary.main',
-                  width: 68,
-                  height: 68,
-                  borderRadius: 3.5,
+                  width: 64,
+                  height: 64,
+                  borderRadius: 'var(--sf-radius-md, 14px)',
                   boxShadow: (theme) => `0 8px 20px ${alpha(theme.palette.secondary.main, 0.15)}`,
                 }}
               >
@@ -869,35 +921,36 @@ export default function DirectorySyncDashboard() {
               <Box>
                 <Typography
                   variant='h6'
-                  sx={{ fontWeight: 900, mb: 0.5, letterSpacing: '-0.01em' }}
+                  sx={{ fontWeight: 800, mb: 0.5, letterSpacing: '-0.01em' }}
                 >
-                  {t('admin.provisioning.dashboard.scim_promo.title')}
+                  {t('auth.admin.provisioning.dashboard.scim_promo.title')}
                 </Typography>
                 <Typography
                   variant='body2'
                   color='text.secondary'
                   sx={{ maxWidth: 600, fontWeight: 500, lineHeight: 1.6 }}
                 >
-                  {t('admin.provisioning.dashboard.scim_promo.subtitle')}
+                  {t('auth.admin.provisioning.dashboard.scim_promo.subtitle')}
                 </Typography>
               </Box>
             </Box>
             <Button
               variant='contained'
               color='secondary'
-              onClick={() => navigate(Path.admin.scim)}
+              onClick={() => navigate(Path.scim)}
               sx={{
-                height: 52,
-                px: 5,
-                borderRadius: 3,
-                fontWeight: 900,
+                height: 48,
+                minHeight: 48,
+                px: 4,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                fontWeight: 800,
                 textTransform: 'none',
                 boxShadow: (theme) => `0 8px 24px ${alpha(theme.palette.secondary.main, 0.25)}`,
                 whiteSpace: 'nowrap',
-                minWidth: 200,
+                minWidth: 180,
               }}
             >
-              {t('admin.provisioning.dashboard.scim_promo.configure')}
+              {t('auth.admin.provisioning.dashboard.scim_promo.configure')}
             </Button>
           </Card>
         </Grid>

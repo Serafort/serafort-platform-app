@@ -81,7 +81,7 @@ export const LockedStep: React.FC<LockedStepProps> = ({
         severity='error'
         sx={{
           textAlign: 'left',
-          borderRadius: '12px',
+          borderRadius: 'var(--sf-radius-lg, 12px)',
           bgcolor: (theme) => alpha(theme.palette.error.main, 0.1),
           color: 'error.main',
         }}
@@ -104,14 +104,24 @@ export const LockedStep: React.FC<LockedStepProps> = ({
           variant='outlined'
           color='primary'
           onClick={handleOpenAppeal}
-          sx={{ borderRadius: '12px', textTransform: 'none', fontWeight: 700 }}
+          sx={{
+            borderRadius: 'var(--sf-radius-lg, 12px)',
+            textTransform: 'none',
+            fontWeight: 700,
+            minHeight: 48,
+          }}
         >
           {t('auth.lockout.appealButton', 'Appeal Account Lock')}
         </Button>
         <Button
           variant='text'
           onClick={onBackToLogin}
-          sx={{ borderRadius: '12px', textTransform: 'none', fontWeight: 700 }}
+          sx={{
+            borderRadius: 'var(--sf-radius-lg, 12px)',
+            textTransform: 'none',
+            fontWeight: 700,
+            minHeight: 48,
+          }}
         >
           {t('auth.common.backToLogin', 'Back to sign in')}
         </Button>
@@ -122,7 +132,7 @@ export const LockedStep: React.FC<LockedStepProps> = ({
         onClose={() => !appealMutation.isPending && setOpenAppeal(false)}
         maxWidth='sm'
         fullWidth
-        PaperProps={{ sx: { borderRadius: '16px', p: 1 } }}
+        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)', p: 1 } }}
       >
         <DialogTitle sx={{ fontWeight: 800 }}>
           {t('auth.lockout.appealTitle', 'Submit Ban Appeal')}
@@ -137,7 +147,7 @@ export const LockedStep: React.FC<LockedStepProps> = ({
             </Typography>
 
             {appealSubmitted ? (
-              <MAlert severity='success' sx={{ borderRadius: '12px' }}>
+              <MAlert severity='success' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}>
                 {t(
                   'auth.lockout.appealSuccess',
                   'Your appeal has been submitted successfully. An administrator will review your account.',
@@ -146,7 +156,7 @@ export const LockedStep: React.FC<LockedStepProps> = ({
             ) : (
               <>
                 {appealError && (
-                  <MAlert severity='error' sx={{ borderRadius: '12px' }}>
+                  <MAlert severity='error' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}>
                     {appealError}
                   </MAlert>
                 )}
@@ -159,7 +169,7 @@ export const LockedStep: React.FC<LockedStepProps> = ({
                   value={appealEmail}
                   onChange={(e) => setAppealEmail(e.target.value)}
                   disabled={appealMutation.isPending}
-                  slotProps={{ input: { sx: { borderRadius: '10px' } } }}
+                  slotProps={{ input: { sx: { borderRadius: 'var(--sf-radius-md, 8px)' } } }}
                 />
 
                 <TextField
@@ -175,7 +185,7 @@ export const LockedStep: React.FC<LockedStepProps> = ({
                   value={appealReason}
                   onChange={(e) => setAppealReason(e.target.value)}
                   disabled={appealMutation.isPending}
-                  slotProps={{ input: { sx: { borderRadius: '10px' } } }}
+                  slotProps={{ input: { sx: { borderRadius: 'var(--sf-radius-md, 8px)' } } }}
                 />
               </>
             )}
@@ -195,7 +205,7 @@ export const LockedStep: React.FC<LockedStepProps> = ({
                 type='submit'
                 variant='contained'
                 disabled={appealMutation.isPending || !appealEmail.trim() || !appealReason.trim()}
-                sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 700 }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
               >
                 {appealMutation.isPending ? (
                   <CircularProgress size={20} color='inherit' />

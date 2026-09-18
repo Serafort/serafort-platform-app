@@ -1,34 +1,30 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useNavigate, useParams, useSearchParams, useLocation, Link } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import {
   Box,
   Button,
   Typography,
   Alert,
-  Avatar,
   CircularProgress,
-  Link as MuiLink,
-  alpha,
-  useTheme,
   Stack,
 } from '@mui/material'
-import Verified from '@mui/icons-material/Verified'
 import ErrorOutline from '@mui/icons-material/ErrorOutline'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import ArrowForward from '@mui/icons-material/ArrowForward'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { FetchResponse } from '@cap/platform-core'
 import authService from '../../../services/auth.service'
 import { Path } from '../../../../../routes/path'
-import { AuthPageLayout } from '../../../components/shared/auth'
-import { LiquidGlassCard } from '@cap/theme'
+import {
+  AuthPageLayout,
+  AuthCard,
+  AuthCardHeader,
+  AuthBackLink,
+  AuthActionButton,
+} from '../../../components/shared/auth'
 
 import RegistrationSuccess from './RegistrationSuccess'
 
 export default function EmailVerificationScreen() {
   const { t } = useTranslation('auth')
-  const theme = useTheme()
   const navigate = useNavigate()
   const params = useParams<{ email?: string }>()
   const [searchParams] = useSearchParams()
@@ -111,22 +107,26 @@ export default function EmailVerificationScreen() {
 
   if (verifying) {
     return (
-      <AuthPageLayout maxWidth={480}>
-        <Box
-          sx={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            py: 8,
-          }}
-        >
-          <CircularProgress size={48} sx={{ mb: 3 }} />
-          <Typography variant='h6' sx={{ fontWeight: 600, color: 'text.secondary' }}>
-            {t('email.verifyingTitle', 'Verifying your email...')}
-          </Typography>
-        </Box>
+      <AuthPageLayout maxWidth={480} backdrop='subtle'>
+        <AuthCard padding='comfortable'>
+          <Box
+            role='status'
+            aria-live='polite'
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              py: 6,
+              gap: 2,
+            }}
+          >
+            <CircularProgress size={48} thickness={4} />
+            <Typography variant='h6' sx={{ fontWeight: 700, color: 'text.secondary' }}>
+              {t('email.verifyingTitle', 'Verifying your email...')}
+            </Typography>
+          </Box>
+        </AuthCard>
       </AuthPageLayout>
     )
   }
@@ -142,100 +142,48 @@ export default function EmailVerificationScreen() {
   }
 
   return (
-    <AuthPageLayout maxWidth={480}>
-      <Box sx={{ width: '100%' }}>
-        <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
-          <Box
-            className='animate-scale-in'
-            component={motion.div}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            sx={{ p: { xs: 3, sm: 4 }, textAlign: 'center' }}
+    <AuthPageLayout maxWidth={480} backdrop='subtle'>
+      <AuthCard padding='comfortable'>
+        <AuthCardHeader
+          icon={<ErrorOutline sx={{ fontSize: 32 }} />}
+          tone='error'
+          toneTitle
+          title={t('email.failedHeading', 'Verification failed')}
+          subtitle={
+            errorMsg ||
+            t(
+              'email.failedDescription',
+              "We couldn't verify your email. The link may be invalid or expired.",
+            )
+          }
+        />
+
+        {errorMsg && (
+          <Alert
+            severity='error'
+            sx={{
+              mb: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              textAlign: 'left',
+              '& .MuiAlert-message': { fontWeight: 600 },
+            }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-              <Avatar
-                variant='circular'
-                sx={{
-                  width: 64,
-                  height: 64,
-                  bgcolor: alpha(theme.palette.error.main, 0.12),
-                  color: 'error.main',
-                  border: '2px solid',
-                  borderColor: alpha(theme.palette.error.main, 0.3),
-                  boxShadow: `0 0 24px ${alpha(theme.palette.error.main, 0.25)}`,
-                }}
-              >
-                <ErrorOutline sx={{ fontSize: 36 }} />
-              </Avatar>
-            </Box>
+            {errorMsg}
+          </Alert>
+        )}
 
-            <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
-              {t('email.failedHeading', 'Verification failed')}
-            </Typography>
-            <Typography
-              variant='body1'
-              color='text.secondary'
-              sx={{ fontWeight: 500, mb: 4, lineHeight: 1.6 }}
-            >
-              {errorMsg ||
-                t(
-                  'email.failedDescription',
-                  "We couldn't verify your email. The link may be invalid or expired.",
-                )}
-            </Typography>
-
-            {errorMsg && (
-              <Alert
-                severity='error'
-                sx={{
-                  mb: 4,
-                  borderRadius: 2,
-                  textAlign: 'left',
-                  '& .MuiAlert-message': { fontWeight: 600 },
-                }}
-              >
-                {errorMsg}
-              </Alert>
-            )}
-
-            <Stack spacing={2}>
-              <Button
-                variant='contained'
-                size='large'
-                fullWidth
-                component={Link}
-                to={Path.auth.forgotPassword}
-                sx={{
-                  py: 1.5,
-                  borderRadius: 3,
-                  fontWeight: 800,
-                  fontSize: '1rem',
-                  textTransform: 'none',
-                  bgcolor: 'primary.main',
-                  boxShadow: (t) => `0 4px 14px ${alpha(t.palette.primary.main, 0.4)}`,
-                  '&:hover': { bgcolor: 'primary.dark', transform: 'translateY(-1px)' },
-                }}
-              >
-                {t('email.tryAgain', 'Request a new link')}
-              </Button>
-              <MuiLink
-                component={Link}
-                to={Path.auth.signin}
-                sx={{
-                  color: 'text.secondary',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                  '&:hover': { color: 'primary.main' },
-                }}
-              >
-                {t('common.backToLogin', 'Back to log in')}
-              </MuiLink>
-            </Stack>
-          </Box>
-        </LiquidGlassCard>
-      </Box>
+        <Stack spacing={2}>
+          <AuthActionButton
+            fullWidth
+            onClick={() => navigate(Path.auth.forgotPassword)}
+            label={t('email.tryAgain', 'Request a new link')}
+          />
+          <AuthBackLink
+            label={t('common.backToLogin', 'Back to log in')}
+            onClick={() => navigate(Path.auth.signin)}
+          />
+        </Stack>
+      </AuthCard>
     </AuthPageLayout>
   )
 }

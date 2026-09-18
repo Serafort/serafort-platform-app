@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/JWKSManagement.tsx
 // PATTERN: Aligned to OrganizationProfile.tsx design system
-// FIXES: Containerâ†’Box, motion entry, card variants, empty state, audit card
-// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
+// FIXES: Container→Box, motion entry, card variants, empty state, audit card
+// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
 
 import React from 'react'
 import {
@@ -124,12 +124,12 @@ export default function JWKSManagement() {
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
-    toast.success(t('common.copied', 'Copied to clipboard'))
+    toast.success(t('auth.common.copied', 'Copied to clipboard'))
   }
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }} className='animate-scale-in'>
-      {/* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Header ───────────────────────────────────────────── */}
       <Box
         sx={{
           mb: 4,
@@ -146,7 +146,7 @@ export default function JWKSManagement() {
               sx={{
                 width: { xs: 56, md: 80 },
                 height: { xs: 56, md: 80 },
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 24px)',
                 bgcolor: 'info.main',
                 boxShadow: (t) => `0 12px 24px ${alpha(t.palette.info.main, 0.2)}`,
               }}
@@ -169,21 +169,23 @@ export default function JWKSManagement() {
           </Box>
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
-              <Button
+              <IconButton
                 onClick={() => navigate(-1)}
+                aria-label={t('auth.common.back', 'Back')}
                 sx={{
-                  p: 0,
-                  minWidth: 'auto',
+                  p: 1,
+                  minWidth: 44,
+                  minHeight: 44,
                   color: 'text.secondary',
                   '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
                 }}
               >
                 <ArrowBack />
-              </Button>
+              </IconButton>
               <Typography
                 variant='h4'
                 sx={{
-                  fontWeight: 900,
+                  fontWeight: 800,
                   letterSpacing: '-0.027em',
                   fontSize: { xs: '1.5rem', md: '2.125rem' },
                 }}
@@ -200,7 +202,7 @@ export default function JWKSManagement() {
                 size='small'
                 color='info'
                 variant='outlined'
-                sx={{ fontWeight: 700, height: 20 }}
+                sx={{ fontWeight: 700, height: 20, borderRadius: 'var(--sf-radius-xs, 4px)' }}
               />
             </Stack>
           </Box>
@@ -216,8 +218,8 @@ export default function JWKSManagement() {
             startIcon={<Refresh />}
             onClick={onRotate}
             sx={{
-              height: 44,
-              borderRadius: '12px',
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               textTransform: 'none',
               fontWeight: 700,
               flex: { xs: 1, sm: 'none' },
@@ -230,15 +232,15 @@ export default function JWKSManagement() {
             startIcon={<Add />}
             onClick={onAddKey}
             sx={{
-              bgcolor: 'info.main',
+              bgcolor: 'primary.main',
               color: 'white',
-              boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-              '&:hover': { bgcolor: 'info.dark' },
+              boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
+              '&:hover': { bgcolor: 'primary.dark' },
               textTransform: 'none',
               fontWeight: 700,
               flex: { xs: 1, sm: 'none' },
-              height: 44,
-              borderRadius: '12px',
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 3,
             }}
           >
@@ -247,12 +249,12 @@ export default function JWKSManagement() {
         </Stack>
       </Box>
 
-      {/* â”€â”€ Warning Alert â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Warning Alert ─────────────────────────────────────── */}
       <Alert
         severity='warning'
         icon={<Security />}
         sx={{
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-md, 10px)',
           mb: 4,
           border: '1px solid',
           borderColor: alpha(theme.palette.warning.main, 0.2),
@@ -266,23 +268,23 @@ export default function JWKSManagement() {
         )}
       </Alert>
 
-      {/* â”€â”€ Key Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Key Cards ─────────────────────────────────────────── */}
       {isLoading ? (
         <Stack spacing={3}>
           {[1, 2].map((i) => (
-            <Skeleton key={i} variant='rounded' height={120} sx={{ borderRadius: 4 }} />
+            <Skeleton key={i} variant='rounded' height={120} sx={{ borderRadius: 'var(--sf-radius-lg, 16px)' }} />
           ))}
         </Stack>
       ) : keys.length === 0 ? (
         <Card
           sx={{
-            borderRadius: '24px',
+            borderRadius: 'var(--sf-radius-lg, 16px)',
             border: '1px solid',
             borderColor: alpha(theme.palette.divider, 0.08),
             boxShadow: 'none',
             textAlign: 'center',
             py: 10,
-            background: alpha('#000', 0.2),
+            bgcolor: (th) => th.palette.background.paper,
             backdropFilter: 'blur(24px)',
             position: 'relative',
             overflow: 'hidden',
@@ -312,14 +314,14 @@ export default function JWKSManagement() {
               color: 'primary.main',
               mb: 3,
               mx: 'auto',
-              borderRadius: '20px',
+              borderRadius: 'var(--sf-radius-lg, 20px)',
             }}
           >
             <Key sx={{ fontSize: 40 }} />
           </Avatar>
           <Typography
             variant='h5'
-            sx={{ fontWeight: 900, mb: 1.5, fontFamily: 'Outfit, sans-serif' }}
+            sx={{ fontWeight: 800, mb: 1.5, fontFamily: 'Outfit, sans-serif' }}
           >
             {t('auth.sso.no_keys', 'No Keys Configured')}
           </Typography>
@@ -338,16 +340,16 @@ export default function JWKSManagement() {
             startIcon={<Add />}
             onClick={onAddKey}
             sx={{
-              bgcolor: 'info.main',
-              boxShadow: `0 8px 32px 0 ${alpha(theme.palette.info.main, 0.3)}`,
+              bgcolor: 'primary.main',
+              boxShadow: (theme) => `0 8px 32px 0 ${alpha(theme.palette.primary.main, 0.3)}`,
               '&:hover': {
-                bgcolor: 'info.dark',
-                boxShadow: `0 12px 40px 0 ${alpha(theme.palette.info.main, 0.45)}`,
+                bgcolor: 'primary.dark',
+                boxShadow: (theme) => `0 12px 40px 0 ${alpha(theme.palette.primary.main, 0.45)}`,
               },
               textTransform: 'none',
               fontWeight: 800,
-              height: 48,
-              borderRadius: '14px',
+              minHeight: 48,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 4,
             }}
           >
@@ -360,12 +362,12 @@ export default function JWKSManagement() {
             <Grid key={key.kid} size={{ xs: 12, xl: 6 }}>
               <Card
                 sx={{
-                  borderRadius: '24px',
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                   border: '1px solid',
                   borderColor: alpha(theme.palette.primary.main, 0.1),
                   boxShadow: 'none',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.05)} 0%, ${alpha('#000', 0.2)} 100%)`,
+                  bgcolor: (th) => th.palette.background.paper,
                   backdropFilter: 'blur(24px)',
                   position: 'relative',
                   overflow: 'hidden',
@@ -387,7 +389,7 @@ export default function JWKSManagement() {
                             height: 48,
                             backgroundColor: alpha(theme.palette.primary.main, 0.08),
                             color: 'primary.main',
-                            borderRadius: '14px',
+                            borderRadius: 'var(--sf-radius-md, 12px)',
                           }}
                         >
                           <Key />
@@ -403,8 +405,8 @@ export default function JWKSManagement() {
                               sx={{
                                 height: 20,
                                 fontSize: '0.65rem',
-                                fontWeight: 900,
-                                borderRadius: '6px',
+                                fontWeight: 800,
+                                borderRadius: 'var(--sf-radius-xs, 4px)',
                                 bgcolor: alpha(
                                   key.status === 'active'
                                     ? theme.palette.success.main
@@ -467,10 +469,10 @@ export default function JWKSManagement() {
                           sx={{
                             flexGrow: 1,
                             height: 6,
-                            borderRadius: 3,
+                            borderRadius: 'var(--sf-radius-xs, 4px)',
                             bgcolor: alpha(theme.palette.divider, 0.1),
                             '& .MuiLinearProgress-bar': {
-                              borderRadius: 3,
+                              borderRadius: 'var(--sf-radius-xs, 4px)',
                               background:
                                 (key.health ?? 100) > 90
                                   ? `linear-gradient(90deg, ${theme.palette.success.main} 0%, ${alpha(theme.palette.success.main, 0.7)} 100%)`
@@ -485,7 +487,7 @@ export default function JWKSManagement() {
                         <Typography
                           variant='body2'
                           sx={{
-                            fontWeight: 900,
+                            fontWeight: 800,
                             minWidth: 40,
                             color: (key.health ?? 100) > 90 ? 'success.main' : 'warning.main',
                           }}
@@ -499,8 +501,8 @@ export default function JWKSManagement() {
                     <Grid size={{ xs: 12, sm: 3 }}>
                       <Box sx={{ display: 'flex', gap: 4 }}>
                         {[
-                          { label: t('common.created', 'Created'), value: key.created },
-                          { label: t('common.expires', 'Expires'), value: key.expires },
+                          { label: t('auth.common.created', 'Created'), value: key.created },
+                          { label: t('auth.common.expires', 'Expires'), value: key.expires },
                         ].map(({ label, value }) => (
                           <Box key={label}>
                             <Typography
@@ -537,32 +539,34 @@ export default function JWKSManagement() {
                           <IconButton
                             size='small'
                             onClick={() => handleCopy(key.kid)}
-                            sx={{ border: '1px solid', borderColor: 'divider' }}
+                            sx={{ minWidth: 44, minHeight: 44, border: '1px solid', borderColor: 'divider' }}
                             aria-label={t('auth.sso.copy_kid', 'Copy KID')}
                           >
                             <ContentCopy fontSize='small' />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title={t('common.details', 'Details')}>
+                        <Tooltip title={t('auth.common.details', 'Details')}>
                           <IconButton
                             size='small'
                             onClick={() => setDetailKid(key.kid)}
-                            sx={{ border: '1px solid', borderColor: 'divider' }}
-                            aria-label={t('common.details', 'Details')}
+                            sx={{ minWidth: 44, minHeight: 44, border: '1px solid', borderColor: 'divider' }}
+                            aria-label={t('auth.common.details', 'Details')}
                           >
                             <InfoOutlined fontSize='small' />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title={t('common.delete', 'Delete')}>
+                        <Tooltip title={t('auth.common.delete', 'Delete')}>
                           <IconButton
                             size='small'
                             color='error'
                             onClick={() => onDeleteKey?.(key.kid)}
                             sx={{
+                              minWidth: 44,
+                              minHeight: 44,
                               border: '1px solid',
                               borderColor: alpha(theme.palette.error.main, 0.2),
                             }}
-                            aria-label={t('common.delete', 'Delete')}
+                            aria-label={t('auth.common.delete', 'Delete')}
                           >
                             <Delete fontSize='small' />
                           </IconButton>
@@ -577,15 +581,15 @@ export default function JWKSManagement() {
         </Grid>
       )}
 
-      {/* â”€â”€ Audit Log Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Audit Log Card ────────────────────────────────────── */}
       <Card
         sx={{
-          borderRadius: '24px',
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid',
           borderColor: alpha(theme.palette.divider, 0.08),
           boxShadow: 'none',
           mt: 4,
-          background: alpha('#000', 0.2),
+          bgcolor: (th) => th.palette.background.paper,
           backdropFilter: 'blur(24px)',
         }}
       >
@@ -610,6 +614,8 @@ export default function JWKSManagement() {
               onClick={onViewHistory}
               sx={{
                 fontWeight: 700,
+                minHeight: 44,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 color: 'text.secondary',
                 textTransform: 'none',
                 '&:hover': {
@@ -624,20 +630,22 @@ export default function JWKSManagement() {
         </CardContent>
       </Card>
 
-      {/* â”€â”€ Add Key Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Add Key Modal ─────────────────────────────────────── */}
       <Dialog
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         maxWidth='md'
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: '24px',
-            background: alpha('#111', 0.95),
-            backdropFilter: 'blur(20px)',
-            border: '1px solid',
-            borderColor: (t) => alpha(t.palette.divider, 0.1),
-            boxShadow: (t) => t.shadows[24],
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              bgcolor: (t) => t.palette.background.paper,
+              backdropFilter: 'blur(20px)',
+              border: '1px solid',
+              borderColor: (t) => alpha(t.palette.divider, 0.1),
+              boxShadow: (t) => t.shadows[24],
+            },
           },
         }}
       >
@@ -654,14 +662,15 @@ export default function JWKSManagement() {
             <Typography
               variant='h6'
               component='div'
-              sx={{ fontWeight: 900, fontFamily: 'Outfit, sans-serif' }}
+              sx={{ fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}
             >
               {t('auth.sso.add_manual_key', 'Add Manual OIDC Key')}
             </Typography>
             <IconButton
               onClick={() => setIsAddModalOpen(false)}
               size='small'
-              sx={{ color: 'text.secondary' }}
+              sx={{ color: 'text.secondary', minWidth: 44, minHeight: 44 }}
+              aria-label={t('auth.common.close', 'Close')}
             >
               <CloseIcon />
             </IconButton>
@@ -677,8 +686,8 @@ export default function JWKSManagement() {
                 placeholder='e.g., prod-key-2024'
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    bgcolor: alpha('#000', 0.3),
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    bgcolor: alpha(theme.palette.text.primary, 0.03),
                   },
                 }}
               />
@@ -692,8 +701,8 @@ export default function JWKSManagement() {
                     onChange={(e) => setFormData({ ...formData, algorithm: e.target.value })}
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        bgcolor: alpha('#000', 0.3),
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        bgcolor: alpha(theme.palette.text.primary, 0.03),
                       },
                     }}
                   >
@@ -712,8 +721,8 @@ export default function JWKSManagement() {
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        bgcolor: alpha('#000', 0.3),
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        bgcolor: alpha(theme.palette.text.primary, 0.03),
                       },
                     }}
                   >
@@ -733,8 +742,8 @@ export default function JWKSManagement() {
                 placeholder='Paste your private key here...'
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    bgcolor: alpha('#000', 0.3),
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    bgcolor: alpha(theme.palette.text.primary, 0.03),
                   },
                 }}
               />
@@ -749,8 +758,8 @@ export default function JWKSManagement() {
                 placeholder='Paste your public key here...'
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    bgcolor: alpha('#000', 0.3),
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    bgcolor: alpha(theme.palette.text.primary, 0.03),
                   },
                 }}
               />
@@ -763,8 +772,8 @@ export default function JWKSManagement() {
                 onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    bgcolor: alpha('#000', 0.3),
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    bgcolor: alpha(theme.palette.text.primary, 0.03),
                   },
                 }}
               />
@@ -773,9 +782,9 @@ export default function JWKSManagement() {
           <DialogActions sx={{ p: 3, pt: 0 }}>
             <Button
               onClick={() => setIsAddModalOpen(false)}
-              sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}
+              sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary', minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
             >
-              {t('common.cancel', 'Cancel')}
+              {t('auth.common.cancel', 'Cancel')}
             </Button>
             <Button
               type='submit'
@@ -783,35 +792,39 @@ export default function JWKSManagement() {
               disabled={createMutation.isPending}
               sx={{
                 fontWeight: 800,
-                borderRadius: '12px',
+                minHeight: 44,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 textTransform: 'none',
                 px: 4,
-                bgcolor: 'info.main',
-                '&:hover': { bgcolor: 'info.dark' },
+                bgcolor: 'primary.main',
+                boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
+                '&:hover': { bgcolor: 'primary.dark' },
               }}
             >
               {createMutation.isPending
-                ? t('common.creating', 'Creating...')
-                : t('common.create', 'Create Key')}
+                ? t('auth.common.creating', 'Creating...')
+                : t('auth.common.create', 'Create Key')}
             </Button>
           </DialogActions>
         </form>
       </Dialog>
 
-      {/* â”€â”€ Key Details Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Key Details Modal ──────────────────────────────────── */}
       <Dialog
         open={!!detailKid}
         onClose={() => setDetailKid(null)}
         maxWidth='sm'
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: '24px',
-            background: alpha('#111', 0.95),
-            backdropFilter: 'blur(20px)',
-            border: '1px solid',
-            borderColor: (t) => alpha(t.palette.divider, 0.1),
-            boxShadow: (t) => t.shadows[24],
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              bgcolor: (t) => t.palette.background.paper,
+              backdropFilter: 'blur(20px)',
+              border: '1px solid',
+              borderColor: (t) => alpha(t.palette.divider, 0.1),
+              boxShadow: (t) => t.shadows[24],
+            },
           },
         }}
       >
@@ -831,7 +844,7 @@ export default function JWKSManagement() {
                 height: 40,
                 bgcolor: alpha(theme.palette.info.main, 0.1),
                 color: 'info.main',
-                borderRadius: '12px',
+                borderRadius: 'var(--sf-radius-md, 12px)',
               }}
             >
               <Key sx={{ fontSize: 22 }} />
@@ -840,7 +853,7 @@ export default function JWKSManagement() {
               <Typography
                 variant='h6'
                 component='div'
-                sx={{ fontWeight: 900, fontFamily: 'Outfit, sans-serif' }}
+                sx={{ fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}
               >
                 {t('auth.sso.key_details', 'Key Details')}
               </Typography>
@@ -852,7 +865,8 @@ export default function JWKSManagement() {
           <IconButton
             onClick={() => setDetailKid(null)}
             size='small'
-            sx={{ color: 'text.secondary' }}
+            sx={{ color: 'text.secondary', minWidth: 44, minHeight: 44 }}
+            aria-label={t('auth.common.close', 'Close')}
           >
             <CloseIcon />
           </IconButton>
@@ -879,7 +893,7 @@ export default function JWKSManagement() {
                   color: 'text.secondary',
                 }}
               >
-                {t('common.loading', 'Loading...')}
+                {t('auth.common.loading', 'Loading...')}
               </Typography>
             </Box>
           ) : keyDetail ? (
@@ -888,7 +902,7 @@ export default function JWKSManagement() {
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 {[
                   {
-                    label: t('common.status', 'Status'),
+                    label: t('auth.common.status', 'Status'),
                     value: keyDetail.status?.toUpperCase(),
                     color:
                       keyDetail.status === 'active'
@@ -906,8 +920,8 @@ export default function JWKSManagement() {
                       flex: 1,
                       minWidth: 120,
                       p: 2,
-                      borderRadius: '14px',
-                      bgcolor: alpha('#000', 0.3),
+                      borderRadius: 'var(--sf-radius-md, 12px)',
+                      bgcolor: alpha(theme.palette.text.primary, 0.03),
                       border: '1px solid',
                       borderColor: alpha(theme.palette.divider, 0.08),
                     }}
@@ -930,7 +944,7 @@ export default function JWKSManagement() {
                         label={value}
                         size='small'
                         color={color as any}
-                        sx={{ fontWeight: 900, fontSize: '0.7rem', borderRadius: '6px' }}
+                        sx={{ fontWeight: 800, fontSize: '0.7rem', borderRadius: 'var(--sf-radius-xs, 4px)' }}
                       />
                     ) : (
                       <Typography variant='body2' sx={{ fontWeight: 800 }}>
@@ -945,18 +959,22 @@ export default function JWKSManagement() {
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 {[
                   {
-                    label: t('common.created', 'Created'),
-                    value: keyDetail.created ? new Date(keyDetail.created).toLocaleString() : 'N/A',
+                    label: t('auth.common.created', 'Created'),
+                    value: keyDetail.created
+                      ? new Date(keyDetail.created).toLocaleString()
+                      : t('auth.common.not_available', '—'),
                   },
                   {
-                    label: t('common.updated', 'Updated'),
-                    value: keyDetail.updated ? new Date(keyDetail.updated).toLocaleString() : 'N/A',
+                    label: t('auth.common.updated', 'Updated'),
+                    value: keyDetail.updated
+                      ? new Date(keyDetail.updated).toLocaleString()
+                      : t('auth.common.not_available', '—'),
                   },
                   {
-                    label: t('common.expires', 'Expires'),
+                    label: t('auth.common.expires', 'Expires'),
                     value: keyDetail.expires
                       ? new Date(keyDetail.expires).toLocaleString()
-                      : 'Never',
+                      : t('auth.common.never', 'Never'),
                   },
                 ].map(({ label, value }) => (
                   <Box
@@ -965,8 +983,8 @@ export default function JWKSManagement() {
                       flex: 1,
                       minWidth: 120,
                       p: 2,
-                      borderRadius: '14px',
-                      bgcolor: alpha('#000', 0.3),
+                      borderRadius: 'var(--sf-radius-md, 12px)',
+                      bgcolor: alpha(theme.palette.text.primary, 0.03),
                       border: '1px solid',
                       borderColor: alpha(theme.palette.divider, 0.08),
                     }}
@@ -1012,11 +1030,12 @@ export default function JWKSManagement() {
                   >
                     {t('auth.sso.public_jwk', 'Public JWK')}
                   </Typography>
-                  <Tooltip title={t('common.copy', 'Copy')}>
+                  <Tooltip title={t('auth.common.copy', 'Copy')}>
                     <IconButton
                       size='small'
+                      aria-label={t('auth.common.copy', 'Copy')}
                       onClick={() => handleCopy(JSON.stringify(keyDetail.publicJwk, null, 2))}
-                      sx={{ border: '1px solid', borderColor: 'divider' }}
+                      sx={{ minWidth: 44, minHeight: 44, border: '1px solid', borderColor: 'divider' }}
                     >
                       <ContentCopy sx={{ fontSize: 14 }} />
                     </IconButton>
@@ -1026,15 +1045,15 @@ export default function JWKSManagement() {
                   component='pre'
                   sx={{
                     p: 2,
-                    borderRadius: '14px',
-                    bgcolor: alpha('#000', 0.4),
+                    borderRadius: 'var(--sf-radius-md, 12px)',
+                    bgcolor: alpha(theme.palette.text.primary, 0.05),
                     border: '1px solid',
                     borderColor: alpha(theme.palette.divider, 0.08),
                     fontSize: '0.75rem',
                     fontFamily: 'monospace',
                     overflow: 'auto',
                     maxHeight: 250,
-                    color: alpha('#fff', 0.85),
+                    color: "text.primary",
                     m: 0,
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-all',
@@ -1053,15 +1072,15 @@ export default function JWKSManagement() {
         <DialogActions sx={{ p: 3, pt: 0 }}>
           <Button
             onClick={() => setDetailKid(null)}
-            sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}
+            sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary', minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
-            {t('common.close', 'Close')}
+            {t('auth.common.close', 'Close')}
           </Button>
           <Button
             variant='outlined'
             startIcon={<ContentCopy />}
             onClick={() => handleCopy(detailKid || '')}
-            sx={{ fontWeight: 700, textTransform: 'none', borderRadius: '12px' }}
+            sx={{ fontWeight: 700, textTransform: 'none', minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
             {t('auth.sso.copy_kid', 'Copy KID')}
           </Button>

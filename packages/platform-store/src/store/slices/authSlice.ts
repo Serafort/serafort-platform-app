@@ -239,6 +239,10 @@ export const createAuthSlice: StateCreator<
       return refreshAuthPromise;
     }
 
+    // Captured before the probe: an anonymous visitor hitting `me` is an
+    // expected 401, not an expired session, and must not surface as one.
+    const wasAuthenticated = get().isAuthenticated;
+
     refreshAuthPromise = (async () => {
       await secureTokenManager.ensureInitialized();
 
@@ -297,17 +301,26 @@ export const createAuthSlice: StateCreator<
           setImpersonationContext(userData?.impersonationSession || null);
         }
       } catch (error: any) {
-        console.error(
-          "[refreshAuth] Error:",
-          error.response?.status,
-          error.message,
-        );
+        if (wasAuthenticated) {
+          console.error(
+            "[refreshAuth] Error:",
+            error.response?.status,
+            error.message,
+          );
+        } else if (import.meta.env.DEV) {
+          console.log(
+            "[refreshAuth] No active session; continuing as anonymous",
+          );
+        }
 
         set((state: AuthSlice) => {
           state.user = null;
           state.isAuthenticated = false;
           state.isLoading = false;
-          state.error = error.response?.data?.message || "Session expired";
+          // Only a session that actually existed can expire.
+          state.error = wasAuthenticated
+            ? error.response?.data?.message || "Session expired"
+            : null;
           state.activeTenantId = null;
           state.memberships = [];
           state.impersonationSession = null;

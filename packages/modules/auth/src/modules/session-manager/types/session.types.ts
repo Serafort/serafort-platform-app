@@ -54,17 +54,37 @@ export interface SecurityStatusResponse {
   passkeys: number
 }
 
+/**
+ * Shape of a row from the `audit_logs` table as returned by
+ * GET /api/user/activity-timeline (UsersController.activityTimeline), a raw
+ * `db.from('audit_logs')` query builder call. `CamelCaseResponseMiddleware`
+ * (app/middleware/camel_case_response_middleware.ts) exists in the
+ * Authentication service but is NOT registered in start/kernel.ts, so it
+ * never runs — raw query-builder rows like this one stay exactly as the
+ * database returns them, i.e. snake_case (`target_type`, `ip_address`,
+ * `created_at`, ...). The camelCase fields below are kept only in case that
+ * middleware is registered later; snake_case is what actually arrives today.
+ * The table has no `resource_type`, `resource_id`, `status`, or `updated_at`
+ * columns at all (see
+ * database/migrations/7_audit_monitoring/*_audit_logs_table.ts in the
+ * Authentication service) — the closest equivalents are `target_type` /
+ * `target_id`.
+ */
 export interface AuditLogItem {
   id: string | number
+  userId?: string | number
   user_id?: string | number
   action: string
-  resource_type?: string
-  resource_id?: string | number
+  targetType?: string
+  target_type?: string
+  targetId?: string | number
+  target_id?: string | number
+  ipAddress?: string
   ip_address?: string
+  userAgent?: string
   user_agent?: string
-  status?: string
+  createdAt?: string
   created_at: string
-  updated_at?: string
 }
 
 export interface ChangePasswordRequest {

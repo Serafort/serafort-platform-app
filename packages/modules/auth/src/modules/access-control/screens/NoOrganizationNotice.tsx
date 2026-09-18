@@ -15,7 +15,7 @@ export const NoOrganizationNotice: React.FC = () => {
 
   return (
     <Container maxWidth='sm' sx={{ py: 6 }}>
-      <Alert severity='info'>
+      <Alert severity='info' sx={{ borderRadius: 'var(--sf-radius-md, 10px)' }}>
         <AlertTitle>
           {t('accessControl.common.no_org_title', 'No organization selected')}
         </AlertTitle>

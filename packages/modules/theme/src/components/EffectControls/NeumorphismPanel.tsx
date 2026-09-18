@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Box, Typography } from "@mui/material";
 import type { NeumorphismConfig } from "@cap/theme";
 import { computeNeumorphismBoxShadow } from "@cap/theme";
@@ -20,6 +21,7 @@ export const NeumorphismPanel: React.FC<NeumorphismPanelProps> = ({
   config,
   onChange,
 }) => {
+  const { t } = useTranslation();
   const surface = useSurfaceSx();
 
   const handleChange = <K extends keyof NeumorphismConfig>(
@@ -35,8 +37,11 @@ export const NeumorphismPanel: React.FC<NeumorphismPanelProps> = ({
   return (
     <Box sx={{ ...surface, p: 5 }}>
       <SwitchHeader
-        title="Neumorphism"
-        description="Soft extruded surfaces: one light shadow and one dark, from a single light source."
+        title={t("theme.effects.neu.title", "Neumorphism")}
+        description={t(
+          "theme.effects.neu.description",
+          "Soft extruded surfaces: one light shadow and one dark, from a single light source.",
+        )}
         checked={Boolean(config.enabled)}
         onChange={(checked) => handleChange("enabled", checked)}
       />
@@ -44,27 +49,38 @@ export const NeumorphismPanel: React.FC<NeumorphismPanelProps> = ({
       {!config.enabled ? (
         <Box sx={{ mt: 4 }}>
           <EmptyHint>
-            Turn neumorphism on to tune depth and light angle.
+            {t(
+              "theme.effects.neu.empty",
+              "Turn neumorphism on to tune depth and light angle.",
+            )}
           </EmptyHint>
         </Box>
       ) : (
         <Box sx={{ mt: 6 }}>
           <Box sx={{ mb: 6 }}>
-            <FieldLabel hint="Neumorphism only reads on a surface that matches this color">
-              Base surface
+            <FieldLabel
+              hint={t(
+                "theme.effects.neu.base_hint",
+                "Neumorphism only reads on a surface that matches this color",
+              )}
+            >
+              {t("theme.effects.neu.base_surface", "Base surface")}
             </FieldLabel>
             <SwatchReadout
-              label="Background"
+              label={t("theme.effects.neu.background", "Background")}
               hex={config.backgroundColor || "#e0e5ec"}
               size={32}
             />
           </Box>
 
           <SliderField
-            label="Intensity"
+            label={t("theme.effects.neu.intensity", "Intensity")}
             value={(config.intensity ?? 0.15) * 100}
             displayValue={`${((config.intensity ?? 0.15) * 100).toFixed(0)}%`}
-            hint="Shadow darkness and spread"
+            hint={t(
+              "theme.effects.neu.intensity_hint",
+              "Shadow darkness and spread",
+            )}
             min={5}
             max={40}
             marks={[
@@ -76,10 +92,13 @@ export const NeumorphismPanel: React.FC<NeumorphismPanelProps> = ({
           />
 
           <SliderField
-            label="Distance"
+            label={t("theme.effects.neu.distance", "Distance")}
             value={config.distance || 10}
             displayValue={`${config.distance || 10}px`}
-            hint="How far the shadows sit from the shape"
+            hint={t(
+              "theme.effects.neu.distance_hint",
+              "How far the shadows sit from the shape",
+            )}
             min={0}
             max={20}
             marks={[
@@ -91,10 +110,13 @@ export const NeumorphismPanel: React.FC<NeumorphismPanelProps> = ({
           />
 
           <SliderField
-            label="Light angle"
+            label={t("theme.effects.neu.light_angle", "Light angle")}
             value={config.altitude ?? 45}
             displayValue={`${config.altitude ?? 45}°`}
-            hint="Elevation of the light above the horizon: 0° lights the surface from the side, 90° from directly above, 45° gives the classic diagonal"
+            hint={t(
+              "theme.effects.neu.light_angle_hint",
+              "Elevation of the light above the horizon: 0° lights the surface from the side, 90° from directly above, 45° gives the classic diagonal",
+            )}
             min={0}
             max={90}
             marks={[
@@ -106,7 +128,7 @@ export const NeumorphismPanel: React.FC<NeumorphismPanelProps> = ({
           />
 
           <SliderField
-            label="Corner radius"
+            label={t("theme.effects.neu.corner_radius", "Corner radius")}
             value={radius}
             displayValue={`${radius}px`}
             min={0}
@@ -120,7 +142,10 @@ export const NeumorphismPanel: React.FC<NeumorphismPanelProps> = ({
             onChange={(value) => handleChange("borderRadius", `${value}px`)}
           />
 
-          <FieldLabel>Preview</FieldLabel>
+          <FieldLabel>{t("theme.effects.preview_label", "Preview")}</FieldLabel>
+          {/* Preview surface uses the user's own neumorphism base color; the
+              text colors below are fixed for contrast against that light-grey
+              ground, which is the only surface neumorphism reads on. */}
           <Box
             sx={{
               p: 6,
@@ -140,10 +165,13 @@ export const NeumorphismPanel: React.FC<NeumorphismPanelProps> = ({
                 variant="body2"
                 sx={{ fontWeight: 600, color: "#31344b" }}
               >
-                Extruded surface
+                {t("theme.effects.neu.extruded_surface", "Extruded surface")}
               </Typography>
               <Typography variant="caption" sx={{ color: "#61667d" }}>
-                How buttons and cards read with neumorphism on
+                {t(
+                  "theme.effects.neu.extruded_caption",
+                  "How buttons and cards read with neumorphism on",
+                )}
               </Typography>
             </Box>
           </Box>

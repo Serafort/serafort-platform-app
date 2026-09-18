@@ -111,13 +111,27 @@ const contrastTextFor = (background: string): string => {
   }
 };
 
+/**
+ * Build a full MUI palette colour group (`light`/`main`/`dark`/`contrastText`
+ * plus the five opacity steps) from a single `main` colour.
+ *
+ * If the tenant token authors an explicit `light` or `dark` variant, that
+ * value wins outright - the author said so, the same rule `resolveChromeColor`
+ * applies to the chrome tokens. Otherwise the variant is derived from `main`
+ * via `lighten()`/`darken()`, which is how `primary`/`secondary` have always
+ * behaved and is now extended to `error`/`warning`/`success`/`info` so a
+ * tenant that customises only a status colour's `main` no longer gets a
+ * mismatched `light`/`dark` pair. The opacity steps are always derived from
+ * `main` - they are alpha ramps over the one colour, not independent stops.
+ */
 const derivePaletteColorGroup = (
   mainColor: string,
+  token?: ColorToken,
   contrastText = contrastTextFor(mainColor),
 ) => ({
-  light: lighten(mainColor, 0.2),
+  light: token?.light || lighten(mainColor, 0.2),
   main: mainColor,
-  dark: darken(mainColor, 0.12),
+  dark: token?.dark || darken(mainColor, 0.12),
   contrastText,
   lighterOpacity: `${mainColor}14`,
   lightOpacity: `${mainColor}29`,
@@ -228,12 +242,15 @@ export const composeMuiTheme = ({
       }) as Theme["shadows"],
       palette: {
         mode: currentMode,
-        primary: derivePaletteColorGroup(primaryMain),
-        secondary: derivePaletteColorGroup(secondaryMain),
-        error: derivePaletteColorGroup(errorMain),
-        success: derivePaletteColorGroup(successMain),
-        warning: derivePaletteColorGroup(warningMain),
-        info: derivePaletteColorGroup(infoMain),
+        primary: derivePaletteColorGroup(primaryMain, tokens.colors.primary),
+        secondary: derivePaletteColorGroup(
+          secondaryMain,
+          tokens.colors.secondary,
+        ),
+        error: derivePaletteColorGroup(errorMain, tokens.colors.error),
+        success: derivePaletteColorGroup(successMain, tokens.colors.success),
+        warning: derivePaletteColorGroup(warningMain, tokens.colors.warning),
+        info: derivePaletteColorGroup(infoMain, tokens.colors.info),
         background: {
           default: backgroundDefault,
           paper: surfaceColor,
@@ -364,19 +381,27 @@ export const composeMuiThemeMemoized = (
 ): Theme => {
   const { currentMode, direction = "ltr", settings, tenantTheme } = options;
   const colors = tenantTheme?.tokens?.colors;
-  const primaryVal = colors?.primary?.value || settings.primaryColor || "";
-  const secondaryVal = colors?.secondary?.value || "";
+  // Include each token's authored `light`/`dark` variants, not just `.value`:
+  // `derivePaletteColorGroup` now honours those for every palette group, so
+  // tuning `primary.dark` or `error.light` in the theme editor must miss the
+  // cache the same way tuning `.value` does.
+  const colorKey = (token?: ColorToken) =>
+    `${token?.value || ""}~${token?.light || ""}~${token?.dark || ""}`;
+  const primaryVal =
+    colorKey(colors?.primary) + (settings.primaryColor || "");
+  const secondaryVal = colorKey(colors?.secondary);
   const bgVal = colors?.background?.value || "";
   const surfaceVal = colors?.surface?.value || "";
   const fontVal = tenantTheme?.tokens?.typography?.fontFamily?.sans || "";
-  // Status colours feed the coloured elevation rings (theme.customShadows.*),
-  // so a tenant that overrides only, say, their error colour must not be
-  // served a theme built for the previous one.
+  // Status colours feed the coloured elevation rings (theme.customShadows.*)
+  // and now their own tokenised `light`/`dark` variants, so a tenant that
+  // overrides only, say, their error colour must not be served a theme built
+  // for the previous one.
   const statusVal = [
-    colors?.error?.value,
-    colors?.warning?.value,
-    colors?.info?.value,
-    colors?.success?.value,
+    colorKey(colors?.error),
+    colorKey(colors?.warning),
+    colorKey(colors?.info),
+    colorKey(colors?.success),
   ].join("|");
   // The whole effect config, not just its name: the theme object carries it
   // through as `theme.tenantTheme` for SurfaceEffectFactory, so tuning a

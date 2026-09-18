@@ -120,7 +120,7 @@ export default function OIDCClientEdit() {
           navigate(Path.identity.oidcConfigBrowser)
         },
         onError: (err: any) => {
-          toast.error(err.message || t('common.error', 'An error occurred'))
+          toast.error(err.message || t('auth.common.error', 'An error occurred'))
         },
       },
     )
@@ -136,7 +136,7 @@ export default function OIDCClientEdit() {
       },
       onError: (err: any) => {
         setRotateDialogOpen(false)
-        toast.error(err.message || t('common.error', 'Failed to rotate secret'))
+        toast.error(err.message || t('auth.common.error', 'Failed to rotate secret'))
       },
     })
   }
@@ -144,7 +144,7 @@ export default function OIDCClientEdit() {
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
     toast.success(
-      t('common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }),
+      t('auth.common.copied_item', { item: label, defaultValue: `${label} copied to clipboard` }),
     )
   }
 
@@ -160,7 +160,7 @@ export default function OIDCClientEdit() {
     return (
       <Container maxWidth='md' sx={{ py: 10 }}>
         <Alert severity='error'>
-          <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
+          <AlertTitle>{t('auth.common.error', 'Error')}</AlertTitle>
           {t('auth.sso.client_load_error', 'Failed to load client details.')}
         </Alert>
         <Button
@@ -169,7 +169,7 @@ export default function OIDCClientEdit() {
           startIcon={<ArrowBack />}
           sx={{ mt: 3 }}
         >
-          {t('common.back_to_list', 'Back to OIDC Clients')}
+          {t('auth.common.back_to_list', 'Back to OIDC Clients')}
         </Button>
       </Container>
     )
@@ -193,18 +193,19 @@ export default function OIDCClientEdit() {
           startIcon={<ArrowBack />}
           sx={{
             mb: 2,
+            minHeight: 44,
             color: 'text.secondary',
             '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
           }}
         >
-          {t('common.back_to_list', 'Back to OIDC Clients')}
+          {t('auth.common.back_to_list', 'Back to OIDC Clients')}
         </Button>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar
             sx={{
               width: 64,
               height: 64,
-              borderRadius: '20px',
+              borderRadius: 'var(--sf-radius-lg, 24px)',
               bgcolor: 'primary.main',
               boxShadow: (theme) => `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
             }}
@@ -212,7 +213,7 @@ export default function OIDCClientEdit() {
             <Edit sx={{ fontSize: '2rem' }} />
           </Avatar>
           <Box>
-            <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em' }}>
+            <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em' }}>
               {t('auth.sso.edit_oidc_client', 'Edit Client Details')}
             </Typography>
             <Breadcrumbs separator={<ChevronRight sx={{ fontSize: 12, color: 'text.disabled' }} />}>
@@ -233,7 +234,7 @@ export default function OIDCClientEdit() {
           sx={(theme: any) => ({
             p: 4,
             mb: 4,
-            borderRadius: 4,
+            borderRadius: 'var(--sf-radius-lg, 16px)',
             border: '1px solid ' + theme.palette.warning.main,
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
           })}
@@ -265,7 +266,7 @@ export default function OIDCClientEdit() {
                   color: 'error.main',
                   bgcolor: alpha(theme.palette.error.main, 0.1),
                   p: 1.5,
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   border: '1px solid',
                   borderColor: alpha(theme.palette.error.main, 0.3),
                   flexGrow: 1,
@@ -276,8 +277,15 @@ export default function OIDCClientEdit() {
               </Typography>
               <Tooltip title='Copy Secret'>
                 <IconButton
+                  aria-label='Copy Secret'
                   onClick={() => handleCopy(newSecret, 'Client Secret')}
-                  sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}
+                  sx={{
+                    minWidth: 44,
+                    minHeight: 44,
+                    bgcolor: 'background.paper',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                  }}
                 >
                   <ContentCopy />
                 </IconButton>
@@ -289,7 +297,7 @@ export default function OIDCClientEdit() {
 
       <Card
         sx={(theme: any) => ({
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           mb: 4,
           border: '1px solid ' + theme.palette.divider,
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -302,7 +310,7 @@ export default function OIDCClientEdit() {
               mb: 4,
               p: 2,
               bgcolor: alpha(theme.palette.primary.main, 0.02),
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               border: '1px solid',
               borderColor: alpha(theme.palette.primary.main, 0.1),
             }}
@@ -324,6 +332,7 @@ export default function OIDCClientEdit() {
               <Tooltip title='Copy Client ID'>
                 <IconButton
                   size='small'
+                  aria-label='Copy Client ID'
                   onClick={() =>
                     handleCopy(
                       (clientResponse.data as any).client_id ||
@@ -331,6 +340,7 @@ export default function OIDCClientEdit() {
                       'Client ID',
                     )
                   }
+                  sx={{ minWidth: 44, minHeight: 44 }}
                 >
                   <ContentCopy fontSize='small' />
                 </IconButton>
@@ -364,7 +374,7 @@ export default function OIDCClientEdit() {
             render={({ field }) => (
               <TextField
                 {...field}
-                label={t('common.description', 'Description')}
+                label={t('auth.common.description', 'Description')}
                 fullWidth
                 multiline
                 rows={2}
@@ -462,9 +472,9 @@ export default function OIDCClientEdit() {
               component={RouterLink}
               to={Path.identity.oidcConfigBrowser}
               color='inherit'
-              sx={{ fontWeight: 600 }}
+              sx={{ fontWeight: 600, minHeight: 48, borderRadius: 'var(--sf-radius-md, 8px)' }}
             >
-              {t('common.cancel', 'Cancel')}
+              {t('auth.common.cancel', 'Cancel')}
             </Button>
             <Button
               type='submit'
@@ -473,13 +483,16 @@ export default function OIDCClientEdit() {
               sx={{
                 fontWeight: 700,
                 px: 4,
-                borderRadius: 2,
-                boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
+                minHeight: 48,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                bgcolor: 'primary.main',
+                boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
+                '&:hover': { bgcolor: 'primary.dark' },
               }}
             >
               {isSubmitting
-                ? t('common.saving', 'Saving...')
-                : t('common.save_changes', 'Save Changes')}
+                ? t('auth.common.saving', 'Saving...')
+                : t('auth.common.save_changes', 'Save Changes')}
             </Button>
           </Box>
         </Box>
@@ -488,7 +501,7 @@ export default function OIDCClientEdit() {
       {/* Danger Zone */}
       <Card
         sx={(theme: any) => ({
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid ' + theme.palette.error.main,
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
         })}
@@ -526,6 +539,7 @@ export default function OIDCClientEdit() {
               startIcon={<Refresh />}
               onClick={() => setRotateDialogOpen(true)}
               disabled={rotateMutation.isPending}
+              sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
             >
               {t('auth.sso.rotate_secret', 'Rotate Secret')}
             </Button>
@@ -547,19 +561,24 @@ export default function OIDCClientEdit() {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setRotateDialogOpen(false)} color='inherit'>
-            {t('common.cancel', 'Cancel')}
+          <Button
+            onClick={() => setRotateDialogOpen(false)}
+            color='inherit'
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
+          >
+            {t('auth.common.cancel', 'Cancel')}
           </Button>
           <Button
             onClick={handleRotateSecret}
             color='error'
             variant='contained'
             disabled={rotateMutation.isPending}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
             autoFocus
           >
             {rotateMutation.isPending
-              ? t('common.processing', 'Processing...')
-              : t('common.confirm', 'Confirm')}
+              ? t('auth.common.processing', 'Processing...')
+              : t('auth.common.confirm', 'Confirm')}
           </Button>
         </DialogActions>
       </Dialog>
