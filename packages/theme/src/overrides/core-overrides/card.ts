@@ -30,7 +30,7 @@ const card = (skin: Skin): Theme["components"] => {
           // in the chain any build that defines it would pin every card to an
           // opaque surface and no effect could ever be seen on a card again.
           backgroundColor: `var(--effect-bg, var(--surface-paper, ${theme.palette.background.paper}))`,
-          borderColor: `var(--glass-border, var(--surface-border, ${theme.palette.divider}))`,
+          borderColor: `var(--glass-border, var(--sf-border, var(--surface-border, ${theme.palette.divider})))`,
           // `--glass-blur` is a raw length (16px) - it backs per-component
           // opt-in glass, where it is wrapped in blur() at the point of use.
           // Reading it here handed backdrop-filter a bare length, which is not
@@ -39,7 +39,17 @@ const card = (skin: Skin): Theme["components"] => {
           // ready-made `blur(...)` the effect layer emits for exactly this.
           backdropFilter: "var(--effect-backdrop, none)",
           ...(ownerState.variant !== "outlined" && {
-            boxShadow: `var(--glass-shadow, var(--effect-shadow, var(--comp-card-box-shadow, ${(theme as Theme).customShadows.md})))`,
+            // A hairline token border on every card (not just `variant="outlined"`),
+            // so a card reads as a contained surface even where its shadow is
+            // faint — on the light canvas, or under a flat effect. The colour
+            // still rides the effect-aware chain above (`--glass-border` wins
+            // for glass, then the plain surface border).
+            borderStyle: "solid",
+            borderWidth: "var(--sf-border-1, var(--border-width-hairline, 1px))",
+            // Ink-tinted elevation: --sf-shadow-md (the mode-tinted Serafort
+            // ramp) ahead of the equally-tinted customShadows fallback, so a
+            // card lifts off both the fog-white and the navy canvas.
+            boxShadow: `var(--glass-shadow, var(--effect-shadow, var(--comp-card-box-shadow, var(--sf-shadow-md, ${(theme as Theme).customShadows.md}))))`,
           }),
         }),
       },

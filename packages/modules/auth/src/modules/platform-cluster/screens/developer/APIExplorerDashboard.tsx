@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   Box,
   Typography,
@@ -115,7 +118,7 @@ function MethodBadge({ method, size = 'medium' }: { method: string; size?: 'smal
       <Typography
         sx={{
           fontFamily: 'monospace',
-          fontWeight: 900,
+          fontWeight: 800,
           fontSize: size === 'small' ? '0.6875rem' : '0.75rem',
           letterSpacing: '0.04em',
           color,
@@ -223,6 +226,8 @@ async function executeSandboxCall(
 
 export default function APIExplorerDashboard() {
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const { t } = useTranslation('common')
   const [searchTerm, setSearchTerm] = useState('')
   const [endpoints, setEndpoints] = useState<APIEndpoint[]>([])
@@ -323,6 +328,7 @@ export default function APIExplorerDashboard() {
   }
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       <Box
         sx={{
@@ -340,7 +346,7 @@ export default function APIExplorerDashboard() {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 letterSpacing: '-0.027em',
                 fontSize: { xs: '1.5rem', md: '2.125rem' },
               }}
@@ -360,7 +366,7 @@ export default function APIExplorerDashboard() {
           <Button
             variant='outlined'
             startIcon={<TerminalIcon />}
-            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2, px: 2.5 }}
+            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', px: 2.5, minHeight: 44 }}
             onClick={() => setDetailTab(3)}
           >
             {t('auth.developer.sdkGuides', 'SDK Guides')}
@@ -371,12 +377,11 @@ export default function APIExplorerDashboard() {
             sx={{
               textTransform: 'none',
               fontWeight: 700,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 2.5,
-              bgcolor: 'info.main',
+              minHeight: 48,
+              bgcolor: 'primary.main',
               color: 'white',
-              boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-              '&:hover': { bgcolor: 'info.dark' },
             }}
             onClick={() => setDetailTab(2)}
           >
@@ -401,7 +406,8 @@ export default function APIExplorerDashboard() {
           <Grid size={{ xs: 12, md: 4 }}>
             <Paper
               sx={{
-                borderRadius: 4,
+                ...surfaceEffect,
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
@@ -428,7 +434,7 @@ export default function APIExplorerDashboard() {
                     },
                   }}
                   sx={{
-                    '& .MuiOutlinedInput-root': { borderRadius: 2 },
+                    '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' },
                   }}
                 />
                 <Typography
@@ -484,7 +490,7 @@ export default function APIExplorerDashboard() {
                             sx={{
                               px: 1.5,
                               py: 1,
-                              borderRadius: 2,
+                              borderRadius: 'var(--sf-radius-md, 8px)',
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',
@@ -533,7 +539,7 @@ export default function APIExplorerDashboard() {
                   m: 1.5,
                   mt: 0,
                   p: 2,
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   bgcolor: alpha(theme.palette.info.main, 0.05),
                   border: '1px solid',
                   borderColor: alpha(theme.palette.info.main, 0.1),
@@ -560,7 +566,8 @@ export default function APIExplorerDashboard() {
             {selectedEndpoint ? (
               <Card
                 sx={{
-                  borderRadius: 4,
+                  ...surfaceEffect,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
@@ -667,7 +674,7 @@ export default function APIExplorerDashboard() {
                   </Box>
 
                   <Box sx={{ p: 3 }}>
-                    {/* Tab 0 â€” Security */}
+                    {/* Tab 0 — Security */}
                     <TabPanel value={detailTab} index={0}>
                       <Typography
                         variant='caption'
@@ -687,7 +694,7 @@ export default function APIExplorerDashboard() {
                         {selectedEndpoint.isPublic ? (
                           <Chip
                             icon={<PublicIcon sx={{ fontSize: 15 }} />}
-                            label={t('auth.developer.publicNoAuth', 'Public â€” No Auth Required')}
+                            label={t('auth.developer.publicNoAuth', 'Public — No Auth Required')}
                             color='success'
                             size='small'
                             variant='outlined'
@@ -725,7 +732,7 @@ export default function APIExplorerDashboard() {
                           sx={{
                             mt: 3,
                             p: 2,
-                            borderRadius: 2,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             bgcolor: alpha(theme.palette.warning.main, 0.04),
                             border: '1px solid',
                             borderColor: alpha(theme.palette.warning.main, 0.15),
@@ -756,7 +763,7 @@ export default function APIExplorerDashboard() {
                       )}
                     </TabPanel>
 
-                    {/* Tab 1 â€” Request */}
+                    {/* Tab 1 — Request */}
                     <TabPanel value={detailTab} index={1}>
                       <Typography
                         variant='caption'
@@ -774,10 +781,11 @@ export default function APIExplorerDashboard() {
 
                       <Paper
                         sx={{
+                          ...surfaceEffect,
                           bgcolor: alpha(theme.palette.text.primary, 0.04),
                           border: '1px solid',
                           borderColor: 'divider',
-                          borderRadius: 3,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           p: 2.5,
                           position: 'relative',
                           overflow: 'hidden',
@@ -874,7 +882,7 @@ export default function APIExplorerDashboard() {
                       </Stack>
                     </TabPanel>
 
-                    {/* Tab 3 â€” SDK */}
+                    {/* Tab 3 — SDK */}
                     <TabPanel value={detailTab} index={3}>
                       <Typography
                         variant='caption'
@@ -898,8 +906,9 @@ export default function APIExplorerDashboard() {
                           <Grid size={{ xs: 12 }} key={lang}>
                             <Paper
                               sx={{
+                                ...surfaceEffect,
                                 p: 2,
-                                borderRadius: 3,
+                                borderRadius: 'var(--sf-radius-md, 8px)',
                                 border: '1px solid',
                                 borderColor: 'divider',
                                 position: 'relative',
@@ -946,12 +955,12 @@ export default function APIExplorerDashboard() {
                       </Grid>
                     </TabPanel>
 
-                    {/* Tab 2 â€” Try It */}
+                    {/* Tab 2 — Try It */}
                     <TabPanel value={detailTab} index={2}>
                       <Box
                         sx={{
                           p: 3,
-                          borderRadius: 3,
+                          borderRadius: 'var(--sf-radius-lg, 12px)',
                           bgcolor: alpha(theme.palette.info.main, 0.04),
                           border: '1px solid',
                           borderColor: alpha(theme.palette.info.main, 0.12),
@@ -997,7 +1006,7 @@ export default function APIExplorerDashboard() {
                               '& .MuiOutlinedInput-root': {
                                 fontFamily: 'monospace',
                                 fontSize: '0.8125rem',
-                                borderRadius: 3,
+                                borderRadius: 'var(--sf-radius-lg, 12px)',
                                 bgcolor: alpha(theme.palette.text.primary, 0.02),
                               },
                             }}
@@ -1019,7 +1028,7 @@ export default function APIExplorerDashboard() {
                           )
                         }
                         sx={{
-                          borderRadius: 2,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                           fontWeight: 700,
                           textTransform: 'none',
                           fontSize: '1rem',
@@ -1076,7 +1085,7 @@ export default function APIExplorerDashboard() {
                               bgcolor: alpha(theme.palette.text.primary, 0.04),
                               border: '1px solid',
                               borderColor: 'divider',
-                              borderRadius: 3,
+                              borderRadius: 'var(--sf-radius-lg, 12px)',
                               p: 2.5,
                               maxHeight: 400,
                               overflow: 'auto',
@@ -1115,7 +1124,7 @@ export default function APIExplorerDashboard() {
                   gap: 1,
                   border: '1px dashed',
                   borderColor: 'divider',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                 }}
               >
                 <ApiIcon sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
@@ -1134,5 +1143,6 @@ export default function APIExplorerDashboard() {
         </Grid>
       )}
     </Box>
+    </motion.div>
   )
 }

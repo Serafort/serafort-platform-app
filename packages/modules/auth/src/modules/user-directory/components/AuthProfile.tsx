@@ -134,7 +134,7 @@ const AuthProfile = () => {
               filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.12))',
               mt: 1.5,
               minWidth: 200,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               '& .MuiAvatar-root': {
                 width: 32,
                 height: 32,
@@ -188,7 +188,7 @@ const AuthProfile = () => {
             disabled={isPending}
             size='small'
             sx={{
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               textTransform: 'none',
               fontWeight: 600,
             }}

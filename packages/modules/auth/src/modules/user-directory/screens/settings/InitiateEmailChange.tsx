@@ -35,6 +35,9 @@ import { useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import { useNotifications } from '@cap/platform-core'
 import { useGetUser, useChangeEmail } from '../../hooks/useUserQuery'
 import { Path } from '../../../../routes/path'
@@ -51,6 +54,8 @@ export default function InitiateEmailChange() {
   const theme = useTheme()
   const navigate = useNavigate()
   const { addNotification } = useNotifications()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const [showPassword, setShowPassword] = useState(false)
 
   const { data: userData } = useGetUser()
@@ -107,246 +112,289 @@ export default function InitiateEmailChange() {
   }
 
   return (
-    <Container maxWidth='md' sx={{ py: { xs: 3, md: 5 } }}>
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={() => navigate('/profile')}
-          sx={{
-            mb: 1.5,
-            textTransform: 'none',
-            fontWeight: 600,
-            color: 'text.secondary',
-            p: 0,
-            minWidth: 0,
-            '&:hover': { bgcolor: 'transparent', color: 'text.primary' },
-          }}
-        >
-          {t('common.backToProfile', 'Back to Profile')}
-        </Button>
-        <Typography variant='h4' fontWeight={800} letterSpacing='-0.025em' gutterBottom>
-          {t('auth.account.initiate_email_change_title', 'Initiate Email Change')}
-        </Typography>
-        <Typography variant='body2' color='text.secondary'>
-          {t(
-            'auth.account.initiate_email_change_desc',
-            'Update your primary contact email for login and security notifications. This action requires re-verification.',
-          )}
-        </Typography>
-      </Box>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      <Container maxWidth='md' sx={{ py: { xs: 3, md: 5 } }}>
+        {/* Header */}
+        <Box sx={{ mb: 4 }}>
+          <Button
+            startIcon={<ArrowBack />}
+            onClick={() => navigate(Path.account.view || '/profile')}
+            sx={{
+              mb: 2.5,
+              textTransform: 'none',
+              fontWeight: 600,
+              color: 'text.secondary',
+              minHeight: 44,
+              px: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              bgcolor: alpha(theme.palette.action.active, 0.04),
+              '&:hover': {
+                bgcolor: alpha(theme.palette.action.active, 0.08),
+                color: 'text.primary',
+              },
+            }}
+          >
+            {t('common.backToProfile', 'Back to Profile')}
+          </Button>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Grid container spacing={3.5}>
-          <Grid size={{ xs: 12, md: 7 }}>
-            <Stack spacing={3}>
-              {/* Account Status Card */}
-              <Card
-                sx={{
-                  borderRadius: 3,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
-                  boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
-                  bgcolor: 'background.paper',
-                }}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Typography variant='subtitle2' fontWeight={700} sx={{ mb: 2 }}>
-                    {t('auth.account.current_account_status', 'Current Account Status')}
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar
-                      sx={{
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        color: 'primary.main',
-                        mr: 2,
-                        width: 44,
-                        height: 44,
-                      }}
-                    >
-                      <Mail />
-                    </Avatar>
-                    <Box>
-                      <Typography variant='body2' fontWeight={700}>
-                        {currentEmail}
-                      </Typography>
-                      <Box
+          <Stack direction='row' alignItems='center' spacing={2.5}>
+            <Box
+              sx={{
+                width: 64,
+                height: 64,
+                borderRadius: 'var(--sf-radius-lg, 16px)',
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Mail sx={{ fontSize: 32 }} />
+            </Box>
+            <Box>
+              <Typography variant='h4' fontWeight={800} letterSpacing='-0.025em'>
+                {t('auth.account.initiate_email_change_title', 'Initiate Email Change')}
+              </Typography>
+              <Typography variant='body2' color='text.secondary' sx={{ mt: 0.5 }}>
+                {t(
+                  'auth.account.initiate_email_change_desc',
+                  'Update your primary contact email for login and security notifications. This action requires re-verification.'
+                )}
+              </Typography>
+            </Box>
+          </Stack>
+        </Box>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={3.5}>
+            <Grid size={{ xs: 12, md: 7 }}>
+              <Stack spacing={3}>
+                {/* Account Status Card */}
+                <Card
+                  variant='outlined'
+                  sx={{
+                    borderRadius: 'var(--sf-radius-lg, 16px)',
+                    borderColor: alpha(theme.palette.divider, 0.1),
+                    bgcolor: 'background.paper',
+                    ...surfaceEffect,
+                  }}
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography variant='subtitle2' fontWeight={700} sx={{ mb: 2 }}>
+                      {t('auth.account.current_account_status', 'Current Account Status')}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Avatar
                         sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          color: 'text.secondary',
-                          mt: 0.25,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          color: 'primary.main',
+                          mr: 2,
+                          width: 44,
+                          height: 44,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
                         }}
                       >
-                        <CalendarToday sx={{ fontSize: 13, mr: 0.5 }} />
-                        <Typography variant='caption'>
-                          {t('auth.account.member_since', 'Member since {{date}}', {
-                            date: memberSince,
-                          })}
+                        <Mail />
+                      </Avatar>
+                      <Box>
+                        <Typography variant='body2' fontWeight={700}>
+                          {currentEmail}
                         </Typography>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            color: 'text.secondary',
+                            mt: 0.25,
+                          }}
+                        >
+                          <CalendarToday sx={{ fontSize: 13, mr: 0.5 }} />
+                          <Typography variant='caption'>
+                            {t('auth.account.member_since', 'Member since {{date}}', {
+                              date: memberSince,
+                            })}
+                          </Typography>
+                        </Box>
                       </Box>
                     </Box>
-                  </Box>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              {/* Form Input Card */}
-              <Card
-                sx={{
-                  borderRadius: 3,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
-                  boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
-                  bgcolor: 'background.paper',
-                }}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Typography
-                    variant='subtitle2'
-                    fontWeight={700}
-                    sx={{ mb: 2, display: 'flex', alignItems: 'center' }}
-                  >
-                    <Security sx={{ mr: 1, fontSize: 18, color: 'primary.main' }} />
-                    {t('auth.account.security_verification', 'New Email & Identity Verification')}
-                  </Typography>
-
-                  <Stack spacing={2.5}>
-                    <Controller
-                      name='newEmail'
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          fullWidth
-                          label={t('auth.account.new_email_address', 'New Email Address')}
-                          placeholder={t(
-                            'auth.account.new_email_placeholder',
-                            'e.g. name@work.com',
-                          )}
-                          error={Boolean(errors.newEmail)}
-                          helperText={errors.newEmail?.message}
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position='start'>
-                                <Mail color='action' />
-                              </InputAdornment>
-                            ),
-                            sx: { borderRadius: 2 },
-                          }}
-                        />
-                      )}
-                    />
-
-                    <Controller
-                      name='currentPassword'
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          fullWidth
-                          type={showPassword ? 'text' : 'password'}
-                          label={t('auth.account.current_password', 'Current Password')}
-                          placeholder={t(
-                            'auth.account.confirm_password_placeholder',
-                            'Confirm your password',
-                          )}
-                          error={Boolean(errors.currentPassword)}
-                          helperText={errors.currentPassword?.message}
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position='start'>
-                                <Lock color='action' />
-                              </InputAdornment>
-                            ),
-                            endAdornment: (
-                              <InputAdornment position='end'>
-                                <IconButton
-                                  size='small'
-                                  onClick={() => setShowPassword(!showPassword)}
-                                >
-                                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                            sx: { borderRadius: 2 },
-                          }}
-                        />
-                      )}
-                    />
-                  </Stack>
-                </CardContent>
-              </Card>
-
-              {/* Submit CTA */}
-              <Button
-                type='submit'
-                variant='contained'
-                fullWidth
-                size='large'
-                disabled={isSubmitting}
-                endIcon={
-                  isSubmitting ? <CircularProgress size={18} color='inherit' /> : <ArrowForward />
-                }
-                sx={{
-                  py: 1.5,
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                }}
-              >
-                {isSubmitting
-                  ? t('auth.account.dispatching_verification', 'Dispatching Verification...')
-                  : t('auth.account.continue_to_confirmation', 'Continue to Confirmation')}
-              </Button>
-            </Stack>
-          </Grid>
-
-          {/* Right Warning Column */}
-          <Grid size={{ xs: 12, md: 5 }}>
-            <Stack spacing={2.5}>
-              <Alert
-                severity='warning'
-                icon={<Warning fontSize='inherit' />}
-                sx={{
-                  borderRadius: 2.5,
-                  bgcolor: alpha(theme.palette.warning.main, 0.08),
-                  border: `1px solid ${alpha(theme.palette.warning.main, 0.2)}`,
-                }}
-              >
-                <AlertTitle sx={{ fontWeight: 700 }}>
-                  {t('auth.account.session_termination_warning', 'Security Notice')}
-                </AlertTitle>
-                <Typography variant='body2' color='text.secondary'>
-                  {t(
-                    'auth.account.session_termination_desc',
-                    'Changing your primary email address will require immediate re-verification. All other active sessions will be invalidated for security.',
-                  )}
-                </Typography>
-              </Alert>
-
-              <Box
-                sx={{
-                  p: 2.5,
-                  borderRadius: 2.5,
-                  bgcolor: alpha(theme.palette.background.paper, 0.5),
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                }}
-              >
-                <Typography
-                  variant='caption'
-                  color='text.secondary'
-                  display='block'
-                  textAlign='center'
+                {/* Form Input Card */}
+                <Card
+                  variant='outlined'
+                  sx={{
+                    borderRadius: 'var(--sf-radius-lg, 16px)',
+                    borderColor: alpha(theme.palette.divider, 0.1),
+                    bgcolor: 'background.paper',
+                    ...surfaceEffect,
+                  }}
                 >
-                  {t(
-                    'auth.account.security_footer',
-                    'Protected by end-to-end multi-factor validation and enterprise audit logging.',
-                  )}
-                </Typography>
-              </Box>
-            </Stack>
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography
+                      variant='subtitle2'
+                      fontWeight={700}
+                      sx={{ mb: 2, display: 'flex', alignItems: 'center' }}
+                    >
+                      <Security sx={{ mr: 1, fontSize: 18, color: 'primary.main' }} />
+                      {t('auth.account.security_verification', 'New Email & Identity Verification')}
+                    </Typography>
+
+                    <Stack spacing={2.5}>
+                      <Controller
+                        name='newEmail'
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            fullWidth
+                            label={t('auth.account.new_email_address', 'New Email Address')}
+                            placeholder={t(
+                              'auth.account.new_email_placeholder',
+                              'e.g. name@work.com'
+                            )}
+                            error={Boolean(errors.newEmail)}
+                            helperText={errors.newEmail?.message}
+                            slotProps={{
+                              input: {
+                                startAdornment: (
+                                  <InputAdornment position='start'>
+                                    <Mail color='action' />
+                                  </InputAdornment>
+                                ),
+                                sx: { minHeight: 48, borderRadius: 'var(--sf-radius-md, 8px)' },
+                              },
+                            }}
+                          />
+                        )}
+                      />
+
+                      <Controller
+                        name='currentPassword'
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            fullWidth
+                            type={showPassword ? 'text' : 'password'}
+                            label={t('auth.account.current_password', 'Current Password')}
+                            placeholder={t(
+                              'auth.account.confirm_password_placeholder',
+                              'Confirm your password'
+                            )}
+                            error={Boolean(errors.currentPassword)}
+                            helperText={errors.currentPassword?.message}
+                            slotProps={{
+                              input: {
+                                startAdornment: (
+                                  <InputAdornment position='start'>
+                                    <Lock color='action' />
+                                  </InputAdornment>
+                                ),
+                                endAdornment: (
+                                  <InputAdornment position='end'>
+                                    <IconButton
+                                      size='small'
+                                      onClick={() => setShowPassword(!showPassword)}
+                                      sx={{
+                                        minWidth: 44,
+                                        minHeight: 44,
+                                        borderRadius: 'var(--sf-radius-md, 8px)',
+                                      }}
+                                    >
+                                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                  </InputAdornment>
+                                ),
+                                sx: { minHeight: 48, borderRadius: 'var(--sf-radius-md, 8px)' },
+                              },
+                            }}
+                          />
+                        )}
+                      />
+                    </Stack>
+                  </CardContent>
+                </Card>
+
+                {/* Submit CTA */}
+                <Button
+                  type='submit'
+                  variant='contained'
+                  fullWidth
+                  size='large'
+                  disabled={isSubmitting}
+                  endIcon={
+                    isSubmitting ? <CircularProgress size={18} color='inherit' /> : <ArrowForward />
+                  }
+                  sx={{
+                    minHeight: 48,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    fontWeight: 700,
+                  }}
+                >
+                  {isSubmitting
+                    ? t('auth.account.dispatching_verification', 'Dispatching Verification...')
+                    : t('auth.account.continue_to_confirmation', 'Continue to Confirmation')}
+                </Button>
+              </Stack>
+            </Grid>
+
+            {/* Right Warning Column */}
+            <Grid size={{ xs: 12, md: 5 }}>
+              <Stack spacing={2.5}>
+                <Alert
+                  severity='warning'
+                  icon={<Warning fontSize='inherit' />}
+                  sx={{
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    bgcolor: alpha(theme.palette.warning.main, 0.08),
+                    border: `1px solid ${alpha(theme.palette.warning.main, 0.2)}`,
+                  }}
+                >
+                  <AlertTitle sx={{ fontWeight: 700 }}>
+                    {t('auth.account.session_termination_warning', 'Security Notice')}
+                  </AlertTitle>
+                  <Typography variant='body2' color='text.secondary'>
+                    {t(
+                      'auth.account.session_termination_desc',
+                      'Changing your primary email address will require immediate re-verification. All other active sessions will be invalidated for security.'
+                    )}
+                  </Typography>
+                </Alert>
+
+                <Box
+                  sx={{
+                    p: 2.5,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    bgcolor: alpha(theme.palette.background.paper, 0.5),
+                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  }}
+                >
+                  <Typography
+                    variant='caption'
+                    color='text.secondary'
+                    display='block'
+                    textAlign='center'
+                  >
+                    {t(
+                      'auth.account.security_footer',
+                      'Protected by end-to-end multi-factor validation and enterprise audit logging.'
+                    )}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Grid>
           </Grid>
-        </Grid>
-      </form>
-    </Container>
+        </form>
+      </Container>
+    </motion.div>
   )
 }

@@ -27,7 +27,7 @@ export interface StateComponentTokens {
     fieldBorder: string; // '1px solid var(--color-error-500)'
     fieldFocusRing: string; // '0 0 0 3px rgba(239, 68, 68, 0.2)'
     badgeBackground: string; // 'rgba(239, 68, 68, 0.12)'
-    messageColor: string; // 'var(--color-error-600)'
+    messageColor: string; // 'var(--semantic-error-text)' — WCAG-AA text on paper
   };
 
   // 4. Success State
@@ -57,7 +57,7 @@ export const stateComponentTokens: StateComponentTokens = {
     fieldBorder: "1px solid var(--color-error-500, #DC2626)",
     fieldFocusRing: "0 0 0 3px rgba(220, 38, 38, 0.2)",
     badgeBackground: "rgba(220, 38, 38, 0.12)",
-    messageColor: "var(--color-error-600, #B91C1C)",
+    messageColor: "var(--semantic-error-text, #B42121)",
   },
   success: {
     iconCheckColor: "var(--color-success-500, #16A34A)",

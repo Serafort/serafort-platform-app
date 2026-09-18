@@ -1,7 +1,4 @@
-export { default as InitiateEmailChange } from './InitiateEmailChange'
 export { default as EmailChangeStatus } from './EmailChangeStatus'
-export { default as EmailChangeVerificationPending } from './EmailChangeVerificationPending'
 export { default as EmailChangeVerification } from './EmailChangeVerification'
 export { default as EmailChangeSuccess } from './EmailChangeSuccess'
 export { default as EmailChangeFailed } from './EmailChangeFailed'
-export { default as ExportVerification } from './ExportVerification'

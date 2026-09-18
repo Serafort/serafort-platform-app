@@ -88,7 +88,7 @@ export default function BulkActionModal({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: 'var(--sf-radius-lg, 12px)',
           boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.25)',
           overflow: 'hidden',
           border: `1px solid ${
@@ -114,7 +114,7 @@ export default function BulkActionModal({
           <Box
             sx={{
               p: 1,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               bgcolor: isDelete
                 ? alpha(theme.palette.error.main, 0.1)
                 : isSuspend
@@ -190,7 +190,7 @@ export default function BulkActionModal({
             textTransform: 'none',
             fontWeight: 700,
             px: 3,
-            borderRadius: 2,
+            borderRadius: 'var(--sf-radius-md, 8px)',
             minWidth: 120,
           }}
         >
