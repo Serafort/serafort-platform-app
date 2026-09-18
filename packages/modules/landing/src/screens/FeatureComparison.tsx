@@ -170,7 +170,8 @@ const categoryNames = {
   analytics: 'Analytics & Insights',
 }
 
-// Hoist static calculation out of the component to prevent unnecessary recalculation on every render
+// ⚡ Bolt Performance Optimization: Hoisted groupedFeatures outside the component
+// to avoid recalculating the array reduction on every render, as features is static.
 const groupedFeatures = features.reduce(
   (acc, feature) => {
     if (!acc[feature.category]) {

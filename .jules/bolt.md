@@ -5,3 +5,7 @@
 ## 2024-05-18 - Hoisting static data reductions
 **Learning:** Found an instance in FeatureComparison.tsx where a reduction on a static array was being performed inside the render cycle, unnecessarily recalculating `groupedFeatures` on every render.
 **Action:** Always hoist computations that rely entirely on static module-level data outside of React component definitions. This avoids overhead without needing `useMemo`, keeping components lean.
+
+## 2024-09-17 - Avoid Math.random() in React keys
+**Learning:** Using `Math.random()` in React component `key` props forces React to see the elements as entirely new instances on every single render. This anti-pattern completely disables React's diffing algorithm and causes the entire component sub-tree to unmount and remount repeatedly, leading to disastrous performance issues (especially in complex data grids like tables).
+**Action:** Always use stable identifiers for React keys (e.g. `item.id`, `column.key`, or index as a last resort). Never use random functions or Date.now() for list items or elements unless you explicitly want to force a full re-initialization (and even then, handle carefully).
