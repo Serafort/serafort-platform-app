@@ -118,3 +118,50 @@ export const withAmbientDepth = (
   if (mode !== "dark" || !boxShadow || boxShadow === "none") return boxShadow;
   return `${DARK_EDGE_HIGHLIGHT}, ${boxShadow}, ${DARK_CONTAINMENT_RING}`;
 };
+
+/**
+ * The five numeric elevation indices that `composeMuiTheme` already exposes to
+ * screen authors through a `--shadow-*` custom property (`SHADOW_VAR_ANCHORS`).
+ * `theme.shadows[1|4|8|16|24]` render as `var(--shadow-<key>, <generated>)`, so
+ * emitting these names statically with the *same* generated value is a no-op
+ * for MUI elevation while giving `sx` / styled code a stable `var(--shadow-md)`
+ * token to reach for instead of hardcoding a `box-shadow` list.
+ */
+const SHADOW_SCALE_ANCHORS = {
+  xs: 1,
+  sm: 4,
+  md: 8,
+  lg: 16,
+  xl: 24,
+} as const;
+
+/**
+ * Brand focus/emphasis glow. Blue on the light canvas, cyan in dark mode to
+ * match the brand CTA colour (`--sf-cta-bg`). Pairs with `--form-input-focus-ring`
+ * for controls; use `--shadow-glow` for cards, dialogs and celebration surfaces.
+ */
+const GLOW_SHADOW: Record<SystemMode, string> = {
+  light:
+    "0px 0px 0px 3px rgba(4, 123, 250, 0.24), 0px 4px 18px 0px rgba(4, 123, 250, 0.22)",
+  dark: "0px 0px 0px 3px rgba(6, 203, 253, 0.30), 0px 4px 20px 0px rgba(6, 203, 253, 0.26)",
+};
+
+/**
+ * The `--shadow-xs … --shadow-xl` elevation scale plus `--shadow-glow`, as a
+ * flat CSS-custom-property map for the given mode. Emitted at `:root` by
+ * `GlobalStyles` and mirrored into `tokensToCssVariables`, so every surface has
+ * an ink-tinted elevation token that is consistent with `theme.shadows`.
+ */
+export const elevationShadowCssVars = (
+  mode: SystemMode,
+): Record<string, string> => {
+  const ramp = elevationScale(mode);
+  const vars: Record<string, string> = {};
+
+  for (const [key, index] of Object.entries(SHADOW_SCALE_ANCHORS)) {
+    vars[`--shadow-${key}`] = ramp[index] as string;
+  }
+  vars["--shadow-glow"] = GLOW_SHADOW[mode];
+
+  return vars;
+};

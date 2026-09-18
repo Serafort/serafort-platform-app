@@ -30,7 +30,7 @@ const ConfirmDeleteModal = ({
       onClose={onClose}
       PaperProps={{
         sx: {
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 12px)',
           bgcolor: 'background.paper',
           color: 'text.primary',
           border: '1px solid',
@@ -78,7 +78,7 @@ const ConfirmDeleteModal = ({
             disabled={isSubmitting}
             sx={{
               py: 1.5,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               fontWeight: 600,
             }}
           >

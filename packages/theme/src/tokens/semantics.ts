@@ -92,6 +92,59 @@ export interface BorderRoleTokens {
   focus: string;
 }
 
+/**
+ * Text-safe feedback colours
+ * --------------------------
+ * `brandSemantics.success` (#16A34A), `.warning` (#D97706) and friends are the
+ * *fill* colours — they carry a chip or an icon, but as body text on the
+ * fog-white canvas they fall short of the WCAG 2.2 AA 4.5:1 contrast floor.
+ * These darker (light mode) / lighter (dark mode) variants are the ones to use
+ * for inline validation messages, helper text and any feedback set in running
+ * text. Values are hand-tuned to clear 4.5:1 against `semanticSurfaces[mode].paper`.
+ */
+export interface SemanticTextColorTokens {
+  successText: string;
+  warningText: string;
+  errorText: string;
+  infoText: string;
+}
+
+export const semanticTextColors: Record<
+  "light" | "dark",
+  SemanticTextColorTokens
+> = {
+  light: {
+    successText: "#0F7A3D",
+    warningText: "#A15C03",
+    errorText: "#B42121",
+    infoText: "#0437A2",
+  },
+  dark: {
+    // High-contrast equivalents for the navy paper surface (#032457).
+    successText: "#3DD68C",
+    warningText: "#F5B544",
+    errorText: "#FF8A8A",
+    infoText: "#8FC2FF",
+  },
+};
+
+/**
+ * The text-safe feedback colours as a flat `--semantic-*-text` custom-property
+ * map for the given mode. Emitted at `:root` by `GlobalStyles` and mirrored
+ * into `tokensToCssVariables`.
+ */
+export const semanticTextCssVars = (
+  mode: "light" | "dark",
+): Record<string, string> => {
+  const text = semanticTextColors[mode];
+  return {
+    "--semantic-success-text": text.successText,
+    "--semantic-warning-text": text.warningText,
+    "--semantic-error-text": text.errorText,
+    "--semantic-info-text": text.infoText,
+  };
+};
+
 export const semanticBorders: Record<"light" | "dark", BorderRoleTokens> = {
   light: {
     subtle: "rgba(3, 20, 51, 0.06)",
