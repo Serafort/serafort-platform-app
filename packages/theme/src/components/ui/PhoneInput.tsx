@@ -7,22 +7,25 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 const PhoneInput2 = styled("div")(({ theme }) => ({
   "& .form-control": {
     width: "100%",
-    height: "56px",
+    height: "var(--form-input-height, 48px)",
+    minHeight: "48px",
     background: "transparent",
-    border: `1px solid `,
-    borderRadius: "8px",
-    fontSize: "1rem",
+    border: `1px solid var(--sf-border, ${theme.palette.divider})`,
+    borderRadius: "var(--sf-radius-md, 8px)",
+    fontSize: "var(--sf-text-base, 0.875rem)",
     paddingLeft: "58px",
     color: theme.palette.text.primary,
     fontFamily: theme.typography.fontFamily,
+    transition: "box-shadow 0.2s ease, border-color 0.2s ease",
     "&:focus": {
       borderColor: theme.palette.primary.main,
-      boxShadow: `0 0 0 1px `,
+      boxShadow: "var(--sf-shadow-glow, 0 0 0 3px rgba(6, 203, 253, 0.18))",
+      outline: "none",
     },
     "&.invalid-number": {
       borderColor: theme.palette.error.main,
       "&:focus": {
-        boxShadow: `0 0 0 1px `,
+        boxShadow: "var(--state-error-focus-ring, 0 0 0 3px rgba(220, 38, 38, 0.25))",
       },
     },
   },
@@ -31,7 +34,9 @@ const PhoneInput2 = styled("div")(({ theme }) => ({
     top: 0,
     bottom: 0,
     padding: 0,
-    borderRadius: "3px 0 0 3px",
+    borderRadius: "var(--sf-radius-md, 8px) 0 0 var(--sf-radius-md, 8px)",
+    border: `1px solid var(--sf-border, ${theme.palette.divider})`,
+    borderRight: "none",
     "&:hover, &:focus": {
       cursor: "pointer",
     },
@@ -52,11 +57,11 @@ const PhoneInput2 = styled("div")(({ theme }) => ({
     width: "52px",
     height: "100%",
     padding: "0 0 0 11px",
-    borderRadius: "3px 0 0 3px",
+    borderRadius: "var(--sf-radius-md, 8px) 0 0 var(--sf-radius-md, 8px)",
     "&:focus .arrow": {
       borderLeftWidth: "4px",
       borderRightWidth: "4px",
-      borderTop: `5px solid `,
+      borderTop: `5px solid var(--sf-text-secondary, ${theme.palette.text.secondary})`,
     },
     "& .open": {
       backgroundColor: theme.palette.action.hover,
@@ -75,11 +80,11 @@ const PhoneInput2 = styled("div")(({ theme }) => ({
       height: 0,
       borderLeft: "3px solid transparent",
       borderRight: "3px solid transparent",
-      borderTop: `4px solid `,
+      borderTop: `4px solid var(--sf-text-secondary, ${theme.palette.text.secondary})`,
     },
     "& .arrow.up": {
       borderTop: "none",
-      borderBottom: `4px solid `,
+      borderBottom: `4px solid var(--sf-text-secondary, ${theme.palette.text.secondary})`,
     },
   },
   "& .country-list ": {
@@ -115,7 +120,7 @@ const PhoneInput2 = styled("div")(({ theme }) => ({
     "& .divider": {
       paddingBottom: "5px",
       marginBottom: "5px",
-      borderBottom: `1px solid `,
+      borderBottom: `1px solid var(--sf-border, ${theme.palette.divider})`,
     },
     "& .country": {
       position: "relative",
@@ -146,7 +151,7 @@ const PhoneInput2 = styled("div")(({ theme }) => ({
       fontSize: "15px",
     },
     "& .search-box": {
-      border: `1px solid `,
+      border: `1px solid var(--sf-border, ${theme.palette.divider})`,
       borderRadius: "4px",
       fontSize: "15px",
       lineHeight: "15px",
@@ -172,7 +177,7 @@ const PhoneInput2 = styled("div")(({ theme }) => ({
     top: "-7px",
     background: theme.palette.background.paper,
     padding: "0 5px",
-    color: theme.palette.error.main,
+    color: "var(--sf-error-text, #B42121)",
   },
   "& .special-label": {
     position: "absolute",
