@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Box, Chip, Typography, useTheme } from "@mui/material";
 import type { ThemePresetId } from "@cap/theme";
 import { PRESET_LIST } from "@cap/theme";
@@ -40,6 +41,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
   currentPreset,
   onSelect,
 }) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const surface = useSurfaceSx();
   const focusRing = useFocusRingSx();
@@ -47,8 +49,11 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
   return (
     <Box>
       <PanelHeader
-        title="Style presets"
-        description="A complete starting point. Applying one replaces your current settings — you can keep tuning afterwards."
+        title={t("theme.presets.title", "Style presets")}
+        description={t(
+          "theme.presets.description",
+          "A complete starting point. Applying one replaces your current settings — you can keep tuning afterwards.",
+        )}
       />
 
       {/*
@@ -139,7 +144,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                     <Chip
                       size="small"
                       color="primary"
-                      label="Active"
+                      label={t("theme.presets.active", "Active")}
                       sx={{
                         blockSize: 20,
                         fontSize: "0.6875rem",

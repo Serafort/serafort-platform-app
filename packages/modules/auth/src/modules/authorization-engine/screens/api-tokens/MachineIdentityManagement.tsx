@@ -1,78 +1,141 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   Box,
-  Typography,
+  Button,
   Card,
   CardContent,
-  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
-  IconButton,
   TextField,
-  InputAdornment,
+  Tooltip,
+  Typography,
 } from '@mui/material'
 import Add from '@mui/icons-material/Add'
-import Search from '@mui/icons-material/Search'
 import VpnKey from '@mui/icons-material/VpnKey'
-import CheckCircle from '@mui/icons-material/CheckCircle'
+import Delete from '@mui/icons-material/Delete'
+import TimerIcon from '@mui/icons-material/Timer'
+import HistoryToggleOff from '@mui/icons-material/HistoryToggleOff'
+import { useTranslation } from 'react-i18next'
+import { toast } from 'react-toastify'
+
 import {
   useDeveloperApiKeys,
   useCreateDeveloperApiKey,
   useRevokeDeveloperApiKey,
 } from '../../hooks'
 import { DeveloperApiKey } from '../../services/adminService'
-import { toast } from 'react-toastify'
-import { Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from '@mui/material'
-import ContentCopy from '@mui/icons-material/ContentCopy'
-import Delete from '@mui/icons-material/Delete'
+import { useActiveOrganizationId } from '../../../authentication-core/hooks/useActiveOrganizationId'
+import {
+  AdminDataState,
+  AdminPageHeader,
+  AdminSearchField,
+  AdminStatCard,
+  AdminStatusBadge,
+  AdminRowActionButton,
+} from '../../../authentication-core/components/shared/admin'
+import {
+  AuthConfirmDrawer,
+  AuthCopyField,
+} from '../../../authentication-core/components/shared/auth'
 
-const MachineIdentityManagement = () => {
+/** A key is flagged as expiring while it has 30 days or less left to run. */
+const EXPIRY_WARNING_DAYS = 30
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+
+const daysUntil = (iso: string | null): number | null => {
+  if (!iso) return null
+  const at = new Date(iso).getTime()
+  if (Number.isNaN(at)) return null
+  return Math.ceil((at - Date.now()) / MS_PER_DAY)
+}
+
+const MachineIdentityManagement: React.FC = () => {
+  const { t } = useTranslation()
+  const orgId = useActiveOrganizationId()
+  const numericOrgId = Number(orgId) || undefined
+
   const [search, setSearch] = useState('')
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [newKeyName, setNewKeyName] = useState('')
   const [createdKey, setCreatedKey] = useState<string | null>(null)
+  const [pendingRevoke, setPendingRevoke] = useState<DeveloperApiKey | null>(null)
 
-  // Default orgId from context or active tenant
-  const orgId = 1
-
-  const { data: keysResponse, isLoading } = useDeveloperApiKeys(orgId)
+  const { data: keysResponse, isLoading, isError, refetch } = useDeveloperApiKeys(numericOrgId)
   const createKeyMutation = useCreateDeveloperApiKey()
   const revokeKeyMutation = useRevokeDeveloperApiKey()
 
-  const identities: DeveloperApiKey[] = (keysResponse?.data as DeveloperApiKey[]) || []
+  const identities = useMemo<DeveloperApiKey[]>(() => {
+    const raw = keysResponse?.data
+    return Array.isArray(raw) ? (raw as DeveloperApiKey[]) : []
+  }, [keysResponse])
+
+  /*
+   * These three tiles previously read "Active Tokens 42", "Revoked Today 3"
+   * and "System Health 100%" — all three were literals in the JSX, unconnected
+   * to the account. Every metric here is derived from the fetched list.
+   *
+   * "Revoked today" is not among them: `DeveloperApiKey` carries no revocation
+   * timestamp and the endpoint returns live keys only, so there is nothing to
+   * count. A tile that cannot be measured is not shown.
+   */
+  const stats = useMemo(() => {
+    const expiring = identities.filter((key) => {
+      const days = daysUntil(key.expiresAt)
+      return days !== null && days >= 0 && days <= EXPIRY_WARNING_DAYS
+    }).length
+    return {
+      total: identities.length,
+      expiring,
+      neverUsed: identities.filter((key) => !key.lastUsedAt).length,
+    }
+  }, [identities])
+
+  const filteredIdentities = useMemo(() => {
+    const needle = search.trim().toLowerCase()
+    if (!needle) return identities
+    return identities.filter((key) => (key.name || '').toLowerCase().includes(needle))
+  }, [identities, search])
 
   const handleCreateKey = async () => {
-    if (!newKeyName.trim()) return
+    if (!newKeyName.trim() || !numericOrgId) return
     try {
       const response = await createKeyMutation.mutateAsync({
-        orgId,
+        orgId: numericOrgId,
         data: { name: newKeyName.trim() },
       })
       if (response?.data?.key) {
         setCreatedKey(response.data.key)
-        toast.success('API Key created successfully')
+        toast.success(t('auth.admin.machineIdentity.created', 'API key created.'))
       }
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to create API key')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : ''
+      toast.error(
+        message || t('auth.admin.machineIdentity.create_failed', 'The API key could not be created.'),
+      )
     }
   }
 
-  const handleRevokeKey = async (keyId: number) => {
-    if (
-      !window.confirm('Are you sure you want to revoke this API key? This action cannot be undone.')
-    )
-      return
-
+  const handleRevokeConfirmed = async () => {
+    if (!pendingRevoke || !numericOrgId) return
     try {
-      await revokeKeyMutation.mutateAsync({ orgId, keyId })
-      toast.success('API Key revoked')
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to revoke API key')
+      await revokeKeyMutation.mutateAsync({ orgId: numericOrgId, keyId: pendingRevoke.id })
+      toast.success(t('auth.admin.machineIdentity.revoked', 'API key revoked.'))
+      setPendingRevoke(null)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : ''
+      toast.error(
+        message || t('auth.admin.machineIdentity.revoke_failed', 'The API key could not be revoked.'),
+      )
     }
   }
 
@@ -82,274 +145,317 @@ const MachineIdentityManagement = () => {
     setCreateDialogOpen(false)
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    toast.info('Copied to clipboard')
-  }
-
-  const filteredIdentities = identities.filter((id) =>
-    (id?.name || '').toLowerCase().includes(search.toLowerCase()),
+  const provisionButton = (
+    <Button
+      variant='contained'
+      startIcon={<Add />}
+      onClick={() => {
+        setCreatedKey(null)
+        setNewKeyName('')
+        setCreateDialogOpen(true)
+      }}
+      sx={{
+        minHeight: 44,
+        px: 3,
+        borderRadius: 'var(--sf-radius-md, 8px)',
+        textTransform: 'none',
+        fontWeight: 700,
+        width: { xs: '100%', sm: 'auto' },
+      }}
+    >
+      {t('auth.admin.machineIdentity.provision', 'Provision new key')}
+    </Button>
   )
 
   return (
-    <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <Box>
-          <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.02em', mb: 1 }}>
-            DEVELOPER API KEYS
-          </Typography>
-          <Typography variant='body1' color='text.secondary'>
-            Machine identities and programmatic access tokens for your organization.
-          </Typography>
-        </Box>
-        <Button
-          variant='contained'
-          startIcon={<Add />}
-          onClick={() => {
-            setCreatedKey(null)
-            setNewKeyName('')
-            setCreateDialogOpen(true)
-          }}
-          sx={{
-            borderRadius: 3,
-            px: 3,
-            py: 1.5,
-            textTransform: 'none',
-            fontWeight: 800,
-            boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-            bgcolor: 'primary.main',
-            '&:hover': { bgcolor: 'primary.dark' },
-          }}
-        >
-          Provision New Key
-        </Button>
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+      <AdminPageHeader
+        icon={<VpnKey sx={{ fontSize: 28 }} />}
+        title={t('auth.admin.machineIdentity.title', 'Developer API keys')}
+        description={t(
+          'auth.admin.machineIdentity.subtitle',
+          'Machine identities that call the API on their own behalf, without a person signing in.',
+        )}
+        actions={provisionButton}
+      />
+
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
+          gap: 3,
+          mb: 4,
+        }}
+      >
+        <AdminStatCard
+          icon={<VpnKey />}
+          tone='primary'
+          label={t('auth.admin.machineIdentity.stat_total', 'Provisioned keys')}
+          value={isLoading ? undefined : stats.total}
+        />
+        <AdminStatCard
+          icon={<TimerIcon />}
+          tone='warning'
+          label={t('auth.admin.machineIdentity.stat_expiring', 'Expiring soon')}
+          value={isLoading ? undefined : stats.expiring}
+          caption={t('auth.api_tokens.expiring_soon_caption', 'within 30 days')}
+        />
+        <AdminStatCard
+          icon={<HistoryToggleOff />}
+          tone={stats.neverUsed > 0 ? 'warning' : 'success'}
+          label={t('auth.admin.machineIdentity.stat_never_used', 'Never used')}
+          value={isLoading ? undefined : stats.neverUsed}
+          caption={t('auth.admin.machineIdentity.stat_never_used_caption', 'candidates to revoke')}
+        />
       </Box>
 
       <Card
-        sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
+        sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
       >
         <CardContent sx={{ p: 0 }}>
-          <Box
-            sx={{
-              p: 3,
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-              display: 'flex',
-              gap: 2,
-            }}
-          >
-            <TextField
-              size='small'
-              placeholder='Search keys...'
+          <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider' }}>
+            <AdminSearchField
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              sx={{ flexGrow: 1 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position='start'>
-                    <Search fontSize='small' />
-                  </InputAdornment>
-                ),
-                sx: { borderRadius: 2 },
-              }}
+              onChange={setSearch}
+              placeholder={t('auth.admin.machineIdentity.search', 'Search keys…')}
+              ariaLabel={t('auth.admin.machineIdentity.search_label', 'Search API keys by name')}
+              fullWidth
             />
           </Box>
 
           <TableContainer>
-            <Table>
+            <Table sx={{ minWidth: 760 }}>
               <TableHead sx={{ bgcolor: 'action.hover' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 700 }}>KEY NAME</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>PREFIX</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>STATUS</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>LAST USED</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>EXPIRES</TableCell>
-                  <TableCell align='right'></TableCell>
+                  {[
+                    t('auth.admin.machineIdentity.col_name', 'Key name'),
+                    t('auth.admin.machineIdentity.col_prefix', 'Prefix'),
+                    t('auth.admin.machineIdentity.col_status', 'Status'),
+                    t('auth.admin.machineIdentity.col_last_used', 'Last used'),
+                    t('auth.admin.machineIdentity.col_expires', 'Expires'),
+                  ].map((column) => (
+                    <TableCell key={String(column)} sx={{ fontWeight: 800 }}>
+                      {column}
+                    </TableCell>
+                  ))}
+                  <TableCell align='right' sx={{ fontWeight: 800 }}>
+                    {t('auth.admin.machineIdentity.col_actions', 'Actions')}
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} align='center' sx={{ py: 4 }}>
-                      <CircularProgress size={24} />
-                    </TableCell>
-                  </TableRow>
-                ) : filteredIdentities.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} align='center' sx={{ py: 4 }}>
-                      <Typography variant='body2' color='text.secondary'>
-                        No API keys found.
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredIdentities.map((identity) => (
-                    <TableRow key={identity.id} hover>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <VpnKey sx={{ color: 'primary.main' }} />
-                          <Typography variant='body2' sx={{ fontWeight: 700 }}>
-                            {identity.name}
+                <AdminDataState
+                  asTableRow
+                  skeletonColumns={6}
+                  loading={isLoading}
+                  error={isError || undefined}
+                  onRetry={() => void refetch()}
+                  empty={filteredIdentities.length === 0}
+                  emptyIcon={<VpnKey sx={{ fontSize: 32 }} />}
+                  emptyTitle={
+                    search
+                      ? t('auth.admin.machineIdentity.no_match', 'No keys match your search.')
+                      : t('auth.admin.machineIdentity.empty_title', 'No API keys yet')
+                  }
+                  emptyDescription={
+                    search
+                      ? undefined
+                      : t(
+                          'auth.admin.machineIdentity.empty_body',
+                          'Provision a key to let a service — a CI pipeline, say — call the API without a person signing in.',
+                        )
+                  }
+                  emptyAction={search ? undefined : provisionButton}
+                >
+                  {filteredIdentities.map((identity) => {
+                    const days = daysUntil(identity.expiresAt)
+                    const isExpired = days !== null && days < 0
+                    return (
+                      <TableRow key={identity.id} hover>
+                        <TableCell>
+                          <Stack direction='row' spacing={2} alignItems='center'>
+                            <VpnKey sx={{ color: 'primary.main' }} aria-hidden />
+                            <Typography variant='body2' sx={{ fontWeight: 700 }}>
+                              {identity.name}
+                            </Typography>
+                          </Stack>
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            component='code'
+                            variant='caption'
+                            // Attribute rather than a CSS declaration: stylis
+                            // rewrites the value under RTL, which would reverse
+                            // a key prefix.
+                            dir='ltr'
+                            sx={{
+                              fontFamily: 'monospace',
+                              bgcolor: 'action.selected',
+                              px: 1,
+                              py: 0.5,
+                              borderRadius: 'var(--sf-radius-xs, 4px)',
+                            }}
+                          >
+                            {identity.prefix ? `${identity.prefix}…` : '—'}
                           </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography
-                          variant='caption'
-                          sx={{
-                            fontFamily: 'monospace',
-                            bgcolor: 'action.selected',
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: 1,
-                          }}
-                        >
-                          {identity.prefix}...
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          icon={<CheckCircle />}
-                          label='ACTIVE'
-                          size='small'
-                          color='success'
-                          sx={{ borderRadius: 1.5, fontWeight: 800, height: 24 }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant='caption' sx={{ fontFamily: 'monospace' }}>
-                          {identity.last_used_at
-                            ? new Date(identity.last_used_at).toLocaleString()
-                            : 'Never'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography
-                          variant='caption'
-                          sx={{ color: identity.expires_at ? 'text.primary' : 'text.disabled' }}
-                        >
-                          {identity.expires_at
-                            ? new Date(identity.expires_at).toLocaleDateString()
-                            : 'Permanent'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align='right'>
-                        <IconButton
-                          size='small'
-                          color='error'
-                          onClick={() => handleRevokeKey(identity.id)}
-                        >
-                          <Delete fontSize='small' />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
+                        </TableCell>
+                        <TableCell>
+                          {/*
+                            This chip was hardcoded to "ACTIVE" for every row,
+                            so an expired key was labelled active. There is no
+                            status field on the record, but `expiresAt` is
+                            enough to tell the two apart.
+                          */}
+                          <AdminStatusBadge
+                            tone={isExpired ? 'warning' : 'success'}
+                            label={
+                              isExpired
+                                ? t('auth.api_tokens.expired', 'Expired')
+                                : t('auth.account.active', 'Active')
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant='caption'>
+                            {identity.lastUsedAt
+                              ? new Date(identity.lastUsedAt).toLocaleString()
+                              : t('auth.api_tokens.never_used', 'Never used')}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            variant='caption'
+                            sx={{ color: identity.expiresAt ? 'text.primary' : 'text.disabled' }}
+                          >
+                            {identity.expiresAt
+                              ? new Date(identity.expiresAt).toLocaleDateString()
+                              : t('auth.admin.machineIdentity.permanent', 'Permanent')}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align='right'>
+                          <Tooltip title={t('auth.admin.machineIdentity.revoke', 'Revoke key')}>
+                            <AdminRowActionButton
+                              color='error'
+                              aria-label={t('auth.admin.machineIdentity.revoke', 'Revoke key')}
+                              onClick={() => setPendingRevoke(identity)}
+                            >
+                              <Delete fontSize='small' />
+                            </AdminRowActionButton>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </AdminDataState>
               </TableBody>
             </Table>
           </TableContainer>
         </CardContent>
       </Card>
 
-      {/* Create Key Dialog */}
-      <Dialog open={createDialogOpen} onClose={handleCloseDialog} fullWidth maxWidth='sm'>
-        <DialogTitle sx={{ fontWeight: 800 }}>PROVISION NEW API KEY</DialogTitle>
+      <Dialog
+        open={createDialogOpen}
+        onClose={handleCloseDialog}
+        fullWidth
+        maxWidth='sm'
+        slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } } }}
+      >
+        <DialogTitle sx={{ fontWeight: 800 }}>
+          {createdKey
+            ? t('auth.admin.machineIdentity.created_title', 'Copy this key now')
+            : t('auth.admin.machineIdentity.provision_title', 'Provision a new API key')}
+        </DialogTitle>
         <DialogContent>
           {!createdKey ? (
-            <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
-                Provide a descriptive name for this machine identity (e.g., "GitHub Actions CI").
+            <Stack spacing={2} sx={{ pt: 1 }}>
+              <Typography variant='body2' color='text.secondary'>
+                {t(
+                  'auth.admin.machineIdentity.name_help',
+                  'Name it after the service that will use it, so it can be identified later.',
+                )}
               </Typography>
               <TextField
                 fullWidth
-                label='Key Name'
-                value={newKeyName}
-                onChange={(e) => setNewKeyName(e.target.value)}
                 autoFocus
+                label={t('auth.admin.machineIdentity.name_label', 'Key name')}
+                placeholder={t('auth.admin.machineIdentity.name_placeholder', 'GitHub Actions CI')}
+                value={newKeyName}
+                onChange={(event) => setNewKeyName(event.target.value)}
+                sx={{ '& .MuiOutlinedInput-root': { minHeight: 48 } }}
               />
-            </Box>
+            </Stack>
           ) : (
-            <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Stack spacing={2} sx={{ pt: 1 }}>
               <Typography variant='body2' color='warning.main' sx={{ fontWeight: 700 }}>
-                CRITICAL: Copy this key now. It will never be shown again.
+                {t(
+                  'auth.admin.machineIdentity.copy_warning',
+                  'This key is shown once and never again. Store it in a secret manager before closing this dialog.',
+                )}
               </Typography>
-              <Box
-                sx={{
-                  p: 2,
-                  bgcolor: 'grey.900',
-                  color: 'success.light',
-                  borderRadius: 2,
-                  fontFamily: 'monospace',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  wordBreak: 'break-all',
-                }}
-              >
-                {createdKey}
-                <IconButton
-                  size='small'
-                  sx={{ color: 'success.light' }}
-                  onClick={() => copyToClipboard(createdKey)}
-                >
-                  <ContentCopy fontSize='small' />
-                </IconButton>
-              </Box>
-            </Box>
+              {/*
+                Was a hand-rolled box on `grey.900` — a fixed dark surface that
+                ignores the tenant theme — with a bare clipboard write that gave
+                no feedback when the browser denied access.
+              */}
+              <AuthCopyField
+                value={createdKey}
+                label={t('auth.admin.machineIdentity.key_label', 'API key')}
+                copyLabel={t('auth.admin.machineIdentity.copy_key', 'Copy API key')}
+              />
+            </Stack>
           )}
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
           {!createdKey ? (
             <>
-              <Button onClick={handleCloseDialog}>Cancel</Button>
-              <Button variant='contained' onClick={handleCreateKey} disabled={!newKeyName.trim()}>
-                Generate Key
+              <Button onClick={handleCloseDialog} sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}>
+                {t('auth.common.cancel', 'Cancel')}
+              </Button>
+              <Button
+                variant='contained'
+                onClick={handleCreateKey}
+                disabled={!newKeyName.trim() || createKeyMutation.isPending}
+                startIcon={
+                  createKeyMutation.isPending ? (
+                    <CircularProgress size={18} color='inherit' />
+                  ) : undefined
+                }
+                sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
+              >
+                {t('auth.admin.machineIdentity.generate', 'Generate key')}
               </Button>
             </>
           ) : (
-            <Button variant='contained' onClick={handleCloseDialog}>
-              Done
+            <Button
+              variant='contained'
+              onClick={handleCloseDialog}
+              sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
+            >
+              {t('auth.admin.machineIdentity.done', 'I have copied it')}
             </Button>
           )}
         </DialogActions>
       </Dialog>
 
-      <Box sx={{ mt: 4, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 3 }}>
-        <Card sx={{ borderRadius: 4, bgcolor: 'primary.main', color: 'white' }}>
-          <CardContent>
-            <Typography variant='overline' sx={{ opacity: 0.8, fontWeight: 800 }}>
-              Active Tokens
-            </Typography>
-            <Typography variant='h4' sx={{ fontWeight: 900 }}>
-              42
-            </Typography>
-          </CardContent>
-        </Card>
-        <Card
-          sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
-        >
-          <CardContent>
-            <Typography variant='overline' sx={{ color: 'text.secondary', fontWeight: 800 }}>
-              Revoked Today
-            </Typography>
-            <Typography variant='h4' sx={{ fontWeight: 900 }}>
-              3
-            </Typography>
-          </CardContent>
-        </Card>
-        <Card
-          sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
-        >
-          <CardContent>
-            <Typography variant='overline' sx={{ color: 'text.secondary', fontWeight: 800 }}>
-              System Health
-            </Typography>
-            <Typography variant='h4' sx={{ fontWeight: 900, color: 'success.main' }}>
-              100%
-            </Typography>
-          </CardContent>
-        </Card>
-      </Box>
+      {/*
+        Revoking used `window.confirm`, which is unstyled, untranslatable and
+        blocks the main thread.
+      */}
+      <AuthConfirmDrawer
+        id='revoke-api-key'
+        open={Boolean(pendingRevoke)}
+        onClose={() => setPendingRevoke(null)}
+        onConfirm={handleRevokeConfirmed}
+        loading={revokeKeyMutation.isPending}
+        tone='error'
+        title={t('auth.admin.machineIdentity.revoke_title', 'Revoke this API key?')}
+        description={t('auth.admin.machineIdentity.revoke_body', {
+          name: pendingRevoke?.name ?? '',
+          defaultValue:
+            'Anything authenticating as "{{name}}" will stop working immediately. This cannot be undone.',
+        })}
+        confirmLabel={t('auth.common.revokePermanently', 'Revoke permanently')}
+      />
     </Box>
   )
 }

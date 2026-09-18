@@ -27,25 +27,38 @@ export interface UpdateSAMLConfigDTO {
   attributeMapping?: Record<string, string>
 }
 
-export interface SAMLMetadataResponse {
-  metadataXml: string
-  entityId: string
-  acsUrl: string
-  sloUrl?: string
-  certificate?: string
-}
+/**
+ * `GET /api/admin/saml/metadata` (`SamlConfigController.getMetadata`) does not
+ * return JSON at all — it responds with `Content-Type: application/xml` and a
+ * raw SP metadata XML document as the body. `saml.service.ts#getMetadata`
+ * requests it with `responseType: 'text'` and hands back that raw string, so
+ * there is no JSON shape to declare here; consumers get `FetchResponse<string>`.
+ */
 
 export interface RemoteMetadataFetchDTO {
   url: string
 }
 
+/**
+ * `POST /api/admin/saml/metadata/remote` (`SamlConfigController.fetchRemoteMetadata`)
+ * returns exactly `{ xml, entityId, name }` — a mocked preview of the remote
+ * IdP's metadata, not a parsed SAML descriptor. It never returns `ssoUrl`,
+ * `sloUrl` or `certificate`, so those are not modelled here.
+ */
 export interface RemoteMetadataResult {
-  name?: string
+  xml: string
   entityId: string
-  ssoUrl?: string
-  sloUrl?: string
-  certificate?: string
-  rawXml?: string
+  name?: string
+}
+
+/**
+ * `POST /api/admin/saml/metadata/upload` (`SamlConfigController.uploadMetadata`)
+ * only ever acknowledges receipt — it does not parse or echo back the
+ * uploaded metadata (see the controller: it's a stub that ignores the body
+ * beyond checking it is present).
+ */
+export interface UploadSAMLMetadataResult {
+  message: string
 }
 
 export interface RecentSAMLEntity {
@@ -56,6 +69,8 @@ export interface RecentSAMLEntity {
   verified?: boolean
   isLocal?: boolean
   updatedAt?: string
+  /** What `SamlConfigController.listRecentEntities` actually names this field. */
+  lastExploredAt?: string
 }
 
 export interface SAMLSSOInitiateDTO {

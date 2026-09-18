@@ -11,7 +11,6 @@ import {
   TableHead,
   TableRow,
   Chip,
-  IconButton,
   Button,
   TextField,
   InputAdornment,
@@ -49,6 +48,7 @@ import {
 import { Permission } from '@auth/authorization-engine/services/adminService'
 import ConfirmationDialog from '@auth/modules/authentication-core/components/shared/Modals/ConfirmationDialog'
 import { toast } from 'react-toastify'
+import { AdminRowActionButton } from '@auth/authentication-core/components/shared/admin'
 
 const CATEGORY_ICON: Record<string, React.ReactNode> = {
   user: <GroupIcon />,
@@ -201,7 +201,7 @@ export default function PermissionRegistry() {
             sx={{
               width: { xs: 56, md: 64 },
               height: { xs: 56, md: 64 },
-              borderRadius: '20px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               bgcolor: alpha(theme.palette.primary.main, 0.1),
               color: 'primary.main',
               boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.12)}`,
@@ -213,7 +213,7 @@ export default function PermissionRegistry() {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 letterSpacing: '-0.027em',
                 fontSize: { xs: '1.5rem', md: '2.125rem' },
                 lineHeight: 1.1,
@@ -242,18 +242,17 @@ export default function PermissionRegistry() {
               fontWeight: 700,
               flex: { xs: 1, sm: 'none' },
               height: 44,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
             }}
           >
             {t('auth.admin.exportJson')}
           </Button>
           <Button
             variant='contained'
+            color='info'
             startIcon={<AddIcon />}
             onClick={() => handleOpenDialog()}
             sx={{
-              bgcolor: 'info.main',
-              color: 'white',
               boxShadow: `0 4px 14px 0 ${alpha(theme.palette.info.main, 0.39)}`,
               '&:hover': {
                 bgcolor: 'info.dark',
@@ -264,7 +263,7 @@ export default function PermissionRegistry() {
               flex: { xs: 1, sm: 'none' },
               height: 44,
               px: 3,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
             }}
           >
             {t('auth.admin.defineNewAction')}
@@ -278,7 +277,7 @@ export default function PermissionRegistry() {
         </Box>
       )}
 
-      {/* â”€â”€ Category summary cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Category summary cards ──────────────────────────────────────── */}
       {!isLoading && categories.length > 0 && (
         <Box
           sx={{
@@ -295,7 +294,7 @@ export default function PermissionRegistry() {
               border: '1px solid',
               borderColor: activeCategory === null ? 'primary.main' : 'divider',
               boxShadow: 'none',
-              borderRadius: 4,
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               cursor: 'pointer',
               bgcolor:
                 activeCategory === null ? alpha(theme.palette.primary.main, 0.04) : 'transparent',
@@ -308,7 +307,7 @@ export default function PermissionRegistry() {
                 sx={{
                   width: 48,
                   height: 48,
-                  borderRadius: '14px',
+                  borderRadius: 'var(--sf-radius-md, 12px)',
                   bgcolor: alpha(theme.palette.primary.main, 0.1),
                   color: 'primary.main',
                   boxShadow: `0 6px 12px ${alpha(theme.palette.primary.main, 0.1)}`,
@@ -331,7 +330,7 @@ export default function PermissionRegistry() {
                 >
                   {t('common.all') || 'All'}
                 </Typography>
-                <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+                <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
                   {permissions.length}
                 </Typography>
               </Box>
@@ -347,7 +346,7 @@ export default function PermissionRegistry() {
                 border: '1px solid',
                 borderColor: activeCategory === cat.label ? 'primary.main' : 'divider',
                 boxShadow: 'none',
-                borderRadius: 4,
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 cursor: 'pointer',
                 bgcolor:
                   activeCategory === cat.label
@@ -362,7 +361,7 @@ export default function PermissionRegistry() {
                   sx={{
                     width: 48,
                     height: 48,
-                    borderRadius: '14px',
+                    borderRadius: 'var(--sf-radius-md, 12px)',
                     bgcolor: alpha(theme.palette.primary.main, 0.1),
                     color: 'primary.main',
                     boxShadow: `0 6px 12px ${alpha(theme.palette.primary.main, 0.1)}`,
@@ -385,7 +384,7 @@ export default function PermissionRegistry() {
                   >
                     {cat.label}
                   </Typography>
-                  <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+                  <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
                     {cat.count}
                   </Typography>
                 </Box>
@@ -400,7 +399,7 @@ export default function PermissionRegistry() {
           border: '1px solid',
           borderColor: 'divider',
           boxShadow: 'none',
-          borderRadius: 4,
+          borderRadius: 'var(--sf-radius-lg, 16px)',
           overflow: 'hidden',
         }}
       >
@@ -423,7 +422,7 @@ export default function PermissionRegistry() {
             onChange={(e) => setSearch(e.target.value)}
             sx={{
               width: { xs: '100%', sm: 340 },
-              '& .MuiOutlinedInput-root': { borderRadius: 2 },
+              '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' },
             }}
             InputProps={{
               startAdornment: (
@@ -444,7 +443,7 @@ export default function PermissionRegistry() {
                 sx={{
                   fontWeight: 700,
                   textTransform: 'capitalize',
-                  borderRadius: 1.5,
+                  borderRadius: 'var(--sf-radius-sm, 6px)',
                   height: 24,
                 }}
               />
@@ -543,7 +542,7 @@ export default function PermissionRegistry() {
                         sx={{
                           fontWeight: 700,
                           fontFamily: theme.typography.fontFamily,
-                          borderRadius: 1.5,
+                          borderRadius: 'var(--sf-radius-sm, 6px)',
                           maxWidth: 240,
                           height: 22,
                           fontSize: '0.65rem',
@@ -566,7 +565,7 @@ export default function PermissionRegistry() {
                           variant='body2'
                           sx={{ fontWeight: 700, textTransform: 'capitalize' }}
                         >
-                          {perm.resource || 'â€”'}
+                          {perm.resource || '—'}
                         </Typography>
                       </Box>
                     </TableCell>
@@ -580,7 +579,7 @@ export default function PermissionRegistry() {
                         sx={{
                           fontWeight: 800,
                           height: 20,
-                          borderRadius: 1.5,
+                          borderRadius: 'var(--sf-radius-sm, 6px)',
                           fontSize: '0.65rem',
                           textTransform: 'uppercase',
                         }}
@@ -599,7 +598,7 @@ export default function PermissionRegistry() {
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {perm.description || 'â€”'}
+                        {perm.description || '—'}
                       </Typography>
                     </TableCell>
 
@@ -607,23 +606,27 @@ export default function PermissionRegistry() {
                     <TableCell align='right'>
                       <Stack direction='row' spacing={0.5} justifyContent='flex-end'>
                         <Tooltip title={t('auth.admin.editDefinition')}>
-                          <IconButton
-                            size='small'
-                            aria-label={`Edit ${perm.name}`}
+                          <AdminRowActionButton
+                            aria-label={t('auth.admin.editRoleNamed', {
+                              name: perm.name,
+                              defaultValue: 'Edit {{name}}',
+                            })}
                             onClick={() => handleOpenDialog(perm)}
                           >
                             <SettingsIcon fontSize='small' />
-                          </IconButton>
+                          </AdminRowActionButton>
                         </Tooltip>
                         <Tooltip title={t('auth.common.delete')}>
-                          <IconButton
-                            size='small'
+                          <AdminRowActionButton
                             color='error'
-                            aria-label={`Delete ${perm.name}`}
+                            aria-label={t('auth.admin.deleteNamed', {
+                              name: perm.name,
+                              defaultValue: 'Delete {{name}}',
+                            })}
                             onClick={() => handleDeleteClick(perm)}
                           >
                             <DeleteIcon fontSize='small' />
-                          </IconButton>
+                          </AdminRowActionButton>
                         </Tooltip>
                       </Stack>
                     </TableCell>
@@ -661,9 +664,9 @@ export default function PermissionRegistry() {
         onClose={() => setDialogOpen(false)}
         maxWidth='sm'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 4 } }}
+        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } }}
       >
-        <DialogTitle sx={{ fontWeight: 900, pb: 1 }}>
+        <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>
           {editingPermission ? t('auth.admin.editAction') : t('auth.admin.defineNewAction')}
         </DialogTitle>
         <DialogContent>
@@ -706,14 +709,14 @@ export default function PermissionRegistry() {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 3, pt: 1 }}>
-          <Button onClick={() => setDialogOpen(false)} sx={{ fontWeight: 700 }}>
+          <Button onClick={() => setDialogOpen(false)} sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}>
             {t('auth.common.cancel')}
           </Button>
           <Button
             variant='contained'
             onClick={handleSave}
             disabled={createPermission.isPending || updatePermission.isPending || !formData.name}
-            sx={{ fontWeight: 800, borderRadius: 2, px: 3 }}
+            sx={{ minHeight: 44, fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)', px: 3 }}
           >
             {editingPermission ? t('auth.admin.updateDefinition') : t('auth.admin.createAction')}
           </Button>

@@ -91,7 +91,7 @@ export default function RoleDetailView() {
   const { id } = useParams()
   const [tab, setTab] = useState(0)
 
-  // â”€â”€ Data Fetching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Data Fetching ──────────────────────────────────────────────────────────
   const roleId = Number(id)
   const isNew = id === 'new'
   const {
@@ -105,7 +105,7 @@ export default function RoleDetailView() {
   const role = roleResponse?.data
   const allPermissions = useMemo(() => permissionsResponse?.data || [], [permissionsResponse])
 
-  // â”€â”€ Mutations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Mutations ────────────────────────────────────────────────────────────
   const updateRole = useUpdateRole({
     onSuccess: () => toast.success(t('auth.admin.roleUpdated')),
     onError: (err: any) => toast.error(err.message || t('auth.admin.errorUpdateRole')),
@@ -137,7 +137,7 @@ export default function RoleDetailView() {
     onError: (err: any) => toast.error(err.message || t('auth.admin.errorDeleteRole')),
   })
 
-  // â”€â”€ Local State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Local State ──────────────────────────────────────────────────────────
   const [editData, setEditData] = useState({ name: '', description: '' })
   const [lastRoleId, setLastRoleId] = useState<number | null>(null)
   const [openParentDialog, setOpenParentDialog] = useState(false)
@@ -150,7 +150,7 @@ export default function RoleDetailView() {
     setLastRoleId(role.id)
   }
 
-  // â”€â”€ Helper Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Helper Logic ─────────────────────────────────────────────────────────
   const getResource = (p: { name: string; resource?: string }) => {
     return p.resource || (p.name.includes(':') ? p.name.split(':')[0] : 'general')
   }
@@ -171,7 +171,7 @@ export default function RoleDetailView() {
     return Array.from(res)
   }, [allPermissions])
 
-  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Handlers ─────────────────────────────────────────────────────────────
   const handleTogglePermission = (permissionId: number) => {
     if (!role) return
     const currentPermissionIds = (role.permissions ?? []).map((p) => p.id)
@@ -202,7 +202,7 @@ export default function RoleDetailView() {
     setOpenParentDialog(false)
   }
 
-  // â”€â”€ Final Render Checks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Final Render Checks ──────────────────────────────────────────────────
   if (isLoadingRole || isLoadingPerms) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
@@ -217,7 +217,7 @@ export default function RoleDetailView() {
         <Alert
           severity='error'
           variant='filled'
-          sx={{ borderRadius: 3, fontWeight: 700 }}
+          sx={{ borderRadius: 'var(--sf-radius-lg, 12px)', fontWeight: 700 }}
           action={
             <Button color='inherit' onClick={() => navigate(Path.admin.roles)}>
               {t('auth.admin.backToList') || 'Back to List'}
@@ -232,7 +232,7 @@ export default function RoleDetailView() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
-      {/* â”€â”€ Premium Banner Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Premium Banner Header ────────────────────────────────────────── */}
       <Box
         sx={{
           mb: 5,
@@ -249,7 +249,7 @@ export default function RoleDetailView() {
               sx={{
                 width: 80,
                 height: 80,
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 16px)',
                 bgcolor: alpha(theme.palette.primary.main, 0.1),
                 color: 'primary.main',
                 boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.15)}`,
@@ -274,13 +274,13 @@ export default function RoleDetailView() {
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
               <Tooltip title={t('auth.admin.goBack') || 'Go back'}>
-                <IconButton onClick={() => navigate(Path.admin.roles)} sx={{ ml: -1 }}>
+                <IconButton onClick={() => navigate(Path.admin.roles)} sx={{ ml: -1, width: 44, height: 44 }}>
                   <ArrowBack fontSize='small' />
                 </IconButton>
               </Tooltip>
               <Typography
                 variant='h4'
-                sx={{ fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.1 }}
+                sx={{ fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.1 }}
               >
                 {role.name}
               </Typography>
@@ -304,7 +304,7 @@ export default function RoleDetailView() {
               <Chip
                 label={(role.guard_name || 'web').toUpperCase()}
                 size='small'
-                sx={{ height: 20, fontSize: '0.6rem', fontWeight: 900, borderRadius: 1 }}
+                sx={{ height: 20, fontSize: '0.6rem', fontWeight: 800, borderRadius: 'var(--sf-radius-sm, 6px)' }}
               />
             </Stack>
           </Box>
@@ -319,8 +319,8 @@ export default function RoleDetailView() {
             sx={{
               textTransform: 'none',
               fontWeight: 800,
-              height: 48,
-              borderRadius: 3,
+              minHeight: 48,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               borderColor: 'divider',
               color: 'text.primary',
             }}
@@ -338,19 +338,19 @@ export default function RoleDetailView() {
               '&:hover': { bgcolor: 'info.dark' },
               textTransform: 'none',
               fontWeight: 800,
-              height: 48,
+              minHeight: 48,
               px: 3,
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
             }}
           >
             {updateRole.isPending
-              ? t('auth.common.saving') || 'Savingâ€¦'
+              ? t('auth.common.saving') || 'Saving…'
               : t('auth.common.saveChanges') || 'Save Changes'}
           </Button>
         </Stack>
       </Box>
 
-      {/* â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Tabs ───────────────────────────────────────────────────────────── */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
         <Tabs
           value={tab}
@@ -383,7 +383,7 @@ export default function RoleDetailView() {
         </Tabs>
       </Box>
 
-      {/* â”€â”€ Content Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Content Grid ─────────────────────────────────────────────────────── */}
       <TabPanel value={tab} index={0}>
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, lg: 8 }}>
@@ -395,7 +395,7 @@ export default function RoleDetailView() {
                     border: '1px solid',
                     borderColor: 'divider',
                     boxShadow: 'none',
-                    borderRadius: 4,
+                    borderRadius: 'var(--sf-radius-lg, 16px)',
                   }}
                 >
                   <CardContent sx={{ p: 4 }}>
@@ -404,7 +404,7 @@ export default function RoleDetailView() {
                         sx={{
                           width: 48,
                           height: 48,
-                          borderRadius: '14px',
+                          borderRadius: 'var(--sf-radius-md, 12px)',
                           bgcolor: alpha(theme.palette.primary.main, 0.08),
                           color: 'primary.main',
                         }}
@@ -465,7 +465,8 @@ export default function RoleDetailView() {
                                         ml: 1.5,
                                         height: 18,
                                         fontSize: '0.6rem',
-                                        fontWeight: 900,
+                                        fontWeight: 800,
+                                        borderRadius: 'var(--sf-radius-sm, 6px)',
                                       }}
                                     />
                                   )}
@@ -502,7 +503,7 @@ export default function RoleDetailView() {
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                   mb: 3,
                 }}
               >
@@ -510,7 +511,7 @@ export default function RoleDetailView() {
                   <Typography
                     variant='subtitle2'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       mb: 3,
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
@@ -540,7 +541,7 @@ export default function RoleDetailView() {
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            borderRadius: 2,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             borderStyle: 'dashed',
                           }}
                         >
@@ -556,6 +557,7 @@ export default function RoleDetailView() {
                                 .filter((id) => id !== p.id)
                               syncRoleParents.mutate({ roleId: role.id, parentIds: newIds })
                             }}
+                            sx={{ width: 44, height: 44 }}
                           >
                             <Delete fontSize='small' />
                           </IconButton>
@@ -569,7 +571,12 @@ export default function RoleDetailView() {
                     variant='outlined'
                     startIcon={<Add />}
                     onClick={() => setOpenParentDialog(true)}
-                    sx={{ borderRadius: 2.5, fontWeight: 800, textTransform: 'none', height: 44 }}
+                    sx={{
+                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      fontWeight: 800,
+                      textTransform: 'none',
+                      minHeight: 44,
+                    }}
                   >
                     {t('auth.admin.addParentRole')}
                   </Button>
@@ -581,14 +588,14 @@ export default function RoleDetailView() {
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
                   <Typography
                     variant='subtitle2'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       mb: 2,
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
@@ -644,7 +651,7 @@ export default function RoleDetailView() {
 
       <TabPanel value={tab} index={1}>
         <Card
-          sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none', borderRadius: 4 }}
+          sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none', borderRadius: 'var(--sf-radius-lg, 16px)' }}
         >
           <Box
             sx={{
@@ -657,7 +664,7 @@ export default function RoleDetailView() {
             }}
           >
             <Box>
-              <Typography variant='h6' sx={{ fontWeight: 900, textTransform: 'uppercase' }}>
+              <Typography variant='h6' sx={{ fontWeight: 800, textTransform: 'uppercase' }}>
                 {t('auth.admin.equippedMembers')}
               </Typography>
               <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
@@ -668,7 +675,7 @@ export default function RoleDetailView() {
               variant='contained'
               startIcon={<Add />}
               onClick={() => navigate(Path.admin.users)}
-              sx={{ borderRadius: 2.5, fontWeight: 800, textTransform: 'none', height: 44 }}
+              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 800, textTransform: 'none', minHeight: 44 }}
             >
               {t('auth.admin.assignNewUser')}
             </Button>
@@ -700,14 +707,14 @@ export default function RoleDetailView() {
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                 }}
               >
                 <CardContent sx={{ p: 4 }}>
                   <Typography
                     variant='subtitle2'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       mb: 4,
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
@@ -742,7 +749,7 @@ export default function RoleDetailView() {
                   border: '1px solid',
                   borderColor: 'error.main',
                   boxShadow: 'none',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                   bgcolor: alpha(theme.palette.error.main, 0.02),
                 }}
               >
@@ -751,7 +758,7 @@ export default function RoleDetailView() {
                     variant='h6'
                     color='error'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       mb: 1.5,
                       display: 'flex',
                       alignItems: 'center',
@@ -773,10 +780,10 @@ export default function RoleDetailView() {
                     color='error'
                     onClick={() => setConfirmDeleteOpen(true)}
                     sx={{
-                      borderRadius: 3,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       fontWeight: 800,
                       textTransform: 'none',
-                      height: 44,
+                      minHeight: 44,
                       px: 3,
                     }}
                   >
@@ -794,14 +801,14 @@ export default function RoleDetailView() {
                   border: '1px solid',
                   borderColor: 'divider',
                   boxShadow: 'none',
-                  borderRadius: 4,
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
                   <Typography
                     variant='subtitle2'
                     sx={{
-                      fontWeight: 900,
+                      fontWeight: 800,
                       mb: 3,
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
@@ -813,21 +820,21 @@ export default function RoleDetailView() {
                     <Button
                       fullWidth
                       startIcon={<HistoryIcon />}
-                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 2 }}
+                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
                     >
                       {t('auth.admin.systemAuditData')}
                     </Button>
                     <Button
                       fullWidth
                       startIcon={<Description />}
-                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 2 }}
+                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
                     >
                       {t('auth.admin.exportAccessLogs')}
                     </Button>
                     <Button
                       fullWidth
                       startIcon={<Security />}
-                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 2 }}
+                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
                     >
                       {t('auth.admin.securityBaseline')}
                     </Button>
@@ -839,7 +846,7 @@ export default function RoleDetailView() {
         </Grid>
       </TabPanel>
 
-      {/* â”€â”€ Dialogs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Dialogs ────────────────────────────────────────────────────────── */}
       <AutocompleteDialog
         open={openParentDialog}
         onClose={() => setOpenParentDialog(false)}
@@ -865,7 +872,7 @@ export default function RoleDetailView() {
   )
 }
 
-// â”€â”€ Sub-components for cleaner structure â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Sub-components for cleaner structure ─────────────────────────────────────
 
 function AutocompleteDialog({
   open,
@@ -885,9 +892,9 @@ function AutocompleteDialog({
       onClose={onClose}
       fullWidth
       maxWidth='xs'
-      PaperProps={{ sx: { borderRadius: 4, p: 1 } }}
+      PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 16px)', p: 1 } }}
     >
-      <DialogTitle sx={{ fontWeight: 900, fontSize: '1.4rem' }}>{title}</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 800, fontSize: '1.4rem' }}>{title}</DialogTitle>
       <DialogContent>
         <Typography variant='body2' sx={{ mb: 3, mt: 1, color: 'text.secondary', fontWeight: 500 }}>
           {t('auth.admin.assignedParentsDesc')}
@@ -915,14 +922,14 @@ function AutocompleteDialog({
         />
       </DialogContent>
       <DialogActions sx={{ p: 3, pt: 1 }}>
-        <Button onClick={onClose} sx={{ fontWeight: 700, color: 'text.secondary' }}>
+        <Button onClick={onClose} sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700, color: 'text.secondary' }}>
           {t('auth.common.cancel')}
         </Button>
         <Button
           onClick={onConfirm}
           variant='contained'
           disabled={isPending}
-          sx={{ fontWeight: 800, borderRadius: 2, px: 3 }}
+          sx={{ minHeight: 44, fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)', px: 3 }}
         >
           {t('auth.common.saveConfiguration')}
         </Button>
