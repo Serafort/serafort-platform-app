@@ -28,22 +28,17 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
 
   render() {
     const { loading, data, rowsPerPage, page } = this.props;
-    const fillArray = Array.apply(null, Array(5)).map((_, idx) => idx);
-    const properties = [];
-    for (let i = 0; i < data.header.length; i += 1)
-      properties.push(data.header[i].key);
+    const skeletonRows = Array.from({ length: 5 }, (_, idx) => idx);
 
     return (
       <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
         <TableHead>
           <TableRow>
-            {data?.header?.map((item: ITableHeader) => (
-              <TableCell key={`header-${item.key}`}>
-                {item.label}
-              </TableCell>
+            {data?.header?.map((header: ITableHeader) => (
+              <TableCell key={header.key}>{header.label}</TableCell>
             ))}
             {this.props?.TableOptions && (
-              <TableCell key="header-actions">
+              <TableCell key="__actions__">
                 {/* // {translate('actions')} */}
                 actions
               </TableCell>
@@ -60,10 +55,10 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
               cc
             </FixedSizeList> */}
           {loading &&
-            fillArray.map((_, rowIndex) => (
-              <TableRow key={`loading-row-${rowIndex}`}>
-                {data.header.map((item: ITableHeader) => (
-                  <TableCell key={`loading-cell-${rowIndex}-${item.key}`}>
+            skeletonRows.map((rowIndex) => (
+              <TableRow key={`skeleton-${rowIndex}`}>
+                {data.header.map((header: ITableHeader) => (
+                  <TableCell key={`skeleton-${rowIndex}-${header.key}`}>
                     <Skeleton variant="text" sx={{ fontSize: "1rem" }} />
                   </TableCell>
                 ))}
@@ -74,7 +69,7 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
             data.rows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row: ITableRow, rowIndex: number) => {
-                const rowKey = row?.id ? String(row.id) : `row-${page * rowsPerPage + rowIndex}`;
+                const rowKey = row?.id ?? rowIndex;
                 return (
                   <TableRow hover key={rowKey}>
                     {data.header.map((header: ITableHeader) => (
@@ -83,10 +78,10 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
                       </TableCell>
                     ))}
                     {/* {this.props?.TableOptions && (
-                        <TableCell align='right'>
-                          <TableOptions data={row} onClick={onClick} />
-                        </TableCell>
-                      )} */}
+                      <TableCell align='right'>
+                        <TableOptions data={row} onClick={onClick} />
+                      </TableCell>
+                    )} */}
                   </TableRow>
                 );
               })}

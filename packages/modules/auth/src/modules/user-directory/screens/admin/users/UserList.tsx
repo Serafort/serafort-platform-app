@@ -5,13 +5,10 @@ import React, { useState, useMemo, useCallback } from 'react'
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Chip,
   IconButton,
@@ -53,12 +50,12 @@ import ClearIcon from '@mui/icons-material/Clear'
 import LayersIcon from '@mui/icons-material/Layers'
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
-import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useDebounce } from 'use-debounce'
-import { Path } from '@cap/module-auth/routes/path'
+import { motion } from 'framer-motion'
+import Path from '../../path'
 import { useUsersQuery, useRolesQuery } from '../../../hooks/useUserDirectoryQuery'
 import {
   useUpdateUserStatusMutation,
@@ -76,17 +73,30 @@ import EditUserDrawer from '../../../components/EditUserDrawer'
 import AssignRolesModal from '../../../components/AssignRolesModal'
 import DeleteUserDialog from '../../../components/DeleteUserDialog'
 import BulkActionModal from '../../../components/BulkActionModal'
+import {
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminStatusBadge,
+  AdminRowActionButton,
+} from '../../../../authentication-core/components/shared/admin'
 
 const STATUS_OPTIONS: Array<{
   label: string
+  labelKey: string
   value: UserStatus | 'ALL'
   color?: 'default' | 'success' | 'warning' | 'error'
 }> = [
-  { label: 'All Users', value: 'ALL' },
-  { label: 'Active', value: 'ACTIVE', color: 'success' },
-  { label: 'Inactive', value: 'INACTIVE', color: 'default' },
-  { label: 'Suspended', value: 'SUSPENDED', color: 'warning' },
-  { label: 'Banned', value: 'BANNED', color: 'error' },
+  { label: 'All Users', labelKey: 'auth.userList.statusAll', value: 'ALL' },
+  { label: 'Active', labelKey: 'auth.userList.statusActive', value: 'ACTIVE', color: 'success' },
+  { label: 'Inactive', labelKey: 'auth.userList.statusInactive', value: 'INACTIVE', color: 'default' },
+  {
+    label: 'Suspended',
+    labelKey: 'auth.userList.statusSuspended',
+    value: 'SUSPENDED',
+    color: 'warning',
+  },
+  { label: 'Banned', labelKey: 'auth.userList.statusBanned', value: 'BANNED', color: 'error' },
 ]
 
 export default function UserList() {
@@ -210,7 +220,7 @@ export default function UserList() {
 
   const handleViewProfile = (user: UserDirectoryItemDTO) => {
     handleCloseActionMenu()
-    navigate(`/admin/user/${user.id}`)
+    navigate(Path.admin.users.user_profile.replace(':id', String(user.id)))
   }
 
   const handleOpenEdit = (user: UserDirectoryItemDTO) => {
@@ -266,65 +276,24 @@ export default function UserList() {
   const renderStatusBadge = (status: UserStatus) => {
     switch (status) {
       case 'ACTIVE':
-        return (
-          <Chip
-            size='small'
-            label='Active'
-            icon={<CheckCircleIcon sx={{ fontSize: '14px !important' }} />}
-            sx={{
-              bgcolor: alpha(theme.palette.success.main, 0.12),
-              color: theme.palette.success.dark,
-              fontWeight: 700,
-              fontSize: '0.75rem',
-            }}
-          />
-        )
+        return <AdminStatusBadge tone='success' label={t('auth.userList.statusActive', 'Active')} />
       case 'SUSPENDED':
-        return (
-          <Chip
-            size='small'
-            label='Suspended'
-            icon={<BlockIcon sx={{ fontSize: '14px !important' }} />}
-            sx={{
-              bgcolor: alpha(theme.palette.warning.main, 0.12),
-              color: theme.palette.warning.dark,
-              fontWeight: 700,
-              fontSize: '0.75rem',
-            }}
-          />
-        )
+        return <AdminStatusBadge tone='warning' label={t('auth.userList.statusSuspended', 'Suspended')} />
       case 'BANNED':
-        return (
-          <Chip
-            size='small'
-            label='Banned'
-            icon={<HighlightOffIcon sx={{ fontSize: '14px !important' }} />}
-            sx={{
-              bgcolor: alpha(theme.palette.error.main, 0.12),
-              color: theme.palette.error.dark,
-              fontWeight: 700,
-              fontSize: '0.75rem',
-            }}
-          />
-        )
+        return <AdminStatusBadge tone='error' label={t('auth.userList.statusBanned', 'Banned')} />
       default:
-        return (
-          <Chip
-            size='small'
-            label='Inactive'
-            sx={{
-              bgcolor: alpha(theme.palette.text.secondary, 0.1),
-              color: theme.palette.text.secondary,
-              fontWeight: 600,
-              fontSize: '0.75rem',
-            }}
-          />
-        )
+        return <AdminStatusBadge tone='neutral' label={t('auth.userList.statusInactive', 'Inactive')} />
     }
   }
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1440, mx: 'auto' }}>
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      sx={{ p: { xs: 2, md: 4 }, maxWidth: 1440, mx: 'auto' }}
+    >
       {/* Header Banner */}
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
@@ -361,9 +330,10 @@ export default function UserList() {
             disabled={exportUsersMutation.isPending}
             sx={{
               textTransform: 'none',
-              fontWeight: 600,
-              borderRadius: 2,
-              px: 2,
+              fontWeight: 700,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              px: 2.5,
+              minHeight: 44,
               borderColor: alpha(theme.palette.divider, 0.2),
             }}
           >
@@ -376,9 +346,10 @@ export default function UserList() {
             sx={{
               textTransform: 'none',
               fontWeight: 700,
-              borderRadius: 2,
-              px: 2.5,
-              boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.25)',
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              px: 3,
+              minHeight: 44,
+              boxShadow: 'var(--sf-shadow-glow)',
             }}
           >
             Invite User
@@ -386,16 +357,8 @@ export default function UserList() {
         </Stack>
       </Stack>
 
-      {/* Main Glass Card Container */}
-      <Card
-        sx={{
-          borderRadius: 3,
-          border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
-          overflow: 'hidden',
-          bgcolor: 'background.paper',
-        }}
-      >
+      {/* Main table surface — shared AdminTableCard (16px, hairline divider) */}
+      <AdminTableCard>
         {/* Status Filter Chips Bar */}
         <Box
           sx={{
@@ -413,7 +376,7 @@ export default function UserList() {
             return (
               <Chip
                 key={opt.value}
-                label={opt.label}
+                label={t(opt.labelKey, opt.label)}
                 onClick={() => {
                   setStatusFilter(opt.value)
                   setPage(1)
@@ -423,7 +386,7 @@ export default function UserList() {
                 sx={{
                   fontWeight: isSelected ? 700 : 500,
                   fontSize: '0.8125rem',
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
                   px: 0.5,
                   cursor: 'pointer',
                   borderColor: isSelected ? 'primary.main' : alpha(theme.palette.divider, 0.15),
@@ -458,21 +421,24 @@ export default function UserList() {
             placeholder='Search by name, email, or department...'
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <SearchIcon fontSize='small' sx={{ color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-              endAdornment: searchInput ? (
-                <InputAdornment position='end'>
-                  <IconButton size='small' onClick={() => setSearchInput('')}>
-                    <ClearIcon fontSize='small' />
-                  </IconButton>
-                </InputAdornment>
-              ) : null,
-              sx: { borderRadius: 2, bgcolor: 'background.paper', width: { xs: '100%', md: 340 } },
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <SearchIcon fontSize='small' sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+                endAdornment: searchInput ? (
+                  <InputAdornment position='end'>
+                    <IconButton size='small' aria-label='Clear search' onClick={() => setSearchInput('')}>
+                      <ClearIcon fontSize='small' />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null,
+                sx: { borderRadius: 'var(--sf-radius-md, 8px)', bgcolor: 'background.paper', minHeight: 44 },
+              },
             }}
+            sx={{ width: { xs: '100%', md: 340 } }}
           />
 
           {/* Role & Sorting Selectors */}
@@ -485,7 +451,7 @@ export default function UserList() {
                   setPage(1)
                 }}
                 displayEmpty
-                sx={{ borderRadius: 2, bgcolor: 'background.paper' }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 8px)', bgcolor: 'background.paper', minHeight: 40 }}
               >
                 <MenuItem value='ALL'>All Roles</MenuItem>
                 {roles.map((r) => (
@@ -504,7 +470,7 @@ export default function UserList() {
                   setSortBy(field)
                   setSortOrder(order as 'asc' | 'desc')
                 }}
-                sx={{ borderRadius: 2, bgcolor: 'background.paper' }}
+                sx={{ borderRadius: 'var(--sf-radius-md, 8px)', bgcolor: 'background.paper', minHeight: 40 }}
               >
                 <MenuItem value='createdAt-desc'>Newest First</MenuItem>
                 <MenuItem value='createdAt-asc'>Oldest First</MenuItem>
@@ -516,12 +482,16 @@ export default function UserList() {
 
             <Tooltip title='Refresh Directory'>
               <IconButton
+                aria-label='Refresh Directory'
                 onClick={() => refetch()}
                 size='small'
                 sx={{
                   border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
-                  borderRadius: 2,
-                  p: 0.9,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  width: 44,
+                  height: 44,
+                  minWidth: 44,
+                  minHeight: 44,
                 }}
               >
                 <RefreshIcon fontSize='small' />
@@ -558,7 +528,12 @@ export default function UserList() {
                 variant='outlined'
                 color='success'
                 onClick={() => setBulkAction('ACTIVATE')}
-                sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5 }}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                  minHeight: 36,
+                }}
               >
                 Activate
               </Button>
@@ -567,7 +542,12 @@ export default function UserList() {
                 variant='outlined'
                 color='warning'
                 onClick={() => setBulkAction('SUSPEND')}
-                sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5 }}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                  minHeight: 36,
+                }}
               >
                 Suspend
               </Button>
@@ -576,7 +556,12 @@ export default function UserList() {
                 variant='outlined'
                 color='error'
                 onClick={() => setBulkAction('DELETE')}
-                sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 1.5 }}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                  minHeight: 36,
+                }}
               >
                 Delete
               </Button>
@@ -584,7 +569,7 @@ export default function UserList() {
                 size='small'
                 color='inherit'
                 onClick={() => setSelectedIds([])}
-                sx={{ textTransform: 'none', ml: 1 }}
+                sx={{ textTransform: 'none', ml: 1, minHeight: 36, fontWeight: 600 }}
               >
                 Clear Selection
               </Button>
@@ -611,9 +596,9 @@ export default function UserList() {
         {/* Data Table */}
         <TableContainer>
           <Table sx={{ minWidth: 800 }}>
-            <TableHead sx={{ bgcolor: alpha(theme.palette.background.default, 0.5) }}>
+            <AdminTableHead>
               <TableRow>
-                <TableCell padding='checkbox' sx={{ pl: 3 }}>
+                <TableCell padding='checkbox' sx={{ pl: 3, borderColor: 'divider' }}>
                   <Checkbox
                     indeterminate={isSomeSelected}
                     checked={isAllSelected}
@@ -621,16 +606,20 @@ export default function UserList() {
                     color='primary'
                   />
                 </TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>User</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>Roles</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>Department</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>Joined Date</TableCell>
-                <TableCell align='right' sx={{ fontWeight: 700, fontSize: '0.8125rem', pr: 3 }}>
-                  Actions
-                </TableCell>
+                <AdminTableHeadCell>{t('auth.userList.colUser', 'User')}</AdminTableHeadCell>
+                <AdminTableHeadCell>{t('auth.userList.colStatus', 'Status')}</AdminTableHeadCell>
+                <AdminTableHeadCell>{t('auth.userList.colRoles', 'Roles')}</AdminTableHeadCell>
+                <AdminTableHeadCell>
+                  {t('auth.userList.colDepartment', 'Department')}
+                </AdminTableHeadCell>
+                <AdminTableHeadCell>
+                  {t('auth.userList.colJoined', 'Joined Date')}
+                </AdminTableHeadCell>
+                <AdminTableHeadCell align='right' sx={{ pr: 3 }}>
+                  {t('auth.userList.colActions', 'Actions')}
+                </AdminTableHeadCell>
               </TableRow>
-            </TableHead>
+            </AdminTableHead>
 
             <TableBody>
               {/* Loading Skeletons */}
@@ -806,6 +795,7 @@ export default function UserList() {
                                   fontSize: '0.7rem',
                                   height: 22,
                                   fontWeight: 600,
+                                  borderRadius: 'var(--sf-radius-xs, 4px)',
                                   borderColor: alpha(theme.palette.divider, 0.2),
                                 }}
                               />
@@ -845,16 +835,12 @@ export default function UserList() {
 
                       {/* Actions Menu */}
                       <TableCell align='right' sx={{ pr: 3 }} onClick={(e) => e.stopPropagation()}>
-                        <IconButton
-                          size='small'
+                        <AdminRowActionButton
+                          aria-label='Open actions menu'
                           onClick={(e) => handleOpenActionMenu(e, user)}
-                          sx={{
-                            color: 'text.secondary',
-                            '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.05) },
-                          }}
                         >
                           <MoreVertIcon fontSize='small' />
-                        </IconButton>
+                        </AdminRowActionButton>
                       </TableCell>
                     </TableRow>
                   )
@@ -895,7 +881,7 @@ export default function UserList() {
                   setPerPage(Number(e.target.value))
                   setPage(1)
                 }}
-                sx={{ height: 32, fontSize: '0.8125rem' }}
+                sx={{ height: 36, fontSize: '0.8125rem', borderRadius: 'var(--sf-radius-xs, 4px)' }}
               >
                 <MenuItem value={10}>10 per page</MenuItem>
                 <MenuItem value={25}>25 per page</MenuItem>
@@ -910,22 +896,30 @@ export default function UserList() {
               color='primary'
               shape='rounded'
               size='small'
+              sx={{
+                '& .MuiPaginationItem-root': {
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                  fontWeight: 700,
+                },
+              }}
             />
           </Stack>
         </Box>
-      </Card>
+      </AdminTableCard>
 
       {/* Row Action Context Menu */}
       <Menu
         anchorEl={actionMenuAnchor}
         open={Boolean(actionMenuAnchor)}
         onClose={handleCloseActionMenu}
-        PaperProps={{
-          sx: {
-            minWidth: 200,
-            borderRadius: 2,
-            boxShadow: '0 12px 28px rgba(0, 0, 0, 0.15)',
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        slotProps={{
+          paper: {
+            sx: {
+              minWidth: 200,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              boxShadow: 'var(--sf-shadow-lg)',
+              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            },
           },
         }}
       >

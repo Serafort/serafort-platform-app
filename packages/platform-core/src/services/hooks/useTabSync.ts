@@ -172,6 +172,7 @@ export function useTabSync<T = any>(
    * Setup heartbeat interval
    */
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     sendHeartbeat() // Initial heartbeat
 
     heartbeatIntervalRef.current = setInterval(() => {

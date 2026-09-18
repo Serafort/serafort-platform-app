@@ -1,35 +1,35 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Box,
   Button,
-  TextField,
   Typography,
   Alert,
   InputAdornment,
   IconButton,
   CircularProgress,
-  alpha,
   Stack,
   Link as MuiLink,
 } from '@mui/material'
 import LockOutlined from '@mui/icons-material/LockOutlined'
+import LinkOff from '@mui/icons-material/LinkOff'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { FetchResponse, useAppStore } from '@cap/platform-core'
-import { LiquidGlassCard } from '@cap/theme'
 import type { ResetPasswordRequest } from '../../types/api.types'
 import { useResetPassword } from '../../hooks/useAuthQuery'
 import authService from '../../services/auth.service'
 import {
   AuthPageLayout,
-  AuthScreenIcon,
+  AuthCard,
+  AuthCardHeader,
   AuthInputLabel,
   AuthActionButton,
+  AuthTextField,
+  PasswordStrengthMeter,
 } from '../../components/shared/auth'
 import { ResetPasswordSchema, ResetPasswordSchemaType } from '../../utils/schema'
 import { useActionLock } from '../../hooks/useActionLock'
@@ -61,6 +61,7 @@ export default function ResetPassword() {
   const [signatureError, setSignatureError] = useState<string | null>(null)
   const [token, setToken] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const {
@@ -72,6 +73,8 @@ export default function ResetPassword() {
     resolver: zodResolver(ResetPasswordSchema),
     mode: 'onTouched',
   })
+
+  const watchedPassword = useWatch({ control, name: 'password' }) || ''
 
   useEffect(() => {
     let isMounted = true
@@ -87,9 +90,16 @@ export default function ResetPassword() {
 
       try {
         if (isMounted) setLoading(true)
+        // The backend's GET /reset-password/:email handler validates the whole
+        // signed URL (`request.hasValidSignature()`) *and* separately requires a
+        // `token` query param (`request.input('token')`) — the signed link the
+        // backend mails out always carries both. Passing just the bare
+        // `signature` value here (as opposed to the full query string) used to
+        // build a URL missing `token`, which the backend rejects as
+        // 'Invalid password reset parameters.' every time this branch ran.
         const response: FetchResponse<any> = tokenParam
           ? await authService.verifyResetToken(decodedEmail, tokenParam)
-          : await authService.verifyResetPassword(decodedEmail, signature || '')
+          : await authService.verifyResetPassword(decodedEmail, searchParams.toString())
 
         if (!isMounted) return
         setLoading(false)
@@ -99,7 +109,7 @@ export default function ResetPassword() {
         } else {
           setSignatureError(
             response.data?.message ||
-            t('resetPassword.linkExpired', 'The password reset link has expired or is invalid.'),
+              t('resetPassword.linkExpired', 'The password reset link has expired or is invalid.'),
           )
         }
       } catch (err: any) {
@@ -107,8 +117,8 @@ export default function ResetPassword() {
         setLoading(false)
         setSignatureError(
           err.response?.data?.message ||
-          err.response?.data?.detail ||
-          t('resetPassword.verificationFailed', 'Failed to verify reset link.'),
+            err.response?.data?.detail ||
+            t('resetPassword.verificationFailed', 'Failed to verify reset link.'),
         )
       }
     }
@@ -134,9 +144,9 @@ export default function ResetPassword() {
     onError: (err: any) => {
       setError(
         err.response?.data?.detail ||
-        err.response?.data?.message ||
-        err.message ||
-        t('resetPassword.errorGeneric', 'An error occurred. Please try again.'),
+          err.response?.data?.message ||
+          err.message ||
+          t('resetPassword.errorGeneric', 'An error occurred. Please try again.'),
       )
     },
   })
@@ -157,207 +167,219 @@ export default function ResetPassword() {
     [token, tokenParam, decodedEmail, executeWithLock, resetPasswordMutation],
   )
 
+  // --- Loading: the reset signature is still being verified ---------------
   if (loading) {
     return (
-      <AuthPageLayout maxWidth={480}>
-        <Box
-          sx={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            py: 8,
-          }}
-        >
-          <CircularProgress size={48} />
-        </Box>
+      <AuthPageLayout maxWidth={480} backdrop='subtle'>
+        <AuthCard padding='comfortable'>
+          <Box
+            role='status'
+            aria-live='polite'
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+              py: 6,
+            }}
+          >
+            <CircularProgress size={44} thickness={4} />
+            <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 600 }}>
+              {t('resetPassword.verifyingLink', 'Verifying your reset link…')}
+            </Typography>
+          </Box>
+        </AuthCard>
       </AuthPageLayout>
     )
   }
 
+  // --- Error: the link is invalid or expired ------------------------------
   if (signatureError) {
     return (
-      <AuthPageLayout maxWidth={480}>
-        <Box sx={{ width: '100%' }}>
-          <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
-            <Box
-              className='animate-scale-in'
-              component={motion.div}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-              sx={{ p: { xs: 3, sm: 4 }, textAlign: 'center' }}
+      <AuthPageLayout maxWidth={480} backdrop='subtle'>
+        <AuthCard padding='comfortable'>
+          <Box sx={{ textAlign: 'center' }}>
+            <AuthCardHeader
+              icon={<LinkOff sx={{ fontSize: 32 }} />}
+              title={t('resetPassword.invalidLinkTitle', 'Invalid or Expired Link')}
+              subtitle={t(
+                'resetPassword.invalidLinkDesc',
+                'This password reset link is invalid or has expired. Please request a new one.',
+              )}
+              tone='error'
+              toneTitle
+              iconSize={64}
+            />
+
+            <Button
+              component={Link}
+              to={Path.forgotPassword}
+              fullWidth
+              variant='contained'
+              sx={{
+                minHeight: 48,
+                borderRadius: 'var(--sf-radius-lg, 12px)',
+                fontWeight: 800,
+                fontSize: '1rem',
+                textTransform: 'none',
+              }}
             >
-              <Alert
-                severity='error'
-                sx={{
-                  mb: 4,
-                  borderRadius: 2,
-                  textAlign: 'left',
-                  '& .MuiAlert-message': { fontWeight: 600 },
-                }}
-              >
-                <Box>
-                  <Typography sx={{ fontWeight: 700 }}>
-                    {t('resetPassword.invalidLinkTitle', 'Invalid or Expired Link')}
-                  </Typography>
-                  <Typography sx={{ mt: 1 }}>
-                    {t(
-                      'resetPassword.invalidLinkDesc',
-                      'This password reset link is invalid or has expired. Please request a new one.',
-                    )}
-                  </Typography>
-                  <Typography sx={{ mt: 1 }}>
-                    {t('resetPassword.supportText', 'Need help?')}{' '}
-                    <MuiLink href={`mailto:${SUPPORT_EMAIL}`} sx={{ color: 'inherit' }}>
-                      {SUPPORT_EMAIL}
-                    </MuiLink>
-                  </Typography>
-                </Box>
-              </Alert>
-              <Button
-                component={Link}
-                to={Path.forgotPassword}
-                fullWidth
-                variant='contained'
-                sx={{
-                  py: 1.5,
-                  borderRadius: 3,
-                  fontWeight: 800,
-                  fontSize: '1rem',
-                  textTransform: 'none',
-                  bgcolor: 'primary.main',
-                  boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`,
-                  '&:hover': { bgcolor: 'primary.dark', transform: 'translateY(-1px)' },
-                }}
-              >
-                {t('resetPassword.requestNewLink', 'Request New Link')}
-              </Button>
-            </Box>
-          </LiquidGlassCard>
-        </Box>
+              {t('resetPassword.requestNewLink', 'Request New Link')}
+            </Button>
+
+            <Typography variant='body2' color='text.secondary' sx={{ mt: 3, fontWeight: 500 }}>
+              {t('resetPassword.supportText', 'Need help?')}{' '}
+              <MuiLink href={`mailto:${SUPPORT_EMAIL}`} sx={{ fontWeight: 700 }}>
+                {SUPPORT_EMAIL}
+              </MuiLink>
+            </Typography>
+          </Box>
+        </AuthCard>
       </AuthPageLayout>
     )
   }
+
+  // --- Idle: choose a new password ---------------------------------------
+  const isBusy = resetPasswordMutation.isPending || isSubmitting
 
   return (
     <AuthPageLayout maxWidth={480}>
-      <Box sx={{ width: '100%' }}>
-        <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
-          <Box sx={{ p: { xs: 3, sm: 4 } }}>
-            <Box sx={{ mb: 4, textAlign: 'center' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-                <AuthScreenIcon icon={<LockOutlined sx={{ fontSize: 32 }} />} />
-              </Box>
-              <Typography variant='h4' sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.027em' }}>
-                {t('resetPassword.title', 'Set new password')}
-              </Typography>
-              <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
-                {t('resetPassword.subtitle', "Choose a strong password you haven't used before.")}
-              </Typography>
+      <AuthCard padding='standard'>
+        <AuthCardHeader
+          icon={<LockOutlined sx={{ fontSize: 32 }} />}
+          title={t('resetPassword.title', 'Set new password')}
+          subtitle={t(
+            'resetPassword.subtitle',
+            "Choose a strong password you haven't used before.",
+          )}
+        />
+
+        {error && (
+          <Alert
+            severity='error'
+            role='alert'
+            aria-live='polite'
+            sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)', '& .MuiAlert-message': { fontWeight: 600 } }}
+          >
+            {error}
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <Stack spacing={3}>
+            <Box>
+              <AuthInputLabel htmlFor='reset-password'>
+                {t('resetPassword.newPasswordLabel', 'NEW PASSWORD')}
+              </AuthInputLabel>
+              <Controller
+                name='password'
+                control={control}
+                render={({ field }) => (
+                  <AuthTextField
+                    {...field}
+                    id='reset-password'
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder='••••••••••••'
+                    disabled={isBusy}
+                    autoComplete='new-password'
+                    autoFocus
+                    error={Boolean(errors.password)}
+                    helperText={errors.password?.message}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position='end'>
+                            <IconButton
+                              onClick={() => setShowPassword((prev) => !prev)}
+                              edge='end'
+                              size='small'
+                              aria-label={
+                                showPassword
+                                  ? t('common.hidePassword', 'Hide password')
+                                  : t('common.showPassword', 'Show password')
+                              }
+                              aria-pressed={showPassword}
+                            >
+                              {showPassword ? (
+                                <VisibilityOff sx={{ fontSize: 20 }} />
+                              ) : (
+                                <Visibility sx={{ fontSize: 20 }} />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                )}
+              />
+              <PasswordStrengthMeter password={watchedPassword} criteria='chips' />
             </Box>
 
-            {error && (
-              <Alert
-                severity='error'
-                sx={{ mb: 4, borderRadius: 2, '& .MuiAlert-message': { fontWeight: 600 } }}
-              >
-                {error}
-              </Alert>
-            )}
-
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
-              <Stack spacing={3}>
-                <Box>
-                  <AuthInputLabel>
-                    {t('resetPassword.newPasswordLabel', 'NEW PASSWORD')}
-                  </AuthInputLabel>
-                  <Controller
-                    name='password'
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder='••••••••••••'
-                        disabled={resetPasswordMutation.isPending || isSubmitting}
-                        autoComplete='new-password'
-                        error={Boolean(errors.password)}
-                        helperText={errors.password?.message}
-                        slotProps={{
-                          input: {
-                            endAdornment: (
-                              <InputAdornment position='end'>
-                                <IconButton
-                                  onClick={() => setShowPassword(!showPassword)}
-                                  edge='end'
-                                  size='small'
-                                  aria-label='Toggle password visibility'
-                                >
-                                  {showPassword ? (
-                                    <VisibilityOff sx={{ fontSize: 20 }} />
-                                  ) : (
-                                    <Visibility sx={{ fontSize: 20 }} />
-                                  )}
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                            sx: { borderRadius: 3, bgcolor: 'background.paper' },
-                          },
-                        }}
-                      />
-                    )}
+            <Box>
+              <AuthInputLabel htmlFor='reset-confirm-password'>
+                {t('resetPassword.confirmPasswordLabel', 'CONFIRM PASSWORD')}
+              </AuthInputLabel>
+              <Controller
+                name='confirmPassword'
+                control={control}
+                render={({ field }) => (
+                  <AuthTextField
+                    {...field}
+                    id='reset-confirm-password'
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder='••••••••••••'
+                    disabled={isBusy}
+                    autoComplete='new-password'
+                    error={Boolean(errors.confirmPassword)}
+                    helperText={errors.confirmPassword?.message}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position='end'>
+                            <IconButton
+                              onClick={() => setShowConfirmPassword((prev) => !prev)}
+                              edge='end'
+                              size='small'
+                              aria-label={
+                                showConfirmPassword
+                                  ? t('common.hidePassword', 'Hide password')
+                                  : t('common.showPassword', 'Show password')
+                              }
+                              aria-pressed={showConfirmPassword}
+                            >
+                              {showConfirmPassword ? (
+                                <VisibilityOff sx={{ fontSize: 20 }} />
+                              ) : (
+                                <Visibility sx={{ fontSize: 20 }} />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
                   />
-                </Box>
+                )}
+              />
+            </Box>
 
-                <Box>
-                  <AuthInputLabel>
-                    {t('resetPassword.confirmPasswordLabel', 'CONFIRM PASSWORD')}
-                  </AuthInputLabel>
-                  <Controller
-                    name='confirmPassword'
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder='••••••••••••'
-                        disabled={resetPasswordMutation.isPending || isSubmitting}
-                        autoComplete='new-password'
-                        error={Boolean(errors.confirmPassword)}
-                        helperText={errors.confirmPassword?.message}
-                        slotProps={{
-                          input: {
-                            sx: { borderRadius: 3, bgcolor: 'background.paper' },
-                          },
-                        }}
-                      />
-                    )}
-                  />
-                </Box>
-
-                <AuthActionButton
-                  type='submit'
-                  isLoading={resetPasswordMutation.isPending}
-                  isSubmitting={isSubmitting}
-                  isValidating={isValidating}
-                  isLocked={isLocked}
-                  label={
-                    resetPasswordMutation.isPending
-                      ? t('resetPassword.submitting', 'Resetting...')
-                      : t('resetPassword.submit', 'Reset Password')
-                  }
-                  disabled={resetPasswordMutation.isPending || isSubmitting || isLocked}
-                  sx={{ mt: 2 }}
-                />
-              </Stack>
-            </form>
-          </Box>
-        </LiquidGlassCard>
-      </Box>
+            <AuthActionButton
+              type='submit'
+              isLoading={resetPasswordMutation.isPending}
+              isSubmitting={isSubmitting}
+              isValidating={isValidating}
+              isLocked={isLocked}
+              label={
+                resetPasswordMutation.isPending
+                  ? t('resetPassword.submitting', 'Resetting...')
+                  : t('resetPassword.submit', 'Reset Password')
+              }
+              disabled={isBusy || isLocked}
+            />
+          </Stack>
+        </form>
+      </AuthCard>
     </AuthPageLayout>
   )
 }

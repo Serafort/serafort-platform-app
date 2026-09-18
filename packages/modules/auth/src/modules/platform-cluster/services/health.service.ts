@@ -110,7 +110,7 @@ const healthService = {
   },
 
   getPrometheusMetrics: (): Promise<FetchResponse<string>> => {
-    return apiClient.get<string>('/api/metrics/prometheus')
+    return apiClient.get<string>(ENDPOINTS.metrics.prometheus)
   },
 }
 
