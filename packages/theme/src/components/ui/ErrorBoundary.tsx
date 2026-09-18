@@ -28,9 +28,12 @@ interface State {
 
 /**
  * Generates a short human-readable error reference ID for support tickets.
+ * Uses `crypto.randomUUID()` (never `Math.random()`) so the reference cannot
+ * collide or be predicted; the first 8 hex characters are enough for a
+ * user-quotable ticket code.
  */
 function generateErrorId(): string {
-  return Math.random().toString(36).slice(2, 8).toUpperCase();
+  return crypto.randomUUID().slice(0, 8).toUpperCase();
 }
 
 class ErrorBoundary extends Component<Props, State> {

@@ -344,12 +344,18 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
         relaxed: "1.75",
       },
     },
+    // Ink-tinted default elevation. `rgb(0 0 0 / x)` drop shadows have almost
+    // no contrast on the dark navy canvas, so every Paper/Card read as flat.
+    // The blue-black ground (19 17 32) is the same tint the generated
+    // `elevationScale()` ramp and `theme.customShadows.*` use; it still reads
+    // on the fog-white canvas. A tenant that sets its own `tokens.shadows`
+    // still overrides these via the `--shadow-*` custom properties.
     shadows: {
-      xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-      sm: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
-      md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
-      lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-      xl: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+      xs: "0 1px 2px 0 rgba(19, 17, 32, 0.12)",
+      sm: "0 1px 3px 0 rgba(19, 17, 32, 0.16), 0 1px 2px -1px rgba(19, 17, 32, 0.12)",
+      md: "0 4px 6px -1px rgba(19, 17, 32, 0.18), 0 2px 4px -2px rgba(19, 17, 32, 0.14)",
+      lg: "0 10px 15px -3px rgba(19, 17, 32, 0.2), 0 4px 6px -4px rgba(19, 17, 32, 0.16)",
+      xl: "0 20px 25px -5px rgba(19, 17, 32, 0.24), 0 8px 10px -6px rgba(19, 17, 32, 0.18)",
     },
     transitions: {
       duration: {

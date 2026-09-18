@@ -8,6 +8,7 @@ import { createAuthSlice, type AuthSlice } from "./slices/authSlice";
 import {
   onTerminalError,
   setGlobalNotificationHandler,
+  setSessionProbe,
 } from "../services/api/api.client";
 import { createGuestSlice, type GuestSlice } from "./slices/guestSlice";
 import { createProfileSlice, type ProfileSlice } from "./slices/profileSlice";
@@ -295,6 +296,13 @@ export const useAppStore = create<AppStore>()(
     listener: (state: AppStore, prevState: AppStore) => void,
   ): () => void;
 };
+
+// --- Report Session Existence to the API Client ---
+// The refresh manager must tell "your session just died" (terminal, wipe
+// everything) apart from "you were never signed in" (benign). The access token
+// is memory-only, so after a reload the persisted auth flag is the only
+// remaining witness that a session existed.
+setSessionProbe(() => useAppStore.getState().isAuthenticated);
 
 // --- Subscribe to Terminal Auth Errors ---
 // When a terminal authentication failure occurs (e.g. 400 on refresh),

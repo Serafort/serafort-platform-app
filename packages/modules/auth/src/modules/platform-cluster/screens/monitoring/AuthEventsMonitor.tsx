@@ -32,11 +32,17 @@ import Security from '@mui/icons-material/Security'
 import GppGood from '@mui/icons-material/GppGood'
 import Info from '@mui/icons-material/Info'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import { useAuditLogs } from '@cap/module-auth/modules/authentication-core/hooks/useAdminQuery'
+import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 
 export default function AuthEventsMonitor() {
   const { t } = useTranslation('common')
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
 
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(50)
@@ -120,6 +126,7 @@ export default function AuthEventsMonitor() {
   }
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
       {/* Header */}
       <Box
@@ -133,7 +140,7 @@ export default function AuthEventsMonitor() {
         }}
       >
         <Box>
-          <Typography variant='h4' sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 1 }}>
+          <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 1 }}>
             {t('auth.admin.eventsMonitor')}
           </Typography>
           <Typography variant='body2' color='text.secondary'>
@@ -198,7 +205,7 @@ export default function AuthEventsMonitor() {
       <TableContainer
         component={Paper}
         variant='outlined'
-        sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}
+        sx={{ borderRadius: 'var(--sf-radius-md, 8px)', border: '1px solid', borderColor: 'divider' }}
       >
         <Table sx={{ minWidth: 800 }}>
           <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.5) }}>
@@ -307,17 +314,9 @@ export default function AuthEventsMonitor() {
                   </Typography>
                 </TableCell>
                 <TableCell align='right'>
-                  <Chip
+                  <AdminStatusBadge
+                    tone={getSeverityColor(event.action)}
                     label={getSeverityLabel(event.action)}
-                    size='small'
-                    color={getSeverityColor(event.action) as any}
-                    variant='outlined'
-                    sx={{
-                      fontWeight: 900,
-                      textTransform: 'uppercase',
-                      fontSize: '0.6rem',
-                      height: 18,
-                    }}
                   />
                 </TableCell>
               </TableRow>
@@ -352,13 +351,14 @@ export default function AuthEventsMonitor() {
 
       <style>
         {`
-          @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.3); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
-          }
+        @keyframes pulse {
+          0% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.3); opacity: 0.5; }
+          100% { transform: scale(1); opacity: 1; }
+        }
         `}
       </style>
     </Box>
+    </motion.div>
   )
 }

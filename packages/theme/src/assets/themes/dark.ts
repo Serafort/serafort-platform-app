@@ -363,15 +363,6 @@ const darkTheme = createTheme({
         },
       },
     },
-    MuiTooltip: {
-      styleOverrides: {
-        tooltip: {
-          backgroundColor: surfaceMixed[600],
-          borderRadius: 6,
-          fontSize: "0.75rem",
-        },
-      },
-    },
     MuiDivider: {
       styleOverrides: {
         root: {

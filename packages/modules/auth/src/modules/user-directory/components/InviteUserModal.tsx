@@ -162,7 +162,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: 'var(--sf-radius-lg, 12px)',
           boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.25)',
           overflow: 'hidden',
           border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
@@ -185,7 +185,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
           <Box
             sx={{
               p: 1,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               bgcolor: alpha(theme.palette.primary.main, 0.1),
               color: theme.palette.primary.main,
               display: 'flex',
@@ -403,7 +403,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                   <Box
                     sx={{
                       p: 1.5,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       bgcolor: alpha(theme.palette.background.default, 0.6),
                       border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                     }}
@@ -624,7 +624,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
             fontWeight: 700,
             px: 3,
             minWidth: 120,
-            borderRadius: 2,
+            borderRadius: 'var(--sf-radius-md, 8px)',
           }}
         >
           {isSubmitting ? (

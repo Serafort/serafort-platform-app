@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/SamlWaitScreen.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md, Error-handling.md
 // FIXES: Added header; implemented entry motion; modernized typography and iconography; standardized color palette; translated all labels; added aria-label support; integrated functional SAML redirect logic
-// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
+// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
 
 import React from 'react'
 import {
@@ -187,7 +187,7 @@ export default function SamlWaitScreen() {
               sx={{
                 width: 80,
                 height: 80,
-                borderRadius: '24px',
+                borderRadius: 'var(--sf-radius-lg, 24px)',
                 bgcolor: alpha(theme.palette.error.main, 0.08),
                 display: 'flex',
                 alignItems: 'center',
@@ -203,7 +203,7 @@ export default function SamlWaitScreen() {
 
             <Typography
               variant='h4'
-              sx={{ fontWeight: 900, letterSpacing: '-0.027em', mb: 2, color: 'text.primary' }}
+              sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 2, color: 'text.primary' }}
             >
               {t('auth.sso.auth_failed', 'Authentication Failed')}
             </Typography>
@@ -212,7 +212,7 @@ export default function SamlWaitScreen() {
               severity='error'
               sx={{
                 mb: 4,
-                borderRadius: '16px',
+                borderRadius: 'var(--sf-radius-md, 10px)',
                 textAlign: 'left',
                 '& .MuiAlert-message': { fontWeight: 600 },
               }}
@@ -226,9 +226,10 @@ export default function SamlWaitScreen() {
                 startIcon={<ArrowBackIcon />}
                 onClick={() => navigate(Path.auth.login)}
                 sx={{
+                  minHeight: 44,
                   fontWeight: 700,
                   textTransform: 'none',
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   px: 3,
                   borderColor: 'divider',
                 }}
@@ -240,13 +241,14 @@ export default function SamlWaitScreen() {
                 startIcon={<RefreshIcon />}
                 onClick={handleRetry}
                 sx={{
+                  minHeight: 44,
                   fontWeight: 700,
                   textTransform: 'none',
-                  borderRadius: '12px',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   px: 3,
                 }}
               >
-                {t('common.retry', 'Retry')}
+                {t('auth.common.retry', 'Retry')}
               </Button>
             </Box>
           </motion.div>
@@ -301,7 +303,7 @@ export default function SamlWaitScreen() {
             sx={{
               width: 80,
               height: 80,
-              borderRadius: '24px',
+              borderRadius: 'var(--sf-radius-lg, 24px)',
               bgcolor: alpha(theme.palette.primary.main, 0.08),
               display: 'flex',
               alignItems: 'center',
@@ -331,7 +333,7 @@ export default function SamlWaitScreen() {
           <Typography
             variant='h4'
             sx={{
-              fontWeight: 900,
+              fontWeight: 800,
               letterSpacing: '-0.027em',
               mb: 2,
               color: 'text.primary',
@@ -352,10 +354,10 @@ export default function SamlWaitScreen() {
             <LinearProgress
               sx={{
                 height: 6,
-                borderRadius: 3,
+                borderRadius: 'var(--sf-radius-xs, 4px)',
                 bgcolor: alpha(theme.palette.primary.main, 0.06),
                 '& .MuiLinearProgress-bar': {
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
                   boxShadow: `0 0 10px ${alpha(theme.palette.primary.main, 0.4)}`,
                 },
               }}
@@ -369,7 +371,7 @@ export default function SamlWaitScreen() {
               gap: 1.5,
               px: 2.5,
               py: 1,
-              borderRadius: '50px',
+              borderRadius: 'var(--sf-radius-full, 9999px)',
               bgcolor: alpha(theme.palette.success.main, 0.04),
               border: '1px solid',
               borderColor: alpha(theme.palette.success.main, 0.1),

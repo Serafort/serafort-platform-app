@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Container,
@@ -85,6 +86,8 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
   open: customOpen,
   onClose,
 }) => {
+  const { t } = useTranslation();
+
   const { data: serverThemeData } = useTenantTheme(organizationId, {
     enabled: !initialTheme, // Only fetch if no initialTheme provided
   });
@@ -435,16 +438,28 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
         updateSettings({ mode: presetMode });
       }
 
-      const presetName = THEME_PRESETS[presetId]?.name ?? "Preset";
+      const presetName =
+        THEME_PRESETS[presetId]?.name ?? t("theme.editor.preset_fallback", "Preset");
+      const modeLabel =
+        presetMode === "dark"
+          ? t("theme.editor.mode.dark", "dark")
+          : t("theme.editor.mode.light", "light");
       setSnackbar({
         open: true,
         message: switchedMode
-          ? `${presetName} applied — switched to ${presetMode} mode.`
-          : `${presetName} applied.`,
+          ? t("theme.editor.toast.preset_applied_mode", {
+              preset: presetName,
+              mode: modeLabel,
+              defaultValue: "{{preset}} applied — switched to {{mode}} mode.",
+            })
+          : t("theme.editor.toast.preset_applied", {
+              preset: presetName,
+              defaultValue: "{{preset}} applied.",
+            }),
         severity: "success",
       });
     },
-    [organizationId, settings.mode, updateSettings, updateThemeState],
+    [organizationId, settings.mode, updateSettings, updateThemeState, t],
   );
 
   // The editor never blocks on the themes API. It used to return a bare
@@ -505,16 +520,21 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     if (!persisted) {
       setSnackbar({
         open: true,
-        message:
+        message: t(
+          "theme.editor.toast.save_no_local",
           "Theme applied, but it could not be stored on this device. It will be lost on reload.",
+        ),
         severity: "error",
       });
     } else {
       setSnackbar({
         open: true,
         message: serverError
-          ? "Theme saved on this device. It could not reach the server, so other devices still see the previous theme."
-          : "Theme saved successfully!",
+          ? t(
+              "theme.editor.toast.save_local_only",
+              "Theme saved on this device. It could not reach the server, so other devices still see the previous theme.",
+            )
+          : t("theme.editor.toast.save_success", "Theme saved successfully!"),
         severity: serverError ? "info" : "success",
       });
     }
@@ -529,7 +549,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
     updateThemeState(() => ({ ...DEFAULT_TENANT_THEME, organizationId }));
     setSnackbar({
       open: true,
-      message: "Theme reset to default.",
+      message: t("theme.editor.toast.reset", "Theme reset to default."),
       severity: "info",
     });
   };
@@ -547,12 +567,15 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
   // and Miller's Law both favor every one of these 6 sections staying
   // visible at a glance over a technically-more-compact hidden-overflow row.
   const tabItems: Array<{ label: string; icon?: React.ReactElement }> = [
-    { label: "AI Studio", icon: <AutoAwesomeIcon sx={{ fontSize: 18 }} /> },
-    { label: "Presets" },
-    { label: "Colors" },
-    { label: "Effects" },
-    { label: "Components" },
-    { label: "Spacing" },
+    {
+      label: t("theme.editor.tab.ai", "AI Studio"),
+      icon: <AutoAwesomeIcon sx={{ fontSize: 18 }} />,
+    },
+    { label: t("theme.editor.tab.presets", "Presets") },
+    { label: t("theme.editor.tab.colors", "Colors") },
+    { label: t("theme.editor.tab.effects", "Effects") },
+    { label: t("theme.editor.tab.components", "Components") },
+    { label: t("theme.editor.tab.spacing", "Spacing") },
   ];
 
   const content = (
@@ -581,10 +604,10 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
       >
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            Theme Customization
+            {t("theme.editor.title", "Theme Customization")}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Real-time multi-tenant theme builder
+            {t("theme.editor.subtitle", "Real-time multi-tenant theme builder")}
           </Typography>
         </Box>
         {/* minHeight/width: 44 on every control here meets the 44x44
@@ -598,7 +621,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
             onClick={handleReset}
             sx={{ minHeight: 44 }}
           >
-            Reset
+            {t("theme.editor.action.reset", "Reset")}
           </Button>
           <Button
             size="small"
@@ -608,12 +631,14 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
             disabled={isSaving}
             sx={{ minHeight: 44 }}
           >
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving
+              ? t("theme.editor.action.saving", "Saving...")
+              : t("theme.editor.action.save", "Save")}
           </Button>
           {asDrawer && (
             <IconButton
               onClick={handleDiscard}
-              aria-label="close"
+              aria-label={t("theme.editor.action.close", "Close")}
               sx={{ width: 44, height: 44 }}
             >
               <CloseIcon />
@@ -627,7 +652,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
           {asDrawer ? (
             <Box
               role="tablist"
-              aria-label="Theme editor sections"
+              aria-label={t("theme.editor.sections_aria", "Theme editor sections")}
               sx={{
                 display: "flex",
                 flexWrap: "wrap",
@@ -718,8 +743,11 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
             */}
             <Box sx={{ mb: 6 }}>
               <PanelHeader
-                title="Surface effect"
-                description="How every panel in the app is drawn: its fill, edge, blur and shadow."
+                title={t("theme.editor.surface_effect_title", "Surface effect")}
+                description={t(
+                  "theme.editor.surface_effect_desc",
+                  "How every panel in the app is drawn: its fill, edge, blur and shadow.",
+                )}
               />
               <Stack
                 direction="row"
@@ -730,7 +758,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
                 {EFFECT_TYPES.map((option) => (
                   <ChoiceChip
                     key={option.value}
-                    label={option.label}
+                    label={t(`theme.effects.type.${option.value}`, option.label)}
                     selected={activeEffectType === option.value}
                     onClick={() => handleGlobalEffectChange(option.value)}
                   />
@@ -867,14 +895,16 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({
           anchor="right"
           variant="persistent"
           open={isOpen}
-          PaperProps={{
-            sx: {
-              width: { xs: "100%", sm: 560 },
-              p: 1,
-              // Opaque surface + elevation, since there is no longer a
-              // backdrop separating this panel from the live page behind it.
-              bgcolor: "background.paper",
-              boxShadow: 8,
+          slotProps={{
+            paper: {
+              sx: {
+                width: { xs: "100%", sm: 560 },
+                p: 1,
+                // Opaque surface + elevation, since there is no longer a
+                // backdrop separating this panel from the live page behind it.
+                bgcolor: "background.paper",
+                boxShadow: 8,
+              },
             },
           }}
         >

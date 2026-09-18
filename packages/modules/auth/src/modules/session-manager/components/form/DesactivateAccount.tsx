@@ -15,7 +15,6 @@ import {
   Stack,
   Typography,
   Checkbox,
-  Alert,
   CircularProgress,
 } from '@mui/material'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
@@ -70,7 +69,7 @@ export default function DesactivateAccount() {
       sx={{
         padding: '24px',
         mb: 4,
-        borderRadius: 2,
+        borderRadius: 'var(--sf-radius-lg, 12px)',
         border: '1px solid',
         borderColor: 'error.light',
         bgcolor: 'background.paper',
@@ -129,7 +128,12 @@ export default function DesactivateAccount() {
               color='error'
               disabled={isPending || !controlForm.watch('desactivate')}
               startIcon={isPending ? <CircularProgress size={16} color='inherit' /> : undefined}
-              sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 700,
+                minHeight: 48,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+              }}
             >
               {isPending
                 ? t('common.processing', 'Deactivating...')

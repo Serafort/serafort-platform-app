@@ -89,18 +89,27 @@ export interface SendTestEmailPayload {
 }
 
 export interface AuditLogExportRequest {
-  format: 'csv' | 'json'
+  format?: 'csv' | 'json'
   startDate?: string
   endDate?: string
-  actor?: string
-  severity?: string
+  /** 'security' (default) or 'iam' — the only two categories the backend's
+   *  `AuditLogsController.export` whitelists. */
+  type?: 'security' | 'iam'
 }
 
-export interface AuditLogExportResponse {
-  jobId?: string
-  downloadUrl?: string
-  status: 'completed' | 'processing' | 'ready'
-  rowCount?: number
+/** Real shape of AdonisJS Lucid's `.paginate()` meta, camelCased because the
+ *  models it's called against (AuditLog, Alert) extend AppBaseModel's
+ *  CamelCaseNamingStrategy. */
+export interface PaginationMeta {
+  total: number
+  perPage: number
+  currentPage: number
+  lastPage: number
+  firstPage: number
+  firstPageUrl: string
+  lastPageUrl: string
+  nextPageUrl: string | null
+  previousPageUrl: string | null
 }
 
 export const adminMonitoringService = {
@@ -121,33 +130,51 @@ export const adminMonitoringService = {
     return apiClient.get<MfaAnalyticsData>(ENDPOINTS.admin.statistics.mfa)
   },
 
+  // AdminAuditLogsController.index reads request.input() with these literal,
+  // snake_case names (page/limit/action stay single-word so casing does not
+  // matter for them) and has no `actor`/`severity` filter at all — those two
+  // were aspirational and silently ignored server-side. The result is a
+  // Lucid `.paginate()` call on `AuditLog`, which extends AppBaseModel's
+  // CamelCaseNamingStrategy, so the real shape is
+  // `{ data: AuditLogItem[], meta: { total, perPage, currentPage, lastPage, ... } }`
+  // (camelCase meta keys), never the flat `{ data, total, page, limit }` this
+  // used to assume.
   getAuditLogs: (params?: {
     page?: number
     limit?: number
-    actor?: string
     action?: string
-    severity?: string
+    userId?: string | number
     startDate?: string
     endDate?: string
-  }): Promise<
-    FetchResponse<
-      { data: AuditLogItem[]; total: number; page: number; limit: number } | AuditLogItem[]
-    >
-  > => {
+  }): Promise<FetchResponse<{ data: AuditLogItem[]; meta: PaginationMeta } | AuditLogItem[]>> => {
     const searchParams = new URLSearchParams()
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) searchParams.append(key, String(value))
-      })
-    }
+    if (params?.page !== undefined) searchParams.append('page', String(params.page))
+    if (params?.limit !== undefined) searchParams.append('limit', String(params.limit))
+    if (params?.action) searchParams.append('action', params.action)
+    if (params?.userId !== undefined) searchParams.append('user_id', String(params.userId))
+    if (params?.startDate) searchParams.append('start_date', params.startDate)
+    if (params?.endDate) searchParams.append('end_date', params.endDate)
     const query = searchParams.toString() ? `?${searchParams.toString()}` : ''
     return apiClient.get(`${ENDPOINTS.admin.auditLogs.index}${query}`)
   },
 
+  /**
+   * AdminAuditLogsController's `export` action (mounted at this same path for
+   * both GET and POST) is synchronous: it reads `format` ('csv' default,
+   * 'json'), `type` ('security' default — 'iam' is the other supported
+   * value), `startDate`/`endDate` (camelCase here, unlike `index`'s
+   * `start_date`/`end_date`), and returns the content directly — either a
+   * `text/csv` attachment body or a raw JSON array of AuditLog rows. There is
+   * no async job/download-URL system; `AuditLogExportResponse` below was
+   * aspirational. Ask for `responseType: 'blob'` so callers get the real
+   * content back regardless of format.
+   */
   exportAuditLogs: (
     payload: AuditLogExportRequest,
-  ): Promise<FetchResponse<AuditLogExportResponse>> => {
-    return apiClient.post<AuditLogExportResponse>(ENDPOINTS.admin.auditLogs.export, payload)
+  ): Promise<FetchResponse<Blob>> => {
+    return apiClient.post<Blob>(ENDPOINTS.admin.auditLogs.export, payload, {
+      responseType: 'blob',
+    })
   },
 
   getAlerts: (params?: {

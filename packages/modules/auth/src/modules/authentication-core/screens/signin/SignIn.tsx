@@ -1,7 +1,6 @@
-import { Box, Snackbar, alpha } from '@mui/material'
+import { Snackbar } from '@mui/material'
 import { Alert as MAlert, themeConfig, useTenant } from '@cap/platform-core'
-import { LiquidGlassCard } from '@cap/theme'
-import { AuthPageLayout } from '../../components/shared/auth'
+import { AuthPageLayout, AuthCard } from '../../components/shared/auth'
 import { useSignInFlow } from './hooks/useSignInFlow'
 import { CredentialsStep } from './components/CredentialsStep'
 import { MfaStep } from './components/MfaStep'
@@ -24,6 +23,7 @@ export default function SignInV2() {
     mode,
     pendingMfaUser,
     mfaCode,
+    setMfaCode,
     timeLeft,
     countdownDisplay,
     isDiscovering,
@@ -60,22 +60,6 @@ export default function SignInV2() {
       />
 
       <AuthPageLayout maxWidth={480}>
-        {/* Background Gradient Decoration */}
-        <Box
-          sx={{
-            position: 'fixed',
-            left: 0,
-            top: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: -1,
-            opacity: 1,
-            pointerEvents: 'none',
-            background: (theme) =>
-              `radial-gradient(circle at 10% 20%, ${alpha(theme.palette.primary.main, 0.35)} 0%, transparent 40%), radial-gradient(circle at 90% 80%, ${alpha(theme.palette.secondary.main || theme.palette.primary.light, 0.35)} 0%, transparent 40%), radial-gradient(circle at 50% 50%, ${alpha(theme.palette.primary.dark, 0.15)} 0%, transparent 60%)`,
-          }}
-        />
-
         <Snackbar
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           open={status.open}
@@ -87,57 +71,58 @@ export default function SignInV2() {
           </MAlert>
         </Snackbar>
 
-        <Box sx={{ width: '100%' }}>
+        {/*
+          One surface wraps all three steps. The card used to be repeated per
+          branch, which let the three states drift apart on elevation and
+          radius; keeping it outside the switch also means the step transition
+          animates inside a stable frame instead of remounting the card.
+        */}
+        <AuthCard padding='none'>
           {isLockedMode ? (
-            <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
-              <LockedStep
-                timeLeft={timeLeft}
-                countdownDisplay={countdownDisplay}
-                onBackToLogin={handleBackToLogin}
-                defaultEmail={getValues('email')}
-              />
-            </LiquidGlassCard>
+            <LockedStep
+              timeLeft={timeLeft}
+              countdownDisplay={countdownDisplay}
+              onBackToLogin={handleBackToLogin}
+              defaultEmail={getValues('email')}
+            />
           ) : isMfaMode ? (
-            <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
-              <MfaStep
-                t={t}
-                pendingMfaUser={pendingMfaUser}
-                mfaCode={mfaCode}
-                mfaInputRefs={mfaInputRefs}
-                handleMfaDigitChange={handleMfaDigitChange}
-                handleMfaKeyDown={handleMfaKeyDown}
-                countdownDisplay={countdownDisplay}
-                isMfaPending={mfaVerifyMutation.isPending}
-                timeLeft={timeLeft}
-                onMfaSubmit={handleMfaSubmit}
-                onResendCode={handleResendCode}
-                onBackToLogin={handleBackToLogin}
-              />
-            </LiquidGlassCard>
+            <MfaStep
+              t={t}
+              pendingMfaUser={pendingMfaUser}
+              mfaCode={mfaCode}
+              onMfaCodeChange={setMfaCode}
+              mfaInputRefs={mfaInputRefs}
+              handleMfaDigitChange={handleMfaDigitChange}
+              handleMfaKeyDown={handleMfaKeyDown}
+              countdownDisplay={countdownDisplay}
+              isMfaPending={mfaVerifyMutation.isPending}
+              timeLeft={timeLeft}
+              onMfaSubmit={handleMfaSubmit}
+              onResendCode={handleResendCode}
+              onBackToLogin={handleBackToLogin}
+            />
           ) : (
-            <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
-              <CredentialsStep
-                t={t}
-                control={control}
-                handleSubmit={handleSubmit}
-                onSubmit={onSubmit}
-                showPasswordField={showPasswordField}
-                showPassword={showPassword}
-                isPasskeyAutofillAvailable={isPasskeyAutofillAvailable}
-                isSsoProvider={isSsoProvider}
-                isDiscovering={isDiscovering}
-                isLoginPending={loginMutation.isPending}
-                isPasskeyPending={passkeyLoginMutation.isPending}
-                isSubmitting={isSubmitting}
-                isValidating={isValidating}
-                isLocked={isLocked}
-                onShowPassword={handleShowPassword}
-                onPasskeyLogin={handlePasskeyLogin}
-                onSocialLogin={handleSocialLogin}
-              />
-            </LiquidGlassCard>
+            <CredentialsStep
+              t={t}
+              control={control}
+              handleSubmit={handleSubmit}
+              onSubmit={onSubmit}
+              showPasswordField={showPasswordField}
+              showPassword={showPassword}
+              isPasskeyAutofillAvailable={isPasskeyAutofillAvailable}
+              isSsoProvider={isSsoProvider}
+              isDiscovering={isDiscovering}
+              isLoginPending={loginMutation.isPending}
+              isPasskeyPending={passkeyLoginMutation.isPending}
+              isSubmitting={isSubmitting}
+              isValidating={isValidating}
+              isLocked={isLocked}
+              onShowPassword={handleShowPassword}
+              onPasskeyLogin={handlePasskeyLogin}
+              onSocialLogin={handleSocialLogin}
+            />
           )}
-        </Box>
+        </AuthCard>
       </AuthPageLayout>
     </>
   )
