@@ -16,6 +16,11 @@ export type ITableData = {
   rows: Array<ITableRow>;
 };
 
+export interface ITableProps {
+  loading?: boolean;
+  data?: ITableData;
+}
+
 export type IHandleChange = {
   event?: any;
   value?: number | string;

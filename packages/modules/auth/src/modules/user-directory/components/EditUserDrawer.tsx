@@ -641,7 +641,7 @@ export default function EditUserDrawer({
               textTransform: 'none',
               fontWeight: 700,
               px: 3,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               minWidth: 130,
             }}
           >

@@ -1,50 +1,68 @@
+/**
+ * `ScimTokensController.getConfig` (`GET /api/admin/scim/config`) reads
+ * `organization.scimConfig` — a free-form JSON column with no schema of its
+ * own — and defaults to `{ enabled: false, baseUrl: '', attributeMapping: {} }`
+ * when unset. It does not have `scim_base_url`, `authentication_scheme`,
+ * `max_results_per_page` or `bulk_max_operations`; those never round-trip.
+ */
 export interface SCIMConfig {
-  id?: number
   enabled: boolean
-  scim_base_url?: string
-  authentication_scheme?: 'oauthbearertoken' | 'httpbasic' | string
-  user_schema_extensions_enabled?: boolean
-  max_results_per_page?: number
-  bulk_max_operations?: number
-  created_at?: string
-  updated_at?: string
+  baseUrl?: string
+  attributeMapping?: Record<string, string>
+  tokenExpiry?: number
 }
 
+/** `updateConfig` merges exactly `request.only(['enabled', 'baseUrl', 'attributeMapping', 'tokenExpiry'])`. */
 export interface UpdateSCIMConfigDTO {
   enabled?: boolean
-  user_schema_extensions_enabled?: boolean
-  max_results_per_page?: number
-  bulk_max_operations?: number
+  baseUrl?: string
+  attributeMapping?: Record<string, string>
+  tokenExpiry?: number
 }
 
+/**
+ * `ScimTokensController.index` hand-builds this row shape (not a Lucid
+ * `.serialize()`) — `label`, not `name`; no `token_preview` at all; and
+ * `revokedAt`/`isActive` instead of a `revoked` boolean.
+ */
 export interface SCIMToken {
   id: string | number
-  name: string
-  token_preview?: string
-  expires_at?: string | null
-  last_used_at?: string | null
-  created_at: string
-  revoked?: boolean
+  label: string
+  lastUsedAt?: string | null
+  expiresAt?: string | null
+  revokedAt?: string | null
+  createdAt: string
+  isActive: boolean
 }
 
+/** `store` reads `request.only(['label', 'expiresAt'])` — not `name`/`expires_in_days`. */
 export interface CreateSCIMTokenDTO {
-  name: string
-  expires_in_days?: number
+  label: string
+  expiresAt?: string
 }
 
 export interface CreateSCIMTokenResponse {
   id: string | number
-  name: string
+  label: string
+  /** The raw bearer token — returned once, on creation only. */
   token: string
-  token_preview: string
-  expires_at?: string | null
-  created_at: string
+  createdAt?: string
+  expiresAt?: string | null
 }
 
+/**
+ * `ScimTokensController.test` returns `{ status: 'success' | 'warning',
+ * message, diagnostics }` — never a `success` boolean, `latency_ms`,
+ * `endpoint_status` or `schema_compliant`. A caller checking `.success` reads
+ * `undefined` forever and always falls into the "warning" branch even on a
+ * genuine pass.
+ */
 export interface SCIMConnectionTestResponse {
-  success: boolean
-  latency_ms?: number
-  endpoint_status?: 'operational' | 'unreachable' | string
-  schema_compliant?: boolean
-  message?: string
+  status: 'success' | 'warning' | string
+  message: string
+  diagnostics: {
+    scimEnabled: boolean
+    hasActiveToken: boolean
+    baseUrl: string
+  }
 }
