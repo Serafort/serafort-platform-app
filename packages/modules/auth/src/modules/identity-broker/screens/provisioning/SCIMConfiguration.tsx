@@ -42,6 +42,8 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { motion } from 'framer-motion'
+import Path from '../path'
 import {
   useSCIMTokens,
   useCreateSCIMToken,
@@ -69,7 +71,7 @@ function StatCard({
     <Card
       sx={{
         p: 3,
-        borderRadius: 4,
+        borderRadius: 'var(--sf-radius-lg, 16px)',
         border: '1px solid',
         borderColor: 'divider',
         boxShadow: 'none',
@@ -90,7 +92,7 @@ function StatCard({
           color: `${color}.main`,
           width: 56,
           height: 56,
-          borderRadius: 3,
+          borderRadius: 'var(--sf-radius-md, 12px)',
         }}
       >
         {icon}
@@ -109,7 +111,7 @@ function StatCard({
         >
           {label}
         </Typography>
-        <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.01em' }}>
+        <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.01em' }}>
           {value}
         </Typography>
       </Box>
@@ -131,7 +133,7 @@ export default function SCIMConfiguration() {
   const { data: tokensData } = useSCIMTokens()
   const tokens: SCIMToken[] = (tokensData?.data as any)?.data ?? tokensData?.data ?? []
   const activeToken = tokens.find((t) => !(t as any).revokedAt) ?? tokens[0] ?? null
-  const displayToken = newlyCreatedToken ?? (activeToken ? `scim_live_${'â€¢'.repeat(24)}` : null)
+  const displayToken = newlyCreatedToken ?? (activeToken ? `scim_live_${'•'.repeat(24)}` : null)
 
   const createTokenMutation = useCreateSCIMToken({
     onSuccess: (resp) => {
@@ -140,21 +142,21 @@ export default function SCIMConfiguration() {
         setNewlyCreatedToken(created.token)
         setTokenVisible(true)
       }
-      toast.success(t('admin.provisioning.scim.messages.token_generated'))
+      toast.success(t('auth.admin.provisioning.scim.messages.token_generated'))
     },
     onError: (error: unknown) => {
       logger.error('Failed to create SCIM token', { error })
-      toast.error(t('admin.provisioning.scim.messages.error_generic'))
+      toast.error(t('auth.admin.provisioning.scim.messages.error_generic'))
     },
   })
 
   const revokeTokenMutation = useRevokeSCIMToken({
     onSuccess: () => {
-      toast.info(t('admin.provisioning.scim.messages.token_revoked'))
+      toast.info(t('auth.admin.provisioning.scim.messages.token_revoked'))
     },
     onError: (error: unknown) => {
       logger.error('Failed to revoke SCIM token', { error })
-      toast.error(t('admin.provisioning.scim.messages.error_generic'))
+      toast.error(t('auth.admin.provisioning.scim.messages.error_generic'))
     },
   })
 
@@ -195,12 +197,12 @@ export default function SCIMConfiguration() {
 
   const updateConfigMutation = useUpdateOrganizationScimConfig({
     onSuccess: () => {
-      toast.success(t('admin.provisioning.scim.messages.config_saved'))
+      toast.success(t('auth.admin.provisioning.scim.messages.config_saved'))
       setIsSaving(false)
     },
     onError: (error: unknown) => {
       logger.error('Failed to save SCIM config', { error })
-      toast.error(t('admin.provisioning.scim.messages.error_generic'))
+      toast.error(t('auth.admin.provisioning.scim.messages.error_generic'))
       setIsSaving(false)
     },
   })
@@ -208,7 +210,7 @@ export default function SCIMConfiguration() {
   const testConnectionMutation = useTestSCIMConnection({
     onSuccess: (resp) => {
       const data = resp.data
-      if (data.success) {
+      if (data.status === 'success') {
         toast.success(data.message, { autoClose: 5000 })
       } else {
         toast.warning(data.message, { autoClose: 5000 })
@@ -216,7 +218,7 @@ export default function SCIMConfiguration() {
     },
     onError: (error: unknown) => {
       logger.error('SCIM test connection failed', { error })
-      toast.error(t('admin.provisioning.scim.messages.test_failed'))
+      toast.error(t('auth.admin.provisioning.scim.messages.test_failed'))
     },
   })
 
@@ -238,10 +240,10 @@ export default function SCIMConfiguration() {
   const handleCopy = (text: string, label: string) => {
     try {
       navigator.clipboard.writeText(text)
-      toast.success(`${label} ${t('admin.provisioning.scim.messages.copied')}`)
+      toast.success(`${label} ${t('auth.admin.provisioning.scim.messages.copied')}`)
     } catch (err: unknown) {
       logger.error('Clipboard write failed', { error: err })
-      toast.error(t('admin.provisioning.scim.messages.error_generic'))
+      toast.error(t('auth.admin.provisioning.scim.messages.error_generic'))
     }
   }
 
@@ -258,7 +260,7 @@ export default function SCIMConfiguration() {
     updateConfigMutation.mutate({
       enabled: scimEnabled,
       attributeMapping,
-    } as any)
+    })
   }
 
   const handleRotateToken = () => {
@@ -266,12 +268,15 @@ export default function SCIMConfiguration() {
       revokeTokenMutation.mutate(activeToken.id)
     }
     setNewlyCreatedToken(null)
-    createTokenMutation.mutate({ name: 'SCIM Bearer Token' })
+    // `ScimTokensController.store` reads `request.only(['label', 'expiresAt'])`
+    // and 400s with "Token label is required" when the field is missing — the
+    // previous `{ name: ... }` payload never satisfied that check.
+    createTokenMutation.mutate({ label: 'SCIM Bearer Token' })
   }
 
   const handleGenerateToken = () => {
     setNewlyCreatedToken(null)
-    createTokenMutation.mutate({ name: 'SCIM Bearer Token' })
+    createTokenMutation.mutate({ label: 'SCIM Bearer Token' })
   }
 
   const handleMappingChange = (index: number, value: string) => {
@@ -279,7 +284,31 @@ export default function SCIMConfiguration() {
   }
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}
+    >
+      {/* ── Back button ────────────────────────────────────────────── */}
+      <Box sx={{ mb: 2 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate(Path.provisioning)}
+          sx={{
+            p: 1,
+            minHeight: 44,
+            color: 'text.secondary',
+            textTransform: 'none',
+            fontWeight: 700,
+            '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
+          }}
+        >
+          {t('auth.common.back', 'Back to Provisioning')}
+        </Button>
+      </Box>
+
       <Box
         sx={{
           mb: 4,
@@ -294,9 +323,9 @@ export default function SCIMConfiguration() {
           <Box sx={{ position: 'relative' }}>
             <Avatar
               sx={{
-                width: 72,
-                height: 72,
-                borderRadius: '20px',
+                width: 64,
+                height: 64,
+                borderRadius: 'var(--sf-radius-lg, 24px)',
                 bgcolor: alpha(theme.palette.secondary.main, 0.12),
                 color: 'secondary.main',
                 boxShadow: `0 12px 24px ${alpha(theme.palette.secondary.main, 0.18)}`,
@@ -307,53 +336,47 @@ export default function SCIMConfiguration() {
             <Box
               sx={{
                 position: 'absolute',
-                bottom: -4,
-                right: -4,
-                width: 24,
-                height: 24,
+                bottom: -2,
+                right: -2,
+                width: 20,
+                height: 20,
                 bgcolor: scimEnabled ? 'success.main' : 'action.disabled',
                 borderRadius: '50%',
-                border: '4px solid',
+                border: '3px solid',
                 borderColor: 'background.paper',
                 transition: 'background-color 0.3s',
               }}
             />
           </Box>
           <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
-              <IconButton
-                onClick={() => navigate(-1)}
-                sx={{
-                  p: 0,
-                  color: 'text.secondary',
-                  '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
-                }}
-              >
-                <ArrowBack />
-              </IconButton>
-              <Typography
-                variant='h4'
-                sx={{
-                  fontWeight: 900,
-                  letterSpacing: '-0.027em',
-                }}
-              >
-                {t('admin.provisioning.scim.title')}
-              </Typography>
-            </Box>
+            <Typography
+              variant='h4'
+              sx={{
+                fontWeight: 800,
+                letterSpacing: '-0.027em',
+                fontFamily: 'Outfit, sans-serif',
+                mb: 0.5,
+              }}
+            >
+              {t('auth.admin.provisioning.scim.title')}
+            </Typography>
             <Stack direction='row' spacing={1.5} alignItems='center' flexWrap='wrap'>
               <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-                {t('admin.provisioning.scim.subtitle')}
+                {t('auth.admin.provisioning.scim.subtitle')}
               </Typography>
               <Chip
                 label={
                   scimEnabled
-                    ? t('admin.provisioning.scim.status_active')
-                    : t('admin.provisioning.scim.status_inactive')
+                    ? t('auth.admin.provisioning.scim.status_active')
+                    : t('auth.admin.provisioning.scim.status_inactive')
                 }
                 size='small'
                 color={scimEnabled ? 'success' : 'default'}
-                sx={{ fontWeight: 800, height: 22, borderRadius: 1.5 }}
+                sx={{
+                  fontWeight: 800,
+                  height: 22,
+                  borderRadius: 'var(--sf-radius-xs, 4px)',
+                }}
               />
             </Stack>
           </Box>
@@ -371,8 +394,9 @@ export default function SCIMConfiguration() {
             disabled={testConnectionMutation.isPending}
             sx={{
               height: 44,
+              minHeight: 44,
               px: 3,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               fontWeight: 800,
               textTransform: 'none',
               flex: { xs: 1, sm: 'none' },
@@ -385,8 +409,8 @@ export default function SCIMConfiguration() {
             }}
           >
             {testConnectionMutation.isPending
-              ? t('admin.provisioning.scim.testing')
-              : t('admin.provisioning.scim.test_connection')}
+              ? t('auth.admin.provisioning.scim.testing')
+              : t('auth.admin.provisioning.scim.test_connection')}
           </Button>
           <Button
             variant='contained'
@@ -400,14 +424,15 @@ export default function SCIMConfiguration() {
               textTransform: 'none',
               fontWeight: 800,
               height: 44,
+              minHeight: 44,
               px: 3,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               flex: { xs: 1, sm: 'none' },
             }}
           >
             {isSaving
-              ? t('admin.provisioning.scim.saving')
-              : t('admin.provisioning.scim.save_config')}
+              ? t('auth.admin.provisioning.scim.saving')
+              : t('auth.admin.provisioning.scim.save_config')}
           </Button>
         </Stack>
       </Box>
@@ -415,7 +440,7 @@ export default function SCIMConfiguration() {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('admin.provisioning.scim.stats.users')}
+            label={t('auth.admin.provisioning.scim.stats.users')}
             value='1,284'
             icon={<People />}
             color='primary'
@@ -423,7 +448,7 @@ export default function SCIMConfiguration() {
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('admin.provisioning.scim.stats.sync')}
+            label={t('auth.admin.provisioning.scim.stats.sync')}
             value='4m ago'
             icon={<CloudSync />}
             color='success'
@@ -431,7 +456,7 @@ export default function SCIMConfiguration() {
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <StatCard
-            label={t('admin.provisioning.scim.stats.errors')}
+            label={t('auth.admin.provisioning.scim.stats.errors')}
             value='0.3%'
             icon={<Security />}
             color='info'
@@ -441,7 +466,12 @@ export default function SCIMConfiguration() {
 
       <Stack spacing={4}>
         <Card
-          sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
+          sx={{
+            borderRadius: 'var(--sf-radius-lg, 16px)',
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+          }}
         >
           <CardContent sx={{ p: 3.5 }}>
             <Box
@@ -453,7 +483,7 @@ export default function SCIMConfiguration() {
                   variant='h6'
                   sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}
                 >
-                  {t('admin.provisioning.scim.protocol_status')}
+                  {t('auth.admin.provisioning.scim.protocol_status')}
                 </Typography>
               </Box>
               <FormControlLabel
@@ -469,16 +499,16 @@ export default function SCIMConfiguration() {
                     sx={{ fontWeight: 800, color: scimEnabled ? 'success.main' : 'text.secondary' }}
                   >
                     {scimEnabled
-                      ? t('admin.provisioning.scim.enabled')
-                      : t('admin.provisioning.scim.disabled')}
+                      ? t('auth.admin.provisioning.scim.enabled')
+                      : t('auth.admin.provisioning.scim.disabled')}
                   </Typography>
                 }
               />
             </Box>
 
             {!scimEnabled && (
-              <Alert severity='warning' sx={{ mb: 4, borderRadius: 3, fontWeight: 600 }}>
-                {t('admin.provisioning.scim.messages.disabled_warning')}
+              <Alert severity='warning' sx={{ mb: 4, borderRadius: 'var(--sf-radius-md, 10px)', fontWeight: 600 }}>
+                {t('auth.admin.provisioning.scim.messages.disabled_warning')}
               </Alert>
             )}
 
@@ -501,7 +531,7 @@ export default function SCIMConfiguration() {
                     color: 'text.secondary',
                   }}
                 >
-                  {t('admin.provisioning.scim.base_url')}
+                  {t('auth.admin.provisioning.scim.base_url')}
                 </Typography>
                 <TextField
                   fullWidth
@@ -517,23 +547,31 @@ export default function SCIMConfiguration() {
                       endAdornment: (
                         <InputAdornment position='end'>
                           <Stack direction='row' spacing={1}>
-                            <Tooltip title={t('admin.provisioning.scim.tooltips.copy_url')}>
+                            <Tooltip title={t('auth.admin.provisioning.scim.tooltips.copy_url')}>
                               <IconButton
                                 size='small'
                                 onClick={() => handleCopy(scimUrl, 'SCIM URL')}
+                                sx={{ width: 44, height: 44 }}
                               >
                                 <ContentCopy fontSize='small' />
                               </IconButton>
                             </Tooltip>
-                            <Tooltip title={t('admin.provisioning.scim.tooltips.open')}>
-                              <IconButton size='small' component='a' href={scimUrl} target='_blank' rel='noopener noreferrer'>
+                            <Tooltip title={t('auth.admin.provisioning.scim.tooltips.open')}>
+                              <IconButton
+                                size='small'
+                                component='a'
+                                href={scimUrl}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                sx={{ width: 44, height: 44 }}
+                              >
                                 <OpenInNew fontSize='small' />
                               </IconButton>
                             </Tooltip>
                           </Stack>
                         </InputAdornment>
                       ),
-                      sx: { borderRadius: 3, fontWeight: 600, fontFamily: 'monospace' },
+                      sx: { borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600, fontFamily: 'monospace' },
                     },
                   }}
                 />
@@ -551,9 +589,9 @@ export default function SCIMConfiguration() {
                       color: 'text.secondary',
                     }}
                   >
-                    {t('admin.provisioning.scim.tokens_title')}
+                    {t('auth.admin.provisioning.scim.tokens_title')}
                   </Typography>
-                  <Tooltip title={t('admin.provisioning.scim.tooltips.token_desc')}>
+                  <Tooltip title={t('auth.admin.provisioning.scim.tooltips.token_desc')}>
                     <Info sx={{ fontSize: 16, color: 'text.disabled' }} />
                   </Tooltip>
                 </Box>
@@ -562,7 +600,7 @@ export default function SCIMConfiguration() {
                   color='text.secondary'
                   sx={{ mb: 2.5, fontWeight: 500 }}
                 >
-                  {t('admin.provisioning.scim.token_help')}
+                  {t('auth.admin.provisioning.scim.token_help')}
                 </Typography>
 
                 <Card
@@ -570,7 +608,7 @@ export default function SCIMConfiguration() {
                   sx={{
                     p: 2.5,
                     bgcolor: alpha(theme.palette.background.default, 0.5),
-                    borderRadius: 3,
+                    borderRadius: 'var(--sf-radius-md, 12px)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -586,7 +624,7 @@ export default function SCIMConfiguration() {
                         color: 'primary.main',
                         width: 44,
                         height: 44,
-                        borderRadius: 2,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                       }}
                     >
                       <VpnKey />
@@ -608,22 +646,28 @@ export default function SCIMConfiguration() {
                       {displayToken
                         ? tokenVisible
                           ? displayToken
-                          : 'â€¢'.repeat(32)
-                        : t('admin.provisioning.scim.no_token')}
+                          : '•'.repeat(32)
+                        : t('auth.admin.provisioning.scim.no_token')}
                     </Typography>
                   </Stack>
                   <Stack direction='row' spacing={1.5} sx={{ flexShrink: 0 }}>
                     <Tooltip
                       title={
                         tokenVisible
-                          ? t('admin.provisioning.scim.tooltips.hide')
-                          : t('admin.provisioning.scim.tooltips.show')
+                          ? t('auth.admin.provisioning.scim.tooltips.hide')
+                          : t('auth.admin.provisioning.scim.tooltips.show')
                       }
                     >
                       <IconButton
                         size='small'
                         onClick={() => setTokenVisible((v) => !v)}
-                        sx={{ border: '1px solid', borderColor: 'divider' }}
+                        sx={{
+                          width: 44,
+                          height: 44,
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                        }}
                       >
                         {tokenVisible ? (
                           <VisibilityOff fontSize='small' />
@@ -632,13 +676,19 @@ export default function SCIMConfiguration() {
                         )}
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title={t('admin.provisioning.scim.tooltips.copy')}>
+                    <Tooltip title={t('auth.admin.provisioning.scim.tooltips.copy')}>
                       <span>
                         <IconButton
                           size='small'
                           disabled={!displayToken}
                           onClick={() => displayToken && handleCopy(displayToken, 'Bearer token')}
-                          sx={{ border: '1px solid', borderColor: 'divider' }}
+                          sx={{
+                            width: 44,
+                            height: 44,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 'var(--sf-radius-md, 8px)',
+                          }}
                         >
                           <ContentCopy fontSize='small' />
                         </IconButton>
@@ -652,11 +702,17 @@ export default function SCIMConfiguration() {
                         onClick={handleRotateToken}
                         disabled={createTokenMutation.isPending || revokeTokenMutation.isPending}
                         color='warning'
-                        sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 2, px: 2 }}
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 800,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                          minHeight: 44,
+                          px: 2.5,
+                        }}
                       >
                         {createTokenMutation.isPending
-                          ? t('admin.provisioning.scim.rotating')
-                          : t('admin.provisioning.scim.rotate')}
+                          ? t('auth.admin.provisioning.scim.rotating')
+                          : t('auth.admin.provisioning.scim.rotate')}
                       </Button>
                     ) : (
                       <Button
@@ -669,14 +725,15 @@ export default function SCIMConfiguration() {
                           boxShadow: '0 4px 12px rgba(0,118,255,0.3)',
                           textTransform: 'none',
                           fontWeight: 800,
-                          borderRadius: 2,
-                          px: 2,
+                          borderRadius: 'var(--sf-radius-md, 8px)',
+                          minHeight: 44,
+                          px: 2.5,
                           '&:hover': { bgcolor: 'info.dark' },
                         }}
                       >
                         {createTokenMutation.isPending
-                          ? t('admin.provisioning.scim.generating')
-                          : t('admin.provisioning.scim.create_token')}
+                          ? t('auth.admin.provisioning.scim.generating')
+                          : t('auth.admin.provisioning.scim.create_token')}
                       </Button>
                     )}
                   </Stack>
@@ -687,7 +744,12 @@ export default function SCIMConfiguration() {
         </Card>
 
         <Card
-          sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
+          sx={{
+            borderRadius: 'var(--sf-radius-lg, 16px)',
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+          }}
         >
           <CardContent sx={{ p: 3.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 4 }}>
@@ -696,7 +758,7 @@ export default function SCIMConfiguration() {
                 variant='h6'
                 sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}
               >
-                {t('admin.provisioning.scim.supported_ops')}
+                {t('auth.admin.provisioning.scim.supported_ops')}
               </Typography>
             </Box>
 
@@ -705,22 +767,22 @@ export default function SCIMConfiguration() {
                 {
                   resource: '/Users',
                   ops: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-                  note: t('admin.provisioning.scim.ops_notes.users'),
+                  note: t('auth.admin.provisioning.scim.ops_notes.users'),
                 },
                 {
                   resource: '/Groups',
                   ops: ['GET', 'POST', 'PUT', 'PATCH'],
-                  note: t('admin.provisioning.scim.ops_notes.groups'),
+                  note: t('auth.admin.provisioning.scim.ops_notes.groups'),
                 },
                 {
                   resource: '/Schemas',
                   ops: ['GET'],
-                  note: t('admin.provisioning.scim.ops_notes.schemas'),
+                  note: t('auth.admin.provisioning.scim.ops_notes.schemas'),
                 },
                 {
                   resource: '/ServiceProviderConfig',
                   ops: ['GET'],
-                  note: t('admin.provisioning.scim.ops_notes.config'),
+                  note: t('auth.admin.provisioning.scim.ops_notes.config'),
                 },
               ].map((row) => (
                 <Grid key={row.resource} size={{ xs: 12, sm: 6 }}>
@@ -728,7 +790,7 @@ export default function SCIMConfiguration() {
                     variant='outlined'
                     sx={{
                       p: 2.5,
-                      borderRadius: 3,
+                      borderRadius: 'var(--sf-radius-md, 12px)',
                       border: '1px solid',
                       borderColor: 'divider',
                       bgcolor: alpha(theme.palette.action.hover, 0.3),
@@ -754,7 +816,12 @@ export default function SCIMConfiguration() {
                           label={op}
                           size='small'
                           color={op === 'DELETE' ? 'error' : op === 'GET' ? 'info' : 'success'}
-                          sx={{ height: 22, fontSize: '0.65rem', fontWeight: 900, borderRadius: 1 }}
+                          sx={{
+                            height: 22,
+                            fontSize: '0.65rem',
+                            fontWeight: 800,
+                            borderRadius: 'var(--sf-radius-xs, 4px)',
+                          }}
                         />
                       ))}
                     </Stack>
@@ -773,7 +840,12 @@ export default function SCIMConfiguration() {
         </Card>
 
         <Card
-          sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
+          sx={{
+            borderRadius: 'var(--sf-radius-lg, 16px)',
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+          }}
         >
           <CardContent sx={{ p: 3.5 }}>
             <Box
@@ -791,10 +863,10 @@ export default function SCIMConfiguration() {
                     variant='h6'
                     sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}
                   >
-                    {t('admin.provisioning.scim.attribute_mapping')}
+                    {t('auth.admin.provisioning.scim.attribute_mapping')}
                   </Typography>
                   <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-                    {t('admin.provisioning.scim.mapping_subtitle')}
+                    {t('auth.admin.provisioning.scim.mapping_subtitle')}
                   </Typography>
                 </Box>
               </Box>
@@ -804,11 +876,13 @@ export default function SCIMConfiguration() {
                 sx={{
                   fontWeight: 800,
                   textTransform: 'none',
-                  borderRadius: 2,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  minHeight: 44,
+                  px: 2.5,
                   color: 'text.secondary',
                 }}
               >
-                {t('admin.provisioning.scim.reset_defaults')}
+                {t('auth.admin.provisioning.scim.reset_defaults')}
               </Button>
             </Box>
 
@@ -816,7 +890,7 @@ export default function SCIMConfiguration() {
               sx={{
                 border: '1px solid',
                 borderColor: 'divider',
-                borderRadius: 4,
+                borderRadius: 'var(--sf-radius-md, 12px)',
                 overflow: 'hidden',
               }}
             >
@@ -825,40 +899,40 @@ export default function SCIMConfiguration() {
                   <TableRow>
                     <TableCell
                       sx={{
-                        fontWeight: 900,
+                        fontWeight: 800,
                         py: 2,
                         letterSpacing: '0.05em',
                         color: 'text.secondary',
                       }}
                     >
-                      {t('admin.provisioning.scim.table.scim_attr').toUpperCase()}
+                      {t('auth.admin.provisioning.scim.table.scim_attr').toUpperCase()}
                     </TableCell>
                     <TableCell
                       align='center'
-                      sx={{ fontWeight: 900, width: 60, color: 'text.secondary' }}
+                      sx={{ fontWeight: 800, width: 60, color: 'text.secondary' }}
                     >
-                      â†’
+                      <SwapHoriz fontSize='small' />
                     </TableCell>
                     <TableCell
                       sx={{
-                        fontWeight: 900,
+                        fontWeight: 800,
                         py: 2,
                         letterSpacing: '0.05em',
                         color: 'text.secondary',
                       }}
                     >
-                      {t('admin.provisioning.scim.table.internal_field').toUpperCase()}
+                      {t('auth.admin.provisioning.scim.table.internal_field').toUpperCase()}
                     </TableCell>
                     <TableCell
                       align='center'
                       sx={{
-                        fontWeight: 900,
+                        fontWeight: 800,
                         width: 100,
                         letterSpacing: '0.05em',
                         color: 'text.secondary',
                       }}
                     >
-                      {t('admin.provisioning.scim.table.required').toUpperCase()}
+                      {t('auth.admin.provisioning.scim.table.required').toUpperCase()}
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -904,7 +978,9 @@ export default function SCIMConfiguration() {
                               fontSize: '0.875rem',
                               fontFamily: 'monospace',
                             },
-                            '& .MuiOutlinedInput-root': { borderRadius: 2.5 },
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 'var(--sf-radius-md, 8px)',
+                            },
                           }}
                         >
                           {internalFields.map((f) => (
@@ -917,14 +993,14 @@ export default function SCIMConfiguration() {
                       <TableCell align='center'>
                         {row.required ? (
                           <Chip
-                            label={t('common.yes') || 'YES'}
+                            label={t('auth.common.yes') || 'YES'}
                             size='small'
                             color='primary'
                             sx={{
-                              fontWeight: 900,
-                              height: 20,
+                              fontWeight: 800,
+                              height: 22,
                               fontSize: '0.65rem',
-                              borderRadius: 1,
+                              borderRadius: 'var(--sf-radius-xs, 4px)',
                             }}
                           />
                         ) : (
@@ -932,7 +1008,7 @@ export default function SCIMConfiguration() {
                             variant='caption'
                             sx={{ fontWeight: 700, color: 'text.disabled' }}
                           >
-                            {t('common.optional') || 'OPTIONAL'}
+                            {t('auth.common.optional') || 'OPTIONAL'}
                           </Typography>
                         )}
                       </TableCell>

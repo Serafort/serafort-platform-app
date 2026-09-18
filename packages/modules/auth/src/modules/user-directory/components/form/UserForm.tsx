@@ -83,7 +83,7 @@ export default function UserForm({
     //     handleClickStatus({
     //       type: 'success',
     //       state: 'modify',
-    //       masg: "Modification de l'utilisateur rÃ©ussie",
+    //       masg: "Modification de l'utilisateur réussie",
     //     })
     //   if (response?.status >= 400)
     //     handleClickStatus({
@@ -97,7 +97,7 @@ export default function UserForm({
     //     handleClickStatus({
     //       type: 'success',
     //       state: 'save',
-    //       masg: "Enregistrement de l'utilisateur rÃ©ussi",
+    //       masg: "Enregistrement de l'utilisateur réussi",
     //     })
     //   if (response?.status >= 400)
     //     handleClickStatus({

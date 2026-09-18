@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   Box,
   Typography,
@@ -8,7 +8,10 @@ import {
   Alert,
   Skeleton,
   Stack,
+  Chip,
   IconButton,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
 import {
   Timeline,
@@ -33,8 +36,28 @@ import type { AuditLogItem } from '../../types/session.types'
 
 type TimelineDotColor = 'success' | 'primary' | 'info' | 'warning' | 'error' | 'grey' | 'inherit'
 
+/**
+ * Buckets the free-form audit `action` string into the handful of things a
+ * user actually scans this page for. Kept next to the icon/colour mapping so
+ * a new action type is classified once, not twice.
+ */
+type ActivityCategory = 'login' | 'security' | 'admin' | 'error' | 'other'
+
+const CATEGORY_FILTERS: Array<{
+  id: ActivityCategory | 'all'
+  labelKey: string
+  fallback: string
+}> = [
+  { id: 'all', labelKey: 'auth.account.activity.filterAll', fallback: 'All' },
+  { id: 'login', labelKey: 'auth.account.activity.filterLogins', fallback: 'Logins' },
+  { id: 'security', labelKey: 'auth.account.activity.filterSecurity', fallback: 'Security' },
+  { id: 'admin', labelKey: 'auth.account.activity.filterAdmin', fallback: 'Admin' },
+  { id: 'error', labelKey: 'auth.account.activity.filterErrors', fallback: 'Errors' },
+]
+
 interface ActivityItem {
   id: string
+  category: ActivityCategory
   title: string
   description: string
   date: string
@@ -47,6 +70,7 @@ const toActivityItems = (logs: AuditLogItem[]): ActivityItem[] =>
   logs.map((log) => {
     let icon = <History fontSize='small' />
     let color: TimelineDotColor = 'grey'
+    let category: ActivityCategory = 'other'
     const actionLower = (log.action || '').toLowerCase()
 
     if (
@@ -56,15 +80,23 @@ const toActivityItems = (logs: AuditLogItem[]): ActivityItem[] =>
     ) {
       icon = <Login fontSize='small' />
       color = 'success'
+      category = 'login'
     } else if (actionLower.includes('password')) {
       icon = <Password fontSize='small' />
       color = 'warning'
+      category = 'security'
     } else if (actionLower.includes('mfa') || actionLower.includes('security')) {
       icon = <Security fontSize='small' />
       color = 'info'
+      category = 'security'
+    } else if (actionLower.includes('admin') || actionLower.includes('impersonat')) {
+      icon = <Security fontSize='small' />
+      color = 'primary'
+      category = 'admin'
     } else if (actionLower.includes('token') || actionLower.includes('key')) {
       icon = <VpnKey fontSize='small' />
       color = 'primary'
+      category = 'security'
     } else if (
       actionLower.includes('fail') ||
       actionLower.includes('error') ||
@@ -72,17 +104,22 @@ const toActivityItems = (logs: AuditLogItem[]): ActivityItem[] =>
     ) {
       icon = <NotificationImportant fontSize='small' />
       color = 'error'
+      category = 'error'
     }
 
-    const rawTime = log.created_at || (log as any).createdAt
+    const rawTime = log.createdAt || log.created_at
     const timestamp = rawTime ? new Date(rawTime) : new Date()
+    const targetType = log.targetType || log.target_type
+    const targetId = log.targetId || log.target_id
+    const ipAddress = log.ipAddress || log.ip_address
 
     return {
       id: String(log.id),
+      category,
       title: log.action
         ? log.action.charAt(0).toUpperCase() + log.action.slice(1).replace(/[._-]/g, ' ')
         : 'Activity Event',
-      description: `${log.resource_type || 'Account'}${log.resource_id ? ` #${log.resource_id}` : ''}${log.ip_address ? ` • IP: ${log.ip_address}` : ''}`,
+      description: `${targetType || 'Account'}${targetId ? ` #${targetId}` : ''}${ipAddress ? ` • IP: ${ipAddress}` : ''}`,
       date: Number.isNaN(timestamp.getTime()) ? String(rawTime) : timestamp.toLocaleDateString(),
       time: Number.isNaN(timestamp.getTime()) ? '' : timestamp.toLocaleTimeString(),
       icon,
@@ -92,6 +129,10 @@ const toActivityItems = (logs: AuditLogItem[]): ActivityItem[] =>
 
 export const UserActivityTimeline: React.FC = () => {
   const { t } = useTranslation()
+  const theme = useTheme()
+  // The alternating layout needs two usable columns; below md it collapses
+  // into an unreadable zig-zag, so the timeline runs down one side instead.
+  const isWide = useMediaQuery(theme.breakpoints.up('md'))
   const { data, isLoading, isError, error, refetch, isFetching } = useActivityTimeline()
 
   const rawLogs = useMemo(() => {
@@ -101,6 +142,24 @@ export const UserActivityTimeline: React.FC = () => {
   }, [data])
 
   const activities = useMemo(() => toActivityItems(rawLogs), [rawLogs])
+
+  const [activeFilter, setActiveFilter] = useState<ActivityCategory | 'all'>('all')
+
+  const counts = useMemo(() => {
+    const tally: Record<string, number> = { all: activities.length }
+    activities.forEach((item) => {
+      tally[item.category] = (tally[item.category] || 0) + 1
+    })
+    return tally
+  }, [activities])
+
+  const visibleActivities = useMemo(
+    () =>
+      activeFilter === 'all'
+        ? activities
+        : activities.filter((item) => item.category === activeFilter),
+    [activities, activeFilter],
+  )
 
   return (
     <Container maxWidth='lg' sx={{ py: 6 }}>
@@ -129,7 +188,37 @@ export const UserActivityTimeline: React.FC = () => {
         </IconButton>
       </Box>
 
-      <Paper variant='outlined' sx={{ p: 4, borderRadius: 3 }}>
+      {!isLoading && !isError && activities.length > 0 && (
+        <Stack
+          direction='row'
+          spacing={1}
+          flexWrap='wrap'
+          useFlexGap
+          role='group'
+          aria-label={t('auth.account.activity.filterLabel', 'Filter activity')}
+          sx={{ mb: 3 }}
+        >
+          {CATEGORY_FILTERS.map((filter) => {
+            const count = counts[filter.id] || 0
+            const selected = activeFilter === filter.id
+            return (
+              <Chip
+                key={filter.id}
+                clickable
+                aria-pressed={selected}
+                disabled={filter.id !== 'all' && count === 0}
+                color={selected ? 'primary' : 'default'}
+                variant={selected ? 'filled' : 'outlined'}
+                onClick={() => setActiveFilter(filter.id)}
+                label={`${t(filter.labelKey, filter.fallback)} (${count})`}
+                sx={{ height: 36, fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)' }}
+              />
+            )
+          })}
+        </Stack>
+      )}
+
+      <Paper variant='outlined' sx={{ p: { xs: 2, md: 4 }, borderRadius: 'var(--sf-radius-lg, 12px)' }}>
         {isLoading ? (
           <Stack spacing={3} sx={{ py: 4, px: 2 }}>
             {[1, 2, 3, 4].map((i) => (
@@ -165,26 +254,33 @@ export const UserActivityTimeline: React.FC = () => {
                 )}
             </Alert>
           </Box>
-        ) : activities.length === 0 ? (
+        ) : visibleActivities.length === 0 ? (
           <Box sx={{ py: 8, textAlign: 'center' }}>
             <EventBusy sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
             <Typography variant='h6' fontWeight={600} gutterBottom>
-              {t('auth.account.activity.no_recent_activity', 'No recent activity found')}
+              {activeFilter === 'all'
+                ? t('auth.account.activity.no_recent_activity', 'No recent activity found')
+                : t('auth.account.activity.no_matching_activity', 'No matching activity')}
             </Typography>
             <Typography color='text.secondary'>
-              {t(
-                'auth.account.activity.no_activity_desc',
-                'Security and login events will appear here in chronological order.',
-              )}
+              {activeFilter === 'all'
+                ? t(
+                    'auth.account.activity.no_activity_desc',
+                    'Security and login events will appear here in chronological order.',
+                  )
+                : t(
+                    'auth.account.activity.no_matching_desc',
+                    'No events in this category yet. Choose another filter to see more.',
+                  )}
             </Typography>
           </Box>
         ) : (
-          <Timeline position='alternate'>
-            {activities.map((activity, index) => (
+          <Timeline position={isWide ? 'alternate' : 'right'}>
+            {visibleActivities.map((activity, index) => (
               <TimelineItem key={activity.id}>
                 <TimelineOppositeContent
-                  sx={{ m: 'auto 0' }}
-                  align={index % 2 === 0 ? 'right' : 'left'}
+                  align={isWide && index % 2 === 0 ? 'right' : 'left'}
+                  sx={{ m: 'auto 0', flex: isWide ? 1 : 0, px: isWide ? undefined : 0 }}
                   color='text.secondary'
                 >
                   <Typography variant='subtitle2' fontWeight='bold'>
@@ -202,7 +298,7 @@ export const UserActivityTimeline: React.FC = () => {
                     variant='outlined'
                     sx={{
                       p: 2,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       bgcolor: 'background.default',
                       borderColor: 'divider',
                       '&:hover': {
@@ -226,7 +322,7 @@ export const UserActivityTimeline: React.FC = () => {
         )}
       </Paper>
 
-      {!isLoading && !isError && activities.length > 0 && (
+      {!isLoading && !isError && visibleActivities.length > 0 && (
         <Box sx={{ mt: 4, textAlign: 'center' }}>
           <Button
             variant='text'
@@ -234,7 +330,7 @@ export const UserActivityTimeline: React.FC = () => {
             startIcon={<Refresh />}
             disabled={isFetching}
             onClick={() => refetch()}
-            sx={{ textTransform: 'none', fontWeight: 'bold' }}
+            sx={{ textTransform: 'none', fontWeight: 'bold', minHeight: 44 }}
           >
             {t('auth.account.activity.refresh', 'Refresh activity')}
           </Button>

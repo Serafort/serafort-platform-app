@@ -1,7 +1,7 @@
 // FILE: packages/modules/auth/src/screens/auth/sso/SSFConfiguration.tsx
 // RULES APPLIED: mui-component-standards.md, react-component-patterns.md
 // FIXES: Enforced 1200px max layout width, strict MUI v7 Cards and Avatars styling, removed inline styling, enforced Grid2 with size property, enforced useCallback, unified headers, full i18next coverage, framer-motion page entry transitions.
-// AUDIT: CRITICAL âœ“  HIGH âœ“  MEDIUM âœ“
+// AUDIT: CRITICAL ✓  HIGH ✓  MEDIUM ✓
 
 import React, { useState, useEffect, useCallback } from 'react'
 import Box from '@mui/material/Box'
@@ -136,7 +136,7 @@ export default function SSFConfiguration() {
   const [addEventDialogOpen, setAddEventDialogOpen] = useState(false)
   const [newEvent, setNewEvent] = useState({ id: '', name: '', desc: '' })
 
-  const { data: configResp, isLoading } = useSSFConfig()
+  const { data: configResp, isLoading, isError: isConfigError, refetch: refetchConfig } = useSSFConfig()
   const config = configResp?.data
 
   const { mutateAsync: updateConfig, isPending: isSaving } = useUpdateSSFConfig()
@@ -144,6 +144,7 @@ export default function SSFConfiguration() {
   const {
     data: historyData,
     isLoading: isHistoryLoading,
+    isError: isHistoryError,
     refetch: refetchHistory,
   } = useSSFHistory()
 
@@ -253,11 +254,18 @@ export default function SSFConfiguration() {
   const handleCopyJwksUrlClick = useCallback(() => {
     navigator.clipboard.writeText(`${window.location.origin}/.well-known/jwks.json`)
     toast.success(
-      t('common.copied_item', { item: 'JWKS URL', defaultValue: 'JWKS URL copied to clipboard' }),
+      t('auth.common.copied_item', {
+        item: 'JWKS URL',
+        defaultValue: 'JWKS URL copied to clipboard',
+      }),
     )
   }, [t])
 
-  if (isLoading || isHistoryLoading) {
+  // The configuration is the primary resource: if it genuinely failed to load,
+  // rendering the form would let an admin save default values over real config.
+  // A slow/pending load, and any failure of the secondary history panel, must
+  // NOT block the screen — those get inline states further down.
+  if (isConfigError) {
     return (
       <Box
         sx={{
@@ -267,20 +275,37 @@ export default function SSFConfiguration() {
           justifyContent: 'center',
           minHeight: '400px',
           gap: 2,
+          p: 3,
+          textAlign: 'center',
         }}
       >
-        <CircularProgress size={32} thickness={5} />
-        <Typography
-          variant='caption'
+        <Avatar
           sx={{
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.075em',
-            color: 'text.secondary',
+            width: 56,
+            height: 56,
+            bgcolor: alpha(theme.palette.error.main, 0.1),
+            color: 'error.main',
           }}
         >
-          {t('common.loading', 'Syncing Signals...')}
+          <Sensors sx={{ fontSize: 28 }} />
+        </Avatar>
+        <Typography variant='h6' sx={{ fontWeight: 800 }}>
+          {t('auth.sso.ssf_load_error_title', 'Could not load SSF configuration')}
         </Typography>
+        <Typography variant='body2' color='text.secondary' sx={{ maxWidth: 420 }}>
+          {t(
+            'auth.sso.ssf_load_error_desc',
+            'The Shared Signals transmitter settings are unavailable right now. Retry, or check back shortly.',
+          )}
+        </Typography>
+        <Button
+          variant='contained'
+          startIcon={<Sync />}
+          onClick={() => refetchConfig()}
+          sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 'var(--sf-radius-lg, 12px)', mt: 1 }}
+        >
+          {t('auth.common.retry', 'Retry')}
+        </Button>
       </Box>
     )
   }
@@ -311,15 +336,15 @@ export default function SSFConfiguration() {
           to={Path.identity.oidcConfigBrowser}
           startIcon={<ArrowBack />}
           sx={{
-            p: 0,
-            minWidth: 'auto',
+            p: 1,
+            minHeight: 44,
             color: 'text.secondary',
             textTransform: 'none',
             fontWeight: 700,
             '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
           }}
         >
-          {t('common.back')}
+          {t('auth.common.back')}
         </Button>
       </Box>
 
@@ -337,7 +362,7 @@ export default function SSFConfiguration() {
           <Typography
             variant='h4'
             sx={{
-              fontWeight: 900,
+              fontWeight: 800,
               letterSpacing: '-0.027em',
               mb: 1,
               fontFamily: 'Outfit, sans-serif',
@@ -347,11 +372,11 @@ export default function SSFConfiguration() {
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Chip
-              label={t('common.beta', 'BETA')}
+              label={t('auth.common.beta', 'BETA')}
               size='small'
               sx={{
-                fontWeight: 900,
-                borderRadius: '6px',
+                fontWeight: 800,
+                borderRadius: 'var(--sf-radius-xs, 4px)',
                 bgcolor: alpha(theme.palette.warning.main, 0.1),
                 color: 'warning.dark',
                 fontSize: '0.625rem',
@@ -402,7 +427,7 @@ export default function SSFConfiguration() {
                 ),
                 px: 2,
                 py: 0.5,
-                borderRadius: '12px',
+                borderRadius: 'var(--sf-radius-md, 12px)',
                 border: '1px solid',
                 borderColor: alpha(
                   ssfEnabled ? theme.palette.success.main : theme.palette.error.main,
@@ -413,29 +438,50 @@ export default function SSFConfiguration() {
               }}
             />
           </Tooltip>
-          <Button
-            variant='contained'
-            startIcon={isSaving ? <CircularProgress size={16} color='inherit' /> : <Save />}
-            disabled={isSaving}
-            onClick={handleSave}
-            sx={{
-              bgcolor: 'info.main',
-              boxShadow: `0 8px 32px 0 ${alpha(theme.palette.info.main, 0.3)}`,
-              borderRadius: '12px',
-              textTransform: 'none',
-              fontWeight: 800,
-              height: { xs: 44, md: 48 },
-              px: { xs: 3, md: 4 },
-              '&:hover': {
-                bgcolor: 'info.dark',
-                boxShadow: `0 12px 40px 0 ${alpha(theme.palette.info.main, 0.45)}`,
-              },
-            }}
+          <Tooltip
+            title={
+              isLoading
+                ? t(
+                    'auth.sso.ssf_save_disabled_loading',
+                    'Loading the current configuration…',
+                  )
+                : ''
+            }
           >
-            {isSaving
-              ? t('common.saving', 'Saving...')
-              : t('common.save_config', 'Save Configuration')}
-          </Button>
+            <span>
+              <Button
+                variant='contained'
+                startIcon={
+                  isSaving || isLoading ? (
+                    <CircularProgress size={16} color='inherit' />
+                  ) : (
+                    <Save />
+                  )
+                }
+                disabled={isSaving || isLoading}
+                onClick={handleSave}
+                sx={{
+                  bgcolor: 'primary.main',
+                  boxShadow: (theme) => `0 8px 32px 0 ${alpha(theme.palette.primary.main, 0.3)}`,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  textTransform: 'none',
+                  fontWeight: 800,
+                  minHeight: 48,
+                  px: { xs: 3, md: 4 },
+                  '&:hover': {
+                    bgcolor: 'primary.dark',
+                    boxShadow: (theme) => `0 12px 40px 0 ${alpha(theme.palette.primary.main, 0.45)}`,
+                  },
+                }}
+              >
+                {isSaving
+                  ? t('auth.common.saving', 'Saving...')
+                  : isLoading
+                    ? t('auth.common.loading', 'Loading…')
+                    : t('auth.common.save_config', 'Save Configuration')}
+              </Button>
+            </span>
+          </Tooltip>
         </Box>
       </Box>
 
@@ -444,12 +490,11 @@ export default function SSFConfiguration() {
         <Grid size={{ xs: 12, md: 7 }}>
           <Card
             sx={{
-              borderRadius: '24px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: alpha(theme.palette.divider, 0.08),
               boxShadow: 'none',
-              background: alpha('#000', 0.2),
-              backdropFilter: 'blur(24px)',
+              bgcolor: 'background.paper',
             }}
           >
             <CardContent sx={{ p: { xs: 3, md: 4 } }}>
@@ -460,7 +505,7 @@ export default function SSFConfiguration() {
                     height: 36,
                     bgcolor: alpha(theme.palette.primary.main, 0.1),
                     color: 'primary.main',
-                    borderRadius: '10px',
+                    borderRadius: 'var(--sf-radius-sm, 8px)',
                   }}
                 >
                   <Hub sx={{ fontSize: 20 }} />
@@ -471,7 +516,7 @@ export default function SSFConfiguration() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                     fontSize: '0.8125rem',
-                    color: alpha('#fff', 0.9),
+                    color: 'text.primary',
                   }}
                 >
                   {t('auth.sso.transmitter_endpoint', 'Transmitter Identity')}
@@ -487,8 +532,8 @@ export default function SSFConfiguration() {
                     onChange={handleIssuerUrlChange}
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        bgcolor: alpha('#000', 0.3),
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        bgcolor: alpha(theme.palette.text.primary, 0.03),
                         '& fieldset': { borderColor: alpha(theme.palette.divider, 0.1) },
                         '&:hover fieldset': { borderColor: alpha(theme.palette.primary.main, 0.4) },
                       },
@@ -513,8 +558,8 @@ export default function SSFConfiguration() {
                     select
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        bgcolor: alpha('#000', 0.3),
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        bgcolor: alpha(theme.palette.text.primary, 0.03),
                         '& fieldset': { borderColor: alpha(theme.palette.divider, 0.1) },
                       },
                     }}
@@ -544,7 +589,7 @@ export default function SSFConfiguration() {
                       height: 36,
                       bgcolor: alpha(theme.palette.primary.main, 0.08),
                       color: 'primary.main',
-                      borderRadius: '10px',
+                      borderRadius: 'var(--sf-radius-sm, 8px)',
                     }}
                   >
                     <Sensors sx={{ fontSize: 20 }} />
@@ -565,9 +610,9 @@ export default function SSFConfiguration() {
                   size='small'
                   startIcon={<Add />}
                   onClick={handleAddEventClick}
-                  sx={{ fontWeight: 700, textTransform: 'none' }}
+                  sx={{ fontWeight: 700, textTransform: 'none', minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
                 >
-                  {t('common.add_event', 'Add Event Type')}
+                  {t('auth.common.add_event', 'Add Event Type')}
                 </Button>
               </Box>
 
@@ -592,15 +637,14 @@ export default function SSFConfiguration() {
           {/* Live Signals Stream */}
           <Card
             sx={{
-              borderRadius: '24px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: alpha(theme.palette.primary.main, 0.1),
               boxShadow: 'none',
               mb: 4,
-              background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha('#000', 0.2)} 100%)`,
+              bgcolor: alpha(theme.palette.primary.main, 0.05),
               position: 'relative',
               overflow: 'hidden',
-              backdropFilter: 'blur(24px)',
             }}
           >
             <Box
@@ -641,7 +685,36 @@ export default function SSFConfiguration() {
               </Box>
 
               <AnimatePresence mode='popLayout'>
-                {signals.length === 0 ? (
+                {isHistoryLoading ? (
+                  <Box
+                    sx={{
+                      py: 6,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 1.5,
+                    }}
+                  >
+                    <CircularProgress size={24} thickness={5} />
+                    <Typography variant='body2' color='text.secondary'>
+                      {t('auth.sso.loading_signals', 'Loading recent signals…')}
+                    </Typography>
+                  </Box>
+                ) : isHistoryError ? (
+                  <Box sx={{ py: 6, textAlign: 'center' }}>
+                    <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
+                      {t('auth.sso.signals_load_error', 'Could not load the signal stream.')}
+                    </Typography>
+                    <Button
+                      size='small'
+                      variant='text'
+                      onClick={() => refetchHistory()}
+                      sx={{ fontWeight: 700, textTransform: 'none', minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
+                    >
+                      {t('auth.common.retry', 'Retry')}
+                    </Button>
+                  </Box>
+                ) : signals.length === 0 ? (
                   <Box sx={{ py: 6, textAlign: 'center', opacity: 0.5 }}>
                     <Typography variant='body2'>
                       {t('auth.sso.no_recent_signals', 'No recent signals detected')}
@@ -656,7 +729,7 @@ export default function SSFConfiguration() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.1 }}
                       sx={{
-                        borderRadius: '16px',
+                        borderRadius: 'var(--sf-radius-md, 12px)',
                         mb: 2,
                         boxShadow: 'none',
                         border: '1px solid',
@@ -682,7 +755,7 @@ export default function SSFConfiguration() {
                               <Typography
                                 variant='caption'
                                 sx={{
-                                  fontWeight: 900,
+                                  fontWeight: 800,
                                   letterSpacing: '0.05em',
                                   color:
                                     signal.action === 'SSF_TEST_SIGNAL'
@@ -695,10 +768,12 @@ export default function SSFConfiguration() {
                                     0.1,
                                   ),
                                   px: 1,
-                                  borderRadius: '4px',
+                                  borderRadius: 'var(--sf-radius-xs, 4px)',
                                 }}
                               >
-                                {signal.action === 'SSF_TEST_SIGNAL' ? 'TEST' : 'PUSH'}
+                                {signal.action === 'SSF_TEST_SIGNAL'
+                                  ? t('auth.sso.signal_test', 'TEST')
+                                  : t('auth.sso.signal_push', 'PUSH')}
                               </Typography>
                               <Typography
                                 variant='caption'
@@ -722,7 +797,7 @@ export default function SSFConfiguration() {
                             size='small'
                             variant='outlined'
                             sx={{
-                              borderRadius: '6px',
+                              borderRadius: 'var(--sf-radius-xs, 4px)',
                               fontWeight: 800,
                               fontSize: '0.625rem',
                               height: 20,
@@ -743,8 +818,8 @@ export default function SSFConfiguration() {
                 onClick={() => refetchHistory()}
                 sx={{
                   mt: 1,
-                  height: 40,
-                  borderRadius: '12px',
+                  minHeight: 44,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   fontWeight: 700,
                   textTransform: 'none',
                   color: 'text.secondary',
@@ -754,7 +829,7 @@ export default function SSFConfiguration() {
                   },
                 }}
               >
-                {t('common.refresh_stream', 'Refresh Stream')}
+                {t('auth.common.refresh_stream', 'Refresh Stream')}
               </Button>
             </CardContent>
           </Card>
@@ -762,12 +837,11 @@ export default function SSFConfiguration() {
           {/* Signing Keys */}
           <Card
             sx={{
-              borderRadius: '24px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               border: '1px solid',
               borderColor: alpha(theme.palette.divider, 0.08),
               boxShadow: 'none',
-              background: alpha('#000', 0.2),
-              backdropFilter: 'blur(24px)',
+              bgcolor: 'background.paper',
             }}
           >
             <CardContent sx={{ p: { xs: 3, md: 4 } }}>
@@ -778,7 +852,7 @@ export default function SSFConfiguration() {
                     height: 36,
                     bgcolor: alpha(theme.palette.primary.main, 0.08),
                     color: 'primary.main',
-                    borderRadius: '10px',
+                    borderRadius: 'var(--sf-radius-sm, 8px)',
                   }}
                 >
                   <Key sx={{ fontSize: 20 }} />
@@ -810,7 +884,8 @@ export default function SSFConfiguration() {
                 fullWidth
                 onClick={handleCopyJwksUrlClick}
                 sx={{
-                  borderRadius: '8px',
+                  minHeight: 44,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
                   fontWeight: 700,
                   textTransform: 'none',
                   borderColor: 'divider',
@@ -832,14 +907,16 @@ export default function SSFConfiguration() {
         onClose={handleCloseAddEventDialog}
         maxWidth='xs'
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: '24px',
-            background: alpha('#111', 0.95),
-            backdropFilter: 'blur(20px)',
-            border: '1px solid',
-            borderColor: alpha(theme.palette.divider, 0.1),
-            boxShadow: theme.shadows[24],
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              bgcolor: 'background.paper',
+              backgroundImage: 'none',
+              border: '1px solid',
+              borderColor: alpha(theme.palette.divider, 0.1),
+              boxShadow: theme.shadows[24],
+            },
           },
         }}
       >
@@ -856,14 +933,15 @@ export default function SSFConfiguration() {
           <Typography
             variant='h6'
             component='div'
-            sx={{ fontWeight: 900, fontFamily: 'Outfit, sans-serif' }}
+            sx={{ fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}
           >
             {t('auth.sso.add_new_event', 'Add Security Event')}
           </Typography>
           <IconButton
             onClick={handleCloseAddEventDialog}
             size='small'
-            sx={{ color: 'text.secondary' }}
+            sx={{ color: 'text.secondary', minWidth: 44, minHeight: 44 }}
+            aria-label={t('auth.common.close', 'Close')}
           >
             <Close />
           </IconButton>
@@ -880,8 +958,8 @@ export default function SSFConfiguration() {
               autoFocus
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
-                  bgcolor: alpha('#000', 0.3),
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  bgcolor: alpha(theme.palette.text.primary, 0.03),
                 },
               }}
             />
@@ -893,8 +971,8 @@ export default function SSFConfiguration() {
               onChange={handleNewEventChange('name')}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
-                  bgcolor: alpha('#000', 0.3),
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  bgcolor: alpha(theme.palette.text.primary, 0.03),
                 },
               }}
             />
@@ -908,8 +986,8 @@ export default function SSFConfiguration() {
               rows={2}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
-                  bgcolor: alpha('#000', 0.3),
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  bgcolor: alpha(theme.palette.text.primary, 0.03),
                 },
               }}
             />
@@ -919,19 +997,22 @@ export default function SSFConfiguration() {
         <DialogActions sx={{ p: 3, pt: 0 }}>
           <Button
             onClick={handleCloseAddEventDialog}
-            sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}
+            sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary', minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
-            {t('common.cancel', 'Cancel')}
+            {t('auth.common.cancel', 'Cancel')}
           </Button>
           <Button
             variant='contained'
             onClick={handleConfirmAddEvent}
             startIcon={<AddCircle />}
             sx={{
-              borderRadius: '12px',
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               fontWeight: 800,
               textTransform: 'none',
               bgcolor: 'primary.main',
+              boxShadow: (theme) => `0 4px 14px 0 ${alpha(theme.palette.primary.main, 0.39)}`,
+              '&:hover': { bgcolor: 'primary.dark' },
             }}
           >
             {t('auth.sso.add_event', 'Add Event')}

@@ -2,13 +2,13 @@ import { useMemo, useState } from 'react'
 import {
   Alert,
   AlertTitle,
+  Avatar,
   Box,
   Button,
   Card,
   CardContent,
   Chip,
   CircularProgress,
-  Container,
   Divider,
   Grid,
   MenuItem,
@@ -25,11 +25,16 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
+import { alpha, useTheme } from '@mui/material/styles'
 import PodcastsIcon from '@mui/icons-material/Podcasts'
 import SendIcon from '@mui/icons-material/Send'
 import ScienceIcon from '@mui/icons-material/Science'
 import InfoOutlined from '@mui/icons-material/InfoOutlined'
+import ArrowBack from '@mui/icons-material/ArrowBack'
 import { useTranslation } from 'react-i18next'
+import { Link as RouterLink } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import Path from '../path'
 import {
   useBroadcastSSFEvent,
   useSSFConfig,
@@ -83,6 +88,7 @@ const EVENT_HELP: Record<string, string> = {
 
 export const CaepEventConsole: React.FC = () => {
   const { t } = useTranslation()
+  const theme = useTheme()
 
   const configQuery = useSSFConfig()
   const historyQuery = useSSFHistory()
@@ -108,29 +114,87 @@ export const CaepEventConsole: React.FC = () => {
 
   if (configQuery.isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-        <CircularProgress />
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <CircularProgress size={40} thickness={4} />
       </Box>
     )
   }
 
   return (
-    <Container maxWidth='lg' sx={{ py: 4 }}>
-      <Stack direction='row' alignItems='center' spacing={1.5} sx={{ mb: 1 }}>
-        <PodcastsIcon color='primary' />
-        <Typography variant='h4'>
-          {t('auth.caep.title', 'Shared signals console')}
-        </Typography>
-      </Stack>
-      <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-        {t(
-          'auth.caep.subtitle',
-          'Broadcast CAEP and RISC security events to every registered relying party, and review what has been sent.',
-        )}
-      </Typography>
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}
+    >
+      {/* Back button */}
+      <Box sx={{ mb: 2 }}>
+        <Button
+          component={RouterLink}
+          to={Path.ssfConfiguration}
+          startIcon={<ArrowBack />}
+          sx={{
+            p: 1,
+            minHeight: 44,
+            color: 'text.secondary',
+            textTransform: 'none',
+            fontWeight: 700,
+            '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
+          }}
+        >
+          {t('auth.common.back', 'Back to SSF Configuration')}
+        </Button>
+      </Box>
+
+      {/* Header section */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          justifyContent: 'space-between',
+          alignItems: { xs: 'flex-start', md: 'center' },
+          mb: 4,
+          gap: 3,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+          <Avatar
+            sx={{
+              width: 56,
+              height: 56,
+              borderRadius: 'var(--sf-radius-lg, 24px)',
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              color: 'primary.main',
+              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.15)}`,
+            }}
+          >
+            <PodcastsIcon sx={{ fontSize: 28 }} />
+          </Avatar>
+          <Box>
+            <Typography
+              variant='h4'
+              sx={{
+                fontWeight: 800,
+                letterSpacing: '-0.027em',
+                mb: 0.5,
+                fontFamily: 'Outfit, sans-serif',
+              }}
+            >
+              {t('auth.caep.title', 'Shared signals console')}
+            </Typography>
+            <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500 }}>
+              {t(
+                'auth.caep.subtitle',
+                'Broadcast CAEP and RISC security events to every registered relying party, and review what has been sent.',
+              )}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
 
       {config && !config.enabled && (
-        <Alert severity='warning' sx={{ mb: 3 }}>
+        <Alert severity='warning' sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 10px)' }}>
           <AlertTitle>{t('auth.caep.stream_off_title', 'Stream is disabled')}</AlertTitle>
           {t(
             'auth.caep.stream_off_body',
@@ -139,21 +203,29 @@ export const CaepEventConsole: React.FC = () => {
         </Alert>
       )}
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: 7 }}>
-          <Card variant='outlined' sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography variant='h6' sx={{ mb: 0.5 }}>
+          <Card
+            variant='outlined'
+            sx={{
+              height: '100%',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+              <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
                 {t('auth.caep.broadcast_title', 'Broadcast a signal')}
               </Typography>
-              <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+              <Typography variant='body2' color='text.secondary' sx={{ mb: 3, fontWeight: 500 }}>
                 {t(
                   'auth.caep.broadcast_help',
                   'Sent to every active OIDC client. Recorded in the audit trail with the reason you give.',
                 )}
               </Typography>
 
-              <Stack spacing={2}>
+              <Stack spacing={2.5}>
                 <Box>
                   <Select
                     fullWidth
@@ -161,17 +233,18 @@ export const CaepEventConsole: React.FC = () => {
                     value={eventType}
                     onChange={(event) => setEventType(event.target.value as SSFEventType)}
                     inputProps={{ 'aria-label': t('auth.caep.event_type', 'Event type') }}
+                    sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600 }}
                   >
                     {supported.map((value) => (
-                      <MenuItem key={value} value={value}>
+                      <MenuItem key={value} value={value} sx={{ fontWeight: 600 }}>
                         {value}
                       </MenuItem>
                     ))}
                   </Select>
                   {EVENT_HELP[eventType] && (
-                    <Stack direction='row' spacing={0.5} sx={{ mt: 0.75 }} alignItems='flex-start'>
-                      <InfoOutlined fontSize='inherit' color='action' sx={{ mt: 0.3 }} />
-                      <Typography variant='caption' color='text.secondary'>
+                    <Stack direction='row' spacing={0.75} sx={{ mt: 1 }} alignItems='flex-start'>
+                      <InfoOutlined fontSize='small' color='action' sx={{ mt: 0.2 }} />
+                      <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 500 }}>
                         {t(`auth.caep.help.${eventType}`, EVENT_HELP[eventType])}
                       </Typography>
                     </Stack>
@@ -189,6 +262,10 @@ export const CaepEventConsole: React.FC = () => {
                     'auth.caep.subject_help',
                     'Who the signal is about — an identifier the receivers can resolve, such as the email or subject id.',
                   )}
+                  slotProps={{
+                    input: { sx: { borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600 } },
+                    inputLabel: { sx: { fontWeight: 600 } },
+                  }}
                 />
 
                 <TextField
@@ -203,9 +280,13 @@ export const CaepEventConsole: React.FC = () => {
                     'auth.caep.reason_help',
                     'Recorded in the audit trail. Write what a colleague reading this in six months would need.',
                   )}
+                  slotProps={{
+                    input: { sx: { borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 600 } },
+                    inputLabel: { sx: { fontWeight: 600 } },
+                  }}
                 />
 
-                <Stack direction='row' spacing={1}>
+                <Stack direction='row' spacing={1.5} sx={{ pt: 1 }}>
                   <Button
                     variant='contained'
                     startIcon={<SendIcon />}
@@ -216,13 +297,28 @@ export const CaepEventConsole: React.FC = () => {
                         { onSuccess: () => setReason('') },
                       )
                     }
+                    sx={{
+                      minHeight: 48,
+                      px: 3,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      fontWeight: 800,
+                      textTransform: 'none',
+                    }}
                   >
                     {t('auth.caep.broadcast', 'Broadcast')}
                   </Button>
                   <Button
+                    variant='outlined'
                     startIcon={<ScienceIcon />}
                     disabled={testStream.isPending}
                     onClick={() => testStream.mutate()}
+                    sx={{
+                      minHeight: 44,
+                      px: 2.5,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      fontWeight: 700,
+                      textTransform: 'none',
+                    }}
                   >
                     {t('auth.caep.test', 'Send test signal')}
                   </Button>
@@ -230,7 +326,7 @@ export const CaepEventConsole: React.FC = () => {
               </Stack>
 
               {broadcast.error && (
-                <Alert severity='error' sx={{ mt: 2 }}>
+                <Alert severity='error' sx={{ mt: 2.5, borderRadius: 'var(--sf-radius-md, 10px)' }}>
                   {t(
                     'auth.caep.broadcast_failed',
                     'The signal could not be broadcast. An event type and a subject are both required.',
@@ -239,8 +335,11 @@ export const CaepEventConsole: React.FC = () => {
               )}
 
               {broadcastResult && (
-                <Alert severity={simulated ? 'info' : 'success'} sx={{ mt: 2 }}>
-                  <AlertTitle>
+                <Alert
+                  severity={simulated ? 'info' : 'success'}
+                  sx={{ mt: 2.5, borderRadius: 'var(--sf-radius-md, 10px)' }}
+                >
+                  <AlertTitle sx={{ fontWeight: 800 }}>
                     {simulated
                       ? t('auth.caep.recorded_not_delivered', 'Recorded — delivery simulated')
                       : t('auth.caep.broadcast_sent', 'Signal broadcast')}
@@ -257,7 +356,7 @@ export const CaepEventConsole: React.FC = () => {
               )}
 
               {testStream.data && (
-                <Alert severity='success' sx={{ mt: 2 }}>
+                <Alert severity='success' sx={{ mt: 2.5, borderRadius: 'var(--sf-radius-md, 10px)' }}>
                   {t('auth.caep.test_sent', 'Test signal recorded.')}
                 </Alert>
               )}
@@ -266,17 +365,24 @@ export const CaepEventConsole: React.FC = () => {
         </Grid>
 
         <Grid size={{ xs: 12, md: 5 }}>
-          <Card variant='outlined' sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography variant='h6' sx={{ mb: 0.5 }}>
+          <Card
+            variant='outlined'
+            sx={{
+              height: '100%',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+              <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
                 {t('auth.caep.inbound_title', 'Inbound signals')}
               </Typography>
-              <Divider sx={{ mb: 2 }} />
-              {/* Deliberately empty rather than a placeholder table. An
-                  inspector showing nothing looks like "no attacks"; this says
-                  "not receiving", which is the true and more useful state. */}
-              <Alert severity='info'>
-                <AlertTitle>{t('auth.caep.inbound_none_title', 'Not yet receiving')}</AlertTitle>
+              <Divider sx={{ my: 2 }} />
+              <Alert severity='info' sx={{ borderRadius: 'var(--sf-radius-md, 10px)' }}>
+                <AlertTitle sx={{ fontWeight: 800 }}>
+                  {t('auth.caep.inbound_none_title', 'Not yet receiving')}
+                </AlertTitle>
                 {t(
                   'auth.caep.inbound_none_body',
                   'This deployment transmits shared signals but does not receive them: there is no inbound RISC/CAEP endpoint, so third-party account-compromised or account-disabled signals are not accepted or stored. An empty inspector here would read as “no incoming threats” rather than “not listening”.',
@@ -287,12 +393,19 @@ export const CaepEventConsole: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Card variant='outlined'>
-        <CardContent>
-          <Typography variant='h6' sx={{ mb: 0.5 }}>
+      <Card
+        variant='outlined'
+        sx={{
+          borderRadius: 'var(--sf-radius-lg, 16px)',
+          border: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+          <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
             {t('auth.caep.history_title', 'Signal history')}
           </Typography>
-          <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+          <Typography variant='body2' color='text.secondary' sx={{ mb: 3, fontWeight: 500 }}>
             {t(
               'auth.caep.history_help',
               'From the audit trail, so it records what was requested rather than what arrived.',
@@ -300,32 +413,50 @@ export const CaepEventConsole: React.FC = () => {
           </Typography>
 
           {historyQuery.isLoading ? (
-            <CircularProgress size={24} />
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress size={28} thickness={4} />
+            </Box>
           ) : history.length === 0 ? (
-            <Typography variant='body2' color='text.secondary'>
+            <Typography variant='body2' color='text.secondary' sx={{ py: 2 }}>
               {t('auth.caep.history_empty', 'No signals broadcast yet.')}
             </Typography>
           ) : (
-            <TableContainer component={Paper} variant='outlined'>
+            <TableContainer
+              component={Paper}
+              variant='outlined'
+              sx={{ borderRadius: 'var(--sf-radius-md, 12px)', overflow: 'hidden' }}
+            >
               <Table size='small'>
-                <TableHead>
+                <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.5) }}>
                   <TableRow>
-                    <TableCell>{t('auth.caep.when', 'When')}</TableCell>
-                    <TableCell>{t('auth.caep.kind', 'Kind')}</TableCell>
-                    <TableCell>{t('auth.caep.event_type', 'Event type')}</TableCell>
-                    <TableCell>{t('auth.caep.subject', 'Subject')}</TableCell>
-                    <TableCell align='right'>
+                    <TableCell sx={{ fontWeight: 800, py: 1.5 }}>
+                      {t('auth.caep.when', 'When')}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>
+                      {t('auth.caep.kind', 'Kind')}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>
+                      {t('auth.caep.event_type', 'Event type')}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>
+                      {t('auth.caep.subject', 'Subject')}
+                    </TableCell>
+                    <TableCell align='right' sx={{ fontWeight: 800 }}>
                       {t('auth.caep.recipients', 'Recipients')}
                     </TableCell>
-                    <TableCell>{t('auth.caep.reason', 'Reason')}</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>
+                      {t('auth.caep.reason', 'Reason')}
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {history.map((log) => {
                     const stamp = historyTimestamp(log)
                     return (
-                      <TableRow key={log.id}>
-                        <TableCell>{stamp ? new Date(stamp).toLocaleString() : '—'}</TableCell>
+                      <TableRow key={log.id} hover>
+                        <TableCell sx={{ py: 1.5, fontWeight: 500 }}>
+                          {stamp ? new Date(stamp).toLocaleString() : '—'}
+                        </TableCell>
                         <TableCell>
                           <Chip
                             size='small'
@@ -336,14 +467,21 @@ export const CaepEventConsole: React.FC = () => {
                                 ? t('auth.caep.kind_broadcast', 'Broadcast')
                                 : t('auth.caep.kind_test', 'Test')
                             }
+                            sx={{
+                              fontWeight: 800,
+                              borderRadius: 'var(--sf-radius-xs, 4px)',
+                              fontSize: '0.75rem',
+                            }}
                           />
                         </TableCell>
-                        <TableCell>{log.metadata?.eventType ?? '—'}</TableCell>
-                        <TableCell>{log.metadata?.subject ?? '—'}</TableCell>
-                        <TableCell align='right'>{historyRecipientCount(log)}</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>{log.metadata?.eventType ?? '—'}</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>{log.metadata?.subject ?? '—'}</TableCell>
+                        <TableCell align='right' sx={{ fontWeight: 700 }}>
+                          {historyRecipientCount(log)}
+                        </TableCell>
                         <TableCell sx={{ maxWidth: 260 }}>
                           <Tooltip title={log.metadata?.reason ?? ''}>
-                            <Typography variant='body2' noWrap>
+                            <Typography variant='body2' noWrap sx={{ fontWeight: 500 }}>
                               {log.metadata?.reason ?? '—'}
                             </Typography>
                           </Tooltip>
@@ -357,7 +495,7 @@ export const CaepEventConsole: React.FC = () => {
           )}
         </CardContent>
       </Card>
-    </Container>
+    </Box>
   )
 }
 
