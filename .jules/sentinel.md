@@ -58,3 +58,8 @@
 **Learning:** Error boundaries must sanitize error context and breadcrumb attributes before sending telemetry events.
 **Prevention:** Never attach raw user objects, input values, or unmasked query params to error events or telemetry dispatches.
 
+
+## 2024-05-19 - [target="_blank" Link Vulnerabilities]
+**Vulnerability:** External links with `target="_blank"` missing `rel="noopener noreferrer"` attributes.
+**Learning:** Adding `noopener` prevents reverse tabnabbing and `noreferrer` masks the referer URL, providing defense in depth. Found missing attributes in `ChangeEmail.tsx` and `SCIMConfiguration.tsx`.
+**Prevention:** Always add `rel="noopener noreferrer"` to any anchor tag or component that renders an anchor tag with `target="_blank"`.

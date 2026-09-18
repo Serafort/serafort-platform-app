@@ -562,6 +562,7 @@ export default function SCIMConfiguration() {
                                 component='a'
                                 href={scimUrl}
                                 target='_blank'
+                                rel='noopener noreferrer'
                                 sx={{ width: 44, height: 44 }}
                               >
                                 <OpenInNew fontSize='small' />
