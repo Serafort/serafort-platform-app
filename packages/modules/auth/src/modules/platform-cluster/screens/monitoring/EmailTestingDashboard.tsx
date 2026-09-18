@@ -16,6 +16,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import Send from '@mui/icons-material/Send'
 import History from '@mui/icons-material/History'
 import CheckCircle from '@mui/icons-material/CheckCircle'
@@ -23,6 +24,8 @@ import Error from '@mui/icons-material/Error'
 import SettingsApplications from '@mui/icons-material/SettingsApplications'
 import { useTranslation } from 'react-i18next'
 import { useNotifications } from '@cap/platform-core'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   useEmailTemplatesQuery,
   useSendTestEmailMutation,
@@ -31,6 +34,9 @@ import {
 export default function EmailTestingDashboard() {
   const { t } = useTranslation('common')
   const { addNotification } = useNotifications()
+  const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const [testEmail, setTestEmail] = useState('')
   const [selectedTemplate, setSelectedTemplate] = useState('welcome')
   const [testLogs, setTestLogs] = useState<
@@ -122,7 +128,7 @@ export default function EmailTestingDashboard() {
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1100, mx: 'auto' }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' sx={{ fontWeight: 900, mb: 1 }}>
+        <Typography variant='h4' sx={{ fontWeight: 800, mb: 1 }}>
           {t('auth.admin.emailTesting', 'Transactional Email Testing')}
         </Typography>
         <Typography variant='body1' color='text.secondary'>
@@ -142,7 +148,7 @@ export default function EmailTestingDashboard() {
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
-                borderRadius: 3,
+                borderRadius: 'var(--sf-radius-lg, 12px)',
               }}
             >
               <CardContent sx={{ p: 4 }}>
@@ -190,7 +196,7 @@ export default function EmailTestingDashboard() {
                       height: 50,
                       fontWeight: 800,
                       textTransform: 'none',
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       boxShadow: 'none',
                     }}
                   >
@@ -210,7 +216,7 @@ export default function EmailTestingDashboard() {
                 border: '1px solid',
                 borderColor: 'divider',
                 boxShadow: 'none',
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
               }}
             >
               <List>
@@ -226,7 +232,7 @@ export default function EmailTestingDashboard() {
                     label='Operational'
                     size='small'
                     color='success'
-                    sx={{ height: 16, fontSize: '0.6rem', fontWeight: 900 }}
+                    sx={{ height: 16, fontSize: '0.6rem', fontWeight: 800 }}
                   />
                 </ListItem>
               </List>
@@ -240,7 +246,7 @@ export default function EmailTestingDashboard() {
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
             }}
           >
             <CardContent>
@@ -257,7 +263,7 @@ export default function EmailTestingDashboard() {
                     sx={{
                       py: 2,
                       px: 2,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       mb: 1,
                       '&:hover': { bgcolor: 'action.hover' },
                     }}
@@ -283,7 +289,7 @@ export default function EmailTestingDashboard() {
                             sx={{
                               height: 18,
                               fontSize: '0.6rem',
-                              fontWeight: 900,
+                              fontWeight: 800,
                               textTransform: 'uppercase',
                             }}
                           />

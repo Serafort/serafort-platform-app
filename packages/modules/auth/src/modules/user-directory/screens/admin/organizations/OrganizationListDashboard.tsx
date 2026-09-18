@@ -2,13 +2,10 @@ import React, { useState } from 'react'
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Chip,
   IconButton,
@@ -30,6 +27,7 @@ import {
   DialogContent,
   DialogActions,
   Stack,
+  Container,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import FilterListIcon from '@mui/icons-material/FilterList'
@@ -40,10 +38,8 @@ import BusinessIcon from '@mui/icons-material/Business'
 import LaunchIcon from '@mui/icons-material/Launch'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import BlockIcon from '@mui/icons-material/Block'
-import GroupsIcon from '@mui/icons-material/Groups'
-import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt'
 import DeleteIcon from '@mui/icons-material/Delete'
-
+import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Path } from '@cap/module-auth/routes/path'
@@ -59,6 +55,14 @@ import {
 } from '@idaas/authentication-core/hooks/useAdminQuery'
 
 import { Organization } from '@auth/authorization-engine/services/adminService'
+import {
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
+  AdminStatusBadge,
+  AdminRowActionButton,
+} from '@auth/modules/authentication-core/components/shared/admin'
 
 export default function OrganizationListDashboard() {
   const { t } = useTranslation('common')
@@ -163,168 +167,76 @@ export default function OrganizationListDashboard() {
   }
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }} className='animate-scale-in'>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-          mb: 4,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar
-            sx={{
-              width: { xs: 56, md: 64 },
-              height: { xs: 56, md: 64 },
-              borderRadius: '20px',
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
-              color: 'primary.main',
-              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.12)}`,
-            }}
-          >
-            <BusinessIcon sx={{ fontSize: 28 }} />
-          </Avatar>
-          <Box>
-            <Typography
-              variant='h4'
-              sx={{
-                fontWeight: 900,
-                letterSpacing: '-0.027em',
-                fontSize: { xs: '1.5rem', md: '2.125rem' },
-                lineHeight: 1.1,
-                mb: 0.5,
-              }}
-            >
-              {t('auth.admin.orgListTitle')}
-            </Typography>
-            <Typography variant='body2' color='text.primary' sx={{ fontWeight: 600 }}>
-              {t('auth.admin.orgListSubtitle')}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Button
-          variant='contained'
-          startIcon={<AddIcon />}
-          onClick={() => setCreateOpen(true)}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      <Container maxWidth='xl' sx={{ py: 4 }}>
+        <Box
           sx={{
-            textTransform: 'none',
-            fontWeight: 700,
-            height: 44,
-            px: 3,
-            borderRadius: 2,
-            width: { xs: '100%', sm: 'auto' },
-            flexShrink: 0,
-            bgcolor: 'info.main',
-            color: 'info.contrastText',
-            boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.2)',
-            '&:hover': {
-              bgcolor: 'info.dark',
-            },
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 2.5,
+            mb: 4,
           }}
         >
-          {t('auth.admin.newOrg')}
-        </Button>
-      </Box>
-
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
-          gap: 3,
-          mb: 4,
-        }}
-      >
-        {[
-          {
-            label: t('auth.admin.activeTenants'),
-            value: '142', // Mock stat as in original
-            icon: <BusinessIcon />,
-            color: 'primary' as const,
-          },
-          {
-            label: t('auth.admin.totalUsers'),
-            value: '12.4k', // Mock stat as in original
-            icon: <GroupsIcon />,
-            color: 'info' as const,
-          },
-          {
-            label: t('auth.admin.systemHealth'),
-            value: '99.4%', // Mock stat as in original
-            icon: <SignalCellularAltIcon />,
-            color: 'success' as const,
-          },
-          {
-            label: t('auth.admin.pendingTrials'),
-            value: '8', // Mock stat as in original
-            icon: <LaunchIcon />,
-            color: 'warning' as const,
-          },
-        ].map((stat, idx) => (
-          <Card
-            key={idx}
-            sx={(theme: any) => ({
-              borderRadius: 4,
-              transition: 'transform 0.15s ease',
-              '&:hover': { transform: 'translateY(-2px)' },
-              ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-            })}
-          >
-            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2.5, p: 3 }}>
-              <Avatar
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+            <Box
+              sx={{
+                width: 64,
+                height: 64,
+                borderRadius: 'var(--sf-radius-lg, 24px)',
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: 'primary.main',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <BusinessIcon sx={{ fontSize: 32 }} />
+            </Box>
+            <Box>
+              <Typography
+                variant='h4'
                 sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '14px',
-                  bgcolor: alpha(theme.palette[stat.color].main, 0.1),
-                  color: `${stat.color}.main`,
-                  boxShadow: `0 6px 12px ${alpha(theme.palette[stat.color].main, 0.1)}`,
+                  fontWeight: 800,
+                  letterSpacing: '-0.02em',
+                  mb: 0.5,
                 }}
               >
-                {React.cloneElement(stat.icon, { fontSize: 'small' })}
-              </Avatar>
-              <Box>
-                <Typography
-                  variant='caption'
-                  sx={{
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.075em',
-                    display: 'block',
-                    mb: 0.25,
-                    fontSize: '0.65rem',
-                    color: (theme) =>
-                      theme.palette.mode === 'dark'
-                        ? 'rgba(255, 255, 255, 0.95)'
-                        : 'text.secondary',
-                  }}
-                >
-                  {stat.label}
-                </Typography>
-                <Typography
-                  variant='h5'
-                  sx={{
-                    fontWeight: 900,
-                    letterSpacing: '-0.02em',
-                    color: (theme) => (theme.palette.mode === 'dark' ? '#FFFFFF' : 'text.primary'),
-                  }}
-                >
-                  {stat.value}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
+                {t('auth.admin.orgListTitle')}
+              </Typography>
+              <Typography variant='body2' color='text.secondary'>
+                {t('auth.admin.orgListSubtitle')}
+              </Typography>
+            </Box>
+          </Box>
 
-      <Card
-        sx={(theme: any) => ({
-          borderRadius: 4,
-          overflow: 'hidden',
-          border: '1px solid ' + theme.palette.divider,
+          <Button
+            variant='contained'
+            startIcon={<AddIcon />}
+            onClick={() => setCreateOpen(true)}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 700,
+              minHeight: 48,
+              px: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              width: { xs: '100%', sm: 'auto' },
+              flexShrink: 0,
+              boxShadow: 'none',
+            }}
+          >
+            {t('auth.admin.newOrg')}
+          </Button>
+        </Box>
+
+      <AdminTableCard
+        sx={(theme) => ({
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
         })}
       >
@@ -341,13 +253,16 @@ export default function OrganizationListDashboard() {
           }}
         >
           <TextField
-            placeholder={t('auth.common.searchOrgs') || 'Search organizationsâ€¦'}
+            placeholder={t('auth.common.searchOrgs') || 'Search organizations…'}
             size='small'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             sx={{
               width: { xs: '100%', sm: 340 },
-              '& .MuiOutlinedInput-root': { borderRadius: 2 },
+              '& .MuiOutlinedInput-root': {
+                minHeight: 44,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+              },
             }}
             slotProps={{
               input: {
@@ -362,10 +277,12 @@ export default function OrganizationListDashboard() {
           <Button
             startIcon={<FilterListIcon />}
             sx={{
+              minHeight: 44,
+              px: 2.5,
               color: 'text.primary',
               textTransform: 'none',
               fontWeight: 700,
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) },
             }}
           >
@@ -378,12 +295,7 @@ export default function OrganizationListDashboard() {
         {/* Table */}
         <TableContainer sx={{ borderRadius: 0, boxShadow: 'none' }}>
           <Table sx={{ minWidth: 800 }}>
-            <TableHead
-              sx={{
-                bgcolor: (theme) => alpha(theme.palette.action.hover, 0.4),
-                borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-              }}
-            >
+            <AdminTableHead>
               <TableRow>
                 {[
                   t('auth.admin.colOrganization'),
@@ -393,34 +305,15 @@ export default function OrganizationListDashboard() {
                   t('auth.admin.colEnterprise'),
                   t('auth.admin.colHealth'),
                 ].map((col) => (
-                  <TableCell
-                    key={col}
-                    sx={{
-                      py: 2.5,
-                      fontWeight: 900,
-                      fontSize: '0.75rem',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em',
-                      color: 'text.primary',
-                    }}
-                  >
+                  <AdminTableHeadCell key={col} sx={{ py: 2.5 }}>
                     {col}
-                  </TableCell>
+                  </AdminTableHeadCell>
                 ))}
-                <TableCell
-                  align='right'
-                  sx={{
-                    fontWeight: 900,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    color: 'text.primary',
-                  }}
-                >
+                <AdminTableHeadCell align='right'>
                   {t('auth.admin.colActions')}
-                </TableCell>
+                </AdminTableHeadCell>
               </TableRow>
-            </TableHead>
+            </AdminTableHead>
 
             <TableBody>
               {isLoading ? (
@@ -441,30 +334,22 @@ export default function OrganizationListDashboard() {
                 </TableRow>
               ) : (
                 orgs.map((org: Organization) => (
-                  <TableRow
+                  <AdminTableRow
                     key={org.id}
-                    hover
-                    sx={{
-                      '&:last-child td, &:last-child th': { border: 0 },
-                      transition: 'background-color 0.2s ease',
-                      '&:hover': {
-                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.02),
-                      },
-                    }}
+                    clickable
+                    onClick={() =>
+                      navigate(Path.admin.organizationProfile.replace(':id', org.id.toString()))
+                    }
+                    aria-label={org.name}
                   >
-                    <TableCell
-                      onClick={() =>
-                        navigate(Path.admin.organizationProfile.replace(':id', org.id.toString()))
-                      }
-                      sx={{ cursor: 'pointer', py: 2 }}
-                    >
+                    <TableCell sx={{ py: 2 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Avatar
                           src={org.logo_url || undefined}
                           sx={{
                             width: 40,
                             height: 40,
-                            borderRadius: '12px',
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             bgcolor: alpha(theme.palette.primary.main, 0.1),
                             color: 'primary.main',
                             fontWeight: 800,
@@ -485,10 +370,7 @@ export default function OrganizationListDashboard() {
                             sx={{
                               display: 'block',
                               fontWeight: 700,
-                              color: (theme) =>
-                                theme.palette.mode === 'dark'
-                                  ? 'rgba(255, 255, 255, 0.9)'
-                                  : 'text.secondary',
+                              color: 'text.secondary',
                             }}
                           >
                             /{org.slug}
@@ -498,34 +380,13 @@ export default function OrganizationListDashboard() {
                     </TableCell>
 
                     <TableCell>
-                      <Chip
+                      <AdminStatusBadge
+                        tone={org.status === 'SUSPENDED' ? 'error' : 'success'}
                         label={
                           org.status === 'SUSPENDED'
                             ? t('auth.common.suspended')
                             : t('auth.common.active')
                         }
-                        size='small'
-                        sx={{
-                          fontWeight: 800,
-                          height: 22,
-                          fontSize: '0.625rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.03em',
-                          color: org.status === 'SUSPENDED' ? 'error.main' : 'success.main',
-                          borderColor: alpha(
-                            org.status === 'SUSPENDED'
-                              ? theme.palette.error.main
-                              : theme.palette.success.main,
-                            0.25,
-                          ),
-                          bgcolor: alpha(
-                            org.status === 'SUSPENDED'
-                              ? theme.palette.error.main
-                              : theme.palette.success.main,
-                            0.12,
-                          ),
-                          border: '1px solid',
-                        }}
                       />
                     </TableCell>
 
@@ -566,7 +427,7 @@ export default function OrganizationListDashboard() {
                             width: 40,
                             height: 4,
                             bgcolor: alpha(theme.palette.divider, 0.1),
-                            borderRadius: 2,
+                            borderRadius: 'var(--sf-radius-xs, 4px)',
                             overflow: 'hidden',
                           }}
                         >
@@ -588,15 +449,17 @@ export default function OrganizationListDashboard() {
                     </TableCell>
 
                     <TableCell align='right'>
-                      <IconButton
-                        size='small'
-                        onClick={(e) => handleMenuOpen(e, org as any)}
+                      <AdminRowActionButton
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleMenuOpen(e, org as any)
+                        }}
                         aria-label={`More options for ${org.name}`}
                       >
                         <MoreVertIcon fontSize='small' />
-                      </IconButton>
+                      </AdminRowActionButton>
                     </TableCell>
-                  </TableRow>
+                  </AdminTableRow>
                 ))
               )}
             </TableBody>
@@ -621,11 +484,14 @@ export default function OrganizationListDashboard() {
             size='small'
             color='primary'
             sx={{
-              '& .MuiPaginationItem-root': { fontWeight: 700, borderRadius: 1.5 },
+              '& .MuiPaginationItem-root': {
+                fontWeight: 700,
+                borderRadius: 'var(--sf-radius-xs, 4px)',
+              },
             }}
           />
         </Box>
-      </Card>
+      </AdminTableCard>
 
       <Menu
         anchorEl={anchorEl}
@@ -634,8 +500,15 @@ export default function OrganizationListDashboard() {
           handleMenuClose()
           setSelectedOrg(null)
         }}
-        PaperProps={{
-          sx: { borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', minWidth: 200, mt: 1 },
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              boxShadow: 'var(--sf-shadow-lg)',
+              minWidth: 200,
+              mt: 1,
+            },
+          },
         }}
       >
         <MenuItem
@@ -695,9 +568,17 @@ export default function OrganizationListDashboard() {
         onClose={() => setCreateOpen(false)}
         maxWidth='xs'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 4, p: 1, backgroundImage: 'none' } }}
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              p: 1,
+              backgroundImage: 'none',
+            },
+          },
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 900, fontSize: '1.375rem', letterSpacing: '-0.02em' }}>
+        <DialogTitle sx={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em' }}>
           {t('auth.admin.newOrg')}
         </DialogTitle>
         <DialogContent>
@@ -708,7 +589,12 @@ export default function OrganizationListDashboard() {
               size='small'
               value={newOrgData.name}
               onChange={(e) => setNewOrgData({ ...newOrgData, name: e.target.value })}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  minHeight: 44,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                },
+              }}
             />
             <TextField
               label={t('auth.admin.workspaceSlug')}
@@ -716,7 +602,12 @@ export default function OrganizationListDashboard() {
               size='small'
               value={newOrgData.slug}
               onChange={(e) => setNewOrgData({ ...newOrgData, slug: e.target.value })}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  minHeight: 44,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                },
+              }}
             />
             <TextField
               label={t('auth.admin.domainName')}
@@ -725,31 +616,40 @@ export default function OrganizationListDashboard() {
               value={newOrgData.domain}
               onChange={(e) => setNewOrgData({ ...newOrgData, domain: e.target.value })}
               placeholder='nexus-corp.com'
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  minHeight: 44,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                },
+              }}
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 1 }}>
+        <DialogActions sx={{ p: 2.5, gap: 1 }}>
           <Button
             onClick={() => setCreateOpen(false)}
-            sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'none' }}
+            sx={{
+              minHeight: 44,
+              px: 2.5,
+              fontWeight: 600,
+              color: 'text.secondary',
+              textTransform: 'none',
+              borderRadius: 'var(--sf-radius-md, 8px)',
+            }}
           >
             {t('auth.common.cancel')}
           </Button>
-          {/* â”€â”€ SYSTEM PATTERN: cta_button (info.main) â”€â”€ */}
           <Button
             onClick={handleCreateSubmit}
             variant='contained'
             disabled={createOrgMutation.isPending || !newOrgData.name || !newOrgData.slug}
             sx={{
-              fontWeight: 800,
+              minHeight: 44,
+              fontWeight: 700,
               textTransform: 'none',
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 3,
-              bgcolor: 'info.main',
-              color: 'info.contrastText',
-              boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.2)',
-              '&:hover': { bgcolor: 'info.dark' },
+              boxShadow: 'none',
             }}
           >
             {createOrgMutation.isPending ? t('auth.common.loading') : t('auth.admin.create')}
@@ -765,9 +665,17 @@ export default function OrganizationListDashboard() {
         }}
         maxWidth='xs'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 4, p: 1, backgroundImage: 'none' } }}
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              p: 1,
+              backgroundImage: 'none',
+            },
+          },
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 900, fontSize: '1.375rem', letterSpacing: '-0.02em' }}>
+        <DialogTitle sx={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em' }}>
           {selectedOrg?.status === 'SUSPENDED'
             ? t('auth.admin.activateTenant')
             : t('auth.admin.suspendTenant')}
@@ -787,10 +695,17 @@ export default function OrganizationListDashboard() {
             )}
           </Typography>
         </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 1 }}>
+        <DialogActions sx={{ p: 2.5, gap: 1 }}>
           <Button
             onClick={() => setSuspendDialogOpen(false)}
-            sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'none' }}
+            sx={{
+              minHeight: 44,
+              px: 2.5,
+              fontWeight: 600,
+              color: 'text.secondary',
+              textTransform: 'none',
+              borderRadius: 'var(--sf-radius-md, 8px)',
+            }}
           >
             {t('auth.common.cancel')}
           </Button>
@@ -800,9 +715,10 @@ export default function OrganizationListDashboard() {
             color={selectedOrg?.status === 'SUSPENDED' ? 'success' : 'error'}
             disabled={updateOrgMutation.isPending}
             sx={{
-              fontWeight: 800,
+              minHeight: 44,
+              fontWeight: 700,
               textTransform: 'none',
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 3,
             }}
           >
@@ -823,9 +739,17 @@ export default function OrganizationListDashboard() {
         }}
         maxWidth='xs'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 4, p: 1, backgroundImage: 'none' } }}
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              p: 1,
+              backgroundImage: 'none',
+            },
+          },
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 900, fontSize: '1.375rem', letterSpacing: '-0.02em' }}>
+        <DialogTitle sx={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em' }}>
           {t('auth.admin.deleteOrganization')}
         </DialogTitle>
         <DialogContent>
@@ -833,14 +757,27 @@ export default function OrganizationListDashboard() {
             {t('auth.admin.deleteConfirmPrefix')} <strong>{selectedOrg?.name}</strong>
             {t('auth.admin.deleteConfirmSuffix')}
           </Typography>
-          <Alert severity='warning' sx={{ mt: 2 }}>
+          <Alert
+            severity='warning'
+            sx={{
+              mt: 2,
+              borderRadius: 'var(--sf-radius-md, 12px)',
+            }}
+          >
             {t('auth.admin.deleteWarningMsg')}
           </Alert>
         </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 1 }}>
+        <DialogActions sx={{ p: 2.5, gap: 1 }}>
           <Button
             onClick={() => setDeleteDialogOpen(false)}
-            sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'none' }}
+            sx={{
+              minHeight: 44,
+              px: 2.5,
+              fontWeight: 600,
+              color: 'text.secondary',
+              textTransform: 'none',
+              borderRadius: 'var(--sf-radius-md, 8px)',
+            }}
           >
             {t('auth.common.cancel')}
           </Button>
@@ -850,17 +787,18 @@ export default function OrganizationListDashboard() {
             color='error'
             disabled={deleteOrgMutation.isPending}
             sx={{
-              fontWeight: 800,
+              minHeight: 44,
+              fontWeight: 700,
               textTransform: 'none',
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 3,
-              boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.error.main, 0.4)}`,
             }}
           >
             {deleteOrgMutation.isPending ? t('auth.common.loading') : t('auth.common.delete')}
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+      </Container>
+    </motion.div>
   )
 }

@@ -8,7 +8,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Chip,
   IconButton,
@@ -30,13 +29,10 @@ import {
   DialogContentText,
   DialogActions,
   CircularProgress,
-  Tooltip,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
-import FilterListIcon from '@mui/icons-material/FilterList'
 import AddIcon from '@mui/icons-material/Add'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
-import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SecurityIcon from '@mui/icons-material/Security'
 import GroupIcon from '@mui/icons-material/Group'
@@ -47,6 +43,14 @@ import { useNavigate } from 'react-router-dom'
 import { useDebounce } from 'use-debounce'
 import { toast } from 'react-toastify'
 import Path from '../../screens/path'
+import {
+  AdminDataState,
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
+  AdminRowActionButton,
+} from '../../../authentication-core/components/shared/admin'
 
 import {
   useRoles,
@@ -68,7 +72,12 @@ export default function RoleList() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
-  const { data: rolesResponse, isLoading } = useRoles({ page, limit, search: debouncedSearch })
+  const {
+    data: rolesResponse,
+    isLoading,
+    isError,
+    refetch,
+  } = useRoles({ page, limit, search: debouncedSearch })
   const { data: statsResponse } = useRoleStats()
   const deleteRole = useDeleteRole()
   const duplicateRole = useDuplicateRole()
@@ -130,7 +139,7 @@ export default function RoleList() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* â”€â”€ Page Header â€” mirrors OrganizationProfile top banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Page Header — mirrors OrganizationProfile top banner ─────────── */}
       <Box
         sx={{
           mb: 4,
@@ -146,7 +155,7 @@ export default function RoleList() {
             sx={{
               width: { xs: 56, md: 64 },
               height: { xs: 56, md: 64 },
-              borderRadius: '20px',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               bgcolor: alpha(theme.palette.primary.main, 0.1),
               color: 'primary.main',
               boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.12)}`,
@@ -158,7 +167,7 @@ export default function RoleList() {
             <Typography
               variant='h4'
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 letterSpacing: '-0.027em',
                 fontSize: { xs: '1.5rem', md: '2.125rem' },
                 lineHeight: 1.1,
@@ -175,21 +184,19 @@ export default function RoleList() {
 
         <Button
           variant='contained'
+          color='info'
           startIcon={<AddIcon />}
           onClick={() => navigate(Path.roleDetail.replace(':id', 'new'))}
           sx={{
-            bgcolor: 'info.main',
-            color: 'white',
             boxShadow: `0 4px 14px 0 ${alpha(theme.palette.info.main, 0.39)}`,
             '&:hover': {
-              bgcolor: 'info.dark',
               boxShadow: `0 6px 20px 0 ${alpha(theme.palette.info.main, 0.5)}`,
             },
             textTransform: 'none',
             fontWeight: 700,
-            height: 44,
+            minHeight: 44,
             px: 3,
-            borderRadius: 2,
+            borderRadius: 'var(--sf-radius-md, 8px)',
             width: { xs: '100%', sm: 'auto' },
             flexShrink: 0,
           }}
@@ -198,7 +205,7 @@ export default function RoleList() {
         </Button>
       </Box>
 
-      {/* â”€â”€ Stat Cards â€” same card anatomy as OrganizationProfile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Stat Cards — same card anatomy as OrganizationProfile ─────────── */}
       <Box
         sx={{
           display: 'grid',
@@ -216,13 +223,13 @@ export default function RoleList() {
           },
           {
             label: t('auth.admin.mappedPermissions'),
-            value: stats?.totalPermissions ?? 'â€¦',
+            value: stats?.totalPermissions ?? '…',
             icon: <ShieldIcon />,
             color: 'success' as const,
           },
           {
             label: t('auth.admin.activeMemberships'),
-            value: stats?.totalMemberships ?? 'â€¦',
+            value: stats?.totalMemberships ?? '…',
             icon: <GroupIcon />,
             color: 'info' as const,
           },
@@ -233,7 +240,7 @@ export default function RoleList() {
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
-              borderRadius: 4,
+              borderRadius: 'var(--sf-radius-lg, 16px)',
               transition: 'transform 0.15s ease',
               '&:hover': { transform: 'translateY(-2px)' },
             }}
@@ -243,7 +250,7 @@ export default function RoleList() {
                 sx={{
                   width: 48,
                   height: 48,
-                  borderRadius: '14px',
+                  borderRadius: 'var(--sf-radius-md, 12px)',
                   bgcolor: alpha(theme.palette[stat.color].main, 0.1),
                   color: `${stat.color}.main`,
                   boxShadow: `0 6px 12px ${alpha(theme.palette[stat.color].main, 0.1)}`,
@@ -266,7 +273,7 @@ export default function RoleList() {
                 >
                   {stat.label}
                 </Typography>
-                <Typography variant='h5' sx={{ fontWeight: 900, letterSpacing: '-0.02em' }}>
+                <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
                   {stat.value}
                 </Typography>
               </Box>
@@ -275,16 +282,8 @@ export default function RoleList() {
         ))}
       </Box>
 
-      {/* â”€â”€ Roles Table Card â€” unified Card following OrganizationProfile â”€â”€â”€ */}
-      <Card
-        sx={{
-          border: '1px solid',
-          borderColor: 'divider',
-          boxShadow: 'none',
-          borderRadius: 4,
-          overflow: 'hidden',
-        }}
-      >
+      {/* ── Roles Table Card — shared AdminTableCard (16px, hairline divider) ─ */}
+      <AdminTableCard>
         {/* Toolbar */}
         <Box
           sx={{
@@ -304,14 +303,17 @@ export default function RoleList() {
             onChange={(e) => setSearchTerm(e.target.value)}
             sx={{
               width: { xs: '100%', sm: 340 },
-              '& .MuiOutlinedInput-root': { borderRadius: 2 },
+              '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-md, 8px)' },
             }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <SearchIcon sx={{ fontSize: 20, color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
+            slotProps={{
+              htmlInput: { 'aria-label': t('auth.admin.searchRolesPlaceholder') },
+              input: {
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <SearchIcon sx={{ fontSize: 20, color: 'text.disabled' }} />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
           <Stack direction='row' spacing={2} alignItems='center' sx={{ flexShrink: 0 }}>
@@ -322,18 +324,6 @@ export default function RoleList() {
             >
               {totalItems} {t('auth.admin.results')}
             </Typography>
-            <Button
-              startIcon={<FilterListIcon />}
-              sx={{
-                color: 'text.primary',
-                textTransform: 'none',
-                fontWeight: 700,
-                borderRadius: 2,
-                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) },
-              }}
-            >
-              {t('auth.common.filters')}
-            </Button>
           </Stack>
         </Box>
 
@@ -342,7 +332,7 @@ export default function RoleList() {
         {/* Table */}
         <TableContainer>
           <Table sx={{ minWidth: 800 }}>
-            <TableHead sx={{ bgcolor: 'action.hover' }}>
+            <AdminTableHead>
               <TableRow>
                 {[
                   t('auth.admin.colRoleName'),
@@ -351,87 +341,46 @@ export default function RoleList() {
                   t('auth.admin.colMembers'),
                   t('auth.admin.colLastUpdated'),
                 ].map((col) => (
-                  <TableCell
-                    key={col}
-                    sx={{
-                      py: 2,
-                      fontWeight: 800,
-                      fontSize: '0.7rem',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.075em',
-                    }}
-                  >
+                  <AdminTableHeadCell key={col} sx={{ py: 2 }}>
                     {col}
-                  </TableCell>
+                  </AdminTableHeadCell>
                 ))}
-                <TableCell
-                  align='right'
-                  sx={{
-                    fontWeight: 800,
-                    fontSize: '0.7rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.075em',
-                  }}
-                >
+                <AdminTableHeadCell align='right'>
                   {t('auth.admin.colActions')}
-                </TableCell>
+                </AdminTableHeadCell>
               </TableRow>
-            </TableHead>
+            </AdminTableHead>
 
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} align='center' sx={{ py: 10 }}>
-                    <CircularProgress size={28} />
-                  </TableCell>
-                </TableRow>
-              ) : roles.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align='center' sx={{ py: 12 }}>
-                    <Stack spacing={2} alignItems='center'>
-                      <Avatar
-                        sx={{
-                          width: 64,
-                          height: 64,
-                          bgcolor: 'action.hover',
-                          color: 'text.disabled',
-                        }}
-                      >
-                        <ShieldIcon sx={{ fontSize: 32 }} />
-                      </Avatar>
-                      <Box>
-                        <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
-                          {t('auth.admin.noRolesFound')}
-                        </Typography>
-                        <Typography
-                          variant='body2'
-                          color='text.secondary'
-                          sx={{ maxWidth: 300, mx: 'auto' }}
-                        >
-                          {t('auth.admin.noRolesHint')}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                roles.map((role) => (
-                  <TableRow
+              <AdminDataState
+                asTableRow
+                skeletonColumns={6}
+                loading={isLoading}
+                error={isError || undefined}
+                onRetry={() => void refetch()}
+                empty={roles.length === 0}
+                emptyIcon={<ShieldIcon sx={{ fontSize: 32 }} />}
+                emptyTitle={t('auth.admin.noRolesFound')}
+                emptyDescription={t('auth.admin.noRolesHint')}
+              >
+                {roles.map((role) => (
+                  <AdminTableRow
                     key={role.id}
-                    hover
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    clickable
+                    onClick={() => navigate(Path.roleDetail.replace(':id', role.id.toString()))}
+                    aria-label={t('auth.admin.editRoleNamed', {
+                      name: role.name,
+                      defaultValue: 'Edit {{name}}',
+                    })}
                   >
                     {/* Role Name + Description */}
-                    <TableCell
-                      onClick={() => navigate(Path.roleDetail.replace(':id', role.id.toString()))}
-                      sx={{ cursor: 'pointer', py: 2 }}
-                    >
+                    <TableCell sx={{ py: 2 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Avatar
                           sx={{
                             width: 40,
                             height: 40,
-                            borderRadius: '12px',
+                            borderRadius: 'var(--sf-radius-md, 10px)',
                             bgcolor: alpha(theme.palette.primary.main, 0.1),
                             color: 'primary.main',
                             fontWeight: 800,
@@ -471,7 +420,7 @@ export default function RoleList() {
                         sx={{
                           fontWeight: 800,
                           height: 22,
-                          borderRadius: 1.5,
+                          borderRadius: 'var(--sf-radius-sm, 6px)',
                           fontSize: '0.65rem',
                           textTransform: 'uppercase',
                           borderColor: alpha(
@@ -527,29 +476,23 @@ export default function RoleList() {
                     {/* Actions */}
                     <TableCell align='right'>
                       <Stack direction='row' spacing={0.5} justifyContent='flex-end'>
-                        <Tooltip title={t('auth.admin.editRole')}>
-                          <IconButton
-                            size='small'
-                            onClick={() =>
-                              navigate(Path.roleDetail.replace(':id', role.id.toString()))
-                            }
-                            aria-label={`Edit ${role.name}`}
-                          >
-                            <EditIcon fontSize='small' />
-                          </IconButton>
-                        </Tooltip>
-                        <IconButton
-                          size='small'
-                          onClick={(e) => handleMenuOpen(e, role)}
-                          aria-label={`More options for ${role.name}`}
+                        <AdminRowActionButton
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleMenuOpen(e, role)
+                          }}
+                          aria-label={t('auth.admin.moreOptionsNamed', {
+                            name: role.name,
+                            defaultValue: 'More options for {{name}}',
+                          })}
                         >
                           <MoreVertIcon fontSize='small' />
-                        </IconButton>
+                        </AdminRowActionButton>
                       </Stack>
                     </TableCell>
-                  </TableRow>
-                ))
-              )}
+                  </AdminTableRow>
+                ))}
+              </AdminDataState>
             </TableBody>
           </Table>
         </TableContainer>
@@ -567,28 +510,37 @@ export default function RoleList() {
           }}
         >
           <Typography variant='caption' color='text.secondary' sx={{ fontWeight: 600 }}>
-            {t('auth.admin.page')} {page} {t('auth.admin.of')} {totalPages || 1}
+            {t('auth.admin.pageOf', { page, total: totalPages || 1 })}
           </Typography>
           <Pagination
             count={totalPages}
             page={page}
             onChange={(_, value) => setPage(value)}
-            size='small'
             color='primary'
             sx={{
-              '& .MuiPaginationItem-root': { fontWeight: 700, borderRadius: 1.5 },
+              '& .MuiPaginationItem-root': {
+                fontWeight: 700,
+                borderRadius: 'var(--sf-radius-sm, 6px)',
+                minWidth: 44,
+                height: 44,
+              },
             }}
           />
         </Box>
-      </Card>
+      </AdminTableCard>
 
-      {/* â”€â”€ Context Menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Context Menu ──────────────────────────────────────────────────── */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
         PaperProps={{
-          sx: { borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', minWidth: 180, mt: 1 },
+          sx: {
+            borderRadius: 'var(--sf-radius-lg, 12px)',
+            boxShadow: 'var(--sf-shadow-lg)',
+            minWidth: 180,
+            mt: 1,
+          },
         }}
       >
         <MenuItem
@@ -596,20 +548,25 @@ export default function RoleList() {
             handleMenuClose()
             navigate(Path.roleDetail.replace(':id', selectedRole?.id.toString() || ''))
           }}
+          sx={{ minHeight: 44 }}
         >
           <ListItemIcon>
             <SecurityIcon fontSize='small' />
           </ListItemIcon>
           {t('auth.admin.permissions')}
         </MenuItem>
-        <MenuItem onClick={handleDuplicateRole} disabled={duplicateRole.isPending}>
+        <MenuItem
+          onClick={handleDuplicateRole}
+          disabled={duplicateRole.isPending}
+          sx={{ minHeight: 44 }}
+        >
           <ListItemIcon>
             <ContentCopyIcon fontSize='small' />
           </ListItemIcon>
           {t('auth.common.duplicate')}
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleDeleteRole} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={handleDeleteRole} sx={{ color: 'error.main', minHeight: 44 }}>
           <ListItemIcon>
             <DeleteIcon fontSize='small' color='error' />
           </ListItemIcon>
@@ -617,15 +574,17 @@ export default function RoleList() {
         </MenuItem>
       </Menu>
 
-      {/* â”€â”€ Delete Confirmation Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Delete Confirmation Dialog ────────────────────────────────────── */}
       <Dialog
         open={deleteDialogOpen}
         onClose={handleCancelDelete}
         maxWidth='xs'
         fullWidth
-        PaperProps={{ sx: { borderRadius: 4, p: 1, backgroundImage: 'none' } }}
+        PaperProps={{
+          sx: { borderRadius: 'var(--sf-radius-lg, 16px)', p: 1, backgroundImage: 'none' },
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 900, fontSize: '1.375rem', letterSpacing: '-0.02em' }}>
+        <DialogTitle sx={{ fontWeight: 800, fontSize: '1.375rem', letterSpacing: '-0.02em' }}>
           {t('auth.admin.deleteRoleTitle')} &rdquo;{selectedRole?.name}&rdquo;?
         </DialogTitle>
         <DialogContent>
@@ -636,7 +595,13 @@ export default function RoleList() {
         <DialogActions sx={{ p: 3, pt: 1 }}>
           <Button
             onClick={handleCancelDelete}
-            sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'none' }}
+            sx={{
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              fontWeight: 700,
+              color: 'text.secondary',
+              textTransform: 'none',
+            }}
           >
             {t('auth.common.cancel')}
           </Button>
@@ -646,9 +611,10 @@ export default function RoleList() {
             variant='contained'
             disabled={deleteRole.isPending}
             sx={{
+              minHeight: 44,
               fontWeight: 800,
               textTransform: 'none',
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               px: 3,
               boxShadow: `0 4px 12px ${alpha(theme.palette.error.main, 0.4)}`,
             }}

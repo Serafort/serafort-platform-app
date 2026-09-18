@@ -10,10 +10,10 @@ import {
   Box,
 } from "@mui/material";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import type { ITableData } from "./types";
+import type { ITableProps } from "./types";
 import TableComponent from "./TableComponent";
 
-export default React.forwardRef<any, { loading: boolean; data: ITableData }>(
+export default React.forwardRef<TableComponent, ITableProps>(
   (
     {
       loading = false,

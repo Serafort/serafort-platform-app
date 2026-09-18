@@ -1,4 +1,7 @@
 import { useState, useMemo } from 'react'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import {
   Box,
   Typography,
@@ -6,11 +9,8 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
-  Paper,
   Chip,
-  IconButton,
   Button,
   TextField,
   InputAdornment,
@@ -29,7 +29,6 @@ import Search from '@mui/icons-material/Search'
 import Add from '@mui/icons-material/Add'
 import Delete from '@mui/icons-material/Delete'
 import Layers from '@mui/icons-material/Layers'
-import Edit from '@mui/icons-material/Edit'
 import VpnKey from '@mui/icons-material/VpnKey'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
@@ -40,9 +39,18 @@ import {
   useUpdateScope,
   useDeleteScope,
 } from '@idaas/authentication-core/hooks/useAdminQuery'
+import {
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
+  AdminRowActionButton,
+} from '@auth/modules/authentication-core/components/shared/admin'
 
 export default function ScopesRegistry() {
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const { t } = useTranslation('common')
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -142,8 +150,9 @@ export default function ScopesRegistry() {
   const isSaving = createScope.isPending || updateScope.isPending
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
-      {/* â”€â”€ Page Header â”€â”€ */}
+      {/* ── Page Header ── */}
       <Box
         sx={{
           display: 'flex',
@@ -159,7 +168,7 @@ export default function ScopesRegistry() {
           <Box>
             <Typography
               variant='h4'
-              sx={{ fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.15 }}
+              sx={{ fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.15 }}
             >
               {t('auth.developer.scopesRegistry', 'Scopes Registry')}
             </Typography>
@@ -177,13 +186,11 @@ export default function ScopesRegistry() {
           startIcon={<Add />}
           onClick={() => openForm()}
           sx={{
-            bgcolor: 'info.main',
+            bgcolor: 'primary.main',
             color: 'white',
-            boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)',
-            '&:hover': { bgcolor: 'info.dark' },
             textTransform: 'none',
             fontWeight: 700,
-            height: 44,
+            minHeight: 48,
             px: 3,
             flexShrink: 0,
           }}
@@ -192,16 +199,8 @@ export default function ScopesRegistry() {
         </Button>
       </Box>
 
-      {/* â”€â”€ Main Table Card â”€â”€ */}
-      <Paper
-        sx={{
-          borderRadius: 4,
-          border: '1px solid',
-          borderColor: 'divider',
-          boxShadow: 'none',
-          overflow: 'hidden',
-        }}
-      >
+      {/* ── Main Table Card ── */}
+      <AdminTableCard>
         {/* Toolbar */}
         <Box
           sx={{
@@ -214,7 +213,7 @@ export default function ScopesRegistry() {
           }}
         >
           <TextField
-            placeholder={t('auth.developer.searchScopes', 'Search scopesâ€¦')}
+            placeholder={t('auth.developer.searchScopes', 'Search scopes…')}
             size='small'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -237,23 +236,23 @@ export default function ScopesRegistry() {
         {/* Table */}
         <TableContainer>
           <Table>
-            <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.3) }}>
+            <AdminTableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>
+                <AdminTableHeadCell>
                   {t('auth.developer.scopeName', 'Scope Name')}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>{t('auth.developer.type', 'Type')}</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>
+                </AdminTableHeadCell>
+                <AdminTableHeadCell>{t('auth.developer.type', 'Type')}</AdminTableHeadCell>
+                <AdminTableHeadCell>
                   {t('auth.developer.mappedPermissions', 'Mapped Permissions')}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>
+                </AdminTableHeadCell>
+                <AdminTableHeadCell>
                   {t('auth.developer.description', 'Description')}
-                </TableCell>
-                <TableCell align='right' sx={{ fontWeight: 700 }}>
+                </AdminTableHeadCell>
+                <AdminTableHeadCell align='right'>
                   {t('auth.developer.actions', 'Actions')}
-                </TableCell>
+                </AdminTableHeadCell>
               </TableRow>
-            </TableHead>
+            </AdminTableHead>
 
             <TableBody>
               {isLoading ? (
@@ -278,7 +277,12 @@ export default function ScopesRegistry() {
                 ))
               ) : filtered.length > 0 ? (
                 filtered.map((scope: AuthScope) => (
-                  <TableRow key={scope.id} hover>
+                  <AdminTableRow
+                    key={scope.id}
+                    clickable
+                    onClick={() => openForm(scope)}
+                    aria-label={t('auth.developer.editScope', 'Edit Scope')}
+                  >
                     {/* Scope Name */}
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -286,7 +290,7 @@ export default function ScopesRegistry() {
                           sx={{
                             width: 32,
                             height: 32,
-                            borderRadius: '8px',
+                            borderRadius: 'var(--sf-radius-md, 8px)',
                             bgcolor: alpha(theme.palette.primary.main, 0.1),
                             color: 'primary.main',
                             display: 'flex',
@@ -318,7 +322,7 @@ export default function ScopesRegistry() {
                         }
                         size='small'
                         sx={{
-                          fontWeight: 900,
+                          fontWeight: 800,
                           height: 20,
                           fontSize: '0.65rem',
                           textTransform: 'uppercase',
@@ -363,28 +367,26 @@ export default function ScopesRegistry() {
                     {/* Actions */}
                     <TableCell align='right'>
                       <Stack direction='row' spacing={1} justifyContent='flex-end'>
-                        <Tooltip title={t('auth.developer.editScope', 'Edit Scope')}>
-                          <IconButton size='small' onClick={() => openForm(scope)}>
-                            <Edit fontSize='small' />
-                          </IconButton>
-                        </Tooltip>
                         {!scope.isSystem && (
                           <Tooltip title={t('auth.developer.deleteScope', 'Delete Scope')}>
-                            <IconButton
-                              size='small'
+                            <AdminRowActionButton
                               color='error'
-                              onClick={() => setDeleteConfirmationId(Number(scope.id))}
+                              aria-label={t('auth.developer.deleteScope', 'Delete Scope')}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setDeleteConfirmationId(Number(scope.id))
+                              }}
                             >
                               <Delete fontSize='small' />
-                            </IconButton>
+                            </AdminRowActionButton>
                           </Tooltip>
                         )}
                       </Stack>
                     </TableCell>
-                  </TableRow>
+                  </AdminTableRow>
                 ))
               ) : (
-                /* â”€â”€ Empty State â”€â”€ */
+                /* ── Empty State ── */
                 <TableRow>
                   <TableCell colSpan={5} sx={{ textAlign: 'center', py: 6 }}>
                     <Layers sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
@@ -397,14 +399,14 @@ export default function ScopesRegistry() {
             </TableBody>
           </Table>
         </TableContainer>
-      </Paper>
+      </AdminTableCard>
 
-      {/* â”€â”€ Info Tip â”€â”€ */}
+      {/* ── Info Tip ── */}
       <Box
         sx={{
           mt: 3,
           p: 2,
-          borderRadius: 2,
+          borderRadius: 'var(--sf-radius-md, 8px)',
           bgcolor: alpha(theme.palette.info.main, 0.05),
           border: '1px solid',
           borderColor: alpha(theme.palette.info.main, 0.1),
@@ -429,7 +431,7 @@ export default function ScopesRegistry() {
         </Typography>
       </Box>
 
-      {/* â”€â”€ Scope Create/Edit Dialog â”€â”€ */}
+      {/* ── Scope Create/Edit Dialog ── */}
       <Dialog open={isDialogOpen} onClose={closeForm} maxWidth='sm' fullWidth>
         <DialogTitle sx={{ fontWeight: 800 }}>
           {editingScope
@@ -465,14 +467,14 @@ export default function ScopesRegistry() {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={closeForm} color='inherit' sx={{ fontWeight: 700 }}>
+          <Button onClick={closeForm} color='inherit' sx={{ fontWeight: 700, minHeight: 44 }}>
             {t('auth.common.cancel', 'Cancel')}
           </Button>
           <Button
             onClick={handleFormSubmit}
             variant='contained'
             disabled={isSaving}
-            sx={{ fontWeight: 700, px: 3 }}
+            sx={{ fontWeight: 700, px: 3, minHeight: 48 }}
           >
             {isSaving ? (
               <CircularProgress size={24} color='inherit' />
@@ -483,7 +485,7 @@ export default function ScopesRegistry() {
         </DialogActions>
       </Dialog>
 
-      {/* â”€â”€ Delete Confirmation Dialog â”€â”€ */}
+      {/* ── Delete Confirmation Dialog ── */}
       <Dialog open={deleteConfirmationId !== null} onClose={() => setDeleteConfirmationId(null)}>
         <DialogTitle sx={{ fontWeight: 800, color: 'error.main' }}>
           {t('auth.developer.deleteScopeConfirmTitle', 'Delete Scope')}
@@ -500,7 +502,7 @@ export default function ScopesRegistry() {
           <Button
             onClick={() => setDeleteConfirmationId(null)}
             color='inherit'
-            sx={{ fontWeight: 700 }}
+            sx={{ fontWeight: 700, minHeight: 44 }}
           >
             {t('auth.common.cancel', 'Cancel')}
           </Button>
@@ -509,7 +511,7 @@ export default function ScopesRegistry() {
             color='error'
             variant='contained'
             disabled={deleteScope.isPending}
-            sx={{ fontWeight: 700 }}
+            sx={{ fontWeight: 700, minHeight: 48 }}
           >
             {deleteScope.isPending ? (
               <CircularProgress size={24} color='inherit' />
@@ -520,5 +522,6 @@ export default function ScopesRegistry() {
         </DialogActions>
       </Dialog>
     </Box>
+    </motion.div>
   )
 }

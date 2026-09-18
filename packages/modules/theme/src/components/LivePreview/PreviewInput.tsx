@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Box, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 
@@ -61,16 +62,32 @@ export const PreviewInput: React.FC<PreviewInputProps> = ({
   effectStyle = "standard",
   label,
 }) => {
+  const { t } = useTranslation();
   const InputComponent = effectStyle === "effect" ? EffectInput : StandardInput;
+  const variantLabel =
+    label ??
+    (effectStyle === "effect"
+      ? t("theme.preview.variant.effect", "Effect")
+      : t("theme.preview.variant.standard", "Standard"));
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Typography variant="caption" color="text.secondary">
-        {label ?? (effectStyle === "effect" ? "Effect" : "Standard")} Input
+        {t("theme.preview.caption.input", {
+          variant: variantLabel,
+          defaultValue: "{{variant}} Input",
+        })}
       </Typography>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-        <InputComponent placeholder="Default input placeholder" />
-        <InputComponent defaultValue="Filled input" />
+        <InputComponent
+          placeholder={t(
+            "theme.preview.input.placeholder",
+            "Default input placeholder",
+          )}
+        />
+        <InputComponent
+          defaultValue={t("theme.preview.input.filled", "Filled input")}
+        />
       </Box>
     </Box>
   );
