@@ -17,3 +17,7 @@
 ## 2024-09-17 - Avoid Math.random() in React keys
 **Learning:** Using `Math.random()` in React component `key` props forces React to see the elements as entirely new instances on every single render. This anti-pattern completely disables React's diffing algorithm and causes the entire component sub-tree to unmount and remount repeatedly, leading to disastrous performance issues (especially in complex data grids like tables).
 **Action:** Always use stable identifiers for React keys (e.g. `item.id`, `column.key`, or index as a last resort). Never use random functions or Date.now() for list items or elements unless you explicitly want to force a full re-initialization (and even then, handle carefully).
+
+## 2024-11-20 - Replace nested O(n^2) deduplication array methods with O(n) Map traversals
+**Learning:** In `SAMLMetadataBrowser.tsx`, array deduplication was performed by combining a `.reduce()` loop with an inner `.find()` lookup, resulting in O(N^2) time complexity. For large lists, such as a large number of SAML entities, this creates significant unnecessary computational overhead on the main thread.
+**Action:** When deduplicating merged lists based on a unique identifier (like `entityId`), always use a `Map` structure to index items linearly in O(N) time instead of using nested array methods.
