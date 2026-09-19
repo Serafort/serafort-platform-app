@@ -46,7 +46,7 @@ export class WidgetEventBus {
 
   publish<T = any>(eventType: WidgetEventType, payload?: T): void {
     const logEntry: WidgetEventLogEntry = {
-      id: Math.random().toString(36).substring(2, 9),
+      id: crypto.randomUUID(),
       eventType,
       payload,
       timestamp: Date.now(),
