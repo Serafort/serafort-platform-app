@@ -247,10 +247,10 @@ const ContactUs: React.FC = () => {
                       Follow our engineering updates.
                     </Typography>
                     <Box sx={{ mt: 0.5 }}>
-                      <IconButton color='primary' size='small'>
+                      <IconButton color='primary' size='small' aria-label="LinkedIn">
                         <LinkedIn />
                       </IconButton>
-                      <IconButton color='primary' size='small'>
+                      <IconButton color='primary' size='small' aria-label="Twitter">
                         <Twitter />
                       </IconButton>
                     </Box>

@@ -111,6 +111,7 @@ const Testimonials: React.FC = () => {
           >
             <IconButton
               onClick={handlePrev}
+              aria-label="Previous testimonial"
               sx={{
                 width: 48,
                 height: 48,
@@ -131,6 +132,7 @@ const Testimonials: React.FC = () => {
             </IconButton>
             <IconButton
               onClick={handleNext}
+              aria-label="Next testimonial"
               sx={{
                 width: 48,
                 height: 48,
