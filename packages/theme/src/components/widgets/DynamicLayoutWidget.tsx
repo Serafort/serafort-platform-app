@@ -31,6 +31,19 @@ const DynamicLayoutWidget: React.FC<DynamicLayoutWidgetProps> = ({ nodes }) => {
   }
 
   const isSafeUrl = (url: string) => {
+    // Strip all whitespace and control characters that browsers might ignore
+    // when parsing the protocol part of a URL (e.g. tabs in 'jav\tascript:').
+    const sanitized = url.replace(/[\x00-\x20\x7F]/g, "").toLowerCase();
+
+    // Explicit check against dangerous protocols at the start, ignoring case
+    if (
+      sanitized.startsWith("javascript:") ||
+      sanitized.startsWith("vbscript:") ||
+      sanitized.startsWith("data:")
+    ) {
+      return false;
+    }
+
     try {
       const parsed = new URL(
         url,
@@ -40,18 +53,7 @@ const DynamicLayoutWidget: React.FC<DynamicLayoutWidgetProps> = ({ nodes }) => {
       );
       return ["http:", "https:", "mailto:", "tel:"].includes(parsed.protocol);
     } catch {
-      // If URL parsing fails, it's likely a relative URL which is safe in this
-      // context, but to be absolutely safe against javascript: we still do a
-      // basic prefix check.
-      const trimmed = url.trim().toLowerCase();
-      if (
-        trimmed.startsWith("javascript:") ||
-        trimmed.startsWith("data:") ||
-        trimmed.startsWith("vbscript:")
-      ) {
-        return false;
-      }
-      return true;
+      return false;
     }
   };
 

@@ -73,3 +73,8 @@
 **Vulnerability:** External links opened via `window.open` with `target="_blank"` missing the `'noopener,noreferrer'` features argument.
 **Learning:** Just like `rel="noopener noreferrer"` on `<a>` tags, `window.open` requires `'noopener,noreferrer'` in its window features string (the third argument) to prevent reverse tabnabbing and mask the referer URL, ensuring defense in depth. Found in multiple places including CheckEmailConfirmation, EmailChangeVerificationPending, DataExport, SAMLConfigDashboard, and NavSearch.
 **Prevention:** Always add `'noopener,noreferrer'` as the third argument when using `window.open` with `'_blank'`.
+
+## 2026-09-20 - [XSS Bypass in isSafeUrl via Control Characters]
+**Vulnerability:** The `isSafeUrl` function in `DynamicLayoutWidget.tsx` could be bypassed using control characters (like tabs) inside dangerous protocols (e.g., `jav\tascript:alert(1)`).
+**Learning:** Browsers silently strip control characters and whitespace when parsing URLs, so `jav\tascript:` executes as JavaScript. However, WHATWG URL parsing might treat these as relative paths depending on the base URL, bypassing prefix checks.
+**Prevention:** Always strip whitespace and control characters (`.replace(/[\x00-\x20\x7F]/g, '')`) before performing explicit prefix checks against dangerous protocols.
