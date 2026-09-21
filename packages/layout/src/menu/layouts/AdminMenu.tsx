@@ -40,6 +40,7 @@ const AdminMenu = ({ dictionary, scrollMenu }: Props) => {
   const { settings } = useSettings()
   const { isBreakpointReached } = useVerticalNav()
   const { transitionDuration } = verticalNavOptions
+  const isRail = verticalNavOptions.isCollapsed && !verticalNavOptions.isHovered
 
   const ScrollWrapper = isBreakpointReached ? 'div' : PerfectScrollbar
 
@@ -73,11 +74,22 @@ const AdminMenu = ({ dictionary, scrollMenu }: Props) => {
                 background: getAdminMenuButtonActiveBg(theme),
                 boxShadow: getAdminMenuButtonActiveShadow(theme),
               }),
+            // The token margin/padding above are !important and sized for the
+            // expanded drawer; in the icon-only rail they push each icon off
+            // the logo's axis, so the rail overrides them and centres the icon.
+            ...(isRail &&
+              level === 0 && {
+                marginInline: '0 !important',
+                paddingInline: '0 !important',
+                inlineSize: '100%',
+                justifyContent: 'center',
+              }),
           }),
-          label: {
+          label: ({ level }: { level?: number }) => ({
             fontWeight: adminMenuTokens.label.fontWeight,
             letterSpacing: adminMenuTokens.label.letterSpacing,
-          },
+            ...(isRail && level === 0 && { display: 'none' }),
+          }),
         }}
         renderExpandIcon={({ open }: { open?: boolean }) => (
           <RenderExpandIcon open={open} transitionDuration={transitionDuration} />

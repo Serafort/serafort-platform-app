@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { menuTokens, getNavHeaderCollapsedPaddingInline } from '@cap/theme'
+import { menuTokens } from '@cap/theme'
 import type { ChildrenType } from '../../types'
 import type { VerticalNavContextProps } from '../../contexts/verticalNavContext'
 import { useVerticalNav } from '../../contexts/verticalNavContext'
@@ -24,7 +24,7 @@ const StyledNavHeader = styled.div<StyledNavHeaderProps>`
   ${({ isHovered, isCollapsed, collapsedWidth }) =>
     isCollapsed &&
     !isHovered &&
-    `padding-inline: ${getNavHeaderCollapsedPaddingInline(collapsedWidth)};`}
+    `padding-inline: 0; justify-content: center;`}
 `
 
 const NavHeader = ({ children }: ChildrenType) => {

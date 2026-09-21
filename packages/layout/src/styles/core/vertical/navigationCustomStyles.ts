@@ -23,9 +23,13 @@ const navigationCustomStyles = (verticalNavOptions: VerticalNavState, theme: The
       ),
 
       ...(collapsedNotHovered && {
-        paddingInline: theme.spacing(((collapsedWidth as number) - 35) / 8),
+        // Only the brand mark is shown, so centre it in the rail: the menu
+        // buttons below are centred in the same width, which puts every icon
+        // on the logo's vertical axis.
+        paddingInline: 0,
+        justifyContent: 'center',
         '& a': {
-          transform: `translateX(-${22 - ((collapsedWidth as number) - 29) / 2}px)`,
+          transform: 'none',
         },
       }),
       '& a': {
