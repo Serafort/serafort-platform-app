@@ -692,6 +692,9 @@ importers:
 
   packages/modules/dashboard:
     dependencies:
+      '@cap/api-contracts':
+        specifier: workspace:*
+        version: link:../../api-contracts
       '@cap/auth-contracts':
         specifier: workspace:*
         version: link:../../auth-contracts

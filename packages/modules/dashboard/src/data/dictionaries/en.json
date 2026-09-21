@@ -35,6 +35,149 @@
     "weather": {
       "title": "Weather",
       "subtitle": "Current conditions"
+    },
+    "welcome": {
+      "title": "Welcome back",
+      "greeting": "Hello, {{name}}",
+      "context": "{{role}} · {{organization}}",
+      "adminHint": "Here is how {{organization}} is doing today.",
+      "memberHint": "Here is your account security and recent sign-ins.",
+      "platformHint": "Here is how your platform and your customers are doing.",
+      "platformOwner": "Platform owner",
+      "error": "Could not load your dashboard summary.",
+      "greetingNoName": "Hello"
+    },
+    "mySecurity": {
+      "title": "My security",
+      "subtitle": "Your account protection",
+      "mfa": "Two-step verification",
+      "mfaOn": "Enabled",
+      "mfaOff": "Not set up",
+      "sessions": "Active sessions",
+      "passkeys": "Passkeys",
+      "lastLogin": "Last sign-in",
+      "never": "Never",
+      "enable": "Set up two-step verification",
+      "error": "Could not load your security status."
+    },
+    "myActivity": {
+      "title": "My recent sign-ins",
+      "subtitle": "Latest sign-in attempts on your account",
+      "empty": "No sign-in activity yet.",
+      "LOGIN_SUCCESS": "Signed in",
+      "FAILED_LOGIN": "Failed sign-in",
+      "error": "Could not load your activity."
+    },
+    "tenantOverview": {
+      "title": "{{organization}} overview",
+      "subtitle": "Your organization at a glance",
+      "members": "Members",
+      "sessions": "Active sessions",
+      "failed": "Failed sign-ins today",
+      "byRole": "Members by role",
+      "recent": "Latest organization events",
+      "empty": "No events yet.",
+      "error": "Could not load the organization overview.",
+      "roleCount": "{{role}}: {{count}}",
+      "noRoles": "No members yet."
+    },
+    "platformKpis": {
+      "title": "Platform at a glance",
+      "subtitle": "Your customers and the people they serve",
+      "tenants": "Tenants",
+      "newTenants": "New tenants (30 days)",
+      "members": "Members across tenants",
+      "users": "User accounts",
+      "mfa": "Two-step verification adoption",
+      "failed": "Failed sign-ins (7 days)",
+      "sessions": "Live sessions",
+      "error": "Could not load the platform overview.",
+      "tenantsActive_one": "{{count}} active",
+      "tenantsActive_other": "{{count}} active",
+      "vsPrevious_one": "{{count}} in the previous 30 days",
+      "vsPrevious_other": "{{count}} in the previous 30 days",
+      "distinctMembers_one": "{{count}} distinct person",
+      "distinctMembers_other": "{{count}} distinct people",
+      "usersActive_one": "{{count}} active",
+      "usersActive_other": "{{count}} active",
+      "noMfa_one": "{{count}} account without it",
+      "noMfa_other": "{{count}} accounts without it",
+      "sessionsLine": "Live sessions: {{count}}"
+    },
+    "tenantGrowth": {
+      "title": "Customer growth",
+      "subtitle": "New tenants and new user accounts per month",
+      "newTenants": "New tenants",
+      "newUsers": "New users",
+      "empty": "No growth data yet.",
+      "error": "Could not load growth data.",
+      "month": "Month"
+    },
+    "tenantGeography": {
+      "title": "Where your tenants are",
+      "subtitle": "Legal home of each tenant and the privacy regime that applies",
+      "regionUS": "United States",
+      "regionEU": "European Union / EEA",
+      "regionOTHER": "Other countries",
+      "regionUNKNOWN": "Location not set",
+      "usStates": "US states",
+      "state": "State",
+      "regulation": "Privacy law",
+      "tenants": "Tenants",
+      "members": "Members",
+      "noComprehensiveLaw": "No comprehensive state privacy law on file",
+      "disclaimer": "Reference only, not legal advice. Confirm with counsel; sector rules (e.g. HIPAA) apply on top.",
+      "noUsTenants": "No US tenants yet.",
+      "error": "Could not load tenant locations.",
+      "tenantsCount_one": "{{count}} tenant",
+      "tenantsCount_other": "{{count}} tenants",
+      "membersCount_one": "{{count}} member",
+      "membersCount_other": "{{count}} members",
+      "regionDetail": "{{tenants}} · {{members}}",
+      "coverageWith_one": "{{count}} tenant under a comprehensive privacy law",
+      "coverageWith_other": "{{count}} tenants under a comprehensive privacy law",
+      "coverageWithout_one": "{{count}} tenant with no comprehensive law on file",
+      "coverageWithout_other": "{{count}} tenants with no comprehensive law on file",
+      "coverageUnknown_one": "{{count}} tenant with an unknown location",
+      "coverageUnknown_other": "{{count}} tenants with an unknown location",
+      "noTenants": "No tenants yet."
+    },
+    "topTenants": {
+      "title": "Largest tenants",
+      "subtitle": "Ranked by members",
+      "name": "Tenant",
+      "plan": "Plan",
+      "location": "Location",
+      "regulation": "Privacy law",
+      "members": "Members",
+      "status": "Status",
+      "unknownLocation": "Not set",
+      "none": "None on file",
+      "empty": "No tenants yet.",
+      "error": "Could not load tenants.",
+      "locationWithState": "{{country}} · {{state}}",
+      "caption": "Largest tenants by members"
+    },
+    "common": {
+      "retry": "Retry",
+      "status": {
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended",
+        "INACTIVE": "Inactive",
+        "PENDING": "Pending"
+      },
+      "plan": {
+        "starter": "Starter",
+        "business": "Business",
+        "enterprise": "Enterprise"
+      }
+    },
+    "auditActions": {
+      "PASSKEY_REGISTERED": "Passkey registered",
+      "LOGIN_SUCCESS": "Signed in",
+      "FAILED_LOGIN": "Failed sign-in",
+      "USER_SUSPENDED": "User suspended",
+      "MFA_ENABLED": "Two-step verification enabled"
     }
   }
 }
