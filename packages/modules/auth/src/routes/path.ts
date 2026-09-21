@@ -16,6 +16,7 @@ import { AppPaths } from '@cap/shared-types'
 import authCorePath from '../modules/authentication-core/screens/path'
 import authorizationPath from '../modules/authorization-engine/screens/path'
 import accessControlPath from '../modules/access-control/screens/path'
+import billingPath from '../modules/billing/screens/path'
 import developerConsolePath from '../modules/developer-console/screens/path'
 import identityBrokerPath from '../modules/identity-broker/screens/path'
 import mfaOrchestratorPath from '../modules/mfa-orchestrator/screens/path'
@@ -29,6 +30,7 @@ export const Path = {
   auth: authCorePath,
   authorization: authorizationPath,
   accessControl: accessControlPath,
+  billing: billingPath,
   developerConsole: developerConsolePath,
   identity: identityBrokerPath,
   mfa: mfaOrchestratorPath,
@@ -84,6 +86,7 @@ export {
   authCorePath as AuthCorePath,
   authorizationPath as AuthorizationEnginePath,
   accessControlPath as AccessControlPath,
+  billingPath as BillingPath,
   developerConsolePath as DeveloperConsolePath,
   identityBrokerPath as IdentityBrokerPath,
   mfaOrchestratorPath as MfaOrchestratorPath,

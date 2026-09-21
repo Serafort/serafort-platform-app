@@ -13,6 +13,7 @@ import AuthLoadingScreen from '../modules/authentication-core/components/shared/
 import { authCoreRouteConfig } from '../modules/authentication-core/routes/routes'
 import { authorizationEngineRouteConfig } from '../modules/authorization-engine/routes/routes'
 import { accessControlRouteConfig } from '../modules/access-control/routes/routes'
+import { billingRouteConfig } from '../modules/billing/routes/routes'
 
 import { developerConsoleRouteConfig } from '../modules/developer-console/routes/routes'
 import { identityBrokerRouteConfig } from '../modules/identity-broker/routes/routes'
@@ -29,6 +30,7 @@ export const authRouteConfig: Array<ModuleRouteConfig> = [
   ...authCoreRouteConfig,
   ...authorizationEngineRouteConfig,
   ...accessControlRouteConfig,
+  ...billingRouteConfig,
   ...developerConsoleRouteConfig,
   ...identityBrokerRouteConfig,
   ...mfaOrchestratorRouteConfig,

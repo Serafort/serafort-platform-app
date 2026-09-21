@@ -1,0 +1,75 @@
+{
+  "billing": {
+    "actions": {
+      "manage": "Gérer la facturation",
+      "manage_admin_only": "Seuls les administrateurs de l'organisation peuvent gérer la facturation.",
+      "upgrade": "Passer à un forfait supérieur",
+      "view_plans": "Voir les forfaits"
+    },
+    "errors": {
+      "already_subscribed": "Cette organisation a déjà un abonnement. Utilisez Gérer la facturation pour le modifier ou l'annuler.",
+      "billing_not_configured": "La facturation n'est pas encore configurée pour cet environnement. Contactez l'administrateur de la plateforme.",
+      "forbidden": "Seuls les administrateurs de l'organisation peuvent lancer un achat ou ouvrir la facturation.",
+      "no_stripe_customer": "Aucun compte de facturation n'existe encore. Passez à un forfait payant pour en créer un.",
+      "plan_not_purchasable": "Ce forfait ne peut pas être acheté en ligne. Choisissez un autre forfait ou contactez le service commercial.",
+      "unsafe_redirect": "La page de facturation a renvoyé une adresse inattendue, nous ne l'avons donc pas ouverte. Veuillez réessayer.",
+      "unknown": "Une erreur s'est produite lors de la connexion à la facturation. Veuillez réessayer."
+    },
+    "features": {
+      "allow_audit_anchoring": "Ancrage de la chaîne d'audit",
+      "allow_jit": "Provisionnement à la volée",
+      "allow_saml_sso": "Authentification unique SAML",
+      "allow_scim": "Provisionnement SCIM"
+    },
+    "limits": {
+      "max_m2m_tokens": "Jetons machine à machine par mois",
+      "max_mau": "Utilisateurs actifs mensuels",
+      "max_sms": "SMS par mois"
+    },
+    "not_included": "Non inclus",
+    "notice": {
+      "cancels": "Votre forfait prend fin le {{date}}.",
+      "downgraded": "Votre forfait payant n'est plus actif, les fonctionnalités payantes sont donc désactivées. Passez à un forfait supérieur pour les rétablir.",
+      "past_due": "Votre dernier paiement a échoué. Les fonctionnalités payantes restent actives jusqu'au {{date}}. Mettez à jour votre moyen de paiement dans Gérer la facturation pour ne pas les perdre.",
+      "past_due_no_date": "Votre dernier paiement a échoué. Mettez à jour votre moyen de paiement dans Gérer la facturation pour conserver vos fonctionnalités payantes.",
+      "renews": "Renouvellement le {{date}}."
+    },
+    "overview": {
+      "current_plan": "Forfait actuel",
+      "subtitle": "Votre forfait, son statut et la part de chaque limite utilisée sur la période.",
+      "title": "Facturation et forfait"
+    },
+    "prompt": {
+      "action": "Voir les forfaits",
+      "message": "{{feature}} n'est pas inclus dans votre forfait actuel."
+    },
+    "status": {
+      "active": "Actif",
+      "canceled": "Annulé",
+      "none": "Gratuit",
+      "past_due": "Paiement en retard",
+      "trialing": "Essai"
+    },
+    "unlimited": "Illimité",
+    "upgrade": {
+      "current": "Forfait actuel",
+      "feature_required": "{{feature}} ne fait pas partie de votre forfait. Il est disponible avec le forfait {{plan}}.",
+      "feature_required_generic": "Cette fonctionnalité ne fait pas partie de votre forfait.",
+      "recommended": "Débloque cette fonctionnalité",
+      "select": "Passer à {{plan}}",
+      "subtitle": "Comparez les forfaits et passez au supérieur quand vous en avez besoin.",
+      "title": "Choisir un forfait"
+    },
+    "usage": {
+      "exhausted": "Limite atteinte. Passez à un forfait supérieur pour continuer.",
+      "m2m": "Jetons machine à machine",
+      "mau": "Utilisateurs actifs mensuels",
+      "of": "{{used}} sur {{limit}}",
+      "period": "Utilisation du {{start}} au {{end}}",
+      "sms": "SMS",
+      "title": "Utilisation sur la période",
+      "used_only": "{{used}} utilisés",
+      "warning": "Vous approchez de votre limite."
+    }
+  }
+}
