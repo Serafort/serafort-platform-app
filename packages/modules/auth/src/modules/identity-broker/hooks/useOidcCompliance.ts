@@ -304,7 +304,7 @@ export function useAbortOidcInteraction(
 
 export function useOidcUserInfo(
   options?: Omit<
-    UseQueryOptions<FetchResponse<Record<string, any>>, HttpError>,
+    UseQueryOptions<FetchResponse<Record<string, unknown>>, HttpError>,
     'queryKey' | 'queryFn'
   >,
 ) {
@@ -317,7 +317,7 @@ export function useOidcUserInfo(
 }
 
 export function useOidcInfoIntrospect(
-  options?: UseMutationOptions<FetchResponse<Record<string, any>>, HttpError, string, unknown>,
+  options?: UseMutationOptions<FetchResponse<Record<string, unknown>>, HttpError, string, unknown>,
 ) {
   return useMutation({
     mutationFn: (token: string) => oidcService.introspectToken(token),
@@ -347,26 +347,26 @@ export function useOidcPar(
   options?: UseMutationOptions<
     FetchResponse<{ request_uri: string; expires_in: number }>,
     HttpError,
-    Record<string, any>,
+    Record<string, unknown>,
     unknown
   >,
 ) {
   return useMutation({
-    mutationFn: (data: Record<string, any>) => oidcService.pushedAuthorizationRequest(data),
+    mutationFn: (data: Record<string, unknown>) => oidcService.pushedAuthorizationRequest(data),
     ...options,
   })
 }
 
 export function useOidcRegisterClient(
   options?: UseMutationOptions<
-    FetchResponse<Record<string, any>>,
+    FetchResponse<Record<string, unknown>>,
     HttpError,
-    Record<string, any>,
+    Record<string, unknown>,
     unknown
   >,
 ) {
   return useMutation({
-    mutationFn: (data: Record<string, any>) => oidcService.registerClientDynamic(data),
+    mutationFn: (data: Record<string, unknown>) => oidcService.registerClientDynamic(data),
     ...options,
   })
 }
@@ -386,10 +386,10 @@ export function useOidcBackchannelLogout(
 }
 
 export function useSamlSso(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, Record<string, any>, unknown>,
+  options?: UseMutationOptions<FetchResponse<Record<string, unknown>>, HttpError, Record<string, unknown>, unknown>,
 ) {
   return useMutation({
-    mutationFn: (data: Record<string, any>) => oidcService.samlSso(data),
+    mutationFn: (data: Record<string, unknown>) => oidcService.samlSso(data),
     ...options,
   })
 }

@@ -33,7 +33,6 @@ const AuthQrPanel: React.FC<AuthQrPanelProps> = ({ src, alt, size = 200, loading
       bgcolor: 'common.white',
       border: '1px solid',
       borderColor: 'divider',
-      boxShadow: (theme) => theme.shadows[2],
     }}
   >
     {loading ? (

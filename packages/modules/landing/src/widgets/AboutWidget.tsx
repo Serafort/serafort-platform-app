@@ -2,6 +2,8 @@ import React from 'react'
 import { Box, Paper, Typography, Button, Chip, alpha, useTheme } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { AppPaths } from '@cap/shared-types'
 import SearchIcon from '@mui/icons-material/Search'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
@@ -37,6 +39,7 @@ export const benefitsList = [
 export const AboutWidget: React.FC = () => {
   const navigate = useNavigate()
   const theme = useTheme()
+  const { t } = useTranslation()
 
   return (
     <Paper
@@ -107,15 +110,15 @@ export const AboutWidget: React.FC = () => {
           variant='contained'
           size='large'
           startIcon={<SearchIcon />}
-          onClick={() => navigate('/jobs')}
+          onClick={() => navigate(AppPaths.auth.signup)}
         >
-          Start Searching Jobs
+          {t('landing.aboutWidget.primary_cta', 'Get started')}
         </Button>
         <Button
           variant='outlined'
           size='large'
           startIcon={<BarChartIcon />}
-          onClick={() => navigate('/statistics')}
+          onClick={() => navigate(AppPaths.landing.features)}
           sx={{
             borderColor: alpha(theme.palette.primary.main, 0.5),
             color: 'primary.main',
@@ -125,7 +128,7 @@ export const AboutWidget: React.FC = () => {
             },
           }}
         >
-          View Analytics
+          {t('landing.aboutWidget.secondary_cta', 'Explore features')}
         </Button>
       </Box>
     </Paper>

@@ -1,7 +1,2 @@
 export * from './AuthButtons'
-export * from './AuthHeader'
-export * from './Captcha'
-export * from './DirectionalIcon'
-export * from './IllustrationWrapper'
-export * from './SignOutButton'
 export * from './shared/auth'

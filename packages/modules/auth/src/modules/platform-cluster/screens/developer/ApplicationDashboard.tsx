@@ -30,6 +30,7 @@ import {
   SelectChangeEvent,
   CircularProgress,
 } from '@mui/material'
+import { AdminPageHeader } from '@auth/modules/authentication-core/components/shared/admin'
 import Search from '@mui/icons-material/Search'
 import Add from '@mui/icons-material/Add'
 import MoreVert from '@mui/icons-material/MoreVert'
@@ -59,9 +60,12 @@ import {
   useUpdateOIDCClient,
   useDeleteOIDCClient,
   useRotateClientSecret,
-} from '@idaas/authentication-core/hooks/useAdminQuery'
+} from '@auth/authorization-engine/hooks/useAdminQuery'
 import { Path } from '@auth/routes/path'
-import { CreateOIDCClientRequest } from '@auth/modules/authentication-core/types/api.types'
+import type {
+  OIDCClient,
+  CreateOIDCClientRequest,
+} from '@auth/modules/authorization-engine/services/adminService'
 import logger from '@idaas/authentication-core/utils/logger'
 
 // Seed new OAuth clients with a redirect URI on the current origin rather than a
@@ -70,6 +74,21 @@ const DEFAULT_REDIRECT_URI =
   typeof window !== 'undefined' && window.location?.origin
     ? `${window.location.origin}/callback`
     : 'http://localhost:5173/callback'
+
+/**
+ * An OIDC client as the list endpoint returns it. The backend has served both
+ * snake_case and camelCase field names over time, so the edit form reads either.
+ */
+interface ClientSecretPayload {
+  clientSecret?: string
+  client_secret?: string
+}
+
+type ClientRecord = OIDCClient & {
+  redirectUris?: string[]
+  grantTypes?: string[]
+  responseTypes?: string[]
+}
 
 export default function ApplicationDashboard() {
   const navigate = useNavigate()
@@ -85,7 +104,7 @@ export default function ApplicationDashboard() {
 
   const [searchTerm, setSearchTerm] = useState('')
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [selectedAppId, setSelectedAppId] = useState<number | null>(null)
+  const [selectedAppId, setSelectedAppId] = useState<string | number | null>(null)
 
   // Dialog States
   const [appDialogOpen, setAppDialogOpen] = useState(false)
@@ -114,7 +133,7 @@ export default function ApplicationDashboard() {
   })
 
   // Handlers
-  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, appId: number) => {
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, appId: string | number) => {
     event.stopPropagation()
     setSelectedAppId(appId)
     setAnchorEl(event.currentTarget)
@@ -125,12 +144,12 @@ export default function ApplicationDashboard() {
     setSelectedAppId(null)
   }
 
-  const handleOpenAppDialog = (app?: Record<string, any>) => {
+  const handleOpenAppDialog = (app?: ClientRecord) => {
     if (app) {
       setIsEditMode(true)
       setSelectedAppId(app.id)
       setFormData({
-        name: app.name || app.client_name,
+        name: app.name || app.client_name || '',
         redirectUris: app.redirectUris || app.redirect_uris || [DEFAULT_REDIRECT_URI],
         grantTypes: app.grantTypes || app.grant_types || ['authorization_code'],
         responseTypes: app.responseTypes || app.response_types || ['code'],
@@ -158,7 +177,7 @@ export default function ApplicationDashboard() {
             setAppDialogOpen(false)
             toast.success(t('admin.developer.applications.messages.update_success'))
           },
-          onError: (err: any) => {
+          onError: (err) => {
             logger.error('Failed to update application', { error: err })
             toast.error(
               err?.message || t('admin.developer.applications.messages.error_generic'),
@@ -169,15 +188,16 @@ export default function ApplicationDashboard() {
       )
     } else {
       createMutation.mutate(formData, {
-        onSuccess: (res: any) => {
+        onSuccess: (res) => {
           setAppDialogOpen(false)
           toast.success(t('admin.developer.applications.messages.create_success'), {})
-          if (res.data?.clientSecret || res.data?.client_secret) {
-            setNewSecret(res.data.clientSecret || res.data.client_secret)
+          const created = res.data as ClientSecretPayload | undefined
+          if (created?.clientSecret || created?.client_secret) {
+            setNewSecret(created.clientSecret || created.client_secret || '')
             setSecretDialogOpen(true)
           }
         },
-        onError: (err: any) => {
+        onError: (err) => {
           logger.error('Failed to create application', { error: err })
           toast.error(err?.message || t('admin.developer.applications.messages.error_generic'), {})
         },
@@ -196,7 +216,7 @@ export default function ApplicationDashboard() {
             onSuccess: () => {
               toast.success(t('admin.developer.applications.messages.delete_success'))
             },
-            onError: (err: any) => {
+            onError: (err) => {
               logger.error('Failed to delete application', { error: err })
               toast.error(
                 err?.message || t('admin.developer.applications.messages.error_generic'),
@@ -204,7 +224,7 @@ export default function ApplicationDashboard() {
               )
             },
           })
-          setConfirmDialog((prev: any) => ({ ...prev, open: false }))
+          setConfirmDialog((prev) => ({ ...prev, open: false }))
         },
       })
     }
@@ -221,12 +241,13 @@ export default function ApplicationDashboard() {
           rotateMutation.mutate(String(selectedAppId), {
             onSuccess: (res) => {
               toast.success(t('admin.developer.applications.messages.rotate_success'))
-              if (res.data?.client_secret) {
-                setNewSecret(res.data.client_secret)
+              const rotated = res.data as ClientSecretPayload | undefined
+              if (rotated?.client_secret) {
+                setNewSecret(rotated.client_secret)
                 setSecretDialogOpen(true)
               }
             },
-            onError: (err: any) => {
+            onError: (err) => {
               logger.error('Failed to rotate secret', { error: err })
               toast.error(
                 err?.message || t('admin.developer.applications.messages.error_generic'),
@@ -234,7 +255,7 @@ export default function ApplicationDashboard() {
               )
             },
           })
-          setConfirmDialog((prev: any) => ({ ...prev, open: false }))
+          setConfirmDialog((prev) => ({ ...prev, open: false }))
         },
       })
     }
@@ -253,9 +274,9 @@ export default function ApplicationDashboard() {
       </Box>
     )
 
-  const clients = clientsResponse?.data || []
+  const clients: ClientRecord[] = clientsResponse?.data || []
 
-  const filteredClients = clients.filter((app: any) => {
+  const filteredClients = clients.filter((app) => {
     const searchLower = searchTerm.toLowerCase()
     return (
       (app.client_name || '').toLowerCase().includes(searchLower) ||
@@ -263,7 +284,7 @@ export default function ApplicationDashboard() {
     )
   })
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type?: string) => {
     switch (type) {
       case 'spa':
         return <Web />
@@ -280,7 +301,7 @@ export default function ApplicationDashboard() {
     }
   }
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status?: string): 'success' | 'error' | 'warning' | 'default' => {
     switch (status) {
       case 'active':
         return 'success'
@@ -294,585 +315,604 @@ export default function ApplicationDashboard() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
-      {/* ── Pattern 1: Page Header ───────────────────────────────────── */}
-      <Box
-        sx={{
-          mb: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
-          <Avatar
-            sx={{
-              width: 72,
-              height: 72,
-              borderRadius: 'var(--sf-radius-lg, 16px)',
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
-              color: 'primary.main',
-            }}
-          >
-            <AppRegistration sx={{ fontSize: 32 }} />
-          </Avatar>
-          <Box>
-            <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 0.5 }}>
-              {t('admin.developer.applications.title')}
-            </Typography>
-            <Typography variant='body1' color='text.secondary'>
-              {t('admin.developer.applications.subtitle')}
-            </Typography>
-          </Box>
-        </Box>
-        <Button
-          variant='contained'
-          startIcon={<Add />}
-          onClick={() => handleOpenAppDialog()}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
+        {/* ── Pattern 1: Page Header ───────────────────────────────────── */}
+        <AdminPageHeader
+          icon={<AppRegistration />}
+          title={t('admin.developer.applications.title', 'Applications')}
+          description={t(
+            'admin.developer.applications.subtitle',
+            'Register and manage the OAuth2 / OIDC clients that authenticate through this platform.',
+          )}
+          actions={
+            <Button
+              variant='contained'
+              startIcon={<Add />}
+              onClick={() => handleOpenAppDialog()}
+              sx={{
+                minHeight: 48,
+                px: 3,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                fontWeight: 700,
+                textTransform: 'none',
+              }}
+            >
+              {t('admin.developer.applications.new_app', 'New application')}
+            </Button>
+          }
+        />
+
+        {/* ── Search & Filter ─────────────────────────────────────────── */}
+        <Card
           sx={{
-            minHeight: 48,
-            px: 3,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            fontWeight: 700,
-            textTransform: 'none',
+            p: 2.5,
+            mb: 4,
+            borderRadius: 'var(--sf-radius-lg, 16px)',
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: 'none',
+            ...surfaceEffect,
           }}
         >
-          {t('admin.developer.applications.new_app')}
-        </Button>
-      </Box>
-
-      {/* ── Search & Filter ─────────────────────────────────────────── */}
-      <Card
-        sx={{
-          p: 2.5,
-          mb: 4,
-          borderRadius: 'var(--sf-radius-lg, 16px)',
-          border: '1px solid',
-          borderColor: 'divider',
-          boxShadow: 'none',
-          ...surfaceEffect,
-        }}
-      >
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems='center'>
-          <TextField
-            fullWidth
-            placeholder={t('admin.developer.applications.search_placeholder')}
-            size='small'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position='start'>
-                    <Search sx={{ fontSize: 20, color: 'text.secondary' }} />
-                  </InputAdornment>
-                ),
-                sx: { borderRadius: 'var(--sf-radius-lg, 12px)' },
-              },
-            }}
-            sx={{ maxWidth: 500 }}
-          />
-          <Stack direction='row' spacing={1.5} sx={{ ml: { sm: 'auto' } }}>
-            <Button
-              startIcon={<History />}
-              onClick={() => toast.info('Audit logs feature is not enabled for this application.')}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 700,
-                color: 'text.secondary',
-                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) },
-              }}
-            >
-              {t('admin.developer.applications.logs')}
-            </Button>
-            <Button
-              startIcon={<Refresh />}
-              onClick={() => refetch()}
-              disabled={isLoading}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 700,
-                color: 'text.secondary',
-                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) },
-              }}
-            >
-              {t('admin.developer.applications.refresh')}
-            </Button>
-          </Stack>
-        </Stack>
-      </Card>
-
-      <Grid container spacing={3}>
-        {filteredClients.map((app: any) => (
-          <Grid key={app.id} size={{ xs: 12, md: 6, lg: 4 }}>
-            <Card
-              sx={{
-                borderRadius: 'var(--sf-radius-lg, 16px)',
-                border: '1px solid',
-                borderColor: 'divider',
-                boxShadow: 'none',
-                transition: 'all 0.2s',
-                ...surfaceEffect,
-                '&:hover': {
-                  borderColor: 'primary.main',
-                  bgcolor: alpha(theme.palette.primary.main, 0.01),
-                  transform: 'translateY(-4px)',
-                  boxShadow: `0 12px 24px -10px ${alpha(theme.palette.primary.main, 0.2)}`,
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems='center'>
+            <TextField
+              fullWidth
+              placeholder={t('admin.developer.applications.search_placeholder')}
+              size='small'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position='start'>
+                      <Search sx={{ fontSize: 20, color: 'text.secondary' }} />
+                    </InputAdornment>
+                  ),
+                  sx: { borderRadius: 'var(--sf-radius-lg, 12px)' },
                 },
               }}
-            >
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2.5 }}>
-                  <Avatar
-                    sx={{
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                      color: 'primary.main',
-                      borderRadius: 'var(--sf-radius-md, 8px)',
-                      width: 52,
-                      height: 52,
-                    }}
-                  >
-                    {getTypeIcon(app.type)}
-                  </Avatar>
-                  <IconButton
-                    size='small'
-                    onClick={(e) => handleOpenMenu(e, Number(app.id))}
-                    sx={{ alignSelf: 'flex-start' }}
-                  >
-                    <MoreVert />
-                  </IconButton>
-                </Box>
+              sx={{ maxWidth: 500 }}
+            />
+            <Stack direction='row' spacing={1.5} sx={{ ml: { sm: 'auto' } }}>
+              <Button
+                startIcon={<History />}
+                onClick={() =>
+                  toast.info(
+                    t(
+                      'admin.developer.applications.audit_unavailable',
+                      'Audit logs are not enabled for this application.',
+                    ),
+                  )
+                }
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  color: 'text.secondary',
+                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) },
+                }}
+              >
+                {t('admin.developer.applications.logs')}
+              </Button>
+              <Button
+                startIcon={<Refresh />}
+                onClick={() => refetch()}
+                disabled={isLoading}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  color: 'text.secondary',
+                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) },
+                }}
+              >
+                {t('admin.developer.applications.refresh')}
+              </Button>
+            </Stack>
+          </Stack>
+        </Card>
 
-                <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
-                  {app.client_name}
-                </Typography>
-                <Typography
-                  variant='caption'
-                  color='text.secondary'
-                  sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2.5, fontWeight: 700 }}
-                >
-                  <Code sx={{ fontSize: 14 }} /> {app.client_id}
-                </Typography>
-
-                <Typography
-                  variant='body2'
-                  color='text.secondary'
-                  sx={{
-                    mb: 3,
-                    lineClamp: 2,
-                    display: '-webkit-box',
-                    WebkitBoxOrient: 'vertical',
-                    WebkitLineClamp: 2,
-                    height: 40,
-                    overflow: 'hidden',
-                  }}
-                >
-                  {app.description || 'No description provided.'}
-                </Typography>
-
-                <Stack direction='row' spacing={1} sx={{ mb: 3 }}>
-                  <Chip
-                    label={app.status}
-                    size='small'
-                    color={getStatusColor(app.status) as any}
-                    sx={{
-                      fontWeight: 800,
-                      borderRadius: 1.5,
-                      height: 22,
-                      fontSize: '0.65rem',
-                      textTransform: 'uppercase',
-                    }}
-                  />
-                  {app.is_fapi_compliant && (
-                    <Chip
-                      label='FAPI 2.0'
+        <Grid container spacing={3}>
+          {filteredClients.map((app) => (
+            <Grid key={app.id} size={{ xs: 12, md: 6, lg: 4 }}>
+              <Card
+                sx={{
+                  borderRadius: 'var(--sf-radius-lg, 16px)',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  boxShadow: 'none',
+                  transition: 'all 0.2s',
+                  ...surfaceEffect,
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    bgcolor: alpha(theme.palette.primary.main, 0.01),
+                    transform: 'translateY(-4px)',
+                    boxShadow: `0 12px 24px -10px ${alpha(theme.palette.primary.main, 0.2)}`,
+                  },
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2.5 }}>
+                    <Avatar
+                      sx={{
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        color: 'primary.main',
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        width: 52,
+                        height: 52,
+                      }}
+                    >
+                      {getTypeIcon(app.type)}
+                    </Avatar>
+                    <IconButton
                       size='small'
+                      onClick={(e) => handleOpenMenu(e, Number(app.id))}
+                      sx={{ alignSelf: 'flex-start' }}
+                    >
+                      <MoreVert />
+                    </IconButton>
+                  </Box>
+
+                  <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
+                    {app.client_name}
+                  </Typography>
+                  <Typography
+                    variant='caption'
+                    color='text.secondary'
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5,
+                      mb: 2.5,
+                      fontWeight: 700,
+                    }}
+                  >
+                    <Code sx={{ fontSize: 14 }} /> {app.client_id}
+                  </Typography>
+
+                  <Typography
+                    variant='body2'
+                    color='text.secondary'
+                    sx={{
+                      mb: 3,
+                      lineClamp: 2,
+                      display: '-webkit-box',
+                      WebkitBoxOrient: 'vertical',
+                      WebkitLineClamp: 2,
+                      height: 40,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {app.description || 'No description provided.'}
+                  </Typography>
+
+                  <Stack direction='row' spacing={1} sx={{ mb: 3 }}>
+                    <Chip
+                      label={app.status}
+                      size='small'
+                      color={getStatusColor(app.status)}
                       sx={{
                         fontWeight: 800,
                         borderRadius: 1.5,
                         height: 22,
-                        fontSize: '0.65rem',
-                        bgcolor: alpha(theme.palette.info.main, 0.1),
-                        color: 'info.main',
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
                       }}
                     />
-                  )}
-                </Stack>
+                    {app.is_fapi_compliant && (
+                      <Chip
+                        label='FAPI 2.0'
+                        size='small'
+                        sx={{
+                          fontWeight: 800,
+                          borderRadius: 1.5,
+                          height: 22,
+                          fontSize: '0.75rem',
+                          bgcolor: alpha(theme.palette.info.main, 0.1),
+                          color: 'info.main',
+                        }}
+                      />
+                    )}
+                  </Stack>
 
-                <Divider sx={{ mb: 3, opacity: 0.6 }} />
+                  <Divider sx={{ mb: 3, opacity: 0.6 }} />
 
-                <Box
-                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                >
-                  <Box>
-                    <Typography
-                      variant='caption'
-                      color='text.disabled'
-                      sx={{
-                        fontWeight: 800,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        display: 'block',
-                        mb: 0.25,
-                      }}
-                    >
-                      {t('admin.developer.applications.card.secret_label')}
-                    </Typography>
-                    <Typography
-                      variant='body2'
-                      sx={{
-                        fontWeight: 700,
-                        color: app.client_secret ? 'text.primary' : 'text.disabled',
-                      }}
-                    >
-                      {app.client_secret
-                        ? '•••• •••• ••••'
-                        : t('admin.developer.applications.card.pkce_protected')}
-                    </Typography>
-                  </Box>
-                  <Button
-                    size='small'
-                    variant='contained'
-                    endIcon={<Launch />}
-                    onClick={() => navigate(Path.admin.appDetail.replace(':id', String(app.id)))}
-                    sx={{
-                      textTransform: 'none',
-                      fontWeight: 800,
-                      borderRadius: 'var(--sf-radius-md, 8px)',
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                      color: 'primary.main',
-                      '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.2) },
-                      boxShadow: 'none',
-                    }}
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                   >
-                    {t('admin.developer.applications.card.details')}
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+                    <Box>
+                      <Typography
+                        variant='caption'
+                        color='text.disabled'
+                        sx={{
+                          fontWeight: 800,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          display: 'block',
+                          mb: 0.25,
+                        }}
+                      >
+                        {t('admin.developer.applications.card.secret_label')}
+                      </Typography>
+                      <Typography
+                        variant='body2'
+                        sx={{
+                          fontWeight: 700,
+                          color: app.client_secret ? 'text.primary' : 'text.disabled',
+                        }}
+                      >
+                        {app.client_secret
+                          ? '•••• •••• ••••'
+                          : t('admin.developer.applications.card.pkce_protected')}
+                      </Typography>
+                    </Box>
+                    <Button
+                      size='small'
+                      variant='contained'
+                      endIcon={<Launch />}
+                      onClick={() => navigate(Path.admin.appDetail.replace(':id', String(app.id)))}
+                      sx={{
+                        textTransform: 'none',
+                        fontWeight: 800,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        color: 'primary.main',
+                        '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.2) },
+                        boxShadow: 'none',
+                      }}
+                    >
+                      {t('admin.developer.applications.card.details')}
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
 
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <Box
-            onClick={() => handleOpenAppDialog()}
-            sx={{
-              height: '100%',
-              minHeight: 250,
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              border: '2px dashed',
-              borderColor: 'divider',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              bgcolor: alpha(theme.palette.background.paper, 0.5),
-              '&:hover': {
-                borderColor: 'primary.main',
-                bgcolor: alpha(theme.palette.primary.main, 0.02),
-                '& .MuiAvatar-root': { bgcolor: 'primary.main', color: 'white' },
-              },
-            }}
-          >
-            <Avatar
+          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+            <Box
+              onClick={() => handleOpenAppDialog()}
               sx={{
-                bgcolor: alpha(theme.palette.action.hover, 0.8),
-                color: 'text.secondary',
-                mb: 2.5,
+                height: '100%',
+                minHeight: 250,
+                borderRadius: 'var(--sf-radius-lg, 12px)',
+                border: '2px dashed',
+                borderColor: 'divider',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
                 transition: 'all 0.2s',
-                width: 56,
-                height: 56,
+                bgcolor: alpha(theme.palette.background.paper, 0.5),
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  bgcolor: alpha(theme.palette.primary.main, 0.02),
+                  '& .MuiAvatar-root': { bgcolor: 'primary.main', color: 'white' },
+                },
               }}
             >
-              <Add sx={{ fontSize: 32 }} />
-            </Avatar>
-            <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
-              {t('admin.developer.applications.empty.title')}
-            </Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 600 }}>
-              {t('admin.developer.applications.empty.desc')}
-            </Typography>
-          </Box>
-        </Grid>
-      </Grid>
-
-      {/* App Actions Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleCloseMenu}
-        PaperProps={{
-          sx: {
-            borderRadius: 'var(--sf-radius-lg, 12px)',
-            minWidth: 200,
-            mt: 1,
-            boxShadow: '0px 10px 40px rgba(0,0,0,0.12)',
-            border: '1px solid',
-            borderColor: 'divider',
-            p: 1,
-          },
-        }}
-      >
-        <MenuItem
-          onClick={() => handleOpenAppDialog(clients.find((c: any) => c.id === selectedAppId))}
-          sx={{ borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}
-        >
-          <ListItemIcon>
-            <Edit fontSize='small' />
-          </ListItemIcon>
-          <Typography variant='body2' sx={{ fontWeight: 700 }}>
-            {t('admin.developer.applications.menu.edit')}
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={handleRotateSecret} sx={{ borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}>
-          <ListItemIcon>
-            <VpnKey fontSize='small' />
-          </ListItemIcon>
-          <Typography variant='body2' sx={{ fontWeight: 700 }}>
-            {t('admin.developer.applications.menu.rotate')}
-          </Typography>
-        </MenuItem>
-        <Divider sx={{ my: 1 }} />
-        <MenuItem
-          onClick={handleDeleteClient}
-          sx={{ color: 'error.main', borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}
-        >
-          <ListItemIcon>
-            <Delete fontSize='small' color='error' />
-          </ListItemIcon>
-          <Typography variant='body2' sx={{ fontWeight: 700 }}>
-            {t('admin.developer.applications.menu.delete')}
-          </Typography>
-        </MenuItem>
-      </Menu>
-
-      {/* Add / Edit App Dialog */}
-      <Dialog
-        open={appDialogOpen}
-        onClose={() => setAppDialogOpen(false)}
-        maxWidth='sm'
-        fullWidth
-        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
-      >
-        <DialogTitle sx={{ fontWeight: 800, px: 3, pt: 3 }}>
-          {isEditMode
-            ? t('admin.developer.applications.dialogs.create.title_edit')
-            : t('admin.developer.applications.dialogs.create.title_new')}
-        </DialogTitle>
-        <DialogContent sx={{ px: 3, py: 2 }}>
-          <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField
-              label={t('admin.developer.applications.dialogs.create.name_label')}
-              fullWidth
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder={t('admin.developer.applications.dialogs.create.name_placeholder')}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
-            />
-            <TextField
-              label={t('admin.developer.applications.dialogs.create.redirect_label')}
-              fullWidth
-              required
-              multiline
-              rows={2}
-              value={formData.redirectUris?.join(', ')}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  redirectUris: e.target.value.split(',').map((u) => u.trim()),
-                })
-              }
-              placeholder={t('admin.developer.applications.dialogs.create.redirect_placeholder')}
-              helperText={t('admin.developer.applications.dialogs.create.redirect_helper')}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
-            />
-            <FormControl fullWidth>
-              <InputLabel>
-                {t('admin.developer.applications.dialogs.create.grant_label')}
-              </InputLabel>
-              <Select<string[]>
-                multiple
-                value={formData.grantTypes || []}
-                onChange={(e: SelectChangeEvent<string[]>) => {
-                  const value = e.target.value
-                  setFormData({
-                    ...formData,
-                    grantTypes: typeof value === 'string' ? value.split(',') : value,
-                  })
+              <Avatar
+                sx={{
+                  bgcolor: alpha(theme.palette.action.hover, 0.8),
+                  color: 'text.secondary',
+                  mb: 2.5,
+                  transition: 'all 0.2s',
+                  width: 56,
+                  height: 56,
                 }}
-                input={
-                  <OutlinedInput
-                    label={t('admin.developer.applications.dialogs.create.grant_label')}
-                    sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}
-                  />
-                }
-                renderValue={(selected: string[]) => (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip
-                        key={value}
-                        label={value}
-                        size='small'
-                        sx={{ fontWeight: 700, borderRadius: 1.5 }}
-                      />
-                    ))}
-                  </Box>
-                )}
               >
-                <MenuItem value='authorization_code'>Authorization Code</MenuItem>
-                <MenuItem value='implicit'>Implicit</MenuItem>
-                <MenuItem value='password'>Resource Owner Password</MenuItem>
-                <MenuItem value='client_credentials'>Client Credentials</MenuItem>
-                <MenuItem value='refresh_token'>Refresh Token</MenuItem>
-              </Select>
-            </FormControl>
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 1 }}>
-          <Button
-            onClick={() => setAppDialogOpen(false)}
-            sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}
-          >
-            {t('admin.developer.applications.dialogs.create.cancel')}
-          </Button>
-          <Button
-            variant='contained'
-            onClick={handleSaveApp}
-            disabled={
-              createMutation.isPending ||
-              updateMutation.isPending ||
-              !formData.name ||
-              !formData.redirectUris?.length
-            }
-            sx={{
-              fontWeight: 800,
-              textTransform: 'none',
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              px: 3,
-              bgcolor: 'info.main',
-            }}
-          >
-            {createMutation.isPending || updateMutation.isPending
-              ? t('admin.developer.applications.dialogs.create.saving')
-              : isEditMode
-                ? t('admin.developer.applications.dialogs.create.submit_edit')
-                : t('admin.developer.applications.dialogs.create.submit_new')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+                <Add sx={{ fontSize: 32 }} />
+              </Avatar>
+              <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
+                {t('admin.developer.applications.empty.title')}
+              </Typography>
+              <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 600 }}>
+                {t('admin.developer.applications.empty.desc')}
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
 
-      {/* Secret Display Dialog */}
-      <Dialog
-        open={secretDialogOpen}
-        onClose={() => setSecretDialogOpen(false)}
-        maxWidth='sm'
-        fullWidth
-        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
-      >
-        <DialogTitle
-          sx={{
-            fontWeight: 800,
-            color: 'warning.main',
-            display: 'flex',
-            gap: 1.5,
-            alignItems: 'center',
-            px: 3,
-            pt: 3,
+        {/* App Actions Menu */}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleCloseMenu}
+          PaperProps={{
+            sx: {
+              borderRadius: 'var(--sf-radius-lg, 12px)',
+              minWidth: 200,
+              mt: 1,
+              boxShadow: 'var(--sf-shadow-lg)',
+              border: '1px solid',
+              borderColor: 'divider',
+              p: 1,
+            },
           }}
         >
-          <Security /> {t('admin.developer.applications.dialogs.secret.title')}
-        </DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
-          <Typography variant='body2' color='text.secondary' sx={{ mb: 3, lineHeight: 1.6 }}>
-            {t('admin.developer.applications.dialogs.secret.desc')}
-          </Typography>
-          <Paper
-            variant='outlined'
-            sx={{
-              p: 2.5,
-              bgcolor: alpha(theme.palette.warning.main, 0.05),
-              borderColor: alpha(theme.palette.warning.main, 0.2),
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-            }}
+          <MenuItem
+            onClick={() => handleOpenAppDialog(clients.find((c) => c.id === selectedAppId))}
+            sx={{ borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}
           >
-            <Typography
-              variant='body2'
+            <ListItemIcon>
+              <Edit fontSize='small' />
+            </ListItemIcon>
+            <Typography variant='body2' sx={{ fontWeight: 700 }}>
+              {t('admin.developer.applications.menu.edit')}
+            </Typography>
+          </MenuItem>
+          <MenuItem
+            onClick={handleRotateSecret}
+            sx={{ borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}
+          >
+            <ListItemIcon>
+              <VpnKey fontSize='small' />
+            </ListItemIcon>
+            <Typography variant='body2' sx={{ fontWeight: 700 }}>
+              {t('admin.developer.applications.menu.rotate')}
+            </Typography>
+          </MenuItem>
+          <Divider sx={{ my: 1 }} />
+          <MenuItem
+            onClick={handleDeleteClient}
+            sx={{ color: 'error.main', borderRadius: 'var(--sf-radius-md, 8px)', py: 1.25 }}
+          >
+            <ListItemIcon>
+              <Delete fontSize='small' color='error' />
+            </ListItemIcon>
+            <Typography variant='body2' sx={{ fontWeight: 700 }}>
+              {t('admin.developer.applications.menu.delete')}
+            </Typography>
+          </MenuItem>
+        </Menu>
+
+        {/* Add / Edit App Dialog */}
+        <Dialog
+          open={appDialogOpen}
+          onClose={() => setAppDialogOpen(false)}
+          maxWidth='sm'
+          fullWidth
+          PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+        >
+          <DialogTitle sx={{ fontWeight: 800, px: 3, pt: 3 }}>
+            {isEditMode
+              ? t('admin.developer.applications.dialogs.create.title_edit')
+              : t('admin.developer.applications.dialogs.create.title_new')}
+          </DialogTitle>
+          <DialogContent sx={{ px: 3, py: 2 }}>
+            <Stack spacing={3} sx={{ mt: 1 }}>
+              <TextField
+                label={t('admin.developer.applications.dialogs.create.name_label')}
+                fullWidth
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder={t('admin.developer.applications.dialogs.create.name_placeholder')}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+              />
+              <TextField
+                label={t('admin.developer.applications.dialogs.create.redirect_label')}
+                fullWidth
+                required
+                multiline
+                rows={2}
+                value={formData.redirectUris?.join(', ')}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    redirectUris: e.target.value.split(',').map((u) => u.trim()),
+                  })
+                }
+                placeholder={t('admin.developer.applications.dialogs.create.redirect_placeholder')}
+                helperText={t('admin.developer.applications.dialogs.create.redirect_helper')}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+              />
+              <FormControl fullWidth>
+                <InputLabel>
+                  {t('admin.developer.applications.dialogs.create.grant_label')}
+                </InputLabel>
+                <Select<string[]>
+                  multiple
+                  value={formData.grantTypes || []}
+                  onChange={(e: SelectChangeEvent<string[]>) => {
+                    const value = e.target.value
+                    setFormData({
+                      ...formData,
+                      grantTypes: typeof value === 'string' ? value.split(',') : value,
+                    })
+                  }}
+                  input={
+                    <OutlinedInput
+                      label={t('admin.developer.applications.dialogs.create.grant_label')}
+                      sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}
+                    />
+                  }
+                  renderValue={(selected: string[]) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip
+                          key={value}
+                          label={value}
+                          size='small'
+                          sx={{ fontWeight: 700, borderRadius: 1.5 }}
+                        />
+                      ))}
+                    </Box>
+                  )}
+                >
+                  <MenuItem value='authorization_code'>
+                    {t(
+                      'admin.developer.applications.grant_authorization_code',
+                      'Authorization Code',
+                    )}
+                  </MenuItem>
+                  <MenuItem value='implicit'>
+                    {t('admin.developer.applications.grant_implicit', 'Implicit')}
+                  </MenuItem>
+                  <MenuItem value='password'>
+                    {t('admin.developer.applications.grant_password', 'Resource Owner Password')}
+                  </MenuItem>
+                  <MenuItem value='client_credentials'>
+                    {t(
+                      'admin.developer.applications.grant_client_credentials',
+                      'Client Credentials',
+                    )}
+                  </MenuItem>
+                  <MenuItem value='refresh_token'>
+                    {t('admin.developer.applications.grant_refresh_token', 'Refresh Token')}
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Stack>
+          </DialogContent>
+          <DialogActions sx={{ p: 3, pt: 1 }}>
+            <Button
+              onClick={() => setAppDialogOpen(false)}
+              sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}
+            >
+              {t('admin.developer.applications.dialogs.create.cancel')}
+            </Button>
+            <Button
+              variant='contained'
+              onClick={handleSaveApp}
+              disabled={
+                createMutation.isPending ||
+                updateMutation.isPending ||
+                !formData.name ||
+                !formData.redirectUris?.length
+              }
               sx={{
-                fontFamily: 'monospace',
-                fontWeight: 700,
-                wordBreak: 'break-all',
-                mr: 2,
-                fontSize: '0.95rem',
+                fontWeight: 800,
+                textTransform: 'none',
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                px: 3,
+                bgcolor: 'info.main',
               }}
             >
-              {newSecret}
-            </Typography>
-            <IconButton color='primary' onClick={() => copyToClipboard(newSecret)}>
-              <ContentCopy />
-            </IconButton>
-          </Paper>
-        </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 1 }}>
-          <Button
-            variant='contained'
-            fullWidth
-            onClick={() => setSecretDialogOpen(false)}
+              {createMutation.isPending || updateMutation.isPending
+                ? t('admin.developer.applications.dialogs.create.saving')
+                : isEditMode
+                  ? t('admin.developer.applications.dialogs.create.submit_edit')
+                  : t('admin.developer.applications.dialogs.create.submit_new')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Secret Display Dialog */}
+        <Dialog
+          open={secretDialogOpen}
+          onClose={() => setSecretDialogOpen(false)}
+          maxWidth='sm'
+          fullWidth
+          PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
+        >
+          <DialogTitle
             sx={{
               fontWeight: 800,
-              textTransform: 'none',
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              py: 1.25,
-              bgcolor: 'text.primary',
+              color: 'warning.main',
+              display: 'flex',
+              gap: 1.5,
+              alignItems: 'center',
+              px: 3,
+              pt: 3,
             }}
           >
-            {t('admin.developer.applications.dialogs.secret.submit')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <Security /> {t('admin.developer.applications.dialogs.secret.title')}
+          </DialogTitle>
+          <DialogContent sx={{ px: 3 }}>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3, lineHeight: 1.6 }}>
+              {t('admin.developer.applications.dialogs.secret.desc')}
+            </Typography>
+            <Paper
+              variant='outlined'
+              sx={{
+                p: 2.5,
+                bgcolor: alpha(theme.palette.warning.main, 0.05),
+                borderColor: alpha(theme.palette.warning.main, 0.2),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderRadius: 'var(--sf-radius-lg, 12px)',
+              }}
+            >
+              <Typography
+                variant='body2'
+                sx={{
+                  fontFamily: 'monospace',
+                  fontWeight: 700,
+                  wordBreak: 'break-all',
+                  mr: 2,
+                  fontSize: '0.95rem',
+                }}
+              >
+                {newSecret}
+              </Typography>
+              <IconButton color='primary' onClick={() => copyToClipboard(newSecret)}>
+                <ContentCopy />
+              </IconButton>
+            </Paper>
+          </DialogContent>
+          <DialogActions sx={{ p: 3, pt: 1 }}>
+            <Button
+              variant='contained'
+              fullWidth
+              onClick={() => setSecretDialogOpen(false)}
+              sx={{
+                fontWeight: 800,
+                textTransform: 'none',
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                py: 1.25,
+                bgcolor: 'text.primary',
+              }}
+            >
+              {t('admin.developer.applications.dialogs.secret.submit')}
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-      {/* Modern Confirmation Dialog */}
-      <Dialog
-        open={confirmDialog.open}
-        onClose={() => setConfirmDialog((prev: any) => ({ ...prev, open: false }))}
-        PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
-      >
-        <DialogTitle
-          sx={{ fontWeight: 800, display: 'flex', gap: 1.5, alignItems: 'center', px: 3, pt: 3 }}
+        {/* Modern Confirmation Dialog */}
+        <Dialog
+          open={confirmDialog.open}
+          onClose={() => setConfirmDialog((prev) => ({ ...prev, open: false }))}
+          PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
         >
-          <Warning color='warning' /> {confirmDialog.title}
-        </DialogTitle>
-        <DialogContent sx={{ px: 3 }}>
-          <Typography variant='body2' color='text.secondary' sx={{ lineHeight: 1.6 }}>
-            {confirmDialog.content}
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 1 }}>
-          <Button
-            onClick={() => setConfirmDialog((prev: any) => ({ ...prev, open: false }))}
-            sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}
+          <DialogTitle
+            sx={{ fontWeight: 800, display: 'flex', gap: 1.5, alignItems: 'center', px: 3, pt: 3 }}
           >
-            {t('admin.developer.applications.dialogs.confirm.cancel')}
-          </Button>
-          <Button
-            variant='contained'
-            color='error'
-            onClick={confirmDialog.onConfirm}
-            sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 'var(--sf-radius-md, 8px)', px: 3 }}
-          >
-            {t('admin.developer.applications.dialogs.confirm.confirm_button')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+            <Warning color='warning' /> {confirmDialog.title}
+          </DialogTitle>
+          <DialogContent sx={{ px: 3 }}>
+            <Typography variant='body2' color='text.secondary' sx={{ lineHeight: 1.6 }}>
+              {confirmDialog.content}
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ p: 3, pt: 1 }}>
+            <Button
+              onClick={() => setConfirmDialog((prev) => ({ ...prev, open: false }))}
+              sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}
+            >
+              {t('admin.developer.applications.dialogs.confirm.cancel')}
+            </Button>
+            <Button
+              variant='contained'
+              color='error'
+              onClick={confirmDialog.onConfirm}
+              sx={{
+                fontWeight: 800,
+                textTransform: 'none',
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                px: 3,
+              }}
+            >
+              {t('admin.developer.applications.dialogs.confirm.confirm_button')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
     </motion.div>
   )
 }

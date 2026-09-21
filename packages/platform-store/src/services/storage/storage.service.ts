@@ -38,7 +38,7 @@ interface AppDB extends DBSchema {
 }
 
 class StorageManager {
-  private static dbName = "serafort-scraper-db";
+  private static dbName = "serafort-app-db";
   private static dbVersion = 1;
   private static db: IDBPDatabase<AppDB> | null = null;
 

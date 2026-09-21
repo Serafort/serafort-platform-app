@@ -19,7 +19,7 @@ import {
 export const userDirectoryKeys = {
   all: ['user-directory'] as const,
   lists: () => [...userDirectoryKeys.all, 'list'] as const,
-  list: (filters: Record<string, any>) => [...userDirectoryKeys.lists(), filters] as const,
+  list: (filters: object) => [...userDirectoryKeys.lists(), filters] as const,
   details: () => [...userDirectoryKeys.all, 'detail'] as const,
   detail: (id: number | string) => [...userDirectoryKeys.details(), id] as const,
   roles: () => ['roles', 'list'] as const,

@@ -32,6 +32,7 @@ import {
   AuthOutcomeScreen,
   type AuthTone,
 } from '../../components/shared/auth'
+import { AppPaths } from '@cap/shared-types'
 
 interface InvitationDetails {
   id: number
@@ -41,6 +42,15 @@ interface InvitationDetails {
   expiresAt: string
   organization: { id: number; name: string; slug: string }
 }
+
+/** The fields of a non-2xx invitation reply this screen acts on. */
+interface InvitationErrorBody {
+  status?: string
+  message?: string
+}
+
+const asInvitationError = (body: unknown): InvitationErrorBody =>
+  typeof body === 'object' && body !== null ? (body as InvitationErrorBody) : {}
 
 type PageState =
   | 'loading'
@@ -73,17 +83,17 @@ export default function JoinOrganization() {
       try {
         const res = await adminService.getInvitationDetails(token, email)
         if (res.status >= 200 && res.status < 300) {
-          setInvitation(res.data)
+          setInvitation(res.data as unknown as InvitationDetails)
           setState('ready')
         } else {
-          const data = res.data as any
-          if (data?.status === 'expired') setState('expired')
-          else if (data?.status === 'accepted' || data?.status === 'revoked') {
+          const data = asInvitationError(res.data)
+          if (data.status === 'expired') setState('expired')
+          else if (data.status === 'accepted' || data.status === 'revoked') {
             setState('already_used')
-            setErrorMessage(data?.message || '')
+            setErrorMessage(data.message || '')
           } else {
             setState('error')
-            setErrorMessage(data?.message || '')
+            setErrorMessage(data.message || '')
           }
         }
       } catch {
@@ -111,9 +121,9 @@ export default function JoinOrganization() {
           }
         }
       } else {
-        const data = res.data as any
+        const data = asInvitationError(res.data)
         setState('error')
-        setErrorMessage(data?.message || '')
+        setErrorMessage(data.message || '')
       }
     } catch {
       setState('error')
@@ -128,9 +138,9 @@ export default function JoinOrganization() {
       const res = await adminService.declineInvitation(token, email)
       if (res.status >= 200 && res.status < 300) setState('declined')
       else {
-        const data = res.data as any
+        const data = asInvitationError(res.data)
         setState('error')
-        setErrorMessage(data?.message || '')
+        setErrorMessage(data.message || '')
       }
     } catch {
       setState('error')
@@ -148,7 +158,7 @@ export default function JoinOrganization() {
       sx={{
         minHeight: 48,
         borderRadius: 'var(--sf-radius-lg, 12px)',
-        fontWeight: 800,
+        fontWeight: 700,
         fontSize: '1rem',
         textTransform: 'none',
       }}
@@ -226,7 +236,7 @@ export default function JoinOrganization() {
           'organization.alreadyUsedDescription',
           'This invitation has already been used or was revoked.',
         ),
-      primaryCta(t('organization.goToDashboard', 'Go to Dashboard'), () => navigate('/dashboard')),
+      primaryCta(t('organization.goToDashboard', 'Go to Dashboard'), () => navigate(AppPaths.dashboard.dashboard)),
     )
   }
 
@@ -242,7 +252,7 @@ export default function JoinOrganization() {
         role: invitation?.role || '',
         defaultValue: 'You have successfully joined as a {{role}}.',
       }),
-      primaryCta(t('organization.goToDashboard', 'Go to Dashboard'), () => navigate('/dashboard')),
+      primaryCta(t('organization.goToDashboard', 'Go to Dashboard'), () => navigate(AppPaths.dashboard.dashboard)),
     )
   }
 
@@ -304,7 +314,7 @@ export default function JoinOrganization() {
                 color: 'primary.main',
                 border: '2px solid',
                 borderColor: alpha(theme.palette.primary.main, 0.24),
-                fontWeight: 800,
+                fontWeight: 700,
                 fontSize: '1.75rem',
               }}
             >
@@ -330,7 +340,7 @@ export default function JoinOrganization() {
               label={invitation.role}
               sx={{
                 mb: 3,
-                fontWeight: 800,
+                fontWeight: 700,
                 borderRadius: 'var(--sf-radius-md, 8px)',
                 color: 'success.main',
                 bgcolor: alpha(theme.palette.success.main, 0.1),
@@ -373,7 +383,7 @@ export default function JoinOrganization() {
                   variant='caption'
                   sx={{
                     color: 'text.secondary',
-                    fontWeight: 800,
+                    fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                     fontSize: '0.7rem',
@@ -408,7 +418,7 @@ export default function JoinOrganization() {
             sx={{
               minHeight: 48,
               borderRadius: 'var(--sf-radius-lg, 12px)',
-              fontWeight: 800,
+              fontWeight: 700,
               fontSize: '1rem',
               textTransform: 'none',
             }}

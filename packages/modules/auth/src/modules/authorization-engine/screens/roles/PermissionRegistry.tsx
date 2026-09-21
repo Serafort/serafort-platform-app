@@ -8,7 +8,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Chip,
   Button,
@@ -16,10 +15,11 @@ import {
   InputAdornment,
   useTheme,
   alpha,
+  type SxProps,
+  type Theme,
   Stack,
   Tooltip,
   Avatar,
-  CircularProgress,
   Divider,
   Dialog,
   DialogTitle,
@@ -48,9 +48,18 @@ import {
 import { Permission } from '@auth/authorization-engine/services/adminService'
 import ConfirmationDialog from '@auth/modules/authentication-core/components/shared/Modals/ConfirmationDialog'
 import { toast } from 'react-toastify'
-import { AdminRowActionButton } from '@auth/authentication-core/components/shared/admin'
+import { MONO_FONT } from '@auth/authorization-engine/components/tokens'
+import {
+  AdminDataState,
+  AdminPageHeader,
+  AdminRowActionButton,
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
+} from '@auth/authentication-core/components/shared/admin'
 
-const CATEGORY_ICON: Record<string, React.ReactNode> = {
+const CATEGORY_ICON: Record<string, React.ReactElement<{ fontSize?: 'small'; sx?: SxProps<Theme> }>> = {
   user: <GroupIcon />,
   org: <BusinessIcon />,
   default: <ShieldIcon />,
@@ -64,14 +73,13 @@ export default function PermissionRegistry() {
   const { t } = useTranslation('common')
   const theme = useTheme()
 
-  const { data: permissionsResponse, isLoading } = usePermissions()
+  const { data: permissionsResponse, isLoading, isError, refetch } = usePermissions()
   const permissions: Permission[] = useMemo(() => {
     const rawData = permissionsResponse?.data
     if (!rawData) return []
     if (Array.isArray(rawData)) return rawData
-    if (typeof rawData === 'object' && 'data' in rawData && Array.isArray((rawData as any).data)) {
-      return (rawData as any).data
-    }
+    const nested = (rawData as { data?: unknown }).data
+    if (Array.isArray(nested)) return nested as Permission[]
     return []
   }, [permissionsResponse?.data])
 
@@ -80,7 +88,7 @@ export default function PermissionRegistry() {
       toast.success(t('auth.admin.permissionCreated'))
       setDialogOpen(false)
     },
-    onError: (err: any) => toast.error(err.message || t('auth.admin.errorCreatePermission')),
+    onError: (err: Error) => toast.error(err.message || t('auth.admin.errorCreatePermission')),
   })
 
   const updatePermission = useUpdatePermission({
@@ -88,7 +96,7 @@ export default function PermissionRegistry() {
       toast.success(t('auth.admin.permissionUpdated'))
       setDialogOpen(false)
     },
-    onError: (err: any) => toast.error(err.message || t('auth.admin.errorUpdatePermission')),
+    onError: (err: Error) => toast.error(err.message || t('auth.admin.errorUpdatePermission')),
   })
 
   const deletePermission = useDeletePermission({
@@ -96,7 +104,7 @@ export default function PermissionRegistry() {
       toast.success(t('auth.admin.permissionDeleted'))
       setConfirmDeleteOpen(false)
     },
-    onError: (err: any) => toast.error(err.message || t('auth.admin.errorDeletePermission')),
+    onError: (err: Error) => toast.error(err.message || t('auth.admin.errorDeletePermission')),
   })
 
   const [search, setSearch] = useState('')
@@ -186,96 +194,50 @@ export default function PermissionRegistry() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-          mb: 4,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar
-            sx={{
-              width: { xs: 56, md: 64 },
-              height: { xs: 56, md: 64 },
-              borderRadius: 'var(--sf-radius-lg, 16px)',
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
-              color: 'primary.main',
-              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.12)}`,
-            }}
-          >
-            <ShieldIcon sx={{ fontSize: 28 }} />
-          </Avatar>
-          <Box>
-            <Typography
-              variant='h4'
+      <AdminPageHeader
+        icon={<ShieldIcon sx={{ fontSize: 28 }} />}
+        title={t('auth.admin.permissionRegistry')}
+        description={t('auth.admin.permissionRegistry_subtitle')}
+        actions={
+          <>
+            <Button
+              variant='outlined'
+              startIcon={<DownloadIcon />}
+              onClick={handleExport}
               sx={{
-                fontWeight: 800,
-                letterSpacing: '-0.027em',
-                fontSize: { xs: '1.5rem', md: '2.125rem' },
-                lineHeight: 1.1,
-                mb: 0.5,
+                textTransform: 'none',
+                fontWeight: 700,
+                flex: { xs: 1, sm: 'none' },
+                minHeight: 44,
+                borderRadius: 'var(--sf-radius-md, 8px)',
               }}
             >
-              {t('auth.admin.permissionRegistry')}
-            </Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-              {t('auth.admin.permissionRegistry_subtitle')}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Stack
-          direction='row'
-          spacing={1.5}
-          sx={{ flexShrink: 0, width: { xs: '100%', sm: 'auto' } }}
-        >
-          <Button
-            variant='outlined'
-            startIcon={<DownloadIcon />}
-            onClick={handleExport}
-            sx={{
-              textTransform: 'none',
-              fontWeight: 700,
-              flex: { xs: 1, sm: 'none' },
-              height: 44,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-            }}
-          >
-            {t('auth.admin.exportJson')}
-          </Button>
-          <Button
-            variant='contained'
-            color='info'
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
-            sx={{
-              boxShadow: `0 4px 14px 0 ${alpha(theme.palette.info.main, 0.39)}`,
-              '&:hover': {
-                bgcolor: 'info.dark',
-                boxShadow: `0 6px 20px 0 ${alpha(theme.palette.info.main, 0.5)}`,
-              },
-              textTransform: 'none',
-              fontWeight: 700,
-              flex: { xs: 1, sm: 'none' },
-              height: 44,
-              px: 3,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-            }}
-          >
-            {t('auth.admin.defineNewAction')}
-          </Button>
-        </Stack>
-      </Box>
-
-      {isLoading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}>
-          <CircularProgress />
-        </Box>
-      )}
+              {t('auth.admin.exportJson')}
+            </Button>
+            <Button
+              variant='contained'
+              color='info'
+              startIcon={<AddIcon />}
+              onClick={() => handleOpenDialog()}
+              sx={{
+                boxShadow: `0 4px 14px 0 ${alpha(theme.palette.info.main, 0.39)}`,
+                '&:hover': {
+                  bgcolor: 'info.dark',
+                  boxShadow: `0 6px 20px 0 ${alpha(theme.palette.info.main, 0.5)}`,
+                },
+                textTransform: 'none',
+                fontWeight: 700,
+                flex: { xs: 1, sm: 'none' },
+                minHeight: 44,
+                px: 3,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+              }}
+            >
+              {t('auth.admin.defineNewAction')}
+            </Button>
+          </>
+        }
+      />
 
       {/* ── Category summary cards ──────────────────────────────────────── */}
       {!isLoading && categories.length > 0 && (
@@ -367,7 +329,7 @@ export default function PermissionRegistry() {
                     boxShadow: `0 6px 12px ${alpha(theme.palette.primary.main, 0.1)}`,
                   }}
                 >
-                  {React.cloneElement(getCategoryIcon(cat.label) as any, { fontSize: 'small' })}
+                  {React.cloneElement(getCategoryIcon(cat.label), { fontSize: 'small' })}
                 </Avatar>
                 <Box>
                   <Typography
@@ -394,15 +356,7 @@ export default function PermissionRegistry() {
         </Box>
       )}
 
-      <Card
-        sx={{
-          border: '1px solid',
-          borderColor: 'divider',
-          boxShadow: 'none',
-          borderRadius: 'var(--sf-radius-lg, 16px)',
-          overflow: 'hidden',
-        }}
-      >
+      <AdminTableCard>
         {/* Toolbar */}
         <Box
           sx={{
@@ -457,7 +411,7 @@ export default function PermissionRegistry() {
         {/* Table */}
         <TableContainer>
           <Table sx={{ minWidth: 800 }}>
-            <TableHead sx={{ bgcolor: 'action.hover' }}>
+            <AdminTableHead>
               <TableRow>
                 {[
                   t('auth.admin.actionSlug'),
@@ -465,74 +419,34 @@ export default function PermissionRegistry() {
                   t('auth.admin.guard'),
                   t('auth.admin.description'),
                 ].map((col) => (
-                  <TableCell
-                    key={col}
-                    sx={{
-                      py: 2,
-                      fontWeight: 800,
-                      fontSize: '0.7rem',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.075em',
-                    }}
-                  >
+                  <AdminTableHeadCell key={col} sx={{ py: 2 }}>
                     {col}
-                  </TableCell>
+                  </AdminTableHeadCell>
                 ))}
-                <TableCell
-                  align='right'
-                  sx={{
-                    fontWeight: 800,
-                    fontSize: '0.7rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.075em',
-                  }}
-                >
+                <AdminTableHeadCell align='right'>
                   {t('auth.common.actions')}
-                </TableCell>
+                </AdminTableHeadCell>
               </TableRow>
-            </TableHead>
+            </AdminTableHead>
 
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={5} align='center' sx={{ py: 10 }}>
-                    <CircularProgress size={28} />
-                  </TableCell>
-                </TableRow>
-              ) : filtered.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} align='center' sx={{ py: 12 }}>
-                    <Stack spacing={2} alignItems='center'>
-                      <Avatar
-                        sx={{
-                          width: 64,
-                          height: 64,
-                          bgcolor: 'action.hover',
-                          color: 'text.disabled',
-                        }}
-                      >
-                        <ShieldIcon sx={{ fontSize: 32 }} />
-                      </Avatar>
-                      <Box>
-                        <Typography variant='h6' sx={{ fontWeight: 800, mb: 0.5 }}>
-                          {search || activeCategory
-                            ? t('auth.common.noResults')
-                            : t('auth.admin.noPermissions')}
-                        </Typography>
-                        <Typography
-                          variant='body2'
-                          color='text.secondary'
-                          sx={{ maxWidth: 300, mx: 'auto' }}
-                        >
-                          {t('auth.admin.noPermissionsHint')}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filtered.map((perm) => (
-                  <TableRow key={perm.id} hover>
+              <AdminDataState
+                asTableRow
+                skeletonColumns={5}
+                loading={isLoading}
+                error={isError || undefined}
+                onRetry={() => void refetch()}
+                empty={filtered.length === 0}
+                emptyIcon={<ShieldIcon sx={{ fontSize: 32 }} />}
+                emptyTitle={
+                  search || activeCategory
+                    ? t('auth.common.noResults')
+                    : t('auth.admin.noPermissions')
+                }
+                emptyDescription={t('auth.admin.noPermissionsHint')}
+              >
+                {filtered.map((perm) => (
+                  <AdminTableRow key={perm.id}>
                     {/* Slug */}
                     <TableCell>
                       <Chip
@@ -541,12 +455,11 @@ export default function PermissionRegistry() {
                         icon={<VpnKeyIcon sx={{ fontSize: '12px !important' }} />}
                         sx={{
                           fontWeight: 700,
-                          fontFamily: theme.typography.fontFamily,
+                          fontFamily: MONO_FONT,
                           borderRadius: 'var(--sf-radius-sm, 6px)',
-                          maxWidth: 240,
-                          height: 22,
-                          fontSize: '0.65rem',
-                          textTransform: 'uppercase',
+                          maxWidth: 260,
+                          height: 24,
+                          fontSize: '0.75rem',
                         }}
                         color='primary'
                         variant='outlined'
@@ -557,7 +470,7 @@ export default function PermissionRegistry() {
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <Box sx={{ color: 'text.secondary', display: 'flex', fontSize: 16 }}>
-                          {React.cloneElement(getCategoryIcon(perm.resource || '') as any, {
+                          {React.cloneElement(getCategoryIcon(perm.resource || ''), {
                             sx: { fontSize: 18, opacity: 0.7 },
                           })}
                         </Box>
@@ -630,9 +543,9 @@ export default function PermissionRegistry() {
                         </Tooltip>
                       </Stack>
                     </TableCell>
-                  </TableRow>
-                ))
-              )}
+                  </AdminTableRow>
+                ))}
+              </AdminDataState>
             </TableBody>
           </Table>
         </TableContainer>
@@ -657,7 +570,7 @@ export default function PermissionRegistry() {
             })}
           </Typography>
         </Box>
-      </Card>
+      </AdminTableCard>
 
       <Dialog
         open={dialogOpen}

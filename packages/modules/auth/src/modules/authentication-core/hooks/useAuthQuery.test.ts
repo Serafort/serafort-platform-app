@@ -83,7 +83,6 @@ import {
   useSignout,
   useRevokeSession,
   useRevokeAllSessions,
-  useRefreshToken,
 } from './useAuthQuery'
 
 // ─── useSignin ────────────────────────────────────────────────────────────────
@@ -247,80 +246,6 @@ describe('useSignout', () => {
 
     await act(async () => {
       result.current.mutate()
-    })
-    await waitFor(() => expect(result.current.isError).toBe(true))
-
-    expect(customOnError).toHaveBeenCalledTimes(1)
-  })
-})
-
-// ─── useRefreshToken ──────────────────────────────────────────────────────────
-
-describe('useRefreshToken', () => {
-  beforeEach(() => vi.clearAllMocks())
-
-  it('calls authService.refreshToken', async () => {
-    // /api/v1/auth/refresh returns `accessToken`, not `token`/`expires_in`.
-    mockRefreshToken.mockResolvedValue(ok({ accessToken: 'newTok', user: { id: 1 } }))
-    const { result } = renderHook(() => useRefreshToken(), { wrapper: makeWrapper() })
-
-    await act(async () => {
-      result.current.mutate({})
-    })
-    await waitFor(() => expect(result.current.isSuccess).toBe(true))
-
-    expect(mockRefreshToken).toHaveBeenCalledTimes(1)
-  })
-
-  it('writes new tokens to secureTokenManager when a token is returned', async () => {
-    mockRefreshToken.mockResolvedValue(ok({ accessToken: 'fresh', user: { id: 1 } }))
-    const { result } = renderHook(() => useRefreshToken(), { wrapper: makeWrapper() })
-
-    await act(async () => {
-      result.current.mutate({})
-    })
-    await waitFor(() => expect(result.current.isSuccess).toBe(true))
-
-    expect(mockSetTokens).toHaveBeenCalledWith(expect.objectContaining({ accessToken: 'fresh' }))
-  })
-
-  it('does not call setTokens when the response contains no token', async () => {
-    mockRefreshToken.mockResolvedValue(ok({}))
-    const { result } = renderHook(() => useRefreshToken(), { wrapper: makeWrapper() })
-
-    await act(async () => {
-      result.current.mutate({})
-    })
-    await waitFor(() => expect(result.current.isSuccess).toBe(true))
-
-    expect(mockSetTokens).not.toHaveBeenCalled()
-  })
-
-  it('calls customOnSuccess with the response', async () => {
-    const customOnSuccess = vi.fn()
-    const response = ok({ accessToken: 'tok', user: { id: 1 } })
-    mockRefreshToken.mockResolvedValue(response)
-    const { result } = renderHook(() => useRefreshToken({ onSuccess: customOnSuccess }), {
-      wrapper: makeWrapper(),
-    })
-
-    await act(async () => {
-      result.current.mutate({})
-    })
-    await waitFor(() => expect(result.current.isSuccess).toBe(true))
-
-    expect(customOnSuccess).toHaveBeenCalled()
-  })
-
-  it('calls customOnError when the refresh fails', async () => {
-    const customOnError = vi.fn()
-    mockRefreshToken.mockRejectedValue(err('Refresh failed', 401))
-    const { result } = renderHook(() => useRefreshToken({ onError: customOnError }), {
-      wrapper: makeWrapper(),
-    })
-
-    await act(async () => {
-      result.current.mutate({})
     })
     await waitFor(() => expect(result.current.isError).toBe(true))
 

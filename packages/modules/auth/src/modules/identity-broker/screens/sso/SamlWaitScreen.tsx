@@ -100,7 +100,7 @@ export default function SamlWaitScreen() {
       return
     }
 
-    const discoveryData = discoveryResponse?.data as any
+    const discoveryData = discoveryResponse?.data
     const targetUrl = discoveryData?.url || discoveryData?.loginUrl
 
     if (targetUrl) {
@@ -213,7 +213,7 @@ export default function SamlWaitScreen() {
               sx={{
                 mb: 4,
                 borderRadius: 'var(--sf-radius-md, 10px)',
-                textAlign: 'left',
+                textAlign: 'start',
                 '& .MuiAlert-message': { fontWeight: 600 },
               }}
             >
@@ -224,7 +224,7 @@ export default function SamlWaitScreen() {
               <Button
                 variant='outlined'
                 startIcon={<ArrowBackIcon />}
-                onClick={() => navigate(Path.auth.login)}
+                onClick={() => navigate(Path.auth.signin)}
                 sx={{
                   minHeight: 44,
                   fontWeight: 700,

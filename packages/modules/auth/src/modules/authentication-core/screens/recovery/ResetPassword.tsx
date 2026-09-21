@@ -19,7 +19,11 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useTranslation } from 'react-i18next'
 import { FetchResponse, useAppStore } from '@cap/platform-core'
-import type { ResetPasswordRequest } from '../../types/api.types'
+import type {
+  ResetPasswordRequest,
+  PasswordResetVerifyResponse,
+  PasswordResetResponse,
+} from '../../types/api.types'
 import { useResetPassword } from '../../hooks/useAuthQuery'
 import authService from '../../services/auth.service'
 import {
@@ -97,7 +101,7 @@ export default function ResetPassword() {
         // `signature` value here (as opposed to the full query string) used to
         // build a URL missing `token`, which the backend rejects as
         // 'Invalid password reset parameters.' every time this branch ran.
-        const response: FetchResponse<any> = tokenParam
+        const response: FetchResponse<PasswordResetVerifyResponse> = tokenParam
           ? await authService.verifyResetToken(decodedEmail, tokenParam)
           : await authService.verifyResetPassword(decodedEmail, searchParams.toString())
 
@@ -131,13 +135,13 @@ export default function ResetPassword() {
   }, [decodedEmail, signature, tokenParam, t])
 
   const resetPasswordMutation = useResetPassword({
-    onSuccess: async (response: FetchResponse<any>) => {
+    onSuccess: async (response: FetchResponse<PasswordResetResponse>) => {
       const { user, token: authToken } = response.data || {}
       if (authToken || user) {
         await authService.handleLoginSuccess({ user, accessToken: authToken })
       }
       if (user) {
-        useAppStore.getState().setUser(user)
+        useAppStore.getState().setUser(user as any)
       }
       navigate(Path.passwordResetSuccess, { replace: true })
     },
@@ -220,7 +224,7 @@ export default function ResetPassword() {
               sx={{
                 minHeight: 48,
                 borderRadius: 'var(--sf-radius-lg, 12px)',
-                fontWeight: 800,
+                fontWeight: 700,
                 fontSize: '1rem',
                 textTransform: 'none',
               }}
@@ -270,7 +274,7 @@ export default function ResetPassword() {
           <Stack spacing={3}>
             <Box>
               <AuthInputLabel htmlFor='reset-password'>
-                {t('resetPassword.newPasswordLabel', 'NEW PASSWORD')}
+                {t('resetPassword.newPasswordLabel', 'New password')}
               </AuthInputLabel>
               <Controller
                 name='password'
@@ -319,7 +323,7 @@ export default function ResetPassword() {
 
             <Box>
               <AuthInputLabel htmlFor='reset-confirm-password'>
-                {t('resetPassword.confirmPasswordLabel', 'CONFIRM PASSWORD')}
+                {t('resetPassword.confirmPasswordLabel', 'Confirm password')}
               </AuthInputLabel>
               <Controller
                 name='confirmPassword'

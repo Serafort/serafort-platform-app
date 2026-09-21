@@ -36,22 +36,32 @@ import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import {
   useWebhooksQuery,
+  useWebhookEventTypesQuery,
   useCreateWebhookMutation,
   useUpdateWebhookMutation,
   useDeleteWebhookMutation,
   useTestWebhookMutation,
 } from '../hooks/useDeveloperConsoleQuery'
+import type { WebhookItem, WebhookTestResult } from '@cap/auth-contracts'
 import { ConfirmDeleteModal } from '../../authentication-core/components/shared'
+import { MONO_FONT } from '../../authorization-engine/components/tokens'
 import {
+  AdminDataState,
   AdminTableCard,
   AdminTableHead,
   AdminTableHeadCell,
   AdminTableRow,
+  AdminPageHeader,
   AdminStatusBadge,
   AdminRowActionButton,
 } from '../../authentication-core/components/shared/admin'
 
-export const WEBHOOK_EVENT_CATEGORIES = {
+/**
+ * Fallback catalogue, used only until `GET /api/admin/webhooks/event-types`
+ * answers (or if it fails). The server owns the authoritative list — this copy
+ * exists so the picker is never blank, not as a second source of truth.
+ */
+export const WEBHOOK_EVENT_CATEGORIES: Record<string, string[]> = {
   authentication: [
     'auth.login',
     'auth.logout',
@@ -59,29 +69,64 @@ export const WEBHOOK_EVENT_CATEGORIES = {
     'auth.mfa_challenged',
     'auth.password_reset',
   ],
-  user_lifecycle: ['user.created', 'user.updated', 'user.deleted', 'user.banned', 'user.unlocked'],
+  user_lifecycle: [
+    'user.created',
+    'user.updated',
+    'user.deleted',
+    'user.banned',
+    'user.locked',
+    'user.unlocked',
+  ],
   authorization_rbac: ['role.assigned', 'role.revoked', 'policy.created', 'policy.updated'],
   security_ssf: ['security.anomaly', 'threat.detected', 'ssf.caep_event', 'session.revoked'],
+  audit: ['audit.checkpoint', 'audit.export_completed'],
 }
 
-const CATEGORY_LABEL_KEYS: Record<keyof typeof WEBHOOK_EVENT_CATEGORIES, string> = {
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
   authentication: 'auth.developer_console.webhooks.category_authentication',
   user_lifecycle: 'auth.developer_console.webhooks.category_user_lifecycle',
   authorization_rbac: 'auth.developer_console.webhooks.category_authorization_rbac',
   security_ssf: 'auth.developer_console.webhooks.category_security_ssf',
+  audit: 'auth.developer_console.webhooks.category_audit',
 }
 
-const CATEGORY_LABEL_DEFAULTS: Record<keyof typeof WEBHOOK_EVENT_CATEGORIES, string> = {
+const CATEGORY_LABEL_DEFAULTS: Record<string, string> = {
   authentication: 'Authentication',
   user_lifecycle: 'User Lifecycle',
   authorization_rbac: 'Authorization & RBAC',
   security_ssf: 'Security & SSF',
+  audit: 'Audit & Compliance',
+}
+
+/** Turn an unrecognised category key from the server into a readable heading. */
+const humanizeCategory = (key: string) =>
+  key
+    .split(/[_.-]/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+
+/**
+ * The endpoint must be an absolute http(s) URL. The server enforces this too
+ * (and additionally refuses plaintext and internal addresses in production);
+ * checking here just spares the round trip.
+ */
+const validateEndpointUrl = (value: string): 'empty' | 'invalid' | null => {
+  const trimmed = value.trim()
+  if (!trimmed) return 'empty'
+  try {
+    const parsed = new URL(trimmed)
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? null : 'invalid'
+  } catch {
+    return 'invalid'
+  }
 }
 
 export const WebhooksScreen: React.FC = () => {
   const { t } = useTranslation('auth')
   // TanStack Query hooks
-  const { data: webhooks = [], isLoading, isError, error, refetch } = useWebhooksQuery()
+  const { data: webhooks = [], isLoading, isError, refetch } = useWebhooksQuery()
+  const { data: serverCategories } = useWebhookEventTypesQuery()
   const createMutation = useCreateWebhookMutation()
   const updateMutation = useUpdateWebhookMutation()
   const deleteMutation = useDeleteWebhookMutation()
@@ -89,10 +134,29 @@ export const WebhooksScreen: React.FC = () => {
 
   // Create / Edit Modal state
   const [modalOpen, setModalOpen] = useState(false)
-  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [url, setUrl] = useState('')
+  const [urlTouched, setUrlTouched] = useState(false)
   const [selectedEvents, setSelectedEvents] = useState<string[]>([])
   const [isActive, setIsActive] = useState(true)
+
+  // Prefer the server's catalogue; fall back to the bundled copy until it loads.
+  const categories =
+    serverCategories && Object.keys(serverCategories).length > 0
+      ? serverCategories
+      : WEBHOOK_EVENT_CATEGORIES
+
+  const catalogEvents = React.useMemo(
+    () => new Set(Object.values(categories).flat()),
+    [categories],
+  )
+
+  /**
+   * Events this subscription already carries that the catalogue does not list.
+   * They are surfaced as their own group so that opening and saving such a
+   * webhook preserves them instead of quietly unsubscribing it.
+   */
+  const customEvents = selectedEvents.filter((event) => !catalogEvents.has(event))
 
   // One-time Secret Reveal Modal (shown after creation)
   const [secretRevealOpen, setSecretRevealOpen] = useState(false)
@@ -104,13 +168,12 @@ export const WebhooksScreen: React.FC = () => {
   const [testResult, setTestResult] = useState<{
     open: boolean
     loading: boolean
-    success?: boolean
-    payload?: unknown
+    result?: WebhookTestResult
     error?: string
   }>({ open: false, loading: false })
 
   // Delete confirmation state
-  const [deleteTarget, setDeleteTarget] = useState<{ id: number; url: string } | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; url: string } | null>(null)
 
   // -----------------------------------------------------------------------
   // Form Handlers
@@ -119,16 +182,24 @@ export const WebhooksScreen: React.FC = () => {
   const handleOpenCreate = () => {
     setEditingId(null)
     setUrl('')
+    setUrlTouched(false)
     setSelectedEvents(['auth.login', 'user.created'])
     setIsActive(true)
+    createMutation.reset()
+    updateMutation.reset()
     setModalOpen(true)
   }
 
-  const handleOpenEdit = (wh: any) => {
+  const handleOpenEdit = (wh: WebhookItem) => {
     setEditingId(wh.id)
     setUrl(wh.url)
-    setSelectedEvents(wh.eventTypes || (wh as any).event_types || [])
-    setIsActive(wh.isActive ?? (wh as any).is_active ?? true)
+    setUrlTouched(false)
+    setSelectedEvents(Array.isArray(wh.eventTypes) ? wh.eventTypes : [])
+    // A row auto-disabled by the retry budget reports isActive === false; the
+    // toggle shows that truthfully, and turning it back on clears the failures.
+    setIsActive(wh.isActive ?? true)
+    createMutation.reset()
+    updateMutation.reset()
     setModalOpen(true)
   }
 
@@ -140,19 +211,28 @@ export const WebhooksScreen: React.FC = () => {
 
   const applyPreset = (type: 'all' | 'auth' | 'security' | 'clear') => {
     if (type === 'all') {
-      const all = Object.values(WEBHOOK_EVENT_CATEGORIES).flat()
-      setSelectedEvents(Array.from(new Set(all)))
+      // Keep any custom events already on the record — "All Events" should add,
+      // not silently drop what the catalogue does not happen to list.
+      setSelectedEvents(
+        Array.from(new Set([...Object.values(categories).flat(), ...customEvents])),
+      )
     } else if (type === 'auth') {
-      setSelectedEvents(WEBHOOK_EVENT_CATEGORIES.authentication)
+      setSelectedEvents(categories.authentication ?? [])
     } else if (type === 'security') {
-      setSelectedEvents(WEBHOOK_EVENT_CATEGORIES.security_ssf)
+      setSelectedEvents(categories.security_ssf ?? [])
     } else if (type === 'clear') {
       setSelectedEvents([])
     }
   }
 
+  const urlError = validateEndpointUrl(url)
+  const canSave = !urlError && selectedEvents.length > 0
+
   const handleSave = async () => {
-    if (!url.trim() || selectedEvents.length === 0) return
+    if (!canSave) {
+      setUrlTouched(true)
+      return
+    }
 
     try {
       if (editingId) {
@@ -195,17 +275,24 @@ export const WebhooksScreen: React.FC = () => {
     }
   }
 
-  const handleSendTestPing = async (id: number) => {
+  /**
+   * Dispatch a real signed POST to the endpoint. The request resolves whether
+   * or not the endpoint answered — `result.ok` carries the delivery outcome —
+   * so the catch here covers only a failure to reach *our own* API.
+   */
+  const handleSendTestPing = async (id: string) => {
     setTestResult({ open: true, loading: true })
     try {
       const result = await testMutation.mutateAsync(id)
-      setTestResult({ open: true, loading: false, success: true, payload: result })
+      setTestResult({ open: true, loading: false, result })
     } catch (err: unknown) {
       setTestResult({
         open: true,
         loading: false,
-        success: false,
-        error: err instanceof Error ? err.message : 'Ping delivery failed',
+        error:
+          err instanceof Error
+            ? err.message
+            : t('auth.developer_console.webhooks.test_request_failed', 'Ping request failed'),
       })
     }
   }
@@ -253,86 +340,65 @@ export const WebhooksScreen: React.FC = () => {
   const isSaving = createMutation.isPending || updateMutation.isPending
 
   const renderTableSkeleton = () => (
-    <>
-      {[1, 2, 3].map((i) => (
-        <TableRow key={i}>
-          <TableCell>
-            <Skeleton variant='text' width='70%' />
-          </TableCell>
-          <TableCell>
-            <Skeleton variant='rounded' width={60} height={24} />
-          </TableCell>
-          <TableCell>
-            <Skeleton variant='text' width='60%' />
-          </TableCell>
-          <TableCell>
-            <Skeleton variant='text' width='40%' />
-          </TableCell>
-          <TableCell>
-            <Skeleton variant='text' width='40%' />
-          </TableCell>
-          <TableCell align='right'>
-            <Skeleton variant='rounded' width={100} height={28} />
-          </TableCell>
-        </TableRow>
-      ))}
-    </>
+    <AdminDataState asTableRow loading skeletonRows={3} skeletonColumns={6}>
+      {null}
+    </AdminDataState>
   )
 
   const renderEmptyState = () => (
-    <TableRow>
-      <TableCell colSpan={6} align='center' sx={{ py: 8 }}>
-        <WebhookIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-        <Typography variant='body1' fontWeight={600}>
-          {t('auth.developer_console.webhooks.empty_title', 'No Webhook Endpoints configured.')}
-        </Typography>
-        <Typography variant='body2' color='text.secondary' sx={{ mt: 0.5, mb: 2 }}>
-          {t(
-            'auth.developer_console.webhooks.empty_desc',
-            'Add an HTTPS webhook endpoint to receive real-time authentication and security signals.',
-          )}
-        </Typography>
+    <AdminDataState
+      asTableRow
+      empty
+      skeletonColumns={6}
+      emptyIcon={<WebhookIcon sx={{ fontSize: 32 }} />}
+      emptyTitle={t(
+        'auth.developer_console.webhooks.empty_title',
+        'No Webhook Endpoints configured.',
+      )}
+      emptyDescription={t(
+        'auth.developer_console.webhooks.empty_desc',
+        'Add an HTTPS webhook endpoint to receive real-time authentication and security signals.',
+      )}
+      emptyAction={
         <Button
           variant='contained'
           startIcon={<AddIcon />}
           onClick={handleOpenCreate}
-          sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
+          sx={{
+            minHeight: 44,
+            borderRadius: 'var(--sf-radius-md, 8px)',
+            textTransform: 'none',
+            fontWeight: 700,
+          }}
         >
           {t('auth.developer_console.webhooks.add_first', 'Add Your First Webhook')}
         </Button>
-      </TableCell>
-    </TableRow>
+      }
+    >
+      {null}
+    </AdminDataState>
   )
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
-          <Typography
-            variant='h4'
-            component='h1'
-            fontWeight={700}
-            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+      <AdminPageHeader
+        icon={<WebhookIcon />}
+        title={t('auth.developer_console.webhooks.title', 'Webhooks & Event Streams')}
+        description={t(
+          'auth.developer_console.webhooks.subtitle',
+          'Subscribe your external infrastructure and SIEM systems to real-time Identity & Security events.',
+        )}
+        actions={
+          <Button
+            variant='contained'
+            startIcon={<AddIcon />}
+            onClick={handleOpenCreate}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
           >
-            <WebhookIcon color='primary' fontSize='large' />{' '}
-            {t('auth.developer_console.webhooks.title', 'Webhooks & Event Streams')}
-          </Typography>
-          <Typography variant='body2' color='text.secondary'>
-            {t(
-              'auth.developer_console.webhooks.subtitle',
-              'Subscribe your external infrastructure and SIEM systems to real-time Identity & Security events.',
-            )}
-          </Typography>
-        </Box>
-        <Button
-          variant='contained'
-          startIcon={<AddIcon />}
-          onClick={handleOpenCreate}
-          sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
-        >
-          {t('auth.developer_console.webhooks.add_endpoint', 'Add Webhook Endpoint')}
-        </Button>
-      </Box>
+            {t('auth.developer_console.webhooks.add_endpoint', 'Add Webhook Endpoint')}
+          </Button>
+        }
+      />
 
       {/* Error Banner */}
       {isError && (
@@ -351,9 +417,7 @@ export const WebhooksScreen: React.FC = () => {
             </Button>
           }
         >
-          {error instanceof Error
-            ? error.message
-            : t('auth.developer_console.webhooks.load_error', 'Failed to load webhooks.')}
+          {t('auth.developer_console.webhooks.load_error', 'Failed to load webhooks.')}
         </Alert>
       )}
 
@@ -409,16 +473,16 @@ export const WebhooksScreen: React.FC = () => {
               ? renderTableSkeleton()
               : webhooks.length === 0
                 ? renderEmptyState()
-                : webhooks.map((wh: any) => {
-                    const events = Array.isArray(wh.eventTypes)
-                      ? wh.eventTypes
-                      : wh.event_types || []
-                    const isActiveStatus = wh.isActive ?? wh.is_active ?? true
-                    const isDisabled = wh.isDisabled ?? false
-                    const failureCount = wh.failureCount ?? wh.failure_count ?? 0
-                    const maxRetries = wh.maxRetries ?? wh.max_retries ?? 0
-                    const lastTriggeredAt = wh.lastTriggeredAt ?? wh.last_triggered_at
-                    const statusLabel = isDisabled
+                : webhooks.map((wh: WebhookItem) => {
+                    const events = Array.isArray(wh.eventTypes) ? wh.eventTypes : []
+                    const isActiveStatus = wh.isActive ?? true
+                    const failureCount = wh.failureCount ?? 0
+                    const maxRetries = wh.maxRetries ?? 0
+                    const lastTriggeredAt = wh.lastTriggeredAt
+                    // Three distinct states: auto-disabled by the retry budget
+                    // (disabledAt set), manually paused, or delivering.
+                    const autoDisabled = !!wh.disabledAt
+                    const statusLabel = autoDisabled
                       ? t('auth.developer_console.webhooks.status_disabled', 'Disabled')
                       : isActiveStatus
                         ? t('auth.developer_console.webhooks.status_active', 'Active')
@@ -443,14 +507,14 @@ export const WebhooksScreen: React.FC = () => {
                           <Typography
                             variant='subtitle2'
                             fontWeight={600}
-                            sx={{ fontFamily: 'monospace' }}
+                            sx={{ fontFamily: MONO_FONT, fontSize: '0.8125rem', wordBreak: 'break-all' }}
                           >
                             {wh.url}
                           </Typography>
                         </TableCell>
                         <TableCell>
                           <AdminStatusBadge
-                            tone={isDisabled ? 'error' : isActiveStatus ? 'success' : 'neutral'}
+                            tone={autoDisabled ? 'error' : isActiveStatus ? 'success' : 'neutral'}
                             label={statusLabel}
                           />
                         </TableCell>
@@ -557,11 +621,20 @@ export const WebhooksScreen: React.FC = () => {
               fullWidth
               value={url}
               onChange={(e) => setUrl(e.target.value)}
+              onBlur={() => setUrlTouched(true)}
               placeholder='https://api.yourdomain.com/webhooks/auth'
-              helperText={t(
-                'auth.developer_console.webhooks.url_helper',
-                'Must be a valid HTTPS URL capable of receiving POST payloads.',
-              )}
+              error={urlTouched && urlError === 'invalid'}
+              helperText={
+                urlTouched && urlError === 'invalid'
+                  ? t(
+                      'auth.developer_console.webhooks.url_invalid',
+                      'Enter an absolute URL beginning with https:// (or http:// in development).',
+                    )
+                  : t(
+                      'auth.developer_console.webhooks.url_helper',
+                      'Must be a valid HTTPS URL capable of receiving POST payloads.',
+                    )
+              }
             />
 
             <FormControlLabel
@@ -613,12 +686,7 @@ export const WebhooksScreen: React.FC = () => {
               </Box>
 
               <Stack spacing={2}>
-                {(
-                  Object.entries(WEBHOOK_EVENT_CATEGORIES) as [
-                    keyof typeof WEBHOOK_EVENT_CATEGORIES,
-                    string[],
-                  ][]
-                ).map(([category, events]) => (
+                {Object.entries(categories).map(([category, events]) => (
                   <Box key={category} sx={{ p: 1.5, borderRadius: 'var(--sf-radius-md, 8px)', bgcolor: 'action.hover' }}>
                     <Typography
                       variant='caption'
@@ -626,7 +694,9 @@ export const WebhooksScreen: React.FC = () => {
                       color='text.secondary'
                       sx={{ textTransform: 'uppercase', mb: 1, display: 'block' }}
                     >
-                      {t(CATEGORY_LABEL_KEYS[category], CATEGORY_LABEL_DEFAULTS[category])}
+                      {CATEGORY_LABEL_KEYS[category]
+                        ? t(CATEGORY_LABEL_KEYS[category], CATEGORY_LABEL_DEFAULTS[category])
+                        : humanizeCategory(category)}
                     </Typography>
                     <Stack direction='row' spacing={1} flexWrap='wrap' useFlexGap>
                       {events.map((event) => {
@@ -646,6 +716,35 @@ export const WebhooksScreen: React.FC = () => {
                     </Stack>
                   </Box>
                 ))}
+
+                {/* Events already on this subscription that the catalogue does
+                    not list. Rendering them keeps a save from unsubscribing the
+                    endpoint from events the picker simply could not show. */}
+                {customEvents.length > 0 && (
+                  <Box sx={{ p: 1.5, borderRadius: 'var(--sf-radius-md, 8px)', bgcolor: 'action.hover' }}>
+                    <Typography
+                      variant='caption'
+                      fontWeight={700}
+                      color='text.secondary'
+                      sx={{ textTransform: 'uppercase', mb: 1, display: 'block' }}
+                    >
+                      {t('auth.developer_console.webhooks.category_custom', 'Other Subscribed Events')}
+                    </Typography>
+                    <Stack direction='row' spacing={1} flexWrap='wrap' useFlexGap>
+                      {customEvents.map((event) => (
+                        <Chip
+                          key={event}
+                          label={event}
+                          size='small'
+                          onClick={() => toggleEvent(event)}
+                          color='primary'
+                          variant='filled'
+                          sx={{ cursor: 'pointer', borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 600 }}
+                        />
+                      ))}
+                    </Stack>
+                  </Box>
+                )}
               </Stack>
             </Box>
           </Stack>
@@ -660,7 +759,7 @@ export const WebhooksScreen: React.FC = () => {
           <Button
             variant='contained'
             onClick={handleSave}
-            disabled={!url.trim() || selectedEvents.length === 0 || isSaving}
+            disabled={!canSave || isSaving}
             sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
           >
             {isSaving
@@ -702,12 +801,12 @@ export const WebhooksScreen: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 bgcolor: 'background.default',
-                fontFamily: 'monospace',
+                fontFamily: MONO_FONT,
                 wordBreak: 'break-all',
                 borderRadius: 'var(--sf-radius-md, 8px)',
               }}
             >
-              <Typography variant='body2' sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
+              <Typography variant='body2' sx={{ fontFamily: MONO_FONT, fontWeight: 600 }}>
                 {createdWebhookSecret}
               </Typography>
               <Stack direction='row' spacing={0.5} sx={{ ml: 1, flexShrink: 0 }}>
@@ -778,14 +877,57 @@ export const WebhooksScreen: React.FC = () => {
                 )}
               </Typography>
             </Box>
-          ) : testResult.success ? (
+          ) : testResult.result ? (
             <Stack spacing={2} sx={{ mt: 1 }}>
-              <Alert severity='success' icon={<CheckCircleIcon />} sx={{ borderRadius: 'var(--sf-radius-md, 10px)' }}>
-                {t(
-                  'auth.developer_console.webhooks.test_ping_success',
-                  'Test ping payload successfully created and scheduled for dispatch!',
-                )}
+              <Alert
+                severity={testResult.result.ok ? 'success' : 'error'}
+                icon={testResult.result.ok ? <CheckCircleIcon /> : <ErrorOutlineIcon />}
+                sx={{ borderRadius: 'var(--sf-radius-md, 10px)' }}
+              >
+                {testResult.result.message}
               </Alert>
+
+              {/* What the transport actually did — the only way an admin can
+                  tell a 404 from a TLS failure from a timeout. */}
+              <Stack direction='row' spacing={1} flexWrap='wrap' useFlexGap>
+                {testResult.result.statusCode !== null && (
+                  <Chip
+                    size='small'
+                    color={testResult.result.ok ? 'success' : 'error'}
+                    variant='outlined'
+                    label={t(
+                      'auth.developer_console.webhooks.test_ping_status',
+                      'HTTP {{code}} {{text}}',
+                      {
+                        code: testResult.result.statusCode,
+                        text: testResult.result.statusText ?? '',
+                      },
+                    )}
+                    sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 700 }}
+                  />
+                )}
+                <Chip
+                  size='small'
+                  variant='outlined'
+                  label={t(
+                    'auth.developer_console.webhooks.test_ping_duration',
+                    'Took {{ms}} ms',
+                    { ms: testResult.result.durationMs },
+                  )}
+                  sx={{ borderRadius: 'var(--sf-radius-sm, 6px)', fontWeight: 700 }}
+                />
+                <Chip
+                  size='small'
+                  variant='outlined'
+                  label={testResult.result.webhookUrl}
+                  sx={{
+                    borderRadius: 'var(--sf-radius-sm, 6px)',
+                    fontFamily: MONO_FONT,
+                    maxWidth: '100%',
+                  }}
+                />
+              </Stack>
+
               <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default', borderRadius: 'var(--sf-radius-md, 8px)' }}>
                 <Typography
                   variant='caption'
@@ -799,14 +941,68 @@ export const WebhooksScreen: React.FC = () => {
                   style={{
                     margin: 0,
                     fontSize: '0.8rem',
-                    fontFamily: 'monospace',
+                    fontFamily: MONO_FONT,
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-all',
                   }}
                 >
-                  {JSON.stringify(testResult.payload, null, 2)}
+                  {JSON.stringify(testResult.result.payload, null, 2)}
                 </pre>
               </Paper>
+
+              <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default', borderRadius: 'var(--sf-radius-md, 8px)' }}>
+                <Typography
+                  variant='caption'
+                  fontWeight={700}
+                  color='text.secondary'
+                  sx={{ mb: 1, display: 'block' }}
+                >
+                  {t(
+                    'auth.developer_console.webhooks.test_ping_request_headers',
+                    'Signed Request Headers',
+                  )}
+                </Typography>
+                <pre
+                  style={{
+                    margin: 0,
+                    fontSize: '0.8rem',
+                    fontFamily: MONO_FONT,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-all',
+                  }}
+                >
+                  {Object.entries(testResult.result.requestHeaders ?? {})
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join('\n')}
+                </pre>
+              </Paper>
+
+              {testResult.result.responseBody ? (
+                <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default', borderRadius: 'var(--sf-radius-md, 8px)' }}>
+                  <Typography
+                    variant='caption'
+                    fontWeight={700}
+                    color='text.secondary'
+                    sx={{ mb: 1, display: 'block' }}
+                  >
+                    {t(
+                      'auth.developer_console.webhooks.test_ping_response',
+                      'Endpoint Response',
+                    )}
+                  </Typography>
+                  <pre
+                    style={{
+                      margin: 0,
+                      fontSize: '0.8rem',
+                      fontFamily: MONO_FONT,
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-all',
+                    }}
+                  >
+                    {testResult.result.responseBody}
+                  </pre>
+                </Paper>
+              ) : null}
             </Stack>
           ) : (
             <Stack spacing={2} sx={{ mt: 1 }}>

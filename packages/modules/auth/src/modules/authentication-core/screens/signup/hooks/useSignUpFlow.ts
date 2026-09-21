@@ -206,13 +206,13 @@ export function useSignUpFlow() {
       const response = await authService.verifyEmailCode(pendingEmail, otpCode)
       if (response.status === 200 || response.status === 202) {
         const responseData = response.data
-        if (responseData?.token || responseData?.accessToken) {
-          const token = responseData?.token || responseData?.accessToken
+        const token = responseData?.token || responseData?.accessToken
+        if (token) {
           secureTokenManager.setTokens({
             accessToken: token,
             expiresAt: Date.now() + 3600 * 1000,
           })
-          const userData = responseData?.user || responseData
+          const userData = (responseData?.user || responseData) as any
           useAppStore.getState().setUser(userData)
         }
 

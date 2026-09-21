@@ -134,7 +134,7 @@ export const LockedStep: React.FC<LockedStepProps> = ({
         fullWidth
         PaperProps={{ sx: { borderRadius: 'var(--sf-radius-lg, 12px)', p: 1 } }}
       >
-        <DialogTitle sx={{ fontWeight: 800 }}>
+        <DialogTitle sx={{ fontWeight: 700 }}>
           {t('auth.lockout.appealTitle', 'Submit Ban Appeal')}
         </DialogTitle>
         <form onSubmit={handleSubmitAppeal}>

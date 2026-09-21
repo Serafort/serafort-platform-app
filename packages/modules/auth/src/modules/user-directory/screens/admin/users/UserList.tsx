@@ -56,6 +56,7 @@ import { useTranslation } from 'react-i18next'
 import { useDebounce } from 'use-debounce'
 import { motion } from 'framer-motion'
 import Path from '../../path'
+import { getPlainErrorMessage } from '../../../types/api.types'
 import { useUsersQuery, useRolesQuery } from '../../../hooks/useUserDirectoryQuery'
 import {
   useUpdateUserStatusMutation,
@@ -305,14 +306,14 @@ export default function UserList() {
         <Box>
           <Stack direction='row' spacing={1.5} alignItems='center' mb={0.5}>
             <Typography variant='h4' fontWeight={800} letterSpacing='-0.02em'>
-              User Directory
+              {t('auth.userDirectory.userList2.userDirectory', 'User Directory')}
             </Typography>
             {isFetching && !isLoading && (
               <CircularProgress size={16} sx={{ color: 'text.secondary' }} />
             )}
           </Stack>
           <Typography variant='body2' color='text.secondary'>
-            Manage organization members, security statuses, roles, and administrative credentials.
+            {t('auth.userDirectory.userList2.manageOrganizationMembersSecurity', 'Manage organization members, security statuses, roles, and administrative credentials.')}
           </Typography>
         </Box>
 
@@ -337,7 +338,7 @@ export default function UserList() {
               borderColor: alpha(theme.palette.divider, 0.2),
             }}
           >
-            Export CSV
+            {t('auth.userDirectory.userList2.exportCsv', 'Export CSV')}
           </Button>
           <Button
             variant='contained'
@@ -352,7 +353,7 @@ export default function UserList() {
               boxShadow: 'var(--sf-shadow-glow)',
             }}
           >
-            Invite User
+            {t('auth.userDirectory.userList2.inviteUser', 'Invite User')}
           </Button>
         </Stack>
       </Stack>
@@ -418,7 +419,7 @@ export default function UserList() {
           {/* Search Input */}
           <TextField
             size='small'
-            placeholder='Search by name, email, or department...'
+            placeholder={t('auth.userDirectory.userList2.searchByNameEmail', 'Search by name, email, or department...')}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             slotProps={{
@@ -430,7 +431,7 @@ export default function UserList() {
                 ),
                 endAdornment: searchInput ? (
                   <InputAdornment position='end'>
-                    <IconButton size='small' aria-label='Clear search' onClick={() => setSearchInput('')}>
+                    <IconButton size='small' sx={{ width: 44, height: 44 }} aria-label={t('auth.userDirectory.userList2.clearSearch', 'Clear search')} onClick={() => setSearchInput('')}>
                       <ClearIcon fontSize='small' />
                     </IconButton>
                   </InputAdornment>
@@ -453,7 +454,7 @@ export default function UserList() {
                 displayEmpty
                 sx={{ borderRadius: 'var(--sf-radius-md, 8px)', bgcolor: 'background.paper', minHeight: 40 }}
               >
-                <MenuItem value='ALL'>All Roles</MenuItem>
+                <MenuItem value='ALL'>{t('auth.userDirectory.userList2.allRoles', 'All Roles')}</MenuItem>
                 {roles.map((r) => (
                   <MenuItem key={r.id} value={String(r.id)}>
                     {r.name}
@@ -472,17 +473,17 @@ export default function UserList() {
                 }}
                 sx={{ borderRadius: 'var(--sf-radius-md, 8px)', bgcolor: 'background.paper', minHeight: 40 }}
               >
-                <MenuItem value='createdAt-desc'>Newest First</MenuItem>
-                <MenuItem value='createdAt-asc'>Oldest First</MenuItem>
-                <MenuItem value='lastName-asc'>Name (A - Z)</MenuItem>
-                <MenuItem value='lastName-desc'>Name (Z - A)</MenuItem>
-                <MenuItem value='email-asc'>Email (A - Z)</MenuItem>
+                <MenuItem value='createdAt-desc'>{t('auth.userDirectory.userList2.newestFirst', 'Newest First')}</MenuItem>
+                <MenuItem value='createdAt-asc'>{t('auth.userDirectory.userList2.oldestFirst', 'Oldest First')}</MenuItem>
+                <MenuItem value='lastName-asc'>{t('auth.userDirectory.userList2.nameAZ', 'Name (A - Z)')}</MenuItem>
+                <MenuItem value='lastName-desc'>{t('auth.userDirectory.userList2.nameZA', 'Name (Z - A)')}</MenuItem>
+                <MenuItem value='email-asc'>{t('auth.userDirectory.userList2.emailAZ', 'Email (A - Z)')}</MenuItem>
               </Select>
             </FormControl>
 
-            <Tooltip title='Refresh Directory'>
+            <Tooltip title={t('auth.userDirectory.userList2.refreshDirectory', 'Refresh Directory')}>
               <IconButton
-                aria-label='Refresh Directory'
+                aria-label={t('auth.userDirectory.userList2.refreshDirectory', 'Refresh Directory')}
                 onClick={() => refetch()}
                 size='small'
                 sx={{
@@ -535,7 +536,7 @@ export default function UserList() {
                   minHeight: 36,
                 }}
               >
-                Activate
+                {t('auth.userDirectory.userList2.activate', 'Activate')}
               </Button>
               <Button
                 size='small'
@@ -549,7 +550,7 @@ export default function UserList() {
                   minHeight: 36,
                 }}
               >
-                Suspend
+                {t('auth.userDirectory.userList2.suspend', 'Suspend')}
               </Button>
               <Button
                 size='small'
@@ -563,7 +564,7 @@ export default function UserList() {
                   minHeight: 36,
                 }}
               >
-                Delete
+                {t('auth.userDirectory.userList2.delete', 'Delete')}
               </Button>
               <Button
                 size='small'
@@ -571,7 +572,7 @@ export default function UserList() {
                 onClick={() => setSelectedIds([])}
                 sx={{ textTransform: 'none', ml: 1, minHeight: 36, fontWeight: 600 }}
               >
-                Clear Selection
+                {t('auth.userDirectory.userList2.clearSelection', 'Clear Selection')}
               </Button>
             </Stack>
           </Box>
@@ -584,11 +585,11 @@ export default function UserList() {
               severity='error'
               action={
                 <Button color='inherit' size='small' onClick={() => refetch()}>
-                  Retry
+                  {t('auth.userDirectory.userList2.retry', 'Retry')}
                 </Button>
               }
             >
-              {(error as any)?.message || 'Failed to load user directory. Please try again.'}
+              {getPlainErrorMessage(error) || 'Failed to load user directory. Please try again.'}
             </Alert>
           </Box>
         )}
@@ -678,7 +679,7 @@ export default function UserList() {
                         <PeopleOutlineIcon fontSize='large' />
                       </Avatar>
                       <Typography variant='h6' fontWeight={700} gutterBottom>
-                        No users found
+                        {t('auth.userDirectory.userList2.noUsersFound', 'No users found')}
                       </Typography>
                       <Typography variant='body2' color='text.secondary' mb={3}>
                         {searchInput || statusFilter !== 'ALL' || roleFilter !== 'ALL'
@@ -692,7 +693,7 @@ export default function UserList() {
                             onClick={handleResetFilters}
                             sx={{ textTransform: 'none', fontWeight: 600 }}
                           >
-                            Reset Filters
+                            {t('auth.userDirectory.userList2.resetFilters', 'Reset Filters')}
                           </Button>
                         )}
                         <Button
@@ -701,7 +702,7 @@ export default function UserList() {
                           onClick={() => setIsInviteModalOpen(true)}
                           sx={{ textTransform: 'none', fontWeight: 700 }}
                         >
-                          Invite User
+                          {t('auth.userDirectory.userList2.inviteUser', 'Invite User')}
                         </Button>
                       </Stack>
                     </Box>
@@ -802,7 +803,7 @@ export default function UserList() {
                             ))
                           ) : (
                             <Typography variant='caption' color='text.secondary'>
-                              Standard User
+                              {t('auth.userDirectory.userList2.standardUser', 'Standard User')}
                             </Typography>
                           )}
                         </Stack>
@@ -836,7 +837,7 @@ export default function UserList() {
                       {/* Actions Menu */}
                       <TableCell align='right' sx={{ pr: 3 }} onClick={(e) => e.stopPropagation()}>
                         <AdminRowActionButton
-                          aria-label='Open actions menu'
+                          aria-label={t('auth.userDirectory.userList2.openActionsMenu', 'Open actions menu')}
                           onClick={(e) => handleOpenActionMenu(e, user)}
                         >
                           <MoreVertIcon fontSize='small' />
@@ -927,28 +928,28 @@ export default function UserList() {
           <ListItemIcon>
             <VisibilityIcon fontSize='small' />
           </ListItemIcon>
-          <ListItemText primary='View Details' />
+          <ListItemText primary={t('auth.userDirectory.userList2.viewDetails', 'View Details')} />
         </MenuItem>
 
         <MenuItem onClick={() => selectedUser && handleOpenEdit(selectedUser)}>
           <ListItemIcon>
             <EditIcon fontSize='small' />
           </ListItemIcon>
-          <ListItemText primary='Edit Profile' />
+          <ListItemText primary={t('auth.userDirectory.userList2.editProfile', 'Edit Profile')} />
         </MenuItem>
 
         <MenuItem onClick={() => selectedUser && handleOpenAssignRoles(selectedUser)}>
           <ListItemIcon>
             <SecurityIcon fontSize='small' />
           </ListItemIcon>
-          <ListItemText primary='Assign Roles' />
+          <ListItemText primary={t('auth.userDirectory.userList2.assignRoles', 'Assign Roles')} />
         </MenuItem>
 
         <MenuItem onClick={() => selectedUser && handleSendResetPassword(selectedUser)}>
           <ListItemIcon>
             <LockResetIcon fontSize='small' />
           </ListItemIcon>
-          <ListItemText primary='Reset Password' />
+          <ListItemText primary={t('auth.userDirectory.userList2.resetPassword', 'Reset Password')} />
         </MenuItem>
 
         <Divider sx={{ my: 0.5 }} />
@@ -958,14 +959,14 @@ export default function UserList() {
             <ListItemIcon>
               <BlockIcon fontSize='small' color='warning' />
             </ListItemIcon>
-            <ListItemText primary='Suspend User' sx={{ color: 'warning.main' }} />
+            <ListItemText primary={t('auth.userDirectory.userList2.suspendUser', 'Suspend User')} sx={{ color: 'warning.main' }} />
           </MenuItem>
         ) : (
           <MenuItem onClick={() => selectedUser && handleToggleStatus(selectedUser)}>
             <ListItemIcon>
               <CheckCircleIcon fontSize='small' color='success' />
             </ListItemIcon>
-            <ListItemText primary='Activate User' sx={{ color: 'success.main' }} />
+            <ListItemText primary={t('auth.userDirectory.userList2.activateUser', 'Activate User')} sx={{ color: 'success.main' }} />
           </MenuItem>
         )}
 
@@ -973,7 +974,7 @@ export default function UserList() {
           <ListItemIcon>
             <DeleteIcon fontSize='small' color='error' />
           </ListItemIcon>
-          <ListItemText primary='Delete User' sx={{ color: 'error.main' }} />
+          <ListItemText primary={t('auth.userDirectory.userList2.deleteUser', 'Delete User')} sx={{ color: 'error.main' }} />
         </MenuItem>
       </Menu>
 

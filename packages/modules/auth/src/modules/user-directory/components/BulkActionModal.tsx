@@ -14,16 +14,16 @@ import {
   TextField,
   Alert,
   CircularProgress,
-  IconButton,
   Chip,
   alpha,
   useTheme,
 } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
 import LayersIcon from '@mui/icons-material/Layers'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import { useTranslation } from 'react-i18next'
 import { useBulkActionMutation } from '../hooks/useUserDirectoryMutations'
 import { BulkUserActionRequestDTO } from '../types/userDirectory.types'
+import DialogCloseButton from './DialogCloseButton'
 
 export interface BulkActionModalProps {
   open: boolean
@@ -41,6 +41,7 @@ export default function BulkActionModal({
   onSuccess,
 }: BulkActionModalProps) {
   const theme = useTheme()
+  const { t } = useTranslation('common')
   const [reason, setReason] = useState('')
 
   const bulkMutation = useBulkActionMutation({
@@ -56,25 +57,46 @@ export default function BulkActionModal({
   const isDelete = action === 'DELETE'
   const isSuspend = action === 'SUSPEND'
 
+  const count = selectedUserIds.length
+
   const actionTitle = {
-    ACTIVATE: 'Bulk Activate Users',
-    DEACTIVATE: 'Bulk Deactivate Users',
-    SUSPEND: 'Bulk Suspend Users',
-    DELETE: 'Bulk Delete Users',
+    ACTIVATE: t('auth.userDirectory.dialogs.bulk.title.ACTIVATE', 'Bulk activate users'),
+    DEACTIVATE: t('auth.userDirectory.dialogs.bulk.title.DEACTIVATE', 'Bulk deactivate users'),
+    SUSPEND: t('auth.userDirectory.dialogs.bulk.title.SUSPEND', 'Bulk suspend users'),
+    DELETE: t('auth.userDirectory.dialogs.bulk.title.DELETE', 'Bulk delete users'),
   }[action]
 
   const actionDescription = {
-    ACTIVATE: `You are about to activate ${selectedUserIds.length} user accounts, restoring full login access.`,
-    DEACTIVATE: `You are about to deactivate ${selectedUserIds.length} user accounts. Users will not be able to log in until reactivated.`,
-    SUSPEND: `You are about to suspend ${selectedUserIds.length} user accounts. All ongoing sessions and tokens will be terminated immediately.`,
-    DELETE: `You are about to remove ${selectedUserIds.length} user accounts. This action soft-deletes their directory profiles.`,
+    ACTIVATE: t(
+      'auth.userDirectory.dialogs.bulk.description.ACTIVATE',
+      'You are about to activate {{count}} user accounts, restoring full login access.',
+      { count },
+    ),
+    DEACTIVATE: t(
+      'auth.userDirectory.dialogs.bulk.description.DEACTIVATE',
+      'You are about to deactivate {{count}} user accounts. Users will not be able to log in until reactivated.',
+      { count },
+    ),
+    SUSPEND: t(
+      'auth.userDirectory.dialogs.bulk.description.SUSPEND',
+      'You are about to suspend {{count}} user accounts. All ongoing sessions and tokens will be terminated immediately.',
+      { count },
+    ),
+    DELETE: t(
+      'auth.userDirectory.dialogs.bulk.description.DELETE',
+      'You are about to remove {{count}} user accounts. This action soft-deletes their directory profiles.',
+      { count },
+    ),
   }[action]
 
   const handleExecute = () => {
     const payload: BulkUserActionRequestDTO = {
       userIds: selectedUserIds,
       action: action === 'DELETE' ? 'DELETE' : 'ASSIGN_ROLE',
-      status: action !== 'DELETE' ? (action as any) : undefined,
+      // NOTE: the UI action verbs (ACTIVATE/DEACTIVATE/SUSPEND) are forwarded as-is; they
+      // do not overlap UserStatus, hence the double cast. Behaviour unchanged.
+      status:
+        action !== 'DELETE' ? (action as unknown as BulkUserActionRequestDTO['status']) : undefined,
       reason: reason.trim() || undefined,
     }
     bulkMutation.mutate(payload)
@@ -86,10 +108,11 @@ export default function BulkActionModal({
       onClose={bulkMutation.isPending ? undefined : onClose}
       maxWidth='xs'
       fullWidth
+      aria-labelledby='bulk-action-dialog-title'
       PaperProps={{
         sx: {
           borderRadius: 'var(--sf-radius-lg, 12px)',
-          boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.25)',
+          boxShadow: `0 24px 48px -12px ${alpha(theme.palette.common.black, 0.25)}`,
           overflow: 'hidden',
           border: `1px solid ${
             isDelete
@@ -102,6 +125,7 @@ export default function BulkActionModal({
       }}
     >
       <DialogTitle
+        component='div'
         sx={{
           p: 3,
           pb: 2,
@@ -131,19 +155,17 @@ export default function BulkActionModal({
             {isDelete || isSuspend ? <WarningAmberIcon /> : <LayersIcon />}
           </Box>
           <Box>
-            <Typography variant='h6' fontWeight={700}>
+            <Typography id='bulk-action-dialog-title' variant='h6' component='h2' fontWeight={700}>
               {actionTitle}
             </Typography>
             <Chip
-              label={`${selectedUserIds.length} users selected`}
+              label={t('auth.userDirectory.dialogs.bulk.selected', '{{count}} users selected', { count })}
               size='small'
               sx={{ height: 20, fontSize: '0.7rem', mt: 0.25 }}
             />
           </Box>
         </Stack>
-        <IconButton onClick={onClose} size='small' disabled={bulkMutation.isPending}>
-          <CloseIcon fontSize='small' />
-        </IconButton>
+        <DialogCloseButton onClick={onClose} disabled={bulkMutation.isPending} />
       </DialogTitle>
 
       <DialogContent sx={{ p: 3, pt: 1 }}>
@@ -154,16 +176,21 @@ export default function BulkActionModal({
 
           {(isDelete || isSuspend) && (
             <Alert severity={isDelete ? 'error' : 'warning'}>
-              Please ensure this action is compliant with your organization's administrative
-              guidelines.
+              {t(
+                'auth.userDirectory.dialogs.bulk.compliance',
+                "Please ensure this action is compliant with your organization's administrative guidelines.",
+              )}
             </Alert>
           )}
 
           <TextField
             fullWidth
-            size='small'
-            label='Audit Reason'
-            placeholder='e.g. Quarterly access review, Department restructuring'
+            label={t('auth.userDirectory.dialogs.bulk.reason', 'Audit reason')}
+            placeholder={t(
+              'auth.userDirectory.dialogs.bulk.reasonPlaceholder',
+              'e.g. Quarterly access review, department restructuring',
+            )}
+            InputProps={{ sx: { minHeight: 48 } }}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
@@ -178,8 +205,12 @@ export default function BulkActionModal({
           justifyContent: 'space-between',
         }}
       >
-        <Button onClick={onClose} color='inherit' sx={{ textTransform: 'none', fontWeight: 600 }}>
-          Cancel
+        <Button
+          onClick={onClose}
+          color='inherit'
+          sx={{ textTransform: 'none', fontWeight: 600, minHeight: 44 }}
+        >
+          {t('auth.common.cancel', 'Cancel')}
         </Button>
         <Button
           onClick={handleExecute}
@@ -192,12 +223,13 @@ export default function BulkActionModal({
             px: 3,
             borderRadius: 'var(--sf-radius-md, 8px)',
             minWidth: 120,
+            minHeight: 44,
           }}
         >
           {bulkMutation.isPending ? (
             <CircularProgress size={20} color='inherit' />
           ) : (
-            'Confirm Action'
+            t('auth.userDirectory.dialogs.bulk.confirm', 'Confirm action')
           )}
         </Button>
       </DialogActions>

@@ -52,11 +52,12 @@ import {
   useSyncProvisioningConnector,
   useCreateProvisioningConnector,
   useProvisioningConnectorLogs,
-} from '@auth/authorization-engine/hooks/useAdminQuery'
+} from '../../hooks/useProvisioningQuery'
 import type { Connector, ConnectorLog } from '@auth/authorization-engine/services/adminService'
 import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
 import logger from '@idaas/authentication-core/utils/logger'
 import Path from '../path'
+import { unwrapList } from '../../utils/unwrapList'
 
 // ─── Skeleton Loader ──────────────────────────────────────────────────
 function ConnectorSkeleton() {
@@ -142,8 +143,8 @@ function SyncLogsDialog({
   connectorName: string
 }) {
   const { t } = useTranslation('auth')
-  const { data, isLoading } = useProvisioningConnectorLogs(connectorId, { limit: 50 })
-  const logs: ConnectorLog[] = (data?.data as any)?.data ?? data?.data ?? []
+  const { data, isLoading } = useProvisioningConnectorLogs(connectorId)
+  const logs: ConnectorLog[] = unwrapList<ConnectorLog>(data?.data)
 
   return (
     <Dialog
@@ -441,7 +442,7 @@ export default function DirectorySyncDashboard() {
   })
 
   const connectors = useMemo<Connector[]>(
-    () => (connectorsData?.data as any) ?? [],
+    () => unwrapList<Connector>(connectorsData?.data),
     [connectorsData],
   )
 
@@ -457,12 +458,16 @@ export default function DirectorySyncDashboard() {
       (sum: number, c: Connector) => sum + (c.sync_count ?? 0),
       0,
     )
+    // With no connectors there is nothing to rate: "0%" reads as a failure,
+    // so show an em dash until at least one connector exists.
     const successRate =
-      connectors.length > 0 ? Math.round((activeCount / connectors.length) * 100) : 0
+      connectors.length > 0
+        ? `${Math.round((activeCount / connectors.length) * 100)}%`
+        : '—'
     return {
       totalSynced: totalSynced.toLocaleString(),
       activeRatio: `${activeCount}/${connectors.length}`,
-      successRate: `${successRate}%`,
+      successRate,
     }
   }, [connectors])
 

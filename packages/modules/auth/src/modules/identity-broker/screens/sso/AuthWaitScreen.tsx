@@ -22,6 +22,7 @@ import { motion } from 'framer-motion'
 import { useAuth, safeRedirectPath } from '@cap/platform-core'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Path } from '@auth/routes/path'
+import { AppPaths } from '@cap/shared-types'
 
 export default function AuthWaitScreen() {
   const { t } = useTranslation()
@@ -39,10 +40,10 @@ export default function AuthWaitScreen() {
     // Accept only same-origin paths; ignore absolute/external targets.
     const qp = safeRedirectPath(qs.get('redirectTo'))
     if (qp) return qp
-    const stateRedirectTo = safeRedirectPath((location.state as any)?.redirectTo)
+    const stateRedirectTo = safeRedirectPath((location.state as { redirectTo?: string } | null)?.redirectTo)
     if (stateRedirectTo) return stateRedirectTo
 
-    return '/dashboard'
+    return AppPaths.dashboard.dashboard
   }, [location.search, location.state])
 
   useEffect(() => {
@@ -211,7 +212,7 @@ export default function AuthWaitScreen() {
                 <Alert
                   severity='warning'
                   sx={{
-                    textAlign: 'left',
+                    textAlign: 'start',
                     borderRadius: 'var(--sf-radius-md, 10px)',
                     bgcolor: alpha(theme.palette.warning.main, 0.06),
                     border: '1px solid',

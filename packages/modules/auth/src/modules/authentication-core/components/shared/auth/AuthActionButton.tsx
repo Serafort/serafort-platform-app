@@ -75,15 +75,25 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
       }
       {...props}
       sx={{
-        height: 48,
-        borderRadius: 'var(--sf-radius-lg, 12px)',
-        fontWeight: 700,
-        fontSize: '0.9375rem',
+        minHeight: 48,
+        borderRadius: 'var(--sf-radius-md, 8px)',
+        fontWeight: 600,
+        fontSize: 'var(--sf-text-md, 0.9375rem)',
         textTransform: 'none',
         bgcolor: baseColor,
         color: theme.palette.getContrastText(baseColor),
-        boxShadow: `0 8px 16px ${alpha(baseColor, 0.24)}`,
-        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        // Flat at rest; the brand kit lifts to shadow-sm on hover only.
+        boxShadow: 'none',
+        transition:
+          'background-color var(--sf-duration-base, 180ms) var(--sf-ease-standard, ease), box-shadow var(--sf-duration-base, 180ms) var(--sf-ease-standard, ease), transform var(--sf-duration-base, 180ms) var(--sf-ease-standard, ease)',
+        '&:focus-visible': {
+          outline: '2px solid var(--sf-cyan, currentColor)',
+          outlineOffset: 2,
+        },
+        '@media (prefers-reduced-motion: reduce)': {
+          transition: 'none',
+          '&:hover': { transform: 'none' },
+        },
         '&:hover': {
           bgcolor: isError
             ? theme.palette.error.dark
@@ -91,7 +101,7 @@ export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
               ? theme.palette.success.dark
               : theme.palette.primary.dark,
           transform: isDisabled ? 'none' : 'translateY(-1px)',
-          boxShadow: `0 10px 20px ${alpha(baseColor, 0.32)}`,
+          boxShadow: 'var(--sf-shadow-sm, none)',
         },
         '&:active': {
           transform: isDisabled ? 'none' : 'translateY(0)',

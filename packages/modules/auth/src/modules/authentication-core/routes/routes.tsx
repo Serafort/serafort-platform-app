@@ -1,10 +1,8 @@
 import React from 'react'
-import { Navigate } from 'react-router-dom'
 import { AuthRouteConfig } from '@cap/platform-core'
-import GuestRoute from '../middlewares/GuestRoute'
 import Path from '../screens/path'
-import { createAuthRoute } from '../../../routes/routeHelpers'
-import { AppPaths } from '@cap/shared-types'
+import { createAuthRoute, createGuestRoute, createPublicRoute } from '../../../routes/routeHelpers'
+
 // ---------------------------------------------------------------------------
 // Device
 // ---------------------------------------------------------------------------
@@ -58,85 +56,60 @@ const EmailVerifiedSuccess = React.lazy(
 const Validate = React.lazy(() => import('../screens/shared/Validate'))
 
 // ---------------------------------------------------------------------------
+// Social sign-in landing
+// ---------------------------------------------------------------------------
+const OAuthCallback = React.lazy(() => import('../screens/social/OAuthCallback'))
+
+// ---------------------------------------------------------------------------
 // Route config
+//
+// Each screen is registered at exactly ONE URL. This module previously mounted
+// several screens at two or three URLs each (`/forgot-password`,
+// `/auth/forgot-password` and `/auth/recovery/forgot-password` all rendered
+// ForgotPassword), which split analytics, gave password-reset emails a second
+// address to drift to, and let /auth/sign-in be registered twice.
+//
+// `Path.verifyEmail` and `Path.forgotPassword` are the URLs the Authentication
+// service puts in outbound mail -- see the note in @cap/shared-types/routes.
 // ---------------------------------------------------------------------------
 export const authCoreRouteConfig: AuthRouteConfig[] = [
   // --- Device ---
-  { path: Path.deviceCode, element: <DeviceCodeDisplay />, layout: 'noLayout' },
+  createPublicRoute(Path.deviceCode, <DeviceCodeDisplay />),
 
-  // --- Email flows (auth-guarded) ---
-  // The email-change *initiation* + status flow is owned by @cap/module-auth's
-  // user-directory sub-module (/user/initiate-email-change, /user/email-change-status).
-  // authentication-core only owns the link-landing screens below.
+  // --- Sign in ---
+  createGuestRoute(Path.signin, <SignIn />),
+
+  // --- Sign up & verification ---
+  createGuestRoute(Path.signup, <SignUp />),
+  createPublicRoute(Path.checkEmail, <CheckEmailConfirmation />),
+  createPublicRoute(Path.emailVerification, <EmailVerificationScreen />),
+  createPublicRoute(Path.verifyEmail, <EmailVerificationScreen />),
+  createPublicRoute(Path.verificationLinkExpired, <VerificationLinkExpired />),
+  createPublicRoute(Path.registrationSuccess, <RegistrationSuccess />),
+  createPublicRoute(Path.emailVerifiedSuccess, <EmailVerifiedSuccess />),
+  createPublicRoute(Path.validate, <Validate />),
+
+  // --- Recovery ---
+  createGuestRoute(Path.forgotPassword, <ForgotPassword />),
+  createGuestRoute(Path.resetPassword, <ResetPassword />),
+  createPublicRoute(Path.passwordResetSuccess, <PasswordResetSuccess />),
+
+  // --- Email change link landings ---
   createAuthRoute(Path.emailChangeStatus, <EmailChangeStatus />, {
     requiresVerification: true,
     layout: 'noLayout',
   }),
-  { path: Path.emailChangeSuccess, element: <EmailChangeSuccess />, layout: 'noLayout' },
-  { path: Path.emailChangeFailed, element: <EmailChangeFailed />, layout: 'noLayout' },
-  { path: Path.emailChangeVerification, element: <EmailChangeVerification />, layout: 'noLayout' },
-  { path: Path.resendEmailVerification, element: <CheckEmailConfirmation />, layout: 'noLayout' },
-  { path: Path.VerificationEmail, element: <EmailVerificationScreen />, layout: 'noLayout' },
+  createPublicRoute(Path.emailChangeVerification, <EmailChangeVerification />),
+  createPublicRoute(Path.emailChangeSuccess, <EmailChangeSuccess />),
+  createPublicRoute(Path.emailChangeFailed, <EmailChangeFailed />),
 
   // --- Organisation ---
-  { path: Path.joinOrganization, element: <JoinOrganization />, layout: 'noLayout' },
+  createPublicRoute(Path.joinOrganization, <JoinOrganization />),
 
-  // --- Recovery ---
-  {
-    path: Path.forgotPassword,
-    element: <GuestRoute element={<ForgotPassword />} />,
-    layout: 'noLayout',
-  },
-  {
-    path: Path.forgotPasswordAlias,
-    element: <GuestRoute element={<ForgotPassword />} />,
-    layout: 'noLayout',
-  },
-  {
-    path: Path.forgotPasswordDirect,
-    element: <GuestRoute element={<ForgotPassword />} />,
-    layout: 'noLayout',
-  },
-  {
-    path: Path.resetPassword,
-    element: <GuestRoute element={<ResetPassword />} />,
-    layout: 'noLayout',
-  },
-  {
-    path: Path.resetPasswordRecovery,
-    element: <GuestRoute element={<ResetPassword />} />,
-    layout: 'noLayout',
-  },
-  {
-    path: Path.resetPasswordDirect,
-    element: <GuestRoute element={<ResetPassword />} />,
-    layout: 'noLayout',
-  },
-  {
-    path: Path.setNewPassword,
-    element: <GuestRoute element={<ResetPassword />} />,
-    layout: 'noLayout',
-  },
-  { path: Path.passwordResetSuccess, element: <PasswordResetSuccess />, layout: 'noLayout' },
-  { path: Path.passwordResetSuccessAlias, element: <PasswordResetSuccess />, layout: 'noLayout' },
-
-  // --- Sign In ---
-  { path: Path.signin, element: <GuestRoute element={<SignIn />} />, layout: 'noLayout' },
-  { path: Path.login, element: <GuestRoute element={<SignIn />} />, layout: 'noLayout' },
-
-  // --- Sign Up & Verification ---
-  { path: Path.signup, element: <GuestRoute element={<SignUp />} />, layout: 'noLayout' },
-  { path: Path.signupV2, element: <Navigate to={Path.signup} replace />, layout: 'noLayout' },
-  // Legacy /auth/register — redirect to the primary sign-up flow.
-  { path: Path.registration, element: <Navigate to={Path.signup} replace />, layout: 'noLayout' },
-  { path: Path.checkEmail, element: <CheckEmailConfirmation />, layout: 'noLayout' },
-  { path: Path.emailVerification, element: <EmailVerificationScreen />, layout: 'noLayout' },
-  { path: Path.verifyEmail, element: <EmailVerificationScreen />, layout: 'noLayout' },
-  { path: Path.verifyEmailAlias, element: <EmailVerificationScreen />, layout: 'noLayout' },
-  { path: Path.verifyEmailDirect, element: <EmailVerificationScreen />, layout: 'noLayout' },
-  { path: Path.verificationLinkExpired, element: <VerificationLinkExpired />, layout: 'noLayout' },
-  { path: Path.registrationSuccess, element: <RegistrationSuccess />, layout: 'noLayout' },
-  { path: Path.emailVerifiedSuccess, element: <EmailVerifiedSuccess />, layout: 'noLayout' },
-  { path: Path.validate, element: <Validate />, layout: 'noLayout' },
-  { path: Path.validateDirect, element: <Validate />, layout: 'noLayout' },
+  // --- Social sign-in landing ---
+  // Public on purpose: the visitor is not yet authenticated when they arrive,
+  // and this screen is what establishes the session. A guest guard would be
+  // wrong too -- the exchange logs the user in, and GuestRoute would bounce
+  // them mid-flight.
+  createPublicRoute(Path.callback, <OAuthCallback />),
 ]

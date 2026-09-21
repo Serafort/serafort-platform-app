@@ -1,6 +1,7 @@
 import React, { Suspense, type ReactNode } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { Backdrop, CircularProgress, Alert, Box, Button } from '@mui/material'
+import { Backdrop, CircularProgress, Alert, AlertTitle, Box, Button } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { isObjectEmpty, Roles, useAppStore, type LayoutOverride } from '@cap/platform-core'
 import { useSessionGuard } from '../../session-manager/middlewares/useSessionGuard'
 import Page403Forbidden from '../../platform-cluster/screens/system/Page403Forbidden'
@@ -13,7 +14,23 @@ interface AdminRouteProps {
   layout?: LayoutOverride
 }
 
+/**
+ * Full-viewport veil shown while the session resolves. Painted with the theme
+ * background token (not a hardcoded white) so dark mode never flashes white.
+ */
+const RouteVeil = ({ label, children }: { label?: string; children?: ReactNode }) => (
+  <Backdrop
+    open
+    role={label ? 'status' : undefined}
+    aria-label={label}
+    sx={{ bgcolor: 'background.default', zIndex: 1400 }}
+  >
+    {children}
+  </Backdrop>
+)
+
 const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: AdminRouteProps) => {
+  const { t } = useTranslation('auth')
   const { isLoading, sessionError, isAuthenticated, user } = useSessionGuard()
   const location = useLocation()
   const navigate = useNavigate()
@@ -36,9 +53,9 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
 
   if (isLoading) {
     return (
-      <Backdrop open style={{ background: '#FFF', zIndex: 1400 }}>
-        <CircularProgress color='inherit' />
-      </Backdrop>
+      <RouteVeil label={t('auth.admin_route.loading', 'Loading')}>
+        <CircularProgress color='primary' />
+      </RouteVeil>
     )
   }
 
@@ -55,11 +72,15 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
           p: 3,
         }}
       >
-        <Alert severity='warning' sx={{ maxWidth: 500 }}>
+        <Alert severity='warning' sx={{ maxWidth: 500, borderRadius: 'var(--sf-radius-lg, 12px)' }}>
           {sessionError}
         </Alert>
-        <Button variant='contained' onClick={() => navigate(Path.auth.signin)}>
-          Go to Login
+        <Button
+          variant='contained'
+          sx={{ minHeight: 44 }}
+          onClick={() => navigate(Path.auth.signin)}
+        >
+          {t('auth.admin_route.go_to_login', 'Go to Login')}
         </Button>
       </Box>
     )
@@ -71,7 +92,7 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
   if (!isUserAuthenticated) {
     return (
       <React.Fragment>
-        <Backdrop open style={{ background: '#FFF', zIndex: 1400 }} />
+        <RouteVeil />
         <Navigate to={Path.auth.signin} replace state={{ from: location }} />
       </React.Fragment>
     )
@@ -95,13 +116,21 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
           textAlign: 'center',
         }}
       >
-        <Alert severity='error' sx={{ maxWidth: 500 }}>
-          <strong>Insufficient Permissions</strong>
-          <br />
-          This admin feature requires higher privileges.
+        <Alert severity='error' sx={{ maxWidth: 500, borderRadius: 'var(--sf-radius-lg, 12px)' }}>
+          <AlertTitle sx={{ fontWeight: 700 }}>
+            {t('auth.admin_route.insufficient_title', 'Insufficient Permissions')}
+          </AlertTitle>
+          {t(
+            'auth.admin_route.insufficient_desc',
+            'This admin feature requires higher privileges.',
+          )}
         </Alert>
-        <Button variant='contained' onClick={() => navigate(Path.admin.users)}>
-          Go to Admin Dashboard
+        <Button
+          variant='contained'
+          sx={{ minHeight: 44 }}
+          onClick={() => navigate(Path.admin.users)}
+        >
+          {t('auth.admin_route.go_to_admin', 'Go to Admin Dashboard')}
         </Button>
       </Box>
     )
@@ -110,9 +139,9 @@ const AdminRoute = ({ element, minimumRole = Roles.ADMIN, layout = 'admin' }: Ad
   return (
     <Suspense
       fallback={
-        <Backdrop open style={{ background: '#FFF', zIndex: 1400 }}>
-          <CircularProgress color='inherit' />
-        </Backdrop>
+        <RouteVeil label={t('auth.admin_route.loading', 'Loading')}>
+          <CircularProgress color='primary' />
+        </RouteVeil>
       }
     >
       {element}

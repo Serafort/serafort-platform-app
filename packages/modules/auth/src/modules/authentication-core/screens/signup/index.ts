@@ -6,8 +6,6 @@ export * from './components/VerifyEmailStep'
 export * from './components/SuccessStep'
 export * from './components/LockedStep'
 
-// Backward-compatible exports
-export { default as SignUpV2 } from './screens/SignUp'
 export { default as CheckEmailConfirmation } from './components/CheckEmailConfirmation'
 export { default as EmailVerificationScreen } from './components/EmailVerificationScreen'
 export { default as EmailVerifiedSuccess } from './components/EmailVerifiedSuccess'

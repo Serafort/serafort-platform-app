@@ -2,8 +2,10 @@ import { Box, Typography, Button, Avatar, Stack, alpha, useTheme } from '@mui/ma
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import LockOutlined from '@mui/icons-material/LockOutlined'
-import ArrowBack from '@mui/icons-material/ArrowBack'
-import ArrowForward from '@mui/icons-material/ArrowForward'
+import {
+  BackIcon as ArrowBack,
+  ForwardIcon as ArrowForward,
+} from '../../components/common/DirectionalIcon'
 import { AuthPageLayout } from '@idaas/authentication-core/components/shared/auth'
 import { Path } from '../../../../routes/path'
 

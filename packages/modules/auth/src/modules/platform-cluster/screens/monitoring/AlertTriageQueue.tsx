@@ -34,6 +34,7 @@ import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import { useAdminAlertsQuery } from '../../hooks/useAdminMonitoringQuery'
 import { useTriageAlertMutation } from '../../hooks/useSecurityIntelQuery'
+import { extractRows } from '../../utils/errors'
 import {
   ALERT_SEVERITY_ORDER,
   availableTriageActions,
@@ -42,7 +43,7 @@ import {
   type SecurityAlert,
   type TriageAction,
 } from '../../types/securityIntel.types'
-import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
+import { AdminPageHeader, AdminStatusBadge } from '@auth/modules/authentication-core/components/shared/admin'
 
 /**
  * Alert Triage Queue.
@@ -128,9 +129,7 @@ export const AlertTriageQueue: React.FC = () => {
   const triage = useTriageAlertMutation()
 
   const alerts: SecurityAlert[] = useMemo(() => {
-    const payload = alertsQuery.data as any
-    if (!payload) return []
-    const rows = Array.isArray(payload) ? payload : (payload.data ?? [])
+    const rows = extractRows<SecurityAlert>(alertsQuery.data)
     // Highest severity first — the queue is worked from the top, so ordering by
     // creation date would bury a critical under a morning of info alerts.
     return [...rows].sort(
@@ -158,16 +157,14 @@ export const AlertTriageQueue: React.FC = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Container maxWidth='lg' sx={{ py: 4 }}>
-      <Stack direction='row' alignItems='center' spacing={1.5} sx={{ mb: 1 }}>
-        <NotificationsActive color='primary' />
-        <Typography variant='h4'>{t('monitoring.triage.title', 'Alert triage')}</Typography>
-      </Stack>
-      <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-        {t(
+      <AdminPageHeader
+        icon={<NotificationsActive />}
+        title={t('monitoring.triage.title', 'Alert triage')}
+        description={t(
           'monitoring.triage.subtitle',
           'Work the queue from the top. Dismissing suppresses one alert; marking a false positive tells the detector it was wrong.',
         )}
-      </Typography>
+      />
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {ALERT_SEVERITY_ORDER.map((level) => (

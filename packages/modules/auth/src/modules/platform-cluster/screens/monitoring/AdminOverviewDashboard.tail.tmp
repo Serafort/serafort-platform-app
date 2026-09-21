@@ -1,0 +1,349 @@
+// ─── Loading skeleton ────────────────────────────────────────────────────────
+const OverviewSkeleton: React.FC = () => (
+  <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }} aria-busy='true'>
+    <Stack direction='row' spacing={2} alignItems='center' sx={{ mb: 4 }}>
+      <Skeleton variant='rounded' width={60} height={60} />
+      <Box sx={{ flex: 1 }}>
+        <Skeleton variant='text' width='40%' height={36} />
+        <Skeleton variant='text' width='25%' />
+      </Box>
+    </Stack>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+        gap: 3,
+      }}
+    >
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Skeleton key={i} variant='rounded' height={100} />
+      ))}
+    </Box>
+  </Box>
+)
+
+// ─── Main screen ─────────────────────────────────────────────────────────────
+const AdminOverviewDashboard: React.FC = () => {
+  const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
+  const { t } = useTranslation('common')
+  const navigate = useNavigate()
+
+  const { data, isLoading, isError, refetch, isFetching } = useAdminDashboard()
+  const stats = (data as { data?: AdminDashboardStats } | undefined)?.data
+
+  // Figures follow the audit event stream instead of the five-minute cache
+  // they used to sit behind — see useLiveAdminOverview.
+  const { status: liveStatus } = useLiveAdminOverview(DASHBOARD_QUERY_KEY)
+
+  // ── Loading ──────────────────────────────────────────────────────────────
+  if (isLoading) return <OverviewSkeleton />
+
+  // ── Error ────────────────────────────────────────────────────────────────
+  // The raw query error is not surfaced: server messages are not user copy.
+  if (isError || !stats) {
+    return (
+      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+        <Alert
+          severity='error'
+          action={
+            <Button color='inherit' onClick={() => refetch()} sx={{ minHeight: 44 }}>
+              {t('monitoring.dashboard.retry_button', 'Retry')}
+            </Button>
+          }
+        >
+          {t(
+            'monitoring.overview.error_load',
+            'The admin overview could not be loaded. Retry, or check back shortly.',
+          )}
+        </Alert>
+      </Box>
+    )
+  }
+
+  const pendingAppeals = stats.pendingAppeals
+
+  // ── Render ───────────────────────────────────────────────────────────────
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+        <AdminPageHeader
+          icon={<HealthAndSafetyIcon />}
+          title={t('monitoring.overview.title', 'Admin overview')}
+          description={
+            <Stack direction='row' spacing={1} alignItems='center' flexWrap='wrap' useFlexGap>
+              <span>{t('monitoring.overview.system_health', 'System health')}</span>
+              <HealthBadge value={stats.systemHealth} />
+              <LiveBadge
+                status={liveStatus}
+                label={
+                  liveStatus === 'live'
+                    ? t('monitoring.dashboard.stream_live', 'Live')
+                    : t('monitoring.dashboard.stream_offline', 'Not live')
+                }
+              />
+            </Stack>
+          }
+          actions={
+            <Button
+              startIcon={<RefreshIcon />}
+              onClick={() => refetch()}
+              disabled={isFetching}
+              variant='outlined'
+              sx={{
+                textTransform: 'none',
+                fontWeight: 700,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                minHeight: 44,
+              }}
+            >
+              {isFetching
+                ? t('monitoring.dashboard.refreshing', 'Refreshing…')
+                : t('monitoring.overview.refresh', 'Refresh')}
+            </Button>
+          }
+        />
+
+        {/* ── Primary stat grid ── */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+            gap: 3,
+            mb: 4,
+          }}
+        >
+          <StatCard
+            label={t('monitoring.overview.stat_total_users', 'Total users')}
+            value={stats.totalUsers.toLocaleString()}
+            icon={<PeopleIcon />}
+            color='primary'
+            href={Path.admin.users}
+          />
+          <StatCard
+            label={t('monitoring.overview.stat_active_users', 'Active users')}
+            value={stats.activeUsers.toLocaleString()}
+            icon={<PersonAddIcon />}
+            color='success'
+            href={Path.admin.users}
+          />
+          <StatCard
+            label={t('monitoring.overview.stat_active_sessions', 'Active sessions')}
+            value={stats.activeSessions.toLocaleString()}
+            icon={<DevicesIcon />}
+            color='info'
+          />
+          <StatCard
+            label={t('monitoring.overview.stat_new_signups', 'New signups')}
+            value={stats.newSignups.toLocaleString()}
+            icon={<PersonAddIcon />}
+            color='info'
+          />
+          <StatCard
+            label={t('monitoring.overview.stat_failed_logins', 'Failed logins')}
+            value={stats.failedLogins.toLocaleString()}
+            icon={<LockIcon />}
+            color={stats.failedLogins > 50 ? 'error' : 'warning'}
+            href={Path.admin.events}
+          />
+          <StatCard
+            label={t('monitoring.overview.stat_mfa_adoption', 'MFA adoption')}
+            value={stats.mfaAdoption}
+            icon={<ShieldIcon />}
+            color='success'
+            href={Path.monitoring.mfa_analytics}
+          />
+        </Box>
+
+        {/* ── Bottom two-column row ── */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+            // Let each card hug its own content: stretched to the taller Quick
+            // actions column, the bans card rendered as a mostly empty box.
+            alignItems: 'start',
+            gap: 3,
+          }}
+        >
+          {/* Bans & appeals card */}
+          <Card
+            sx={{
+              border: '1px solid',
+              borderColor: 'divider',
+              boxShadow: 'var(--sf-shadow-xs)',
+              borderRadius: 'var(--sf-radius-lg, 12px)',
+              overflow: 'hidden',
+              ...surfaceEffect,
+            }}
+          >
+            <CardContent sx={{ p: 3, pb: '16px !important' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
+                <Avatar
+                  aria-hidden
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    bgcolor: alpha(theme.palette.error.main, 0.1),
+                    color: 'error.main',
+                  }}
+                >
+                  <GavelIcon sx={{ fontSize: 18 }} />
+                </Avatar>
+                <Typography variant='subtitle1' component='h2' fontWeight={800}>
+                  {t('monitoring.overview.bans_title', 'Bans & appeals')}
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mb: 2 }}>
+                {[
+                  {
+                    label: t('monitoring.overview.total_banned', 'Total banned'),
+                    value: stats.totalBanned,
+                    color: theme.palette.error.main,
+                  },
+                  {
+                    label: t('monitoring.overview.new_bans', 'New bans'),
+                    value: stats.newBans,
+                    color: theme.palette.warning.main,
+                  },
+                  {
+                    label: t('monitoring.overview.pending_appeals', 'Pending appeals'),
+                    value: pendingAppeals,
+                    color: theme.palette.info.main,
+                  },
+                ].map((item) => (
+                  <Box
+                    key={item.label}
+                    sx={{
+                      textAlign: 'center',
+                      p: 1.5,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      bgcolor: alpha(item.color, 0.06),
+                      border: `1px solid ${alpha(item.color, 0.15)}`,
+                    }}
+                  >
+                    <Typography
+                      variant='h5'
+                      fontWeight={800}
+                      sx={{ color: item.color, letterSpacing: '-0.02em' }}
+                    >
+                      {item.value}
+                    </Typography>
+                    <Typography variant='caption' color='text.secondary' fontWeight={600}>
+                      {item.label}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+
+              {pendingAppeals > 0 && (
+                <Alert
+                  severity='warning'
+                  icon={<WarningAmberIcon fontSize='small' />}
+                  sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontSize: '0.875rem' }}
+                  action={
+                    <Button
+                      color='inherit'
+                      onClick={() => navigate(Path.admin.banManagement)}
+                      sx={{ fontWeight: 700, whiteSpace: 'nowrap', minHeight: 44 }}
+                    >
+                      {t('monitoring.overview.review', 'Review')}
+                    </Button>
+                  }
+                >
+                  {t('monitoring.overview.appeals_waiting', 'Appeals awaiting review: {{count}}', {
+                    count: pendingAppeals,
+                  })}
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Quick actions card */}
+          <Card
+            sx={{
+              border: '1px solid',
+              borderColor: 'divider',
+              boxShadow: 'var(--sf-shadow-xs)',
+              borderRadius: 'var(--sf-radius-lg, 12px)',
+              overflow: 'hidden',
+              ...surfaceEffect,
+            }}
+          >
+            <CardContent sx={{ p: 3, pb: '16px !important' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                <Avatar
+                  aria-hidden
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: 'primary.main',
+                  }}
+                >
+                  <PersonOffIcon sx={{ fontSize: 18 }} />
+                </Avatar>
+                <Typography variant='subtitle1' component='h2' fontWeight={800}>
+                  {t('monitoring.overview.quick_actions', 'Quick actions')}
+                </Typography>
+              </Box>
+
+              <Stack divider={<Divider sx={{ opacity: 0.5 }} />}>
+                <QuickAction
+                  label={t('monitoring.overview.qa_users', 'User management')}
+                  description={t(
+                    'monitoring.overview.qa_users_desc',
+                    'View, edit, ban, and impersonate users',
+                  )}
+                  href={Path.admin.users}
+                />
+                <QuickAction
+                  label={t('monitoring.overview.qa_roles', 'Roles & permissions')}
+                  description={t(
+                    'monitoring.overview.qa_roles_desc',
+                    'Manage RBAC roles and access policies',
+                  )}
+                  href={Path.admin.roles}
+                />
+                <QuickAction
+                  label={t('monitoring.overview.qa_audit', 'Audit trail')}
+                  description={t(
+                    'monitoring.overview.qa_audit_desc',
+                    'Export and review security audit logs',
+                  )}
+                  href={Path.admin.exportAudit}
+                />
+                <QuickAction
+                  label={t('monitoring.overview.qa_health', 'System health')}
+                  description={t(
+                    'monitoring.overview.qa_health_desc',
+                    'Check dependencies, uptime, and metrics',
+                  )}
+                  href={Path.admin.health}
+                />
+                <QuickAction
+                  label={t('monitoring.overview.qa_events', 'Auth events')}
+                  description={t(
+                    'monitoring.overview.qa_events_desc',
+                    'Real-time login and MFA event stream',
+                  )}
+                  href={Path.admin.events}
+                />
+              </Stack>
+            </CardContent>
+          </Card>
+        </Box>
+      </Box>
+    </motion.div>
+  )
+}
+
+export default AdminOverviewDashboard

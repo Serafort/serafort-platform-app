@@ -43,18 +43,18 @@ export interface IIdaasFacade {
       limit?: number
       search?: string
     }) => Promise<{ roles: RoleDto[]; total: number }>
-    getRole: (roleId: number) => Promise<RoleDto>
+    getRole: (roleId: string) => Promise<RoleDto>
     createRole: (data: {
       name: string
       guard_name?: string
       description?: string
     }) => Promise<RoleDto>
-    updateRole: (roleId: number, data: { name?: string; description?: string }) => Promise<RoleDto>
-    deleteRole: (roleId: number) => Promise<void>
+    updateRole: (roleId: string, data: { name?: string; description?: string }) => Promise<RoleDto>
+    deleteRole: (roleId: string) => Promise<void>
     listPermissions: () => Promise<PermissionDto[]>
     checkPermission: (request: CheckPermissionRequest) => Promise<CheckPermissionResponse>
-    getRolePermissions: (roleId: number) => Promise<PermissionDto[]>
-    syncRolePermissions: (roleId: number, permissionIds: number[]) => Promise<RoleDto>
+    getRolePermissions: (roleId: string) => Promise<PermissionDto[]>
+    syncRolePermissions: (roleId: string, permissionIds: string[]) => Promise<RoleDto>
     assignRoleToUser: (data: { user_id: number; role_id: number }) => Promise<void>
     getUserRoles: (userId: number) => Promise<RoleDto[]>
   }
@@ -89,17 +89,17 @@ class IdaasFacadeImpl implements IIdaasFacade {
   rbac = {
     listRoles: (params?: { page?: number; limit?: number; search?: string }) =>
       authorizationService.role.listRoles(params),
-    getRole: (roleId: number) => authorizationService.role.getRole(roleId),
+    getRole: (roleId: string) => authorizationService.role.getRole(roleId),
     createRole: (data: { name: string; guard_name?: string; description?: string }) =>
       authorizationService.role.createRole(data),
-    updateRole: (roleId: number, data: { name?: string; description?: string }) =>
+    updateRole: (roleId: string, data: { name?: string; description?: string }) =>
       authorizationService.role.updateRole(roleId, data),
-    deleteRole: (roleId: number) => authorizationService.role.deleteRole(roleId),
+    deleteRole: (roleId: string) => authorizationService.role.deleteRole(roleId),
     listPermissions: () => authorizationService.permission.listPermissions(),
     checkPermission: (request: CheckPermissionRequest) =>
       authorizationService.checkPermission(request),
-    getRolePermissions: (roleId: number) => authorizationService.role.getRolePermissions(roleId),
-    syncRolePermissions: (roleId: number, permissionIds: number[]) =>
+    getRolePermissions: (roleId: string) => authorizationService.role.getRolePermissions(roleId),
+    syncRolePermissions: (roleId: string, permissionIds: string[]) =>
       authorizationService.role.syncRolePermissions(roleId, permissionIds),
     assignRoleToUser: (data: { user_id: number; role_id: number }) =>
       authorizationService.userRole.assignRoleToUser(data),

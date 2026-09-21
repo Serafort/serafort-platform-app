@@ -8,7 +8,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableRow,
   Dialog,
   DialogTitle,
@@ -20,7 +19,6 @@ import {
   IconButton,
   Tooltip,
   Stack,
-  Skeleton,
 } from '@mui/material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
@@ -29,6 +27,8 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined'
+import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff'
 import {
   useApiKeysQuery,
   useCreateApiKeyMutation,
@@ -36,14 +36,37 @@ import {
 } from '../hooks/useDeveloperConsoleQuery'
 import { ConfirmDeleteModal } from '../../authentication-core/components/shared'
 import {
-  AdminStatusBadge,
+  AdminDataState,
+  AdminPageHeader,
   AdminRowActionButton,
+  AdminStatCard,
+  AdminStatusBadge,
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
 } from '../../authentication-core/components/shared/admin'
+import { MONO_FONT } from '../../authorization-engine/components/tokens'
 
 export const DeveloperApiKeysScreen: React.FC = () => {
   const { t } = useTranslation('auth')
   // TanStack Query hooks
-  const { data: keys = [], isLoading, isError, error, refetch } = useApiKeysQuery()
+  const { data: keys = [], isLoading, isError, refetch } = useApiKeysQuery()
+  const stats = React.useMemo(() => {
+    const now = Date.now()
+    const horizon = now + 30 * 24 * 60 * 60 * 1000
+    let expiringSoon = 0
+    let neverUsed = 0
+    for (const k of keys) {
+      const exp = k.expiresAt || k.expires_at
+      if (exp) {
+        const ts = new Date(exp).getTime()
+        if (ts > now && ts <= horizon) expiringSoon += 1
+      }
+      if (!(k.lastUsedAt || k.last_used_at)) neverUsed += 1
+    }
+    return { total: keys.length, expiringSoon, neverUsed }
+  }, [keys])
   const createMutation = useCreateApiKeyMutation()
   const deleteMutation = useDeleteApiKeyMutation()
 
@@ -152,84 +175,26 @@ export const DeveloperApiKeysScreen: React.FC = () => {
   // Render helpers
   // -----------------------------------------------------------------------
 
-  const renderTableSkeleton = () => (
-    <>
-      {[1, 2, 3].map((i) => (
-        <TableRow key={i}>
-          <TableCell>
-            <Skeleton variant='text' width='60%' />
-          </TableCell>
-          <TableCell>
-            <Skeleton variant='text' width='40%' />
-          </TableCell>
-          <TableCell>
-            <Skeleton variant='rounded' width={80} height={24} />
-          </TableCell>
-          <TableCell>
-            <Skeleton variant='text' width='50%' />
-          </TableCell>
-          <TableCell align='right'>
-            <Skeleton variant='circular' width={28} height={28} />
-          </TableCell>
-        </TableRow>
-      ))}
-    </>
-  )
-
-  const renderEmptyState = () => (
-    <TableRow>
-      <TableCell colSpan={5} align='center' sx={{ py: 8 }}>
-        <KeyIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-        <Typography variant='body1' fontWeight={600}>
-          {t('auth.developer_console.api_keys.empty_title', 'No API Keys found.')}
-        </Typography>
-        <Typography variant='body2' color='text.secondary' sx={{ mt: 0.5, mb: 2 }}>
-          {t(
-            'auth.developer_console.api_keys.empty_desc',
-            'Generate your first API key to interact with the Identity platform programmatically.',
-          )}
-        </Typography>
-        <Button
-          variant='contained'
-          startIcon={<AddIcon />}
-          onClick={() => setCreateOpen(true)}
-          sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
-        >
-          {t('auth.developer_console.api_keys.generate_first', 'Generate Your First Key')}
-        </Button>
-      </TableCell>
-    </TableRow>
-  )
-
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
-          <Typography
-            variant='h4'
-            component='h1'
-            fontWeight={700}
-            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+      <AdminPageHeader
+        icon={<KeyIcon />}
+        title={t('auth.developer_console.api_keys.title', 'Developer API Keys')}
+        description={t(
+          'auth.developer_console.api_keys.subtitle',
+          'Manage programmatic API credentials with custom expirations and granular access scopes.',
+        )}
+        actions={
+          <Button
+            variant='contained'
+            startIcon={<AddIcon />}
+            onClick={() => setCreateOpen(true)}
+            sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
           >
-            <KeyIcon color='primary' fontSize='large' />{' '}
-            {t('auth.developer_console.api_keys.title', 'Developer API Keys')}
-          </Typography>
-          <Typography variant='body2' color='text.secondary'>
-            {t(
-              'auth.developer_console.api_keys.subtitle',
-              'Manage programmatic API credentials with custom expirations and granular access scopes.',
-            )}
-          </Typography>
-        </Box>
-        <Button
-          variant='contained'
-          startIcon={<AddIcon />}
-          onClick={() => setCreateOpen(true)}
-          sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
-        >
-          {t('auth.developer_console.api_keys.generate_new', 'Generate New Key')}
-        </Button>
-      </Box>
+            {t('auth.developer_console.api_keys.generate_new', 'Generate New Key')}
+          </Button>
+        }
+      />
 
       {/* Error Banner */}
       {isError && (
@@ -248,9 +213,7 @@ export const DeveloperApiKeysScreen: React.FC = () => {
             </Button>
           }
         >
-          {error instanceof Error
-            ? error.message
-            : t('auth.developer_console.api_keys.load_error', 'Failed to load developer API keys.')}
+          {t('auth.developer_console.api_keys.load_error', 'Failed to load developer API keys.')}
         </Alert>
       )}
 
@@ -270,100 +233,157 @@ export const DeveloperApiKeysScreen: React.FC = () => {
         </Alert>
       )}
 
-      <Paper
-        sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
+          gap: 3,
+          mb: 4,
+        }}
       >
+        <AdminStatCard
+          label={t('auth.developer_console.api_keys.stat_total', 'Active keys')}
+          value={isLoading ? undefined : stats.total}
+          icon={<KeyIcon fontSize='small' />}
+          tone='primary'
+        />
+        <AdminStatCard
+          label={t('auth.developer_console.api_keys.stat_expiring', 'Expiring soon')}
+          caption={t('auth.developer_console.api_keys.stat_expiring_hint', 'within 30 days')}
+          value={isLoading ? undefined : stats.expiringSoon}
+          icon={<TimerOutlinedIcon fontSize='small' />}
+          tone='warning'
+        />
+        <AdminStatCard
+          label={t('auth.developer_console.api_keys.stat_unused', 'Never used')}
+          caption={t('auth.developer_console.api_keys.stat_unused_hint', 'candidates to revoke')}
+          value={isLoading ? undefined : stats.neverUsed}
+          icon={<HistoryToggleOffIcon fontSize='small' />}
+          tone='info'
+        />
+      </Box>
+
+      <AdminTableCard>
         <Table>
-          <TableHead sx={{ bgcolor: 'action.hover' }}>
+          <AdminTableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 600 }}>
+              <AdminTableHeadCell>
                 {t('auth.developer_console.api_keys.col_name', 'Key Name')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>
+              </AdminTableHeadCell>
+              <AdminTableHeadCell>
                 {t('auth.developer_console.api_keys.col_last_used', 'Last Used')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>
+              </AdminTableHeadCell>
+              <AdminTableHeadCell>
                 {t('auth.developer_console.api_keys.col_expires', 'Expires')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>
+              </AdminTableHeadCell>
+              <AdminTableHeadCell>
                 {t('auth.developer_console.api_keys.col_created', 'Created')}
-              </TableCell>
-              <TableCell align='right' sx={{ fontWeight: 600 }}>
+              </AdminTableHeadCell>
+              <AdminTableHeadCell align='right'>
                 {t('auth.common.actions', 'Actions')}
-              </TableCell>
+              </AdminTableHeadCell>
             </TableRow>
-          </TableHead>
+          </AdminTableHead>
           <TableBody>
-            {isLoading
-              ? renderTableSkeleton()
-              : keys.length === 0
-                ? renderEmptyState()
-                : keys.map((key) => {
-                    const expiresAt = key.expiresAt || (key as any).expires_at
-                    const createdAt = key.createdAt || (key as any).created_at
-                    const lastUsedAt = (key as any).lastUsedAt || (key as any).last_used_at
-                    const isExpired = expiresAt && new Date(expiresAt) < new Date()
-                    const displayName =
-                      key.name ||
-                      (key as any).title ||
-                      t('auth.developer_console.api_keys.untitled', 'API Key #{{id}}', {
-                        id: key.id,
-                      })
-                    const neverLabel = t('auth.common.never', 'Never')
-                    return (
-                      <TableRow key={key.id} hover>
-                        <TableCell>
-                          <Typography variant='subtitle2' fontWeight={600}>
-                            {displayName}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant='body2' color='text.secondary'>
-                            {lastUsedAt ? new Date(lastUsedAt).toLocaleDateString() : neverLabel}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <AdminStatusBadge
-                            tone={expiresAt && isExpired ? 'error' : 'neutral'}
-                            label={
-                              expiresAt
-                                ? isExpired
-                                  ? t('auth.developer_console.api_keys.expired', 'Expired')
-                                  : new Date(expiresAt).toLocaleDateString()
-                                : neverLabel
-                            }
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant='body2' color='text.secondary'>
-                            {createdAt ? new Date(createdAt).toLocaleDateString() : '—'}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='right'>
-                          <Tooltip
-                            title={t(
-                              'auth.developer_console.api_keys.revoke_tooltip',
-                              'Revoke API Key',
-                            )}
-                          >
-                            <AdminRowActionButton
-                              color='error'
-                              aria-label={t(
-                                'auth.developer_console.api_keys.revoke_tooltip',
-                                'Revoke API Key',
-                              )}
-                              onClick={() => setDeleteTarget({ id: key.id, name: displayName })}
-                            >
-                              <DeleteOutlineIcon fontSize='small' />
-                            </AdminRowActionButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
+            <AdminDataState
+              asTableRow
+              skeletonRows={3}
+              skeletonColumns={5}
+              loading={isLoading}
+              empty={keys.length === 0 && !isError}
+              emptyIcon={<KeyIcon sx={{ fontSize: 32 }} />}
+              emptyTitle={t('auth.developer_console.api_keys.empty_title', 'No API Keys found.')}
+              emptyDescription={t(
+                'auth.developer_console.api_keys.empty_desc',
+                'Generate your first API key to interact with the Identity platform programmatically.',
+              )}
+              emptyAction={
+                <Button
+                  variant='contained'
+                  startIcon={<AddIcon />}
+                  onClick={() => setCreateOpen(true)}
+                  sx={{
+                    minHeight: 44,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
+                    textTransform: 'none',
+                    fontWeight: 700,
+                  }}
+                >
+                  {t('auth.developer_console.api_keys.generate_first', 'Generate Your First Key')}
+                </Button>
+              }
+            >
+              {keys.map((key) => {
+                const expiresAt = key.expiresAt || key.expires_at
+                const createdAt = key.createdAt || key.created_at
+                const lastUsedAt = key.lastUsedAt || key.last_used_at
+                const isExpired = expiresAt && new Date(expiresAt) < new Date()
+                const displayName =
+                  key.name ||
+                  key.title ||
+                  t('auth.developer_console.api_keys.untitled', 'API Key #{{id}}', {
+                    id: key.id,
+                  })
+                const neverLabel = t('auth.common.never', 'Never')
+                return (
+                  <AdminTableRow key={key.id}>
+                    <TableCell>
+                      <Typography variant='subtitle2' fontWeight={700}>
+                        {displayName}
+                      </Typography>
+                      <Typography
+                        variant='caption'
+                        color='text.secondary'
+                        sx={{ fontFamily: MONO_FONT }}
+                      >
+                        #{key.id}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant='body2' color='text.secondary'>
+                        {lastUsedAt ? new Date(lastUsedAt).toLocaleDateString() : neverLabel}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <AdminStatusBadge
+                        tone={expiresAt && isExpired ? 'error' : 'neutral'}
+                        label={
+                          expiresAt
+                            ? isExpired
+                              ? t('auth.developer_console.api_keys.expired', 'Expired')
+                              : new Date(expiresAt).toLocaleDateString()
+                            : neverLabel
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant='body2' color='text.secondary'>
+                        {createdAt ? new Date(createdAt).toLocaleDateString() : '—'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align='right'>
+                      <Tooltip
+                        title={t('auth.developer_console.api_keys.revoke_tooltip', 'Revoke API Key')}
+                      >
+                        <AdminRowActionButton
+                          color='error'
+                          aria-label={t(
+                            'auth.developer_console.api_keys.revoke_tooltip',
+                            'Revoke API Key',
+                          )}
+                          onClick={() => setDeleteTarget({ id: key.id, name: displayName })}
+                        >
+                          <DeleteOutlineIcon fontSize='small' />
+                        </AdminRowActionButton>
+                      </Tooltip>
+                    </TableCell>
+                  </AdminTableRow>
+                )
+              })}
+            </AdminDataState>
           </TableBody>
         </Table>
-      </Paper>
+      </AdminTableCard>
 
       {/* Create Key Dialog */}
       <Dialog

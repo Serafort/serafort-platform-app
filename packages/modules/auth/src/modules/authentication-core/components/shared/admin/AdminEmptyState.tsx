@@ -64,14 +64,21 @@ const AdminEmptyState: React.FC<AdminEmptyStateProps> = ({
         </Box>
       )}
       <Box>
-        <Typography variant='h6' sx={{ fontWeight: 800 }}>
+        <Typography
+          variant='h6'
+          sx={{
+            fontFamily: 'var(--sf-font-display, inherit)',
+            fontWeight: 700,
+            fontSize: 'var(--sf-text-lg, 1.0625rem)',
+          }}
+        >
           {title}
         </Typography>
         {description && (
           <Typography
             variant='body2'
             color='text.secondary'
-            sx={{ mt: 0.5, fontWeight: 500, maxInlineSize: 420, mx: 'auto', lineHeight: 1.6 }}
+            sx={{ mt: 0.5, fontSize: 'var(--sf-text-base, 0.875rem)', maxInlineSize: 420, mx: 'auto', lineHeight: 1.6 }}
           >
             {description}
           </Typography>

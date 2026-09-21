@@ -1,34 +1,26 @@
-import React, { useMemo } from 'react'
-import {
-  Box,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  Grid,
-  Chip,
-  Skeleton,
-  Alert,
-  Avatar,
-  Stack,
-} from '@mui/material'
-import DeleteIcon from '@mui/icons-material/Delete'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import GlobeIcon from '@mui/icons-material/Language'
-import VpnKeyIcon from '@mui/icons-material/VpnKey'
-import ShieldIcon from '@mui/icons-material/Shield'
-import InfoIcon from '@mui/icons-material/Info'
+import React, { useMemo, useState } from 'react'
+import { Box, Button, Stack, Skeleton } from '@mui/material'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined'
+import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined'
 import TerminalIcon from '@mui/icons-material/Terminal'
+import TuneIcon from '@mui/icons-material/Tune'
+import EventOutlinedIcon from '@mui/icons-material/EventOutlined'
+import PublicIcon from '@mui/icons-material/Public'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { alpha, useTheme } from '@mui/material/styles'
 import { useUserTokens, useRevokeToken } from '@auth/user-directory/hooks/useUserQuery'
-import { Path } from '@auth/routes/path'
+import Path from '../path'
+import {
+  AdminEmptyState,
+  AdminPageHeader,
+  AdminStatusBadge,
+  type AdminStatusTone,
+} from '../../../authentication-core/components/shared/admin'
+import { ConfirmationDialog } from '../../../authentication-core/components/shared'
+import { MetaGrid, MetaItem, MonoTag, SectionCard, TintAlert } from '../../components/panels'
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 interface TokenData {
   id: number | string
   name: string
@@ -39,449 +31,263 @@ interface TokenData {
   status: 'active' | 'expired'
 }
 
-// ---------------------------------------------------------------------------
-// Sub-components (keeps the main render < 350 lines)
-// ---------------------------------------------------------------------------
+const MS_PER_DAY = 1000 * 60 * 60 * 24
 
-/** Canonical metadata label + value pair */
-const MetaRow = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <Box sx={{ minWidth: 140 }}>
-    <Typography
-      variant='caption'
-      color='text.secondary'
-      sx={{
-        fontWeight: 700,
-        textTransform: 'uppercase',
-        letterSpacing: '0.075em',
-        display: 'block',
-        mb: 0.5,
-      }}
-    >
-      {label}
-    </Typography>
-    <Typography variant='body2' sx={{ fontWeight: 800, color: 'text.primary' }}>
-      {children}
-    </Typography>
-  </Box>
-)
-
-/** Canonical card section heading */
-const SectionHeading = ({ icon, title }: { icon: React.ReactNode; title: string }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
-    {icon}
-    <Typography
-      variant='h6'
-      sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}
-    >
-      {title}
-    </Typography>
-  </Box>
-)
-
-// ---------------------------------------------------------------------------
-// Main Component
-// ---------------------------------------------------------------------------
 const APITokenDetails: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { tokenId } = useParams<{ tokenId: string }>()
-  const theme = useTheme()
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
-  const { data: tokensResponse, isLoading, isError } = useUserTokens()
+  const { data: tokensResponse, isLoading, isError, refetch } = useUserTokens()
 
   const token = useMemo<TokenData | undefined>(() => {
-    if (!tokensResponse?.data) return undefined
-    const tokens = Array.isArray(tokensResponse.data) ? tokensResponse.data : []
-    return tokens.find((tk: TokenData) => String(tk.id) === tokenId)
+    const list = tokensResponse?.data
+    if (!Array.isArray(list)) return undefined
+    return (list as unknown as TokenData[]).find((tk) => String(tk.id) === tokenId)
   }, [tokensResponse, tokenId])
 
   const revokeTokenMutation = useRevokeToken({
     onSuccess: () => {
-      toast.success(t('auth.api_tokens.revoke_success', 'Token revoked successfully'), {})
-      navigate(Path.apiTokens.dashboard)
+      toast.success(t('auth.api_tokens.revoke_success', 'Token revoked successfully'))
+      navigate(Path.dashboard)
     },
-    onError: (error: unknown) => {
-      const message =
-        error instanceof Error ? error.message : t('auth.api_tokens.revoke_error', 'Failed to revoke')
-      toast.error(message)
+    onError: () => {
+      toast.error(t('auth.api_tokens.revoke_error', 'Failed to revoke'))
     },
   })
 
-  const handleRevoke = () => {
-    if (token) {
-      revokeTokenMutation.mutate(token.id)
-    }
+  const formatDate = (value: string | null | undefined): string => {
+    if (!value) return t('auth.common.never', 'Never')
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return value
+    return date.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
   }
 
-  const formatDate = (dateStr: string | null | undefined): string => {
-    if (!dateStr) return t('auth.common.never', 'Never')
-    try {
-      return new Date(dateStr).toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    } catch {
-      return dateStr
+  const expiry = useMemo((): { tone: AdminStatusTone; label: string } => {
+    if (!token) return { tone: 'neutral', label: '' }
+    if (token.status === 'expired') {
+      return { tone: 'error', label: t('auth.api_tokens.expired', 'Expired') }
     }
-  }
-
-  const getExpiryStatus = () => {
-    if (!token?.expiresAt)
-      return { label: t('auth.api_tokens.no_expiry', 'No Expiry'), color: 'info' as const }
-    const expiresAt = new Date(token.expiresAt)
-    const now = new Date()
-    const daysUntilExpiry = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-
-    if (daysUntilExpiry <= 0)
-      return { label: t('auth.api_tokens.expired', 'Expired'), color: 'error' as const }
-    if (daysUntilExpiry <= 7)
-      return { label: t('auth.api_tokens.expiring_soon', 'Expiring Soon'), color: 'warning' as const }
+    if (!token.expiresAt) {
+      return { tone: 'info', label: t('auth.api_tokens.no_expiry', 'No expiry') }
+    }
+    const days = Math.ceil((new Date(token.expiresAt).getTime() - Date.now()) / MS_PER_DAY)
+    if (days <= 0) return { tone: 'error', label: t('auth.api_tokens.expired', 'Expired') }
+    if (days <= 7) {
+      return { tone: 'warning', label: t('auth.api_tokens.expiring_soon', 'Expiring soon') }
+    }
     return {
-      label: `${daysUntilExpiry} ${t('auth.common.daysRemaining', 'days remaining')}`,
-      color: 'success' as const,
+      tone: 'success',
+      label: `${days} ${t('auth.common.daysRemaining', 'days remaining')}`,
     }
-  }
+  }, [token, t])
 
-  // ── Loading State ────────────────────────────────────────────────────────
+  const breadcrumbs = [
+    { label: t('auth.api_tokens.title', 'API Tokens'), to: Path.dashboard },
+    { label: token?.name ?? t('auth.api_tokens.details_title', 'Token Details') },
+  ]
+
   if (isLoading) {
     return (
-      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-        <Skeleton variant='text' width={300} height={32} sx={{ mb: 2 }} />
-        <Skeleton variant='text' width={200} height={48} sx={{ mb: 4 }} />
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 8 }}>
-            <Skeleton variant='rounded' height={320} sx={{ borderRadius: 'var(--sf-radius-md, 8px)', mb: 3 }} />
-            <Skeleton variant='rounded' height={200} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
-          </Grid>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Skeleton variant='rounded' height={260} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
-          </Grid>
-        </Grid>
+      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }} aria-busy='true'>
+        <Skeleton variant='text' width={220} height={20} />
+        <Skeleton variant='text' width={360} height={44} sx={{ mb: 3 }} />
+        <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' } }}>
+          <Stack spacing={3}>
+            <Skeleton variant='rounded' height={150} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
+            <Skeleton variant='rounded' height={190} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
+          </Stack>
+          <Skeleton variant='rounded' height={240} sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }} />
+        </Box>
       </Box>
     )
   }
 
-  // ── Error / Not Found State ──────────────────────────────────────────────
   if (isError || !token) {
     return (
       <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-        <Alert
-          severity='error'
-          action={
-            <Button
-              color='inherit'
-              size='small'
-              onClick={() => navigate(Path.apiTokens.dashboard)}
-              sx={{ fontWeight: 700, textTransform: 'none' }}
-            >
-              {t('auth.common.goBack', 'Go Back')}
-            </Button>
+        <AdminPageHeader
+          breadcrumbs={breadcrumbs.slice(0, 1)}
+          icon={<VpnKeyOutlinedIcon />}
+          title={t('auth.api_tokens.details_title', 'Token Details')}
+        />
+        <AdminEmptyState
+          variant='error'
+          icon={<VpnKeyOutlinedIcon />}
+          title={t('auth.api_tokens.token_not_found_title', 'We could not find this token')}
+          description={
+            isError
+              ? t(
+                  'auth.api_tokens.token_load_error',
+                  'The token list could not be loaded. Check your connection and try again.',
+                )
+              : t(
+                  'auth.api_tokens.token_not_found',
+                  'Token not found or you do not have access to it.',
+                )
           }
-        >
-          {t('auth.api_tokens.token_not_found', 'Token not found or you do not have access to it.')}
-        </Alert>
+          action={
+            <Stack direction='row' spacing={1.5} justifyContent='center'>
+              {isError && (
+                <Button variant='outlined' onClick={() => refetch()} sx={{ minHeight: 44 }}>
+                  {t('auth.common.retry', 'Try again')}
+                </Button>
+              )}
+              <Button variant='contained' onClick={() => navigate(Path.dashboard)} sx={{ minHeight: 44 }}>
+                {t('auth.common.goBack', 'Go Back')}
+              </Button>
+            </Stack>
+          }
+        />
       </Box>
     )
   }
 
-  const expiryStatus = getExpiryStatus()
+  const isActive = token.status === 'active'
+  const goTo = (path: string) => navigate(path.replace(':tokenId', String(token.id)))
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* ── Top Banner ─────────────────────────────────────────────────── */}
-      <Box
-        sx={{
-          mb: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {/* Avatar with status dot */}
-          <Box sx={{ position: 'relative' }}>
-            <Avatar
-              sx={{
-                width: { xs: 56, md: 80 },
-                height: { xs: 56, md: 80 },
-                borderRadius: 'var(--sf-radius-lg, 24px)',
-                bgcolor: 'primary.main',
-                boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
-              }}
-            >
-              <VpnKeyIcon sx={{ fontSize: 32 }} />
-            </Avatar>
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: -4,
-                right: -4,
-                width: 24,
-                height: 24,
-                bgcolor: token.status === 'active' ? 'success.main' : 'error.main',
-                borderRadius: '50%',
-                border: '4px solid',
-                borderColor: 'background.paper',
-              }}
-            />
-          </Box>
-
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
-              <Button
-                aria-label={t('auth.common.back', 'Back')}
-                startIcon={<ArrowBackIcon />}
-                onClick={() => navigate(Path.apiTokens.dashboard)}
-                sx={{
-                  p: 0,
-                  minWidth: 44,
-                  minHeight: 44,
-                  color: 'text.secondary',
-                  '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
-                }}
-              />
-              <Typography
-                variant='h4'
-                sx={{
-                  fontWeight: 800,
-                  letterSpacing: '-0.027em',
-                  fontSize: { xs: '1.5rem', md: '2.125rem' },
-                }}
-              >
-                {token.name}
-              </Typography>
+      <AdminPageHeader
+        breadcrumbs={breadcrumbs}
+        icon={<VpnKeyOutlinedIcon />}
+        tone={isActive ? 'primary' : 'error'}
+        title={token.name}
+        description={
+          <Stack direction='row' spacing={1} alignItems='center' flexWrap='wrap' useFlexGap>
+            <Box component='span' sx={{ fontFamily: 'var(--sf-font-mono, monospace)' }}>
+              ID {token.id}
             </Box>
-            <Stack direction='row' spacing={1} alignItems='center' flexWrap='wrap'>
-              <Typography variant='body2' color='text.secondary'>
-                ID: {token.id}
-              </Typography>
-              <Chip
-                label={
-                  token.status === 'active'
-                    ? t('auth.common.active', 'Active')
-                    : t('auth.common.expired', 'Expired')
-                }
-                size='small'
-                color={token.status === 'active' ? 'success' : 'error'}
-                variant='outlined'
-                sx={{ fontWeight: 700, height: 20 }}
-              />
-              <Chip
-                label={expiryStatus.label}
-                size='small'
-                color={expiryStatus.color}
-                variant='outlined'
-                sx={{ fontWeight: 700, height: 20 }}
-              />
-            </Stack>
-          </Box>
-        </Box>
+            <AdminStatusBadge
+              tone={isActive ? 'success' : 'error'}
+              label={isActive ? t('auth.common.active', 'Active') : t('auth.common.expired', 'Expired')}
+            />
+            <AdminStatusBadge tone={expiry.tone} label={expiry.label} />
+          </Stack>
+        }
+        actions={
+          <Stack direction='row' spacing={1.5} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+            <Button
+              variant='outlined'
+              startIcon={<TuneIcon />}
+              onClick={() => goTo(Path.actions)}
+              sx={{ minHeight: 44, flex: { xs: 1, sm: 'none' } }}
+            >
+              {t('auth.api_tokens.manage_token', 'Manage')}
+            </Button>
+            <Button
+              variant='contained'
+              color='error'
+              startIcon={<DeleteOutlineIcon />}
+              onClick={() => setConfirmOpen(true)}
+              disabled={revokeTokenMutation.isPending}
+              sx={{ minHeight: 44, flex: { xs: 1, sm: 'none' } }}
+            >
+              {t('auth.common.revoke', 'Revoke Token')}
+            </Button>
+          </Stack>
+        }
+      />
 
-        {/* Primary CTA — Revoke (single location, no duplicate) */}
-        <Stack
-          direction='row'
-          spacing={2}
-          sx={{ flexShrink: 0, width: { xs: '100%', sm: 'auto' } }}
-        >
-          <Button
-            variant='contained'
-            startIcon={<DeleteIcon />}
-            onClick={handleRevoke}
-            disabled={revokeTokenMutation.isPending}
-            color='error'
-            sx={{
-              minHeight: 44,
-              borderRadius: 'var(--sf-radius-md, 8px)',
-              boxShadow: `0 4px 14px 0 ${alpha(theme.palette.error.main, 0.39)}`,
-              textTransform: 'none',
-              fontWeight: 700,
-              flex: { xs: 1, sm: 'none' },
-              height: 44,
-              px: 3,
-            }}
+      <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 2fr) minmax(0, 1fr)' } }}>
+        <Stack spacing={3}>
+          <SectionCard
+            id='token-overview'
+            icon={<EventOutlinedIcon fontSize='small' />}
+            title={t('auth.api_tokens.overview', 'Overview')}
+            description={t('auth.api_tokens.overview_desc', 'When this token was issued and last used.')}
           >
-            {revokeTokenMutation.isPending
-              ? t('auth.common.revoking', 'Revoking...')
-              : t('auth.common.revoke', 'Revoke Token')}
-          </Button>
+            <MetaGrid>
+              <MetaItem label={t('auth.api_tokens.created_at', 'Created')}>{formatDate(token.createdAt)}</MetaItem>
+              <MetaItem label={t('auth.api_tokens.expires_at', 'Expires')}>{formatDate(token.expiresAt)}</MetaItem>
+              <MetaItem label={t('auth.api_tokens.last_used', 'Last Used')}>{formatDate(token.lastUsedAt)}</MetaItem>
+            </MetaGrid>
+          </SectionCard>
+
+          <SectionCard
+            id='token-scopes'
+            icon={<ShieldOutlinedIcon fontSize='small' />}
+            title={t('auth.api_tokens.permissions', 'Permissions & Scopes')}
+            description={t('auth.api_tokens.permissions_desc', 'What applications holding this token are allowed to do.')}
+          >
+            {token.abilities && token.abilities.length > 0 ? (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {token.abilities.map((ability) => (
+                  <MonoTag key={ability} tone='primary'>
+                    {ability}
+                  </MonoTag>
+                ))}
+              </Box>
+            ) : (
+              <TintAlert tone='warning' icon={<PublicIcon />} title={t('auth.api_tokens.full_access', 'Full access, no scope restrictions')}>
+                {t(
+                  'auth.api_tokens.full_access_hint',
+                  'This token can call every endpoint you can. Prefer a scoped token for production.',
+                )}
+              </TintAlert>
+            )}
+          </SectionCard>
+        </Stack>
+
+        <Stack spacing={3}>
+          <SectionCard
+            id='token-next'
+            icon={<TerminalIcon fontSize='small' />}
+            title={t('auth.api_tokens.quick_actions', 'Quick Actions')}
+          >
+            <Stack spacing={1.5}>
+              <Button
+                variant='outlined'
+                fullWidth
+                startIcon={<TerminalIcon />}
+                onClick={() => goTo(Path.display)}
+                sx={{ minHeight: 44, justifyContent: 'flex-start' }}
+              >
+                {t('auth.api_tokens.usage_guide', 'Usage Guide')}
+              </Button>
+              <Button
+                variant='outlined'
+                fullWidth
+                startIcon={<TuneIcon />}
+                onClick={() => goTo(Path.actions)}
+                sx={{ minHeight: 44, justifyContent: 'flex-start' }}
+              >
+                {t('auth.api_tokens.manage_header', 'Manage Token Settings')}
+              </Button>
+            </Stack>
+          </SectionCard>
+
+          <TintAlert tone='info' title={t('auth.api_tokens.security_tip_title', 'Security Reminder')}>
+            {t(
+              'auth.api_tokens.revoke_warning',
+              'Once revoked, this token will immediately stop working. Any applications using this token will lose access.',
+            )}
+          </TintAlert>
         </Stack>
       </Box>
 
-      {/* ── Main Grid ──────────────────────────────────────────────────── */}
-      <Grid container spacing={3}>
-        {/* Main Column */}
-        <Grid size={{ xs: 12, md: 8 }}>
-          {/* Overview Card */}
-          <Card sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', border: '1px solid', borderColor: 'divider', boxShadow: 'none', mb: 3 }}>
-            <CardContent sx={{ p: 3 }}>
-              <SectionHeading
-                icon={<VpnKeyIcon color='primary' sx={{ fontSize: 24 }} />}
-                title={t('auth.api_tokens.overview', 'Overview')}
-              />
-
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                <MetaRow label={t('auth.api_tokens.created_at', 'Created')}>
-                  {formatDate(token.createdAt)}
-                </MetaRow>
-                <MetaRow label={t('auth.api_tokens.expires_at', 'Expires')}>
-                  {formatDate(token.expiresAt)}
-                </MetaRow>
-                <MetaRow label={t('auth.api_tokens.last_used', 'Last Used')}>
-                  {formatDate(token.lastUsedAt)}
-                </MetaRow>
-              </Box>
-            </CardContent>
-          </Card>
-
-          {/* Permissions Card */}
-          <Card sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-            <CardContent sx={{ p: 3 }}>
-              <SectionHeading
-                icon={<ShieldIcon color='primary' sx={{ fontSize: 24 }} />}
-                title={t('auth.api_tokens.permissions', 'Permissions & Scopes')}
-              />
-
-              {token.abilities && token.abilities.length > 0 ? (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-                  {token.abilities.map((ability) => (
-                    <Chip
-                      key={ability}
-                      label={ability}
-                      size='small'
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: '0.75rem',
-                        height: 20,
-                        borderRadius: 'var(--sf-radius-sm, 6px)',
-                        bgcolor: alpha(theme.palette.primary.main, 0.08),
-                        color: 'primary.main',
-                        border: '1px solid',
-                        borderColor: alpha(theme.palette.primary.main, 0.2),
-                      }}
-                    />
-                  ))}
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    p: 3,
-                    textAlign: 'center',
-                    borderRadius: 'var(--sf-radius-md, 10px)',
-                    bgcolor: alpha(theme.palette.action.hover, 0.3),
-                    border: '1px dashed',
-                    borderColor: 'divider',
-                  }}
-                >
-                  <GlobeIcon sx={{ fontSize: 36, color: 'text.disabled', mb: 1 }} />
-                  <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 600 }}>
-                    {t('auth.api_tokens.full_access', 'Full access — no scope restrictions')}
-                  </Typography>
-                </Box>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Side Panel */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          {/* Quick Actions Card */}
-          <Card
-            sx={{
-              borderRadius: 'var(--sf-radius-lg, 16px)',
-              border: '1px solid',
-              borderColor: 'divider',
-              boxShadow: 'none',
-              bgcolor: alpha(theme.palette.primary.main, 0.02),
-              mb: 3,
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-                <VpnKeyIcon sx={{ color: 'primary.main', fontSize: 24 }} />
-                <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
-                  {t('auth.api_tokens.quick_actions', 'Quick Actions')}
-                </Typography>
-              </Box>
-
-              <Stack spacing={1.5}>
-                <Button
-                  variant='outlined'
-                  fullWidth
-                  startIcon={<TerminalIcon />}
-                  onClick={() =>
-                    navigate(Path.apiTokens.display.replace(':tokenId', String(token.id)))
-                  }
-                  sx={{
-                    minHeight: 44,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
-                    justifyContent: 'flex-start',
-                    textTransform: 'none',
-                    fontWeight: 700,
-                  }}
-                >
-                  {t('auth.api_tokens.usage_guide', 'Usage Guide')}
-                </Button>
-                <Button
-                  variant='outlined'
-                  fullWidth
-                  color='error'
-                  startIcon={<DeleteIcon />}
-                  onClick={handleRevoke}
-                  disabled={revokeTokenMutation.isPending}
-                  sx={{
-                    minHeight: 44,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
-                    justifyContent: 'flex-start',
-                    textTransform: 'none',
-                    fontWeight: 700,
-                  }}
-                >
-                  {revokeTokenMutation.isPending
-                    ? t('auth.common.revoking', 'Revoking...')
-                    : t('auth.api_tokens.revoke_this_token', 'Revoke This Token')}
-                </Button>
-              </Stack>
-            </CardContent>
-          </Card>
-
-          {/* Info Tip Box */}
-          <Box
-            sx={{
-              p: 2,
-              borderRadius: 'var(--sf-radius-md, 10px)',
-              bgcolor: alpha(theme.palette.info.main, 0.05),
-              border: '1px solid',
-              borderColor: alpha(theme.palette.info.main, 0.1),
-            }}
-          >
-            <Typography
-              variant='subtitle2'
-              sx={{
-                fontWeight: 800,
-                mb: 1,
-                color: 'info.main',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-              }}
-            >
-              <InfoIcon fontSize='small' />
-              {t('auth.api_tokens.security_tip_title', 'Security Reminder')}
-            </Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ lineHeight: 1.6 }}>
-              {t(
-                'auth.api_tokens.revoke_warning',
-                'Once revoked, this token will immediately stop working. Any applications using this token will lose access.',
-              )}
-            </Typography>
-          </Box>
-        </Grid>
-      </Grid>
+      <ConfirmationDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => revokeTokenMutation.mutate(token.id)}
+        isSubmitting={revokeTokenMutation.isPending}
+        severity='error'
+        title={t('auth.api_tokens.revoke_confirm_title', 'Revoke API Token?')}
+        message={t(
+          'auth.api_tokens.revoke_confirm_msg',
+          'Revoke "{{name}}"? Applications using this token lose access immediately, and it cannot be restored.',
+          { name: token.name },
+        )}
+        confirmLabel={t('auth.common.revokePermanently', 'Revoke Permanently')}
+        cancelLabel={t('auth.common.cancel', 'Cancel')}
+      />
     </Box>
   )
 }

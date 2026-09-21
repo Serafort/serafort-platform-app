@@ -7,15 +7,27 @@ describe("Routes Registry & Path Helpers (Tier 0 SSOT)", () => {
     expect(AppPaths.landing.about).toBe("/about");
     expect(AppPaths.landing.pricing).toBe("/pricing");
     expect(AppPaths.landing.contact).toBe("/contact");
-    expect(AppPaths.auth.login).toBe("/auth/sign-in");
     expect(AppPaths.auth.signin).toBe("/auth/sign-in");
     expect(AppPaths.auth.signup).toBe("/auth/sign-up");
     // Reconciled to the route the auth module actually registers.
     expect(AppPaths.account.overview).toBe("/auth/account");
     expect(AppPaths.admin.users).toBe("/admin/users");
-    expect(AppPaths.admin.dashboard).toBe("/admin/dashboard");
+    expect(AppPaths.admin.roles).toBe("/admin/roles");
     expect(AppPaths.theme.theme).toBe("/theme");
     expect(AppPaths.dashboard.dashboard).toBe("/dashboard");
+  });
+
+  it("derives cross-cutting views from the module namespaces, not copies", () => {
+    // The account/admin groupings must stay reference-equal to the namespace
+    // they project. If someone re-types a literal instead of referencing it,
+    // these drift apart and this fails.
+    expect(AppPaths.account.overview).toBe(AppPaths.session.overview);
+    expect(AppPaths.account.changeEmail).toBe(
+      AppPaths.user.settings.change_email,
+    );
+    expect(AppPaths.admin.users).toBe(AppPaths.user.admin.users.list);
+    expect(AppPaths.admin.roles).toBe(AppPaths.authorization.roles);
+    expect(AppPaths.passkey).toBe(AppPaths.mfa.passkey);
   });
 
   it("compilePath should substitute route parameters correctly", () => {

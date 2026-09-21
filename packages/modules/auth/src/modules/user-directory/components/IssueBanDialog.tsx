@@ -15,7 +15,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useNotifications } from '@cap/platform-core'
 import { useUsers, useBanUser } from '../../authorization-engine/hooks/useAdminQuery'
+import type { AdminUser } from '@auth/authorization-engine/hooks/useAdminQuery'
 import { useDebounce } from 'use-debounce'
+import { getPlainErrorMessage } from '../types/api.types'
 
 interface IssueBanDialogProps {
   open: boolean
@@ -27,7 +29,7 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
   const { addNotification } = useNotifications()
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearch] = useDebounce(searchTerm, 300)
-  const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
   const [reason, setReason] = useState('')
 
   const { data: userData, isLoading: isUsersLoading } = useUsers({
@@ -46,11 +48,11 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
       setSelectedUser(null)
       setReason('')
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       addNotification({
         type: 'error',
         title: t('common.error', 'Error'),
-        message: error.message || t('auth.common.errorOccurred', 'An error occurred'),
+        message: getPlainErrorMessage(error, t('auth.common.errorOccurred', 'An error occurred')),
       })
     },
   })
@@ -110,7 +112,7 @@ export default function IssueBanDialog({ open, onClose }: IssueBanDialogProps) {
                 }) => `${option.firstName ?? ''} ${option.lastName ?? ''} (${option.email})`}
                 loading={isUsersLoading}
                 onInputChange={(_, value) => setSearchTerm(value)}
-                onChange={(_, value) => setSelectedUser(value)}
+                onChange={(_, value) => setSelectedUser(value as AdminUser | null)}
                 renderInput={(params) => (
                   <TextField
                     {...params}

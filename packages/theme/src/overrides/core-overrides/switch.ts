@@ -1,5 +1,12 @@
 // MUI Imports
+import { alpha } from "@mui/material/styles";
 import type { Theme } from "@mui/material/styles";
+
+// Every value below comes from `theme`, not `var(--mui-palette-*)`: those
+// variables only exist in MUI's cssVariables mode, and this app composes a
+// plain createTheme (see button.ts / paper.ts). An unresolved var() left the
+// unchecked track transparent, so an off switch was a white thumb on a white
+// card - invisible.
 
 const switchOverrides: Theme["components"] = {
   MuiSwitch: {
@@ -39,20 +46,21 @@ const switchOverrides: Theme["components"] = {
         left: 1,
         "&.Mui-checked": {
           left: -7,
-          color: "var(--mui-palette-common-white)",
+          color: theme.palette.common.white,
           "& + .MuiSwitch-track": {
             opacity: 1,
           },
         },
         "&.Mui-checked:not(.Mui-disabled) + .MuiSwitch-track": {
-          boxShadow: `var(--mui-customShadows-${ownerState.color}-sm)`,
+          boxShadow: `0 2px 6px ${alpha(
+            ownerState.color && ownerState.color !== "default"
+              ? theme.palette[ownerState.color].main
+              : theme.palette.text.primary,
+            0.3,
+          )}`,
         },
         "&:not(.Mui-checked) + .MuiSwitch-track": {
-          boxShadow: `0 0 4px rgb(var(--mui-palette-common-${
-            theme.palette.mode === "light"
-              ? "onBackgroundChannel"
-              : "backgroundChannel"
-          }) / 0.16) inset`,
+          boxShadow: `0 0 4px ${alpha(theme.palette.text.primary, 0.16)} inset`,
         },
         "&.Mui-disabled + .MuiSwitch-track": {
           opacity: 1,
@@ -61,16 +69,18 @@ const switchOverrides: Theme["components"] = {
           backgroundColor: "transparent",
         },
       }),
-      thumb: {
+      thumb: ({ theme }) => ({
         width: 14,
         height: 14,
-        boxShadow: "var(--mui-customShadows-xs)",
-      },
-      track: {
+        boxShadow: theme.shadows[1],
+      }),
+      track: ({ theme }) => ({
         opacity: 1,
         borderRadius: 10,
-        backgroundColor: "var(--mui-palette-action-focus)",
-      },
+        // text.secondary at low alpha keeps the off track visible on both
+        // light and dark surfaces behind the white thumb.
+        backgroundColor: alpha(theme.palette.text.secondary, 0.38),
+      }),
     },
   },
 };

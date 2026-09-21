@@ -5,6 +5,17 @@ import { isObjectEmpty, useAppStore, type LayoutOverride } from '@cap/platform-c
 import { useSessionGuard } from '../../session-manager/middlewares/useSessionGuard'
 import { resolveRedirectPathForUser } from '../utils/resolveRedirect'
 
+/** The session shapes seen in practice: flat, or wrapped as `{ user: { ... } }`. */
+interface SessionUserShape {
+  role?: string | number
+  roleId?: string | number
+  user?: { role?: string | number }
+}
+
+interface RedirectState {
+  from?: { pathname?: string }
+}
+
 interface GuestRouteProps {
   element: ReactNode
   redirectTo?: string
@@ -25,23 +36,24 @@ const GuestRoute = ({ element, redirectTo, layout = 'none' }: GuestRouteProps) =
 
   if (isLoading) {
     return (
-      <Backdrop open style={{ background: '#FFF', zIndex: 1400 }}>
+      <Backdrop open sx={{ bgcolor: 'background.default', zIndex: 1400 }}>
         <CircularProgress color='inherit' />
       </Backdrop>
     )
   }
 
   if (isAuthenticated && user && !isObjectEmpty(user)) {
-    const userRole = (user as any)?.role || (user as any)?.roleId || (user as any)?.user?.role
+    const sessionUser = user as unknown as SessionUserShape
+    const userRole = sessionUser.role || sessionUser.roleId || sessionUser.user?.role
     const fallbackRedirect = redirectTo || resolveRedirectPathForUser(userRole)
-    const from = (location.state as any)?.from?.pathname || fallbackRedirect
+    const from = (location.state as RedirectState | null)?.from?.pathname || fallbackRedirect
     return <Navigate to={from} replace state={{ from: location }} />
   }
 
   return (
     <Suspense
       fallback={
-        <Backdrop open style={{ background: '#FFF', zIndex: 1400 }}>
+        <Backdrop open sx={{ bgcolor: 'background.default', zIndex: 1400 }}>
           <CircularProgress color='inherit' />
         </Backdrop>
       }

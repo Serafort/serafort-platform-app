@@ -9,7 +9,6 @@ import {
   Skeleton,
   Stack,
   Chip,
-  IconButton,
   useMediaQuery,
   useTheme,
 } from '@mui/material'
@@ -31,6 +30,8 @@ import History from '@mui/icons-material/History'
 import Refresh from '@mui/icons-material/Refresh'
 import EventBusy from '@mui/icons-material/EventBusy'
 import { useTranslation } from 'react-i18next'
+import { AdminPageHeader } from '../../../authentication-core/components/shared/admin'
+import RefreshButton from '../../components/RefreshButton'
 import { useActivityTimeline } from '../../hooks/useSessionQuery'
 import type { AuditLogItem } from '../../types/session.types'
 
@@ -163,30 +164,21 @@ export const UserActivityTimeline: React.FC = () => {
 
   return (
     <Container maxWidth='lg' sx={{ py: 6 }}>
-      <Box
-        sx={{ mb: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
-      >
-        <Box>
-          <Typography
-            variant='h4'
-            fontWeight='bold'
-            gutterBottom
-            sx={{ display: 'flex', alignItems: 'center' }}
-          >
-            <History sx={{ mr: 2, fontSize: 36, color: 'primary.main' }} />
-            {t('auth.account.activity_timeline_title', 'Activity Timeline')}
-          </Typography>
-          <Typography variant='body1' color='text.secondary'>
-            {t(
-              'auth.account.activity_timeline_desc',
-              'Chronological feed of login events, security changes, and profile updates to help you monitor your account security.',
-            )}
-          </Typography>
-        </Box>
-        <IconButton onClick={() => refetch()} disabled={isLoading || isFetching}>
-          <Refresh sx={{ animation: isFetching ? 'spin 1s linear infinite' : 'none' }} />
-        </IconButton>
-      </Box>
+      <AdminPageHeader
+        icon={<History />}
+        title={t('auth.account.activity_timeline_title', 'Activity Timeline')}
+        description={t(
+          'auth.account.activity_timeline_desc',
+          'Chronological feed of login events, security changes, and profile updates to help you monitor your account security.',
+        )}
+        actions={
+          <RefreshButton
+            onRefresh={() => refetch()}
+            isRefreshing={isFetching}
+            disabled={isLoading || isFetching}
+          />
+        }
+      />
 
       {!isLoading && !isError && activities.length > 0 && (
         <Stack

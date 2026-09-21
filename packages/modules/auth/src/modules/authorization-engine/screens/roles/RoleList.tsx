@@ -2,8 +2,6 @@ import React, { useState, useMemo } from 'react'
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
@@ -45,6 +43,8 @@ import { toast } from 'react-toastify'
 import Path from '../../screens/path'
 import {
   AdminDataState,
+  AdminPageHeader,
+  AdminStatCard,
   AdminTableCard,
   AdminTableHead,
   AdminTableHeadCell,
@@ -139,71 +139,33 @@ export default function RoleList() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* ── Page Header — mirrors OrganizationProfile top banner ─────────── */}
-      <Box
-        sx={{
-          mb: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar
+      <AdminPageHeader
+        icon={<SecurityIcon sx={{ fontSize: 28 }} />}
+        title={t('auth.admin.roleListTitle')}
+        description={t('auth.admin.roleListSubtitle')}
+        actions={
+          <Button
+            variant='contained'
+            color='info'
+            startIcon={<AddIcon />}
+            onClick={() => navigate(Path.roleDetail.replace(':id', 'new'))}
             sx={{
-              width: { xs: 56, md: 64 },
-              height: { xs: 56, md: 64 },
-              borderRadius: 'var(--sf-radius-lg, 16px)',
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
-              color: 'primary.main',
-              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.12)}`,
+              boxShadow: `0 4px 14px 0 ${alpha(theme.palette.info.main, 0.39)}`,
+              '&:hover': {
+                boxShadow: `0 6px 20px 0 ${alpha(theme.palette.info.main, 0.5)}`,
+              },
+              textTransform: 'none',
+              fontWeight: 700,
+              minHeight: 44,
+              px: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              width: { xs: '100%', sm: 'auto' },
             }}
           >
-            <SecurityIcon sx={{ fontSize: 28 }} />
-          </Avatar>
-          <Box>
-            <Typography
-              variant='h4'
-              sx={{
-                fontWeight: 800,
-                letterSpacing: '-0.027em',
-                fontSize: { xs: '1.5rem', md: '2.125rem' },
-                lineHeight: 1.1,
-                mb: 0.5,
-              }}
-            >
-              {t('auth.admin.roleListTitle')}
-            </Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-              {t('auth.admin.roleListSubtitle')}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Button
-          variant='contained'
-          color='info'
-          startIcon={<AddIcon />}
-          onClick={() => navigate(Path.roleDetail.replace(':id', 'new'))}
-          sx={{
-            boxShadow: `0 4px 14px 0 ${alpha(theme.palette.info.main, 0.39)}`,
-            '&:hover': {
-              boxShadow: `0 6px 20px 0 ${alpha(theme.palette.info.main, 0.5)}`,
-            },
-            textTransform: 'none',
-            fontWeight: 700,
-            minHeight: 44,
-            px: 3,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            width: { xs: '100%', sm: 'auto' },
-            flexShrink: 0,
-          }}
-        >
-          {t('auth.admin.createRole')}
-        </Button>
-      </Box>
+            {t('auth.admin.createRole')}
+          </Button>
+        }
+      />
 
       {/* ── Stat Cards — same card anatomy as OrganizationProfile ─────────── */}
       <Box
@@ -214,72 +176,24 @@ export default function RoleList() {
           mb: 4,
         }}
       >
-        {[
-          {
-            label: t('auth.admin.totalRoles'),
-            value: stats?.totalRoles ?? totalItems ?? 0,
-            icon: <SecurityIcon />,
-            color: 'primary' as const,
-          },
-          {
-            label: t('auth.admin.mappedPermissions'),
-            value: stats?.totalPermissions ?? '…',
-            icon: <ShieldIcon />,
-            color: 'success' as const,
-          },
-          {
-            label: t('auth.admin.activeMemberships'),
-            value: stats?.totalMemberships ?? '…',
-            icon: <GroupIcon />,
-            color: 'info' as const,
-          },
-        ].map((stat, idx) => (
-          <Card
-            key={idx}
-            sx={{
-              border: '1px solid',
-              borderColor: 'divider',
-              boxShadow: 'none',
-              borderRadius: 'var(--sf-radius-lg, 16px)',
-              transition: 'transform 0.15s ease',
-              '&:hover': { transform: 'translateY(-2px)' },
-            }}
-          >
-            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2.5, p: 3 }}>
-              <Avatar
-                sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 'var(--sf-radius-md, 12px)',
-                  bgcolor: alpha(theme.palette[stat.color].main, 0.1),
-                  color: `${stat.color}.main`,
-                  boxShadow: `0 6px 12px ${alpha(theme.palette[stat.color].main, 0.1)}`,
-                }}
-              >
-                {React.cloneElement(stat.icon, { fontSize: 'small' })}
-              </Avatar>
-              <Box>
-                <Typography
-                  variant='caption'
-                  color='text.secondary'
-                  sx={{
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.075em',
-                    display: 'block',
-                    mb: 0.25,
-                    fontSize: '0.65rem',
-                  }}
-                >
-                  {stat.label}
-                </Typography>
-                <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-                  {stat.value}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        ))}
+        <AdminStatCard
+          label={t('auth.admin.totalRoles')}
+          value={stats?.totalRoles ?? (isLoading ? undefined : totalItems)}
+          icon={<SecurityIcon fontSize='small' />}
+          tone='primary'
+        />
+        <AdminStatCard
+          label={t('auth.admin.mappedPermissions')}
+          value={stats?.totalPermissions}
+          icon={<ShieldIcon fontSize='small' />}
+          tone='success'
+        />
+        <AdminStatCard
+          label={t('auth.admin.activeMemberships')}
+          value={stats?.totalMemberships}
+          icon={<GroupIcon fontSize='small' />}
+          tone='info'
+        />
       </Box>
 
       {/* ── Roles Table Card — shared AdminTableCard (16px, hairline divider) ─ */}

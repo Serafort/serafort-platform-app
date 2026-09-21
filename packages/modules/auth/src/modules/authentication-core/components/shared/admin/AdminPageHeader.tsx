@@ -102,7 +102,7 @@ const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
                 to={crumb.to}
                 underline='hover'
                 color='inherit'
-                sx={{ fontWeight: 600, fontSize: '0.875rem' }}
+                sx={{ fontWeight: 500, fontSize: 'var(--sf-text-sm, 0.8125rem)' }}
               >
                 {crumb.label}
               </Link>
@@ -110,7 +110,7 @@ const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
               <Typography
                 key={idx}
                 color='text.primary'
-                sx={{ fontWeight: 700, fontSize: '0.875rem' }}
+                sx={{ fontWeight: 600, fontSize: 'var(--sf-text-sm, 0.8125rem)' }}
               >
                 {crumb.label}
               </Typography>
@@ -139,7 +139,7 @@ const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
                 borderRadius: 'var(--sf-radius-lg, 12px)',
                 bgcolor: alpha(color, 0.1),
                 color,
-                boxShadow: `0 8px 24px ${alpha(color, 0.12)}`,
+                boxShadow: 'var(--sf-shadow-sm, none)',
               }}
             >
               {icon}
@@ -150,10 +150,11 @@ const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
               component='h1'
               variant='h4'
               sx={{
-                fontWeight: 800,
-                letterSpacing: '-0.027em',
-                fontSize: { xs: '1.5rem', md: '2.125rem' },
-                lineHeight: 1.15,
+                fontFamily: 'var(--sf-font-display, inherit)',
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
+                fontSize: { xs: 'var(--sf-text-xl, 1.4375rem)', md: 'var(--sf-text-2xl, 1.875rem)' },
+                lineHeight: 1.2,
               }}
             >
               {title}
@@ -162,7 +163,7 @@ const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
               <Typography
                 variant='body2'
                 color='text.secondary'
-                sx={{ mt: 0.5, fontWeight: 500, lineHeight: 1.6 }}
+                sx={{ mt: 0.5, fontSize: 'var(--sf-text-base, 0.875rem)', lineHeight: 1.6 }}
               >
                 {description}
               </Typography>

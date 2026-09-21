@@ -67,6 +67,7 @@ import {
   useSendPasswordResetMutation,
   useResetMfaMutation,
 } from '../../../hooks/useUserDirectoryMutations'
+import { getPlainErrorMessage } from '../../../types/api.types'
 import { UserStatus } from '../../../types/userDirectory.types'
 
 import EditUserDrawer from '../../../components/EditUserDrawer'
@@ -162,12 +163,13 @@ export default function AdminUserProfile() {
         <Alert
           severity='error'
           action={
-            <Button color='inherit' size='small' onClick={() => refetchUser()}>
-              Retry
+            <Button color='inherit' size='small' sx={{ minHeight: 44 }} onClick={() => refetchUser()}>
+              {t('auth.userDirectory.userProfile.retry', 'Retry')}
             </Button>
           }
         >
-          {(userError as any)?.message || 'Failed to load user profile. The user may not exist.'}
+          {getPlainErrorMessage(userError) ||
+            t('auth.userDirectory.userProfile.loadError', 'Failed to load user profile. The user may not exist.')}
         </Alert>
         <Button
           startIcon={<ArrowBackIcon />}
@@ -180,7 +182,7 @@ export default function AdminUserProfile() {
             minHeight: 44,
           }}
         >
-          Back to User Directory
+          {t('auth.userDirectory.userProfile.backToUserDirectory', 'Back to User Directory')}
         </Button>
       </Box>
     )
@@ -208,7 +210,7 @@ export default function AdminUserProfile() {
           '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
         }}
       >
-        Back to User Directory
+        {t('auth.userDirectory.userProfile.backToUserDirectory', 'Back to User Directory')}
       </Button>
 
       {/* Main Profile Header Card */}
@@ -218,7 +220,7 @@ export default function AdminUserProfile() {
           p: { xs: 2.5, md: 4 },
           mb: 3.5,
           border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
+          boxShadow: `0 8px 32px 0 ${alpha(theme.palette.common.black, 0.04)}`,
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -240,7 +242,7 @@ export default function AdminUserProfile() {
                 bgcolor: theme.palette.primary.main,
                 fontSize: '1.75rem',
                 fontWeight: 700,
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                boxShadow: `0 4px 12px ${alpha(theme.palette.common.black, 0.15)}`,
               }}
             >
               {user.firstName?.[0] || user.fullName?.[0] || 'U'}
@@ -255,7 +257,7 @@ export default function AdminUserProfile() {
                 {user.status === 'ACTIVE' ? (
                   <Chip
                     size='small'
-                    label='Active'
+                    label={t('auth.userDirectory.userProfile.active', 'Active')}
                     color='success'
                     icon={<CheckCircleIcon sx={{ fontSize: '14px !important' }} />}
                     sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-xs, 4px)' }}
@@ -263,7 +265,7 @@ export default function AdminUserProfile() {
                 ) : user.status === 'SUSPENDED' ? (
                   <Chip
                     size='small'
-                    label='Suspended'
+                    label={t('auth.userDirectory.userProfile.suspended', 'Suspended')}
                     color='warning'
                     icon={<BlockIcon sx={{ fontSize: '14px !important' }} />}
                     sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-xs, 4px)' }}
@@ -279,7 +281,7 @@ export default function AdminUserProfile() {
                 {user.isEmailVerified && (
                   <Chip
                     size='small'
-                    label='Verified'
+                    label={t('auth.userDirectory.userProfile.verified', 'Verified')}
                     color='info'
                     variant='outlined'
                     icon={<VerifiedUserIcon sx={{ fontSize: '14px !important' }} />}
@@ -311,7 +313,7 @@ export default function AdminUserProfile() {
                   ))
                 ) : (
                   <Chip
-                    label='User'
+                    label={t('auth.userDirectory.userProfile.user', 'User')}
                     size='small'
                     variant='outlined'
                     sx={{ borderRadius: 'var(--sf-radius-xs, 4px)' }}
@@ -335,7 +337,7 @@ export default function AdminUserProfile() {
                 px: 2,
               }}
             >
-              Edit Profile
+              {t('auth.userDirectory.userProfile.editProfile', 'Edit Profile')}
             </Button>
             <Button
               variant='outlined'
@@ -349,7 +351,7 @@ export default function AdminUserProfile() {
                 px: 2,
               }}
             >
-              Assign Roles
+              {t('auth.userDirectory.userProfile.assignRoles', 'Assign Roles')}
             </Button>
             <Button
               variant='contained'
@@ -365,11 +367,13 @@ export default function AdminUserProfile() {
                 px: 2.5,
               }}
             >
-              {user.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
+              {user.status === 'ACTIVE'
+                ? t('auth.userDirectory.userProfile.suspend', 'Suspend')
+                : t('auth.userDirectory.userProfile.activate', 'Activate')}
             </Button>
             <IconButton
               color='error'
-              aria-label='Delete user'
+              aria-label={t('auth.userDirectory.userProfile.deleteUser', 'Delete user')}
               onClick={() => setIsDeleteDialogOpen(true)}
               sx={{
                 border: `1px solid ${alpha(theme.palette.error.main, 0.3)}`,
@@ -411,7 +415,7 @@ export default function AdminUserProfile() {
               </Box>
               <Box>
                 <Typography variant='caption' color='text.secondary' fontWeight={600}>
-                  Active Sessions
+                  {t('auth.userDirectory.userProfile.activeSessions', 'Active Sessions')}
                 </Typography>
                 <Typography variant='h6' fontWeight={700}>
                   {user.securitySummary?.activeSessionsCount || sessions.length || 1}
@@ -444,7 +448,7 @@ export default function AdminUserProfile() {
               </Box>
               <Box>
                 <Typography variant='caption' color='text.secondary' fontWeight={600}>
-                  Passkeys Configured
+                  {t('auth.userDirectory.userProfile.passkeysConfigured', 'Passkeys Configured')}
                 </Typography>
                 <Typography variant='h6' fontWeight={700}>
                   {user.securitySummary?.passkeysCount || 0}
@@ -477,10 +481,10 @@ export default function AdminUserProfile() {
               </Box>
               <Box>
                 <Typography variant='caption' color='text.secondary' fontWeight={600}>
-                  Two-Factor (MFA)
+                  {t('auth.userDirectory.userProfile.twoFactorMfa', 'Two-Factor (MFA)')}
                 </Typography>
                 <Typography variant='h6' fontWeight={700}>
-                  {user.mfaEnabled ? 'Enrolled' : 'Disabled'}
+                  {user.mfaEnabled ? t('auth.userDirectory.userProfile.mfaEnrolled', 'Enrolled') : t('auth.userDirectory.userProfile.mfaDisabled', 'Disabled')}
                 </Typography>
               </Box>
             </Stack>
@@ -510,7 +514,7 @@ export default function AdminUserProfile() {
               </Box>
               <Box>
                 <Typography variant='caption' color='text.secondary' fontWeight={600}>
-                  Last Login
+                  {t('auth.userDirectory.userProfile.lastLogin', 'Last Login')}
                 </Typography>
                 <Typography variant='body2' fontWeight={700} noWrap>
                   {user.lastLoginAt
@@ -518,7 +522,7 @@ export default function AdminUserProfile() {
                         month: 'short',
                         day: 'numeric',
                       })
-                    : 'Never'}
+                    : t('auth.userDirectory.userProfile.never', 'Never')}
                 </Typography>
               </Box>
             </Stack>
@@ -531,7 +535,7 @@ export default function AdminUserProfile() {
         sx={{
           borderRadius: 'var(--sf-radius-lg, 16px)',
           border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
+          boxShadow: `0 8px 32px 0 ${alpha(theme.palette.common.black, 0.04)}`,
           overflow: 'hidden',
         }}
       >
@@ -549,26 +553,26 @@ export default function AdminUserProfile() {
               },
             }}
           >
-            <Tab icon={<PersonIcon fontSize='small' />} iconPosition='start' label='Overview' />
+            <Tab icon={<PersonIcon fontSize='small' />} iconPosition='start' label={t('auth.userDirectory.userProfile.overview', 'Overview')} />
             <Tab
               icon={<AdminPanelSettingsIcon fontSize='small' />}
               iconPosition='start'
-              label='Roles & Permissions'
+              label={t('auth.userDirectory.userProfile.rolesPermissions', 'Roles & Permissions')}
             />
             <Tab
               icon={<DevicesIcon fontSize='small' />}
               iconPosition='start'
-              label='Active Sessions'
+              label={t('auth.userDirectory.userProfile.activeSessions', 'Active Sessions')}
             />
             <Tab
               icon={<HistoryIcon fontSize='small' />}
               iconPosition='start'
-              label='Activity Log'
+              label={t('auth.userDirectory.userProfile.activityLog', 'Activity Log')}
             />
             <Tab
               icon={<SecurityIcon fontSize='small' />}
               iconPosition='start'
-              label='Security Actions'
+              label={t('auth.userDirectory.userProfile.securityActions', 'Security Actions')}
             />
           </Tabs>
         </Box>
@@ -579,7 +583,7 @@ export default function AdminUserProfile() {
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant='subtitle2' fontWeight={700} mb={2}>
-                  Personal & Contact Information
+                  {t('auth.userDirectory.userProfile.personalContactInformation', 'Personal & Contact Information')}
                 </Typography>
                 <Paper
                   variant='outlined'
@@ -594,7 +598,7 @@ export default function AdminUserProfile() {
                       <PersonIcon fontSize='small' color='action' />
                       <Box>
                         <Typography variant='caption' color='text.secondary'>
-                          Full Name
+                          {t('auth.userDirectory.userProfile.fullName', 'Full Name')}
                         </Typography>
                         <Typography variant='body2' fontWeight={600}>
                           {user.fullName || `${user.firstName} ${user.lastName}`}
@@ -606,7 +610,7 @@ export default function AdminUserProfile() {
                       <EmailIcon fontSize='small' color='action' />
                       <Box>
                         <Typography variant='caption' color='text.secondary'>
-                          Email Address
+                          {t('auth.userDirectory.userProfile.emailAddress', 'Email Address')}
                         </Typography>
                         <Typography variant='body2' fontWeight={600}>
                           {user.email}
@@ -618,10 +622,10 @@ export default function AdminUserProfile() {
                       <PhoneIcon fontSize='small' color='action' />
                       <Box>
                         <Typography variant='caption' color='text.secondary'>
-                          Phone Number
+                          {t('auth.userDirectory.userProfile.phoneNumber', 'Phone Number')}
                         </Typography>
                         <Typography variant='body2' fontWeight={600}>
-                          {user.phoneNumber || 'Not provided'}
+                          {user.phoneNumber || t('auth.userDirectory.userProfile.notProvided', 'Not provided')}
                         </Typography>
                       </Box>
                     </Stack>
@@ -630,10 +634,10 @@ export default function AdminUserProfile() {
                       <LocationOnIcon fontSize='small' color='action' />
                       <Box>
                         <Typography variant='caption' color='text.secondary'>
-                          Location
+                          {t('auth.userDirectory.userProfile.location', 'Location')}
                         </Typography>
                         <Typography variant='body2' fontWeight={600}>
-                          {user.location || 'Not provided'}
+                          {user.location || t('auth.userDirectory.userProfile.notProvided', 'Not provided')}
                         </Typography>
                       </Box>
                     </Stack>
@@ -643,7 +647,7 @@ export default function AdminUserProfile() {
 
               <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant='subtitle2' fontWeight={700} mb={2}>
-                  Organization & Localization
+                  {t('auth.userDirectory.userProfile.organizationLocalization', 'Organization & Localization')}
                 </Typography>
                 <Paper
                   variant='outlined'
@@ -658,10 +662,11 @@ export default function AdminUserProfile() {
                       <BusinessIcon fontSize='small' color='action' />
                       <Box>
                         <Typography variant='caption' color='text.secondary'>
-                          Department & Company
+                          {t('auth.userDirectory.userProfile.departmentCompany', 'Department & Company')}
                         </Typography>
                         <Typography variant='body2' fontWeight={600}>
-                          {user.department || 'General'} {user.company ? `• ${user.company}` : ''}
+                          {user.department || t('auth.userDirectory.userProfile.notProvided', 'Not provided')}{' '}
+                          {user.company ? `• ${user.company}` : ''}
                         </Typography>
                       </Box>
                     </Stack>
@@ -670,10 +675,10 @@ export default function AdminUserProfile() {
                       <WorkIcon fontSize='small' color='action' />
                       <Box>
                         <Typography variant='caption' color='text.secondary'>
-                          Job Title
+                          {t('auth.userDirectory.userProfile.jobTitle', 'Job Title')}
                         </Typography>
                         <Typography variant='body2' fontWeight={600}>
-                          {user.jobTitle || 'Team Member'}
+                          {user.jobTitle || t('auth.userDirectory.userProfile.notProvided', 'Not provided')}
                         </Typography>
                       </Box>
                     </Stack>
@@ -682,7 +687,7 @@ export default function AdminUserProfile() {
                       <LanguageIcon fontSize='small' color='action' />
                       <Box>
                         <Typography variant='caption' color='text.secondary'>
-                          Locale & Language
+                          {t('auth.userDirectory.userProfile.localeLanguage', 'Locale & Language')}
                         </Typography>
                         <Typography variant='body2' fontWeight={600}>
                           {user.locale || 'en-us'}
@@ -694,7 +699,7 @@ export default function AdminUserProfile() {
                       <AccessTimeIcon fontSize='small' color='action' />
                       <Box>
                         <Typography variant='caption' color='text.secondary'>
-                          Timezone
+                          {t('auth.userDirectory.userProfile.timezone', 'Timezone')}
                         </Typography>
                         <Typography variant='body2' fontWeight={600}>
                           {user.timezone || 'UTC'}
@@ -708,7 +713,7 @@ export default function AdminUserProfile() {
               {user.bio && (
                 <Grid size={{ xs: 12 }}>
                   <Typography variant='subtitle2' fontWeight={700} mb={1}>
-                    Biography / Notes
+                    {t('auth.userDirectory.userProfile.biographyNotes', 'Biography / Notes')}
                   </Typography>
                   <Paper
                     variant='outlined'
@@ -731,10 +736,10 @@ export default function AdminUserProfile() {
               <Stack direction='row' justifyContent='space-between' alignItems='center'>
                 <Box>
                   <Typography variant='subtitle2' fontWeight={700}>
-                    Assigned Tenant Roles
+                    {t('auth.userDirectory.userProfile.assignedTenantRoles', 'Assigned Tenant Roles')}
                   </Typography>
                   <Typography variant='caption' color='text.secondary'>
-                    Roles determine effective authorization rules across resources
+                    {t('auth.userDirectory.userProfile.rolesDetermineEffectiveAuthorization', 'Roles determine effective authorization rules across resources')}
                   </Typography>
                 </Box>
                 <Button
@@ -744,14 +749,14 @@ export default function AdminUserProfile() {
                   onClick={() => setIsAssignRolesOpen(true)}
                   sx={{ textTransform: 'none', fontWeight: 600 }}
                 >
-                  Modify Roles
+                  {t('auth.userDirectory.userProfile.modifyRoles', 'Modify Roles')}
                 </Button>
               </Stack>
 
               <Grid container spacing={2}>
                 {user.roles && user.roles.length > 0 ? (
-                  user.roles.map((role: any) => (
-                    <Grid key={role.id || role} size={{ xs: 12, sm: 6 }}>
+                  user.roles.map((role) => (
+                    <Grid key={role.id} size={{ xs: 12, sm: 6 }}>
                       <Paper
                         variant='outlined'
                         sx={{
@@ -764,11 +769,11 @@ export default function AdminUserProfile() {
                         <Stack direction='row' spacing={1.5} alignItems='center' mb={1}>
                           <SecurityIcon color='primary' fontSize='small' />
                           <Typography variant='subtitle2' fontWeight={700}>
-                            {role.name || role}
+                            {role.name}
                           </Typography>
                         </Stack>
                         <Typography variant='caption' color='text.secondary'>
-                          {role.description || 'Assigned tenant security role'}
+                          {role.description || t('auth.userDirectory.userProfile.roleFallbackDescription', 'Assigned tenant security role')}
                         </Typography>
                       </Paper>
                     </Grid>
@@ -776,7 +781,7 @@ export default function AdminUserProfile() {
                 ) : (
                   <Grid size={{ xs: 12 }}>
                     <Alert severity='info'>
-                      No custom roles assigned. User has default tenant access.
+                      {t('auth.userDirectory.userProfile.noCustomRolesAssigned', 'No custom roles assigned. User has default tenant access.')}
                     </Alert>
                   </Grid>
                 )}
@@ -785,7 +790,7 @@ export default function AdminUserProfile() {
               {/* Effective Permissions Tags */}
               <Box mt={2}>
                 <Typography variant='subtitle2' fontWeight={700} mb={1.5}>
-                  Effective Granted Permissions:
+                  {t('auth.userDirectory.userProfile.effectiveGrantedPermissions', 'Effective Granted Permissions:')}
                 </Typography>
                 <Stack direction='row' flexWrap='wrap' gap={1}>
                   {(user.permissions || ['users:view', 'profile:read', 'sessions:manage']).map(
@@ -811,7 +816,7 @@ export default function AdminUserProfile() {
           {activeTab === 2 && (
             <Stack spacing={2.5}>
               <Typography variant='subtitle2' fontWeight={700}>
-                Connected Devices & Sessions
+                {t('auth.userDirectory.userProfile.connectedDevicesSessions', 'Connected Devices & Sessions')}
               </Typography>
 
               {isSessionsLoading ? (
@@ -819,7 +824,7 @@ export default function AdminUserProfile() {
                   <CircularProgress size={28} />
                 </Box>
               ) : sessions.length === 0 ? (
-                <Alert severity='info'>No active sessions found for this user.</Alert>
+                <Alert severity='info'>{t('auth.userDirectory.userProfile.noActiveSessionsFound', 'No active sessions found for this user.')}</Alert>
               ) : (
                 <List sx={{ p: 0 }}>
                   {sessions.map((sess, idx) => (
@@ -834,12 +839,12 @@ export default function AdminUserProfile() {
                           <Box>
                             <Stack direction='row' spacing={1} alignItems='center'>
                               <Typography variant='body2' fontWeight={700}>
-                                {sess.device || sess.browser || 'Web Browser'} •{' '}
-                                {sess.os || 'Desktop'}
+                                {sess.device || sess.browser || t('auth.userDirectory.userProfile.unknownBrowser', 'Web browser')} •{' '}
+                                {sess.os || t('auth.userDirectory.userProfile.unknownOs', 'Desktop')}
                               </Typography>
                               {sess.isCurrent && (
                                 <Chip
-                                  label='Current Session'
+                                  label={t('auth.userDirectory.userProfile.currentSession', 'Current Session')}
                                   size='small'
                                   color='success'
                                   sx={{ height: 20 }}
@@ -864,7 +869,7 @@ export default function AdminUserProfile() {
           {activeTab === 3 && (
             <Stack spacing={2.5}>
               <Typography variant='subtitle2' fontWeight={700}>
-                Audit & Activity Timeline
+                {t('auth.userDirectory.userProfile.auditActivityTimeline', 'Audit & Activity Timeline')}
               </Typography>
 
               {isActivityLoading ? (
@@ -872,7 +877,7 @@ export default function AdminUserProfile() {
                   <CircularProgress size={28} />
                 </Box>
               ) : activityLogs.length === 0 ? (
-                <Alert severity='info'>No recent activity logs recorded for this account.</Alert>
+                <Alert severity='info'>{t('auth.userDirectory.userProfile.noRecentActivityLogs', 'No recent activity logs recorded for this account.')}</Alert>
               ) : (
                 <List sx={{ p: 0 }}>
                   {activityLogs.map((log, idx) => (
@@ -906,18 +911,20 @@ export default function AdminUserProfile() {
           {activeTab === 4 && (
             <Stack spacing={3}>
               <Typography variant='subtitle2' fontWeight={700}>
-                Administrative Security Overrides
+                {t('auth.userDirectory.userProfile.administrativeSecurityOverrides', 'Administrative Security Overrides')}
               </Typography>
 
               <Grid container spacing={2.5}>
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Paper variant='outlined' sx={{ p: 2.5, borderRadius: 'var(--sf-radius-md, 8px)' }}>
                     <Typography variant='subtitle2' fontWeight={700} gutterBottom>
-                      Trigger Password Reset
+                      {t('auth.userDirectory.userProfile.triggerPasswordReset', 'Trigger Password Reset')}
                     </Typography>
                     <Typography variant='caption' color='text.secondary' display='block' mb={2}>
-                      Dispatches an email containing a secure token for the user to set a new
-                      password.
+                      {t(
+                        'auth.userDirectory.userProfile.resetHint',
+                        'Dispatches an email containing a secure token for the user to set a new password.',
+                      )}
                     </Typography>
                     <Button
                       variant='outlined'
@@ -931,7 +938,7 @@ export default function AdminUserProfile() {
                         borderRadius: 'var(--sf-radius-md, 8px)',
                       }}
                     >
-                      Send Password Reset Link
+                      {t('auth.userDirectory.userProfile.sendPasswordResetLink', 'Send Password Reset Link')}
                     </Button>
                   </Paper>
                 </Grid>
@@ -942,11 +949,13 @@ export default function AdminUserProfile() {
                     sx={{ p: 2.5, borderRadius: 'var(--sf-radius-md, 12px)' }}
                   >
                     <Typography variant='subtitle2' fontWeight={700} gutterBottom>
-                      Reset MFA Enrollment
+                      {t('auth.userDirectory.userProfile.resetMfaEnrollment', 'Reset MFA Enrollment')}
                     </Typography>
                     <Typography variant='caption' color='text.secondary' display='block' mb={2}>
-                      Clears authenticator apps and passkeys, requiring the user to re-enroll next
-                      login.
+                      {t(
+                        'auth.userDirectory.userProfile.mfaResetHint',
+                        'Clears authenticator apps and passkeys, requiring the user to re-enroll next login.',
+                      )}
                     </Typography>
                     <Button
                       variant='outlined'
@@ -961,7 +970,7 @@ export default function AdminUserProfile() {
                         borderRadius: 'var(--sf-radius-md, 8px)',
                       }}
                     >
-                      Reset Two-Factor Authentication
+                      {t('auth.userDirectory.userProfile.resetTwoFactorAuthentication', 'Reset Two-Factor Authentication')}
                     </Button>
                   </Paper>
                 </Grid>

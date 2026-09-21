@@ -75,8 +75,9 @@ boundary gate, because they couple siblings.
 ```bash
 pnpm lint:boundaries          # tier violations across all 14 packages, bare-specifier scan
 pnpm lint:boundaries:eslint   # same tier table, via eslint-plugin-boundaries + real import resolution
+pnpm lint:routes              # navigation targets must come from AppPaths, not bare literals
 pnpm lint:circular            # madge cycle check, with @cap/* path resolution
-pnpm lint:architecture        # all three of the above
+pnpm lint:architecture        # all four of the above
 ```
 
 Two independent checks enforce the same tier table on purpose, not out of
@@ -106,6 +107,18 @@ its `src/`, not its built `dist/`). Without it madge resolves only relative
 imports and can detect intra-package cycles alone -- which is how two
 cross-package cycles previously passed a green check.
 
+`lint:routes` (`scripts/check-route-literals.mjs`) guards route paths from the
+opposite side to `appPathsParity.test.ts`. That test proves every path declared
+in `AppPaths` resolves to a route the router serves, and that every registered
+route is declared there. What it cannot see is a URL that was never added to
+`AppPaths` at all -- a literal typed straight into a `navigate()` call. Those
+bypass the parity guard entirely, and they are how this codebase's dead links
+survived: `resolveRedirectPathForUser` returned a hardcoded `'/provider'` that
+no module registers, so every participant sign-in landed on the not-found
+screen, and nothing failed. `lint:routes` scans for path-shaped literals used as
+destinations and requires each to match a declared path, so the two checks
+together close the loop.
+
 ### Critical Architectural Mandates
 1. **Zero Hardcoded Menus/Routes**: The shell (`@cap/app`) and layout engine (`@cap/layout`) contain ZERO hardcoded menu structures or route lists. Feature modules self-declare routes (`ModuleRouteConfig[]`), navigation items (`NavItemConfig[]`), and command-palette items (`SearchItemConfig[]`) via their `CAPModule` contract.
 2. **Code Splitting Required**: All screen components MUST be loaded lazily via `React.lazy()` within route declarations.
@@ -114,14 +127,14 @@ cross-package cycles previously passed a green check.
 
 ---
 
-## 3. The 10 Specialist Sub-Agent Personas
+## 3. The 17 Specialist Sub-Agent Personas
 
-When tackling tasks, Claude Code can assume one or more of the following 10 specialized sub-agent personas, or the user can invoke them directly:
+When tackling tasks, agents can assume one or more of the following 17 specialized sub-agent personas, or collaborate via direct delegation:
 
 ### 1. `@architect` — Architecture & Monorepo Governance
 - **Focus**: Preserving the 6-tier layer hierarchy, dynamic module assembly (`assembleApp`), and zero hardcoded routes/menus.
 - **Rules**:
-  - Run `pnpm lint:circular` before and after structural refactors.
+  - Run `pnpm lint:circular` and `pnpm lint:boundaries` before and after structural refactors.
   - Ensure lower tiers never import from higher tiers.
   - Verify all new modules implement the `CAPModule` contract (`packages/shared-types`).
 
@@ -129,7 +142,7 @@ When tackling tasks, Claude Code can assume one or more of the following 10 spec
 - **Focus**: Strict TypeScript type safety, cognitive simplicity, and unit test coverage.
 - **Rules**:
   - Zero `any` policy. Reject `as any` and `layout?: any`. Use strict interfaces from `@cap/shared-types`.
-  - Enforce DRY. Decompose monolithic 500+ line components into clean custom hooks and sub-components.
+  - Enforce DRY. Decompose monolithic 300+ line components into clean custom hooks and sub-components.
   - Ensure all packages pass `pnpm -r run type-check`.
 
 ### 3. `@security` — Cybersecurity & Sentinel Defense
@@ -204,25 +217,101 @@ When tackling tasks, Claude Code can assume one or more of the following 10 spec
   - Record contextual breadcrumbs before error capture (route navigation, button IDs) with sanitized query parameters.
   - Monitor real-world Core Web Vitals (INP < 200ms, LCP < 2.5s, CLS < 0.1) to enforce the Doherty Threshold (<400ms) across fragmented devices.
 
+### 11. `@tenant-lifecycle` — Multi-Tenancy & Isolation Sentinel
+- **Focus**: Enforcing multi-tenant boundaries, feature flag resolution, and tenant lifecycle state.
+- **Rules**:
+  - Audit storage keys (IndexedDB, localStorage, session storage) to guarantee strict tenant-prefixed scoping (`tenantId:userId:key`).
+  - Enforce tenant entitlement boundaries: ensure route guards, widget catalogs, and layout renderers check active tenant subscription tiers and feature flags before mounting.
+  - Validate tenant teardown flows: verify complete unmounting, active worker termination, and state resets when a user switches organizations.
+
+### 12. `@widget-engine` — Extensibility, Dynamic Plugins & Schema UI
+- **Focus**: Runtime architecture for `@cap/module-widget-studio`, dynamic dashboards, and modular plugin injection.
+- **Rules**:
+  - Verify all widget definitions strictly adhere to a standardized widget manifest contract (props schema, supported layouts, permission requirements).
+  - Validate JSON Schema / Zod runtime validation for all user-configurable widget settings.
+  - Enforce lazy-chunk isolation and defensive error boundaries so a single failing widget never crashes the entire dashboard canvas.
+  - Guard dashboard grid persistence (coordinates, responsive breakpoints, auto-packing).
+
+### 13. `@mock-fixtures` — Synthetic Data, MSW & Contract Parity
+- **Focus**: Coordinating offline development, mock service worker (MSW) state machines, and contract fixtures.
+- **Rules**:
+  - Ensure every MSW handler derives its types and response payloads directly from `@cap/api-contracts` (no manually duplicated mock interfaces).
+  - Maintain realistic, multi-tenant seed datasets (e.g., Tenant A with 50 widgets vs. Tenant B with empty state) to test empty, loading, error, and heavy-data states deterministically.
+  - Provide scenario presets for tests and visual QA (e.g., `mockNetworkError(500)`, `mockRateLimit(429)`, `mockExpiredSession()`).
+
+### 14. `@release-dx` — Monorepo Tooling, CI/CD & Workspace Health
+- **Focus**: Governing pnpm workspaces, build pipelines, dependency deduplication, and developer tooling.
+- **Rules**:
+  - Monitor workspace dependency synchronization (ensure all packages share identical versions of React 19, TypeScript 5.8, and MUI v7).
+  - Optimize build pipelines: monitor Rollup chunk budgets (<60 kB gzip main bundle), Vite build times, and cache hit rates in CI.
+  - Maintain module scaffolding scripts (running Plop generators to bootstrap a compliant Tier 5 `@cap/module-*` package with zero boundary violations).
+
+### 15. `@compliance-governance` — Regulatory Privacy, Audit Trails & Policy
+- **Focus**: Managing client-side GDPR/HIPAA/SOC 2 compliance, audit logs, and consent tracking.
+- **Rules**:
+  - Ensure user interactions on critical resources (e.g., exporting tenant data, modifying user roles, changing encryption keys) fire an immutable client audit event to the telemetry pipeline.
+  - Audit session timeout and idle lock behaviors for tenants with elevated compliance requirements (e.g., healthcare or financial presets).
+  - Verify third-party script isolation and cookie consent management within multi-tenant configurations.
+
+### 16. `@e2e-journey` — End-to-End Human Workflow Simulator
+- **Focus**: Multi-step user journeys, cross-screen navigation, and dynamic route resolution.
+- **Rules**:
+  - Rely on Playwright (`pnpm --filter @cap/app run test:e2e`) to script realistic, multi-screen tasks mimicking human behavior (e.g., Sign-in -> Dashboard -> Command Palette -> Widget Studio).
+  - Validate that dynamically assembled routes from `ModuleRouteConfig[]` and `NavItemConfig[]` correctly transition without breaking the shell or triggering 404s.
+  - Explicitly test browser-native interactions: back/forward button traversal, refresh persistence, and direct deep-linking into authenticated sub-routes.
+  - Ensure the router strictly uses destinations declared in `AppPaths` during screen transitions rather than hardcoded literals, enforcing the `lint:routes` architectural mandate.
+
+### 17. `@flow-state` — Cross-Screen Context & State Guardian
+- **Focus**: Data persistence between screens, multi-step form handoffs, and URL parameter integrity.
+- **Rules**:
+  - Verify that passing data between screens prioritizes URL query parameters (for shareability and bookmarking) over hidden Zustand 5 memory state, while strictly enforcing the Zero-PII rule on those URLs.
+  - Validate that route transitions trigger the correct `<Suspense>` skeletons when lazily loading screen chunks via `React.lazy()`, ensuring the <400ms Doherty Threshold is maintained across navigation.
+  - Audit the cleanup lifecycle when leaving a screen: ensure page-specific Zustand stores or React Query caches don't leak memory or carry stale context into the next screen.
+  - Test the handoff phase between two distinct modules to ensure the 4 UI States (Idle, Loading, Success, Error) trigger consistently across the boundary.
+
 ---
 
-## 4. Multi-Agent Development Workflow
+## 4. Autonomous 7-Step Multi-Agent Lifecycle
 
-When handling any feature, bug fix, or refactor:
-1. **Plan & Check Boundaries**: Determine affected packages and verify Tier constraints.
-2. **Implement with Token & Type Rigor**: Use strict types, semantic theme tokens, and i18n keys.
-3. **Verify Both LTR and RTL**: Check layout rendering in both directions.
-4. **Validate**:
-   - `pnpm -r run type-check`
-   - `pnpm lint:circular`
-   - Test using `.claude/skills/run-serafort-app/driver.mjs`
+Every engineering task MUST strictly adhere to the continuous 7-step engineering loop:
+`Plan -> Test -> Implement -> Review -> Verify -> Remember -> Improve`.
 
-## graphify
+1. **Plan**: Query Graphify (`graphify query`), identify affected packages and Tier boundaries (0-5), review `.agents/memory/lessons-learned.md`.
+2. **Test**: Define and scaffold assertions (Vitest or Playwright) before changing production code.
+3. **Implement**: Write modular code respecting strict types, theme tokens, `AppPaths`, and Zero-PII.
+4. **Review**: Self-audit against the 17 persona rules, run `pnpm lint:boundaries`, `pnpm lint:routes`, and `pnpm lint:circular`.
+5. **Verify**: Full type-check (`pnpm -r run type-check`), run test suites, and take visual screenshots using the Playwright driver (`driver.mjs shot ... --shell`).
+6. **Remember**: Record new edge cases, race conditions, or patterns to `.agents/memory/lessons-learned.md`.
+7. **Improve**: Enhance automated gates, update persona rules, and update the knowledge graph (`graphify update .`).
 
-This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+---
 
-Rules:
-- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+## 5. Inter-Agent Blackboard & Delegation Protocol
+
+### Blackboard Data Sharing
+Agents share task state, hypotheses, and verification artifacts through:
+`.agents/blackboard/active-task.json`
+Downstream agents read this blackboard to continue work without duplicating analysis.
+
+### Dynamic Delegation Contract
+When delegating a sub-task, agents invoke:
+```markdown
+DELEGATE TO: @specialist-name
+OBJECTIVE: Concrete goal
+CONTEXT: Blackboard state & file pointers
+EXPECTED DELIVERABLE: Code, test, or visual screenshot artifact
+```
+
+---
+
+## 6. Graphify & Visual QA Playwright Integration
+
+### Knowledge Graph (graphify)
+This project maintains a persistent knowledge graph at `graphify-out/`:
+- **Before coding**: Query graphify first (`graphify query "<question>"`, `graphify path "<A>" "<B>"`).
+- **After modifying code**: Always run `graphify update .` to keep AST dependencies synchronized.
+
+### Visual Driver (Playwright)
+- Execute `node .claude/skills/run-serafort-app/driver.mjs shot <route> <out-path> --shell` for visual grounding.
+- Inspect the output image (>3 KB, no backdrop veil, high contrast, clean LTR/RTL layout).
+

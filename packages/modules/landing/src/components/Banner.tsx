@@ -12,12 +12,12 @@ interface BannerPost {
 }
 
 const bannerContent: BannerPost = {
-  title: 'LinkedIn Job Scraper & Analysis Platform',
+  title: 'The Multi-Tenant Platform Built for Scale',
   description:
-    'Discover job opportunities effortlessly with our powerful job scraping and analysis tools. Search, scrape, and analyze LinkedIn job postings with advanced filtering and real-time statistics.',
+    'Serafort gives every team a fully isolated workspace — branded, localised, and secured from day one. Ship confidently with role-based access, real-time dashboards, and an AI-powered widget studio.',
   image: Banner2,
-  imageText: 'Job Search and Analysis Platform',
-  linkText: 'Start Exploring Jobs',
+  imageText: 'Serafort multi-tenant platform hero banner',
+  linkText: 'Get Started',
 }
 
 const Banner: React.FC = () => {

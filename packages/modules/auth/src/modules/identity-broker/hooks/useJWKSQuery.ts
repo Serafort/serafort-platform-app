@@ -6,95 +6,99 @@ import {
   type UseMutationOptions,
 } from '@tanstack/react-query'
 import type { FetchResponse, HttpError } from '@cap/platform-core'
-import jwksService from '../services/jwks.service'
+import { adminService } from '../../authorization-engine/services/adminService'
 import type {
-  JWKKey,
+  JWKSKey,
+  JWKSKeyDetail,
+  MessageResponse,
   CreateJWKSKeyRequest,
-  CreateJWKSKeyResult,
-  JWKSKeyDetailResponse,
-  RotateJWKSResponse,
-} from '../types/jwks.types'
+} from '../../authorization-engine/services/adminService'
+import { adminKeys } from '../../authorization-engine/hooks/useAdminQuery'
 
-export const jwksKeys = {
-  all: ['admin', 'jwks'] as const,
-  list: () => [...jwksKeys.all, 'list'] as const,
-  detail: (kid: string) => [...jwksKeys.all, 'detail', kid] as const,
-}
-
+/**
+ * Get all JWKS keys
+ */
 export function useJWKSKeys(
-  options?: Omit<UseQueryOptions<FetchResponse<JWKKey[]>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<FetchResponse<JWKSKey[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
-    queryKey: jwksKeys.list(),
-    queryFn: () => jwksService.listKeys(),
+    queryKey: adminKeys.jwks.list(),
+    queryFn: () => adminService.getJWKSKeys(),
+    staleTime: 1000 * 60 * 10, // 10 minutes
     ...options,
   })
 }
 
-export function useGetJWKSKeyDetail(
-  kid: string | null | undefined,
-  options?: Omit<
-    UseQueryOptions<FetchResponse<JWKSKeyDetailResponse>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
-) {
-  return useQuery({
-    queryKey: jwksKeys.detail(kid || ''),
-    queryFn: () => jwksService.getKeyDetail(kid || ''),
-    enabled: !!kid,
-    ...options,
-  })
-}
-
-export function useCreateJWKSKey(
-  options?: UseMutationOptions<
-    FetchResponse<CreateJWKSKeyResult>,
-    HttpError,
-    CreateJWKSKeyRequest,
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
-  return useMutation({
-    mutationFn: (data: CreateJWKSKeyRequest) => jwksService.createKey(data),
-    ...restOptions,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: jwksKeys.list() })
-      customOnSuccess?.(...args)
-    },
-  })
-}
-
+/**
+ * Rotate JWKS keys
+ */
 export function useRotateJWKSKeys(
-  options?: UseMutationOptions<FetchResponse<RotateJWKSResponse>, HttpError, void, unknown>,
+  options?: UseMutationOptions<FetchResponse<JWKSKey>, HttpError, void, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, ...restOptions } = options || {}
+
   return useMutation({
-    mutationFn: () => jwksService.rotateKeys(),
-    ...restOptions,
+    mutationFn: () => adminService.rotateJWKSKeys(),
     onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: jwksKeys.list() })
+      queryClient.invalidateQueries({ queryKey: adminKeys.jwks.list() })
       customOnSuccess?.(...args)
+    },
+    ...restOptions,
+  })
+}
+
+/**
+ * Delete a JWKS key
+ */
+export function useDeleteJWKSKey(
+  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, string, unknown>,
+) {
+  const queryClient = useQueryClient()
+  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
+
+  return useMutation({
+    mutationFn: (kid: string) => adminService.deleteJWKSKey(kid),
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.jwks.list() })
+      customOnSuccess?.(...args)
+    },
+    ...restOptions,
+  })
+}
+
+/**
+ * Manually create a JWKS key
+ */
+export function useCreateJWKSKey(
+  options?: Omit<
+    UseMutationOptions<FetchResponse<JWKSKey>, HttpError, CreateJWKSKeyRequest, unknown>,
+    'mutationFn'
+  >,
+) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    ...options,
+    mutationFn: (data: CreateJWKSKeyRequest) => adminService.createJWKSKey(data),
+    onSuccess: (res, variables, context, mutation) => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.jwks.all })
+      options?.onSuccess?.(res, variables, context, mutation)
     },
   })
 }
 
-export function useDeleteJWKSKey(
-  options?: UseMutationOptions<FetchResponse<{ message?: string }>, HttpError, string, unknown>,
+/**
+ * Get detailed info for a single JWKS key
+ */
+export function useGetJWKSKeyDetail(
+  kid: string | null,
+  options?: Omit<UseQueryOptions<FetchResponse<JWKSKeyDetail>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
-  const queryClient = useQueryClient()
-  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
-  return useMutation({
-    mutationFn: (kid: string) => jwksService.deleteKey(kid),
-    ...restOptions,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: jwksKeys.list() })
-      if (args[1]) {
-        queryClient.removeQueries({ queryKey: jwksKeys.detail(args[1]) })
-      }
-      customOnSuccess?.(...args)
-    },
+  return useQuery({
+    queryKey: adminKeys.jwks.detail(kid ?? ''),
+    queryFn: () => adminService.getJWKSKeyDetail(kid!),
+    enabled: !!kid,
+    staleTime: 1000 * 60 * 5,
+    ...options,
   })
 }

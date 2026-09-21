@@ -97,7 +97,7 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
           {/* Email Field */}
           <Box>
             <AuthInputLabel htmlFor='email'>
-              {t('signIn.emailLabel', 'EMAIL ADDRESS')}
+              {t('signIn.emailLabel', 'Email address')}
             </AuthInputLabel>
             <Controller
               name='email'
@@ -136,7 +136,7 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
           {showPasswordField && (
             <Box>
               <AuthInputLabel htmlFor='password'>
-                {t('signIn.passwordLabel', 'PASSWORD')}
+                {t('signIn.passwordLabel', 'Password')}
               </AuthInputLabel>
               <Controller
                 name='password'
@@ -162,6 +162,7 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                             onClick={onShowPassword}
                             edge='end'
                             size='small'
+                            sx={{ minInlineSize: 44, minBlockSize: 44 }}
                             disabled={isBusy}
                             aria-label={t(
                               'auth.login.toggle_password',
@@ -247,7 +248,7 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                   borderColor: 'primary.main',
                 },
                 '&:focus-visible': {
-                  boxShadow: 'var(--sf-shadow-glow, 0 0 0 3px rgba(6, 203, 253, 0.18))',
+                  boxShadow: (theme) => `var(--sf-shadow-glow, 0 0 0 3px ${alpha(theme.palette.primary.main, 0.3)})`,
                 },
                 '& .MuiButton-startIcon': {
                   color: 'primary.main',
@@ -298,7 +299,7 @@ export const CredentialsStep: React.FC<CredentialsStepProps> = ({
                 letterSpacing: '0.05em',
               }}
             >
-              {t('auth.login.or_continue_with', 'OR CONTINUE WITH')}
+              {t('auth.login.or_continue_with', 'Or continue with')}
             </Typography>
           </Box>
         </Box>

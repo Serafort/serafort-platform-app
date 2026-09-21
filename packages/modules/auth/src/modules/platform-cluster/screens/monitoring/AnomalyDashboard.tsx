@@ -40,7 +40,11 @@ import {
 } from '../../hooks/useSecurityIntelQuery'
 import { useAdminSessionStatsQuery } from '../../hooks/useAdminMonitoringQuery'
 import type { Anomaly, AnomalyStatus } from '../../types/securityIntel.types'
-import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
+import { extractRows } from '../../utils/errors'
+import {
+  AdminPageHeader,
+  AdminStatusBadge,
+} from '@auth/modules/authentication-core/components/shared/admin'
 
 /**
  * Anomaly & Threat Intel Dashboard.
@@ -95,11 +99,9 @@ export const AnomalyDashboard: React.FC = () => {
   const updateStatus = useUpdateAnomalyStatusMutation()
 
   const anomalies: Anomaly[] = useMemo(() => {
-    const payload = anomaliesQuery.data as any
-    if (!payload) return []
     // Lucid paginators serialise as `{ data, meta }`; a plain array is also
     // accepted so a filtered/unpaginated response does not blank the table.
-    return Array.isArray(payload) ? payload : (payload.data ?? [])
+    return extractRows<Anomaly>(anomaliesQuery.data)
   }, [anomaliesQuery.data])
 
   const geography = sessionStats.data?.geographicBreakdown ?? []
@@ -116,248 +118,246 @@ export const AnomalyDashboard: React.FC = () => {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-    <Container maxWidth='lg' sx={{ py: 4 }}>
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        justifyContent='space-between'
-        alignItems={{ sm: 'center' }}
-        spacing={2}
-        sx={{ mb: 1 }}
-      >
-        <Stack direction='row' alignItems='center' spacing={1.5}>
-          <Insights color='primary' />
-          <Typography variant='h4'>
-            {t('monitoring.anomalies.title', 'Anomaly detection')}
-          </Typography>
-        </Stack>
-        <Stack direction='row' spacing={1}>
-          <Button
-            size='small'
-            startIcon={<Refresh />}
-            disabled={baselineMutation.isPending}
-            onClick={() => baselineMutation.mutate()}
-          >
-            {t('monitoring.anomalies.refresh_baseline', 'Recompute baseline')}
-          </Button>
-          <Button
-            size='small'
-            variant='contained'
-            startIcon={<RadarIcon />}
-            disabled={detectMutation.isPending}
-            onClick={() => detectMutation.mutate()}
-          >
-            {t('monitoring.anomalies.detect', 'Run detection')}
-          </Button>
-        </Stack>
-      </Stack>
-      <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-        {t(
-          'monitoring.anomalies.subtitle',
-          'Each finding records the baseline it was scored against and what was actually observed, so a detection can be judged rather than just trusted.',
-        )}
-      </Typography>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      <Container maxWidth='lg' sx={{ py: 4 }}>
+        <AdminPageHeader
+          icon={<Insights />}
+          title={t('monitoring.anomalies.title', 'Anomaly detection')}
+          description={t(
+            'monitoring.anomalies.subtitle',
+            'Each finding records the baseline it was scored against and what was actually observed, so a detection can be judged rather than just trusted.',
+          )}
+          actions={
+            <Stack direction='row' spacing={1}>
+              <Button
+                startIcon={<Refresh />}
+                disabled={baselineMutation.isPending}
+                onClick={() => baselineMutation.mutate()}
+                sx={{ minHeight: 44 }}
+              >
+                {t('monitoring.anomalies.refresh_baseline', 'Recompute baseline')}
+              </Button>
+              <Button
+                variant='contained'
+                startIcon={<RadarIcon />}
+                disabled={detectMutation.isPending}
+                onClick={() => detectMutation.mutate()}
+                sx={{ minHeight: 44 }}
+              >
+                {t('monitoring.anomalies.detect', 'Run detection')}
+              </Button>
+            </Stack>
+          }
+        />
 
-      {detectMutation.isPending && <LinearProgress sx={{ mb: 2 }} />}
+        {detectMutation.isPending && <LinearProgress sx={{ mb: 2 }} />}
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid size={{ xs: 12, md: 7 }}>
-          <Card variant='outlined' sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography variant='overline' color='text.secondary'>
-                {t('monitoring.anomalies.by_type', 'Detections by type')}
-              </Typography>
-              {byType.length === 0 ? (
-                <Typography variant='body2' color='text.secondary' sx={{ mt: 1 }}>
-                  {t('monitoring.anomalies.no_detections', 'No detections recorded.')}
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Card variant='outlined' sx={{ height: '100%' }}>
+              <CardContent>
+                <Typography variant='overline' color='text.secondary'>
+                  {t('monitoring.anomalies.by_type', 'Detections by type')}
                 </Typography>
-              ) : (
-                <Stack spacing={1.5} sx={{ mt: 1.5 }}>
-                  {byType.map((entry) => {
-                    const count = Number(entry.count)
-                    const max = Math.max(...byType.map((item) => Number(item.count)), 1)
-                    return (
-                      <Box key={entry.type}>
+                {byType.length === 0 ? (
+                  <Typography variant='body2' color='text.secondary' sx={{ mt: 1 }}>
+                    {t('monitoring.anomalies.no_detections', 'No detections recorded.')}
+                  </Typography>
+                ) : (
+                  <Stack spacing={1.5} sx={{ mt: 1.5 }}>
+                    {byType.map((entry) => {
+                      const count = Number(entry.count)
+                      const max = Math.max(...byType.map((item) => Number(item.count)), 1)
+                      return (
+                        <Box key={entry.type}>
+                          <Stack direction='row' justifyContent='space-between'>
+                            <Typography variant='body2'>{entry.type}</Typography>
+                            <Typography variant='body2' color='text.secondary'>
+                              {count}
+                            </Typography>
+                          </Stack>
+                          <LinearProgress
+                            variant='determinate'
+                            value={(count / max) * 100}
+                            sx={{ height: 6, borderRadius: 'var(--sf-radius-lg, 12px)' }}
+                          />
+                        </Box>
+                      )
+                    })}
+                  </Stack>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Card variant='outlined' sx={{ height: '100%' }}>
+              <CardContent>
+                <Stack direction='row' spacing={1} alignItems='center'>
+                  <TravelExplore fontSize='small' color='action' />
+                  <Typography variant='overline' color='text.secondary'>
+                    {t('monitoring.anomalies.geography', 'Sign-ins by country')}
+                  </Typography>
+                </Stack>
+                {geography.length === 0 ? (
+                  <Typography variant='body2' color='text.secondary' sx={{ mt: 1 }}>
+                    {t('monitoring.anomalies.no_geography', 'No geolocated sessions recorded.')}
+                  </Typography>
+                ) : (
+                  <Stack spacing={1} sx={{ mt: 1.5 }}>
+                    {geography.slice(0, 8).map((point) => (
+                      <Box key={point.country}>
                         <Stack direction='row' justifyContent='space-between'>
-                          <Typography variant='body2'>{entry.type}</Typography>
+                          <Typography variant='body2'>{point.country}</Typography>
                           <Typography variant='body2' color='text.secondary'>
-                            {count}
+                            {point.count}
                           </Typography>
                         </Stack>
                         <LinearProgress
                           variant='determinate'
-                          value={(count / max) * 100}
+                          value={geoMax ? (point.count / geoMax) * 100 : 0}
+                          color='secondary'
                           sx={{ height: 6, borderRadius: 'var(--sf-radius-lg, 12px)' }}
                         />
                       </Box>
-                    )
-                  })}
-                </Stack>
-              )}
-            </CardContent>
-          </Card>
+                    ))}
+                  </Stack>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
 
-        <Grid size={{ xs: 12, md: 5 }}>
-          <Card variant='outlined' sx={{ height: '100%' }}>
-            <CardContent>
-              <Stack direction='row' spacing={1} alignItems='center'>
-                <TravelExplore fontSize='small' color='action' />
-                <Typography variant='overline' color='text.secondary'>
-                  {t('monitoring.anomalies.geography', 'Sign-ins by country')}
-                </Typography>
-              </Stack>
-              {geography.length === 0 ? (
-                <Typography variant='body2' color='text.secondary' sx={{ mt: 1 }}>
-                  {t('monitoring.anomalies.no_geography', 'No geolocated sessions recorded.')}
-                </Typography>
-              ) : (
-                <Stack spacing={1} sx={{ mt: 1.5 }}>
-                  {geography.slice(0, 8).map((point) => (
-                    <Box key={point.country}>
-                      <Stack direction='row' justifyContent='space-between'>
-                        <Typography variant='body2'>{point.country}</Typography>
-                        <Typography variant='body2' color='text.secondary'>
-                          {point.count}
-                        </Typography>
-                      </Stack>
-                      <LinearProgress
-                        variant='determinate'
-                        value={geoMax ? (point.count / geoMax) * 100 : 0}
-                        color='secondary'
-                        sx={{ height: 6, borderRadius: 'var(--sf-radius-lg, 12px)' }}
-                      />
-                    </Box>
-                  ))}
-                </Stack>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Card variant='outlined'>
-        <CardContent>
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            justifyContent='space-between'
-            alignItems={{ sm: 'center' }}
-            spacing={2}
-            sx={{ mb: 2 }}
-          >
-            <Typography variant='h6'>
-              {t('monitoring.anomalies.queue', 'Detections')}
-            </Typography>
-            <Select
-              size='small'
-              displayEmpty
-              value={status}
-              onChange={(event) => setStatus(event.target.value as AnomalyStatus | '')}
-              inputProps={{ 'aria-label': t('monitoring.anomalies.filter', 'Filter by status') }}
+        <Card variant='outlined'>
+          <CardContent>
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              justifyContent='space-between'
+              alignItems={{ sm: 'center' }}
+              spacing={2}
+              sx={{ mb: 2 }}
             >
-              <MenuItem value=''>{t('monitoring.anomalies.all', 'All statuses')}</MenuItem>
-              {STATUS_OPTIONS.map((value) => (
-                <MenuItem key={value} value={value}>
-                  {value}
-                </MenuItem>
-              ))}
-            </Select>
-          </Stack>
+              <Typography variant='h6'>{t('monitoring.anomalies.queue', 'Detections')}</Typography>
+              <Select
+                size='small'
+                displayEmpty
+                value={status}
+                onChange={(event) => setStatus(event.target.value as AnomalyStatus | '')}
+                inputProps={{ 'aria-label': t('monitoring.anomalies.filter', 'Filter by status') }}
+              >
+                <MenuItem value=''>{t('monitoring.anomalies.all', 'All statuses')}</MenuItem>
+                {STATUS_OPTIONS.map((value) => (
+                  <MenuItem key={value} value={value}>
+                    {value}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Stack>
 
-          {updateStatus.error && (
-            <Alert severity='error' sx={{ mb: 2 }}>
-              {t('monitoring.anomalies.update_failed', 'The anomaly could not be updated.')}
-            </Alert>
-          )}
+            {updateStatus.error && (
+              <Alert severity='error' sx={{ mb: 2 }}>
+                {t('monitoring.anomalies.update_failed', 'The anomaly could not be updated.')}
+              </Alert>
+            )}
 
-          {anomalies.length === 0 ? (
-            <Typography variant='body2' color='text.secondary'>
-              {t('monitoring.anomalies.empty', 'Nothing detected for this filter.')}
-            </Typography>
-          ) : (
-            <TableContainer component={Paper} variant='outlined'>
-              <Table size='small'>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>{t('monitoring.anomalies.detected_at', 'Detected')}</TableCell>
-                    <TableCell>{t('monitoring.anomalies.type', 'Detector')}</TableCell>
-                    <TableCell>{t('monitoring.anomalies.observed', 'Baseline → observed')}</TableCell>
-                    <TableCell align='right'>{t('monitoring.anomalies.score', 'Score')}</TableCell>
-                    <TableCell>{t('monitoring.anomalies.status', 'Status')}</TableCell>
-                    <TableCell align='right'>{t('monitoring.anomalies.triage', 'Triage')}</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {anomalies.map((anomaly) => (
-                    <TableRow key={anomaly.id}>
-                      <TableCell>{new Date(anomaly.detectedAt).toLocaleString()}</TableCell>
+            {anomalies.length === 0 ? (
+              <Typography variant='body2' color='text.secondary'>
+                {t('monitoring.anomalies.empty', 'Nothing detected for this filter.')}
+              </Typography>
+            ) : (
+              <TableContainer component={Paper} variant='outlined'>
+                <Table size='small'>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t('monitoring.anomalies.detected_at', 'Detected')}</TableCell>
+                      <TableCell>{t('monitoring.anomalies.type', 'Detector')}</TableCell>
                       <TableCell>
-                        <Stack direction='row' spacing={0.5} alignItems='center'>
-                          {GEO_DETECTORS.has(anomaly.type) && (
-                            <Tooltip
-                              title={t(
-                                'monitoring.anomalies.geo_detector',
-                                'A geographic / travel-velocity finding',
-                              )}
-                            >
-                              <TravelExplore fontSize='small' color='action' />
-                            </Tooltip>
-                          )}
-                          <span>{anomaly.type}</span>
-                        </Stack>
-                        {anomaly.affectedIp && (
-                          <Typography variant='caption' color='text.secondary'>
-                            {anomaly.affectedIp}
-                          </Typography>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <DeviationCell anomaly={anomaly} />
-                      </TableCell>
-                      <TableCell align='right'>{anomaly.score}</TableCell>
-                      <TableCell>
-                        <AdminStatusBadge
-                          tone={STATUS_COLOR[anomaly.status] ?? 'neutral'}
-                          label={anomaly.status}
-                        />
+                        {t('monitoring.anomalies.observed', 'Baseline → observed')}
                       </TableCell>
                       <TableCell align='right'>
-                        <Select
-                          size='small'
-                          value=''
-                          displayEmpty
-                          disabled={updateStatus.isPending}
-                          onChange={(event) =>
-                            updateStatus.mutate({
-                              id: anomaly.id,
-                              status: event.target.value as AnomalyStatus,
-                            })
-                          }
-                          inputProps={{
-                            'aria-label': t('monitoring.anomalies.set_status', 'Set status'),
-                          }}
-                        >
-                          <MenuItem value='' disabled>
-                            {t('monitoring.anomalies.set_status', 'Set status')}
-                          </MenuItem>
-                          {STATUS_OPTIONS.filter((value) => value !== anomaly.status).map(
-                            (value) => (
-                              <MenuItem key={value} value={value}>
-                                {value}
-                              </MenuItem>
-                            ),
-                          )}
-                        </Select>
+                        {t('monitoring.anomalies.score', 'Score')}
+                      </TableCell>
+                      <TableCell>{t('monitoring.anomalies.status', 'Status')}</TableCell>
+                      <TableCell align='right'>
+                        {t('monitoring.anomalies.triage', 'Triage')}
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </CardContent>
-      </Card>
-    </Container>
+                  </TableHead>
+                  <TableBody>
+                    {anomalies.map((anomaly) => (
+                      <TableRow key={anomaly.id}>
+                        <TableCell>{new Date(anomaly.detectedAt).toLocaleString()}</TableCell>
+                        <TableCell>
+                          <Stack direction='row' spacing={0.5} alignItems='center'>
+                            {GEO_DETECTORS.has(anomaly.type) && (
+                              <Tooltip
+                                title={t(
+                                  'monitoring.anomalies.geo_detector',
+                                  'A geographic / travel-velocity finding',
+                                )}
+                              >
+                                <TravelExplore fontSize='small' color='action' />
+                              </Tooltip>
+                            )}
+                            <span>{anomaly.type}</span>
+                          </Stack>
+                          {anomaly.affectedIp && (
+                            <Typography variant='caption' color='text.secondary'>
+                              {anomaly.affectedIp}
+                            </Typography>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <DeviationCell anomaly={anomaly} />
+                        </TableCell>
+                        <TableCell align='right'>{anomaly.score}</TableCell>
+                        <TableCell>
+                          <AdminStatusBadge
+                            tone={STATUS_COLOR[anomaly.status] ?? 'neutral'}
+                            label={anomaly.status}
+                          />
+                        </TableCell>
+                        <TableCell align='right'>
+                          <Select
+                            size='small'
+                            value=''
+                            displayEmpty
+                            disabled={updateStatus.isPending}
+                            onChange={(event) =>
+                              updateStatus.mutate({
+                                id: anomaly.id,
+                                status: event.target.value as AnomalyStatus,
+                              })
+                            }
+                            inputProps={{
+                              'aria-label': t('monitoring.anomalies.set_status', 'Set status'),
+                            }}
+                          >
+                            <MenuItem value='' disabled>
+                              {t('monitoring.anomalies.set_status', 'Set status')}
+                            </MenuItem>
+                            {STATUS_OPTIONS.filter((value) => value !== anomaly.status).map(
+                              (value) => (
+                                <MenuItem key={value} value={value}>
+                                  {value}
+                                </MenuItem>
+                              ),
+                            )}
+                          </Select>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
+        </Card>
+      </Container>
     </motion.div>
   )
 }

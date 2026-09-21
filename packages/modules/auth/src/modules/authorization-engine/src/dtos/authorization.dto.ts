@@ -1,5 +1,5 @@
 export interface RoleDto {
-  id: number
+  id: string
   name: string
   guard_name: string
   description?: string
@@ -10,7 +10,7 @@ export interface RoleDto {
 }
 
 export interface PermissionDto {
-  id: number
+  id: string
   name: string
   guard_name: string
   resource?: string
@@ -36,12 +36,12 @@ export interface CheckPermissionResponse {
 
 export interface AssignRoleRequest {
   userId: number
-  roleId: number
+  roleId: string
 }
 
 export interface SyncRolePermissionsRequest {
-  roleId: number
-  permissionIds: number[]
+  roleId: string
+  permissionIds: string[]
 }
 
 export const AUTHORIZATION_VERSION = 'v1'

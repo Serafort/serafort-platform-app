@@ -19,6 +19,7 @@ import {
   Divider,
   Paper,
 } from '@mui/material'
+import { AdminPageHeader } from '@auth/modules/authentication-core/components/shared/admin'
 import { useTheme } from '@mui/material/styles'
 import History from '@mui/icons-material/History'
 import FileDownload from '@mui/icons-material/FileDownload'
@@ -83,7 +84,7 @@ export default function ExportAuditTrail() {
 
       setTimeout(() => tracker.reset(), 1500)
     },
-    onError: (error: any) => {
+    onError: (error) => {
       logger.error('Audit log export failed', { error })
       addNotification({
         type: 'error',
@@ -122,14 +123,14 @@ export default function ExportAuditTrail() {
       transition={{ duration: 0.25 }}
       sx={{ p: { xs: 2, md: 4 }, maxWidth: 1000, mx: 'auto' }}
     >
-      <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' sx={{ fontWeight: 800, mb: 1 }}>
-          {t('auth.admin.exportAudit')}
-        </Typography>
-        <Typography variant='body1' color='text.secondary'>
-          {t('auth.admin.exportAudit_subtitle')}
-        </Typography>
-      </Box>
+      <AdminPageHeader
+        icon={<CloudDownload />}
+        title={t('auth.admin.exportAudit', 'Export audit trail')}
+        description={t(
+          'auth.admin.exportAudit_subtitle',
+          'Generate a signed, tamper-evident export of the audit log for compliance review.',
+        )}
+      />
 
       <Grid container spacing={4}>
         <Grid size={{ xs: 12, md: 7 }}>
@@ -340,20 +341,24 @@ export default function ExportAuditTrail() {
 
         <Grid size={{ xs: 12, md: 5 }}>
           <Stack spacing={3}>
-            <Alert severity='info' icon={<Analytics />} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+            <Alert
+              severity='info'
+              icon={<Analytics />}
+              sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
+            >
               <AlertTitle sx={{ fontWeight: 700 }}>{t('auth.admin.complianceTitle')}</AlertTitle>
               {t('auth.admin.complianceDesc')}
             </Alert>
 
             <Card
-            sx={{
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 'var(--sf-radius-lg, 16px)',
-              boxShadow: 'var(--sf-shadow-xs)',
-              ...surfaceEffect,
-            }}
-          >
+              sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 'var(--sf-radius-lg, 16px)',
+                boxShadow: 'var(--sf-shadow-xs)',
+                ...surfaceEffect,
+              }}
+            >
               <CardContent>
                 <Typography
                   variant='subtitle1'

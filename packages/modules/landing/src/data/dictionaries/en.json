@@ -16,14 +16,24 @@
     "or": "OR"
   },
   "landing": {
-    "home": "Home",
-    "chronosMycelium": "Chronos Mycelium",
-    "features": "Feature Comparison",
-    "privacyPolicy": "Privacy Policy",
-    "termsOfService": "Terms of Service",
-    "contact": "Contact Us",
     "about": "About Us",
-    "pricing": "Pricing"
+    "aboutWidget": {
+      "primary_cta": "Get started",
+      "secondary_cta": "Explore features"
+    },
+    "chronosMycelium": "Chronos Mycelium",
+    "contact": "Contact Us",
+    "cta": {
+      "title": "Ready to get started?",
+      "subtitle": "Create your workspace and bring your team onto a single, secure identity platform.",
+      "primary": "Create an account",
+      "secondary": "See pricing"
+    },
+    "features": "Feature Comparison",
+    "home": "Home",
+    "pricing": "Pricing",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
   },
   "navigation": {
     "home": "Home",

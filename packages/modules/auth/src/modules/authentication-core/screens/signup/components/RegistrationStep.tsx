@@ -24,6 +24,7 @@ import {
 } from '../../../components/shared/auth'
 import { SignUpFormSchemaType } from '../../../utils/schema'
 import { Path } from '@cap/module-auth/routes/path'
+import { AppPaths } from '@cap/shared-types'
 
 interface RegistrationStepProps {
   t: any
@@ -88,7 +89,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
           {/* First & Last Name Fields (2 Columns) */}
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <Box>
-              <AuthInputLabel>{t('signUp.firstNameLabel', 'FIRST NAME')}</AuthInputLabel>
+              <AuthInputLabel>{t('signUp.firstNameLabel', 'First name')}</AuthInputLabel>
               <Controller
                 name='firstname'
                 control={control}
@@ -107,7 +108,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
               />
             </Box>
             <Box>
-              <AuthInputLabel>{t('signUp.lastNameLabel', 'LAST NAME')}</AuthInputLabel>
+              <AuthInputLabel>{t('signUp.lastNameLabel', 'Last name')}</AuthInputLabel>
               <Controller
                 name='lastname'
                 control={control}
@@ -129,7 +130,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
 
           {/* Email Field */}
           <Box>
-            <AuthInputLabel>{t('signUp.emailLabel', 'EMAIL ADDRESS')}</AuthInputLabel>
+            <AuthInputLabel>{t('signUp.emailLabel', 'Email address')}</AuthInputLabel>
             <Controller
               name='email'
               control={control}
@@ -151,7 +152,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
 
           {/* Password Field */}
           <Box>
-            <AuthInputLabel>{t('signUp.passwordLabel', 'PASSWORD')}</AuthInputLabel>
+            <AuthInputLabel>{t('signUp.passwordLabel', 'Password')}</AuthInputLabel>
             <Controller
               name='password'
               control={control}
@@ -170,10 +171,11 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                     endAdornment: (
                       <InputAdornment position='end'>
                         <IconButton
-                          aria-label='toggle password visibility'
+                          aria-label={t('auth.signup.toggle_password', 'Toggle password visibility')}
                           onClick={onTogglePassword}
                           edge='end'
                           size='small'
+                          sx={{ minInlineSize: 44, minBlockSize: 44 }}
                         >
                           {showPassword ? (
                             <VisibilityOff sx={{ fontSize: 20 }} />
@@ -193,7 +195,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
 
           {/* Confirm Password Field */}
           <Box>
-            <AuthInputLabel>{t('signUp.confirmPasswordLabel', 'CONFIRM PASSWORD')}</AuthInputLabel>
+            <AuthInputLabel>{t('signUp.confirmPasswordLabel', 'Confirm password')}</AuthInputLabel>
             <Controller
               name='confirmPassword'
               control={control}
@@ -212,10 +214,11 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                     endAdornment: (
                       <InputAdornment position='end'>
                         <IconButton
-                          aria-label='toggle confirm password visibility'
+                          aria-label={t('auth.signup.toggle_confirm_password', 'Toggle confirm password visibility')}
                           onClick={onToggleConfirmPassword}
                           edge='end'
                           size='small'
+                          sx={{ minInlineSize: 44, minBlockSize: 44 }}
                         >
                           {showConfirmPassword ? (
                             <VisibilityOff sx={{ fontSize: 20 }} />
@@ -257,7 +260,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                         {t('signUp.iAgreeTo', 'I agree to the')}{' '}
                         <MuiLink
                           component={Link}
-                          to='/terms'
+                          to={AppPaths.landing.termsOfService}
                           sx={{
                             color: 'primary.main',
                             fontWeight: 600,
@@ -270,7 +273,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                         {t('signUp.and', 'and')}{' '}
                         <MuiLink
                           component={Link}
-                          to='/privacy'
+                          to={AppPaths.landing.privacyPolicy}
                           sx={{
                             color: 'primary.main',
                             fontWeight: 600,
@@ -318,7 +321,7 @@ export const RegistrationStep: React.FC<RegistrationStepProps> = ({
                   textTransform: 'uppercase',
                 }}
               >
-                {t('signUp.orSignUpWith', 'OR SIGN UP WITH')}
+                {t('signUp.orSignUpWith', 'Or sign up with')}
               </Typography>
               <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
             </Box>

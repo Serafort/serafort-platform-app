@@ -12,6 +12,8 @@ export interface OIDCClient {
   tosUri?: string | null
   scope?: string
   organizationId?: number | null
+  isActive?: boolean
+  description?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -33,6 +35,7 @@ export interface CreateOIDCClientDTO {
   responseTypes?: string[]
   tokenEndpointAuthMethod?: string
   scope?: string
+  description?: string
 }
 
 export interface UpdateOIDCClientDTO {
@@ -42,6 +45,7 @@ export interface UpdateOIDCClientDTO {
   responseTypes?: string[]
   tokenEndpointAuthMethod?: string
   scope?: string
+  description?: string
 }
 
 /**
@@ -65,7 +69,7 @@ export interface OIDCClientBranding {
 export interface OIDCInteractionPrompt {
   name: 'login' | 'consent' | string
   reasons?: string[]
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 }
 
 export interface OIDCInteractionDetails {
@@ -78,23 +82,28 @@ export interface OIDCInteractionDetails {
     scope?: string
     state?: string
     nonce?: string
-    [key: string]: any
+    [key: string]: unknown
   }
-  client?: OIDCClient | Record<string, any>
+  client?: OIDCClient
   session?: {
     accountId?: string
-    [key: string]: any
+    [key: string]: unknown
   }
   organization?: {
     id?: number
     name?: string
     securityPolicies?: {
       allowedSsoProviders?: string[]
-      [key: string]: any
+      [key: string]: unknown
     }
-    [key: string]: any
+    [key: string]: unknown
   }
-  details?: Record<string, any>
+  /** The raw node-oidc-provider `interactionDetails()` result, nested by `OidcController.interaction`. */
+  details?: {
+    params?: { scope?: string; [key: string]: unknown }
+    session?: { accountId?: string; [key: string]: unknown }
+    [key: string]: unknown
+  }
 }
 
 export interface OIDCLoginCredentials {
@@ -136,4 +145,44 @@ export interface OIDCRedirectResult {
 export interface OIDCDeviceVerifyResult {
   success: boolean
   redirectUrl: string
+}
+
+/**
+ * A client row as the Authentication service serialises it: OAuth-spec
+ * snake_case today, camelCase if the response middleware is ever wired up.
+ * `normalizeOidcClient` folds both into `OIDCClient`.
+ */
+export interface RawOIDCClient {
+  id?: string
+  client_id?: string
+  clientId?: string
+  client_name?: string
+  clientName?: string
+  name?: string
+  client_secret?: string
+  clientSecret?: string
+  redirect_uris?: string[]
+  redirectUris?: string[]
+  response_types?: string[]
+  responseTypes?: string[]
+  grant_types?: string[]
+  grantTypes?: string[]
+  token_endpoint_auth_method?: string
+  tokenEndpointAuthMethod?: string
+  logo_uri?: string | null
+  logoUri?: string | null
+  policy_uri?: string | null
+  policyUri?: string | null
+  tos_uri?: string | null
+  tosUri?: string | null
+  scope?: string
+  organization_id?: number | null
+  organizationId?: number | null
+  is_active?: boolean
+  isActive?: boolean
+  created_at?: string
+  createdAt?: string
+  updated_at?: string
+  updatedAt?: string
+  description?: string
 }

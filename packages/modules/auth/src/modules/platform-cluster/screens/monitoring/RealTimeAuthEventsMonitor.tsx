@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useMemo, useDeferredValue } from 'react'
+import React, { useState, useMemo, useDeferredValue, useEffect, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
+import { AdminPageHeader } from '@auth/modules/authentication-core/components/shared/admin'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import {
@@ -14,12 +15,13 @@ import {
   Avatar,
   IconButton,
   Tooltip,
+  Skeleton,
 } from '@mui/material'
 import Search from '@mui/icons-material/Search'
 import Download from '@mui/icons-material/Download'
+import Sensors from '@mui/icons-material/Sensors'
 import Pause from '@mui/icons-material/Pause'
 import PlayArrow from '@mui/icons-material/PlayArrow'
-import History from '@mui/icons-material/History'
 import CheckCircle from '@mui/icons-material/CheckCircle'
 import Key from '@mui/icons-material/Key'
 import GppBad from '@mui/icons-material/GppBad'
@@ -27,281 +29,232 @@ import LockPerson from '@mui/icons-material/LockPerson'
 import Logout from '@mui/icons-material/Logout'
 import Sync from '@mui/icons-material/Sync'
 import ContentCopy from '@mui/icons-material/ContentCopy'
-import LocationOn from '@mui/icons-material/LocationOn'
 import Group from '@mui/icons-material/Group'
 import Speed from '@mui/icons-material/Speed'
 import Timer from '@mui/icons-material/Timer'
 import { themeConfig, useNotifications } from '@cap/platform-core'
 import { alpha, useTheme } from '@mui/material/styles'
-import { useSSESubscription } from '../../../authentication-core/hooks/useSSE'
+import type { Theme } from '@mui/material/styles'
+import useLiveAuthEventFeed, {
+  type AuthEventKind,
+  type LiveAuthEvent,
+} from '../../hooks/useLiveAuthEventFeed'
+import resolveEventLocation from '../../utils/resolveEventLocation'
+import type { MapPoint } from '../../components/monitoring/AuthEventWorldMap'
 
-export interface AuthEvent {
-  id: string
-  time: string
-  email: string
-  userName: string
-  initials: string
-  role: string
-  orgId: string
-  device: string
-  type: 'success' | 'refresh' | 'failed' | 'mfa' | 'logout'
-  ip: string
-  city: string
-  latency: string
-  rawPayload?: string
+// The bundled world geometry is ~58 KB of path data that only the detail panel
+// needs, so it loads with the panel rather than with the route chunk.
+const AuthEventWorldMap = React.lazy(() => import('../../components/monitoring/AuthEventWorldMap'))
+
+const GRID_TEMPLATE = '120px 1fr 120px 150px 100px'
+
+type EventFilter = 'all' | AuthEventKind
+
+/**
+ * Formats the server timestamp for the feed's time column.
+ *
+ * Millisecond precision matters when reading a burst of events, and the value
+ * is derived from the server's own ISO timestamp rather than the moment the
+ * browser happened to receive it.
+ */
+const formatEventTime = (isoTimestamp: string): string => {
+  const date = new Date(isoTimestamp)
+  if (Number.isNaN(date.getTime())) return '—'
+  const time = date.toLocaleTimeString(undefined, { hour12: false })
+  return `${time}.${String(date.getMilliseconds()).padStart(3, '0')}`
 }
 
-const INITIAL_EVENTS: AuthEvent[] = [
-  {
-    id: 'evt_90214a1',
-    time: '14:02:05.233',
-    email: 'sarah.j@company.com',
-    userName: 'Sarah Jenkins',
-    initials: 'SJ',
-    role: 'Developer',
-    orgId: 'org_4421',
-    device: 'Mac OS / Chrome 124',
-    type: 'success',
-    ip: '192.168.1.42',
-    city: 'San Francisco, US',
-    latency: '45ms',
-  },
-  {
-    id: 'evt_90214a2',
-    time: '14:02:04.812',
-    email: 'admin@authstream.io',
-    userName: 'Alexander Vance',
-    initials: 'AV',
-    role: 'Security Admin',
-    orgId: 'org_enterprise',
-    device: 'Linux / CLI Tool v2.4',
-    type: 'refresh',
-    ip: '10.0.0.58',
-    city: 'Frankfurt, DE',
-    latency: '12ms',
-  },
-  {
-    id: 'evt_90214a3',
-    time: '14:01:59.105',
-    email: 'unknown_user_99@shadow.net',
-    userName: 'Anonymous Actor',
-    initials: 'AA',
-    role: 'Guest / Anonymous',
-    orgId: 'org_unregistered',
-    device: 'Unknown / Tor Browser',
-    type: 'failed',
-    ip: '203.0.113.1',
-    city: 'Reykjavik, IS',
-    latency: '120ms',
-  },
-  {
-    id: 'evt_90214a4',
-    time: '14:01:45.332',
-    email: 'mike.ross@firm.com',
-    userName: 'Michael Ross',
-    initials: 'MR',
-    role: 'Legal Partner',
-    orgId: 'org_legal_77',
-    device: 'Windows 11 / Edge 122',
-    type: 'mfa',
-    ip: '172.16.254.1',
-    city: 'New York, US',
-    latency: '85ms',
-  },
-  {
-    id: 'evt_90214a5',
-    time: '14:01:30.005',
-    email: 'jessica.p@corp.net',
-    userName: 'Jessica Pearson',
-    initials: 'JP',
-    role: 'Managing Director',
-    orgId: 'org_legal_77',
-    device: 'iOS 17.4 / Mobile Safari',
-    type: 'logout',
-    ip: '192.168.1.102',
-    city: 'Chicago, US',
-    latency: '32ms',
-  },
-]
+const initialsOf = (actor: string): string => {
+  const source = actor.split('@')[0] ?? ''
+  const words = source.split(/[.\-_\s]+/).filter(Boolean)
+  const letters = words.slice(0, 2).map((word) => word[0])
+  return letters.join('').toUpperCase() || '?'
+}
+
+/** Turns `auth.login_failed` into `Login failed` for the row's headline. */
+const humaniseAction = (action: string): string => {
+  const separator = Math.max(action.lastIndexOf('.'), action.lastIndexOf(':'))
+  const tail = separator >= 0 ? action.slice(separator + 1) : action
+  const spaced = tail.replace(/[._:-]+/g, ' ').trim()
+  if (!spaced) return action
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1).toLowerCase()
+}
+
+const formatUptime = (since: number | null): string => {
+  if (!since) return '—'
+  const seconds = Math.max(0, Math.floor((Date.now() - since) / 1000))
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  if (hours > 0) return `${hours}h ${minutes}m`
+  if (minutes > 0) return `${minutes}m ${seconds % 60}s`
+  return `${seconds}s`
+}
 
 export const RealTimeAuthEventsMonitor: React.FC = () => {
   const theme = useTheme()
   const { t } = useTranslation('common')
   const { addNotification } = useNotifications()
 
-  const [events, setEvents] = useState<AuthEvent[]>(INITIAL_EVENTS)
-  const [isPaused, setIsPaused] = useState(false)
-  const bufferRef = useRef<AuthEvent[]>([])
-  const [bufferedCount, setBufferedCount] = useState(0)
+  const {
+    events,
+    status,
+    isPaused,
+    bufferedCount,
+    throughputPerMinute,
+    connectedSince,
+    togglePause,
+  } = useLiveAuthEventFeed()
 
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedFilter, setSelectedFilter] = useState<
-    'all' | 'success' | 'failed' | 'mfa' | 'refresh' | 'logout'
-  >('all')
-  const [selectedEventId, setSelectedEventId] = useState<string>(INITIAL_EVENTS[0].id)
-  const [isLiveConnected, setIsLiveConnected] = useState(true)
+  const [selectedFilter, setSelectedFilter] = useState<EventFilter>('all')
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
 
-  // Real-time SSE Connection
-  useSSESubscription<AuthEvent>('/api/admin/events/stream', {
-    enabled: !isPaused,
-    onMessage: (newEvent) => {
-      if (newEvent && newEvent.id) {
-        handleIncomingEvent(newEvent)
-      }
-    },
-    onOpen: () => setIsLiveConnected(true),
-    onError: () => setIsLiveConnected(false),
-  })
-
-  // Simulated live event producer for offline/demo robustness
+  // Re-render the uptime readout on its own clock; nothing else depends on it.
+  const [, setUptimeTick] = useState(0)
   useEffect(() => {
-    const interval = setInterval(() => {
-      const mockTypes: AuthEvent['type'][] = ['success', 'refresh', 'failed', 'mfa', 'logout']
-      const mockType = mockTypes[Math.floor(Math.random() * mockTypes.length)]
-      const now = new Date()
-      const timeStr = `${now.toTimeString().split(' ')[0]}.${String(now.getMilliseconds()).padStart(3, '0')}`
-      const randomId = `evt_${crypto.randomUUID().substring(0, 8)}`
-
-      const mockEvent: AuthEvent = {
-        id: randomId,
-        time: timeStr,
-        email:
-          mockType === 'failed'
-            ? `bad_actor_${Math.floor(Math.random() * 1000)}@botnet.org`
-            : `user_${Math.floor(Math.random() * 50)}@enterprise.com`,
-        userName:
-          mockType === 'failed'
-            ? 'Unauthorized Client'
-            : `Enterprise User #${Math.floor(Math.random() * 50)}`,
-        initials: mockType === 'failed' ? 'UC' : 'EU',
-        role: mockType === 'failed' ? 'Untrusted' : 'Staff Member',
-        orgId: `org_${Math.floor(Math.random() * 100)}`,
-        device: ['Mac OS / Chrome 124', 'Windows 11 / Chrome', 'iOS / Safari', 'Linux / Firefox'][
-          Math.floor(Math.random() * 4)
-        ],
-        type: mockType,
-        ip: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
-        city: ['San Francisco, US', 'London, UK', 'Tokyo, JP', 'Berlin, DE', 'Toronto, CA'][
-          Math.floor(Math.random() * 5)
-        ],
-        latency: `${Math.floor(Math.random() * 90) + 15}ms`,
-      }
-
-      handleIncomingEvent(mockEvent)
-    }, 4500)
-
+    if (!connectedSince) return undefined
+    const interval = setInterval(() => setUptimeTick((tick) => tick + 1), 1000)
     return () => clearInterval(interval)
-  }, [isPaused])
+  }, [connectedSince])
 
-  const handleIncomingEvent = (newEvent: AuthEvent) => {
-    if (isPaused) {
-      bufferRef.current.push(newEvent)
-      setBufferedCount(bufferRef.current.length)
-    } else {
-      setEvents((prev) => [newEvent, ...prev.slice(0, 99)])
-    }
-  }
+  const eventTypeMeta = useMemo(
+    () => ({
+      success: {
+        label: t('monitoring.events.type.success', 'Success'),
+        color: theme.palette.success.main,
+        icon: CheckCircle,
+        tone: 'success' as const,
+      },
+      refresh: {
+        label: t('monitoring.events.type.refresh', 'Refresh'),
+        color: theme.palette.primary.main,
+        icon: Key,
+        tone: 'primary' as const,
+      },
+      failed: {
+        label: t('monitoring.events.type.failed', 'Failed'),
+        color: theme.palette.error.main,
+        icon: GppBad,
+        tone: 'error' as const,
+      },
+      mfa: {
+        label: t('monitoring.events.type.mfa', 'MFA'),
+        color: theme.palette.warning.main,
+        icon: LockPerson,
+        tone: 'warning' as const,
+      },
+      logout: {
+        label: t('monitoring.events.type.logout', 'Logout'),
+        color: theme.palette.info.main,
+        icon: Logout,
+        tone: 'info' as const,
+      },
+      other: {
+        label: t('monitoring.events.type.other', 'Event'),
+        color: theme.palette.text.secondary,
+        icon: Sync,
+        tone: 'primary' as const,
+      },
+    }),
+    [t, theme],
+  )
 
-  const togglePause = () => {
-    if (isPaused) {
-      // Resume and flush buffer
-      if (bufferRef.current.length > 0) {
-        setEvents((prev) => [...bufferRef.current.reverse(), ...prev].slice(0, 100))
-        bufferRef.current = []
-        setBufferedCount(0)
-      }
-      setIsPaused(false)
-      addNotification({
-        type: 'info',
-        title: 'Stream Resumed',
-        message: 'Live authentication telemetry is streaming in real-time.',
-      })
-    } else {
-      setIsPaused(true)
-      addNotification({
-        type: 'warning',
-        title: 'Stream Paused',
-        message: 'Incoming events will be buffered until you resume.',
-      })
-    }
-  }
-
-  // Filtered Events
   const deferredSearchQuery = useDeferredValue(searchQuery)
   const filteredEvents = useMemo(() => {
     const query = deferredSearchQuery.trim().toLowerCase()
     const isAllFilter = selectedFilter === 'all'
+    if (!query && isAllFilter) return events
 
-    if (!query && isAllFilter) {
-      return events
-    }
-
-    return events.filter((ev) => {
-      if (!isAllFilter && ev.type !== selectedFilter) return false
+    return events.filter((event) => {
+      if (!isAllFilter && event.kind !== selectedFilter) return false
       if (!query) return true
-
       return (
-        ev.id.toLowerCase().includes(query) ||
-        ev.email.toLowerCase().includes(query) ||
-        ev.ip.toLowerCase().includes(query) ||
-        ev.device.toLowerCase().includes(query) ||
-        ev.userName.toLowerCase().includes(query)
+        event.id.toLowerCase().includes(query) ||
+        event.actor.toLowerCase().includes(query) ||
+        event.action.toLowerCase().includes(query) ||
+        (event.ip ?? '').toLowerCase().includes(query) ||
+        (event.userAgent ?? '').toLowerCase().includes(query) ||
+        (event.city ?? '').toLowerCase().includes(query) ||
+        (event.country ?? '').toLowerCase().includes(query)
       )
     })
   }, [events, selectedFilter, deferredSearchQuery])
 
-  // Currently Selected Event Detail
+  // Follow the head of the stream until the operator picks a row, so a live
+  // feed keeps the detail panel meaningful without stealing an explicit choice.
   const selectedEvent = useMemo(() => {
-    const found = events.find((e) => e.id === selectedEventId)
-    return found || filteredEvents[0] || events[0]
-  }, [events, selectedEventId, filteredEvents])
+    if (selectedEventId) {
+      const pinned = events.find((event) => event.id === selectedEventId)
+      if (pinned) return pinned
+    }
+    return filteredEvents[0] ?? events[0] ?? null
+  }, [events, filteredEvents, selectedEventId])
 
-  const formattedPayload = useMemo(() => {
-    if (!selectedEvent) return '{}'
-    if (selectedEvent.rawPayload) return selectedEvent.rawPayload
+  const selectedLocation = useMemo(
+    () => (selectedEvent ? resolveEventLocation(selectedEvent) : null),
+    [selectedEvent],
+  )
 
-    return JSON.stringify(
-      {
-        event_id: selectedEvent.id,
-        event_type: `auth.${selectedEvent.type}`,
-        timestamp: new Date().toISOString(),
-        actor: {
-          name: selectedEvent.userName,
-          email: selectedEvent.email,
-          role: selectedEvent.role,
-          organization_id: selectedEvent.orgId,
-        },
-        client: {
-          ip_address: selectedEvent.ip,
-          location: selectedEvent.city,
-          user_agent: selectedEvent.device,
-          latency: selectedEvent.latency,
-        },
-        security_context: {
-          mfa_verified: selectedEvent.type === 'mfa' || selectedEvent.type === 'success',
-          status: selectedEvent.type === 'failed' ? 'denied' : 'granted',
-        },
-      },
-      null,
-      2,
-    )
-  }, [selectedEvent])
+  /** Recent located events, so the map shows where traffic is coming from. */
+  const mapTrail = useMemo<MapPoint[]>(() => {
+    const points: MapPoint[] = []
+    for (const event of filteredEvents.slice(0, 40)) {
+      if (event.id === selectedEvent?.id) continue
+      const location = resolveEventLocation(event)
+      if (location.kind !== 'located') continue
+      points.push({
+        id: event.id,
+        lon: location.lon,
+        lat: location.lat,
+        tone: eventTypeMeta[event.kind].tone,
+      })
+    }
+    return points
+  }, [filteredEvents, selectedEvent, eventTypeMeta])
+
+  const formattedPayload = useMemo(
+    () => (selectedEvent ? JSON.stringify(selectedEvent.raw, null, 2) : '{}'),
+    [selectedEvent],
+  )
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
     addNotification({
       type: 'success',
-      title: 'Copied to Clipboard',
-      message: `${label} copied successfully.`,
+      title: t('monitoring.events.copied', 'Copied to clipboard'),
+      message: t('monitoring.events.copiedBody', '{{label}} copied successfully.', { label }),
     })
+  }
+
+  const handleTogglePause = () => {
+    togglePause()
+    addNotification(
+      isPaused
+        ? {
+            type: 'info',
+            title: t('monitoring.events.resumed', 'Stream resumed'),
+            message: t(
+              'monitoring.events.resumedBody',
+              'Live authentication telemetry is streaming again.',
+            ),
+          }
+        : {
+            type: 'warning',
+            title: t('monitoring.events.paused', 'Stream paused'),
+            message: t(
+              'monitoring.events.pausedBody',
+              'Incoming events are buffered until you resume.',
+            ),
+          },
+    )
   }
 
   const handleExportCSV = () => {
     if (filteredEvents.length === 0) {
       addNotification({
         type: 'warning',
-        title: 'Export Empty',
-        message: 'No events to export with current filters.',
+        title: t('monitoring.events.exportEmpty', 'Nothing to export'),
+        message: t('monitoring.events.exportEmptyBody', 'No events match the current filters.'),
       })
       return
     }
@@ -309,39 +262,39 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
     const headers = [
       'Event ID',
       'Timestamp',
-      'User Name',
-      'Email',
-      'Role',
-      'Org ID',
-      'Type',
+      'Action',
+      'Actor',
+      'Category',
+      'Severity',
+      'Status',
       'IP Address',
       'City',
-      'Device',
-      'Latency',
+      'Country',
+      'User Agent',
     ]
-    const rows = filteredEvents.map((e) => [
-      e.id,
-      e.time,
-      `"${e.userName.replace(/"/g, '""')}"`,
-      e.email,
-      e.role,
-      e.orgId,
-      e.type,
-      e.ip,
-      `"${e.city.replace(/"/g, '""')}"`,
-      `"${e.device.replace(/"/g, '""')}"`,
-      e.latency,
-    ])
+    const escape = (value: string | null) => `"${String(value ?? '').replace(/"/g, '""')}"`
+    const rows = filteredEvents.map((event) =>
+      [
+        event.id,
+        event.timestamp,
+        event.action,
+        event.actor,
+        event.kind,
+        event.severity,
+        event.status,
+        event.ip,
+        event.city,
+        event.country,
+        event.userAgent,
+      ].map(escape),
+    )
 
-    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+    const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n')
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute(
-      'download',
-      `auth_stream_events_${new Date().toISOString().split('T')[0]}.csv`,
-    )
+    link.setAttribute('download', `auth_events_${new Date().toISOString().split('T')[0]}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -349,140 +302,144 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
 
     addNotification({
       type: 'success',
-      title: 'Export Completed',
-      message: `Exported ${filteredEvents.length} events as CSV.`,
+      title: t('monitoring.events.exported', 'Export complete'),
+      message: t('monitoring.events.exportedBody', 'Exported {{count}} events as CSV.', {
+        count: filteredEvents.length,
+      }),
     })
   }
 
-  // Dynamic Live Stats
-  const totalEvents = events.length
-  const failedEvents = events.filter((e) => e.type === 'failed').length
-  const avgLatencyVal = Math.round(
-    events.reduce((acc, curr) => acc + parseInt(curr.latency, 10), 0) / (totalEvents || 1),
+  const failedEvents = useMemo(
+    () => events.filter((event) => event.kind === 'failed').length,
+    [events],
   )
+
+  const statusMeta: Record<typeof status, { label: string; color: string }> = {
+    live: { label: t('monitoring.events.status.live', 'Live'), color: theme.palette.success.main },
+    connecting: {
+      label: t('monitoring.events.status.connecting', 'Connecting'),
+      color: theme.palette.warning.main,
+    },
+    polling: {
+      label: t('monitoring.events.status.polling', 'Polling'),
+      color: theme.palette.warning.main,
+    },
+    paused: {
+      label: t('monitoring.events.status.paused', 'Paused'),
+      color: theme.palette.warning.main,
+    },
+    offline: {
+      label: t('monitoring.events.status.offline', 'Offline'),
+      color: theme.palette.error.main,
+    },
+  }
 
   const stats = [
     {
-      label: 'Active Monitored Stream',
-      value: `${totalEvents} events`,
-      change: isPaused ? 'Paused' : '+Live',
+      label: t('monitoring.events.stat.captured', 'Events captured'),
+      value: String(events.length),
+      change: statusMeta[status].label,
       icon: Group,
       color: theme.palette.primary.main,
-      negative: isPaused,
+      negative: status !== 'live',
     },
     {
-      label: 'Throughput',
-      value: isPaused ? '0 evt/s' : '42 evt/s',
-      change: '+8%',
+      label: t('monitoring.events.stat.throughput', 'Throughput'),
+      value: t('monitoring.events.stat.throughputValue', '{{count}} evt/min', {
+        count: throughputPerMinute,
+      }),
+      change: t('monitoring.events.stat.throughputWindow', 'last 60s'),
       icon: Speed,
       color: theme.palette.primary.main,
     },
     {
-      label: 'Failed Attempts (Stream)',
+      label: t('monitoring.events.stat.failed', 'Failed attempts'),
       value: String(failedEvents),
-      change: failedEvents > 0 ? `${failedEvents} alerts` : '0 alerts',
+      change: t('monitoring.events.stat.failedAlerts', '{{count}} alerts', {
+        count: failedEvents,
+      }),
       icon: GppBad,
       color: failedEvents > 0 ? theme.palette.error.main : theme.palette.success.main,
       negative: failedEvents > 0,
     },
     {
-      label: 'Avg Response Latency',
-      value: `${avgLatencyVal}ms`,
-      change: '~nominal',
+      label: t('monitoring.events.stat.uptime', 'Stream uptime'),
+      value: formatUptime(connectedSince),
+      change: statusMeta[status].label,
       icon: Timer,
       color: theme.palette.primary.main,
+      negative: !connectedSince,
     },
   ]
 
-  const getEventTypeLabel = (type: AuthEvent['type']) => {
-    switch (type) {
-      case 'success':
-        return { label: 'Success', color: theme.palette.success.main, icon: CheckCircle }
-      case 'refresh':
-        return { label: 'Refresh', color: theme.palette.primary.main, icon: Key }
-      case 'failed':
-        return { label: 'Failed', color: theme.palette.error.main, icon: GppBad }
-      case 'mfa':
-        return { label: 'MFA', color: theme.palette.warning.main, icon: LockPerson }
-      case 'logout':
-        return { label: 'Logout', color: theme.palette.info.main, icon: Logout }
-      default:
-        return { label: 'Event', color: theme.palette.text.secondary, icon: Sync }
-    }
-  }
+  const filterChips: Array<{ value: EventFilter; label: string; dot?: string }> = [
+    { value: 'all', label: t('monitoring.events.filter.all', 'All events') },
+    {
+      value: 'success',
+      label: eventTypeMeta.success.label,
+      dot: theme.palette.success.main,
+    },
+    { value: 'failed', label: eventTypeMeta.failed.label, dot: theme.palette.error.main },
+    { value: 'mfa', label: eventTypeMeta.mfa.label, dot: theme.palette.warning.main },
+    { value: 'refresh', label: eventTypeMeta.refresh.label, dot: theme.palette.primary.main },
+    { value: 'logout', label: eventTypeMeta.logout.label, dot: theme.palette.info.main },
+  ]
 
   return (
     <>
-      <title>AuthStream - Real-time Monitor - {themeConfig.templateName}</title>
+      <title>
+        {t('monitoring.events.title', 'Real-time Auth Events Monitor')} - {themeConfig.templateName}
+      </title>
 
-      <Container
-        maxWidth={false}
-        sx={{
-          maxWidth: 1600,
-          px: { xs: 2, lg: 5 },
-          py: 3,
-        }}
-      >
-        {/* Page Header & Actions */}
+      <Container maxWidth={false} sx={{ maxWidth: 1600, px: { xs: 2, lg: 5 }, py: 3 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between',
-              alignItems: 'flex-end',
-              gap: 2,
-            }}
-          >
-            <Box>
-              <Typography variant='h3' fontWeight={800} gutterBottom sx={{ color: 'text.primary' }}>
-                Real-time Auth Events Monitor
-              </Typography>
-              <Typography color='text.secondary'>
-                Live stream of authentication activities, security verification, and token lifecycle
-                events.
-              </Typography>
-            </Box>
-            <Button
-              startIcon={<Download />}
-              variant='outlined'
-              onClick={handleExportCSV}
-              sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 'var(--sf-radius-md, 8px)' }}
-            >
-              Export CSV ({filteredEvents.length})
-            </Button>
-          </Box>
+          <AdminPageHeader
+            icon={<Sensors />}
+            title={t('monitoring.events.title', 'Real-time Auth Events Monitor')}
+            description={t(
+              'monitoring.events.subtitle',
+              'Live stream of authentication activities, security verification, and token lifecycle events.',
+            )}
+            actions={
+              <Button
+                startIcon={<Download />}
+                variant='outlined'
+                onClick={handleExportCSV}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  minHeight: 44,
+                }}
+              >
+                {t('monitoring.events.export', 'Export CSV ({{count}})', {
+                  count: filteredEvents.length,
+                })}
+              </Button>
+            }
+          />
 
-          {/* Stats Grid */}
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: 'repeat(2, 1fr)',
-                lg: 'repeat(4, 1fr)',
-              },
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
               gap: 2,
             }}
           >
-            {stats.map((stat, index) => {
+            {stats.map((stat) => {
               const Icon = stat.icon
               return (
                 <Paper
-                  key={index}
-                  sx={(theme: any) => ({
+                  key={stat.label}
+                  sx={(surfaceTheme: Theme) => ({
                     p: 3,
                     borderRadius: 'var(--sf-radius-md, 8px)',
-                    border: '1px solid ' + theme.palette.divider,
-                    ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+                    border: '1px solid ' + surfaceTheme.palette.divider,
+                    ...buildLayoutSurfaceEffect(getTenantThemeEffects(surfaceTheme), surfaceTheme),
                   })}
                 >
                   <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'start',
-                    }}
+                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}
                   >
                     <Typography color='text.secondary' variant='body2' fontWeight={500}>
                       {stat.label}
@@ -497,13 +454,12 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                       label={stat.change}
                       size='small'
                       sx={{
-                        bgcolor: (theme) =>
-                          stat.negative
-                            ? alpha(theme.palette.error.main, 0.1)
-                            : alpha(theme.palette.success.main, 0.1),
-                        color: stat.negative ? 'error.main' : 'success.main',
+                        bgcolor: stat.negative
+                          ? alpha(theme.palette.warning.main, 0.12)
+                          : alpha(theme.palette.success.main, 0.12),
+                        color: stat.negative ? 'warning.main' : 'success.main',
                         fontWeight: 700,
-                        fontSize: 10,
+                        fontSize: 12,
                       }}
                     />
                   </Box>
@@ -513,7 +469,6 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Controls Toolbar */}
         <Box
           sx={{
             display: 'flex',
@@ -527,29 +482,36 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
             borderColor: 'divider',
           }}
         >
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-            <Button
-              startIcon={isPaused ? <PlayArrow /> : <Pause />}
-              variant='contained'
-              onClick={togglePause}
-              color={isPaused ? 'warning' : 'primary'}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 600,
-                borderRadius: 'var(--sf-radius-md, 8px)',
-              }}
-            >
-              {isPaused ? `Resume (${bufferedCount} buffered)` : 'Pause Stream'}
-            </Button>
-          </Box>
+          <Button
+            startIcon={isPaused ? <PlayArrow /> : <Pause />}
+            variant='contained'
+            onClick={handleTogglePause}
+            color={isPaused ? 'warning' : 'primary'}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 600,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              minHeight: 44,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+          >
+            {isPaused
+              ? t('monitoring.events.resume', 'Resume ({{count}} buffered)', {
+                  count: bufferedCount,
+                })
+              : t('monitoring.events.pause', 'Pause stream')}
+          </Button>
 
-          {/* Search */}
           <TextField
             fullWidth
             size='small'
-            placeholder='Search by User ID, Email, IP Address, or Device...'
+            placeholder={t(
+              'monitoring.events.searchPlaceholder',
+              'Search by actor, action, IP address, or device…',
+            )}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(event) => setSearchQuery(event.target.value)}
             slotProps={{
               input: {
                 startAdornment: (
@@ -563,91 +525,34 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
               minWidth: 260,
               '& .MuiOutlinedInput-root': {
                 borderRadius: 'var(--sf-radius-md, 8px)',
+                minHeight: 44,
               },
             }}
           />
 
-          {/* Filter Chips */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-            <Chip
-              label='All Events'
-              onClick={() => setSelectedFilter('all')}
-              color={selectedFilter === 'all' ? 'primary' : 'default'}
-              variant={selectedFilter === 'all' ? 'filled' : 'outlined'}
-              sx={{ fontWeight: 600 }}
-            />
-            <Chip
-              icon={
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    bgcolor: 'success.main',
-                  }}
-                />
-              }
-              label='Success'
-              onClick={() => setSelectedFilter('success')}
-              color={selectedFilter === 'success' ? 'success' : 'default'}
-              variant={selectedFilter === 'success' ? 'filled' : 'outlined'}
-              sx={{ fontWeight: 500 }}
-            />
-            <Chip
-              icon={
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    bgcolor: 'error.main',
-                  }}
-                />
-              }
-              label='Failed'
-              onClick={() => setSelectedFilter('failed')}
-              color={selectedFilter === 'failed' ? 'error' : 'default'}
-              variant={selectedFilter === 'failed' ? 'filled' : 'outlined'}
-              sx={{ fontWeight: 500 }}
-            />
-            <Chip
-              icon={
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    bgcolor: 'warning.main',
-                  }}
-                />
-              }
-              label='MFA'
-              onClick={() => setSelectedFilter('mfa')}
-              color={selectedFilter === 'mfa' ? 'warning' : 'default'}
-              variant={selectedFilter === 'mfa' ? 'filled' : 'outlined'}
-              sx={{ fontWeight: 500 }}
-            />
-            <Chip
-              icon={
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    bgcolor: 'info.main',
-                  }}
-                />
-              }
-              label='Refresh'
-              onClick={() => setSelectedFilter('refresh')}
-              color={selectedFilter === 'refresh' ? 'info' : 'default'}
-              variant={selectedFilter === 'refresh' ? 'filled' : 'outlined'}
-              sx={{ fontWeight: 500 }}
-            />
+            {filterChips.map((chip) => (
+              <Chip
+                key={chip.value}
+                label={chip.label}
+                onClick={() => setSelectedFilter(chip.value)}
+                aria-pressed={selectedFilter === chip.value}
+                variant={selectedFilter === chip.value ? 'filled' : 'outlined'}
+                color={selectedFilter === chip.value ? 'primary' : 'default'}
+                icon={
+                  chip.dot ? (
+                    <Box
+                      sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: chip.dot }}
+                      aria-hidden
+                    />
+                  ) : undefined
+                }
+                sx={{ fontWeight: 600 }}
+              />
+            ))}
           </Box>
         </Box>
 
-        {/* Main Content Split View */}
         <Box
           sx={{
             display: 'flex',
@@ -656,22 +561,22 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
             minHeight: 560,
           }}
         >
-          {/* Feed List (Left) */}
           <Paper
-            sx={(theme: any) => ({
+            sx={(surfaceTheme: Theme) => ({
               flex: 1,
+              minWidth: 0,
               display: 'flex',
               flexDirection: 'column',
               borderRadius: 'var(--sf-radius-md, 8px)',
               overflow: 'hidden',
-              border: '1px solid ' + theme.palette.divider,
-              ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+              border: '1px solid ' + surfaceTheme.palette.divider,
+              ...buildLayoutSurfaceEffect(getTenantThemeEffects(surfaceTheme), surfaceTheme),
             })}
           >
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: '110px 1fr 120px 140px 90px',
+                gridTemplateColumns: GRID_TEMPLATE,
                 gap: 2,
                 px: 3,
                 py: 1.5,
@@ -680,105 +585,47 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                 borderColor: 'divider',
               }}
             >
-              <Typography variant='caption' fontWeight={700} color='text.secondary'>
-                TIME
-              </Typography>
-              <Typography variant='caption' fontWeight={700} color='text.secondary'>
-                USER / EVENT
-              </Typography>
-              <Typography variant='caption' fontWeight={700} color='text.secondary'>
-                TYPE
-              </Typography>
-              <Typography variant='caption' fontWeight={700} color='text.secondary'>
-                IP SOURCE
-              </Typography>
-              <Typography variant='caption' fontWeight={700} color='text.secondary' align='right'>
-                LATENCY
-              </Typography>
+              {[
+                t('monitoring.events.column.time', 'TIME'),
+                t('monitoring.events.column.actor', 'ACTOR / ACTION'),
+                t('monitoring.events.column.type', 'TYPE'),
+                t('monitoring.events.column.ip', 'IP SOURCE'),
+                t('monitoring.events.column.severity', 'SEVERITY'),
+              ].map((heading) => (
+                <Typography key={heading} variant='caption' fontWeight={700} color='text.secondary'>
+                  {heading}
+                </Typography>
+              ))}
             </Box>
 
             <Box sx={{ flex: 1, overflowY: 'auto', maxHeight: 580 }}>
               {filteredEvents.length === 0 ? (
                 <Box sx={{ p: 6, textAlign: 'center' }}>
                   <Typography variant='body1' fontWeight={600} color='text.secondary'>
-                    No authentication events matching your filter.
+                    {status === 'connecting'
+                      ? t('monitoring.events.empty.connecting', 'Connecting to the event stream…')
+                      : events.length === 0
+                        ? t(
+                            'monitoring.events.empty.noEvents',
+                            'No authentication events yet. New activity appears here the moment it happens.',
+                          )
+                        : t('monitoring.events.empty.noMatches', 'No events match your filter.')}
                   </Typography>
                 </Box>
               ) : (
-                filteredEvents.map((event) => {
-                  const eventType = getEventTypeLabel(event.type)
-                  const EventIcon = eventType.icon
-                  const isSelected = (selectedEvent?.id || '') === event.id
-
-                  return (
-                    <Box
-                      key={event.id}
-                      onClick={() => setSelectedEventId(event.id)}
-                      sx={{
-                        display: 'grid',
-                        gridTemplateColumns: '110px 1fr 120px 140px 90px',
-                        gap: 2,
-                        px: 3,
-                        py: 2,
-                        borderBottom: 1,
-                        borderColor: 'divider',
-                        bgcolor: isSelected
-                          ? alpha(theme.palette.primary.main, 0.08)
-                          : 'transparent',
-                        borderLeft: isSelected ? 4 : 0,
-                        borderLeftColor: 'primary.main',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.15s ease',
-                        '&:hover': {
-                          bgcolor: isSelected
-                            ? alpha(theme.palette.primary.main, 0.12)
-                            : 'action.hover',
-                        },
-                      }}
-                    >
-                      <Typography variant='body2' fontFamily='monospace' color='text.secondary'>
-                        {event.time}
-                      </Typography>
-                      <Box>
-                        <Typography variant='body2' fontWeight={600} color='text.primary'>
-                          {event.userName}
-                        </Typography>
-                        <Typography variant='caption' color='text.secondary'>
-                          {event.email} • {event.device}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Chip
-                          icon={<EventIcon sx={{ fontSize: 14 }} />}
-                          label={eventType.label}
-                          size='small'
-                          sx={{
-                            bgcolor: alpha(eventType.color as string, 0.1),
-                            color: eventType.color,
-                            border: 1,
-                            borderColor: alpha(eventType.color as string, 0.2),
-                            fontWeight: 600,
-                          }}
-                        />
-                      </Box>
-                      <Typography variant='body2' fontFamily='monospace' color='text.primary'>
-                        {event.ip}
-                      </Typography>
-                      <Typography
-                        variant='caption'
-                        color='text.secondary'
-                        fontWeight={600}
-                        align='right'
-                      >
-                        {event.latency}
-                      </Typography>
-                    </Box>
-                  )
-                })
+                filteredEvents.map((event) => (
+                  <EventRow
+                    key={event.id}
+                    event={event}
+                    meta={eventTypeMeta[event.kind]}
+                    isSelected={selectedEvent?.id === event.id}
+                    onSelect={setSelectedEventId}
+                    unattributedLabel={t('monitoring.events.detail.unattributed', 'Unattributed')}
+                  />
+                ))
               )}
             </Box>
 
-            {/* Connection Footer */}
             <Box
               sx={{
                 p: 1.5,
@@ -789,45 +636,59 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 px: 3,
+                gap: 2,
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Sync
+                <Box
+                  aria-hidden
                   sx={{
-                    color: isPaused ? 'warning.main' : 'primary.main',
-                    fontSize: 16,
-                    animation: isPaused ? 'none' : 'spin 2s linear infinite',
-                    '@keyframes spin': {
-                      '0%': { transform: 'rotate(0deg)' },
-                      '100%': { transform: 'rotate(360deg)' },
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor: statusMeta[status].color,
+                    animation: status === 'live' ? 'pulse 2s ease-in-out infinite' : 'none',
+                    '@keyframes pulse': {
+                      '0%, 100%': { opacity: 1 },
+                      '50%': { opacity: 0.3 },
                     },
                   }}
                 />
                 <Typography variant='caption' fontWeight={500} color='text.secondary'>
-                  {isPaused
-                    ? `Stream Paused (${bufferedCount} events queued)`
-                    : isLiveConnected
-                      ? 'Live Telemetry Active (Streaming)'
-                      : 'Telemetry Connecting...'}
+                  {status === 'paused'
+                    ? t('monitoring.events.footer.paused', 'Paused — {{count}} events queued', {
+                        count: bufferedCount,
+                      })
+                    : status === 'live'
+                      ? t('monitoring.events.footer.live', 'Live telemetry active')
+                      : status === 'polling'
+                        ? t(
+                            'monitoring.events.footer.polling',
+                            'Stream unavailable — polling audit history',
+                          )
+                        : t('monitoring.events.footer.connecting', 'Connecting…')}
                 </Typography>
               </Box>
               <Typography variant='caption' color='text.secondary'>
-                Showing {filteredEvents.length} of {events.length} events
+                {t('monitoring.events.footer.count', 'Showing {{shown}} of {{total}} events', {
+                  shown: filteredEvents.length,
+                  total: events.length,
+                })}
               </Typography>
             </Box>
           </Paper>
 
-          {/* Detail View (Right Panel) */}
-          {selectedEvent && (
+          {selectedEvent && selectedLocation && (
             <Paper
-              sx={(theme: any) => ({
+              sx={(surfaceTheme: Theme) => ({
                 width: { xs: '100%', lg: 440 },
+                flexShrink: 0,
                 display: 'flex',
                 flexDirection: 'column',
                 borderRadius: 'var(--sf-radius-md, 8px)',
                 overflow: 'hidden',
-                border: '1px solid ' + theme.palette.divider,
-                ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
+                border: '1px solid ' + surfaceTheme.palette.divider,
+                ...buildLayoutSurfaceEffect(getTenantThemeEffects(surfaceTheme), surfaceTheme),
               })}
             >
               <Box
@@ -840,32 +701,38 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
+                  gap: 1,
                 }}
               >
-                <Box>
+                <Box sx={{ minWidth: 0 }}>
                   <Typography variant='caption' fontWeight={700} color='text.secondary'>
-                    SELECTED EVENT ID
+                    {t('monitoring.events.detail.eventId', 'SELECTED EVENT ID')}
                   </Typography>
                   <Typography
                     variant='body2'
                     fontFamily='monospace'
                     fontWeight={600}
+                    noWrap
                     sx={{ mt: 0.5, color: 'text.primary' }}
                   >
                     {selectedEvent.id}
                   </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 0.5 }}>
-                  <Tooltip title='Copy Raw JSON Payload'>
-                    <IconButton
-                      size='small'
-                      onClick={() => handleCopy(formattedPayload, 'Raw JSON Payload')}
-                      sx={{ color: 'text.secondary' }}
-                    >
-                      <ContentCopy fontSize='small' />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
+                <Tooltip title={t('monitoring.events.detail.copyPayload', 'Copy raw JSON payload')}>
+                  <IconButton
+                    size='small'
+                    aria-label={t('monitoring.events.detail.copyPayload', 'Copy raw JSON payload')}
+                    onClick={() =>
+                      handleCopy(
+                        formattedPayload,
+                        t('monitoring.events.detail.payloadLabel', 'Raw JSON payload'),
+                      )
+                    }
+                    sx={{ color: 'text.secondary' }}
+                  >
+                    <ContentCopy fontSize='small' />
+                  </IconButton>
+                </Tooltip>
               </Box>
 
               <Box
@@ -879,7 +746,6 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                   maxHeight: 580,
                 }}
               >
-                {/* User Context */}
                 <Box>
                   <Typography
                     variant='caption'
@@ -888,7 +754,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                     mb={1.5}
                     component='div'
                   >
-                    USER CONTEXT
+                    {t('monitoring.events.detail.actorContext', 'ACTOR CONTEXT')}
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
                     <Avatar
@@ -898,38 +764,30 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                         fontWeight: 700,
                       }}
                     >
-                      {selectedEvent.initials}
+                      {initialsOf(selectedEvent.actor)}
                     </Avatar>
-                    <Box>
-                      <Typography variant='body2' fontWeight={600} color='text.primary'>
-                        {selectedEvent.userName}
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant='body2' fontWeight={600} color='text.primary' noWrap>
+                        {selectedEvent.actor ||
+                          t('monitoring.events.detail.unattributed', 'Unattributed')}
                       </Typography>
                       <Typography variant='caption' color='text.secondary'>
-                        {selectedEvent.email}
+                        {humaniseAction(selectedEvent.action)}
                       </Typography>
                     </Box>
                   </Box>
                   <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-                    <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5 }}>
-                      <Typography variant='caption' color='text.secondary'>
-                        Role
-                      </Typography>
-                      <Typography variant='body2' fontWeight={600} color='text.primary'>
-                        {selectedEvent.role}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5 }}>
-                      <Typography variant='caption' color='text.secondary'>
-                        Organization
-                      </Typography>
-                      <Typography variant='body2' fontWeight={600} color='text.primary'>
-                        {selectedEvent.orgId}
-                      </Typography>
-                    </Box>
+                    <DetailTile
+                      label={t('monitoring.events.detail.severity', 'Severity')}
+                      value={selectedEvent.severity}
+                    />
+                    <DetailTile
+                      label={t('monitoring.events.detail.category', 'Category')}
+                      value={eventTypeMeta[selectedEvent.kind].label}
+                    />
                   </Box>
                 </Box>
 
-                {/* Location & Network Data */}
                 <Box>
                   <Typography
                     variant='caption'
@@ -938,92 +796,47 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                     mb={1.5}
                     component='div'
                   >
-                    LOCATION & DEVICE
+                    {t('monitoring.events.detail.origin', 'ORIGIN')}
                   </Typography>
-                  <Box
-                    sx={{
-                      height: 100,
-                      borderRadius: 1.5,
-                      background: (theme) =>
-                        `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)} 0%, ${alpha(theme.palette.secondary.main, 0.12)} 100%)`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      mb: 1.5,
-                    }}
+                  <Suspense
+                    fallback={
+                      <Skeleton variant='rounded' height={190} sx={{ borderRadius: 1.5 }} />
+                    }
                   >
-                    <LocationOn
-                      sx={{
-                        fontSize: 42,
-                        color: 'primary.main',
-                      }}
+                    <AuthEventWorldMap
+                      location={selectedLocation}
+                      trail={mapTrail}
+                      tone={eventTypeMeta[selectedEvent.kind].tone}
                     />
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      py: 1,
-                      borderBottom: 1,
-                      borderColor: 'divider',
-                    }}
-                  >
-                    <Typography variant='caption' color='text.secondary'>
-                      City / Region
-                    </Typography>
-                    <Typography variant='caption' fontWeight={600} color='text.primary'>
-                      {selectedEvent.city}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      py: 1,
-                      borderBottom: 1,
-                      borderColor: 'divider',
-                    }}
-                  >
-                    <Typography variant='caption' color='text.secondary'>
-                      IP Address
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Typography
-                        variant='caption'
-                        fontWeight={600}
-                        fontFamily='monospace'
-                        color='text.primary'
-                      >
-                        {selectedEvent.ip}
-                      </Typography>
-                      <IconButton
-                        size='small'
-                        onClick={() => handleCopy(selectedEvent.ip, 'IP Address')}
-                      >
-                        <ContentCopy sx={{ fontSize: 12 }} />
-                      </IconButton>
-                    </Box>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      py: 1,
-                      borderBottom: 1,
-                      borderColor: 'divider',
-                    }}
-                  >
-                    <Typography variant='caption' color='text.secondary'>
-                      Client Device
-                    </Typography>
-                    <Typography variant='caption' fontWeight={500} color='text.primary'>
-                      {selectedEvent.device}
-                    </Typography>
+                  </Suspense>
+
+                  <Box sx={{ mt: 1.5 }}>
+                    <DetailRow
+                      label={t('monitoring.events.detail.occurredAt', 'Occurred at')}
+                      value={new Date(selectedEvent.timestamp).toLocaleString()}
+                    />
+                    <DetailRow
+                      label={t('monitoring.events.detail.ip', 'IP address')}
+                      value={selectedEvent.ip}
+                      monospace
+                      onCopy={
+                        selectedEvent.ip
+                          ? () =>
+                              handleCopy(
+                                selectedEvent.ip!,
+                                t('monitoring.events.detail.ip', 'IP address'),
+                              )
+                          : undefined
+                      }
+                    />
+                    <DetailRow
+                      label={t('monitoring.events.detail.device', 'Client device')}
+                      value={selectedEvent.userAgent}
+                    />
                   </Box>
                 </Box>
 
-                {/* Raw JSON Payload */}
-                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 160 }}>
                   <Box
                     sx={{
                       display: 'flex',
@@ -1033,35 +846,41 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                     }}
                   >
                     <Typography variant='caption' fontWeight={700} color='text.secondary'>
-                      STRUCTURED EVENT PAYLOAD
+                      {t('monitoring.events.detail.payload', 'STRUCTURED EVENT PAYLOAD')}
                     </Typography>
                     <Button
                       size='small'
                       variant='text'
-                      onClick={() => handleCopy(formattedPayload, 'Payload JSON')}
-                      sx={{ fontSize: 11, textTransform: 'none', py: 0 }}
+                      onClick={() =>
+                        handleCopy(
+                          formattedPayload,
+                          t('monitoring.events.detail.payloadLabel', 'Raw JSON payload'),
+                        )
+                      }
+                      sx={{ fontSize: 12, textTransform: 'none', py: 0 }}
                     >
-                      Copy JSON
+                      {t('monitoring.events.detail.copyJson', 'Copy JSON')}
                     </Button>
                   </Box>
                   <Box
                     sx={{
                       flex: 1,
-                      bgcolor: theme.palette.mode === 'dark' ? 'grey.900' : '#101922',
+                      bgcolor: theme.palette.mode === 'dark' ? 'grey.900' : 'grey.900',
                       borderRadius: 1.5,
                       p: 1.5,
-                      overflowX: 'auto',
+                      overflow: 'auto',
                       border: 1,
                       borderColor: 'divider',
+                      direction: 'ltr',
                     }}
                   >
                     <Typography
                       component='pre'
                       sx={{
                         fontFamily: 'monospace',
-                        fontSize: 11,
+                        fontSize: 12,
                         lineHeight: 1.6,
-                        color: theme.palette.mode === 'dark' ? 'success.light' : '#4af626',
+                        color: 'success.light',
                         margin: 0,
                         whiteSpace: 'pre',
                       }}
@@ -1076,6 +895,154 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
         </Box>
       </Container>
     </>
+  )
+}
+
+interface EventRowProps {
+  event: LiveAuthEvent
+  meta: { label: string; color: string; icon: React.ElementType }
+  isSelected: boolean
+  onSelect: (id: string) => void
+  /** Shown in place of the actor for rows the server could not attribute. */
+  unattributedLabel: string
+}
+
+/**
+ * Memoised so a new arrival re-renders one row, not the whole feed — the list
+ * holds up to 300 rows and receives events continuously.
+ */
+const EventRow = React.memo<EventRowProps>(
+  ({ event, meta, isSelected, onSelect, unattributedLabel }) => {
+    const EventIcon = meta.icon
+    return (
+      <Box
+        role='button'
+        tabIndex={0}
+        aria-pressed={isSelected}
+        onClick={() => onSelect(event.id)}
+        onKeyDown={(keyEvent) => {
+          if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+            keyEvent.preventDefault()
+            onSelect(event.id)
+          }
+        }}
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: GRID_TEMPLATE,
+          gap: 2,
+          px: 3,
+          py: 2,
+          borderBottom: 1,
+          borderColor: 'divider',
+          bgcolor: isSelected ? (t) => alpha(t.palette.primary.main, 0.08) : 'transparent',
+          borderInlineStart: isSelected ? 4 : 0,
+          borderInlineStartColor: 'primary.main',
+          borderInlineStartStyle: 'solid',
+          cursor: 'pointer',
+          transition: 'background-color 0.15s ease',
+          '&:hover': {
+            bgcolor: (t) =>
+              isSelected ? alpha(t.palette.primary.main, 0.12) : t.palette.action.hover,
+          },
+          '&:focus-visible': {
+            outline: (t) => `2px solid ${t.palette.primary.main}`,
+            outlineOffset: -2,
+          },
+        }}
+      >
+        <Typography variant='body2' fontFamily='monospace' color='text.secondary' noWrap>
+          {formatEventTime(event.timestamp)}
+        </Typography>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            variant='body2'
+            fontWeight={600}
+            color={event.actor ? 'text.primary' : 'text.secondary'}
+            noWrap
+          >
+            {event.actor || unattributedLabel}
+          </Typography>
+          <Typography variant='caption' color='text.secondary' noWrap component='div'>
+            {[humaniseAction(event.action), event.city, event.country].filter(Boolean).join(' • ')}
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Chip
+            icon={<EventIcon sx={{ fontSize: 14 }} />}
+            label={meta.label}
+            size='small'
+            sx={{
+              bgcolor: alpha(meta.color, 0.1),
+              color: meta.color,
+              border: 1,
+              borderColor: alpha(meta.color, 0.2),
+              fontWeight: 600,
+            }}
+          />
+        </Box>
+        <Typography variant='body2' fontFamily='monospace' color='text.primary' noWrap>
+          {event.ip ?? '—'}
+        </Typography>
+        <Typography variant='caption' color='text.secondary' fontWeight={600} noWrap>
+          {event.severity}
+        </Typography>
+      </Box>
+    )
+  },
+)
+EventRow.displayName = 'EventRow'
+
+const DetailTile: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5 }}>
+    <Typography variant='caption' color='text.secondary'>
+      {label}
+    </Typography>
+    <Typography variant='body2' fontWeight={600} color='text.primary' noWrap>
+      {value}
+    </Typography>
+  </Box>
+)
+
+const DetailRow: React.FC<{
+  label: string
+  value: string | null
+  monospace?: boolean
+  onCopy?: () => void
+}> = ({ label, value, monospace, onCopy }) => {
+  const { t } = useTranslation('common')
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 2,
+        py: 1,
+        borderBottom: 1,
+        borderColor: 'divider',
+      }}
+    >
+      <Typography variant='caption' color='text.secondary' sx={{ flexShrink: 0 }}>
+        {label}
+      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
+        <Typography
+          variant='caption'
+          fontWeight={600}
+          fontFamily={monospace ? 'monospace' : undefined}
+          color={value ? 'text.primary' : 'text.disabled'}
+          noWrap
+          title={value ?? undefined}
+        >
+          {value || t('monitoring.events.detail.notAvailable', 'Not reported')}
+        </Typography>
+        {onCopy && (
+          <IconButton size='small' onClick={onCopy} aria-label={label}>
+            <ContentCopy sx={{ fontSize: 12 }} />
+          </IconButton>
+        )}
+      </Box>
+    </Box>
   )
 }
 

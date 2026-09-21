@@ -48,7 +48,7 @@ import {
   type ReaderPresence,
 } from '../../types/accessControl.types'
 import { NoOrganizationNotice } from '../NoOrganizationNotice'
-import { AdminDataState, AdminStatusBadge } from '../../../authentication-core/components/shared/admin'
+import { AdminDataState, AdminPageHeader, AdminStatusBadge } from '../../../authentication-core/components/shared/admin'
 
 /**
  * Access Points (readers).
@@ -105,39 +105,29 @@ export const AccessPointManagement: React.FC = () => {
 
   return (
     <Container maxWidth='lg' sx={{ py: 4 }}>
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        justifyContent='space-between'
-        alignItems={{ sm: 'center' }}
-        spacing={2}
-        sx={{ mb: 1 }}
-      >
-        <Stack direction='row' alignItems='center' spacing={1.5}>
-          <SensorDoor color='primary' />
-          <Typography variant='h4'>
-            {t('accessControl.points.title', 'Access points')}
-          </Typography>
-        </Stack>
-        <Button
-          variant='contained'
-          startIcon={<AddCircleOutline />}
-          onClick={() => setCreateOpen(true)}
-          sx={{
-            minHeight: 44,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
-        >
-          {t('accessControl.points.add', 'Add reader')}
-        </Button>
-      </Stack>
-      <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-        {t(
+      <AdminPageHeader
+        icon={<SensorDoor />}
+        title={t('accessControl.points.title', 'Access points')}
+        description={t(
           'accessControl.points.subtitle',
           'Doors and turnstiles. A reader has no heartbeat — presence is inferred from when it last submitted a scan.',
         )}
-      </Typography>
+        actions={
+          <Button
+            variant='contained'
+            startIcon={<AddCircleOutline />}
+            onClick={() => setCreateOpen(true)}
+            sx={{
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              textTransform: 'none',
+              fontWeight: 600,
+            }}
+          >
+            {t('accessControl.points.add', 'Add reader')}
+          </Button>
+        }
+      />
 
       <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}>
         <CardContent>

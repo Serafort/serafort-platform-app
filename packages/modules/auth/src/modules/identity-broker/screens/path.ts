@@ -1,26 +1,15 @@
-const Path = {
-  connectorDetail: '/admin/provisioning/connectors/:id',
-  syncLogs: '/admin/provisioning/logs',
-  provisioning: '/admin/provisioning',
-  scim: '/admin/provisioning/scim',
+// ---------------------------------------------------------------------------
+// Path projection for the identity-broker sub-module.
+//
+// This file intentionally contains NO URL literals. The SSO, SAML/OIDC and provisioning paths
+// live in the Tier 0 registry (`AppPaths` in @cap/shared-types) so that editing
+// a path there changes it everywhere -- router, links, navigation and tests.
+//
+// To add or change a route, edit `AppPaths.identity` in
+// packages/shared-types/src/routes.ts, not this file.
+// ---------------------------------------------------------------------------
+import { AppPaths } from '@cap/shared-types'
 
-  authWait: '/auth/sso/wait',
-  jwksManagement: '/auth/sso/jwks',
-  oidcClientCreate: '/auth/sso/oidc-config/create',
-  oidcClientEdit: '/auth/sso/oidc-config/:id/edit',
-  oidcConfigBrowser: '/auth/sso/oidc-config',
-  oidcLoginPrompt: '/auth/sso/oidc-prompt',
-  oidcWait: '/auth/sso/oidc/wait',
-  permissionConsent: '/auth/sso/consent',
+const Path = AppPaths.identity
 
-  samlConfigDashboard: '/auth/sso/saml-config',
-  samlMetadataBrowser: '/auth/sso/saml-browser',
-  samlMetadataDisplay: '/auth/sso/saml-metadata',
-  samlWait: '/auth/sso/saml/wait',
-  samlSSOInitiation: '/auth/sso/login',
-
-  providerSelection: '/auth/sso/select-provider',
-  caepEventConsole: '/admin/identity/shared-signals',
-  ssfConfiguration: '/auth/sso/ssf-config',
-}
 export default Path

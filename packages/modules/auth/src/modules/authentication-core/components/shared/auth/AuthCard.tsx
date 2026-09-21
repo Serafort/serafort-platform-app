@@ -49,9 +49,26 @@ const AuthCard: React.FC<AuthCardProps> = ({
   const content = <Box sx={{ p: PADDING_MAP[padding] }}>{children}</Box>
 
   return (
-    <Box sx={{ width: '100%', ...sx }} className={className}>
+    <Box
+      // The glass surface lifts on hover (a marketing-card affordance). A form
+      // that lifts under the pointer while the user types reads as a bug.
+      sx={{
+        width: '100%',
+        '& > *:hover': { transform: 'none' },
+        ...sx,
+      }}
+      className={className}
+    >
       {useGlass ? (
-        <LiquidGlassCard blur='24px' opacity={0.85} padding='0px' borderRadius='24px'>
+        <LiquidGlassCard
+          blur='24px'
+          padding='0px'
+          borderRadius='var(--sf-radius-xl, 16px)'
+          background='color-mix(in srgb, var(--sf-surface, Canvas) 88%, transparent)'
+          borderColor='var(--sf-border, transparent)'
+          innerShadow='inset 0 0 0 0 transparent'
+          specularHighlight='var(--sf-shadow-lg, none)'
+        >
           {content}
         </LiquidGlassCard>
       ) : (

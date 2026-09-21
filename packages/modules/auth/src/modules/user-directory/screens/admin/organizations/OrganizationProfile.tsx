@@ -31,6 +31,7 @@ import {
   TableHead,
   TableRow,
   Container,
+  type Theme,
 } from '@mui/material'
 import { motion } from 'framer-motion'
 import Save from '@mui/icons-material/Save'
@@ -54,11 +55,23 @@ import {
   useVerifyDomain,
   useUploadOrganizationLogo,
   adminKeys,
-} from '@idaas/authentication-core/hooks/useAdminQuery'
+} from '@auth/authorization-engine/hooks/useAdminQuery'
 import { useQueryClient } from '@tanstack/react-query'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
+import { getPlainErrorMessage } from '../../../types/api.types'
+
+/** Editable copy of the organization, with branding/security flattened for the form. */
+type OrgRecord = NonNullable<NonNullable<ReturnType<typeof useOrganization>['data']>['data']>
+type OrgFormData = OrgRecord & {
+  primaryColor: string
+  secondaryColor: string
+  logo_url: string
+  enforceMfa: boolean
+  ssoOnly: boolean
+  allowPublicSignup: boolean
+}
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -71,7 +84,7 @@ function TabPanel(props: TabPanelProps) {
   const { children, value, index, sx, ...other } = props
   return (
     <div role='tabpanel' hidden={value !== index} {...other}>
-      {value === index && <Box sx={{ py: 3, ...(sx as any) }}>{children}</Box>}
+      {value === index && <Box sx={[{ py: 3 }, ...(Array.isArray(sx) ? sx : [sx])]}>{children}</Box>}
     </div>
   )
 }
@@ -88,12 +101,14 @@ export default function OrganizationProfile() {
   const uploadLogoMutation = useUploadOrganizationLogo()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const { data: orgDataQuery, isLoading, isError } = useOrganization(Number(id))
+  const { data: orgDataQuery, isLoading, isError } = useOrganization(id)
   const updateOrgMutation = useUpdateOrganization()
 
   const orgData = orgDataQuery?.data
 
-  const [formData, setFormData] = useState<any>(null)
+  const [formData, setFormData] = useState<OrgFormData | null>(null)
+  const patchForm = (patch: Partial<OrgFormData>) =>
+    setFormData((prev) => (prev ? { ...prev, ...patch } : prev))
 
   React.useEffect(() => {
     if (orgData) {
@@ -101,7 +116,9 @@ export default function OrganizationProfile() {
         ...orgData,
         primaryColor: orgData.brandingConfig?.primaryColor || '',
         secondaryColor: orgData.brandingConfig?.secondaryColor || '',
-        logo_url: orgData.brandingConfig?.logo_url || '',
+        // Uploads write `logo_url`; seeded tenants carry `logoUrl`.
+        logo_url: orgData.brandingConfig?.logo_url || orgData.brandingConfig?.logoUrl || '',
+        support_email: orgData.supportEmail ?? orgData.support_email ?? '',
         enforceMfa: orgData.securityPolicies?.enforceMfa || false,
         ssoOnly: orgData.securityPolicies?.ssoOnly || false,
         allowPublicSignup: orgData.securityPolicies?.allowPublicSignup || false,
@@ -134,15 +151,15 @@ export default function OrganizationProfile() {
 
     updateOrgMutation.mutate(
       {
-        id: Number(id),
+        id,
         data: payload,
       },
       {
         onSuccess: () => {
           toast.success(t('auth.admin.successUpdateOrg'))
         },
-        onError: (error: any) => {
-          toast.error(error.message || t('auth.admin.errorUpdateOrg'))
+        onError: (error: unknown) => {
+          toast.error(getPlainErrorMessage(error, t('auth.admin.errorUpdateOrg')))
         },
       },
     )
@@ -158,14 +175,14 @@ export default function OrganizationProfile() {
     }
 
     uploadLogoMutation.mutate(
-      { id: Number(id), logo: file },
+      { id: id!, file },
       {
         onSuccess: (response) => {
-          setFormData((prev: any) => ({ ...prev, logo_url: response.data.logo_url }))
+          setFormData((prev) => (prev ? { ...prev, logo_url: (response.data as { logo_url: string }).logo_url } : prev))
           toast.success(t('auth.admin.logoUploaded'))
         },
-        onError: (err: any) => {
-          toast.error(err.message || t('auth.admin.logoUploadFailed'))
+        onError: (err: unknown) => {
+          toast.error(getPlainErrorMessage(err, t('auth.admin.logoUploadFailed')))
         },
       },
     )
@@ -182,12 +199,12 @@ export default function OrganizationProfile() {
       {
         onSuccess: () => {
           toast.success(`${t('auth.admin.startedVerification')} ${pendingDomain}`)
-          queryClient.invalidateQueries({ queryKey: adminKeys.organizations })
+          queryClient.invalidateQueries({ queryKey: adminKeys.organizations.all })
           setDomainDialogOpen(false)
           setPendingDomain('')
         },
-        onError: (err: any) => {
-          toast.error(err.message || t('auth.admin.failedVerifyDomain'))
+        onError: (err: unknown) => {
+          toast.error(getPlainErrorMessage(err, t('auth.admin.failedVerifyDomain')))
         },
       },
     )
@@ -337,7 +354,7 @@ export default function OrganizationProfile() {
           <Tabs
             value={tab}
             onChange={(_: React.SyntheticEvent, v: number) => setTab(v)}
-            aria-label='organization tabs'
+            aria-label={t('auth.userDirectory.orgProfile.organizationTabs', 'organization tabs')}
             sx={{
               mb: 2,
               '& .MuiTab-root': {
@@ -369,7 +386,7 @@ export default function OrganizationProfile() {
               }}
             >
               <Card
-                sx={(theme: any) => ({
+                sx={(theme: Theme) => ({
                   width: '100%',
                   mb: 3,
                   border: '1px solid ' + theme.palette.divider,
@@ -402,7 +419,7 @@ export default function OrganizationProfile() {
                       fullWidth
                       label={t('auth.admin.orgNameLabel')}
                       value={formData?.name || ''}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) => patchForm({ name: e.target.value })}
                       variant='outlined'
                       placeholder={t('auth.admin.orgNamePlaceholder')}
                     />
@@ -410,7 +427,7 @@ export default function OrganizationProfile() {
                       fullWidth
                       label={t('auth.admin.workspaceSlugLabel')}
                       value={formData?.slug || ''}
-                      onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                      onChange={(e) => patchForm({ slug: e.target.value })}
                       variant='outlined'
                       helperText={t('auth.admin.workspaceSlugHelper')}
                       slotProps={{
@@ -429,7 +446,7 @@ export default function OrganizationProfile() {
                       fullWidth
                       label={t('auth.admin.primaryDomainLabel')}
                       value={formData?.domain || ''}
-                      onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
+                      onChange={(e) => patchForm({ domain: e.target.value })}
                       variant='outlined'
                       placeholder={t('auth.admin.primaryDomainPlaceholder')}
                       helperText={t('auth.admin.primaryDomainHelper')}
@@ -447,7 +464,7 @@ export default function OrganizationProfile() {
                       fullWidth
                       label={t('auth.admin.supportEmailLabel')}
                       value={formData?.support_email || ''}
-                      onChange={(e) => setFormData({ ...formData, support_email: e.target.value })}
+                      onChange={(e) => patchForm({ support_email: e.target.value })}
                       variant='outlined'
                       placeholder={t('auth.admin.supportEmailPlaceholder')}
                       helperText={t('auth.admin.supportEmailHelper')}
@@ -483,7 +500,7 @@ export default function OrganizationProfile() {
                           mb: 0.5,
                           color: (theme) =>
                             theme.palette.mode === 'dark'
-                              ? 'rgba(255, 255, 255, 0.95)'
+                              ? alpha(theme.palette.common.white, 0.95)
                               : 'text.secondary',
                         }}
                       >
@@ -494,7 +511,7 @@ export default function OrganizationProfile() {
                         sx={{
                           fontWeight: 800,
                           color: (theme) =>
-                            theme.palette.mode === 'dark' ? '#FFFFFF' : 'text.primary',
+                            theme.palette.mode === 'dark' ? theme.palette.common.white : 'text.primary',
                         }}
                       >
                         {orgData.createdAt
@@ -518,7 +535,7 @@ export default function OrganizationProfile() {
                           mb: 0.5,
                           color: (theme) =>
                             theme.palette.mode === 'dark'
-                              ? 'rgba(255, 255, 255, 0.9)'
+                              ? alpha(theme.palette.common.white, 0.9)
                               : 'text.secondary',
                         }}
                       >
@@ -529,7 +546,7 @@ export default function OrganizationProfile() {
                         sx={{
                           fontWeight: 800,
                           color: (theme) =>
-                            theme.palette.mode === 'dark' ? '#FFFFFF' : 'text.primary',
+                            theme.palette.mode === 'dark' ? theme.palette.common.white : 'text.primary',
                         }}
                       >
                         {orgData.updatedAt
@@ -561,7 +578,7 @@ export default function OrganizationProfile() {
                           sx={{
                             fontWeight: 800,
                             color: (theme) =>
-                              theme.palette.mode === 'dark' ? '#FFFFFF' : 'text.primary',
+                              theme.palette.mode === 'dark' ? theme.palette.common.white : 'text.primary',
                           }}
                         >
                           {orgData.members_count ?? orgData.members?.length ?? 0}
@@ -585,7 +602,7 @@ export default function OrganizationProfile() {
           {/* Side Panel */}
           <Grid size={{ xs: 12, md: 4 }}>
             <Card
-              sx={(theme: any) => ({
+              sx={(theme: Theme) => ({
                 border: '1px solid ' + theme.palette.divider,
                 ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
               })}
@@ -603,10 +620,7 @@ export default function OrganizationProfile() {
                       <Switch
                         checked={formData?.status === 'ACTIVE'}
                         onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            status: e.target.checked ? 'ACTIVE' : 'SUSPENDED',
-                          })
+                          patchForm({ status: e.target.checked ? 'ACTIVE' : 'SUSPENDED' })
                         }
                       />
                     }
@@ -682,7 +696,7 @@ export default function OrganizationProfile() {
             }}
           >
             <Card
-              sx={(theme: any) => ({
+              sx={(theme: Theme) => ({
                 borderRadius: 'var(--sf-radius-lg, 12px)',
                 height: '100%',
                 border: '1px solid ' + theme.palette.divider,
@@ -778,8 +792,8 @@ export default function OrganizationProfile() {
                         label={t('auth.admin.primaryColor')}
                         size='small'
                         value={formData?.primaryColor || ''}
-                        onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
-                        helperText='Hex code (e.g., #6366f1)'
+                        onChange={(e) => patchForm({ primaryColor: e.target.value })}
+                        helperText={t('auth.admin.hexCodeHelper', 'Hex code (e.g., {{example}})', { example: '#6366f1' })}
                       />
                     </Box>
                     <Box
@@ -810,9 +824,9 @@ export default function OrganizationProfile() {
                         size='small'
                         value={formData?.secondaryColor || ''}
                         onChange={(e) =>
-                          setFormData({ ...formData, secondaryColor: e.target.value })
+                          patchForm({ secondaryColor: e.target.value })
                         }
-                        helperText='Hex code (e.g., #ec4899)'
+                        helperText={t('auth.admin.hexCodeHelper', 'Hex code (e.g., {{example}})', { example: '#ec4899' })}
                       />
                     </Box>
                     <Box
@@ -861,7 +875,7 @@ export default function OrganizationProfile() {
                 </Box>
                 <Switch
                   checked={formData?.enforceMfa || false}
-                  onChange={(e) => setFormData({ ...formData, enforceMfa: e.target.checked })}
+                  onChange={(e) => patchForm({ enforceMfa: e.target.checked })}
                 />
               </Box>
               <Box
@@ -882,7 +896,7 @@ export default function OrganizationProfile() {
                 </Box>
                 <Switch
                   checked={formData?.ssoOnly || false}
-                  onChange={(e) => setFormData({ ...formData, ssoOnly: e.target.checked })}
+                  onChange={(e) => patchForm({ ssoOnly: e.target.checked })}
                 />
               </Box>
               <Box
@@ -904,7 +918,7 @@ export default function OrganizationProfile() {
                 <Switch
                   checked={formData?.allowPublicSignup || false}
                   onChange={(e) =>
-                    setFormData({ ...formData, allowPublicSignup: e.target.checked })
+                    patchForm({ allowPublicSignup: e.target.checked })
                   }
                 />
               </Box>
@@ -937,12 +951,11 @@ export default function OrganizationProfile() {
                   size='small'
                   startIcon={<Security />}
                   onClick={() => {
-                    const numericId = Number(id)
-                    if (!id || id === 'NaN' || isNaN(numericId) || numericId <= 0) {
+                    if (!id) {
                       toast(t('auth.admin.invalidOrgId', 'Invalid organization ID for navigation'))
                       return
                     }
-                    navigate(Path.admin.policies.replace(':id', id))
+                    navigate(`${Path.admin.policyCanvas}?organizationId=${encodeURIComponent(id)}`)
                   }}
                   sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)' }}
                 >
@@ -956,7 +969,7 @@ export default function OrganizationProfile() {
 
       <TabPanel value={tab} index={3}>
         <Card
-          sx={(theme: any) => ({
+          sx={(theme: Theme) => ({
             borderRadius: 'var(--sf-radius-lg, 16px)',
             border: '1px solid ' + theme.palette.divider,
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -1038,7 +1051,7 @@ export default function OrganizationProfile() {
                 </TableHead>
                 <TableBody>
                   {orgData.domainVerifications && orgData.domainVerifications.length > 0 ? (
-                    orgData.domainVerifications.map((dv: any) => (
+                    orgData.domainVerifications.map((dv) => (
                       <TableRow key={dv.id} hover>
                         <TableCell sx={{ fontWeight: 600, py: 1.75 }}>{dv.domain}</TableCell>
                         <TableCell sx={{ py: 1.75 }}>
@@ -1072,7 +1085,7 @@ export default function OrganizationProfile() {
                       </TableCell>
                       <TableCell align='right' sx={{ py: 1.75 }}>
                         <Typography variant='body2' color='text.secondary'>
-                          Legacy
+                          {t('auth.userDirectory.orgProfile.legacy', 'Legacy')}
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -1094,7 +1107,7 @@ export default function OrganizationProfile() {
 
       <TabPanel value={tab} index={4}>
         <Card
-          sx={(theme: any) => ({
+          sx={(theme: Theme) => ({
             borderRadius: 'var(--sf-radius-lg, 16px)',
             border: '1px solid ' + theme.palette.divider,
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -1125,7 +1138,7 @@ export default function OrganizationProfile() {
             </Box>
 
             <TableContainer
-              sx={(theme: any) => ({
+              sx={(theme: Theme) => ({
                 borderRadius: 'var(--sf-radius-md, 12px)',
                 border: '1px solid ' + theme.palette.divider,
                 overflow: 'hidden',
@@ -1180,22 +1193,22 @@ export default function OrganizationProfile() {
                 </TableHead>
                 <TableBody>
                   {orgData.members && orgData.members.length > 0 ? (
-                    orgData.members.map((m: any) => (
+                    orgData.members.map((m) => (
                       <TableRow key={m.id} hover>
                         <TableCell sx={{ fontWeight: 600, py: 1.75 }}>
-                          {m.user?.firstName} {m.user?.lastName}
+                          {m.user?.firstName ?? m.user?.full_name} {m.user?.lastName}
                         </TableCell>
                         <TableCell sx={{ py: 1.75 }}>{m.user?.email}</TableCell>
                         <TableCell sx={{ py: 1.75 }}>
                           <Chip
-                            label={m.role?.name || t('auth.common.member')}
+                            label={(typeof m.role === 'string' ? m.role : m.role?.name) || t('auth.common.member')}
                             size='small'
                             sx={{ fontWeight: 700, textTransform: 'uppercase', borderRadius: 'var(--sf-radius-xs, 4px)' }}
                           />
                         </TableCell>
                         <TableCell align='right' sx={{ py: 1.75 }}>
                           <Typography variant='body2' color='text.secondary'>
-                            {new Date(m.createdAt).toLocaleDateString()}
+                            {new Date(m.createdAt ?? m.joined_at ?? '').toLocaleDateString()}
                           </Typography>
                         </TableCell>
                       </TableRow>

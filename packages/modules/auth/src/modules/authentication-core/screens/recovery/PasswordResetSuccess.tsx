@@ -6,6 +6,7 @@ import ArrowForward from '@mui/icons-material/ArrowForward'
 import { useTranslation } from 'react-i18next'
 import { Path } from '@cap/module-auth/routes/path'
 import { AuthOutcomeScreen, AuthRedirectChip } from '../../components/shared/auth'
+import { AppPaths } from '@cap/shared-types'
 
 const REDIRECT_SECONDS = 5
 
@@ -24,7 +25,7 @@ export default function PasswordResetSuccess() {
   }, [countdown, navigate])
 
   const handleContinue = useCallback(() => navigate(Path.auth.signin), [navigate])
-  const handleContactSupport = useCallback(() => navigate('/support'), [navigate])
+  const handleContactSupport = useCallback(() => navigate(AppPaths.landing.contact), [navigate])
 
   return (
     <AuthOutcomeScreen
@@ -47,7 +48,7 @@ export default function PasswordResetSuccess() {
             sx={{
               minHeight: 48,
               borderRadius: 'var(--sf-radius-lg, 12px)',
-              fontWeight: 800,
+              fontWeight: 700,
               fontSize: '1rem',
               textTransform: 'none',
             }}

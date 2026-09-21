@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { normalizeAuditLogRow } from '../utils/normalizeAuditLog'
 import adminMonitoringService, {
   AdminOverviewStats,
   SessionStatistics,
@@ -18,9 +19,9 @@ export const ADMIN_MONITORING_KEYS = {
   sessionStats: () => [...ADMIN_MONITORING_KEYS.all, 'session-stats'] as const,
   trends: (range?: string) => [...ADMIN_MONITORING_KEYS.all, 'trends', range] as const,
   mfaStats: () => [...ADMIN_MONITORING_KEYS.all, 'mfa-stats'] as const,
-  auditLogs: (params?: Record<string, any>) =>
+  auditLogs: (params?: Record<string, unknown>) =>
     [...ADMIN_MONITORING_KEYS.all, 'audit-logs', params] as const,
-  alerts: (params?: Record<string, any>) =>
+  alerts: (params?: Record<string, unknown>) =>
     [...ADMIN_MONITORING_KEYS.all, 'alerts', params] as const,
   emailTemplates: () => [...ADMIN_MONITORING_KEYS.all, 'email-templates'] as const,
   emailTemplateById: (id: string) => [...ADMIN_MONITORING_KEYS.all, 'email-template', id] as const,
@@ -86,7 +87,7 @@ export function useAdminAuditLogsQuery(params?: {
       const data = response.data
       if (Array.isArray(data)) {
         return {
-          logs: data,
+          logs: data.map(normalizeAuditLogRow),
           total: data.length,
           page: params?.page ?? 1,
           limit: params?.limit ?? 50,
@@ -97,7 +98,9 @@ export function useAdminAuditLogsQuery(params?: {
       if (data && typeof data === 'object' && 'data' in data && Array.isArray(data.data)) {
         const meta = 'meta' in data ? (data as { meta?: Partial<import('../services/admin-monitoring.service').PaginationMeta> }).meta : undefined
         return {
-          logs: data.data,
+          // Rows arrive with the model's own column names; map them onto the
+          // AuditLogItem shape every consumer here reads.
+          logs: data.data.map(normalizeAuditLogRow),
           total: meta?.total ?? data.data.length,
           page: meta?.currentPage ?? params?.page ?? 1,
           limit: meta?.perPage ?? params?.limit ?? 50,
@@ -183,7 +186,7 @@ export function useEmailTemplateByIdQuery(id: string) {
 
 export function useEmailTemplatePreviewMutation() {
   return useMutation({
-    mutationFn: (payload: { templateId: string; variables?: Record<string, any> }) =>
+    mutationFn: (payload: { templateId: string; variables?: Record<string, unknown> }) =>
       adminMonitoringService.previewEmailTemplate(payload),
   })
 }

@@ -27,7 +27,6 @@ import Security from '@mui/icons-material/Security'
 import ArrowForward from '@mui/icons-material/ArrowForward'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import InfoOutlined from '@mui/icons-material/InfoOutlined'
-import Refresh from '@mui/icons-material/Refresh'
 import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline'
 import Devices from '@mui/icons-material/Devices'
 import { useTranslation } from 'react-i18next'
@@ -36,6 +35,8 @@ import { toast } from 'react-toastify'
 import { Path } from '../../../../routes/path'
 import { useSessions, useRevokeSession, useRevokeAllSessions } from '../../hooks/useSessionQuery'
 import type { UserSession } from '../../types/session.types'
+import { AdminPageHeader } from '../../../authentication-core/components/shared/admin'
+import RefreshButton from '../../components/RefreshButton'
 import {
   AuthConfirmDrawer,
   DevicePlatformIcon,
@@ -143,32 +144,33 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
 
   return (
     <Container maxWidth='lg' sx={{ py: adminView ? 0 : 4 }}>
-      <Box
-        sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
-      >
-        <Box>
-          <Typography variant='h4' fontWeight='bold' gutterBottom>
-            {adminView
-              ? t('auth.admin.investigateSessions', 'Investigate Sessions')
-              : t('auth.account.active_sessions_title', 'Active Sessions')}
-          </Typography>
-          <Typography variant='body1' color='text.secondary'>
-            {adminView
-              ? t(
-                  'auth.admin.investigateDesc',
-                  'Detailed technical breakdown of all active security contexts for user {{name}}.',
-                  { name: userName || userId },
-                )
-              : t(
-                  'auth.account.active_sessions_desc',
-                  "View and manage the devices where you're currently signed in. If you see a device you don't recognize, revoke access immediately.",
-                )}
-          </Typography>
-        </Box>
-        <IconButton onClick={() => refetch()} disabled={isLoading || isFetching}>
-          <Refresh sx={{ animation: isFetching ? 'spin 1s linear infinite' : 'none' }} />
-        </IconButton>
-      </Box>
+      <AdminPageHeader
+        icon={<Devices />}
+        title={
+          adminView
+            ? t('auth.admin.investigateSessions', 'Investigate Sessions')
+            : t('auth.account.active_sessions_title', 'Active Sessions')
+        }
+        description={
+          adminView
+            ? t(
+                'auth.admin.investigateDesc',
+                'Detailed technical breakdown of all active security contexts for user {{name}}.',
+                { name: userName || userId },
+              )
+            : t(
+                'auth.account.active_sessions_desc',
+                "View and manage the devices where you're currently signed in. If you see a device you don't recognize, revoke access immediately.",
+              )
+        }
+        actions={
+          <RefreshButton
+            onRefresh={() => refetch()}
+            isRefreshing={isFetching}
+            disabled={isLoading || isFetching}
+          />
+        }
+      />
 
       {isError && (
         <Alert
@@ -262,7 +264,13 @@ export const ActiveSessionsManagement: React.FC<ActiveSessionsProps> = ({
                             <Tooltip
                               title={t('auth.admin.viewSessionMetadata', 'View session metadata')}
                             >
-                              <IconButton size='small'>
+                              <IconButton
+                                aria-label={t(
+                                  'auth.admin.viewSessionMetadata',
+                                  'View session metadata',
+                                )}
+                                sx={{ width: 44, height: 44 }}
+                              >
                                 <InfoOutlined fontSize='small' />
                               </IconButton>
                             </Tooltip>

@@ -15,11 +15,12 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
+import { AdminPageHeader } from '@auth/modules/authentication-core/components/shared/admin'
 import Shield from '@mui/icons-material/Shield'
 import ErrorIcon from '@mui/icons-material/Error'
 import Warning from '@mui/icons-material/Warning'
 import CheckCircle from '@mui/icons-material/CheckCircle'
-import ArrowForward from '@mui/icons-material/ArrowForward'
+import { ForwardIcon as ArrowForward } from '../../components/common/DirectionalIcon'
 import Security from '@mui/icons-material/Security'
 import VpnKey from '@mui/icons-material/VpnKey'
 import PersonOff from '@mui/icons-material/PersonOff'
@@ -28,12 +29,35 @@ import Schedule from '@mui/icons-material/Schedule'
 import Password from '@mui/icons-material/Password'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { useSecurityHealth } from '../../hooks/useHealthQuery'
 
 type Severity = 'critical' | 'warning' | 'info'
+type StatTone = 'success' | 'warning' | 'error' | 'info'
+
+interface SecurityRecommendation {
+  id: string
+  title: string
+  description?: string
+  severity: Severity
+}
+
+interface SecurityStats {
+  mfaEnabled?: number
+  totalUsers?: number
+  inactiveUsers?: number
+  oldTokens?: number
+}
+
+/** The security-health payload, either bare or wrapped in `{ data }`. */
+interface SecurityHealthPayload {
+  score?: number
+  recommendations?: SecurityRecommendation[]
+  stats?: SecurityStats
+}
 
 const SEVERITY_CONFIG = (
-  t: any,
+  t: TFunction,
 ): Record<
   Severity,
   { color: 'error' | 'warning' | 'info'; label: string; icon: React.ReactNode }
@@ -67,10 +91,11 @@ export const SecurityHealthCheck: React.FC = () => {
   const { t } = useTranslation()
   const { data: healthRes, isLoading, error, refetch } = useSecurityHealth()
 
-  const healthData = (healthRes as any)?.data || healthRes
+  const healthData = ((healthRes as { data?: SecurityHealthPayload } | undefined)?.data ??
+    healthRes) as SecurityHealthPayload | undefined
   const securityScore = healthData?.score ?? 85
-  const recommendations = (healthData as any)?.recommendations || []
-  const stats = (healthData as any)?.stats
+  const recommendations = healthData?.recommendations ?? []
+  const stats = healthData?.stats
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'success.main'
@@ -113,34 +138,14 @@ export const SecurityHealthCheck: React.FC = () => {
       sx={{ py: 4 }}
     >
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-          <Box
-            sx={{
-              width: 48,
-              height: 48,
-              borderRadius: 'var(--sf-radius-lg, 16px)',
-              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Shield sx={{ fontSize: 24, color: 'primary.main' }} />
-          </Box>
-          <Box>
-            <Typography variant='h5' fontWeight={700} letterSpacing='-0.02em'>
-              {t('monitoring.security.health_check_title', 'Security Health Check')}
-            </Typography>
-            <Typography variant='body2' color='text.secondary'>
-              {t(
-                'monitoring.security.health_check_subtitle',
-                'Overview of your platform security posture',
-              )}
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+      <AdminPageHeader
+        icon={<Shield />}
+        title={t('monitoring.security.health_check_title', 'Security Health Check')}
+        description={t(
+          'monitoring.security.health_check_subtitle',
+          'Overview of your platform security posture',
+        )}
+      />
 
       {/* Score & Stats Row */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -218,19 +223,21 @@ export const SecurityHealthCheck: React.FC = () => {
                 label: t('monitoring.security.stat_mfa', 'MFA Adoption'),
                 value: `${stats?.mfaEnabled ?? 0} / ${stats?.totalUsers ?? 0}`,
                 color:
-                  (stats?.mfaEnabled ?? 0) === (stats?.totalUsers ?? 0) ? 'success' : 'warning',
+                  (stats?.mfaEnabled ?? 0) === (stats?.totalUsers ?? 0)
+                    ? ('success' as StatTone)
+                    : ('warning' as StatTone),
                 icon: <Security />,
               },
               {
                 label: t('monitoring.security.stat_inactive', 'Inactive Accounts'),
                 value: stats?.inactiveUsers ?? 0,
-                color: (stats?.inactiveUsers ?? 0) > 0 ? 'error' : 'success',
+                color: ((stats?.inactiveUsers ?? 0) > 0 ? 'error' : 'success') as StatTone,
                 icon: <PersonOff />,
               },
               {
                 label: t('monitoring.security.stat_tokens', 'Active Tokens'),
                 value: stats?.oldTokens ?? 0,
-                color: (stats?.oldTokens ?? 0) > 5 ? 'warning' : 'info',
+                color: ((stats?.oldTokens ?? 0) > 5 ? 'warning' : 'info') as StatTone,
                 icon: <VpnKey />,
               },
             ].map((stat) => (
@@ -257,12 +264,7 @@ export const SecurityHealthCheck: React.FC = () => {
                         width: 40,
                         height: 40,
                         borderRadius: 'var(--sf-radius-md, 8px)',
-                        bgcolor: (theme) =>
-                          alpha(
-                            (theme.palette as any)[stat.color as any]?.main ??
-                              theme.palette.primary.main,
-                            0.1,
-                          ),
+                        bgcolor: (theme) => alpha(theme.palette[stat.color].main, 0.1),
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -291,7 +293,15 @@ export const SecurityHealthCheck: React.FC = () => {
       </Grid>
 
       {/* Prioritized Recommendations */}
-      <Card sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', border: 1, borderColor: 'divider', mb: 3, boxShadow: 'none' }}>
+      <Card
+        sx={{
+          borderRadius: 'var(--sf-radius-lg, 16px)',
+          border: 1,
+          borderColor: 'divider',
+          mb: 3,
+          boxShadow: 'none',
+        }}
+      >
         <CardContent sx={{ p: 0 }}>
           <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider' }}>
             <Typography variant='subtitle1' fontWeight={600}>
@@ -300,8 +310,8 @@ export const SecurityHealthCheck: React.FC = () => {
           </Box>
           {recommendations.length > 0 ? (
             <List disablePadding>
-              {recommendations.map((rec: any, index: number) => {
-                const config = (SEVERITY_CONFIG(t) as any)[rec.severity]
+              {recommendations.map((rec, index) => {
+                const config = SEVERITY_CONFIG(t)[rec.severity] ?? SEVERITY_CONFIG(t).info
                 return (
                   <ListItem
                     key={rec.id}
@@ -335,7 +345,7 @@ export const SecurityHealthCheck: React.FC = () => {
                             size='small'
                             color={config.color}
                             variant='outlined'
-                            sx={{ height: 20, fontSize: '0.65rem' }}
+                            sx={{ height: 22, fontSize: '0.75rem' }}
                           />
                         </Box>
                       }

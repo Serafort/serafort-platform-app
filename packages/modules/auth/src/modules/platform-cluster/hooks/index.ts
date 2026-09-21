@@ -1,7 +1,5 @@
 export * from './useHealthQuery'
-export * from './useNotificationsQuery'
 export * from './useAdminMonitoringQuery'
-export * from './useDeveloperQuery'
 export * from './useAuthEventsStream'
 export * from './useAuditChainQuery'
 export * from './useQueueTelemetryQuery'

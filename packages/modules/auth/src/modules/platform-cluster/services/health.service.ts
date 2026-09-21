@@ -4,7 +4,7 @@ export interface ComponentHealthStatus {
   status: 'up' | 'down' | 'degraded' | 'healthy' | 'unhealthy'
   latencyMs?: number
   message?: string
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 }
 
 export interface DetailedHealthResponse {

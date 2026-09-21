@@ -52,7 +52,8 @@ import {
   useUpdateOrganizationScimConfig,
   useTestSCIMConnection,
 } from '../../hooks'
-import type { SCIMToken } from '../../types'
+import type { SCIMToken, SCIMConfig, CreateSCIMTokenResponse } from '../../types'
+import { unwrapList } from '../../utils/unwrapList'
 import logger from '@cap/module-auth/modules/authentication-core/utils/logger'
 
 function StatCard({
@@ -131,13 +132,17 @@ export default function SCIMConfiguration() {
   const scimUrl = `${window.location.origin}/scim/v2`
 
   const { data: tokensData } = useSCIMTokens()
-  const tokens: SCIMToken[] = (tokensData?.data as any)?.data ?? tokensData?.data ?? []
-  const activeToken = tokens.find((t) => !(t as any).revokedAt) ?? tokens[0] ?? null
+  const tokens: SCIMToken[] = unwrapList<SCIMToken>(tokensData?.data)
+  const activeToken = tokens.find((t) => !t.revokedAt) ?? tokens[0] ?? null
   const displayToken = newlyCreatedToken ?? (activeToken ? `scim_live_${'•'.repeat(24)}` : null)
 
   const createTokenMutation = useCreateSCIMToken({
     onSuccess: (resp) => {
-      const created = (resp?.data as any)?.data ?? resp?.data
+      const payload: unknown = resp?.data
+      const created: Partial<CreateSCIMTokenResponse> | undefined =
+        payload && typeof payload === 'object' && 'data' in payload
+          ? (payload as { data: Partial<CreateSCIMTokenResponse> }).data
+          : (payload as Partial<CreateSCIMTokenResponse> | undefined)
       if (created?.token) {
         setNewlyCreatedToken(created.token)
         setTokenVisible(true)
@@ -172,7 +177,7 @@ export default function SCIMConfiguration() {
   ])
 
   // Track the last seen config to sync state during render
-  const [prevConfig, setPrevConfig] = useState<any>(null)
+  const [prevConfig, setPrevConfig] = useState<SCIMConfig | null>(null)
 
   const { data: configResp } = useOrganizationScimConfig()
   const scimConfig = configResp?.data
@@ -180,16 +185,13 @@ export default function SCIMConfiguration() {
   // Sync state during render when scimConfig changes from the server
   if (scimConfig && scimConfig !== prevConfig) {
     setPrevConfig(scimConfig)
-    setScimEnabled((scimConfig as any).enabled ?? false)
-    if (
-      (scimConfig as any).attributeMapping &&
-      Object.keys((scimConfig as any).attributeMapping).length > 0
-    ) {
+    setScimEnabled(scimConfig.enabled ?? false)
+    const attributeMapping = scimConfig.attributeMapping
+    if (attributeMapping && Object.keys(attributeMapping).length > 0) {
       setMappings((prev) =>
         prev.map((m) => ({
           ...m,
-          internal:
-            ((scimConfig as any).attributeMapping as Record<string, string>)[m.scim] || m.internal,
+          internal: attributeMapping[m.scim] || m.internal,
         })),
       )
     }
@@ -419,7 +421,7 @@ export default function SCIMConfiguration() {
             disabled={isSaving}
             sx={{
               bgcolor: 'info.main',
-              boxShadow: '0 4px 14px 0 rgba(0,118,255,0.35)',
+              boxShadow: (th) => `0 4px 14px 0 ${alpha(th.palette.info.main, 0.35)}`,
               '&:hover': { bgcolor: 'info.dark' },
               textTransform: 'none',
               fontWeight: 800,
@@ -722,7 +724,7 @@ export default function SCIMConfiguration() {
                         disabled={createTokenMutation.isPending}
                         sx={{
                           bgcolor: 'info.main',
-                          boxShadow: '0 4px 12px rgba(0,118,255,0.3)',
+                          boxShadow: (th) => `0 4px 12px ${alpha(th.palette.info.main, 0.3)}`,
                           textTransform: 'none',
                           fontWeight: 800,
                           borderRadius: 'var(--sf-radius-md, 8px)',

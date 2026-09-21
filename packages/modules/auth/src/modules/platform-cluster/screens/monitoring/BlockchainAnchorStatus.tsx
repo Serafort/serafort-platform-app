@@ -32,7 +32,7 @@ import GppMaybe from '@mui/icons-material/GppMaybe'
 import { useTranslation } from 'react-i18next'
 import { useBlockchainAnchorsQuery } from '../../hooks/useAuditChainQuery'
 import { isPlatformScopeError } from '../../services/audit-chain.service'
-import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
+import { AdminPageHeader, AdminStatusBadge } from '@auth/modules/authentication-core/components/shared/admin'
 import {
   anchorExplorerUrl,
   type BlockchainAnchorState as AnchorState,
@@ -123,18 +123,14 @@ export const BlockchainAnchorStatus: React.FC = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Container maxWidth='lg' sx={{ py: 4 }}>
-      <Stack direction='row' alignItems='center' spacing={1.5} sx={{ mb: 1 }}>
-        <AccountTree color='primary' />
-        <Typography variant='h4'>
-          {t('monitoring.anchors.title', 'Blockchain anchors')}
-        </Typography>
-      </Stack>
-      <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-        {t(
+      <AdminPageHeader
+        icon={<AccountTree />}
+        title={t('monitoring.anchors.title', 'Blockchain anchors')}
+        description={t(
           'monitoring.anchors.subtitle',
           'Commitments published on-chain, so a record’s existence at a point in time can be proven without trusting this system.',
         )}
-      </Typography>
+      />
 
       {network && !network.anchoringEnabled && (
         <Alert severity='info' sx={{ mb: 3 }}>

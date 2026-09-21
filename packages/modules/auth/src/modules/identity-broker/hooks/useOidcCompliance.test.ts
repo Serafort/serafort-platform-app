@@ -9,18 +9,16 @@ import {
   useOidcEndSession,
   oidcComplianceKeys,
 } from '@cap/module-auth/modules/identity-broker/hooks/useOidcCompliance'
-import { useInitiateSamlSso } from './useSAMLQuery'
 
-const { mockUserinfo, mockIntrospect, mockRevoke, mockEndSession, mockSso } = vi.hoisted(() => ({
+const { mockUserinfo, mockIntrospect, mockRevoke, mockEndSession } = vi.hoisted(() => ({
   mockUserinfo: vi.fn(),
   mockIntrospect: vi.fn(),
   mockRevoke: vi.fn(),
   mockEndSession: vi.fn(),
-  mockSso: vi.fn(),
 }))
 
 // The hooks under test call the identity-broker service modules directly
-// (`oidcService` / `samlService`), which in turn call `apiClient`. Mock those
+// (`oidcService`), which in turn call `apiClient`. Mock those
 // service modules so no real network/store code runs.
 vi.mock('../services/oidc.service', () => ({
   default: {
@@ -28,12 +26,6 @@ vi.mock('../services/oidc.service', () => ({
     introspectToken: mockIntrospect,
     revokeToken: mockRevoke,
     endSession: mockEndSession,
-  },
-}))
-
-vi.mock('../services/saml.service', () => ({
-  default: {
-    initiateSso: mockSso,
   },
 }))
 
@@ -177,32 +169,6 @@ describe('useOidcEndSession', () => {
 
     const { result } = renderHook(() => useOidcEndSession(), { wrapper: makeWrapper() })
     result.current.mutate()
-    await waitFor(() => expect(result.current.isError).toBe(true))
-  })
-})
-
-describe('useInitiateSamlSso', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('calls saml.sso with the provided payload', async () => {
-    mockSso.mockResolvedValue({ data: { redirect_url: 'https://idp.example.com' } })
-    const payload = { domain: 'okta.com', relayState: 'xyz' }
-
-    const { result } = renderHook(() => useInitiateSamlSso(), { wrapper: makeWrapper() })
-    result.current.mutate(payload)
-    await waitFor(() => expect(result.current.isSuccess).toBe(true))
-
-    expect(mockSso).toHaveBeenCalledWith(payload)
-    expect(result.current.data).toEqual({ data: { redirect_url: 'https://idp.example.com' } })
-  })
-
-  it('surfaces errors when SSO initiation fails', async () => {
-    mockSso.mockRejectedValue(new Error('SSO error'))
-
-    const { result } = renderHook(() => useInitiateSamlSso(), { wrapper: makeWrapper() })
-    result.current.mutate({})
     await waitFor(() => expect(result.current.isError).toBe(true))
   })
 })

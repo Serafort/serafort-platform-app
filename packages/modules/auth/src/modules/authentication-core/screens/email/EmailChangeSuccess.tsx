@@ -32,7 +32,7 @@ export default function EmailChangeSuccess() {
             sx={{
               minHeight: 48,
               borderRadius: 'var(--sf-radius-lg, 12px)',
-              fontWeight: 800,
+              fontWeight: 700,
               fontSize: '1rem',
               textTransform: 'none',
             }}

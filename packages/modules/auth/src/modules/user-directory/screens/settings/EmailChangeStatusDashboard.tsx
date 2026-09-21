@@ -139,7 +139,7 @@ export default function EmailChangeStatusDashboard() {
         'The pending confirmation link will expire on its own if you do not use it.',
       ),
     })
-    navigate('/profile')
+    navigate(Path.account.view)
   }
 
   return (
@@ -153,7 +153,7 @@ export default function EmailChangeStatusDashboard() {
         <Box sx={{ mb: 4 }}>
           <Button
             startIcon={<ArrowBack />}
-            onClick={() => navigate(Path.account.view || '/profile')}
+            onClick={() => navigate(Path.account.view)}
             sx={{
               mb: 2.5,
               textTransform: 'none',

@@ -89,7 +89,7 @@ export const MfaStep: React.FC<MfaStepProps> = ({
           alignItems: 'center',
           justifyContent: 'center',
           gap: 1,
-          bgcolor: 'var(--sf-surface-sunken, rgba(0, 0, 0, 0.04))',
+          bgcolor: (theme) => `var(--sf-surface-sunken, ${theme.palette.action.hover})`,
           py: 1,
           px: 2,
           borderRadius: 'var(--sf-radius-full, 9999px)',

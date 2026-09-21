@@ -34,6 +34,16 @@ import {
 import { Path } from '@auth/routes/path'
 import { ENDPOINTS } from '@cap/platform-core'
 
+/** The subset of a user record this prompt reads; the store user and the interaction stub both fit. */
+interface RawPromptUser {
+  name?: string
+  fullName?: string
+  firstName?: string
+  lastName?: string
+  email?: string
+  avatar?: string | null
+}
+
 interface OIDCLoginPromptProps {
   user?: { name: string; email: string; avatar?: string }
   isPending?: boolean
@@ -58,37 +68,36 @@ export default function OIDCLoginPrompt({
   const details = interactionData?.data
 
   const { mutate: confirm, isPending: isConfirming } = useConfirmOidcInteraction(uid, {
-    onSuccess: (res: any) => {
+    onSuccess: (res) => {
       if (res.data?.url) window.location.assign(res.data.url)
-      else navigate(Path.auth.login)
+      else navigate(Path.auth.signin)
     },
     onError: () => toast.error(t('auth.sso.errorConfirm', 'Failed to confirm account')),
   })
 
   const user = useMemo(() => {
-    const rawUser =
+    const nestedAccountId = details?.details?.session?.accountId
+    const rawUser: RawPromptUser | undefined =
       initialUser ||
-      authUser ||
+      (authUser as RawPromptUser | null) ||
       // `OidcController.interaction` nests the raw node-oidc-provider
       // `interactionDetails()` result under `details.details` (alongside the
       // spread-out `uid`/`prompt`/`params`/`client`/`organization` siblings),
       // so an already-authenticated session's accountId lives at
       // `details.details.session.accountId`, not `details.session.accountId`.
-      ((details as any)?.details?.session?.accountId
-        ? { name: 'User ' + (details as any).details.session.accountId, email: 'user@example.com' }
+      (nestedAccountId
+        ? { name: 'User ' + nestedAccountId, email: 'user@example.com' }
         : undefined)
     if (!rawUser) return undefined
     const name =
-      (rawUser as any).name ||
-      (rawUser as any).fullName ||
-      ((rawUser as any).firstName
-        ? `${(rawUser as any).firstName} ${(rawUser as any).lastName || ''}`.trim()
-        : '')
+      rawUser.name ||
+      rawUser.fullName ||
+      (rawUser.firstName ? `${rawUser.firstName} ${rawUser.lastName || ''}`.trim() : '')
     return {
       ...rawUser,
       displayName: name || t('auth.common.guest', 'Guest User'),
-      displayEmail: (rawUser as any).email || t('auth.common.notSignedIn', 'Not signed in'),
-      avatar: (rawUser as any).avatar ?? undefined,
+      displayEmail: rawUser.email || t('auth.common.notSignedIn', 'Not signed in'),
+      avatar: rawUser.avatar ?? undefined,
     }
   }, [initialUser, authUser, details, t])
 
@@ -102,7 +111,7 @@ export default function OIDCLoginPrompt({
     .join('')
     .toUpperCase()
   const activeProviders = useMemo(() => {
-    const allowed = (details as any)?.organization?.securityPolicies?.allowedSsoProviders
+    const allowed = details?.organization?.securityPolicies?.allowedSsoProviders
     if (!allowed || !Array.isArray(allowed)) return ALL_PROVIDERS
     return ALL_PROVIDERS.filter((p) => allowed.includes(p.id))
   }, [details])

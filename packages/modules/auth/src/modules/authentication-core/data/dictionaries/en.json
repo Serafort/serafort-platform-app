@@ -1,5 +1,21 @@
 {
   "auth": {
+    "account": {
+      "social_authentication": "Social Authentication",
+      "social_authentication_description": "Manage your ability to sign in with a social provider"
+    },
+    "callback": {
+      "title": "Completing sign-in",
+      "description": "Finishing up with your provider and preparing your account.",
+      "success_title": "You're signed in",
+      "success_description": "Taking you to your account…",
+      "error_title": "Sign-in could not be completed",
+      "expired": "This sign-in link has expired or was already used. Please sign in again.",
+      "inactive": "This account is inactive. Contact your administrator for access.",
+      "failed": "We could not complete your sign-in. Please try again.",
+      "missing_code": "This sign-in link is incomplete. Please start again from the sign-in page.",
+      "no_session": "Sign-in completed but no account came back. Please try signing in again."
+    },
     "common": {
       "add": "Add",
       "back": "Back",
@@ -77,7 +93,7 @@
       "new_password": "New Password",
       "no_account": "Don't have an account? Sign up",
       "no_account_prompt": "Don't have an account?",
-      "or_continue_with": "OR CONTINUE WITH",
+      "or_continue_with": "Or continue with",
       "passkey_login_failed": "Passkey authentication failed",
       "passkey_login_successful": "Passkey sign in successful!",
       "password_complexity": "Password must contain uppercase, lowercase, number and special character",
@@ -116,9 +132,15 @@
       "register_passkey": "Register Passkey",
       "sign_in_with_passkey": "Sign in with Passkey"
     },
+    "profile": {
+      "logout": "Log out",
+      "signing_out": "Signing out..."
+    },
     "signup": {
       "keywords": "signup, register, create account, {{appName}}",
-      "title_page": "Create Account"
+      "title_page": "Create Account",
+      "toggle_password": "Toggle password visibility",
+      "toggle_confirm_password": "Toggle confirm password visibility"
     },
     "twoFactor": {
       "backToLogin": "Back to sign in",
@@ -129,6 +151,10 @@
       "title": "Two-Factor Authentication",
       "verifyButton": "Verify & Continue",
       "verifying": "Verifying..."
+    },
+    "user_form": {
+      "success_reset_password": "Password reset successfully",
+      "error_reset_password": "Failed to reset password. Please try again."
     },
     "validate": {
       "already_validated": "This account is already validated.",
@@ -144,18 +170,6 @@
       "alreadyValidatedTitle": "Already Validated",
       "successTitle": "Account Validated!",
       "prompt": "Please check your link or sign in below."
-    },
-    "user_form": {
-      "success_reset_password": "Password reset successfully",
-      "error_reset_password": "Failed to reset password. Please try again."
-    },
-    "account": {
-      "social_authentication": "Social Authentication",
-      "social_authentication_description": "Manage your ability to sign in with a social provider"
-    },
-    "profile": {
-      "logout": "Log out",
-      "signing_out": "Signing out..."
     }
   },
   "common": {
@@ -258,7 +272,7 @@
   },
   "forgotPassword": {
     "backToSignIn": "Back to sign in",
-    "emailLabel": "EMAIL ADDRESS",
+    "emailLabel": "Email address",
     "errorGeneric": "An error occurred. Please try again.",
     "keywords": "{{appName}} forgot password reset recovery",
     "privacyNote": "For your security, we send the same confirmation whether or not the address is registered.",
@@ -304,13 +318,13 @@
     "unauthorizedAction": "Didn't request this?"
   },
   "resetPassword": {
-    "confirmPasswordLabel": "CONFIRM PASSWORD",
+    "confirmPasswordLabel": "Confirm password",
     "errorGeneric": "An error occurred. Please try again.",
     "invalidLink": "Invalid password reset link.",
     "invalidLinkDesc": "This password reset link is invalid or has expired. Please request a new one.",
     "invalidLinkTitle": "Invalid or Expired Link",
     "linkExpired": "The password reset link has expired or is invalid.",
-    "newPasswordLabel": "NEW PASSWORD",
+    "newPasswordLabel": "New password",
     "requestNewLink": "Request New Link",
     "submit": "Reset Password",
     "submitting": "Resetting...",
@@ -325,15 +339,15 @@
   "signIn": {
     "checking": "Checking...",
     "continueSso": "Continue with SSO",
-    "emailLabel": "EMAIL ADDRESS",
+    "emailLabel": "Email address",
     "errorGeneric": "An error occurred. Please try again.",
     "errorIncomplete": "Please fill in all fields.",
     "errorInvalid": "Invalid email or password.",
     "forgotPassword": "Forgot password?",
     "github": "GitHub",
     "noAccount": "Don't have an account?",
-    "orSignInWith": "OR SIGN IN WITH",
-    "passwordLabel": "PASSWORD",
+    "orSignInWith": "Or sign in with",
+    "passwordLabel": "Password",
     "rememberMe": "Remember me",
     "signUpHere": "Sign up here",
     "submit": "Sign In",
@@ -353,7 +367,7 @@
     "cancel": "Cancel",
     "close": "Close",
     "codeResent": "A new code has been sent.",
-    "confirmPasswordLabel": "CONFIRM PASSWORD",
+    "confirmPasswordLabel": "Confirm password",
     "continueNow": "Continue now",
     "countdown": "Code expires in {{time}}",
     "criteriaLowercase": "Lowercase",
@@ -362,7 +376,7 @@
     "criteriaSpecial": "Symbol",
     "criteriaUppercase": "Uppercase",
     "email": "Email",
-    "emailLabel": "EMAIL ADDRESS",
+    "emailLabel": "Email address",
     "emailMissing": "Email address is missing.",
     "emailPlaceholder": "name@company.com",
     "emailVerifiedSuccess": "Email verified successfully.",
@@ -372,14 +386,14 @@
     "errorIncomplete": "Please fill in all fields.",
     "errorRateLimit": "Too many attempts. Please try again later.",
     "errorTerms": "You must accept the terms of service.",
-    "firstNameLabel": "FIRST NAME",
+    "firstNameLabel": "First name",
     "firstNamePlaceholder": "John",
     "iAgreeTo": "I agree to the",
-    "lastNameLabel": "LAST NAME",
+    "lastNameLabel": "Last name",
     "lastNamePlaceholder": "Doe",
     "lockedMessage": "Too many attempts. Your account is temporarily locked.",
-    "orSignUpWith": "OR SIGN UP WITH",
-    "passwordLabel": "PASSWORD",
+    "orSignUpWith": "Or sign up with",
+    "passwordLabel": "Password",
     "passwordStrength": "Password Strength",
     "privacyPolicy": "Privacy Policy",
     "progressCaption": "Step {{current}} of {{total}}",
@@ -408,7 +422,7 @@
     "submit": "Create Account",
     "submitAppeal": "Submit appeal",
     "submitting": "Creating Account...",
-    "subtitle": "Join Antigravity OS today",
+    "subtitle": "Create your Serafort account",
     "successSubtitle": "Your account is ready to use.",
     "successTitle": "Account created",
     "termsOfService": "Terms of Service",

@@ -11,6 +11,53 @@ export type AuthRouteConfig = ModuleRouteConfig & {
   element: React.JSX.Element
 }
 
+/** Predicate deciding which registered modules contribute routes and navigation. */
+export type ModuleFilter = (module: CAPModule) => boolean
+
+/**
+ * A route carries navigation metadata when it declares any of the fields the
+ * shell menu reads. Kept as one exported rule so route extraction and the
+ * per-module counts shown in Module Management can never drift apart.
+ */
+export const routeDeclaresNavItem = (route: {
+  variant?: unknown
+  roles?: unknown
+  guestOnly?: unknown
+  icon?: unknown
+}): boolean => Boolean(route.variant || route.roles || route.guestOnly || route.icon)
+
+/** What a single module contributes to the assembled shell. */
+export interface ModuleContributions {
+  routeCount: number
+  navCount: number
+  searchCount: number
+  locales: string[]
+}
+
+/**
+ * Counts what one module declares, using the same rules `extractRoutesAndNav`
+ * applies. Route paths are de-duplicated within the module; collisions against
+ * *other* modules are resolved at assembly time and so are not counted here.
+ */
+export const summarizeModuleContributions = (module: CAPModule): ModuleContributions => {
+  const routes = module.routes || module.authRouteConfig || []
+  const seenPaths = new Set<string>()
+  let navFromRoutes = 0
+
+  routes.forEach((route) => {
+    if (!route?.path || seenPaths.has(route.path)) return
+    seenPaths.add(route.path)
+    if (routeDeclaresNavItem(route)) navFromRoutes += 1
+  })
+
+  return {
+    routeCount: seenPaths.size,
+    navCount: (module.navItems?.length ?? 0) + navFromRoutes,
+    searchCount: module.searchItems?.length ?? 0,
+    locales: module.i18n ? Object.keys(module.i18n).map((lang) => lang.toLowerCase()).sort() : [],
+  }
+}
+
 /**
  * Singleton ModuleRegistry for encapsulating dynamic module registration,
  * i18n bundles, search items, and route configuration discovery.
@@ -18,8 +65,6 @@ export type AuthRouteConfig = ModuleRouteConfig & {
 export class ModuleRegistry {
   private static instance: ModuleRegistry
   private modulesMap = new Map<string, CAPModule>()
-  private searchItems: SearchItemConfig[] = []
-  private seenSearchIds = new Set<string>()
 
   public static getInstance(): ModuleRegistry {
     if (!ModuleRegistry.instance) ModuleRegistry.instance = new ModuleRegistry()
@@ -31,8 +76,6 @@ export class ModuleRegistry {
    */
   public reset(): void {
     this.modulesMap.clear()
-    this.searchItems = []
-    this.seenSearchIds.clear()
   }
 
   /**
@@ -64,15 +107,6 @@ export class ModuleRegistry {
       })
     }
 
-    // Register search items
-    if (module.searchItems) {
-      module.searchItems.forEach((item) => {
-        if (!this.seenSearchIds.has(item.id)) {
-          this.seenSearchIds.add(item.id)
-          this.searchItems.push(item)
-        }
-      })
-    }
   }
 
   /**
@@ -83,21 +117,40 @@ export class ModuleRegistry {
   }
 
   /**
-   * Returns all registered search items across modules.
+   * Returns the command-palette items contributed by registered modules,
+   * de-duplicated by id. Computed on read rather than accumulated at
+   * registration time so that a module switched off stops offering results
+   * for routes the router no longer has.
    */
-  public getSearchItems(): SearchItemConfig[] {
-    return [...this.searchItems]
+  public getSearchItems(include?: ModuleFilter): SearchItemConfig[] {
+    const modules = include ? this.getModules().filter(include) : this.getModules()
+    const seenIds = new Set<string>()
+    const items: SearchItemConfig[] = []
+
+    modules.forEach((module) => {
+      module.searchItems?.forEach((item) => {
+        if (seenIds.has(item.id)) return
+        seenIds.add(item.id)
+        items.push(item)
+      })
+    })
+
+    return items
   }
 
   /**
-   * Extracts route configs and nav items from all registered modules.
+   * Extracts route configs and nav items from registered modules.
+   *
+   * @param include Optional predicate; modules it rejects stay registered (so
+   * they remain listable and re-enableable) but contribute nothing to the
+   * router or the menu.
    */
-  public extractRoutesAndNav(): {
+  public extractRoutesAndNav(include?: ModuleFilter): {
     allRouteConfigs: AuthRouteConfig[]
     routeNavItems: NavItemConfig[]
     navItemsToRegister: NavItemConfig[][]
   } {
-    const modules = this.getModules()
+    const modules = include ? this.getModules().filter(include) : this.getModules()
     const allRouteConfigs: AuthRouteConfig[] = []
     const seenPaths = new Set<string>()
     const routeNavItems: NavItemConfig[] = []
@@ -114,7 +167,7 @@ export class ModuleRegistry {
             allRouteConfigs.push(route)
 
             // Auto-extract nav item from route if it has nav properties
-            if (route.variant || route.roles || route.guestOnly || route.icon) {
+            if (routeDeclaresNavItem(route)) {
               routeNavItems.push({
                 id: route.id || route.path,
                 label: route.label || route.path,

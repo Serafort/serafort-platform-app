@@ -35,8 +35,23 @@ import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
-import { useAuditLogs } from '@cap/module-auth/modules/authentication-core/hooks/useAdminQuery'
-import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
+import { useAuditLogs } from '@auth/authorization-engine/hooks/useAdminQuery'
+import {
+  AdminPageHeader,
+  AdminStatusBadge,
+} from '@auth/modules/authentication-core/components/shared/admin'
+
+/** An audit row as the events endpoint serialises it (camelCase model columns). */
+interface AuditEventRow {
+  id: string | number
+  action: string
+  createdAt: string
+  ipAddress?: string
+  userAgent?: string
+  userId?: string | number
+  user?: { email?: string }
+  target?: string
+}
 
 export default function AuthEventsMonitor() {
   const { t } = useTranslation('common')
@@ -58,8 +73,9 @@ export default function AuthEventsMonitor() {
     { refetchInterval: isLive ? 5000 : false },
   )
 
-  const events = (data?.data as any)?.data || []
-  const totalCount = (data?.data as any)?.meta?.total || 0
+  const envelope = data?.data as { data?: AuditEventRow[]; meta?: { total?: number } } | undefined
+  const events: AuditEventRow[] = envelope?.data ?? []
+  const totalCount = envelope?.meta?.total ?? 0
 
   const getEventIcon = (action: string) => {
     switch (action?.toLowerCase()) {
@@ -126,239 +142,266 @@ export default function AuthEventsMonitor() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* Header */}
-      <Box
-        sx={{
-          mb: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 2,
-        }}
-      >
-        <Box>
-          <Typography variant='h4' sx={{ fontWeight: 800, letterSpacing: '-0.027em', mb: 1 }}>
-            {t('auth.admin.eventsMonitor')}
-          </Typography>
-          <Typography variant='body2' color='text.secondary'>
-            {t('auth.admin.eventsMonitor_subtitle')}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+        {/* Header */}
+        <AdminPageHeader
+          icon={<Security />}
+          title={t('auth.admin.eventsMonitor', 'Authentication events')}
+          description={t(
+            'auth.admin.eventsMonitor_subtitle',
+            'Every sign-in, credential and policy event across the platform, newest first.',
+          )}
+          actions={
+            <Stack direction='row' spacing={1}>
+              <Tooltip
+                title={
+                  isLive
+                    ? t('monitoring.events.pause_stream', 'Pause live updates')
+                    : t('monitoring.events.resume_stream', 'Resume live updates')
+                }
+              >
+                <Chip
+                  label={
+                    isLive
+                      ? t('monitoring.events.live', 'Live')
+                      : t('monitoring.events.paused', 'Paused')
+                  }
+                  color={isLive ? 'success' : 'default'}
+                  onClick={() => setIsLive(!isLive)}
+                  deleteIcon={
+                    isLive ? (
+                      <Circle
+                        sx={{ animation: 'pulse 1.5s infinite', fontSize: '10px !important' }}
+                      />
+                    ) : undefined
+                  }
+                  onDelete={isLive ? () => setIsLive(!isLive) : undefined}
+                  sx={{
+                    fontWeight: 800,
+                    px: 1,
+                    cursor: 'pointer',
+                    minHeight: 44,
+                    borderRadius: 999,
+                  }}
+                />
+              </Tooltip>
+            </Stack>
+          }
+        />
+
+        {/* Filters */}
+        <Card sx={{ mb: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
+          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <TextField
+                fullWidth
+                size='small'
+                placeholder={t('auth.admin.searchEventsPlaceholder')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position='start'>
+                      {isLoading ? (
+                        <CircularProgress size={16} />
+                      ) : (
+                        <Search fontSize='small' color='action' />
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ maxWidth: { sm: 400 } }}
+              />
+              <Box sx={{ flexGrow: 1 }} />
+              <Button
+                startIcon={<FilterList fontSize='small' />}
+                size='small'
+                sx={{ color: 'text.secondary', textTransform: 'none', fontWeight: 600 }}
+              >
+                {t('auth.common.filters')}
+              </Button>
+            </Stack>
+          </CardContent>
+        </Card>
+
+        {/* Events Table */}
+        <TableContainer
+          component={Paper}
+          variant='outlined'
+          sx={{
+            borderRadius: 'var(--sf-radius-md, 8px)',
+            border: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Table sx={{ minWidth: 800 }}>
+            <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.5) }}>
+              <TableRow>
+                <TableCell
+                  sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'uppercase' }}
+                >
+                  {t('auth.admin.colEventType')}
+                </TableCell>
+                <TableCell
+                  sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'uppercase' }}
+                >
+                  {t('auth.admin.colSubjectUser')}
+                </TableCell>
+                <TableCell
+                  sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'uppercase' }}
+                >
+                  {t('auth.admin.colSourceIp')}
+                </TableCell>
+                <TableCell
+                  sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'uppercase' }}
+                >
+                  {t('auth.common.timestamp')}
+                </TableCell>
+                <TableCell
+                  sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'uppercase' }}
+                  align='right'
+                >
+                  {t('auth.admin.colSeverity')}
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {isLoading && !data && (
+                <TableRow>
+                  <TableCell colSpan={5} align='center' sx={{ py: 8 }}>
+                    <CircularProgress size={32} />
+                    <Typography variant='body2' sx={{ mt: 2 }} color='text.secondary'>
+                      {t('auth.admin.loadingEvents', 'Loading events...')}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+              {error && (
+                <TableRow>
+                  <TableCell colSpan={5} align='center' sx={{ py: 6 }}>
+                    <Typography color='error' sx={{ fontWeight: 600 }}>
+                      {t(
+                        'auth.admin.errorLoadingEvents',
+                        'Failed to load events. Please try again.',
+                      )}
+                    </Typography>
+                    <Button
+                      variant='outlined'
+                      color='inherit'
+                      size='small'
+                      sx={{ mt: 2 }}
+                      onClick={() => window.location.reload()}
+                    >
+                      {t('auth.common.retry', 'Retry')}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              )}
+              {events.length === 0 && !isLoading && !error && (
+                <TableRow>
+                  <TableCell colSpan={5} align='center' sx={{ py: 8 }}>
+                    <Typography variant='body2' color='text.secondary'>
+                      {t('auth.admin.noEventsFound', 'No events found')}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+              {events.map((event) => (
+                <TableRow
+                  key={event.id}
+                  hover
+                  sx={{
+                    '& td': {
+                      borderBottom: '1px solid',
+                      borderColor: alpha(theme.palette.divider, 0.5),
+                    },
+                  }}
+                >
+                  <TableCell>
+                    <Stack direction='row' spacing={1.5} alignItems='center'>
+                      {getEventIcon(event.action)}
+                      <Typography variant='body2' sx={{ fontWeight: 700 }}>
+                        {event.action?.replace(/_/g, ' ') || 'Unknown'}
+                      </Typography>
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant='body2' sx={{ fontWeight: 500 }}>
+                      {event.user?.email || event.userId || 'System'}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Box>
+                      <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                        {event.ipAddress || 'Unknown IP'}
+                      </Typography>
+                      {event.userAgent && (
+                        <Typography variant='caption' color='text.secondary'>
+                          {event.userAgent.split(' ')[0]}
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      variant='caption'
+                      color='text.secondary'
+                      sx={{ fontFamily: 'monospace' }}
+                    >
+                      {new Date(event.createdAt).toLocaleString()}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align='right'>
+                    <AdminStatusBadge
+                      tone={getSeverityColor(event.action)}
+                      label={getSeverityLabel(event.action)}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <TablePagination
+            component='div'
+            count={totalCount}
+            page={page - 1}
+            onPageChange={handlePageChange}
+            rowsPerPage={limit}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            labelRowsPerPage={t('auth.common.rowsPerPage', 'Rows per page:')}
+          />
+        </TableContainer>
+
+        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+          <Typography
+            variant='caption'
+            color='text.secondary'
+            sx={{ display: 'flex', alignItems: 'center' }}
+          >
+            <Info fontSize='inherit' sx={{ mr: 0.5 }} />{' '}
+            {t('auth.admin.eventsCountFooter', {
+              count: totalCount,
+              defaultValue: `Showing ${events.length} of ${totalCount} events`,
+            })}
           </Typography>
         </Box>
-        <Stack direction='row' spacing={1}>
-          <Tooltip title='Pause Stream'>
-            <Chip
-              label={isLive ? 'Live' : 'Paused'}
-              color={isLive ? 'success' : 'default'}
-              size='small'
-              onClick={() => setIsLive(!isLive)}
-              deleteIcon={
-                isLive ? (
-                  <Circle sx={{ animation: 'pulse 1.5s infinite', fontSize: '10px !important' }} />
-                ) : undefined
-              }
-              onDelete={isLive ? () => setIsLive(!isLive) : undefined}
-              sx={{ fontWeight: 800, px: 1, cursor: 'pointer' }}
-            />
-          </Tooltip>
-        </Stack>
-      </Box>
 
-      {/* Filters */}
-      <Card sx={{ mb: 4, border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
-        <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <TextField
-              fullWidth
-              size='small'
-              placeholder={t('auth.admin.searchEventsPlaceholder')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position='start'>
-                    {isLoading ? (
-                      <CircularProgress size={16} />
-                    ) : (
-                      <Search fontSize='small' color='action' />
-                    )}
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ maxWidth: { sm: 400 } }}
-            />
-            <Box sx={{ flexGrow: 1 }} />
-            <Button
-              startIcon={<FilterList fontSize='small' />}
-              size='small'
-              sx={{ color: 'text.secondary', textTransform: 'none', fontWeight: 600 }}
-            >
-              {t('auth.common.filters')}
-            </Button>
-          </Stack>
-        </CardContent>
-      </Card>
-
-      {/* Events Table */}
-      <TableContainer
-        component={Paper}
-        variant='outlined'
-        sx={{ borderRadius: 'var(--sf-radius-md, 8px)', border: '1px solid', borderColor: 'divider' }}
-      >
-        <Table sx={{ minWidth: 800 }}>
-          <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.5) }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'uppercase' }}>
-                {t('auth.admin.colEventType')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'uppercase' }}>
-                {t('auth.admin.colSubjectUser')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'uppercase' }}>
-                {t('auth.admin.colSourceIp')}
-              </TableCell>
-              <TableCell sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'uppercase' }}>
-                {t('auth.common.timestamp')}
-              </TableCell>
-              <TableCell
-                sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'uppercase' }}
-                align='right'
-              >
-                {t('auth.admin.colSeverity')}
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {isLoading && !data && (
-              <TableRow>
-                <TableCell colSpan={5} align='center' sx={{ py: 8 }}>
-                  <CircularProgress size={32} />
-                  <Typography variant='body2' sx={{ mt: 2 }} color='text.secondary'>
-                    {t('auth.admin.loadingEvents', 'Loading events...')}
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            )}
-            {error && (
-              <TableRow>
-                <TableCell colSpan={5} align='center' sx={{ py: 6 }}>
-                  <Typography color='error' sx={{ fontWeight: 600 }}>
-                    {t('auth.admin.errorLoadingEvents', 'Failed to load events. Please try again.')}
-                  </Typography>
-                  <Button
-                    variant='outlined'
-                    color='inherit'
-                    size='small'
-                    sx={{ mt: 2 }}
-                    onClick={() => window.location.reload()}
-                  >
-                    {t('auth.common.retry', 'Retry')}
-                  </Button>
-                </TableCell>
-              </TableRow>
-            )}
-            {events.length === 0 && !isLoading && !error && (
-              <TableRow>
-                <TableCell colSpan={5} align='center' sx={{ py: 8 }}>
-                  <Typography variant='body2' color='text.secondary'>
-                    {t('auth.admin.noEventsFound', 'No events found')}
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            )}
-            {events.map((event: any) => (
-              <TableRow
-                key={event.id}
-                hover
-                sx={{
-                  '& td': {
-                    borderBottom: '1px solid',
-                    borderColor: alpha(theme.palette.divider, 0.5),
-                  },
-                }}
-              >
-                <TableCell>
-                  <Stack direction='row' spacing={1.5} alignItems='center'>
-                    {getEventIcon(event.action)}
-                    <Typography variant='body2' sx={{ fontWeight: 700 }}>
-                      {event.action?.replace(/_/g, ' ') || 'Unknown'}
-                    </Typography>
-                  </Stack>
-                </TableCell>
-                <TableCell>
-                  <Typography variant='body2' sx={{ fontWeight: 500 }}>
-                    {event.user?.email || event.userId || 'System'}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Box>
-                    <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                      {event.ipAddress || 'Unknown IP'}
-                    </Typography>
-                    {event.userAgent && (
-                      <Typography variant='caption' color='text.secondary'>
-                        {event.userAgent.split(' ')[0]}
-                      </Typography>
-                    )}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    variant='caption'
-                    color='text.secondary'
-                    sx={{ fontFamily: 'monospace' }}
-                  >
-                    {new Date(event.createdAt).toLocaleString()}
-                  </Typography>
-                </TableCell>
-                <TableCell align='right'>
-                  <AdminStatusBadge
-                    tone={getSeverityColor(event.action)}
-                    label={getSeverityLabel(event.action)}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TablePagination
-          component='div'
-          count={totalCount}
-          page={page - 1}
-          onPageChange={handlePageChange}
-          rowsPerPage={limit}
-          onRowsPerPageChange={handleRowsPerPageChange}
-          rowsPerPageOptions={[10, 25, 50, 100]}
-          labelRowsPerPage={t('auth.common.rowsPerPage', 'Rows per page:')}
-        />
-      </TableContainer>
-
-      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
-        <Typography
-          variant='caption'
-          color='text.secondary'
-          sx={{ display: 'flex', alignItems: 'center' }}
-        >
-          <Info fontSize='inherit' sx={{ mr: 0.5 }} />{' '}
-          {t('auth.admin.eventsCountFooter', {
-            count: totalCount,
-            defaultValue: `Showing ${events.length} of ${totalCount} events`,
-          })}
-        </Typography>
-      </Box>
-
-      <style>
-        {`
+        <style>
+          {`
         @keyframes pulse {
           0% { transform: scale(1); opacity: 1; }
           50% { transform: scale(1.3); opacity: 0.5; }
           100% { transform: scale(1); opacity: 1; }
         }
         `}
-      </style>
-    </Box>
+        </style>
+      </Box>
     </motion.div>
   )
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { AuthRouteConfig } from '@cap/platform-core'
 import Path from '../screens/path'
-import GuestRoute from '../../authentication-core/middlewares/GuestRoute'
+import { createGuestRoute } from '../../../routes/routeHelpers'
 
 // ---------------------------------------------------------------------------
 // Passwordless screens
@@ -13,14 +13,6 @@ const PasswordlessVerification = React.lazy(() => import('../screens/Passwordles
 // Route config
 // ---------------------------------------------------------------------------
 export const passwordlessServiceRouteConfig: AuthRouteConfig[] = [
-  {
-    path: Path.setup,
-    element: <GuestRoute element={<PasswordlessInitiation />} />,
-    layout: 'noLayout',
-  },
-  {
-    path: Path.verification,
-    element: <GuestRoute element={<PasswordlessVerification />} />,
-    layout: 'noLayout',
-  },
+  createGuestRoute(Path.setup, <PasswordlessInitiation />),
+  createGuestRoute(Path.verification, <PasswordlessVerification />),
 ]

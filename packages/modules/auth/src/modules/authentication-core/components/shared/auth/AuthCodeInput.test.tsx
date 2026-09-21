@@ -94,6 +94,29 @@ describe('AuthCodeInput', () => {
     expect(document.activeElement).toBe(inputs[0])
   })
 
+  it('steps back and clears the previous box on delete in an empty box', () => {
+    render(<Harness length={6} />)
+    const inputs = boxes()
+
+    fireEvent.change(inputs[0], { target: { value: '1' } })
+    fireEvent.keyDown(inputs[1], { key: 'Delete' })
+
+    expect(inputs[0].value).toBe('')
+    expect(document.activeElement).toBe(inputs[0])
+  })
+
+  it('exposes numeric-keyboard and one-time-code autofill attributes', () => {
+    render(<Harness length={6} mode='numeric' />)
+    const inputs = boxes()
+
+    inputs.forEach((input) => {
+      expect(input.getAttribute('type')).toBe('text')
+      expect(input.getAttribute('inputmode')).toBe('numeric')
+      expect(input.getAttribute('pattern')).toBe('[0-9]*')
+      expect(input.getAttribute('autocomplete')).toBe('one-time-code')
+    })
+  })
+
   it('moves focus with the arrow keys', () => {
     render(<Harness length={6} />)
     const inputs = boxes()

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { errorMessage } from '../../utils/errors'
 import { useNavigate } from 'react-router-dom'
 import {
   Box,
@@ -101,10 +102,9 @@ export default function PasskeyRecoveryOptions() {
         const res = await mfaService.regenerateBackupCodes()
         setBackupCodes(res.data?.recoveryCodes || [])
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
-        err.response?.data?.message ||
-          err.message ||
+        errorMessage(err) ||
           t('passkey.recovery_init_failed', 'Failed to initialize recovery setup.'),
       )
     } finally {
@@ -128,10 +128,9 @@ export default function PasskeyRecoveryOptions() {
         setSuccessMsg(t('mfa.backupReady', 'Backup recovery codes saved successfully.'))
       }
       setTimeout(() => navigate(-1), 1500)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
-        err.response?.data?.message ||
-          err.message ||
+        errorMessage(err) ||
           t('passkey.recovery_verify_failed', 'Failed to verify recovery setup.'),
       )
     } finally {

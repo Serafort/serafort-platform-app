@@ -79,7 +79,7 @@ const SecurityMethodCard: React.FC<SecurityMethodCardProps> = ({
         </Box>
 
         <Box sx={{ flex: 1, minInlineSize: 0 }}>
-          <Typography variant='subtitle1' sx={{ fontWeight: 800, lineHeight: 1.3 }}>
+          <Typography variant='subtitle1' sx={{ fontWeight: 700, lineHeight: 1.3 }}>
             {title}
           </Typography>
           {description && (

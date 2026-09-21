@@ -20,16 +20,18 @@ import {
   Chip,
   CircularProgress,
   TextField,
-  IconButton,
+  Alert,
+  Skeleton,
   alpha,
   useTheme,
 } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import { useTranslation } from 'react-i18next'
 import { useRolesQuery } from '../hooks/useUserDirectoryQuery'
 import { useAssignRolesMutation } from '../hooks/useUserDirectoryMutations'
 import { UserRoleDTO } from '../types/userDirectory.types'
+import DialogCloseButton from './DialogCloseButton'
 
 export interface AssignRolesModalProps {
   open: boolean
@@ -40,6 +42,8 @@ export interface AssignRolesModalProps {
   onSuccess?: () => void
 }
 
+const TITLE_ID = 'assign-roles-dialog-title'
+
 export default function AssignRolesModal({
   open,
   userId,
@@ -49,54 +53,25 @@ export default function AssignRolesModal({
   onSuccess,
 }: AssignRolesModalProps) {
   const theme = useTheme()
+  const { t } = useTranslation('common')
   const [selectedRoleIds, setSelectedRoleIds] = useState<number[]>([])
   const [reason, setReason] = useState<string>('')
 
-  const { data: rolesResponse, isLoading: isRolesLoading } = useRolesQuery()
+  const {
+    data: rolesResponse,
+    isLoading: isRolesLoading,
+    isError: isRolesError,
+    refetch: refetchRoles,
+  } = useRolesQuery()
 
-  const availableRoles = useMemo(() => {
-    return (
-      rolesResponse?.data || [
-        {
-          id: 1,
-          name: 'User',
-          slug: 'user',
-          description: 'Basic access to application features',
-          permissions: [{ id: 1, name: 'Read Profile', slug: 'profile:read' }],
-        },
-        {
-          id: 2,
-          name: 'Administrator',
-          slug: 'admin',
-          description: 'Full tenant-level access and configuration capabilities',
-          permissions: [
-            { id: 2, name: 'Manage Users', slug: 'users:manage' },
-            { id: 3, name: 'Manage Roles', slug: 'roles:manage' },
-            { id: 4, name: 'View Audit', slug: 'audit:read' },
-          ],
-        },
-        {
-          id: 3,
-          name: 'Manager',
-          slug: 'manager',
-          description: 'Team management and reporting capabilities',
-          permissions: [{ id: 5, name: 'Team Manage', slug: 'team:manage' }],
-        },
-        {
-          id: 4,
-          name: 'Auditor',
-          slug: 'auditor',
-          description: 'Security & compliance log viewer',
-          permissions: [{ id: 4, name: 'View Audit', slug: 'audit:read' }],
-        },
-      ]
-    )
-  }, [rolesResponse])
+  // Roles come from the tenant's role catalogue only. There is deliberately no
+  // placeholder list: assigning a role id that was invented client-side would
+  // grant whatever that id means on the server.
+  const availableRoles = useMemo(() => rolesResponse?.data ?? [], [rolesResponse])
 
   useEffect(() => {
     if (open) {
-      const initialIds = currentRoles.map((r) => r.id)
-      setSelectedRoleIds(initialIds.length > 0 ? initialIds : [1])
+      setSelectedRoleIds(currentRoles.map((r) => r.id))
       setReason('')
     }
   }, [open, currentRoles])
@@ -135,16 +110,18 @@ export default function AssignRolesModal({
       onClose={assignRolesMutation.isPending ? undefined : onClose}
       maxWidth='sm'
       fullWidth
+      aria-labelledby={TITLE_ID}
       PaperProps={{
         sx: {
           borderRadius: 'var(--sf-radius-lg, 12px)',
-          boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.25)',
+          boxShadow: `0 24px 48px -12px ${alpha(theme.palette.common.black, 0.25)}`,
           overflow: 'hidden',
           border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
         },
       }}
     >
       <DialogTitle
+        component='div'
         sx={{
           p: 3,
           pb: 2,
@@ -167,37 +144,70 @@ export default function AssignRolesModal({
             <AdminPanelSettingsIcon />
           </Box>
           <Box>
-            <Typography variant='h6' fontWeight={700}>
-              Assign Roles & Permissions
+            <Typography id={TITLE_ID} variant='h6' component='h2' fontWeight={700}>
+              {t('auth.userDirectory.dialogs.assignRoles.title', 'Assign Roles & Permissions')}
             </Typography>
             <Typography variant='caption' color='text.secondary'>
               {userName
-                ? `Modifying role assignments for ${userName}`
-                : 'Update user security roles'}
+                ? t(
+                    'auth.userDirectory.dialogs.assignRoles.subtitleNamed',
+                    'Modifying role assignments for {{name}}',
+                    { name: userName },
+                  )
+                : t(
+                    'auth.userDirectory.dialogs.assignRoles.subtitle',
+                    'Update user security roles',
+                  )}
             </Typography>
           </Box>
         </Stack>
-        <IconButton onClick={onClose} size='small' disabled={assignRolesMutation.isPending}>
-          <CloseIcon fontSize='small' />
-        </IconButton>
+        <DialogCloseButton onClick={onClose} disabled={assignRolesMutation.isPending} />
       </DialogTitle>
 
       <DialogContent sx={{ p: 3 }}>
-        <Stack spacing={2.5}>
+        <Stack spacing={2.5} sx={{ pt: 1 }}>
           <Typography variant='subtitle2' fontWeight={600}>
-            Available Tenant Roles:
+            {t('auth.userDirectory.dialogs.assignRoles.availableRoles', 'Available tenant roles')}
           </Typography>
 
           {isRolesLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress size={28} />
-            </Box>
+            <Stack spacing={1} aria-busy='true'>
+              {[0, 1, 2].map((i) => (
+                <Skeleton key={i} variant='rounded' height={56} />
+              ))}
+            </Stack>
+          ) : isRolesError ? (
+            <Alert
+              severity='error'
+              action={
+                <Button color='inherit' size='small' onClick={() => refetchRoles()} sx={{ minHeight: 44 }}>
+                  {t('auth.common.retry', 'Retry')}
+                </Button>
+              }
+            >
+              {t(
+                'auth.userDirectory.dialogs.assignRoles.loadError',
+                'Roles could not be loaded. Try again before changing assignments.',
+              )}
+            </Alert>
+          ) : availableRoles.length === 0 ? (
+            <Alert severity='info'>
+              {t(
+                'auth.userDirectory.dialogs.assignRoles.empty',
+                'No roles are defined for this tenant yet.',
+              )}
+            </Alert>
           ) : (
             <List
+              aria-label={t(
+                'auth.userDirectory.dialogs.assignRoles.availableRoles',
+                'Available tenant roles',
+              )}
               sx={{
                 p: 0,
                 border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                 borderRadius: 'var(--sf-radius-md, 8px)',
+                overflow: 'hidden',
               }}
             >
               {availableRoles.map((role, idx) => {
@@ -210,23 +220,30 @@ export default function AssignRolesModal({
                     <ListItem disablePadding>
                       <ListItemButton
                         onClick={() => toggleRole(role.id)}
+                        selected={isSelected}
                         sx={{
                           p: 1.75,
-                          bgcolor: isSelected
-                            ? alpha(theme.palette.primary.main, 0.05)
-                            : 'transparent',
-                          '&:hover': {
+                          minHeight: 56,
+                          '&.Mui-selected': {
+                            bgcolor: alpha(theme.palette.primary.main, 0.05),
+                          },
+                          '&:hover, &.Mui-selected:hover': {
                             bgcolor: alpha(theme.palette.primary.main, 0.08),
+                          },
+                          '&:focus-visible': {
+                            outline: `2px solid ${theme.palette.primary.main}`,
+                            outlineOffset: -2,
                           },
                         }}
                       >
-                        <ListItemIcon sx={{ minWidth: 40 }}>
+                        <ListItemIcon sx={{ minWidth: 44 }}>
                           <Checkbox
                             edge='start'
                             checked={isSelected}
                             tabIndex={-1}
                             disableRipple
                             color='primary'
+                            inputProps={{ 'aria-label': role.name }}
                           />
                         </ListItemIcon>
                         <ListItemText
@@ -237,7 +254,7 @@ export default function AssignRolesModal({
                               </Typography>
                               {role.slug === 'admin' && (
                                 <Chip
-                                  label='Admin'
+                                  label={t('auth.userDirectory.dialogs.assignRoles.adminChip', 'Admin')}
                                   size='small'
                                   color='primary'
                                   sx={{ height: 20, fontSize: '0.7rem' }}
@@ -247,9 +264,14 @@ export default function AssignRolesModal({
                           }
                           secondary={
                             <Typography variant='caption' color='text.secondary'>
-                              {role.description || 'Provides standard tenant capabilities'}
+                              {role.description ||
+                                t(
+                                  'auth.userDirectory.dialogs.assignRoles.defaultDescription',
+                                  'Provides standard tenant capabilities',
+                                )}
                             </Typography>
                           }
+                          secondaryTypographyProps={{ component: 'div' }}
                         />
                       </ListItemButton>
                     </ListItem>
@@ -276,7 +298,7 @@ export default function AssignRolesModal({
                 display='block'
                 mb={1}
               >
-                Effective Granted Capabilities:
+                {t('auth.userDirectory.dialogs.assignRoles.effective', 'Effective granted capabilities')}
               </Typography>
               <Stack direction='row' flexWrap='wrap' gap={0.75}>
                 {selectedRolesDetails.map((r) => (
@@ -296,10 +318,14 @@ export default function AssignRolesModal({
 
           <TextField
             fullWidth
-            label='Audit Reason (Optional)'
-            placeholder='e.g. Promoted to team lead, Security audit adjustment'
+            label={t('auth.userDirectory.dialogs.assignRoles.reason', 'Audit reason (optional)')}
+            placeholder={t(
+              'auth.userDirectory.dialogs.assignRoles.reasonPlaceholder',
+              'e.g. Promoted to team lead, security audit adjustment',
+            )}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
+            InputProps={{ sx: { minHeight: 48 } }}
           />
         </Stack>
       </DialogContent>
@@ -312,25 +338,30 @@ export default function AssignRolesModal({
           justifyContent: 'space-between',
         }}
       >
-        <Button onClick={onClose} color='inherit' sx={{ textTransform: 'none', fontWeight: 600 }}>
-          Cancel
+        <Button
+          onClick={onClose}
+          color='inherit'
+          sx={{ textTransform: 'none', fontWeight: 600, minHeight: 44 }}
+        >
+          {t('auth.common.cancel', 'Cancel')}
         </Button>
         <Button
           onClick={handleSave}
           variant='contained'
-          disabled={assignRolesMutation.isPending || selectedRoleIds.length === 0}
+          disabled={assignRolesMutation.isPending || selectedRoleIds.length === 0 || isRolesError}
           sx={{
             textTransform: 'none',
             fontWeight: 700,
             px: 3,
             borderRadius: 'var(--sf-radius-md, 8px)',
             minWidth: 120,
+            minHeight: 44,
           }}
         >
           {assignRolesMutation.isPending ? (
             <CircularProgress size={20} color='inherit' />
           ) : (
-            'Save Roles'
+            t('auth.userDirectory.dialogs.assignRoles.save', 'Save roles')
           )}
         </Button>
       </DialogActions>

@@ -1,13 +1,23 @@
 {
   "landing": {
-    "home": "Accueil",
-    "chronosMycelium": "Chronos Mycelium",
-    "features": "Comparaison des Fonctionnalités",
-    "privacyPolicy": "Politique de Confidentialité",
-    "termsOfService": "Conditions d'Utilisation",
-    "contact": "Contactez-nous",
     "about": "À Propos de Nous",
-    "pricing": "Tarification"
+    "aboutWidget": {
+      "primary_cta": "Commencer",
+      "secondary_cta": "Découvrir les fonctionnalités"
+    },
+    "chronosMycelium": "Chronos Mycelium",
+    "contact": "Contactez-nous",
+    "cta": {
+      "title": "Prêt à commencer ?",
+      "subtitle": "Créez votre espace de travail et réunissez votre équipe sur une plateforme d'identité unique et sécurisée.",
+      "primary": "Créer un compte",
+      "secondary": "Voir les tarifs"
+    },
+    "features": "Comparaison des Fonctionnalités",
+    "home": "Accueil",
+    "pricing": "Tarification",
+    "privacyPolicy": "Politique de Confidentialité",
+    "termsOfService": "Conditions d'Utilisation"
   },
   "navigation": {
     "home": "Accueil",
@@ -987,7 +997,7 @@
     },
     "signUp": {
       "title": "Créer un compte",
-      "subtitle": "Rejoignez Antigravity OS dès aujourd'hui",
+      "subtitle": "Créez votre compte Serafort",
       "firstNameLabel": "PRÉNOM",
       "lastNameLabel": "NOM",
       "emailLabel": "ADRESSE E-MAIL",
@@ -1220,7 +1230,7 @@
       "requested_permissions": "Autorisations demandées",
       "allow_access": "Autoriser l'accès",
       "deny_access": "Refuser la demande",
-      "secure_encryption_tag": "Vérifié et protégé par Antigravity OS",
+      "secure_encryption_tag": "Vérifié et protégé par Serafort",
       "authenticating": "Authentification sécurisée",
       "wait_description": "Établissement d'une connexion sécurisée avec votre fournisseur d'identité. Cela ne prendra qu'un instant.",
       "ssl_secure": "SSL SÉCURISÉ",

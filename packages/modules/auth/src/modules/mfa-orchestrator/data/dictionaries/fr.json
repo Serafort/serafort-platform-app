@@ -1190,7 +1190,7 @@
       "signInHere": "Connectez-vous ici",
       "submit": "Créer un compte",
       "submitting": "Création du compte...",
-      "subtitle": "Rejoignez Antigravity OS dès aujourd'hui",
+      "subtitle": "Créez votre compte Serafort",
       "termsOfService": "Conditions d'utilisation",
       "title": "Créer un compte"
     },
@@ -1276,7 +1276,7 @@
       "scope_roles_desc": "Consultez vos autorisations de groupe attribuées.",
       "search_clients": "Rechercher par nom ou ID client...",
       "secure_badge": "Badge de sécurité",
-      "secure_encryption_tag": "Vérifié et protégé par Antigravity OS",
+      "secure_encryption_tag": "Vérifié et protégé par Serafort",
       "security_assertions": "Sécurité et assertions",
       "security_best_practice": "Recommandation de sécurité",
       "sign_assertions": "Signer les assertions",
@@ -1334,7 +1334,8 @@
     "close": "Fermer",
     "continue": "Continuer",
     "removing": "Suppression...",
-    "saving": "Enregistrement..."
+    "saving": "Enregistrement...",
+    "retry": "Réessayer"
   },
   "email_test": {
     "col_recipient": "Destinataire",
@@ -1384,6 +1385,7 @@
     "elevatedSession": "Accès élevé · {{minutes}} min",
     "enableButton": "Activer",
     "enableSensor": "Configurer",
+    "enableSensorThisDevice": "Ajouter cet appareil",
     "enrolledCount": "{{count}} inscrite(s)",
     "factorsTitle": "Vos facteurs",
     "fido2Desc": "FIDO2 / WebAuthn. Résistant à l’hameçonnage, le facteur le plus solide disponible.",
@@ -1463,7 +1465,16 @@
     "verifyHeading": "Authentification à deux facteurs",
     "verifySetupButton": "Vérifier et activer la MFA",
     "waitingPrompt": "Vérification de l'authentificateur de l'appareil...",
-    "verifying": "Vérification..."
+    "verifying": "Vérification...",
+    "smsSetupHeading": "Configurer la vérification par SMS",
+    "smsNoPhoneTitle": "Ajoutez d'abord un numéro de téléphone",
+    "smsNoPhoneDesc": "Les codes SMS nécessitent un numéro de téléphone sur votre compte. Ajoutez-en un à votre profil, puis revenez ici.",
+    "smsGoToProfile": "Ajouter un numéro de téléphone",
+    "smsUnavailableTitle": "La vérification par SMS est indisponible",
+    "smsUnavailableDesc": "Les codes de connexion par SMS ne sont pas encore activés pour ce compte. Utilisez une application d'authentification ou une clé d'accès à la place.",
+    "smsBackToSecurity": "Retour à la vérification en deux étapes",
+    "notOnThisDevice": "Indisponible sur cet appareil",
+    "biometricAdded": "Le capteur intégré de cet appareil est désormais configuré comme clé d’accès."
   },
   "monitoring_dashboard": {
     "dashboard": {

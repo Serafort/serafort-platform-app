@@ -95,6 +95,10 @@ export const landingNavItems: NavItemConfig[] = [
 export const LandingModule: CAPModule = {
   id: 'landing-module',
   version: '1.0.0',
+  name: 'Landing & Public Site',
+  description:
+    'The public marketing site: home, features, pricing, about and contact, plus the guest ' +
+    'onboarding entry points.',
   routes: landingRouteConfig,
   i18n: landingDictionaries,
   navItems: landingNavItems,

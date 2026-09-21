@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Alert,
@@ -42,6 +42,8 @@ import {
   useRegenerateBackupCodesMutation,
   usePasskeysListQuery,
   useStepUpAuth,
+  usePasskey,
+  formatWebAuthnError,
 } from '../../hooks'
 import { mfaService } from '../../services/mfa.service'
 import { StepUpAuthDialog } from '../../components/StepUpAuthDialog'
@@ -176,6 +178,38 @@ export default function MFAManagement() {
   const isSmsEnabled = Boolean(smsMethod?.enabled)
   const passkeyCount = passkeys.length || passkeyMethod?.count || 0
   const isPasskeyEnabled = passkeyCount > 0
+  // `internal` is the transport a built-in sensor reports; a USB/NFC security
+  // key never has it, so this is the only card-specific signal available.
+  const platformPasskeyCount = passkeys.filter((pk) => pk.transports?.includes('internal')).length
+  const isPlatformEnabled = platformPasskeyCount > 0
+
+  const { registerPasskey, isLoading: registeringPlatform } = usePasskey()
+  const [platformSupported, setPlatformSupported] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    let active = true
+    const check = window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable
+    if (!check) {
+      setPlatformSupported(false)
+      return
+    }
+    check()
+      .then((available) => active && setPlatformSupported(available))
+      .catch(() => active && setPlatformSupported(false))
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const handleSetUpPlatform = useCallback(async () => {
+    try {
+      setError(null)
+      await registerPasskey({ authenticatorAttachment: 'platform' })
+      setSuccessMsg(t('mfa.biometricAdded', 'This device’s built-in sensor is now set up as a passkey.'))
+    } catch (err: unknown) {
+      setError(formatWebAuthnError(err))
+    }
+  }, [registerPasskey, t])
   const isAnyMfaActive = isTotpEnabled || isSmsEnabled || isPasskeyEnabled
 
   const healthScore = useMemo(() => {
@@ -600,17 +634,21 @@ export default function MFAManagement() {
 
             <Grid size={{ xs: 12, md: 6 }}>
               {/*
-                Biometrics is not a separate enrolment here: a platform
-                authenticator registers as a passkey, which is why this card
-                reads the same state. It stays as its own card because that is
-                how people look for Touch ID or Windows Hello, but it no longer
-                claims an independent status.
+                A built-in sensor is stored as a passkey, so this card is a
+                filtered view of the same list: only keys with the `internal`
+                transport count. Its one action registers this device's sensor
+                directly. It never links to the passkey list: the card above
+                already does, and a second button to the same screen was
+                redundant. "Active" means a sensor on *some* device, so the
+                action stays useful once enrolled (add another laptop/phone);
+                re-registering the same device surfaces the InvalidStateError
+                message from formatWebAuthnError.
               */}
               <SecurityMethodCard
                 id='factor-biometric'
                 icon={<Fingerprint />}
                 tone='primary'
-                enabled={isPasskeyEnabled}
+                enabled={isPlatformEnabled}
                 title={t('mfa.biometricTitle', 'Touch ID and Windows Hello')}
                 description={t(
                   'mfa.biometricDesc',
@@ -619,11 +657,13 @@ export default function MFAManagement() {
                 status={
                   <Chip
                     label={
-                      isPasskeyEnabled
+                      isPlatformEnabled
                         ? t('common.active', 'Active')
-                        : t('mfa.available', 'Available')
+                        : platformSupported === false
+                          ? t('mfa.notOnThisDevice', 'Not on this device')
+                          : t('mfa.available', 'Available')
                     }
-                    color={isPasskeyEnabled ? 'success' : 'default'}
+                    color={isPlatformEnabled ? 'success' : 'default'}
                     size='small'
                     sx={{ fontWeight: 700 }}
                   />
@@ -632,12 +672,18 @@ export default function MFAManagement() {
                   <Button
                     fullWidth
                     variant='outlined'
-                    onClick={() => navigate(Path.passkey.management)}
+                    onClick={handleSetUpPlatform}
+                    disabled={platformSupported !== true || registeringPlatform}
+                    startIcon={
+                      registeringPlatform ? <CircularProgress size={16} color='inherit' /> : undefined
+                    }
                     sx={{ minHeight: 44, fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
                   >
-                    {isPasskeyEnabled
-                      ? t('mfa.configure', 'Configure')
-                      : t('mfa.enableSensor', 'Set up')}
+                    {registeringPlatform
+                      ? t('passkey.waitingConfirmation', 'Waiting for confirmation…')
+                      : isPlatformEnabled
+                        ? t('mfa.enableSensorThisDevice', 'Add this device')
+                        : t('mfa.enableSensor', 'Set up')}
                   </Button>
                 }
               />
@@ -668,7 +714,7 @@ export default function MFAManagement() {
                   <Button
                     fullWidth
                     variant='outlined'
-                    onClick={() => navigate(Path.mfa.setup)}
+                    onClick={() => navigate(Path.mfa.setup_sms)}
                     sx={{ minHeight: 44, fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}
                   >
                     {isSmsEnabled ? t('mfa.configure', 'Configure') : t('mfa.addPhone', 'Add a phone')}

@@ -43,6 +43,8 @@ import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import Path from '../path'
+import type { DirectoryConnector, SyncLog } from '../../types/provisioning.types'
+import { unwrapList, unwrapMeta } from '../../utils/unwrapList'
 import {
   useProvisioningConnectors,
   useProvisioningConnectorLogs,
@@ -54,12 +56,11 @@ const SyncLogsView: React.FC = () => {
   const { t } = useTranslation('auth')
 
   const [page, setPage] = useState(1)
-  const [pageSize] = useState(10)
 
   const { data: connectorsData, isLoading: isConnectorsLoading } = useProvisioningConnectors()
-  const connectors = useMemo(() => (connectorsData?.data as any) ?? [], [connectorsData])
+  const connectors = useMemo(() => unwrapList<DirectoryConnector>(connectorsData?.data), [connectorsData])
 
-  const [selectedConnectorId, setSelectedConnectorId] = useState<number | null>(null)
+  const [selectedConnectorId, setSelectedConnectorId] = useState<string | number | null>(null)
 
   // Auto-select first connector if none selected
   React.useEffect(() => {
@@ -72,14 +73,14 @@ const SyncLogsView: React.FC = () => {
     data: logsData,
     isLoading: isLogsLoading,
     refetch,
-  } = useProvisioningConnectorLogs(selectedConnectorId || 0, {
-    queryKey: ['logs', page, pageSize],
-  } as any)
+  } = useProvisioningConnectorLogs(selectedConnectorId || 0)
 
-  const rawData = logsData?.data as any
-  const logs = Array.isArray(rawData) ? rawData : rawData?.data ?? []
+  const logs = unwrapList<SyncLog>(logsData?.data)
   // AdonisJS's `.paginate()` meta uses `lastPage` (camelCase), not `last_page`.
-  const pagination = rawData?.meta ?? { total: 0, lastPage: 1 }
+  const pagination = unwrapMeta<{ total: number; lastPage: number }>(logsData?.data) ?? {
+    total: 0,
+    lastPage: 1,
+  }
 
   const handleRefresh = () => {
     refetch()
@@ -209,7 +210,7 @@ const SyncLogsView: React.FC = () => {
             onClick={handleRefresh}
             sx={{
               bgcolor: 'info.main',
-              boxShadow: '0 4px 14px 0 rgba(0,118,255,0.35)',
+              boxShadow: (th) => `0 4px 14px 0 ${alpha(th.palette.info.main, 0.35)}`,
               minHeight: 44,
               px: 3,
               borderRadius: 'var(--sf-radius-md, 8px)',
@@ -271,7 +272,7 @@ const SyncLogsView: React.FC = () => {
                 '& .MuiSelect-select': { py: 0, display: 'flex', alignItems: 'center' },
               }}
             >
-              {connectors.map((c: any) => (
+              {connectors.map((c) => (
                 <MenuItem key={c.id} value={c.id}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <Hub sx={{ fontSize: 18, color: 'primary.main' }} />
@@ -320,7 +321,7 @@ const SyncLogsView: React.FC = () => {
           {
             label: t('auth.admin.provisioning.logs.stats.sync_count'),
             value: selectedConnectorId
-              ? connectors.find((c: any) => c.id === selectedConnectorId)?.syncCount || 0
+              ? (connectors.find((c) => c.id === selectedConnectorId)?.sync_count ?? 0)
               : 0,
             icon: <Storage />,
             color: 'primary',
@@ -533,7 +534,7 @@ const SyncLogsView: React.FC = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {logs.map((log: any) => (
+                    {logs.map((log) => (
                       <TableRow
                         key={log.id}
                         hover
@@ -541,10 +542,10 @@ const SyncLogsView: React.FC = () => {
                       >
                         <TableCell>
                           <Typography variant='body2' sx={{ fontWeight: 700 }}>
-                            {new Date(log.createdAt || log.created_at).toLocaleString()}
+                            {new Date(log.createdAt ?? log.created_at ?? log.timestamp ?? 0).toLocaleString()}
                           </Typography>
                         </TableCell>
-                        <TableCell>{getEventChip(log.event || log.action)}</TableCell>
+                        <TableCell>{getEventChip(log.event || log.action || '')}</TableCell>
                         <TableCell>
                           <Typography
                             variant='body2'
@@ -586,7 +587,7 @@ const SyncLogsView: React.FC = () => {
                         <TableCell align='right'>
                           <IconButton
                             size='small'
-                            aria-label='View log details'
+                            aria-label={t('auth.admin.provisioning.logs.actions.view_details', 'View log details')}
                             sx={{
                               width: 44,
                               height: 44,

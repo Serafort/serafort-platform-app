@@ -80,9 +80,9 @@ export const DataExport: React.FC = () => {
   }, [requestExport, refetch, tracker])
 
   // Map backend response or use mock for demo if empty
-  const items = useMemo(() => {
+  const items = useMemo<DataExportEntry[]>(() => {
     if (exportData?.data && Array.isArray(exportData.data)) {
-      return exportData.data
+      return exportData.data as DataExportEntry[]
     }
     return []
   }, [exportData])
@@ -97,7 +97,7 @@ export const DataExport: React.FC = () => {
         {/* Top Back Navigation Button */}
         <Button
           startIcon={<ArrowBack />}
-          onClick={() => navigate(Path.account.view || '/profile')}
+          onClick={() => navigate(Path.account.view)}
           sx={{
             mb: 2.5,
             textTransform: 'none',
@@ -350,7 +350,7 @@ export const DataExport: React.FC = () => {
             </Box>
           ) : (
             <List disablePadding>
-              {items.map((item: any, index: number) => (
+              {items.map((item, index) => (
                 <React.Fragment key={item.id}>
                   <ListItem
                     sx={{
@@ -460,6 +460,14 @@ export const DataExport: React.FC = () => {
       </Container>
     </motion.div>
   )
+}
+
+/** One personal-data archive as listed by the export endpoint. */
+interface DataExportEntry {
+  id: string | number
+  status: string
+  date?: string
+  expires?: string
 }
 
 export default DataExport

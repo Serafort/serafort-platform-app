@@ -34,6 +34,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useTenant } from '@cap/platform-core'
 import { Path } from '@auth/routes/path'
+import { errorMessage } from '../../utils/errorMessage'
 import {
   useOidcInteraction,
   useConfirmOidcInteraction,
@@ -57,7 +58,7 @@ export default function PermissionConsentScreen() {
   // Redirect if no UID
   useEffect(() => {
     if (!uid) {
-      navigate(Path.auth.login)
+      navigate(Path.auth.signin)
     }
   }, [uid, navigate])
 
@@ -76,11 +77,12 @@ export default function PermissionConsentScreen() {
         toast.success(t('auth.sso.success_granted', 'Access granted successfully'), {})
       }
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
+      const responseMessage = (err as { response?: { data?: { message?: unknown } } } | null)
+        ?.response?.data?.message
       const message =
-        err.response?.data?.message ||
-        err.message ||
-        t('auth.sso.error_confirm', 'Failed to confirm access')
+        (typeof responseMessage === 'string' && responseMessage) ||
+        errorMessage(err, t('auth.sso.error_confirm', 'Failed to confirm access'))
       toast.error(message)
     },
   })
@@ -91,7 +93,7 @@ export default function PermissionConsentScreen() {
       if (targetUrl) {
         window.location.assign(targetUrl)
       } else {
-        navigate(Path.auth.login)
+        navigate(Path.auth.signin)
       }
     },
   })
@@ -201,7 +203,7 @@ export default function PermissionConsentScreen() {
           </Typography>
           <AuthActionButton
             label={t('auth.sso.back_to_login', 'Back to Login')}
-            onClick={() => navigate(Path.auth.login)}
+            onClick={() => navigate(Path.auth.signin)}
           />
         </Box>
       </AuthPageLayout>
@@ -226,7 +228,7 @@ export default function PermissionConsentScreen() {
           <AuthScreenIcon
             icon={
               <Avatar
-                src={client?.logoUri}
+                src={client?.logoUri ?? undefined}
                 sx={{
                   width: '100%',
                   height: '100%',

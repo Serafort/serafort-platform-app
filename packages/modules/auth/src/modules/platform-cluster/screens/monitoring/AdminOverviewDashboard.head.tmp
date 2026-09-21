@@ -1,0 +1,54 @@
+import React from 'react'
+import {
+  Box,
+  Card,
+  CardActionArea,
+  CardContent,
+  Typography,
+  Avatar,
+  Chip,
+  Button,
+  Alert,
+  Divider,
+  Skeleton,
+  Stack,
+  ButtonBase,
+} from '@mui/material'
+import { alpha, useTheme } from '@mui/material/styles'
+import PeopleIcon from '@mui/icons-material/People'
+import PersonOffIcon from '@mui/icons-material/PersonOff'
+import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import LockIcon from '@mui/icons-material/Lock'
+import DevicesIcon from '@mui/icons-material/Devices'
+import ShieldIcon from '@mui/icons-material/Shield'
+import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import GavelIcon from '@mui/icons-material/Gavel'
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
+import { useAdminDashboard } from '@auth/authorization-engine/hooks/useAdminQuery'
+import { Path } from '@cap/module-auth/routes/path'
+import { AdminPageHeader } from '@auth/modules/authentication-core/components/shared/admin'
+import { useLiveAdminOverview, type LiveStatus } from '../../hooks/useLiveAdminOverview'
+
+/** The `/admin/dashboard` summary the overview tiles read from. */
+interface AdminDashboardStats {
+  systemHealth: string
+  totalUsers: number
+  activeUsers: number
+  activeSessions: number
+  newSignups: number
+  failedLogins: number
+  mfaAdoption: number | string
+  totalBanned: number
+  newBans: number
+  pendingAppeals: number
+}
+
+const DASHBOARD_QUERY_KEY = ['admin', 'dashboard'] as const
+

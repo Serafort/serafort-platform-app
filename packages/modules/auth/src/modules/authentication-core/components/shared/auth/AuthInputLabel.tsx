@@ -7,6 +7,12 @@ interface AuthInputLabelProps {
   htmlFor?: string
 }
 
+/**
+ * Field label per the brand-kit input anatomy (`uikit.html#inputs`): sits above
+ * the field, 13px / 600, sentence case, primary text colour. It used to be a
+ * tiny uppercase tertiary caption, which read as a section eyebrow rather than
+ * the name of the control below it.
+ */
 const AuthInputLabel: React.FC<AuthInputLabelProps> = ({ children, required, htmlFor }) => {
   return (
     <Typography
@@ -14,18 +20,24 @@ const AuthInputLabel: React.FC<AuthInputLabelProps> = ({ children, required, htm
       htmlFor={htmlFor}
       variant='caption'
       sx={{
-        fontWeight: 800,
-        textTransform: 'uppercase',
-        ml: 1,
-        mb: 1,
+        fontWeight: 600,
+        fontSize: 'var(--sf-text-sm, 0.8125rem)',
+        marginBlockEnd: 'var(--sf-space-2, 8px)',
         display: 'block',
-        color: 'text.secondary',
-        letterSpacing: '0.05em',
+        color: 'text.primary',
+        lineHeight: 1.4,
       }}
     >
       {children}
       {required && (
-        <Typography component='span' sx={{ color: 'error.main', ml: 0.5 }}>
+        <Typography
+          component='span'
+          aria-hidden
+          sx={{
+            color: (theme) => `var(--sf-error-text, ${theme.palette.error.dark})`,
+            marginInlineStart: 0.5,
+          }}
+        >
           *
         </Typography>
       )}

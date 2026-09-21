@@ -10,12 +10,12 @@ import {
   Paper,
   Chip,
   IconButton,
-  Divider,
   useTheme,
   alpha,
   Tooltip,
   CircularProgress,
 } from '@mui/material'
+import { AdminPageHeader } from '@auth/modules/authentication-core/components/shared/admin'
 import Smartphone from '@mui/icons-material/Smartphone'
 import Laptop from '@mui/icons-material/Laptop'
 import Visibility from '@mui/icons-material/Visibility'
@@ -28,6 +28,14 @@ import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import { useEmailTemplatesQuery } from '../../hooks/useAdminMonitoringQuery'
 
+interface TemplateView {
+  id: string
+  name: string
+  version?: string
+  lastEdited?: string
+  html?: string
+}
+
 export default function EmailTemplatePreview() {
   const { t } = useTranslation('common')
   const theme = useTheme()
@@ -39,7 +47,7 @@ export default function EmailTemplatePreview() {
 
   const { data: apiTemplates, isLoading } = useEmailTemplatesQuery()
 
-  const defaultTemplates = [
+  const defaultTemplates: TemplateView[] = [
     {
       id: 'welcome',
       name: 'Welcome Onboarding',
@@ -91,237 +99,256 @@ export default function EmailTemplatePreview() {
     },
   ]
 
-  const templates = apiTemplates && apiTemplates.length > 0 ? apiTemplates : defaultTemplates
+  const templates: TemplateView[] =
+    apiTemplates && apiTemplates.length > 0 ? apiTemplates : defaultTemplates
   const activeTemplate =
     templates.find((t) => t.id === selectedId) ||
     defaultTemplates.find((t) => t.id === selectedId) ||
     defaultTemplates[0]
 
-  const templateHtml = (activeTemplate as any).html || defaultTemplates[0].html
+  const templateHtml = activeTemplate.html || defaultTemplates[0].html
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
-      {/* Header */}
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box>
-          <Typography variant='h4' sx={{ fontWeight: 800, mb: 1 }}>
-            {t('auth.admin.emailPreviewTitle', 'Email Template Preview')}
-          </Typography>
-          <Typography variant='body1' color='text.secondary'>
-            {t(
-              'auth.admin.emailPreviewSubtitle',
-              'Inspect dynamic transactional email templates across desktop and mobile form factors.',
-            )}
-          </Typography>
-        </Box>
-        <Stack direction='row' spacing={2}>
-          <Button
-            variant='outlined'
-            startIcon={<History />}
-            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
-          >
-            {t('auth.admin.versionHistory', 'Version History')}
-          </Button>
-          <Button
-            variant='contained'
-            startIcon={<Edit />}
-            sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)', boxShadow: 'none' }}
-          >
-            {t('auth.admin.editTemplate', 'Edit Template')}
-          </Button>
-        </Stack>
-      </Box>
-
-      <Grid container spacing={4}>
-        {/* Left Sidebar: Template List */}
-        <Grid size={{ xs: 12, md: 3 }}>
-          <Stack spacing={2}>
-            {isLoading ? (
-              <Box sx={{ p: 4, textAlign: 'center' }}>
-                <CircularProgress size={24} />
-              </Box>
-            ) : (
-              templates.map((template) => (
-                <Card
-                  key={template.id}
-                  onClick={() => setSelectedId(template.id)}
-                  sx={{
-                    cursor: 'pointer',
-                    border: '1px solid',
-                    borderColor: template.id === selectedId ? 'primary.main' : 'divider',
-                    boxShadow: 'none',
-                    borderRadius: 'var(--sf-radius-lg, 12px)',
-                    bgcolor:
-                      template.id === selectedId
-                        ? alpha(theme.palette.primary.main, 0.05)
-                        : 'background.paper',
-                    transition: '0.2s',
-                    '&:hover': { borderColor: 'primary.main' },
-                  }}
-                >
-                  <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                    <Typography variant='subtitle2' sx={{ fontWeight: 800 }}>
-                      {template.name}
-                    </Typography>
-                    <Stack direction='row' spacing={1} sx={{ mt: 1 }}>
-                      <Chip
-                        label={(template as any).version || 'v1.0'}
-                        size='small'
-                        sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700 }}
-                      />
-                      <Typography variant='caption' color='text.secondary'>
-                        {(template as any).lastEdited || 'Active'}
-                      </Typography>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </Stack>
-        </Grid>
-
-        {/* Main Content: Preview Canvas */}
-        <Grid size={{ xs: 12, md: 9 }}>
-          <Card
-            sx={{
-              border: '1px solid',
-              borderColor: 'divider',
-              boxShadow: 'none',
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              minHeight: 600,
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            {/* Canvas Toolbar */}
-            <Box
-              sx={{
-                p: 2,
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Stack direction='row' spacing={1}>
-                <Button
-                  size='small'
-                  startIcon={<Visibility />}
-                  variant={view === 'preview' ? 'contained' : 'text'}
-                  onClick={() => setView('preview')}
-                  sx={{
-                    textTransform: 'none',
-                    fontWeight: 700,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
-                    boxShadow: 'none',
-                  }}
-                >
-                  {t('auth.admin.preview', 'Preview')}
-                </Button>
-                <Button
-                  size='small'
-                  startIcon={<Code />}
-                  variant={view === 'code' ? 'contained' : 'text'}
-                  onClick={() => setView('code')}
-                  sx={{
-                    textTransform: 'none',
-                    fontWeight: 700,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
-                    boxShadow: 'none',
-                  }}
-                >
-                  {t('auth.admin.source', 'Source HTML')}
-                </Button>
-              </Stack>
-
-              <Stack
-                direction='row'
-                spacing={1}
-                sx={{ bgcolor: 'action.hover', p: 0.5, borderRadius: 'var(--sf-radius-md, 8px)' }}
-              >
-                <Tooltip title={t('auth.admin.desktopView', 'Desktop View (600px)')}>
-                  <IconButton
-                    size='small'
-                    color={device === 'desktop' ? 'primary' : 'default'}
-                    onClick={() => setDevice('desktop')}
-                  >
-                    <Laptop fontSize='small' />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={t('auth.admin.mobileView', 'Mobile View (360px)')}>
-                  <IconButton
-                    size='small'
-                    color={device === 'mobile' ? 'primary' : 'default'}
-                    onClick={() => setDevice('mobile')}
-                  >
-                    <Smartphone fontSize='small' />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            </Box>
-
-            {/* Preview Area */}
-            <Box
-              sx={{
-                p: 4,
-                flex: 1,
-                bgcolor: 'action.hover',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'flex-start',
-                overflow: 'auto',
-              }}
-            >
-              <Paper
-                elevation={1}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
+        {/* Header */}
+        <AdminPageHeader
+          icon={<Visibility />}
+          title={t('auth.admin.emailPreviewTitle', 'Email Template Preview')}
+          description={t(
+            'auth.admin.emailPreviewSubtitle',
+            'Inspect dynamic transactional email templates across desktop and mobile form factors.',
+          )}
+          actions={
+            <Stack direction='row' spacing={2}>
+              <Button
+                variant='outlined'
+                startIcon={<History />}
                 sx={{
-                  width: device === 'desktop' ? 600 : 360,
-                  minHeight: 450,
-                  p: 3,
-                  bgcolor: '#ffffff',
-                  borderRadius: 'var(--sf-radius-lg, 12px)',
-                  transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  minHeight: 44,
                 }}
               >
-                {view === 'preview' ? (
-                  // Render server-supplied template HTML inside a fully sandboxed,
-                  // same-origin-isolated iframe. `sandbox=""` blocks scripts, forms,
-                  // popups and top-navigation, so untrusted markup cannot run in the
-                  // admin's origin (defends against stored XSS via template content
-                  // or interpolated variables).
-                  <iframe
-                    title='email-template-preview'
-                    sandbox=''
-                    srcDoc={templateHtml}
-                    style={{
-                      width: '100%',
-                      minHeight: 420,
-                      border: 0,
-                      background: '#ffffff',
-                    }}
-                  />
-                ) : (
-                  <pre
-                    style={{
-                      fontFamily: 'monospace',
-                      fontSize: '12px',
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-all',
-                      color: '#031433',
+                {t('auth.admin.versionHistory', 'Version History')}
+              </Button>
+              <Button
+                variant='contained'
+                startIcon={<Edit />}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 800,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  boxShadow: 'none',
+                  minHeight: 44,
+                }}
+              >
+                {t('auth.admin.editTemplate', 'Edit Template')}
+              </Button>
+            </Stack>
+          }
+        />
+
+        <Grid container spacing={4}>
+          {/* Left Sidebar: Template List */}
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Stack spacing={2}>
+              {isLoading ? (
+                <Box sx={{ p: 4, textAlign: 'center' }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : (
+                templates.map((template) => (
+                  <Card
+                    key={template.id}
+                    onClick={() => setSelectedId(template.id)}
+                    sx={{
+                      cursor: 'pointer',
+                      border: '1px solid',
+                      borderColor: template.id === selectedId ? 'primary.main' : 'divider',
+                      boxShadow: 'none',
+                      borderRadius: 'var(--sf-radius-lg, 12px)',
+                      bgcolor:
+                        template.id === selectedId
+                          ? alpha(theme.palette.primary.main, 0.05)
+                          : 'background.paper',
+                      transition: '0.2s',
+                      '&:hover': { borderColor: 'primary.main' },
                     }}
                   >
-                    {templateHtml}
-                  </pre>
-                )}
-              </Paper>
-            </Box>
-          </Card>
+                    <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                      <Typography variant='subtitle2' sx={{ fontWeight: 800 }}>
+                        {template.name}
+                      </Typography>
+                      <Stack direction='row' spacing={1} sx={{ mt: 1 }}>
+                        <Chip
+                          label={template.version || 'v1.0'}
+                          size='small'
+                          sx={{ height: 22, fontSize: '0.75rem', fontWeight: 700 }}
+                        />
+                        <Typography variant='caption' color='text.secondary'>
+                          {template.lastEdited || 'Active'}
+                        </Typography>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </Stack>
+          </Grid>
+
+          {/* Main Content: Preview Canvas */}
+          <Grid size={{ xs: 12, md: 9 }}>
+            <Card
+              sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: 'none',
+                borderRadius: 'var(--sf-radius-lg, 12px)',
+                minHeight: 600,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              {/* Canvas Toolbar */}
+              <Box
+                sx={{
+                  p: 2,
+                  borderBottom: '1px solid',
+                  borderColor: 'divider',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <Stack direction='row' spacing={1}>
+                  <Button
+                    size='small'
+                    startIcon={<Visibility />}
+                    variant={view === 'preview' ? 'contained' : 'text'}
+                    onClick={() => setView('preview')}
+                    sx={{
+                      textTransform: 'none',
+                      fontWeight: 700,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      boxShadow: 'none',
+                    }}
+                  >
+                    {t('auth.admin.preview', 'Preview')}
+                  </Button>
+                  <Button
+                    size='small'
+                    startIcon={<Code />}
+                    variant={view === 'code' ? 'contained' : 'text'}
+                    onClick={() => setView('code')}
+                    sx={{
+                      textTransform: 'none',
+                      fontWeight: 700,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      boxShadow: 'none',
+                    }}
+                  >
+                    {t('auth.admin.source', 'Source HTML')}
+                  </Button>
+                </Stack>
+
+                <Stack
+                  direction='row'
+                  spacing={1}
+                  sx={{ bgcolor: 'action.hover', p: 0.5, borderRadius: 'var(--sf-radius-md, 8px)' }}
+                >
+                  <Tooltip title={t('auth.admin.desktopView', 'Desktop View (600px)')}>
+                    <IconButton
+                      size='small'
+                      color={device === 'desktop' ? 'primary' : 'default'}
+                      onClick={() => setDevice('desktop')}
+                    >
+                      <Laptop fontSize='small' />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={t('auth.admin.mobileView', 'Mobile View (360px)')}>
+                    <IconButton
+                      size='small'
+                      color={device === 'mobile' ? 'primary' : 'default'}
+                      onClick={() => setDevice('mobile')}
+                    >
+                      <Smartphone fontSize='small' />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+              </Box>
+
+              {/* Preview Area */}
+              <Box
+                sx={{
+                  p: 4,
+                  flex: 1,
+                  bgcolor: 'action.hover',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'flex-start',
+                  overflow: 'auto',
+                }}
+              >
+                <Paper
+                  elevation={1}
+                  sx={{
+                    width: device === 'desktop' ? 600 : 360,
+                    minHeight: 450,
+                    p: 3,
+                    // An email client paints on a white canvas whatever the app theme is,
+                    // so the preview pins its ground and text colour rather than following
+                    // the (possibly dark) surface tokens.
+                    bgcolor: 'common.white',
+                    color: 'grey.900',
+                    borderRadius: 'var(--sf-radius-lg, 12px)',
+                    transition:
+                      'width var(--sf-duration-slow, 280ms) var(--sf-ease-standard, ease)',
+                    boxShadow: 'var(--sf-shadow-md)',
+                    '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
+                  }}
+                >
+                  {view === 'preview' ? (
+                    // Render server-supplied template HTML inside a fully sandboxed,
+                    // same-origin-isolated iframe. `sandbox=""` blocks scripts, forms,
+                    // popups and top-navigation, so untrusted markup cannot run in the
+                    // admin's origin (defends against stored XSS via template content
+                    // or interpolated variables).
+                    <iframe
+                      title='email-template-preview'
+                      sandbox=''
+                      srcDoc={templateHtml}
+                      style={{
+                        width: '100%',
+                        minHeight: 420,
+                        border: 0,
+                        background: 'transparent',
+                      }}
+                    />
+                  ) : (
+                    <pre
+                      style={{
+                        fontFamily: 'monospace',
+                        fontSize: '12px',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-all',
+                        color: 'inherit',
+                      }}
+                    >
+                      {templateHtml}
+                    </pre>
+                  )}
+                </Paper>
+              </Box>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-    </Box>
+      </Box>
     </motion.div>
   )
 }

@@ -15,14 +15,14 @@ import {
   Avatar,
   Alert,
   CircularProgress,
-  IconButton,
   alpha,
   useTheme,
 } from '@mui/material'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
-import CloseIcon from '@mui/icons-material/Close'
+import { useTranslation } from 'react-i18next'
 import { useDeleteUserMutation } from '../hooks/useUserDirectoryMutations'
 import { UserDirectoryItemDTO, UserDetailDTO } from '../types/userDirectory.types'
+import DialogCloseButton from './DialogCloseButton'
 
 export interface DeleteUserDialogProps {
   open: boolean
@@ -38,6 +38,7 @@ export default function DeleteUserDialog({
   onSuccess,
 }: DeleteUserDialogProps) {
   const theme = useTheme()
+  const { t } = useTranslation('common')
   const [reason, setReason] = useState('')
   const [confirmEmail, setConfirmEmail] = useState('')
 
@@ -54,7 +55,7 @@ export default function DeleteUserDialog({
     if (!user) return
     deleteUserMutation.mutate({
       id: user.id,
-      reason: reason.trim() || 'Admin deletion',
+      reason: reason.trim() || t('auth.userDirectory.dialogs.delete.defaultReason', 'Admin deletion'),
     })
   }
 
@@ -67,16 +68,18 @@ export default function DeleteUserDialog({
       onClose={deleteUserMutation.isPending ? undefined : onClose}
       maxWidth='xs'
       fullWidth
+      aria-labelledby='delete-user-dialog-title'
       PaperProps={{
         sx: {
           borderRadius: 'var(--sf-radius-lg, 12px)',
-          boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.25)',
+          boxShadow: `0 24px 48px -12px ${alpha(theme.palette.common.black, 0.25)}`,
           overflow: 'hidden',
           border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
         },
       }}
     >
       <DialogTitle
+        component='div'
         sx={{
           p: 3,
           pb: 2,
@@ -98,17 +101,21 @@ export default function DeleteUserDialog({
             <WarningAmberIcon />
           </Box>
           <Box>
-            <Typography variant='h6' fontWeight={700} color='error.main'>
-              Delete User Account
+            <Typography
+              id='delete-user-dialog-title'
+              variant='h6'
+              component='h2'
+              fontWeight={700}
+              color='error.main'
+            >
+              {t('auth.userDirectory.dialogs.delete.title', 'Delete user account')}
             </Typography>
             <Typography variant='caption' color='text.secondary'>
-              This action soft-deletes the user profile
+              {t('auth.userDirectory.dialogs.delete.subtitle', 'This action soft-deletes the user profile')}
             </Typography>
           </Box>
         </Stack>
-        <IconButton onClick={onClose} size='small' disabled={deleteUserMutation.isPending}>
-          <CloseIcon fontSize='small' />
-        </IconButton>
+        <DialogCloseButton onClick={onClose} disabled={deleteUserMutation.isPending} />
       </DialogTitle>
 
       <DialogContent sx={{ p: 3, pt: 1 }}>
@@ -143,18 +150,22 @@ export default function DeleteUserDialog({
           )}
 
           <Alert severity='error' sx={{ '& .MuiAlert-message': { fontSize: '0.8125rem' } }}>
-            Deleting this account will immediately revoke all access tokens, active sessions, and
-            permissions. Associated data will be archived according to tenant retention policies.
+            {t(
+              'auth.userDirectory.dialogs.delete.warning',
+              'Deleting this account will immediately revoke all access tokens, active sessions, and permissions. Associated data will be archived according to tenant retention policies.',
+            )}
           </Alert>
 
           <Box>
             <Typography variant='caption' color='text.secondary' display='block' mb={0.75}>
-              Type <strong>{user?.email}</strong> to confirm:
+              {t('auth.userDirectory.dialogs.delete.confirmPrefix', 'Type')} <strong>{user?.email}</strong>{' '}
+              {t('auth.userDirectory.dialogs.delete.confirmSuffix', 'to confirm:')}
             </Typography>
             <TextField
               fullWidth
-              size='small'
               placeholder={user?.email}
+              inputProps={{ 'aria-label': t('auth.userDirectory.dialogs.delete.confirmAria', 'Type the account email to confirm deletion') }}
+              InputProps={{ sx: { minHeight: 48 } }}
               value={confirmEmail}
               onChange={(e) => setConfirmEmail(e.target.value)}
             />
@@ -162,9 +173,9 @@ export default function DeleteUserDialog({
 
           <TextField
             fullWidth
-            size='small'
-            label='Reason for deletion (Optional)'
-            placeholder='e.g. Employee offboarding, GDPR request'
+            label={t('auth.userDirectory.dialogs.delete.reason', 'Reason for deletion (optional)')}
+            placeholder={t('auth.userDirectory.dialogs.delete.reasonPlaceholder', 'e.g. Employee offboarding, GDPR request')}
+            InputProps={{ sx: { minHeight: 48 } }}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
@@ -179,8 +190,12 @@ export default function DeleteUserDialog({
           justifyContent: 'space-between',
         }}
       >
-        <Button onClick={onClose} color='inherit' sx={{ textTransform: 'none', fontWeight: 600 }}>
-          Cancel
+        <Button
+          onClick={onClose}
+          color='inherit'
+          sx={{ textTransform: 'none', fontWeight: 600, minHeight: 44 }}
+        >
+          {t('auth.common.cancel', 'Cancel')}
         </Button>
         <Button
           onClick={handleDelete}
@@ -193,12 +208,13 @@ export default function DeleteUserDialog({
             px: 3,
             borderRadius: 'var(--sf-radius-md, 8px)',
             minWidth: 120,
+            minHeight: 44,
           }}
         >
           {deleteUserMutation.isPending ? (
             <CircularProgress size={20} color='inherit' />
           ) : (
-            'Delete User'
+            t('auth.userDirectory.dialogs.delete.confirm', 'Delete user')
           )}
         </Button>
       </DialogActions>

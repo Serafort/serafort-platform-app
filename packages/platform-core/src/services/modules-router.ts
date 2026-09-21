@@ -1,38 +1,43 @@
 import { modulePipelineService } from './module-pipeline.service'
+import { moduleInventoryService } from './module-inventory.service'
+import { moduleEnablementService } from './module-enablement.service'
 import type { ModulePipelineJob, ModuleUploadResponse, ModuleStatusInfo } from '@cap/shared-types'
 
+/** Archives larger than this are rejected before any parsing work starts. */
+const MAX_ARCHIVE_BYTES = 50 * 1024 * 1024
+
 /**
- * Module Management Service API layer connecting React UI components
- * to the backend workflow pipeline.
+ * Facade the Module Management screen talks to. It reads the live module
+ * registry and the persisted enablement state; there is no module backend
+ * behind it, and nothing here pretends otherwise.
  */
 export class ModulesRouterService {
   /**
-   * Upload a `.zip` module package file and launch pipeline workflow
+   * Reads a candidate `.zip` and starts its inspection. Resolves as soon as
+   * the job exists so the caller can render progress while it runs.
    */
   public async uploadModuleZip(file: File): Promise<ModuleUploadResponse> {
-    if (!file.name.endsWith('.zip')) {
-      throw new Error('Invalid file format. Please upload a valid .zip module archive.')
+    if (!file.name.toLowerCase().endsWith('.zip')) {
+      throw new Error('Invalid file format. Please select a .zip module archive.')
+    }
+    if (file.size === 0) {
+      throw new Error('That file is empty.')
+    }
+    if (file.size > MAX_ARCHIVE_BYTES) {
+      throw new Error(`Archive exceeds the ${MAX_ARCHIVE_BYTES / 1024 / 1024} MB limit.`)
     }
 
     const job = modulePipelineService.createJob(file.name, file.size)
-
-    // Read file buffer
     const arrayBuffer = await file.arrayBuffer()
 
-    // Trigger async pipeline execution
-    modulePipelineService.executePipeline(job.jobId, arrayBuffer).catch((err) => {
-      console.error(`Pipeline job ${job.jobId} execution error:`, err)
+    modulePipelineService.inspectArchive(job.jobId, arrayBuffer).catch((err) => {
+      console.error(`Inspection job ${job.jobId} failed unexpectedly:`, err)
     })
 
-    return {
-      jobId: job.jobId,
-      message: 'Module zip uploaded successfully. Processing pipeline started.',
-    }
+    return { jobId: job.jobId, message: 'Archive received. Inspection started.' }
   }
 
-  /**
-   * Poll current pipeline job status
-   */
+  /** Polls the current state of an inspection job. */
   public async getJobStatus(jobId: string): Promise<ModulePipelineJob> {
     const job = modulePipelineService.getJob(jobId)
     if (!job) {
@@ -41,26 +46,38 @@ export class ModulesRouterService {
     return job
   }
 
-  /**
-   * Get list of installed modules in workspace
-   */
+  /** Every module registered in this shell, enabled or not. */
   public async listInstalledModules(): Promise<ModuleStatusInfo[]> {
-    return modulePipelineService.getInstalledModules()
+    return moduleInventoryService.listModules()
+  }
+
+  /** Routes actually mounted in the router for the currently enabled modules. */
+  public countRegisteredRoutes(): number {
+    return moduleInventoryService.countRegisteredRoutes()
   }
 
   /**
-   * Enable or disable an installed module
+   * Switches a module on or off. The change is persisted and takes effect in
+   * the shell immediately — routes, menu entries and command-palette entries
+   * follow it.
    */
   public async toggleModuleStatus(
     id: string,
     enabled: boolean,
   ): Promise<{ success: boolean; message: string; status: 'active' | 'disabled' }> {
-    const newStatus = enabled ? 'active' : 'disabled'
+    moduleEnablementService.setEnabled(id, enabled)
+    const applied = moduleEnablementService.isEnabled(id)
+
     return {
       success: true,
-      message: `Module "${id}" status changed to ${newStatus}`,
-      status: newStatus,
+      message: `Module "${id}" is now ${applied ? 'active' : 'disabled'}.`,
+      status: applied ? 'active' : 'disabled',
     }
+  }
+
+  /** Subscribe to enablement changes (including from another browser tab). */
+  public subscribe(listener: () => void): () => void {
+    return moduleEnablementService.subscribe(listener)
   }
 }
 

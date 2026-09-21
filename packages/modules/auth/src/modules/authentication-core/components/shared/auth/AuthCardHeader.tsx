@@ -56,17 +56,24 @@ const AuthCardHeader: React.FC<AuthCardHeaderProps> = ({
       component={component}
       variant='h4'
       sx={{
-        fontWeight: 800,
+        fontFamily: 'var(--sf-font-display, inherit)',
+        fontWeight: 700,
         mb: subtitle ? 1 : 0,
-        letterSpacing: '-0.027em',
-        fontSize: { xs: '1.5rem', sm: '1.75rem' },
+        letterSpacing: '-0.02em',
+        lineHeight: 1.2,
+        textWrap: 'balance',
+        fontSize: { xs: 'var(--sf-text-xl, 1.4375rem)', sm: 'var(--sf-text-2xl, 1.875rem)' },
         ...(toneTitle ? { color: `${tone}.main` } : {}),
       }}
     >
       {title}
     </Typography>
     {subtitle && (
-      <Typography variant='body1' color='text.secondary' sx={{ fontWeight: 500, lineHeight: 1.6 }}>
+      <Typography
+        variant='body1'
+        color='text.secondary'
+        sx={{ fontSize: 'var(--sf-text-md, 0.9375rem)', lineHeight: 1.6 }}
+      >
         {subtitle}
       </Typography>
     )}

@@ -54,7 +54,7 @@ const ConfirmationDialog = ({
     }
   }
 
-  const getButtonColor = () => {
+  const getButtonColor = (): 'error' | 'info' | 'warning' => {
     return severity === 'error' ? 'error' : severity === 'info' ? 'info' : 'warning'
   }
 
@@ -64,10 +64,11 @@ const ConfirmationDialog = ({
       onClose={isSubmitting ? undefined : onClose}
       PaperProps={{
         sx: {
-          borderRadius: 'var(--sf-radius-lg, 12px)',
+          borderRadius: 'var(--sf-radius-xl, 16px)',
           p: 2,
           maxWidth: 400,
-          boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
+          backgroundImage: 'none',
+          boxShadow: 'var(--sf-shadow-xl)',
         },
       }}
     >
@@ -76,7 +77,7 @@ const ConfirmationDialog = ({
           sx={{
             width: 64,
             height: 64,
-            borderRadius: '50%',
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             bgcolor: getBgColor(),
             display: 'flex',
             alignItems: 'center',
@@ -88,7 +89,16 @@ const ConfirmationDialog = ({
           {getIcon()}
         </Box>
 
-        <Typography variant='h5' sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.02em' }}>
+        <Typography
+          variant='h5'
+          component='h2'
+          sx={{
+            fontFamily: 'var(--sf-font-display, inherit)',
+            fontWeight: 700,
+            fontSize: 'var(--sf-text-lg, 1.0625rem)',
+            mb: 1,
+          }}
+        >
           {title}
         </Typography>
 
@@ -100,7 +110,7 @@ const ConfirmationDialog = ({
           <Button
             fullWidth
             variant='contained'
-            color={getButtonColor() as any}
+            color={getButtonColor()}
             onClick={onConfirm}
             disabled={isSubmitting}
             sx={{

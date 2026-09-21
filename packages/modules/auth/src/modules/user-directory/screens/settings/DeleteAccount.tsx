@@ -47,9 +47,11 @@ import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import logger from '@idaas/authentication-core/utils/logger'
 import { Path } from '../../../../routes/path'
+import type { TFunction } from 'i18next'
+import { getPlainErrorMessage } from '../../types/api.types'
 
 // Validation Schema Factory
-const deleteAccountSchema = (t: any) =>
+const deleteAccountSchema = (t: TFunction) =>
   z.object({
     password: z
       .string()
@@ -100,15 +102,17 @@ export default function DeleteAccount() {
       setOpenConfirmDialog(false)
       navigate(Path.auth.signin)
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       addNotification({
         type: 'error',
         title: t('auth.account.error', 'Error'),
         message:
-          err?.message ||
-          t(
-            'auth.common.errorOccurred',
-            'An error occurred while attempting to delete the account.',
+          getPlainErrorMessage(
+            err,
+            t(
+              'auth.common.errorOccurred',
+              'An error occurred while attempting to delete the account.',
+            ),
           ),
       })
       setOpenConfirmDialog(false)
@@ -188,7 +192,7 @@ export default function DeleteAccount() {
   return (
     <>
       <title>
-        {t('auth.account.delete_account', 'Delete Account')} - {themeConfig.templateName}
+        {t('auth.account.delete_account_title', 'Delete Account')} - {themeConfig.templateName}
       </title>
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -259,8 +263,8 @@ export default function DeleteAccount() {
             bgcolor: 'background.paper',
             boxShadow: (theme) =>
               theme.palette.mode === 'dark'
-                ? `0 12px 32px -4px ${alpha(theme.palette.error.main, 0.15)}, 0 4px 16px rgba(0, 0, 0, 0.4)`
-                : `0 12px 32px -4px ${alpha(theme.palette.error.main, 0.08)}, 0 4px 16px rgba(15, 23, 42, 0.04)`,
+                ? `0 12px 32px -4px ${alpha(theme.palette.error.main, 0.15)}, 0 4px 16px ${alpha(theme.palette.common.black, 0.4)}`
+                : `0 12px 32px -4px ${alpha(theme.palette.error.main, 0.08)}, 0 4px 16px ${alpha(theme.palette.text.primary, 0.04)}`,
             position: 'relative',
             overflow: 'hidden',
             zIndex: 1,
@@ -317,7 +321,7 @@ export default function DeleteAccount() {
                     lineHeight: 1.2,
                   }}
                 >
-                  {t('auth.account.delete_account', 'Delete Account')}
+                  {t('auth.account.delete_account_title', 'Delete Account')}
                 </Typography>
 
                 <Typography
@@ -351,7 +355,7 @@ export default function DeleteAccount() {
                   color: 'error.main',
                 }}
               >
-                {(deleteError as any)?.message ||
+                {getPlainErrorMessage(deleteError) ||
                   t(
                     'auth.common.errorOccurred',
                     'An error occurred while attempting to delete the account.',
@@ -673,7 +677,7 @@ export default function DeleteAccount() {
                                     onClick={() => setShowPassword(!showPassword)}
                                     edge='end'
                                     size='small'
-                                    aria-label='toggle password visibility'
+                                    aria-label={t('auth.userDirectory.deleteAccount.togglePasswordVisibility', 'toggle password visibility')}
                                   >
                                     {showPassword ? (
                                       <VisibilityOff sx={{ fontSize: 18 }} />

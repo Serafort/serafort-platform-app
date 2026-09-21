@@ -260,7 +260,7 @@ export default function OidcWaitScreen() {
               sx={{
                 mb: 4,
                 borderRadius: 'var(--sf-radius-md, 10px)',
-                textAlign: 'left',
+                textAlign: 'start',
                 '& .MuiAlert-message': { fontWeight: 600 },
               }}
             >
@@ -271,7 +271,7 @@ export default function OidcWaitScreen() {
               <Button
                 variant='outlined'
                 startIcon={<ArrowBackIcon />}
-                onClick={() => navigate(Path.auth.login)}
+                onClick={() => navigate(Path.auth.signin)}
                 sx={{
                   minHeight: 44,
                   fontWeight: 700,

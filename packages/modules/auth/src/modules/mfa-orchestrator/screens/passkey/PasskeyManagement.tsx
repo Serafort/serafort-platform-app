@@ -57,6 +57,20 @@ interface PasskeyDevice {
   credentialId: string
 }
 
+/** The passkey list endpoint answers in camelCase or snake_case depending on the backend build. */
+interface RawPasskeyRecord {
+  id: string | number
+  name?: string
+  deviceType?: PasskeyDevice['deviceType']
+  device_type?: PasskeyDevice['deviceType']
+  createdAt?: string
+  created_at?: string
+  lastUsedAt?: string | null
+  last_used_at?: string | null
+  credentialId?: string
+  credential_id?: string
+}
+
 interface MenuState {
   anchorEl: HTMLElement | null
   passkey: PasskeyDevice | null
@@ -172,14 +186,17 @@ export default function PasskeyManagement() {
   const updatePasskeyMutation = useUpdatePasskey()
 
   const passkeys: PasskeyDevice[] = useMemo(() => {
-    return (passkeysRes?.data || []).map((pk: any) => ({
-      id: pk.id,
-      name: pk.name || t('auth.passkey.unnamed_device', 'Unnamed Device'),
-      deviceType: pk.deviceType || pk.device_type || 'laptop',
-      createdAt: pk.createdAt || pk.created_at || new Date().toISOString(),
-      lastUsedAt: pk.lastUsedAt || pk.last_used_at || null,
-      credentialId: pk.credentialId || pk.credential_id || '',
-    }))
+    return (passkeysRes || []).map((record) => {
+      const pk = record as unknown as RawPasskeyRecord
+      return {
+        id: pk.id,
+        name: pk.name || t('auth.passkey.unnamed_device', 'Unnamed Device'),
+        deviceType: pk.deviceType || pk.device_type || 'laptop',
+        createdAt: pk.createdAt || pk.created_at || new Date().toISOString(),
+        lastUsedAt: pk.lastUsedAt || pk.last_used_at || null,
+        credentialId: pk.credentialId || pk.credential_id || '',
+      }
+    })
   }, [passkeysRes, t])
 
   // Handlers
@@ -425,8 +442,8 @@ export default function PasskeyManagement() {
             overflow: 'hidden',
             boxShadow: (theme) =>
               theme.palette.mode === 'dark'
-                ? '0 4px 24px rgba(0, 0, 0, 0.4)'
-                : '0 4px 20px rgba(0, 0, 0, 0.04)',
+                ? `0 4px 24px ${alpha(theme.palette.common.black, 0.4)}`
+                : `0 4px 20px ${alpha(theme.palette.text.primary, 0.04)}`,
           }}
         >
           {isLoading ? (
@@ -798,8 +815,8 @@ export default function PasskeyManagement() {
               borderRadius: 'var(--sf-radius-md, 12px)',
               boxShadow: (theme) =>
                 theme.palette.mode === 'dark'
-                  ? '0 12px 32px rgba(0, 0, 0, 0.6)'
-                  : '0 8px 24px rgba(15, 23, 42, 0.12)',
+                ? `0 12px 32px ${alpha(theme.palette.common.black, 0.6)}`
+                : `0 8px 24px ${alpha(theme.palette.text.primary, 0.12)}`,
               border: (theme) => `1px solid ${theme.palette.divider}`,
               p: 0.5,
             },
@@ -851,8 +868,8 @@ export default function PasskeyManagement() {
               border: (theme) => `1px solid ${theme.palette.divider}`,
               boxShadow: (theme) =>
                 theme.palette.mode === 'dark'
-                  ? '0 24px 48px -12px rgba(0, 0, 0, 0.8)'
-                  : '0 24px 48px -12px rgba(15, 23, 42, 0.25)',
+                ? `0 24px 48px -12px ${alpha(theme.palette.common.black, 0.8)}`
+                : `0 24px 48px -12px ${alpha(theme.palette.text.primary, 0.25)}`,
             },
           },
         }}
@@ -939,8 +956,8 @@ export default function PasskeyManagement() {
               border: (theme) => `1px solid ${theme.palette.divider}`,
               boxShadow: (theme) =>
                 theme.palette.mode === 'dark'
-                  ? '0 24px 48px -12px rgba(0, 0, 0, 0.8)'
-                  : '0 24px 48px -12px rgba(15, 23, 42, 0.25)',
+                ? `0 24px 48px -12px ${alpha(theme.palette.common.black, 0.8)}`
+                : `0 24px 48px -12px ${alpha(theme.palette.text.primary, 0.25)}`,
             },
           },
         }}

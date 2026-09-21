@@ -49,6 +49,9 @@ export interface DirectoryConnector {
 export interface CreateConnectorDTO {
   name: string
   type: ConnectorType
+  /** Required by the backend when creating a connector. */
+  organizationId?: number
+  config?: Record<string, unknown>
   endpoint_url?: string
   sync_interval_minutes?: number
   base_dn?: string
@@ -79,6 +82,9 @@ export interface SyncLog {
   connector_id?: string | number
   timestamp?: string
   created_at?: string
+  createdAt?: string
+  /** Older payloads name the event `action`. */
+  action?: string
   event: 'user_created' | 'user_updated' | 'user_deleted' | 'group_synced' | 'sync_error' | string
   target: string // User email or Group name
   status: 'success' | 'failure' | 'warning' | string

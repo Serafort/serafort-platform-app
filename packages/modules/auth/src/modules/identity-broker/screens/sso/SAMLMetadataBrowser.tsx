@@ -36,6 +36,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { toast } from 'react-toastify'
 import { useFetchRemoteMetadata, useRecentSAMLEntities, Path } from '@auth'
+import type { RecentSAMLEntity } from '../../types/saml.types'
 
 export default function SAMLMetadataBrowser() {
   const { t } = useTranslation()
@@ -50,7 +51,9 @@ export default function SAMLMetadataBrowser() {
     onSuccess: (response) => {
       const data = response.data
       // Persist to local storage recent list
-      const recent = JSON.parse(localStorage.getItem('recent_saml_entities') || '[]')
+      const recent: RecentSAMLEntity[] = JSON.parse(
+        localStorage.getItem('recent_saml_entities') || '[]',
+      )
       const updated = [
         {
           id: `local-${Date.now()}`,
@@ -60,7 +63,7 @@ export default function SAMLMetadataBrowser() {
           verified: false,
           isLocal: true,
         },
-        ...recent.filter((e: any) => e.entityId !== data.entityId),
+        ...recent.filter((e) => e.entityId !== data.entityId),
       ].slice(0, 10)
       localStorage.setItem('recent_saml_entities', JSON.stringify(updated))
 
@@ -89,12 +92,14 @@ export default function SAMLMetadataBrowser() {
   }
 
   const entities = useMemo(() => {
-    const backendEntities = recentResponse?.data || []
-    const localEntities = JSON.parse(localStorage.getItem('recent_saml_entities') || '[]')
+    const backendEntities = (recentResponse?.data || []) as unknown as RecentSAMLEntity[]
+    const localEntities: RecentSAMLEntity[] = JSON.parse(
+      localStorage.getItem('recent_saml_entities') || '[]',
+    )
 
     // Merge and deduplicate
     // ⚡ Bolt Performance Optimization: Replaced O(N^2) reduce/find with O(N) Map lookup for entity deduplication
-    const entityMap = new Map()
+    const entityMap = new Map<string, RecentSAMLEntity>()
     for (const entity of [...localEntities, ...backendEntities]) {
       if (!entityMap.has(entity.entityId)) {
         entityMap.set(entity.entityId, entity)
@@ -106,7 +111,7 @@ export default function SAMLMetadataBrowser() {
 
     const query = filterQuery.toLowerCase()
     return allEntities.filter(
-      (e: any) => e.name.toLowerCase().includes(query) || e.entityId.toLowerCase().includes(query),
+      (e) => e.name.toLowerCase().includes(query) || e.entityId.toLowerCase().includes(query),
     )
   }, [recentResponse?.data, filterQuery])
 

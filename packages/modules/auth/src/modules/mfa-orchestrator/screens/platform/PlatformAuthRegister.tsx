@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { errorMessage } from '../../utils/errors'
 import {
   Box,
   Button,
@@ -63,9 +64,9 @@ export default function PlatformAuthRegister() {
     try {
       await registerPasskey()
       setIsComplete(true)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setLocalError(
-        err?.message || t('passkey.register_failed', 'Failed to register biometric authenticator.'),
+        errorMessage(err) || t('passkey.register_failed', 'Failed to register biometric authenticator.'),
       )
     }
   }
@@ -248,7 +249,7 @@ export default function PlatformAuthRegister() {
               fullWidth
               variant='contained'
               size='large'
-              onClick={() => navigate(AuthPath.account.overview || '/dashboard')}
+              onClick={() => navigate(AuthPath.account.overview)}
               endIcon={<ArrowForward />}
               sx={{
                 minHeight: 48,

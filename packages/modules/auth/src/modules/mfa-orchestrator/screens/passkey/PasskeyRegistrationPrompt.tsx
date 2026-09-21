@@ -25,6 +25,7 @@ import {
   AuthCardHeader,
 } from '../../../authentication-core/components/shared/auth'
 import { usePasskey } from '../../hooks'
+import { AppPaths } from '@cap/shared-types'
 
 export default function PasskeyRegistrationPrompt() {
   const { t } = useTranslation('auth')
@@ -34,7 +35,7 @@ export default function PasskeyRegistrationPrompt() {
   const handleCreatePasskey = async () => {
     try {
       await registerPasskey()
-      navigate('/dashboard')
+      navigate(AppPaths.dashboard.dashboard)
     } catch {
       // Error handled via usePasskey state
     }
@@ -161,7 +162,7 @@ export default function PasskeyRegistrationPrompt() {
           <Button
             fullWidth
             variant='text'
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate(AppPaths.dashboard.dashboard)}
             disabled={isLoading}
             sx={{
               minHeight: 44,

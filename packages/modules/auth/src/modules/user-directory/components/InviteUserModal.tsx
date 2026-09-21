@@ -25,21 +25,18 @@ import {
   OutlinedInput,
   Stack,
   Alert,
-  IconButton,
   Tooltip,
   Divider,
   alpha,
   useTheme,
 } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import GroupAddIcon from '@mui/icons-material/GroupAdd'
 import SecurityIcon from '@mui/icons-material/Security'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useTranslation } from 'react-i18next'
 import {
   inviteUserSchema,
   bulkInviteUserSchema,
@@ -51,6 +48,8 @@ import {
   useInviteUserMutation,
   useBulkInviteUsersMutation,
 } from '../hooks/useUserDirectoryMutations'
+import DialogCloseButton from './DialogCloseButton'
+import { useTranslation } from 'react-i18next'
 
 export interface InviteUserModalProps {
   open: boolean
@@ -65,30 +64,12 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
 
   // Roles query
   const { data: rolesResponse, isLoading: isRolesLoading } = useRolesQuery()
-  const availableRoles = useMemo(() => {
-    return (
-      rolesResponse?.data || [
-        { id: 1, name: 'User', slug: 'user', description: 'Standard tenant user access' },
-        {
-          id: 2,
-          name: 'Administrator',
-          slug: 'admin',
-          description: 'Full tenant admin privileges',
-        },
-        { id: 3, name: 'Manager', slug: 'manager', description: 'Department and team management' },
-        {
-          id: 4,
-          name: 'Auditor',
-          slug: 'auditor',
-          description: 'Read-only audit and compliance log access',
-        },
-      ]
-    )
-  }, [rolesResponse])
+  // Tenant roles only -- never a client-side placeholder list (see AssignRolesModal).
+  const availableRoles = useMemo(() => rolesResponse?.data ?? [], [rolesResponse])
 
   // Single User Form
   const singleForm = useForm<InviteUserFormData>({
-    resolver: zodResolver(inviteUserSchema) as any,
+    resolver: zodResolver(inviteUserSchema) as unknown as Resolver<InviteUserFormData>,
     mode: 'onBlur',
     defaultValues: {
       email: '',
@@ -104,7 +85,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
 
   // Bulk User Form
   const bulkForm = useForm<BulkInviteUserFormData>({
-    resolver: zodResolver(bulkInviteUserSchema) as any,
+    resolver: zodResolver(bulkInviteUserSchema) as unknown as Resolver<BulkInviteUserFormData>,
     mode: 'onBlur',
     defaultValues: {
       emails: '',
@@ -121,11 +102,12 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
       onClose()
       onSuccess?.()
     },
-    onError: (err: any) => {
-      const fieldErrors = err?.response?.data?.errors
+    onError: (err) => {
+      const fieldErrors = (err as { response?: { data?: { errors?: unknown } } })?.response?.data
+        ?.errors
       if (fieldErrors && typeof fieldErrors === 'object') {
         Object.entries(fieldErrors).forEach(([field, msg]) => {
-          singleForm.setError(field as any, { message: Array.isArray(msg) ? msg[0] : String(msg) })
+          singleForm.setError(field as keyof InviteUserFormData, { message: Array.isArray(msg) ? msg[0] : String(msg) })
         })
       }
     },
@@ -163,7 +145,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
       PaperProps={{
         sx: {
           borderRadius: 'var(--sf-radius-lg, 12px)',
-          boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.25)',
+          boxShadow: `0 24px 48px -12px ${alpha(theme.palette.common.black, 0.25)}`,
           overflow: 'hidden',
           border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
           backgroundImage: 'none',
@@ -197,24 +179,16 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
           </Box>
           <Box>
             <Typography variant='h6' fontWeight={700}>
-              {tabIndex === 0 ? 'Invite Single User' : 'Bulk User Invitation'}
+              {tabIndex === 0
+                ? t('auth.userDirectory.invite.titleSingle', 'Invite single user')
+                : t('auth.userDirectory.invite.titleBulk', 'Bulk user invitation')}
             </Typography>
             <Typography variant='caption' color='text.secondary'>
-              Provision access and roles for new directory members
+              {t('auth.userDirectory.invite.provisionAccessAndRoles', 'Provision access and roles for new directory members')}
             </Typography>
           </Box>
         </Stack>
-        <IconButton
-          onClick={onClose}
-          size='small'
-          disabled={isSubmitting}
-          sx={{
-            color: 'text.secondary',
-            '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.05) },
-          }}
-        >
-          <CloseIcon fontSize='small' />
-        </IconButton>
+        <DialogCloseButton onClick={onClose} disabled={isSubmitting} />
       </DialogTitle>
 
       {/* Tabs */}
@@ -232,8 +206,8 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
             },
           }}
         >
-          <Tab icon={<PersonAddIcon fontSize='small' />} iconPosition='start' label='Single User' />
-          <Tab icon={<GroupAddIcon fontSize='small' />} iconPosition='start' label='Bulk Import' />
+          <Tab icon={<PersonAddIcon fontSize='small' />} iconPosition='start' label={t('auth.userDirectory.invite.singleUser', 'Single User')} />
+          <Tab icon={<GroupAddIcon fontSize='small' />} iconPosition='start' label={t('auth.userDirectory.invite.bulkImport', 'Bulk Import')} />
         </Tabs>
       </Box>
 
@@ -250,8 +224,8 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                     <TextField
                       {...field}
                       fullWidth
-                      label='First Name'
-                      placeholder='e.g. John'
+                      label={t('auth.userDirectory.invite.firstName', 'First Name')}
+                      placeholder={t('auth.userDirectory.invite.placeholderFirstName', 'e.g. John')}
                       error={Boolean(fieldState.error)}
                       helperText={fieldState.error?.message}
                       required
@@ -267,8 +241,8 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                     <TextField
                       {...field}
                       fullWidth
-                      label='Last Name'
-                      placeholder='e.g. Doe'
+                      label={t('auth.userDirectory.invite.lastName', 'Last Name')}
+                      placeholder={t('auth.userDirectory.invite.placeholderLastName', 'e.g. Doe')}
                       error={Boolean(fieldState.error)}
                       helperText={fieldState.error?.message}
                       required
@@ -285,8 +259,8 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                       {...field}
                       fullWidth
                       type='email'
-                      label='Email Address'
-                      placeholder='e.g. john.doe@company.com'
+                      label={t('auth.userDirectory.invite.emailAddress', 'Email Address')}
+                      placeholder={t('auth.userDirectory.invite.placeholderEmail', 'e.g. john.doe@company.com')}
                       error={Boolean(fieldState.error)}
                       helperText={fieldState.error?.message}
                       required
@@ -302,8 +276,8 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                     <TextField
                       {...field}
                       fullWidth
-                      label='Department'
-                      placeholder='e.g. Engineering'
+                      label={t('auth.userDirectory.invite.department', 'Department')}
+                      placeholder={t('auth.userDirectory.invite.placeholderDepartment', 'e.g. Engineering')}
                       error={Boolean(fieldState.error)}
                       helperText={fieldState.error?.message}
                     />
@@ -318,8 +292,8 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                     <TextField
                       {...field}
                       fullWidth
-                      label='Job Title'
-                      placeholder='e.g. Senior Software Engineer'
+                      label={t('auth.userDirectory.invite.jobTitle', 'Job Title')}
+                      placeholder={t('auth.userDirectory.invite.placeholderJobTitle', 'e.g. Senior Software Engineer')}
                       error={Boolean(fieldState.error)}
                       helperText={fieldState.error?.message}
                     />
@@ -334,7 +308,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                   control={singleForm.control}
                   render={({ field, fieldState }) => (
                     <FormControl fullWidth error={Boolean(fieldState.error)}>
-                      <InputLabel id='role-select-label'>Assigned Roles</InputLabel>
+                      <InputLabel id='role-select-label'>{t('auth.userDirectory.invite.assignedRoles', 'Assigned Roles')}</InputLabel>
                       <Select
                         labelId='role-select-label'
                         multiple
@@ -343,7 +317,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                           const val = e.target.value
                           field.onChange(typeof val === 'string' ? val.split(',').map(Number) : val)
                         }}
-                        input={<OutlinedInput label='Assigned Roles' />}
+                        input={<OutlinedInput label={t('auth.userDirectory.invite.assignedRoles', 'Assigned Roles')} />}
                         renderValue={(selected) => (
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                             {selected.map((roleId: number) => {
@@ -351,7 +325,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                               return (
                                 <Chip
                                   key={roleId}
-                                  label={role?.name || `Role #${roleId}`}
+                                  label={role?.name || t('auth.userDirectory.editUser.roleFallback', 'Role #{{id}}', { id: roleId })}
                                   size='small'
                                   color='primary'
                                   variant='outlined'
@@ -415,7 +389,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                       display='block'
                       mb={0.75}
                     >
-                      Included Role Capabilities:
+                      {t('auth.userDirectory.invite.includedRoleCapabilities', 'Included Role Capabilities:')}
                     </Typography>
                     <Stack direction='row' flexWrap='wrap' gap={0.75}>
                       {selectedRoles.map((r) => (
@@ -451,11 +425,13 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                       label={
                         <Box>
                           <Typography variant='body2' fontWeight={600}>
-                            Send invitation email with activation link
+                            {t('auth.userDirectory.invite.sendActivationEmail', 'Send invitation email with activation link')}
                           </Typography>
                           <Typography variant='caption' color='text.secondary'>
-                            User will receive instructions to set up their password and activate
-                            their profile.
+                            {t(
+                              'auth.userDirectory.invite.activationHint',
+                              'User will receive instructions to set up their password and activate their profile.',
+                            )}
                           </Typography>
                         </Box>
                       }
@@ -469,8 +445,10 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
           <form id='invite-bulk-form' onSubmit={bulkForm.handleSubmit(handleBulkSubmit)}>
             <Stack spacing={2.5}>
               <Alert severity='info' icon={<InfoOutlinedIcon fontSize='small' />}>
-                Enter multiple email addresses separated by commas, semicolons, or new lines. Each
-                invited user will be assigned the selected roles.
+                {t(
+                  'auth.userDirectory.invite.bulkInfo',
+                  'Enter multiple email addresses separated by commas, semicolons, or new lines. Each invited user will be assigned the selected roles.',
+                )}
               </Alert>
 
               <Controller
@@ -482,8 +460,8 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                     fullWidth
                     multiline
                     rows={4}
-                    label='Email Addresses'
-                    placeholder='alex@company.com&#10;sarah@company.com&#10;david@company.com'
+                    label={t('auth.userDirectory.invite.emailAddresses', 'Email Addresses')}
+                    placeholder={'alex@company.com\nsarah@company.com\ndavid@company.com'}
                     error={Boolean(fieldState.error)}
                     helperText={fieldState.error?.message}
                     required
@@ -496,7 +474,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                 control={bulkForm.control}
                 render={({ field, fieldState }) => (
                   <FormControl fullWidth error={Boolean(fieldState.error)}>
-                    <InputLabel id='bulk-role-select-label'>Default Assigned Roles</InputLabel>
+                    <InputLabel id='bulk-role-select-label'>{t('auth.userDirectory.invite.defaultAssignedRoles', 'Default Assigned Roles')}</InputLabel>
                     <Select
                       labelId='bulk-role-select-label'
                       multiple
@@ -505,7 +483,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                         const val = e.target.value
                         field.onChange(typeof val === 'string' ? val.split(',').map(Number) : val)
                       }}
-                      input={<OutlinedInput label='Default Assigned Roles' />}
+                      input={<OutlinedInput label={t('auth.userDirectory.invite.defaultAssignedRoles', 'Default Assigned Roles')} />}
                       renderValue={(selected) => (
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                           {selected.map((roleId: number) => {
@@ -513,7 +491,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                             return (
                               <Chip
                                 key={roleId}
-                                label={role?.name || `Role #${roleId}`}
+                                label={role?.name || t('auth.userDirectory.editUser.roleFallback', 'Role #{{id}}', { id: roleId })}
                                 size='small'
                                 color='primary'
                                 variant='outlined'
@@ -565,8 +543,8 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                   <TextField
                     {...field}
                     fullWidth
-                    label='Department (Optional)'
-                    placeholder='e.g. Sales, Marketing'
+                    label={t('auth.userDirectory.invite.departmentOptional', 'Department (Optional)')}
+                    placeholder={t('auth.userDirectory.invite.placeholderBulkDepartment', 'e.g. Sales, Marketing')}
                     error={Boolean(fieldState.error)}
                     helperText={fieldState.error?.message}
                   />
@@ -586,7 +564,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
                     }
                     label={
                       <Typography variant='body2' fontWeight={600}>
-                        Send activation email to all invited users
+                        {t('auth.userDirectory.invite.sendActivationEmailTo', 'Send activation email to all invited users')}
                       </Typography>
                     }
                   />
@@ -612,7 +590,7 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
           disabled={isSubmitting}
           sx={{ textTransform: 'none', fontWeight: 600 }}
         >
-          Cancel
+          {t('auth.userDirectory.invite.cancel', 'Cancel')}
         </Button>
         <Button
           type='submit'
@@ -630,9 +608,9 @@ export default function InviteUserModal({ open, onClose, onSuccess }: InviteUser
           {isSubmitting ? (
             <CircularProgress size={20} color='inherit' />
           ) : tabIndex === 0 ? (
-            'Send Invitation'
+            t('auth.userDirectory.invite.send', 'Send invitation')
           ) : (
-            'Invite Users'
+            t('auth.userDirectory.invite.sendBulk', 'Invite users')
           )}
         </Button>
       </DialogActions>

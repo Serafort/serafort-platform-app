@@ -39,7 +39,7 @@ export const scimService = {
       ENDPOINTS.admin.scim.tokens.store,
       data,
     )
-    return { ...res, data: res.data?.data ?? (res.data as any) }
+    return { ...res, data: res.data?.data ?? (res.data as unknown as CreateSCIMTokenResponse) }
   },
 
   revokeToken: async (id: string | number): Promise<FetchResponse<{ message?: string }>> => {

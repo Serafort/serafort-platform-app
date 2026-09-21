@@ -384,7 +384,7 @@ const SAMLSSOInitiation = () => {
 
                 {/* ── Discovery result feedback ── */}
                 <Collapse in={!!providerInfo && isFetched && !isDiscovering}>
-                  <Box sx={{ mb: 2, textAlign: 'left' }}>
+                  <Box sx={{ mb: 2, textAlign: 'start' }}>
                     <AnimatePresence mode='wait'>
                       {providerInfo && (
                         <motion.div
@@ -533,7 +533,7 @@ const SAMLSSOInitiation = () => {
               fontSize: '0.6rem',
             }}
           >
-            {t('auth.sso.secure_encryption_tag', 'Verified & Protected by Antigravity OS')}
+            {t('auth.sso.secure_encryption_tag', 'Verified & protected by Serafort')}
           </Typography>
         </Stack>
       </Container>

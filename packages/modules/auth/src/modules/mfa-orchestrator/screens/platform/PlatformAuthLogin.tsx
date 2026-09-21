@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { errorMessage } from '../../utils/errors'
+import type { Theme } from '@mui/material/styles'
 import { Box, Button, Typography, CircularProgress, alpha, Alert } from '@mui/material'
 import Fingerprint from '@mui/icons-material/Fingerprint'
 import Lock from '@mui/icons-material/Lock'
@@ -13,12 +15,12 @@ import {
 } from '../../../authentication-core/components/shared/auth'
 import { usePasskey } from '../../hooks'
 import { Path as AuthPath } from '@cap/module-auth/routes/path'
+import { AppPaths } from '@cap/shared-types'
 
 export default function PlatformAuthLogin() {
   const { t } = useTranslation('auth')
   const navigate = useNavigate()
   const setUser = useAppStore((state) => state.setUser)
-  const setToken = useAppStore((state) => (state as any).setToken)
   const { loginWithPasskey, isLoading, error: passkeyError } = usePasskey()
   const [localError, setLocalError] = useState<string | null>(null)
 
@@ -30,16 +32,15 @@ export default function PlatformAuthLogin() {
         setUser(response.data.user)
       }
       if (response?.data?.token) {
-        if (setToken) setToken(response.data.token)
         secureTokenManager.setTokens({
           accessToken: response.data.token,
           expiresAt: Date.now() + (response.data.expires_in || 3600) * 1000,
         })
       }
-      navigate(AuthPath.account.overview || '/dashboard')
-    } catch (err: any) {
+      navigate(AuthPath.account.overview)
+    } catch (err: unknown) {
       setLocalError(
-        err?.message ||
+        errorMessage(err) ||
           t('passkey.biometric_cancelled', 'Biometric authentication was cancelled or failed.'),
       )
     }
@@ -74,13 +75,13 @@ export default function PlatformAuthLogin() {
                 animation: 'pulse 1.5s ease-in-out infinite',
                 '@keyframes pulse': {
                   '0%': {
-                    boxShadow: (theme: any) => `0 0 0 0 ${alpha(theme.palette.primary.main, 0.3)}`,
+                    boxShadow: (theme: Theme) => `0 0 0 0 ${alpha(theme.palette.primary.main, 0.3)}`,
                   },
                   '70%': {
-                    boxShadow: (theme: any) => `0 0 0 18px ${alpha(theme.palette.primary.main, 0)}`,
+                    boxShadow: (theme: Theme) => `0 0 0 18px ${alpha(theme.palette.primary.main, 0)}`,
                   },
                   '100%': {
-                    boxShadow: (theme: any) => `0 0 0 0 ${alpha(theme.palette.primary.main, 0)}`,
+                    boxShadow: (theme: Theme) => `0 0 0 0 ${alpha(theme.palette.primary.main, 0)}`,
                   },
                 },
               }),
@@ -156,7 +157,7 @@ export default function PlatformAuthLogin() {
           <Button
             fullWidth
             variant='text'
-            onClick={() => navigate('/auth/login')}
+            onClick={() => navigate(AppPaths.auth.signin)}
             sx={{
               minHeight: 44,
               textTransform: 'none',

@@ -1,13 +1,23 @@
 {
   "landing": {
-    "home": "الرئيسية",
-    "chronosMycelium": "كرونوس مايسيليوم",
-    "features": "مقارنة الميزات",
-    "privacyPolicy": "سياسة الخصوصية",
-    "termsOfService": "شروط الخدمة",
-    "contact": "اتصل بنا",
     "about": "من نحن",
-    "pricing": "الأسعار"
+    "aboutWidget": {
+      "primary_cta": "ابدأ الآن",
+      "secondary_cta": "استكشف الميزات"
+    },
+    "chronosMycelium": "كرونوس مايسيليوم",
+    "contact": "اتصل بنا",
+    "cta": {
+      "title": "هل أنت مستعد للبدء؟",
+      "subtitle": "أنشئ مساحة عملك وانقل فريقك إلى منصة هوية واحدة وآمنة.",
+      "primary": "إنشاء حساب",
+      "secondary": "عرض الأسعار"
+    },
+    "features": "مقارنة الميزات",
+    "home": "الرئيسية",
+    "pricing": "الأسعار",
+    "privacyPolicy": "سياسة الخصوصية",
+    "termsOfService": "شروط الخدمة"
   },
   "navigation": {
     "home": "الرئيسية",
@@ -987,7 +997,7 @@
     },
     "signUp": {
       "title": "إنشاء حساب",
-      "subtitle": "انضم إلى Antigravity OS اليوم",
+      "subtitle": "أنشئ حسابك في Serafort",
       "firstNameLabel": "الاسم الأول",
       "lastNameLabel": "اسم العائلة",
       "emailLabel": "عنوان البريد الإلكتروني",
@@ -1220,7 +1230,7 @@
       "requested_permissions": "الأذونات المطلوبة",
       "allow_access": "السماح بالوصول",
       "deny_access": "رفض الطلب",
-      "secure_encryption_tag": "تم التحقق والمحماية بواسطة Antigravity OS",
+      "secure_encryption_tag": "تم التحقق والمحماية بواسطة Serafort",
       "authenticating": "المصادقة بشكل آمن",
       "wait_description": "بناء اتصال آمن مع مزود الهوية الخاص بك. سيستغرق ذلك لحظة واحدة فقط.",
       "ssl_secure": "SSL آمن",

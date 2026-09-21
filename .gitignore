@@ -124,3 +124,5 @@ skills-lock.json
 # Release packages produced by scripts/package-release.mjs
 release/
 graphify-out/*
+# Natural Earth source cached by scripts/generate-world-geography.mjs
+scripts/.cache/

@@ -1,4 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { errorMessage, serverMessage } from '../../utils/errors'
+import type { FetchResponse } from '@cap/platform-core'
+import type { MfaLoginCompletionResponse } from '../../services/mfa.service'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Box,
@@ -36,6 +39,18 @@ import { secureTokenManager } from '@cap/platform-core'
 import { mfaService } from '../../services/mfa.service'
 import { usePasskey } from '../../hooks'
 import Path from '../path'
+import { AppPaths } from '@cap/shared-types'
+
+/** Router state handed over by whichever login step redirected to this screen. */
+interface MfaVerificationRouteState {
+  mfaToken?: string
+  mfa_token?: string
+  userId?: string | number
+  user_id?: string | number
+  email?: string
+  redirectUrl?: string
+}
+
 
 type MfaVerificationMethod = 'totp' | 'sms' | 'passkey' | 'recovery'
 
@@ -45,9 +60,8 @@ export default function MFAVerificationScreen() {
   const navigate = useNavigate()
   const location = useLocation()
   const setUser = useAppStore((state) => state.setUser)
-  const setToken = useAppStore((state) => (state as any).setToken)
 
-  const stateData = (location.state as any) || {}
+  const stateData: MfaVerificationRouteState = (location.state as MfaVerificationRouteState | null) ?? {}
   const mfaToken = stateData.mfaToken || stateData.mfa_token || ''
   const userId = stateData.userId || stateData.user_id || ''
   const email = stateData.email || ''
@@ -90,8 +104,8 @@ export default function MFAVerificationScreen() {
       const res = await mfaService.sms.sendCode()
       setSmsSentMessage(res.data?.message || 'Verification code sent to your registered phone.')
       setSmsCooldown(60)
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Failed to send SMS code.')
+    } catch (err: unknown) {
+      setError(errorMessage(err) || 'Failed to send SMS code.')
     } finally {
       setSendingSms(false)
     }
@@ -105,7 +119,6 @@ export default function MFAVerificationScreen() {
         setUser(response.data.user)
       }
       if (response?.data?.token) {
-        if (setToken) setToken(response.data.token)
         secureTokenManager.setTokens({
           accessToken: response.data.token,
           expiresAt: Date.now() + (response.data.expires_in || 3600) * 1000,
@@ -113,15 +126,10 @@ export default function MFAVerificationScreen() {
       }
       setSuccessMsg(t('mfa.verificationSuccess', 'Verification successful! Logging you in...'))
       timeoutRef.current = setTimeout(() => {
-        navigate(stateData.redirectUrl || '/dashboard')
+        navigate(stateData.redirectUrl || AppPaths.dashboard.dashboard)
       }, 1000)
-    } catch (err: any) {
-      setError(
-        passkeyError ||
-          err.response?.data?.message ||
-          err.message ||
-          'Passkey verification failed.',
-      )
+    } catch (err: unknown) {
+      setError(passkeyError || errorMessage(err) || 'Passkey verification failed.')
     }
   }
 
@@ -130,7 +138,7 @@ export default function MFAVerificationScreen() {
       setLoading(true)
       setError(null)
 
-      let response: any
+      let response: FetchResponse<MfaLoginCompletionResponse>
 
       if (activeMethod === 'recovery') {
         if (!recoveryCode.trim()) return
@@ -160,7 +168,6 @@ export default function MFAVerificationScreen() {
         setUser(response.data.user)
       }
       if (response.data?.token) {
-        if (setToken) setToken(response.data.token)
         secureTokenManager.setTokens({
           accessToken: response.data.token,
           expiresAt: Date.now() + (response.data.expires_in || 3600) * 1000,
@@ -169,11 +176,11 @@ export default function MFAVerificationScreen() {
 
       setSuccessMsg(t('mfa.verificationSuccess', 'Verification successful! Logging you in...'))
       timeoutRef.current = setTimeout(() => {
-        navigate(stateData.redirectUrl || '/dashboard')
+        navigate(stateData.redirectUrl || AppPaths.dashboard.dashboard)
       }, 1000)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
-        err.response?.data?.message ||
+        serverMessage(err) ||
           t('mfa.verifyFailed', 'Verification failed. Please check your code and try again.'),
       )
     } finally {
@@ -189,7 +196,6 @@ export default function MFAVerificationScreen() {
     email,
     navigate,
     setUser,
-    setToken,
     stateData.redirectUrl,
     t,
   ])

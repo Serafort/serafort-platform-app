@@ -6,6 +6,7 @@
     "encrypted_notice": "Encrypted & Single-Use Authentication",
     "error_generic": "An error occurred. Please try again.",
     "error_incomplete": "Please enter your email address.",
+    "error_invalid_email": "Please enter a valid email address.",
     "heading": "Sign in with Magic Link",
     "link_expired": "Link Expired or Invalid",
     "link_expired_desc": "This magic link has expired or has already been used. For your security, links can only be used once.",

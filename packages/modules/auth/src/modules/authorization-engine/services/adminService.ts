@@ -10,9 +10,40 @@ import type {
   BroadcastSSFEventRequest,
   BroadcastSSFEventResponse,
 } from '../../../domain-kernel/src/types'
-import type { AccessPolicy, Role, Permission } from '@cap/shared-types'
-export type { AccessPolicy, Role, Permission }
+import type {
+  AccessPolicy,
+  Role,
+  Permission,
+  RoleMember,
+  RoleMembersResponse,
+} from '@cap/shared-types'
+export type { AccessPolicy, Role, Permission, RoleMember, RoleMembersResponse }
 export type { SCIMConfig }
+
+/** A JSON object whose shape this layer does not model. */
+export type JsonObject = Record<string, unknown>
+
+/**
+ * The policy canvas graph as it crosses the wire. The engine owns the node and
+ * edge schema; this layer only carries it between the canvas and the API.
+ */
+export type PolicyGraph = JsonObject
+
+/** A compiled policy set, opaque to this layer for the same reason. */
+export type PolicySet = JsonObject
+
+/** The camelCase / snake_case aliases a raw RBAC row may carry. */
+interface LegacyRow {
+  guard_name?: string
+  guardName?: string
+  users_count?: number
+  usersCount?: number
+  created_at?: string
+  createdAt?: string
+  updated_at?: string
+  updatedAt?: string
+  parents?: unknown
+}
 export type {
   SAMLConfig,
   JWKSKey,
@@ -88,15 +119,42 @@ export interface OrganizationMembership {
   }
 }
 
-export interface Organization {
+export interface AuditLog {
   id: number
+  actor_id?: number
+  user_id?: number
+  action: string
+  resource_type: string
+  resource_id?: number | string
+  ip_address?: string | null
+  user_agent?: string | null
+  ipAddress?: string | null
+  userAgent?: string | null
+  metadata: JsonObject | null
+  travel_logs?: JsonObject[]
+  created_at: string
+  createdAt?: string
+}
+
+export interface AuditLogsPage {
+  logs: AuditLog[]
+  total?: number
+  data?: AuditLog[]
+}
+
+export interface Organization {
+  /** UUIDv7 in the current backend; legacy numeric ids still type-check. */
+  id: number | string
   name: string
   slug: string
   status?: string
-  domain: string | null
+  domain?: string | null
+  supportEmail?: string | null
+  /** Legacy snake_case alias; the API serializes `supportEmail`. */
   support_email?: string | null
-  logo_url: string | null
-  members_count: number
+  logo_url?: string | null
+  members_count?: number
+  ownerId?: number
 
   domainVerifications?: {
     id: number
@@ -105,35 +163,42 @@ export interface Organization {
     verified_at: string
     verification_token: string
   }[]
-  created_at: string
-  updated_at: string
+  created_at?: string
+  updated_at?: string
+  createdAt?: string
+  updatedAt?: string
   brandingConfig?: {
     primaryColor?: string
     secondaryColor?: string
     logo_url?: string
-    [key: string]: any
+    logoUrl?: string
+    [key: string]: unknown
   }
   securityPolicies?: {
     enforceMfa?: boolean
     ssoOnly?: boolean
     allowPublicSignup?: boolean
-    [key: string]: any
+    [key: string]: unknown
   }
   members?: OrganizationMember[]
 }
 
 export interface OrganizationMember {
   id: number
-  user_id: number
-  organization_id: number
-  role: string
-  user: {
+  user_id?: number
+  organization_id?: number
+  /** A role slug, or the joined role record when the API expands it. */
+  role: string | { id?: number | string; name: string }
+  user?: {
     id: number
     email: string
-    full_name: string
-    avatar_url: string | null
+    full_name?: string
+    firstName?: string
+    lastName?: string
+    avatar_url?: string | null
   }
-  joined_at: string
+  joined_at?: string
+  createdAt?: string
 }
 
 export interface OrganizationInvitation {
@@ -241,11 +306,15 @@ export interface OIDCClient {
   id: string | number
   client_id: string
   client_name: string
+  /** Display-name alias some API versions return. */
+  name?: string
   client_secret?: string
   type: string
   description: string | null
   status: string
   scopes: string[]
+  /** Space-delimited form some API versions return instead of `scopes`. */
+  scope?: string
   redirect_uris: string[]
   grant_types: string[]
   response_types: string[]
@@ -297,26 +366,28 @@ export interface MessageResponse {
 }
 
 export interface DomainVerification {
-  id: number
-  organization_id: number
+  id: string
+  organization_id: string
   domain: string
   status: 'pending' | 'verified' | 'failed'
-  verification_token: string
+  verified: boolean
+  method: 'dns' | 'http'
+  /** Null once verified: the value only matters while it still has to be published. */
+  verification_token: string | null
   verified_at: string | null
-  created_at: string
-  updated_at: string
+  created_at: string | null
+  updated_at: string | null
 }
 
 export interface DeveloperApiKey {
   id: number
   name: string
   /**
-   * Not returned by the backend: `DeveloperApiKey` only stores a `keyHash`
-   * (serialized as null) and the one-time raw `key` at creation, no separate
-   * short prefix column. Kept optional so screens that render a masked
-   * preview degrade to a placeholder instead of assuming a value.
+   * Leading, non-secret characters of the key (`cap_` + 8 hex). Null for keys
+   * provisioned before the backend stored it — the raw key is never kept, so
+   * those can't be backfilled.
    */
-  prefix?: string
+  prefix: string | null
   userId: number
   expiresAt: string | null
   lastUsedAt: string | null
@@ -392,7 +463,7 @@ export interface AdminUser {
  */
 export function normalizePermission(raw: Permission): Permission {
   if (!raw) return raw
-  const anyRaw = raw as any
+  const anyRaw = raw as unknown as LegacyRow
   return {
     ...raw,
     guard_name: anyRaw.guard_name ?? anyRaw.guardName ?? 'web',
@@ -403,7 +474,7 @@ export function normalizePermission(raw: Permission): Permission {
 
 export function normalizeRole(raw: Role): Role {
   if (!raw) return raw
-  const anyRaw = raw as any
+  const anyRaw = raw as unknown as LegacyRow
   return {
     ...raw,
     guard_name: anyRaw.guard_name ?? anyRaw.guardName ?? 'web',
@@ -411,9 +482,17 @@ export function normalizeRole(raw: Role): Role {
     created_at: anyRaw.created_at ?? anyRaw.createdAt,
     updated_at: anyRaw.updated_at ?? anyRaw.updatedAt,
     permissions: Array.isArray(raw.permissions) ? raw.permissions.map(normalizePermission) : raw.permissions,
-    parents: Array.isArray(anyRaw.parents) ? anyRaw.parents.map(normalizeRole) : anyRaw.parents,
+    parents: Array.isArray(anyRaw.parents) ? (anyRaw.parents as Role[]).map(normalizeRole) : (anyRaw.parents as Role[] | undefined),
   }
 }
+
+/**
+ * `org_id` query param, omitted when no organization is resolved. The
+ * developer-key endpoints are user-scoped and ignore it, so a missing id must
+ * not block a call or be replaced with a made-up one.
+ */
+const orgParams = (orgId?: string | number): { org_id?: string | number } =>
+  orgId === undefined || orgId === null || orgId === '' ? {} : { org_id: orgId }
 
 // ============================================================================
 // Admin Service Class
@@ -472,14 +551,14 @@ export class AdminService {
   /**
    * Get client branding
    */
-  async getClientBranding(id: string | number): Promise<FetchResponse<any>> {
+  async getClientBranding(id: string | number): Promise<FetchResponse<JsonObject>> {
     return apiClient.get(`/api/admin/clients/${id}/branding`)
   }
 
   /**
    * Update client branding
    */
-  async updateClientBranding(id: string | number, data: any): Promise<FetchResponse<any>> {
+  async updateClientBranding(id: string | number, data: JsonObject): Promise<FetchResponse<JsonObject>> {
     return apiClient.patch(`/api/admin/clients/${id}/branding`, data)
   }
 
@@ -597,15 +676,15 @@ export class AdminService {
   /**
    * Get active sessions for a specific user
    */
-  async getUserSessions(id: number | string): Promise<FetchResponse<any[]>> {
-    return apiClient.get<any[]>(ENDPOINTS.admin.users.sessions(id as number))
+  async getUserSessions(id: number | string): Promise<FetchResponse<JsonObject[]>> {
+    return apiClient.get<JsonObject[]>(ENDPOINTS.admin.users.sessions(id as number))
   }
 
   /**
    * Upload an organization logo
    */
   async uploadOrganizationLogo(
-    id: number,
+    id: number | string,
     file: File,
   ): Promise<FetchResponse<{ logo_url: string }>> {
     const form = new FormData()
@@ -663,7 +742,7 @@ export class AdminService {
   /**
    * List recently explored SAML entities
    */
-  async listRecentSAMLEntities(): Promise<FetchResponse<any[]>> {
+  async listRecentSAMLEntities(): Promise<FetchResponse<JsonObject[]>> {
     return apiClient.get('/api/admin/saml/entities/recent')
   }
 
@@ -703,8 +782,8 @@ export class AdminService {
     action?: string
     start_date?: string
     end_date?: string
-  }): Promise<FetchResponse<any>> {
-    return apiClient.get('/api/admin/audit-logs', { params })
+  }): Promise<FetchResponse<AuditLogsPage>> {
+    return apiClient.get<AuditLogsPage>('/api/admin/audit-logs', { params })
   }
 
   /**
@@ -713,8 +792,8 @@ export class AdminService {
   async getImpersonationLogs(params?: {
     page?: number
     limit?: number
-  }): Promise<FetchResponse<any>> {
-    return apiClient.get('/api/admin/audit-logs', {
+  }): Promise<FetchResponse<AuditLogsPage>> {
+    return apiClient.get<AuditLogsPage>('/api/admin/audit-logs', {
       params: { ...params, action: 'USER_IMPERSONATION_START' },
     })
   }
@@ -726,7 +805,7 @@ export class AdminService {
   /**
    * Get system statistics summary
    */
-  async getStatisticsSummary(): Promise<FetchResponse<any>> {
+  async getStatisticsSummary(): Promise<FetchResponse<JsonObject>> {
     return apiClient.get('/api/admin/statistics/summary')
   }
 
@@ -737,14 +816,14 @@ export class AdminService {
   /**
    * List all webhooks
    */
-  async listWebhooks(): Promise<FetchResponse<any[]>> {
+  async listWebhooks(): Promise<FetchResponse<JsonObject[]>> {
     return apiClient.get('/api/admin/webhooks')
   }
 
   /**
    * Get webhook details
    */
-  async getWebhook(id: string | number): Promise<FetchResponse<any>> {
+  async getWebhook(id: string | number): Promise<FetchResponse<JsonObject>> {
     return apiClient.get(`/api/admin/webhooks/${id}`)
   }
 
@@ -755,14 +834,14 @@ export class AdminService {
     url: string
     events: string[]
     secret?: string
-  }): Promise<FetchResponse<any>> {
+  }): Promise<FetchResponse<JsonObject>> {
     return apiClient.post('/api/admin/webhooks', data)
   }
 
   /**
    * Update a webhook
    */
-  async updateWebhook(id: string | number, data: any): Promise<FetchResponse<any>> {
+  async updateWebhook(id: string | number, data: JsonObject): Promise<FetchResponse<JsonObject>> {
     return apiClient.patch(`/api/admin/webhooks/${id}`, data)
   }
 
@@ -788,7 +867,7 @@ export class AdminService {
     page?: number
     limit?: number
     status?: string
-  }): Promise<FetchResponse<PaginatedResponse<any>>> {
+  }): Promise<FetchResponse<PaginatedResponse<JsonObject>>> {
     return apiClient.get(ENDPOINTS.admin.appeals.index, { params })
   }
 
@@ -872,7 +951,7 @@ export class AdminService {
   }
 
   /** Get a specific role by ID */
-  async getRole(id: number): Promise<FetchResponse<Role>> {
+  async getRole(id: string): Promise<FetchResponse<Role>> {
     const response = await apiClient.get<Role>(ENDPOINTS.rbac.roles.byId(id))
     return { ...response, data: normalizeRole(response.data) }
   }
@@ -894,19 +973,28 @@ export class AdminService {
 
   /** Update a role */
   async updateRole(
-    id: number,
+    id: string,
     data: { name?: string; description?: string },
   ): Promise<FetchResponse<Role>> {
     const response = await apiClient.patch<Role>(ENDPOINTS.rbac.roles.update(id), data)
     return { ...response, data: normalizeRole(response.data) }
   }
 
+  /** Everyone holding a role (platform assignments + tenant memberships), paginated */
+  async getRoleMembers(
+    id: string,
+    params?: { page?: number; limit?: number; search?: string },
+    signal?: AbortSignal,
+  ): Promise<FetchResponse<RoleMembersResponse>> {
+    return apiClient.get<RoleMembersResponse>(ENDPOINTS.rbac.roles.members(id), { params, signal })
+  }
+
   /** Delete a role */
-  async deleteRole(id: number): Promise<FetchResponse<MessageResponse>> {
+  async deleteRole(id: string): Promise<FetchResponse<MessageResponse>> {
     return apiClient.delete<MessageResponse>(ENDPOINTS.rbac.roles.destroy(id))
   }
 
-  /** Get all permissions assigned to a role (`role` is the role's numeric ID,
+  /** Get all permissions assigned to a role (`role` is the role's UUID,
    *  not its name — `RolesController.rolePermissions` does `Role.findOrFail(params.role)`) */
   async getRolePermissions(role: string): Promise<FetchResponse<Permission[]>> {
     const response = await apiClient.get<Permission[]>(ENDPOINTS.rbac.roles.permissions(role))
@@ -927,14 +1015,14 @@ export class AdminService {
    * patched here.
    */
   async assignPermissionToRole(data: {
-    role_id: number
-    permission_id: number
+    role_id: string
+    permission_id: string
   }): Promise<FetchResponse<MessageResponse>> {
     return apiClient.post<MessageResponse>(ENDPOINTS.rbac.roles.assignPermission, data)
   }
 
   /** Replace all permissions on a role atomically */
-  async syncRolePermissions(roleId: number, permissionIds: number[]): Promise<FetchResponse<Role>> {
+  async syncRolePermissions(roleId: string, permissionIds: string[]): Promise<FetchResponse<Role>> {
     const response = await apiClient.put<Role>(ENDPOINTS.rbac.roles.syncPermissions(roleId), {
       permissionIds,
     })
@@ -942,7 +1030,7 @@ export class AdminService {
   }
 
   /** Sync parent roles for a specific role */
-  async syncRoleParents(roleId: number, parentIds: number[]): Promise<FetchResponse<Role>> {
+  async syncRoleParents(roleId: string, parentIds: string[]): Promise<FetchResponse<Role>> {
     const response = await apiClient.put<Role>(ENDPOINTS.rbac.roles.syncParents(roleId), {
       parentIds,
     })
@@ -958,7 +1046,7 @@ export class AdminService {
     return { ...response, data: (response.data ?? []).map(normalizePermission) }
   }
 
-  async getPermission(id: number): Promise<FetchResponse<Permission>> {
+  async getPermission(id: string): Promise<FetchResponse<Permission>> {
     const response = await apiClient.get<Permission>(ENDPOINTS.rbac.permissions.byId(id))
     return { ...response, data: normalizePermission(response.data) }
   }
@@ -981,7 +1069,7 @@ export class AdminService {
   }
 
   async updatePermission(
-    id: number,
+    id: string,
     data: {
       name?: string
       guard_name?: string
@@ -998,7 +1086,7 @@ export class AdminService {
     return { ...response, data: normalizePermission(response.data) }
   }
 
-  async deletePermission(id: number): Promise<FetchResponse<MessageResponse>> {
+  async deletePermission(id: string): Promise<FetchResponse<MessageResponse>> {
     return apiClient.delete<MessageResponse>(ENDPOINTS.rbac.permissions.byId(id))
   }
 
@@ -1013,8 +1101,8 @@ export class AdminService {
    * `request.only(['roleId', 'permissionId'])` actually reads.
    */
   async grantPermission(data: {
-    role_id: number
-    permission_id: number
+    role_id: string
+    permission_id: string
   }): Promise<FetchResponse<MessageResponse>> {
     return apiClient.post<MessageResponse>(ENDPOINTS.rbac.permissions.grant, {
       roleId: data.role_id,
@@ -1024,8 +1112,8 @@ export class AdminService {
 
   /** Revoke a permission from a role — see {@link grantPermission}. */
   async revokePermission(data: {
-    role_id: number
-    permission_id: number
+    role_id: string
+    permission_id: string
   }): Promise<FetchResponse<MessageResponse>> {
     return apiClient.post<MessageResponse>(ENDPOINTS.rbac.permissions.revoke, {
       roleId: data.role_id,
@@ -1070,35 +1158,35 @@ export class AdminService {
    * Simulate a visual policy graph against access request context
    */
   async simulatePolicyGraph(data: {
-    graph: any
+    graph: PolicyGraph
     request: {
-      subject: Record<string, any>
+      subject: Record<string, unknown>
       action: string
-      resource: Record<string, any>
-      environment?: Record<string, any>
+      resource: Record<string, unknown>
+      environment?: Record<string, unknown>
     }
-  }): Promise<FetchResponse<any>> {
+  }): Promise<FetchResponse<JsonObject>> {
     return apiClient.post(ENDPOINTS.rbac.policies.simulate, data)
   }
 
   /**
    * Compile a visual policy graph into an executable policy set
    */
-  async compilePolicyGraph(data: { graph: any }): Promise<FetchResponse<any>> {
+  async compilePolicyGraph(data: { graph: PolicyGraph }): Promise<FetchResponse<JsonObject>> {
     return apiClient.post(ENDPOINTS.rbac.policies.compile, data)
   }
 
   /**
    * Decompile a policy set into a visual policy graph
    */
-  async decompilePolicySet(data: { policySet: any }): Promise<FetchResponse<any>> {
+  async decompilePolicySet(data: { policySet: PolicySet }): Promise<FetchResponse<JsonObject>> {
     return apiClient.post(ENDPOINTS.rbac.policies.decompile, data)
   }
 
   /**
    * Get default template policy set
    */
-  async getDefaultPolicySet(): Promise<FetchResponse<any>> {
+  async getDefaultPolicySet(): Promise<FetchResponse<JsonObject>> {
     return apiClient.get(ENDPOINTS.rbac.policies.default)
   }
 
@@ -1106,18 +1194,18 @@ export class AdminService {
    * Evaluate a compiled policy against a concrete access request
    */
   async evaluatePolicy(data: {
-    policySet?: any
+    policySet?: PolicySet
     request: {
-      subject: Record<string, any>
+      subject: Record<string, unknown>
       action: string
-      resource: Record<string, any>
-      environment?: Record<string, any>
+      resource: Record<string, unknown>
+      environment?: Record<string, unknown>
     }
   }): Promise<
     FetchResponse<{
       effect: 'Permit' | 'Deny' | 'NotApplicable' | 'Indeterminate'
       reasons?: string[]
-      traces?: any[]
+      traces?: unknown[]
     }>
   > {
     return apiClient.post(ENDPOINTS.rbac.policies.evaluate, data)
@@ -1134,8 +1222,10 @@ export class AdminService {
    * it, but per-organization scoping is currently a capability gap, not a
    * wiring bug: it would need a schema migration to fix for real.
    */
-  async getDeveloperApiKeys(orgId: number): Promise<FetchResponse<DeveloperApiKey[]>> {
-    return apiClient.get(ENDPOINTS.developerApiKeys.index, { params: { org_id: orgId } })
+  async getDeveloperApiKeys(
+    orgId?: string | number,
+  ): Promise<FetchResponse<DeveloperApiKey[]>> {
+    return apiClient.get(ENDPOINTS.developerApiKeys.index, { params: orgParams(orgId) })
   }
 
   /**
@@ -1144,23 +1234,23 @@ export class AdminService {
    * `{message, data}` envelope — the raw secret is a top-level `key` field.
    */
   async createDeveloperApiKey(
-    orgId: number,
+    orgId: string | number | undefined,
     data: { name: string; expiresAt?: string },
   ): Promise<FetchResponse<DeveloperApiKey & { key: string }>> {
     return apiClient.post(ENDPOINTS.developerApiKeys.store, data, {
-      params: { org_id: orgId },
+      params: orgParams(orgId),
     })
   }
 
   /**
-   * Revoke a developer API key
+   * Revoke a developer API key. Key ids are UUIDs on the backend.
    */
   async revokeDeveloperApiKey(
-    orgId: number,
-    keyId: number,
+    orgId: string | number | undefined,
+    keyId: string | number,
   ): Promise<FetchResponse<MessageResponse>> {
     return apiClient.delete(ENDPOINTS.developerApiKeys.destroy(keyId), {
-      params: { org_id: orgId },
+      params: orgParams(orgId),
     })
   }
 
@@ -1222,18 +1312,23 @@ export class AdminService {
   }
 
   /**
-   * Start verification for a domain, optionally scoped to an organization.
+   * The acting organization's domains, newest first.
    *
-   * Domain verification is tenant-level: the organization travels in the body,
-   * and the backend falls back to looking it up by the domain when no id is
-   * given. The organization-scoped URLs this used to build
+   * The backend resolves the organization from the session (the resolved
+   * tenant, else the caller's first membership) and never from the request, so
+   * no id is sent. The organization-scoped URLs this module once built
    * (`/api/admin/organizations/:id/domains`) were never served by the backend.
    */
-  async verifyDomain(orgId: number, domain: string): Promise<FetchResponse<DomainVerification>> {
-    return apiClient.post(ENDPOINTS.admin.domains.verify, {
-      domain,
-      organizationId: orgId || undefined,
-    })
+  async listDomains(): Promise<FetchResponse<DomainVerification[]>> {
+    return apiClient.get(ENDPOINTS.admin.domains.index)
+  }
+
+  /**
+   * Register a domain for the acting organization and get its verification
+   * token. Answers with the existing record if the organization already has it.
+   */
+  async verifyDomain(domain: string): Promise<FetchResponse<DomainVerification>> {
+    return apiClient.post(ENDPOINTS.admin.domains.verify, { domain })
   }
 
   /**
@@ -1259,15 +1354,15 @@ export class AdminService {
   /**
    * Get organization policies
    */
-  async getOrganizationPolicies(id: number | string): Promise<FetchResponse<any>> {
-    return apiClient.get(ENDPOINTS.admin.organizations.policies(id as number))
+  async getOrganizationPolicies(id: number | string): Promise<FetchResponse<JsonObject>> {
+    return apiClient.get(ENDPOINTS.admin.organizations.policies(id))
   }
 
   /**
    * Update organization policies
    */
-  async updateOrganizationPolicies(id: number | string, data: any): Promise<FetchResponse<any>> {
-    return apiClient.patch(ENDPOINTS.admin.organizations.policies(id as number), data)
+  async updateOrganizationPolicies(id: number | string, data: JsonObject): Promise<FetchResponse<JsonObject>> {
+    return apiClient.patch(ENDPOINTS.admin.organizations.policies(id), data)
   }
 
   async createOrganization(data: CreateOrganizationRequest): Promise<FetchResponse<Organization>> {
@@ -1275,14 +1370,14 @@ export class AdminService {
   }
 
   async updateOrganization(
-    id: number,
+    id: number | string,
     data: Partial<Organization>,
   ): Promise<FetchResponse<Organization>> {
     return apiClient.put<Organization>(ENDPOINTS.admin.organizations.byId(id), data)
   }
 
-  async impersonateOrganization(id: number): Promise<FetchResponse<{ token: string; user: any }>> {
-    return apiClient.post<{ token: string; user: any }>(
+  async impersonateOrganization(id: number | string): Promise<FetchResponse<{ token: string; user: JsonObject }>> {
+    return apiClient.post<{ token: string; user: JsonObject }>(
       `/api/admin/organizations/${id}/impersonate`,
     )
   }
@@ -1303,16 +1398,16 @@ export class AdminService {
     return apiClient.patch(ENDPOINTS.admin.scim.config, data)
   }
 
-  async getOrganization(id: number): Promise<FetchResponse<Organization>> {
+  async getOrganization(id: number | string): Promise<FetchResponse<Organization>> {
     return apiClient.get<Organization>(ENDPOINTS.admin.organizations.byId(id))
   }
 
-  async deleteOrganization(id: number): Promise<FetchResponse<MessageResponse>> {
+  async deleteOrganization(id: number | string): Promise<FetchResponse<MessageResponse>> {
     return apiClient.delete<MessageResponse>(ENDPOINTS.admin.organizations.destroy(id))
   }
 
   async addOrganizationMember(
-    orgId: number,
+    orgId: number | string,
     data: { user_id: number; role: string },
   ): Promise<FetchResponse<OrganizationMember>> {
     return apiClient.post<OrganizationMember>(ENDPOINTS.admin.organizations.addMember(orgId), data)
@@ -1322,43 +1417,43 @@ export class AdminService {
    * Remove a member from an organization
    */
   async removeOrganizationMember(
-    id: number,
+    id: number | string,
     userId: number,
   ): Promise<FetchResponse<MessageResponse>> {
     return apiClient.delete<MessageResponse>(ENDPOINTS.admin.organizations.removeMember(id, userId))
   }
 
   async inviteToOrganization(
-    orgId: number,
+    orgId: number | string,
     data: InviteToOrganizationRequest,
   ): Promise<FetchResponse<OrganizationInvitation>> {
     return apiClient.post<OrganizationInvitation>(ENDPOINTS.admin.organizations.invite(orgId), data)
   }
 
   async getOrganizationInvitations(
-    orgId: number,
+    orgId: number | string,
   ): Promise<FetchResponse<OrganizationInvitation[]>> {
     return apiClient.get<OrganizationInvitation[]>(ENDPOINTS.admin.organizations.invitations(orgId))
   }
 
   async revokeOrganizationInvitation(
-    orgId: number,
+    orgId: number | string,
     invitationId: number | string,
-  ): Promise<FetchResponse<any>> {
+  ): Promise<FetchResponse<JsonObject>> {
     return apiClient.post(ENDPOINTS.admin.organizations.revokeInvitation(orgId, invitationId))
   }
 
-  async getInvitationDetails(token: string, email: string): Promise<FetchResponse<any>> {
+  async getInvitationDetails(token: string, email: string): Promise<FetchResponse<JsonObject>> {
     return apiClient.get(ENDPOINTS.auth.invitationDetails, {
       params: { token, email },
     })
   }
 
-  async acceptInvitation(token: string, email: string): Promise<FetchResponse<any>> {
+  async acceptInvitation(token: string, email: string): Promise<FetchResponse<JsonObject>> {
     return apiClient.post(ENDPOINTS.auth.acceptInvitation, { token, email })
   }
 
-  async declineInvitation(token: string, email: string): Promise<FetchResponse<any>> {
+  async declineInvitation(token: string, email: string): Promise<FetchResponse<JsonObject>> {
     return apiClient.post(ENDPOINTS.auth.declineInvitation, { token, email })
   }
 
@@ -1425,7 +1520,7 @@ export class AdminService {
    * Test SCIM connection
    */
   async testSCIMConnection(): Promise<
-    FetchResponse<{ status: string; message: string; diagnostics: any }>
+    FetchResponse<{ status: string; message: string; diagnostics: unknown }>
   > {
     return apiClient.post('/api/admin/scim/test')
   }
@@ -1454,7 +1549,7 @@ export class AdminService {
   /**
    * List all data export requests for a specific user
    */
-  async listDataExports(userId: number): Promise<FetchResponse<any[]>> {
+  async listDataExports(userId: number): Promise<FetchResponse<JsonObject[]>> {
     return apiClient.get(`/api/admin/users/${userId}/data-exports`)
   }
 
@@ -1551,8 +1646,8 @@ export class AdminService {
     return apiClient.post<BroadcastSSFEventResponse>(ENDPOINTS.admin.ssf.broadcast, data)
   }
 
-  async getSSFHistory(): Promise<FetchResponse<any[]>> {
-    return apiClient.get<any[]>('/api/admin/ssf/history')
+  async getSSFHistory(): Promise<FetchResponse<JsonObject[]>> {
+    return apiClient.get<JsonObject[]>('/api/admin/ssf/history')
   }
 
   // ==========================================================================

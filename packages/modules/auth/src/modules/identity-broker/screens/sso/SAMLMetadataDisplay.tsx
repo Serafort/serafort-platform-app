@@ -36,6 +36,7 @@ import { toast } from 'react-toastify'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useSAMLConfig, useSAMLMetadata, useRemoteMetadata } from '@auth'
+import { errorMessage } from '../../utils/errorMessage'
 
 interface TabPanelProps {
   children?: ReactNode
@@ -197,16 +198,18 @@ export default function SAMLMetadataDisplay() {
       }
     }
 
-    const cfg: any = configResponse?.data
+    const cfg = configResponse?.data
     let xml = ''
 
-    if (xmlResponse?.data) {
-      if (typeof xmlResponse.data === 'string') {
-        xml = xmlResponse.data
-      } else if ((xmlResponse.data as any) instanceof Node) {
-        xml = new XMLSerializer().serializeToString(xmlResponse.data as any)
+    // The service types this as a string, but a parsed XML document can still arrive.
+    const xmlPayload: unknown = xmlResponse?.data
+    if (xmlPayload) {
+      if (typeof xmlPayload === 'string') {
+        xml = xmlPayload
+      } else if (xmlPayload instanceof Node) {
+        xml = new XMLSerializer().serializeToString(xmlPayload)
       } else {
-        xml = String(xmlResponse.data)
+        xml = String(xmlPayload)
       }
     }
 
@@ -237,7 +240,7 @@ export default function SAMLMetadataDisplay() {
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      toast.error(t('auth.common.copied_to_clipboard', 'Copied to clipboard!'))
+      toast.success(t('auth.common.copied_to_clipboard', 'Copied to clipboard!'))
     } catch {
       toast.warning(t('auth.common.copy_failed', 'Copy failed'))
     }
@@ -416,7 +419,7 @@ export default function SAMLMetadataDisplay() {
               </Button>
             }
           >
-            {String((error as any)?.message || 'Failed to load')}
+            {errorMessage(error, t('auth.sso.metadata_load_failed', 'Failed to load'))}
           </Alert>
         </Box>
       )}

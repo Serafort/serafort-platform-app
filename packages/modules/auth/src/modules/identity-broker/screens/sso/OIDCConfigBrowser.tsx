@@ -43,6 +43,8 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useOIDCClients, useDeleteOIDCClient, Path } from '@auth'
+import type { OIDCClient } from '@auth/authorization-engine/services/adminService'
+import { errorMessage } from '../../utils/errorMessage'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import {
@@ -53,6 +55,10 @@ import {
   AdminStatusBadge,
   AdminRowActionButton,
 } from '@auth/modules/authentication-core/components/shared/admin'
+
+/** The list endpoint marks activity with `status`; older rows carried an `is_active` flag. */
+const isClientActive = (client: { status?: string; is_active?: boolean }): boolean =>
+  client.is_active ?? client.status === 'active'
 
 export default function OIDCConfigBrowser() {
   const { t } = useTranslation()
@@ -68,9 +74,9 @@ export default function OIDCConfigBrowser() {
   const clientsList = clientsData?.data || []
 
   const filteredClients = clientsList.filter(
-    (client: any) =>
-      (client.client_name || client.name || '').toLowerCase().includes(search.toLowerCase()) ||
-      (client.client_id || client.clientId || '').toLowerCase().includes(search.toLowerCase()),
+    (client) =>
+      (client.client_name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (client.client_id || '').toLowerCase().includes(search.toLowerCase()),
   )
 
   const handleDelete = (id: string | number) => {
@@ -86,8 +92,10 @@ export default function OIDCConfigBrowser() {
           setDeleteDialogOpen(false)
           setClientToDelete(null)
         },
-        onError: (err: any) => {
-          toast.error(err.message || t('auth.common.error_deleting', 'Error deleting client'))
+        onError: (err: unknown) => {
+          toast.error(
+            errorMessage(err, t('auth.common.error_deleting', 'Error deleting client')),
+          )
           setDeleteDialogOpen(false)
           setClientToDelete(null)
         },
@@ -183,7 +191,7 @@ export default function OIDCConfigBrowser() {
         </Box>
         <Button
           component={RouterLink}
-          to={(Path.auth as any).oidcClientCreate}
+          to={Path.identity.oidcClientCreate}
           variant='contained'
           startIcon={<Add />}
           sx={{
@@ -271,12 +279,12 @@ export default function OIDCConfigBrowser() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredClients.map((client: any) => (
+                filteredClients.map((client) => (
                   <AdminTableRow
                     key={client.id}
                     clickable
                     onClick={() =>
-                      navigate(Path.identity.oidcClientEdit.replace(':id', client.id))
+                      navigate(Path.identity.oidcClientEdit.replace(':id', String(client.id)))
                     }
                     aria-label={t('auth.common.edit', 'Edit Client')}
                   >
@@ -294,7 +302,7 @@ export default function OIDCConfigBrowser() {
                           <VpnKey sx={{ fontSize: 18 }} />
                         </Avatar>
                         <Typography variant='subtitle2' sx={{ fontWeight: 700 }}>
-                          {client.client_name || client.name}
+                          {client.client_name}
                         </Typography>
                       </Box>
                     </TableCell>
@@ -312,13 +320,13 @@ export default function OIDCConfigBrowser() {
                             borderRadius: 'var(--sf-radius-xs, 4px)',
                           }}
                         >
-                          {client.client_id || client.clientId}
+                          {client.client_id}
                         </Typography>
                         <Tooltip title={t('auth.common.copy', 'Copy')}>
                           <AdminRowActionButton
                             onClick={(e) => {
                               e.stopPropagation()
-                              navigator.clipboard.writeText(client.client_id || client.clientId)
+                              navigator.clipboard.writeText(client.client_id)
                               toast.success(t('auth.common.copied', 'Copied to clipboard'))
                             }}
                             aria-label={t('auth.common.copy', 'Copy Client ID')}
@@ -331,7 +339,7 @@ export default function OIDCConfigBrowser() {
                     <TableCell>
                       <Chip
                         label={
-                          (client.grant_types || client.grantTypes || []).includes(
+                          (client.grant_types || []).includes(
                             'authorization_code',
                           )
                             ? 'CONFIDENTIAL'
@@ -344,9 +352,9 @@ export default function OIDCConfigBrowser() {
                     </TableCell>
                     <TableCell>
                       <AdminStatusBadge
-                        tone={(client.is_active ?? client.isActive) ? 'success' : 'error'}
+                        tone={isClientActive(client) ? 'success' : 'error'}
                         label={
-                          (client.is_active ?? client.isActive)
+                          isClientActive(client)
                             ? t('auth.sso.status_active', 'ACTIVE')
                             : t('auth.sso.status_inactive', 'INACTIVE')
                         }
@@ -354,8 +362,8 @@ export default function OIDCConfigBrowser() {
                     </TableCell>
                     <TableCell>
                       <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-                        {client.updated_at || client.updatedAt
-                          ? new Date(client.updated_at || client.updatedAt).toLocaleDateString()
+                        {client.updated_at
+                          ? new Date(client.updated_at).toLocaleDateString()
                           : '-'}
                       </Typography>
                     </TableCell>

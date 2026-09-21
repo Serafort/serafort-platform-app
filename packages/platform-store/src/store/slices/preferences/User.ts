@@ -7,7 +7,7 @@ export interface UserPreferences {
     push: boolean;
     jobMatches: boolean;
     applicationUpdates: boolean;
-    scraperComplete: boolean;
+    platformUpdates: boolean;
   };
 
   jobPreferences: {
@@ -41,7 +41,7 @@ export const defaultPreferences: UserPreferences = {
     push: true,
     jobMatches: true,
     applicationUpdates: true,
-    scraperComplete: true,
+    platformUpdates: true,
   },
   jobPreferences: {
     defaultSearchRadius: 25,

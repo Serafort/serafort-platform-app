@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import adminMonitoringService, { AuditLogItem } from '../services/admin-monitoring.service'
+import { normalizeAuditLogRow, type AuditLogRow } from '../utils/normalizeAuditLog'
+import { extractRows, toError } from '../utils/errors'
 
 export interface LiveAuthEvent {
   id: string | number
@@ -11,7 +13,7 @@ export interface LiveAuthEvent {
   status: 'success' | 'failure' | 'warning' | 'locked' | string
   severity?: 'info' | 'low' | 'medium' | 'high' | 'critical'
   timestamp: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   city?: string
   country?: string
 }
@@ -49,8 +51,8 @@ export function useAuthEventsStream(options: UseAuthEventsStreamOptions = {}) {
 
   const eventSourceRef = useRef<EventSource | null>(null)
   const pendingBufferRef = useRef<LiveAuthEvent[]>([])
-  const batchTimerRef = useRef<any>(null)
-  const pollingTimerRef = useRef<any>(null)
+  const batchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pollingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const isPausedRef = useRef(isPaused)
   isPausedRef.current = isPaused
 
@@ -103,7 +105,9 @@ export function useAuthEventsStream(options: UseAuthEventsStreamOptions = {}) {
       try {
         const res = await adminMonitoringService.getAuditLogs({ limit: 20 })
         const raw = res.data
-        const list: AuditLogItem[] = Array.isArray(raw) ? raw : (raw as any)?.data || []
+        // Rows come back with the model's column names (createdAt, actorLabel),
+        // not the AuditLogItem field names read below.
+        const list: AuditLogItem[] = extractRows<AuditLogRow>(raw).map(normalizeAuditLogRow)
         list.forEach((item) => {
           ingestEvent({
             id: item.id,
@@ -120,8 +124,8 @@ export function useAuthEventsStream(options: UseAuthEventsStreamOptions = {}) {
             country: item.country,
           })
         })
-      } catch (err: any) {
-        setError(err)
+      } catch (err: unknown) {
+        setError(toError(err))
       }
     }
 
@@ -180,8 +184,8 @@ export function useAuthEventsStream(options: UseAuthEventsStreamOptions = {}) {
         eventSourceRef.current = null
         startFallbackPolling()
       }
-    } catch (err: any) {
-      setError(err)
+    } catch (err: unknown) {
+      setError(toError(err))
       startFallbackPolling()
     }
   }, [endpoint, ingestEvent, startFallbackPolling, stopFallbackPolling])

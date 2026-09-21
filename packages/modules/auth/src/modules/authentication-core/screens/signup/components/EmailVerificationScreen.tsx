@@ -11,6 +11,7 @@ import {
 import ErrorOutline from '@mui/icons-material/ErrorOutline'
 import { useTranslation } from 'react-i18next'
 import { FetchResponse } from '@cap/platform-core'
+import type { EmailVerificationResult } from '../../../types/api.types'
 import authService from '../../../services/auth.service'
 import { Path } from '../../../../../routes/path'
 import {
@@ -22,6 +23,7 @@ import {
 } from '../../../components/shared/auth'
 
 import RegistrationSuccess from './RegistrationSuccess'
+import { AppPaths } from '@cap/shared-types'
 
 export default function EmailVerificationScreen() {
   const { t } = useTranslation('auth')
@@ -76,7 +78,7 @@ export default function EmailVerificationScreen() {
 
         if (res.status === 200 || res.status === 204) {
           setSuccess(true)
-          const data = (res as FetchResponse<any>).data
+          const data = (res as FetchResponse<EmailVerificationResult>).data
           setVerifiedUserName(data?.user?.name || data?.name || '')
           setAlreadyVerified(data?.alreadyVerified || false)
         } else {
@@ -135,7 +137,7 @@ export default function EmailVerificationScreen() {
     return (
       <AuthPageLayout maxWidth={480}>
         <Box sx={{ width: '100%' }}>
-          <RegistrationSuccess userName={verifiedUserName} redirectPath='/dashboard' />
+          <RegistrationSuccess embedded userName={verifiedUserName} redirectPath={AppPaths.dashboard.dashboard} />
         </Box>
       </AuthPageLayout>
     )

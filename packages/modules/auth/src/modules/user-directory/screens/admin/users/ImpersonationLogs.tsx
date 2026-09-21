@@ -26,6 +26,7 @@ import {
   MenuItem,
   CircularProgress,
   Container,
+  type Theme,
 } from '@mui/material'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import Search from '@mui/icons-material/Search'
@@ -41,7 +42,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ImpersonationRecord } from '@cap/shared-types'
-import { useImpersonationLogs } from '../../../../authentication-core'
+import { useImpersonationLogs } from '../../../../authorization-engine/hooks/useAdminQuery'
 import { format, formatDistanceToNow } from 'date-fns'
 import {
   AdminStatusBadge,
@@ -62,16 +63,15 @@ export default function ImpersonationLogs() {
     refetch,
   } = useImpersonationLogs({ page: 1, limit: 100 })
   const logs = useMemo(() => {
-    // Backend returns a paginator object { meta, data: [] }
-    if (
-      logsResponse?.data &&
-      'data' in (logsResponse.data as any) &&
-      Array.isArray((logsResponse.data as any).data)
-    ) {
-      return (logsResponse.data as any).data as ImpersonationRecord[]
+    // Backend returns a paginator object { meta, data: [] }, or a bare array.
+    const payload = logsResponse?.data as
+      | ImpersonationRecord[]
+      | { data?: ImpersonationRecord[] }
+      | undefined
+    if (payload && !Array.isArray(payload) && Array.isArray(payload.data)) {
+      return payload.data
     }
-    // Fallback if it's already an array or empty
-    return (Array.isArray(logsResponse?.data) ? logsResponse.data : []) as ImpersonationRecord[]
+    return Array.isArray(payload) ? payload : []
   }, [logsResponse])
 
   const [searchTerm, setSearchTerm] = useState('')
@@ -216,7 +216,7 @@ export default function ImpersonationLogs() {
 
       {/* Stats/Overview Card */}
       <Card
-        sx={(theme: any) => ({
+        sx={(theme: Theme) => ({
           mb: 4,
           borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px dashed ' + alpha(theme.palette.primary.main, 0.25),
@@ -353,16 +353,16 @@ export default function ImpersonationLogs() {
             },
           }}
         >
-          <MenuItem onClick={() => setFilterAnchorEl(null)}>All Statuses</MenuItem>
-          <MenuItem onClick={() => setFilterAnchorEl(null)}>Active Only</MenuItem>
-          <MenuItem onClick={() => setFilterAnchorEl(null)}>Last 24 Hours</MenuItem>
-          <MenuItem onClick={() => setFilterAnchorEl(null)}>Last 7 Days</MenuItem>
+          <MenuItem onClick={() => setFilterAnchorEl(null)}>{t('auth.userDirectory.impersonation.allStatuses', 'All Statuses')}</MenuItem>
+          <MenuItem onClick={() => setFilterAnchorEl(null)}>{t('auth.userDirectory.impersonation.activeOnly', 'Active Only')}</MenuItem>
+          <MenuItem onClick={() => setFilterAnchorEl(null)}>{t('auth.userDirectory.impersonation.last24Hours', 'Last 24 Hours')}</MenuItem>
+          <MenuItem onClick={() => setFilterAnchorEl(null)}>{t('auth.userDirectory.impersonation.last7Days', 'Last 7 Days')}</MenuItem>
         </Menu>
       </Box>
 
       {/* Table Card */}
       <Paper
-        sx={(theme: any) => ({
+        sx={(theme: Theme) => ({
           borderRadius: 'var(--sf-radius-lg, 16px)',
           overflow: 'hidden',
           border: '1px solid ' + theme.palette.divider,
@@ -382,7 +382,7 @@ export default function ImpersonationLogs() {
                     color: 'text.secondary',
                   }}
                 >
-                  Date & Time
+                  {t('auth.userDirectory.impersonation.dateTime', 'Date & Time')}
                 </TableCell>
                 <TableCell
                   sx={{
@@ -393,7 +393,7 @@ export default function ImpersonationLogs() {
                     color: 'text.secondary',
                   }}
                 >
-                  Administrator (Actor)
+                  {t('auth.userDirectory.impersonation.administratorActor', 'Administrator (Actor)')}
                 </TableCell>
                 <TableCell
                   sx={{
@@ -404,7 +404,7 @@ export default function ImpersonationLogs() {
                     color: 'text.secondary',
                   }}
                 >
-                  Target User
+                  {t('auth.userDirectory.impersonation.targetUser', 'Target User')}
                 </TableCell>
                 <TableCell
                   sx={{
@@ -415,7 +415,7 @@ export default function ImpersonationLogs() {
                     color: 'text.secondary',
                   }}
                 >
-                  Reason
+                  {t('auth.userDirectory.impersonation.reason', 'Reason')}
                 </TableCell>
                 <TableCell
                   sx={{
@@ -426,7 +426,7 @@ export default function ImpersonationLogs() {
                     color: 'text.secondary',
                   }}
                 >
-                  Status
+                  {t('auth.userDirectory.impersonation.status', 'Status')}
                 </TableCell>
                 <TableCell align='right'></TableCell>
               </TableRow>
@@ -592,7 +592,7 @@ export default function ImpersonationLogs() {
                           setSelectedLog(log)
                           setActionAnchorEl(e.currentTarget)
                         }}
-                        aria-label='More actions'
+                        aria-label={t('auth.userDirectory.impersonation.moreActions', 'More actions')}
                       >
                         <MoreVert fontSize='small' />
                       </AdminRowActionButton>
@@ -646,7 +646,7 @@ export default function ImpersonationLogs() {
         >
           <History fontSize='small' sx={{ mr: 2, color: 'text.secondary' }} />
           <Typography variant='body2' sx={{ fontWeight: 600 }}>
-            View Session Details
+            {t('auth.userDirectory.impersonation.viewSessionDetails', 'View Session Details')}
           </Typography>
         </MenuItem>
 
@@ -662,7 +662,7 @@ export default function ImpersonationLogs() {
           >
             <Block fontSize='small' sx={{ mr: 2, color: 'inherit' }} />
             <Typography variant='body2' sx={{ fontWeight: 600 }}>
-              Force Terminate Session
+              {t('auth.userDirectory.impersonation.forceTerminateSession', 'Force Terminate Session')}
             </Typography>
           </MenuItem>,
         ]}

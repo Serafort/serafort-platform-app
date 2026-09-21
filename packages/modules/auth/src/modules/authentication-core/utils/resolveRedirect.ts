@@ -1,5 +1,6 @@
 import { Roles } from '@cap/platform-core'
 import { Path } from '../../../routes/path'
+import { AppPaths } from '@cap/shared-types'
 
 const ADMIN_ROLES: (Roles | string | number)[] = [
   Roles.ADMIN,
@@ -30,8 +31,9 @@ export const resolveRedirectPathForUser = (userRole?: Roles | string | number): 
   if (userRole && roleMatches(userRole, ADMIN_ROLES)) {
     return Path.admin.users
   }
-  if (userRole && roleMatches(userRole, [Roles.PARTICIPANT, 'participant'])) {
-    return '/provider'
-  }
-  return '/auth/account'
+  // Participants previously landed on '/provider', a URL no module registers,
+  // so every participant sign-in ended on the not-found screen. Until a
+  // participant area exists they share the default account landing; give them
+  // their own entry here (declared in AppPaths) once there is one to give.
+  return AppPaths.account.overview
 }
