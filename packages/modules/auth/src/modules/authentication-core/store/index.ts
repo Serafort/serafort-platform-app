@@ -1,9 +1,10 @@
 import { StateCreator } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { create } from 'zustand'
+import type { NormalizedUser } from '../utils/normalizeAuthUser'
 
 export interface AuthState {
-  user: any
+  user: NormalizedUser | null
   isAuthenticated: boolean
   isLoading: boolean
   mfaRequired: boolean
@@ -12,7 +13,7 @@ export interface AuthState {
 }
 
 export interface AuthActions {
-  setUser: (user: any) => void
+  setUser: (user: NormalizedUser | null) => void
   setAuthenticated: (isAuthenticated: boolean) => void
   setMfaRequired: (required: boolean, method?: AuthState['mfaMethod']) => void
   setLoading: (isLoading: boolean) => void

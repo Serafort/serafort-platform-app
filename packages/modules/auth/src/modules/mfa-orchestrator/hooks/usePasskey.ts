@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { errorMessage, errorName } from '../utils/errors'
 import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 import { useQueryClient } from '@tanstack/react-query'
 import { mfaService } from '../services/mfa.service'
@@ -17,31 +18,29 @@ function detectDeviceFriendlyName(): string {
   return os
 }
 
-export function formatWebAuthnError(err: any): string {
+export function formatWebAuthnError(err: unknown): string {
   if (!err) return 'Passkey operation failed'
-  if (err.name === 'NotAllowedError') {
+  const name = errorName(err)
+  if (name === 'NotAllowedError') {
     return 'Passkey prompt was cancelled or timed out.'
   }
-  if (err.name === 'InvalidStateError') {
+  if (name === 'InvalidStateError') {
     return 'This passkey is already registered on this device.'
   }
-  if (err.name === 'ConstraintError') {
+  if (name === 'ConstraintError') {
     return 'Device authenticator constraint not satisfied.'
   }
-  if (err.name === 'NotSupportedError') {
+  if (name === 'NotSupportedError') {
     return 'Passkeys / WebAuthn are not supported on this browser or platform.'
   }
-  return (
-    err.response?.data?.message ||
-    err.response?.data?.error ||
-    err.message ||
-    'Passkey operation failed'
-  )
+  return errorMessage(err) || 'Passkey operation failed'
 }
 
 export interface RegisterPasskeyOptions {
   email?: string
   friendlyName?: string
+  /** `platform` limits the browser prompt to this device's built-in sensor. */
+  authenticatorAttachment?: 'platform' | 'cross-platform'
 }
 
 export const usePasskey = () => {
@@ -67,7 +66,7 @@ export const usePasskey = () => {
       const verifyResponse = await mfaService.passkeys.verifyLogin(authResponse)
 
       return verifyResponse
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage = formatWebAuthnError(err)
       setError(errorMessage)
       throw err
@@ -89,8 +88,19 @@ export const usePasskey = () => {
         throw new Error('Failed to get passkey registration options')
       }
 
-      // 2. Start browser-native WebAuthn registration
-      const regResponse = await startRegistration({ optionsJSON: optionsResponse.data })
+      // 2. Start browser-native WebAuthn registration. The backend leaves the
+      // attachment open; narrowing it is a browser hint only and does not
+      // affect server-side verification.
+      const optionsJSON = options?.authenticatorAttachment
+        ? {
+            ...optionsResponse.data,
+            authenticatorSelection: {
+              ...optionsResponse.data.authenticatorSelection,
+              authenticatorAttachment: options.authenticatorAttachment,
+            },
+          }
+        : optionsResponse.data
+      const regResponse = await startRegistration({ optionsJSON })
 
       // 3. Verify registration on backend with friendlyName
       const verifyResponse = await mfaService.passkeys.verifyRegistration({
@@ -104,7 +114,7 @@ export const usePasskey = () => {
       queryClient.invalidateQueries({ queryKey: MFA_QUERY_KEYS.securityStatus })
 
       return verifyResponse
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage = formatWebAuthnError(err)
       setError(errorMessage)
       throw err

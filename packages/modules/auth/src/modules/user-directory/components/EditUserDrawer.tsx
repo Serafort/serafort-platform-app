@@ -6,7 +6,6 @@ import {
   Drawer,
   Box,
   Typography,
-  IconButton,
   Button,
   Tabs,
   Tab,
@@ -29,13 +28,12 @@ import {
   alpha,
   useTheme,
 } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import SecurityIcon from '@mui/icons-material/Security'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { editUserSchema, EditUserFormData } from '../schemas/userDirectory.schema'
 import { UserDirectoryItemDTO, UserDetailDTO } from '../types/userDirectory.types'
@@ -44,6 +42,8 @@ import {
   useUpdateUserMutation,
   useUpdateUserStatusMutation,
 } from '../hooks/useUserDirectoryMutations'
+import DialogCloseButton from './DialogCloseButton'
+import { useTranslation } from 'react-i18next'
 
 export interface EditUserDrawerProps {
   open: boolean
@@ -78,6 +78,7 @@ export default function EditUserDrawer({
   onSuccess,
 }: EditUserDrawerProps) {
   const theme = useTheme()
+  const { t } = useTranslation('common')
   const [tabIndex, setTabIndex] = useState<number>(0)
   const [unsavedDialogOpen, setUnsavedDialogOpen] = useState<boolean>(false)
 
@@ -87,28 +88,16 @@ export default function EditUserDrawer({
   )
   const { data: rolesResponse } = useRolesQuery()
 
-  const availableRoles = useMemo(() => {
-    return (
-      rolesResponse?.data || [
-        { id: 1, name: 'User', slug: 'user', description: 'Standard tenant user access' },
-        {
-          id: 2,
-          name: 'Administrator',
-          slug: 'admin',
-          description: 'Full tenant admin privileges',
-        },
-        { id: 3, name: 'Manager', slug: 'manager', description: 'Department management' },
-        { id: 4, name: 'Auditor', slug: 'auditor', description: 'Read-only audit log access' },
-      ]
-    )
-  }, [rolesResponse])
+  // Tenant roles only -- no client-side placeholder list, so an outage can never
+  // surface (and let an admin assign) role ids the server did not issue.
+  const availableRoles = useMemo(() => rolesResponse?.data ?? [], [rolesResponse])
 
   const user = useMemo(() => {
     return userDetailResponse?.data || initialUser || null
   }, [userDetailResponse, initialUser])
 
   const form = useForm<EditUserFormData>({
-    resolver: zodResolver(editUserSchema) as any,
+    resolver: zodResolver(editUserSchema) as unknown as Resolver<EditUserFormData>,
     mode: 'onBlur',
     defaultValues: {
       firstName: '',
@@ -139,9 +128,10 @@ export default function EditUserDrawer({
   // Reset form when user data arrives
   useEffect(() => {
     if (user) {
-      const assignedRoleIds = user.roles?.map((r: any) =>
+      const assignedRoleIds = user.roles?.map((r: UserDetailDTO['roles'][number] | number) =>
         typeof r === 'object' ? r.id : Number(r),
       ) || [1]
+      const detail = user as Partial<UserDetailDTO>
       reset({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
@@ -149,13 +139,13 @@ export default function EditUserDrawer({
         phoneNumber: user.phoneNumber || '',
         jobTitle: user.jobTitle || '',
         department: user.department || '',
-        company: (user as any).company || '',
-        location: (user as any).location || '',
-        website: (user as any).website || '',
-        bio: (user as any).bio || '',
-        timezone: (user as any).timezone || 'utc',
-        locale: (user as any).locale || 'en-us',
-        dateFormat: (user as any).dateFormat || 'mm-dd-yyyy',
+        company: detail.company || '',
+        location: detail.location || '',
+        website: detail.website || '',
+        bio: detail.bio || '',
+        timezone: detail.timezone || 'utc',
+        locale: detail.locale || 'en-us',
+        dateFormat: detail.dateFormat || 'mm-dd-yyyy',
         status: user.status || 'ACTIVE',
         roleIds: assignedRoleIds.length > 0 ? assignedRoleIds : [1],
       })
@@ -232,7 +222,7 @@ export default function EditUserDrawer({
             width: { xs: '100vw', sm: 540 },
             maxWidth: '100vw',
             bgcolor: 'background.paper',
-            boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.2)',
+            boxShadow: `-8px 0 32px ${alpha(theme.palette.common.black, 0.2)}`,
             display: 'flex',
             flexDirection: 'column',
           },
@@ -263,16 +253,14 @@ export default function EditUserDrawer({
             </Avatar>
             <Box>
               <Typography variant='h6' fontWeight={700}>
-                {user ? user.fullName || `${user.firstName} ${user.lastName}` : 'Edit User'}
+                {user ? user.fullName || `${user.firstName} ${user.lastName}` : t('auth.userDirectory.editUser.title', 'Edit user')}
               </Typography>
               <Typography variant='caption' color='text.secondary'>
-                {user?.email || 'Update user settings and access'}
+                {user?.email || t('auth.userDirectory.editUser.subtitle', 'Update user settings and access')}
               </Typography>
             </Box>
           </Stack>
-          <IconButton onClick={handleCloseAttempt} size='small' sx={{ color: 'text.secondary' }}>
-            <CloseIcon fontSize='small' />
-          </IconButton>
+          <DialogCloseButton onClick={handleCloseAttempt} />
         </Box>
 
         {/* Navigation Tabs */}
@@ -293,17 +281,17 @@ export default function EditUserDrawer({
             <Tab
               icon={<PersonOutlineIcon fontSize='small' />}
               iconPosition='start'
-              label='General Info'
+              label={t('auth.userDirectory.editUser.generalInfo', 'General Info')}
             />
             <Tab
               icon={<SecurityIcon fontSize='small' />}
               iconPosition='start'
-              label='Roles & Access'
+              label={t('auth.userDirectory.editUser.rolesAccess', 'Roles & Access')}
             />
             <Tab
               icon={<VpnKeyIcon fontSize='small' />}
               iconPosition='start'
-              label='Account Status'
+              label={t('auth.userDirectory.editUser.accountStatus', 'Account Status')}
             />
           </Tabs>
         </Box>
@@ -327,7 +315,7 @@ export default function EditUserDrawer({
                         <TextField
                           {...field}
                           fullWidth
-                          label='First Name'
+                          label={t('auth.userDirectory.editUser.firstName', 'First Name')}
                           error={Boolean(fieldState.error)}
                           helperText={fieldState.error?.message}
                           required
@@ -341,7 +329,7 @@ export default function EditUserDrawer({
                         <TextField
                           {...field}
                           fullWidth
-                          label='Last Name'
+                          label={t('auth.userDirectory.editUser.lastName', 'Last Name')}
                           error={Boolean(fieldState.error)}
                           helperText={fieldState.error?.message}
                           required
@@ -358,7 +346,7 @@ export default function EditUserDrawer({
                         {...field}
                         fullWidth
                         type='email'
-                        label='Email Address'
+                        label={t('auth.userDirectory.editUser.emailAddress', 'Email Address')}
                         error={Boolean(fieldState.error)}
                         helperText={fieldState.error?.message}
                         required
@@ -374,7 +362,7 @@ export default function EditUserDrawer({
                         {...field}
                         value={field.value || ''}
                         fullWidth
-                        label='Phone Number'
+                        label={t('auth.userDirectory.editUser.phoneNumber', 'Phone Number')}
                         placeholder='+1 (555) 000-0000'
                         error={Boolean(fieldState.error)}
                         helperText={fieldState.error?.message}
@@ -391,7 +379,7 @@ export default function EditUserDrawer({
                           {...field}
                           value={field.value || ''}
                           fullWidth
-                          label='Job Title'
+                          label={t('auth.userDirectory.editUser.jobTitle', 'Job Title')}
                           error={Boolean(fieldState.error)}
                           helperText={fieldState.error?.message}
                         />
@@ -405,7 +393,7 @@ export default function EditUserDrawer({
                           {...field}
                           value={field.value || ''}
                           fullWidth
-                          label='Department'
+                          label={t('auth.userDirectory.editUser.department', 'Department')}
                           error={Boolean(fieldState.error)}
                           helperText={fieldState.error?.message}
                         />
@@ -419,8 +407,8 @@ export default function EditUserDrawer({
                       control={control}
                       render={({ field }) => (
                         <FormControl fullWidth>
-                          <InputLabel id='timezone-label'>Timezone</InputLabel>
-                          <Select labelId='timezone-label' {...field} label='Timezone'>
+                          <InputLabel id='timezone-label'>{t('auth.userDirectory.editUser.timezone', 'Timezone')}</InputLabel>
+                          <Select labelId='timezone-label' {...field} label={t('auth.userDirectory.editUser.timezone', 'Timezone')}>
                             {TIMEZONES.map((tz) => (
                               <MenuItem key={tz.value} value={tz.value}>
                                 {tz.label}
@@ -435,8 +423,8 @@ export default function EditUserDrawer({
                       control={control}
                       render={({ field }) => (
                         <FormControl fullWidth>
-                          <InputLabel id='locale-label'>Language / Locale</InputLabel>
-                          <Select labelId='locale-label' {...field} label='Language / Locale'>
+                          <InputLabel id='locale-label'>{t('auth.userDirectory.editUser.languageLocale', 'Language / Locale')}</InputLabel>
+                          <Select labelId='locale-label' {...field} label={t('auth.userDirectory.editUser.languageLocale', 'Language / Locale')}>
                             {LOCALES.map((loc) => (
                               <MenuItem key={loc.value} value={loc.value}>
                                 {loc.label}
@@ -458,8 +446,8 @@ export default function EditUserDrawer({
                         fullWidth
                         multiline
                         rows={3}
-                        label='Bio / Notes'
-                        placeholder='Brief summary or administrator notes...'
+                        label={t('auth.userDirectory.editUser.bioNotes', 'Bio / Notes')}
+                        placeholder={t('auth.userDirectory.editUser.bioPlaceholder', 'Brief summary or administrator notes...')}
                         error={Boolean(fieldState.error)}
                         helperText={fieldState.error?.message}
                       />
@@ -472,8 +460,10 @@ export default function EditUserDrawer({
               {tabIndex === 1 && (
                 <Stack spacing={2.5}>
                   <Alert severity='info'>
-                    Roles define permissions and tenant administrative privileges. Multiple roles
-                    can be assigned simultaneously.
+                    {t(
+                      'auth.userDirectory.editUser.rolesInfo',
+                      'Roles define permissions and tenant administrative privileges. Multiple roles can be assigned simultaneously.',
+                    )}
                   </Alert>
 
                   <Controller
@@ -481,7 +471,7 @@ export default function EditUserDrawer({
                     control={control}
                     render={({ field, fieldState }) => (
                       <FormControl fullWidth error={Boolean(fieldState.error)}>
-                        <InputLabel id='edit-roles-label'>Assigned Roles</InputLabel>
+                        <InputLabel id='edit-roles-label'>{t('auth.userDirectory.editUser.assignedRoles', 'Assigned Roles')}</InputLabel>
                         <Select
                           labelId='edit-roles-label'
                           multiple
@@ -492,7 +482,7 @@ export default function EditUserDrawer({
                               typeof val === 'string' ? val.split(',').map(Number) : val,
                             )
                           }}
-                          input={<OutlinedInput label='Assigned Roles' />}
+                          input={<OutlinedInput label={t('auth.userDirectory.editUser.assignedRoles', 'Assigned Roles')} />}
                           renderValue={(selected) => (
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                               {selected.map((roleId: number) => {
@@ -500,7 +490,7 @@ export default function EditUserDrawer({
                                 return (
                                   <Chip
                                     key={roleId}
-                                    label={role?.name || `Role #${roleId}`}
+                                    label={role?.name || t('auth.userDirectory.editUser.roleFallback', 'Role #{{id}}', { id: roleId })}
                                     size='small'
                                     color='primary'
                                     variant='outlined'
@@ -551,7 +541,7 @@ export default function EditUserDrawer({
               {tabIndex === 2 && (
                 <Stack spacing={2.5}>
                   <Typography variant='subtitle2' fontWeight={700}>
-                    User Account Status
+                    {t('auth.userDirectory.editUser.userAccountStatus', 'User Account Status')}
                   </Typography>
 
                   <Controller
@@ -559,36 +549,36 @@ export default function EditUserDrawer({
                     control={control}
                     render={({ field }) => (
                       <FormControl fullWidth>
-                        <InputLabel id='user-status-select-label'>Account Status</InputLabel>
+                        <InputLabel id='user-status-select-label'>{t('auth.userDirectory.editUser.accountStatus', 'Account Status')}</InputLabel>
                         <Select
                           labelId='user-status-select-label'
                           {...field}
-                          label='Account Status'
+                          label={t('auth.userDirectory.editUser.accountStatus', 'Account Status')}
                         >
                           <MenuItem value='ACTIVE'>
                             <Stack direction='row' spacing={1} alignItems='center'>
-                              <Chip label='ACTIVE' size='small' color='success' />
-                              <Typography variant='body2'>Active & Allowed to Login</Typography>
+                              <Chip label={t('auth.userDirectory.editUser.active', 'Active')} size='small' color='success' />
+                              <Typography variant='body2'>{t('auth.userDirectory.editUser.activeAllowedToLogin', 'Active & Allowed to Login')}</Typography>
                             </Stack>
                           </MenuItem>
                           <MenuItem value='INACTIVE'>
                             <Stack direction='row' spacing={1} alignItems='center'>
-                              <Chip label='INACTIVE' size='small' color='default' />
-                              <Typography variant='body2'>Inactive (Login Disabled)</Typography>
+                              <Chip label={t('auth.userDirectory.editUser.inactive', 'Inactive')} size='small' color='default' />
+                              <Typography variant='body2'>{t('auth.userDirectory.editUser.inactiveLoginDisabled', 'Inactive (Login Disabled)')}</Typography>
                             </Stack>
                           </MenuItem>
                           <MenuItem value='SUSPENDED'>
                             <Stack direction='row' spacing={1} alignItems='center'>
-                              <Chip label='SUSPENDED' size='small' color='warning' />
+                              <Chip label={t('auth.userDirectory.editUser.suspended', 'Suspended')} size='small' color='warning' />
                               <Typography variant='body2'>
-                                Suspended / Temporarily Locked
+                                {t('auth.userDirectory.editUser.suspendedTemporarilyLocked', 'Suspended / Temporarily Locked')}
                               </Typography>
                             </Stack>
                           </MenuItem>
                           <MenuItem value='BANNED'>
                             <Stack direction='row' spacing={1} alignItems='center'>
-                              <Chip label='BANNED' size='small' color='error' />
-                              <Typography variant='body2'>Banned from Platform</Typography>
+                              <Chip label={t('auth.userDirectory.editUser.banned', 'Banned')} size='small' color='error' />
+                              <Typography variant='body2'>{t('auth.userDirectory.editUser.bannedFromPlatform', 'Banned from Platform')}</Typography>
                             </Stack>
                           </MenuItem>
                         </Select>
@@ -598,14 +588,18 @@ export default function EditUserDrawer({
 
                   {form.watch('status') === 'SUSPENDED' && (
                     <Alert severity='warning'>
-                      Suspending this account will immediately revoke all active refresh tokens and
-                      terminate ongoing sessions.
+                      {t(
+                        'auth.userDirectory.editUser.suspendWarning',
+                        'Suspending this account will immediately revoke all active refresh tokens and terminate ongoing sessions.',
+                      )}
                     </Alert>
                   )}
                   {form.watch('status') === 'BANNED' && (
                     <Alert severity='error'>
-                      Banning this user will block all authentication requests from their associated
-                      IP addresses and linked credentials.
+                      {t(
+                        'auth.userDirectory.editUser.banWarning',
+                        'Banning this user will block all authentication requests from their associated IP addresses and linked credentials.',
+                      )}
                     </Alert>
                   )}
                 </Stack>
@@ -630,7 +624,7 @@ export default function EditUserDrawer({
             color='inherit'
             sx={{ textTransform: 'none', fontWeight: 600 }}
           >
-            Cancel
+            {t('auth.userDirectory.editUser.cancel', 'Cancel')}
           </Button>
           <Button
             type='submit'
@@ -660,13 +654,15 @@ export default function EditUserDrawer({
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <WarningAmberIcon color='warning' />
           <Typography variant='h6' fontWeight={700}>
-            Discard Unsaved Changes?
+            {t('auth.userDirectory.editUser.discardUnsavedChanges', 'Discard Unsaved Changes?')}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <Typography variant='body2' color='text.secondary'>
-            You have unsaved changes in this drawer. If you close now, all modifications will be
-            lost.
+            {t(
+              'auth.userDirectory.editUser.unsavedBody',
+              'You have unsaved changes in this drawer. If you close now, all modifications will be lost.',
+            )}
           </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
@@ -675,7 +671,7 @@ export default function EditUserDrawer({
             color='inherit'
             sx={{ textTransform: 'none' }}
           >
-            Keep Editing
+            {t('auth.userDirectory.editUser.keepEditing', 'Keep Editing')}
           </Button>
           <Button
             onClick={handleConfirmDiscard}
@@ -683,7 +679,7 @@ export default function EditUserDrawer({
             variant='contained'
             sx={{ textTransform: 'none' }}
           >
-            Discard Changes
+            {t('auth.userDirectory.editUser.discardChanges', 'Discard Changes')}
           </Button>
         </DialogActions>
       </Dialog>

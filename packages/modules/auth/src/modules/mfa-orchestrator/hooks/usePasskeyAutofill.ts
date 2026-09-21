@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
+import { errorMessage, errorName } from '../utils/errors'
+import { normalizeAuthUser } from '../../authentication-core/utils/normalizeAuthUser'
 import { startAuthentication, browserSupportsWebAuthnAutofill } from '@simplewebauthn/browser'
 import { mfaService } from '../services/mfa.service'
 import { useAuthStore } from '@cap/module-auth/modules/authentication-core/store'
@@ -67,7 +69,7 @@ export function usePasskeyAutofill(onSuccess?: () => void) {
             expiresAt,
           })
 
-          setUser(verifyResponse.data.user)
+          setUser(normalizeAuthUser(verifyResponse.data.user))
           setAuthenticated(true)
           setAuthStep('complete')
 
@@ -83,14 +85,15 @@ export function usePasskeyAutofill(onSuccess?: () => void) {
 
           onSuccess?.()
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         // AbortError is expected if we call abort() or if browser cancels
-        if (err.name === 'AbortError' || err.message?.includes('The user aborted a request')) {
+        const message = errorMessage(err)
+        if (errorName(err) === 'AbortError' || message?.includes('The user aborted a request')) {
           return
         }
 
         console.error('[usePasskeyAutofill] error:', err)
-        setError(err.message || 'Passkey autofill failed')
+        setError(message || 'Passkey autofill failed')
       } finally {
         if (mounted) {
           setIsLoading(false)

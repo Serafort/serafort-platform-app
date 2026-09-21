@@ -99,18 +99,16 @@ import { MFATOTPPlugin } from './plugins/MFATOTPPlugin'
 
 // Core Exports (Prioritized)
 export * from './modules/authentication-core/types/api.types'
-export * from './modules/authentication-core/types/auth.types'
 export * from './modules/authentication-core/utils/schema'
 export * from './modules/authentication-core'
+export * from './modules/authorization-engine/hooks'
 
 // Sub-module selective exports to avoid collisions
 export {
-  ActiveSessions,
   ActiveSessionsManagement,
   UserActivityTimeline,
   AccountOverview,
   ChangePassword,
-  DesactivateAccount,
   sessionService,
   SESSION_QUERY_KEYS,
   useChangePasswordMutation,
@@ -156,24 +154,7 @@ export {
   useClientBranding,
   useUpdateClientBranding,
   useUpdateUserStatus,
-  useSSFConfig,
-  useUpdateSSFConfig,
-  useTestSSFStream,
-  useBroadcastSSFEvent,
-  useSSFHistory,
-  useSAMLConfig,
-  useUpdateSAMLConfig,
-  useSAMLMetadata,
-  useFetchRemoteMetadata,
-  useRemoteMetadata,
-  useRecentSAMLEntities,
-  useJWKSKeys,
-  useRotateJWKSKeys,
-  useDeleteJWKSKey,
-  useCreateJWKSKey,
-  useGetJWKSKeyDetail,
   useCheckDomain,
-  RoleIndicator,
   AdminRoute,
   adminService,
   authorizationService,
@@ -190,7 +171,6 @@ export {
   AdminOverviewDashboard,
   AuthEventsMonitor,
   RealTimeAuthEventsMonitor,
-  RealTimeAuthEventsMonitorV2,
   SystemHealthDashboard,
   SecurityHealthCheck,
   MFAUsageAnalytics,
@@ -224,26 +204,29 @@ export {
   useEmailTemplatePreviewMutation,
   useSendTestEmailMutation,
   useExportAuditTrailMutation,
-  useClientsQuery,
-  useClientDetailQuery,
-  useCreateClientMutation,
-  useUpdateClientMutation,
-  useDeleteClientMutation,
-  useRotateClientSecretMutation,
-  useScopesQuery,
-  useCreateScopeMutation,
-  useUpdateScopeMutation,
-  useDeleteScopeMutation,
-  useWebhooksQuery,
-  useWebhookDetailQuery,
-  useCreateWebhookMutation,
-  useUpdateWebhookMutation,
-  useDeleteWebhookMutation,
-  useTestWebhookMutation,
   useAuthEventsStream,
 } from './modules/platform-cluster'
 export * from './modules/mfa-orchestrator'
 export * from './modules/identity-broker/screens'
+export {
+  useSSFConfig,
+  useUpdateSSFConfig,
+  useTestSSFStream,
+  useBroadcastSSFEvent,
+  useSSFHistory,
+  useSAMLConfig,
+  useUpdateSAMLConfig,
+  useSAMLMetadata,
+  useUploadSAMLMetadata,
+  useFetchRemoteMetadata,
+  useRemoteMetadata,
+  useRecentSAMLEntities,
+  useJWKSKeys,
+  useRotateJWKSKeys,
+  useDeleteJWKSKey,
+  useCreateJWKSKey,
+  useGetJWKSKeyDetail,
+} from './modules/identity-broker/hooks'
 export * from './modules/passwordless-service'
 export * from './modules/developer-console'
 export { apiExplorerService } from './modules/platform-cluster'
@@ -257,13 +240,6 @@ export type { AuthAccessPolicy } from './domain-kernel/src/types/authorization'
 
 // User Directory - Export everything EXCEPT the ones that collide with authentication-core
 export {
-  useProfiles,
-  useProfileById,
-  useProfileActiveStatus,
-  useUploadProfile,
-  useSetActiveProfile,
-  useUpdateResumeProfile,
-  useDeleteProfile,
   useUserPreferences,
   useUpdatePreferences,
   useSecurityStatus,
@@ -284,6 +260,10 @@ export type { IIdaasFacade } from './idaas-facade/src'
 export const AuthModule: CAPModule = {
   id: 'auth-module',
   version: '1.0.0',
+  name: 'Authentication & Platform Cluster',
+  description:
+    'IDaaS authentication, MFA and passkeys, the authorization engine, the user and organization ' +
+    'directory, the developer console and the platform governance screens.',
   routes: authRouteConfig,
   i18n: { en, ar, fr },
   plugins: [],
@@ -332,7 +312,7 @@ export const AuthModule: CAPModule = {
       id: 'auth-mfa',
       label: 'navigation.twoSteps',
       icon: React.createElement(SecurityOutlinedIcon),
-      path: Path.mfa.mfa.dashboard,
+      path: Path.mfa.mfa.management,
       variant: ['vertical', 'horizontal'],
       order: 15,
     },
@@ -566,7 +546,7 @@ export const AuthModule: CAPModule = {
     {
       id: 'auth-mfa',
       name: 'navigation.twoSteps',
-      url: Path.mfa.mfa.dashboard,
+      url: Path.mfa.mfa.management,
       icon: React.createElement(SecurityOutlinedIcon),
       section: 'navigation.security',
     },

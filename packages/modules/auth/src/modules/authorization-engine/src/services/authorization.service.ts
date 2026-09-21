@@ -56,7 +56,7 @@ export class RoleService implements IRoleReader, IRoleWriter, IRolePermissionMan
     }
   }
 
-  async getRole(roleId: number): Promise<RoleDto> {
+  async getRole(roleId: string): Promise<RoleDto> {
     const response = await adminService.getRole(roleId)
     return mapRoleToDto(response.data as Role)
   }
@@ -71,27 +71,27 @@ export class RoleService implements IRoleReader, IRoleWriter, IRolePermissionMan
   }
 
   async updateRole(
-    roleId: number,
+    roleId: string,
     data: { name?: string; description?: string },
   ): Promise<RoleDto> {
     const response = await adminService.updateRole(roleId, data)
     return mapRoleToDto(response.data as Role)
   }
 
-  async deleteRole(roleId: number): Promise<void> {
+  async deleteRole(roleId: string): Promise<void> {
     await adminService.deleteRole(roleId)
   }
 
-  async getRolePermissions(roleId: number): Promise<PermissionDto[]> {
-    const response = await adminService.getRolePermissions(roleId.toString())
+  async getRolePermissions(roleId: string): Promise<PermissionDto[]> {
+    const response = await adminService.getRolePermissions(roleId)
     return (response.data as Permission[]).map(mapPermissionToDto)
   }
 
-  async assignPermissionToRole(data: { role_id: number; permission_id: number }): Promise<void> {
+  async assignPermissionToRole(data: { role_id: string; permission_id: string }): Promise<void> {
     await adminService.assignPermissionToRole(data)
   }
 
-  async syncRolePermissions(roleId: number, permissionIds: number[]): Promise<RoleDto> {
+  async syncRolePermissions(roleId: string, permissionIds: string[]): Promise<RoleDto> {
     const response = await adminService.syncRolePermissions(roleId, permissionIds)
     return mapRoleToDto(response.data as Role)
   }
@@ -103,7 +103,7 @@ export class PermissionService implements IPermissionReader, IPermissionWriter {
     return (response.data as Permission[]).map(mapPermissionToDto)
   }
 
-  async getPermission(permissionId: number): Promise<PermissionDto> {
+  async getPermission(permissionId: string): Promise<PermissionDto> {
     const response = await adminService.getPermission(permissionId)
     return mapPermissionToDto(response.data as Permission)
   }
@@ -119,14 +119,14 @@ export class PermissionService implements IPermissionReader, IPermissionWriter {
   }
 
   async updatePermission(
-    permissionId: number,
+    permissionId: string,
     data: { name?: string; guard_name?: string; resource?: string; description?: string },
   ): Promise<PermissionDto> {
     const response = await adminService.updatePermission(permissionId, data)
     return mapPermissionToDto(response.data as Permission)
   }
 
-  async deletePermission(permissionId: number): Promise<void> {
+  async deletePermission(permissionId: string): Promise<void> {
     await adminService.deletePermission(permissionId)
   }
 }

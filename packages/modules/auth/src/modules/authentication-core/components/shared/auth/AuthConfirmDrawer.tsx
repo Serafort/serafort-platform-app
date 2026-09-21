@@ -99,7 +99,7 @@ const AuthConfirmDrawer: React.FC<AuthConfirmDrawerProps> = ({
             <WarningAmberRounded />
           </Box>
           <Box sx={{ flex: 1, minInlineSize: 0 }}>
-            <Typography id={titleId} component='h2' variant='h6' sx={{ fontWeight: 800 }}>
+            <Typography id={titleId} component='h2' variant='h6' sx={{ fontWeight: 700 }}>
               {title}
             </Typography>
             {description && (
@@ -137,7 +137,7 @@ const AuthConfirmDrawer: React.FC<AuthConfirmDrawerProps> = ({
             onClick={onConfirm}
             disabled={loading}
             startIcon={loading ? <CircularProgress size={18} color='inherit' /> : undefined}
-            sx={{ minHeight: 48, borderRadius: 'var(--sf-radius-lg, 12px)', fontWeight: 800, textTransform: 'none' }}
+            sx={{ minHeight: 48, borderRadius: 'var(--sf-radius-lg, 12px)', fontWeight: 700, textTransform: 'none' }}
           >
             {confirmLabel}
           </Button>

@@ -59,7 +59,7 @@ export interface Anomaly {
   observedValue: number | null;
   deviationPercent: number | null;
 
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   detectedAt: string;
   updatedAt: string;
   resolvedAt: string | null;
@@ -120,7 +120,7 @@ export interface SecurityAlert {
   affectedUserId: number | null;
   affectedIp: string | null;
   affectedResource: string | null;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   /** Set when the alert was raised by a detector rather than by hand. */
   anomalyId: number | null;
   createdAt: string;

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { i18n as i18nConfig } from '@cap/shared-types'
 import { getSearchItems } from '@cap/platform-core'
 import { useTheme } from '@mui/material/styles'
+import { resolveMenuIcon } from '../utils/resolveMenuIcon'
 
 const getLocalizedUrl = (url: string, locale: string): string => {
   if (!locale) return url
@@ -132,15 +133,7 @@ const DefaultSuggestions = () => {
                         alignItems: 'center',
                       }}
                     >
-                      {React.isValidElement(item.icon) ? (
-                        item.icon
-                      ) : typeof item.icon === 'string' ? (
-                        <Box
-                          component='i'
-                          className={item.icon}
-                          sx={{ fontSize: searchTokens.defaultSuggestions.iconFontSize }}
-                        />
-                      ) : null}
+                      {resolveMenuIcon(item.icon)}
                     </Box>
                   )}
                   <Typography

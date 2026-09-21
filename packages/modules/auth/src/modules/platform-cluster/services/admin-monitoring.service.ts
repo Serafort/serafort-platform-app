@@ -1,4 +1,5 @@
 import { apiClient, FetchResponse, ENDPOINTS } from '@cap/platform-core'
+import type { Anomaly, AnomalyPage, AnomalyStats, SecurityScore } from '../types/securityIntel.types'
 
 export interface AdminOverviewStats {
   totalUsers: number
@@ -30,14 +31,29 @@ export interface TrendDataPoint {
   newUsers: number
 }
 
+/**
+ * `GET /api/admin/statistics/mfa`, in the shape the controller really returns.
+ *
+ * This interface used to declare camelCase fields (`totpCount`,
+ * `adoptionRatePercentage`, plus `enforcedUsersCount`/`voluntaryUsersCount`
+ * that no query ever produced). Nothing failed loudly: every read came back
+ * `undefined`, and the analytics screen quietly substituted its placeholder
+ * literals, so the page reported 142,893 TOTP authentications against a
+ * database holding one enrolled account.
+ */
 export interface MfaAnalyticsData {
-  totpCount: number
-  smsCount: number
-  passkeyCount: number
-  recoveryCodesUsed: number
-  adoptionRatePercentage: number
-  enforcedUsersCount: number
-  voluntaryUsersCount: number
+  /** Accounts in total, so an adoption rate can be shown as "8 of 10". */
+  total_users: number
+  /** Accounts with at least one second factor enrolled. */
+  total_enabled: number
+  totp_count: number
+  passkey_count: number
+  sms_count: number
+  recovery_codes_used: number
+  /** Percentage, 0–100. */
+  adoption_rate: number
+  /** MFA challenges per day over the last 30 days. */
+  daily_challenges: Array<{ date: string; count: number }>
 }
 
 export interface AuditLogItem {
@@ -49,9 +65,13 @@ export interface AuditLogItem {
   status: 'success' | 'failure' | 'warning' | string
   severity?: 'info' | 'low' | 'medium' | 'high' | 'critical'
   timestamp: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   city?: string
   country?: string
+  /** ISO 3166-1 alpha-2, used to place the event on the events map. */
+  countryCode?: string
+  latitude?: number
+  longitude?: number
 }
 
 export interface AlertItem {
@@ -64,7 +84,7 @@ export interface AlertItem {
   acknowledgedAt?: string
   resolvedAt?: string
   actor?: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface EmailTemplate {
@@ -85,7 +105,7 @@ export interface EmailPreviewResult {
 export interface SendTestEmailPayload {
   templateId: string
   recipientEmail: string
-  variables?: Record<string, any>
+  variables?: Record<string, unknown>
 }
 
 export interface AuditLogExportRequest {
@@ -226,7 +246,7 @@ export const adminMonitoringService = {
     status?: string
     severity?: string
     limit?: number
-  }): Promise<FetchResponse<any>> => {
+  }): Promise<FetchResponse<AnomalyPage>> => {
     const searchParams = new URLSearchParams()
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -237,15 +257,15 @@ export const adminMonitoringService = {
     return apiClient.get(`${ENDPOINTS.admin.anomalies.index}${query}`)
   },
 
-  getAnomalyById: (id: string | number): Promise<FetchResponse<any>> => {
+  getAnomalyById: (id: string | number): Promise<FetchResponse<Anomaly>> => {
     return apiClient.get(ENDPOINTS.admin.anomalies.byId(id))
   },
 
-  getAnomalyStats: (): Promise<FetchResponse<any>> => {
+  getAnomalyStats: (): Promise<FetchResponse<AnomalyStats>> => {
     return apiClient.get(ENDPOINTS.admin.anomalies.stats)
   },
 
-  getAnomalyScore: (): Promise<FetchResponse<any>> => {
+  getAnomalyScore: (): Promise<FetchResponse<SecurityScore>> => {
     return apiClient.get(ENDPOINTS.admin.anomalies.score)
   },
 
@@ -263,16 +283,16 @@ export const adminMonitoringService = {
   },
 
   /** Run the detector now rather than waiting for its schedule. */
-  detectAnomalies: (): Promise<FetchResponse<any>> => {
+  detectAnomalies: (): Promise<FetchResponse<Record<string, unknown>>> => {
     return apiClient.post(ENDPOINTS.admin.anomalies.detect)
   },
 
-  getAnomalyBaseline: (): Promise<FetchResponse<any>> => {
+  getAnomalyBaseline: (): Promise<FetchResponse<Record<string, unknown>>> => {
     return apiClient.get(ENDPOINTS.admin.anomalies.baseline)
   },
 
   /** Recompute the baseline the detector scores against. */
-  refreshAnomalyBaseline: (): Promise<FetchResponse<any>> => {
+  refreshAnomalyBaseline: (): Promise<FetchResponse<Record<string, unknown>>> => {
     return apiClient.post(ENDPOINTS.admin.anomalies.refreshBaseline)
   },
 
@@ -286,7 +306,7 @@ export const adminMonitoringService = {
 
   previewEmailTemplate: (payload: {
     templateId: string
-    variables?: Record<string, any>
+    variables?: Record<string, unknown>
   }): Promise<FetchResponse<EmailPreviewResult>> => {
     return apiClient.post<EmailPreviewResult>(ENDPOINTS.admin.email.preview, payload)
   },

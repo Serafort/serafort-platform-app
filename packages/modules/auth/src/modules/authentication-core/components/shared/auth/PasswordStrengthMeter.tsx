@@ -62,7 +62,7 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
         <Typography variant='caption' sx={{ fontWeight: 700, color: 'text.secondary' }}>
           {t('signUp.passwordStrength', 'Password Strength')}
         </Typography>
-        <Typography variant='caption' sx={{ fontWeight: 800, color: `${strength.tone}.main` }}>
+        <Typography variant='caption' sx={{ fontWeight: 700, color: `${strength.tone}.main` }}>
           {t(strength.labelKey, strength.labelFallback)}
         </Typography>
       </Box>

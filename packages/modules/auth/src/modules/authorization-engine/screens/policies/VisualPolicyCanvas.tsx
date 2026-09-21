@@ -544,7 +544,7 @@ export default function VisualPolicyCanvas() {
               style={{
                 borderRadius: 'var(--sf-radius-md, 8px)',
                 overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                boxShadow: `0 4px 12px ${alpha(theme.palette.common.black, 0.15)}`,
               }}
             />
             <MiniMap

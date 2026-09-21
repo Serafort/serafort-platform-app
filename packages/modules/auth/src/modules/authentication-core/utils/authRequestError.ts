@@ -20,6 +20,8 @@ export interface AuthRequestError {
   detail?: string
   /** Free-form `message` field from the response body. */
   serverMessage?: string
+  /** Machine-readable `error` code from the response body, e.g. `'invalid_user_code'`. */
+  errorCode?: string
 }
 
 interface AxiosLikeError {
@@ -31,6 +33,7 @@ interface AxiosLikeError {
     data?: {
       detail?: unknown
       message?: unknown
+      error?: unknown
       attemptsRemaining?: unknown
     }
   }
@@ -60,5 +63,6 @@ export const parseAuthRequestError = (error: unknown): AuthRequestError => {
     attemptsRemaining: asNumber(body.attemptsRemaining),
     detail: asString(body.detail),
     serverMessage: asString(body.message),
+    errorCode: asString(body.error),
   }
 }

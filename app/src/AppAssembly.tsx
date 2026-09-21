@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { assembleApp } from '@cap/platform-core'
+import { assembleApp, markModuleInstalledAt, moduleEnablementService } from '@cap/platform-core'
 import { LayoutRouteWrapper } from '@cap/layout'
 import type { CAPModule } from '@cap/shared-types'
 
@@ -10,6 +10,7 @@ const dynamicListeners = new Set<() => void>()
 export const registerDynamicModule = (moduleContract: CAPModule) => {
   if (!dynamicModulesStore.some((m) => m.id === moduleContract.id)) {
     dynamicModulesStore.push(moduleContract)
+    markModuleInstalledAt(moduleContract.id)
     dynamicListeners.forEach((listener) => listener())
   }
 }
@@ -60,8 +61,12 @@ export const App: React.FC = () => {
   useEffect(() => {
     const handleUpdate = () => setRevision((r) => r + 1)
     dynamicListeners.add(handleUpdate)
+    // Enabling or disabling a module in Module Management re-assembles the
+    // shell, so its routes and menu entries appear or vanish immediately.
+    const unsubscribeEnablement = moduleEnablementService.subscribe(handleUpdate)
     return () => {
       dynamicListeners.delete(handleUpdate)
+      unsubscribeEnablement()
     }
   }, [])
 

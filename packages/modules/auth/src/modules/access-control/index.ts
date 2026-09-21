@@ -1,4 +1,3 @@
-export * from './screens'
 export { default as AccessControlPath } from './screens/path'
 export * from './types'
 export * from './services'

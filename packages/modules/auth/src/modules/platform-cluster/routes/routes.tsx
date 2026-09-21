@@ -25,9 +25,6 @@ const MFAUsageAnalytics = React.lazy(() => import('../screens/monitoring/MFAUsag
 const RealTimeAuthEventsMonitor = React.lazy(
   () => import('../screens/monitoring/RealTimeAuthEventsMonitor'),
 )
-const RealTimeAuthEventsMonitorV2 = React.lazy(
-  () => import('../screens/monitoring/RealTimeAuthEventsMonitorV2'),
-)
 const SecurityHealthCheck = React.lazy(() => import('../screens/monitoring/SecurityHealthCheck'))
 const SystemHealthDashboard = React.lazy(
   () => import('../screens/monitoring/SystemHealthDashboard'),
@@ -67,7 +64,6 @@ export const platformClusterRouteConfig: AuthRouteConfig[] = [
   createAdminRoute(Path.monitor.exportAudit, <ExportAuditTrail />),
   createAdminRoute(Path.monitor.mfa_analytics, <MFAUsageAnalytics />),
   createAdminRoute(Path.monitor.real_time, <RealTimeAuthEventsMonitor />),
-  createAdminRoute(Path.monitor.real_time_v2, <RealTimeAuthEventsMonitorV2 />),
   createAdminRoute(Path.monitor.health, <SystemHealthDashboard />),
   createAdminRoute(Path.monitor.security_health, <SecurityHealthCheck />),
 

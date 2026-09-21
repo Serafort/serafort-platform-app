@@ -12,26 +12,19 @@ import {
   HttpError,
   sessionStorageManager,
   secureTokenManager,
-  API_CONFIG,
   useAppStore,
 } from '@cap/platform-core'
 
 import {
   TokenResponse,
   MessageResponse,
-  VerifyEmailResponse,
-  SessionResponse,
   LoginMutationVars,
   RegisterMutationVars,
   ForgotPasswordMutationVars,
   ResetPasswordMutationVars,
   SessionsResponse,
-  LoginHistoryResponse,
-  SecurityLogParams,
   SsoDiscoveryResponse,
 } from '../types/api.types'
-import { useSSESubscription } from './useSSE'
-import { ENDPOINTS } from '@cap/platform-core'
 
 import { QUERY_KEYS } from '../services/query'
 import authService from '../services/auth.service'
@@ -45,7 +38,7 @@ import { useAuthStore } from '../store'
 /**
  * Signup/Register mutation
  */
-export function useSignup(
+export function useRegister(
   options?: UseMutationOptions<
     FetchResponse<MessageResponse>,
     HttpError,
@@ -54,12 +47,11 @@ export function useSignup(
   >,
 ) {
   return useMutation({
-    mutationFn: ({ data }) => authService.signup(data as any),
+    mutationFn: ({ data }) => authService.signup(data),
     ...options,
   })
 }
 
-export const useRegister = useSignup
 /**
  * Signin mutation
  */
@@ -182,51 +174,6 @@ export function useSignout(
   })
 }
 /**
- * Refresh token mutation
- */
-export function useRefreshToken(
-  options?: UseMutationOptions<
-    FetchResponse<TokenResponse>,
-    HttpError,
-    { refreshToken?: string },
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-
-  const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
-
-  return useMutation({
-    mutationFn: () => authService.refreshToken(),
-    onSuccess: (...args) => {
-      const [response] = args
-      // /api/v1/auth/refresh (the only route this hook calls) returns
-      // `accessToken` — never a bare `token` or `expires_in`. `token` is kept
-      // as a fallback for tolerance with any legacy caller, same as useSignin.
-      const body: any = response.data
-      const accessToken = body.accessToken ?? body.token
-      if (accessToken) {
-        const expiresIn = body.expiresIn || body.expires_in || 3600
-        const expiresAt = Date.now() + expiresIn * 1000
-
-        secureTokenManager.setTokens({
-          accessToken,
-          // refresh_token is handled via HttpOnly cookie
-          expiresAt,
-        })
-      }
-
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.auth.session })
-
-      customOnSuccess?.(...args)
-    },
-    onError: (...args) => {
-      customOnError?.(...args)
-    },
-    ...restOptions,
-  })
-}
-/**
  * Forgot password mutation
  */
 export function useForgotPassword(
@@ -260,40 +207,9 @@ export function useResetPassword(
   })
 }
 
-/**
- * Verify reset password token
- */
-export function useVerifyResetPassword(
-  email: string,
-  signature: string,
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: ['auth', 'verify-reset-password', email, signature],
-    queryFn: () => authService.verifyResetPassword(email, signature),
-    enabled: !!email && !!signature,
-    retry: false,
-    ...options,
-  })
-}
-
-export function useVerifyResetToken(
-  email: string,
-  token: string,
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: ['auth', 'verify-reset-token', email, token],
-    queryFn: () => authService.verifyResetToken(email, token),
-    enabled: !!email && !!token,
-    retry: false,
-    ...options,
-  })
-}
-
 export function useAppealBan(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse<unknown>,
     HttpError,
     { email: string; reason: string },
     unknown
@@ -306,30 +222,13 @@ export function useAppealBan(
 }
 
 export function useSocialExchange(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, { code: string }, unknown>,
+  options?: UseMutationOptions<FetchResponse<unknown>, HttpError, { code: string }, unknown>,
 ) {
   return useMutation({
     mutationFn: ({ code }) => authService.social.exchange(code),
     ...options,
   })
 }
-/**
- * Verify email mutation
- */
-export function useVerifyEmail(
-  options?: UseMutationOptions<
-    FetchResponse<VerifyEmailResponse>,
-    HttpError,
-    { search: string },
-    unknown
-  >,
-) {
-  return useMutation({
-    mutationFn: ({ search }) => authService.verifyEmail(search),
-    ...options,
-  })
-}
-
 export function useResendVerification(
   options?: UseMutationOptions<
     FetchResponse<MessageResponse>,
@@ -344,38 +243,11 @@ export function useResendVerification(
   })
 }
 
-export function useVerifyEmailToken(
-  search: string,
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: ['auth', 'verify-email-token', search],
-    queryFn: () => authService.verifyEmail(search),
-    enabled: !!search,
-    retry: false,
-    ...options,
-  })
-}
-
-export function useValidateUser(
-  email: string,
-  token: string,
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: ['auth', 'validate-user', email, token],
-    queryFn: () => authService.validateUser(email, token),
-    enabled: !!email && !!token,
-    retry: false,
-    ...options,
-  })
-}
-
 /**
  * Send magic link for passwordless login
  */
 export function usePasswordlessSend(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, string | { email: string }, unknown>,
+  options?: UseMutationOptions<FetchResponse<unknown>, HttpError, string | { email: string }, unknown>,
 ) {
   return useMutation({
     mutationFn: (param) => {
@@ -391,7 +263,7 @@ export function usePasswordlessSend(
  */
 export function usePasswordlessVerify(
   token: string,
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<FetchResponse<unknown>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: ['auth', 'passwordless', 'verify', token],
@@ -402,53 +274,6 @@ export function usePasswordlessVerify(
   })
 }
 
-/**
- * Get current session
- */
-export function useSession(
-  options?: Omit<
-    UseQueryOptions<FetchResponse<SessionResponse>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
-) {
-  const { setUser, setAuthenticated } = useAuthStore()
-
-  return useQuery({
-    queryKey: QUERY_KEYS.auth.session,
-    queryFn: async () => {
-      const response = await authService.getSession()
-      const userData = response.data?.user || response.data
-
-      if (userData && userData.id) {
-        // Normalize user role if it's an object
-        if (typeof userData.role === 'object' && userData.role !== null) {
-          userData.roleObject = userData.role
-          userData.roleName = (userData.role as any).name
-          userData.role = (userData.role as any).id
-        }
-
-        // Coerce numeric role strings to numbers
-        if (typeof userData.role === 'string' && !isNaN(Number(userData.role))) {
-          userData.role = Number(userData.role)
-        }
-
-        setUser(userData)
-        setAuthenticated(true)
-
-        // Keep local store in sync with global store if needed
-        useAppStore.getState().setUser(userData)
-      } else {
-        setUser(null)
-        setAuthenticated(false)
-        useAppStore.getState().setUser(null)
-      }
-      return response
-    },
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-    retry: false, // Don't retry if unauthorized
-    ...options,
-  })
-}
 /**
  * Get All Sessions
  */
@@ -493,41 +318,6 @@ export function useRevokeAllSessions(
 // ============================================================================
 
 /**
- * Get Login History
- */
-export function useLoginHistory(
-  limit: number = 50,
-  options?: Omit<
-    UseQueryOptions<FetchResponse<LoginHistoryResponse>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
-) {
-  return useQuery({
-    queryKey: ['auth', 'login-history', limit],
-    queryFn: () => authService.getLoginHistory(limit),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    ...options,
-  })
-}
-
-/**
- * Get Security Logs
- */
-export function useSecurityLogs(
-  params?: SecurityLogParams,
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: ['auth', 'security-logs', params],
-    queryFn: () => authService.getSecurityLogs(params),
-    staleTime: 1000 * 60 * 5,
-    ...options,
-  })
-}
-
-// MFA and Passkey hooks are handled by plugins in packages/modules/auth/src/plugins/
-
-/**
  * Revoke Session
  */
 export function useRevokeSession(
@@ -554,46 +344,6 @@ export function useRevokeSession(
 // ============================================================================
 
 /**
- * Check if user is authenticated (Query-based)
- */
-export function useIsAuthenticatedQuery(): boolean {
-  const { data: session } = useSession({ retry: false })
-  return !!session?.data?.user
-}
-
-/**
- * Get current user (Query-based)
- */
-export function useCurrentUserQuery() {
-  const { data: session, ...rest } = useSession()
-  return {
-    user: session?.data?.user,
-    ...rest,
-  }
-}
-
-/**
- * Check user role
- */
-export function useHasRole(role: string | number): boolean {
-  const { user } = useCurrentUserQuery()
-  const userData = (user as any)?.user || user
-  if (!userData?.role) return false
-  return String(userData.role) === String(role)
-}
-
-/**
- * Check multiple roles
- */
-export function useHasAnyRole(roles: (string | number)[]): boolean {
-  const { user } = useCurrentUserQuery()
-  const userData = (user as any)?.user || user
-  if (!userData?.role) return false
-  const userRoleStr = String(userData.role)
-  return roles.some((r) => String(r) === userRoleStr)
-}
-
-/**
  * SSO Discovery Hook
  */
 export function useSsoDiscovery(
@@ -615,35 +365,4 @@ export function useSsoDiscovery(
     retry: false, // Don't retry heavily on discovery failures
     ...options,
   })
-}
-
-/**
- * SSE Hooks for progress tracking
- */
-
-export function useScrapingProgress(jobId: string | number) {
-  const url = `${API_CONFIG.baseURL}${ENDPOINTS.sse.scrapingProgress(jobId)}`
-  return useSSESubscription<{
-    progress: number
-    status: string
-    message: string
-    records_processed?: number
-  }>(url)
-}
-
-export function useAnalysisProgress(analysisId: string | number) {
-  const url = `${API_CONFIG.baseURL}${ENDPOINTS.sse.analysisProgress(analysisId)}`
-  return useSSESubscription<{
-    progress: number
-    status: string
-    message: string
-  }>(url)
-}
-
-export function useNotificationsStream() {
-  const url = `${API_CONFIG.baseURL}${ENDPOINTS.notifications.sse}`
-  return useSSESubscription<{
-    type: string
-    user_id: number
-  }>(url)
 }

@@ -4,150 +4,91 @@ import type {
   StageState,
   PipelineStageProgress,
   ModuleContractValidationResult,
-  ModuleStatusInfo,
   CAPModule,
 } from '@cap/shared-types'
+import { ModuleRegistry } from '../assembly/ModuleRegistry'
+import { readZipArchive, ZipFormatError, type ZipEntry } from '../utils/zip-reader'
 
-function getNodeModule<T = any>(moduleName: string): T | null {
-  if (
-    typeof window !== 'undefined' &&
-    (typeof process === 'undefined' || !process.versions?.node)
-  ) {
-    return null
-  }
-  try {
-    const req = typeof module !== 'undefined' && module.require ? module.require : (typeof require !== 'undefined' ? require : null)
-    return req ? req(moduleName) : null
-  } catch {
-    return null
-  }
-}
+/**
+ * Inspection pipeline for candidate module packages.
+ *
+ * Everything here runs against the real bytes of the selected `.zip` in the
+ * browser: the archive is parsed, its entry names are checked for path
+ * traversal, and its manifest is validated against the CAPModule contract.
+ *
+ * The pipeline deliberately stops there. Installing a module means writing
+ * into `packages/modules/` and rebuilding the workspace, which a browser
+ * cannot do and for which no backend endpoint exists, so the pipeline reports
+ * what it found instead of pretending to deploy.
+ */
 
-const getFsPromises = () => getNodeModule('node:fs/promises')
-const getFsSync = () => getNodeModule('node:fs')
-const getPathModule = () => getNodeModule('node:path')
+/** Refuse archives whose contents would expand beyond this, as a zip-bomb guard. */
+const MAX_TOTAL_UNCOMPRESSED_BYTES = 200 * 1024 * 1024
+/** Compression ratios above this, on a non-trivial payload, indicate a zip bomb. */
+const MAX_COMPRESSION_RATIO = 100
+const RATIO_CHECK_MIN_BYTES = 10 * 1024 * 1024
 
-const pathUtil = {
-  join: (...parts: string[]): string => {
-    const pathMod = getPathModule()
-    if (pathMod?.join) {
-      return pathMod.join(...parts)
-    }
-    return parts.join('/').replace(/\/+/g, '/')
-  },
-  resolve: (...parts: string[]): string => {
-    const pathMod = getPathModule()
-    if (pathMod?.resolve) {
-      return pathMod.resolve(...parts)
-    }
-    return parts.join('/').replace(/\/+/g, '/')
-  },
-  get sep(): string {
-    const pathMod = getPathModule()
-    return pathMod?.sep || '/'
-  },
-}
+const MANIFEST_FILENAME = 'module.manifest.json'
+const PACKAGE_FILENAME = 'package.json'
 
-const checkExists = async (p: string): Promise<boolean> => {
-  const fsP = getFsPromises()
-  if (fsP?.stat) {
-    try {
-      await fsP.stat(p)
-      return true
-    } catch {
-      return false
-    }
-  }
-  return false
-}
+const ENTRY_POINT_CANDIDATES = [
+  'src/index.ts',
+  'src/index.tsx',
+  'src/index.js',
+  'src/index.mjs',
+  'index.ts',
+  'index.tsx',
+  'index.js',
+  'index.mjs',
+  'dist/index.js',
+  'dist/index.mjs',
+]
 
-const checkExistsSync = (p: string): boolean => {
-  const fsSync = getFsSync()
-  if (fsSync?.existsSync) {
-    return fsSync.existsSync(p)
-  }
-  return false
-}
-
-const safeMkdir = async (dirPath: string, opts?: any): Promise<void> => {
-  const fsP = getFsPromises()
-  if (fsP?.mkdir) {
-    await fsP.mkdir(dirPath, opts)
-  }
-}
-
-const safeWriteFile = async (filePath: string, data: any): Promise<void> => {
-  const fsP = getFsPromises()
-  if (fsP?.writeFile) {
-    await fsP.writeFile(filePath, data)
-  }
-}
-
-const safeRm = async (dirPath: string, opts?: any): Promise<void> => {
-  const fsP = getFsPromises()
-  if (fsP?.rm) {
-    await fsP.rm(dirPath, opts)
-  }
-}
-
-const safeReaddir = async (dirPath: string, opts?: any): Promise<any[]> => {
-  const fsP = getFsPromises()
-  if (fsP?.readdir) {
-    return fsP.readdir(dirPath, opts)
-  }
-  return []
-}
-
-const safeReadFile = async (filePath: string, encoding: string): Promise<string> => {
-  const fsP = getFsPromises()
-  if (fsP?.readFile) {
-    return fsP.readFile(filePath, encoding)
-  }
-  return ''
-}
-
-const safeReadFileSync = (filePath: string, encoding: string): string => {
-  const fsSync = getFsSync()
-  if (fsSync?.readFileSync) {
-    return fsSync.readFileSync(filePath, encoding)
-  }
-  return ''
-}
-
-// In-memory store for background pipeline jobs
+// In-memory store for inspection jobs, scoped to the page session.
 const activeJobs = new Map<string, ModulePipelineJob>()
 
-// Initial stage definitions for the stepper workflow
 function createInitialStages(): PipelineStageProgress[] {
   return [
-    { stage: 'UPLOADING', label: 'File Upload & Reception', status: 'pending' },
-    { stage: 'EXTRACTING', label: 'Archive Extraction & Safety Check', status: 'pending' },
-    {
-      stage: 'VALIDATING_CONTRACT',
-      label: 'Module Contract & Manifest Validation',
-      status: 'pending',
-    },
-    { stage: 'RUNNING_TESTS', label: 'Execution of Test Suite & Verification', status: 'pending' },
-    { stage: 'PROMOTING', label: 'Deployment to Workspace Repository', status: 'pending' },
+    { stage: 'READING', label: 'Read Archive', status: 'pending' },
+    { stage: 'INSPECTING', label: 'Inspect Entries & Path Safety', status: 'pending' },
+    { stage: 'VALIDATING', label: 'Validate CAPModule Contract', status: 'pending' },
   ]
 }
 
-export class ModulePipelineService {
-  private workspaceRoot: string
-  private stagingDir: string
-  private modulesDir: string
+/**
+ * True when an archive entry name is safe to extract, i.e. it stays inside the
+ * extraction root. Checked against the names recorded in the archive itself,
+ * which is where a Zip Slip payload would hide.
+ */
+export const isEntryPathSafe = (name: string): boolean => {
+  if (!name || name.includes('\0')) return false
+  // Backslashes are not legal ZIP separators; they are used to slip past naive checks.
+  if (name.includes('\\')) return false
+  if (name.startsWith('/')) return false
+  if (/^[a-zA-Z]:/.test(name)) return false
+  return !name.split('/').includes('..')
+}
 
-  constructor(customWorkspaceRoot?: string) {
-    this.workspaceRoot =
-      customWorkspaceRoot ||
-      (typeof process !== 'undefined' && typeof process.cwd === 'function' ? process.cwd() : '/')
-    this.stagingDir = pathUtil.join(this.workspaceRoot, 'temp', 'module-staging')
-    this.modulesDir = pathUtil.join(this.workspaceRoot, 'packages', 'modules')
+/**
+ * Strips a single shared top-level folder, which is what most archives look
+ * like when a module directory is zipped from its parent.
+ */
+const detectRootPrefix = (entries: ZipEntry[]): string => {
+  const topLevels = new Set<string>()
+  for (const entry of entries) {
+    const head = entry.name.split('/')[0]
+    if (!head) return ''
+    topLevels.add(head)
+    if (topLevels.size > 1) return ''
   }
+  const [only] = [...topLevels]
+  if (!only) return ''
+  // Only treat it as a wrapper when nothing sits at the root beside it.
+  const isWrapper = entries.every((entry) => entry.name.startsWith(`${only}/`))
+  return isWrapper ? `${only}/` : ''
+}
 
-  /**
-   * Create a new tracking job for zip processing
-   */
+export class ModulePipelineService {
   public createJob(filename: string, fileSizeBytes: number): ModulePipelineJob {
     const jobId = `job_${Date.now()}_${crypto.randomUUID().substring(0, 8)}`
     const now = new Date().toISOString()
@@ -156,11 +97,9 @@ export class ModulePipelineService {
       jobId,
       filename,
       fileSizeBytes,
-      currentStage: 'UPLOADING',
+      currentStage: 'READING',
       stages: createInitialStages(),
-      logs: [
-        `[SYSTEM] Initialized module upload job ${jobId} for file ${filename} (${fileSizeBytes} bytes)`,
-      ],
+      logs: [`[SYSTEM] Inspecting ${filename} (${fileSizeBytes.toLocaleString()} bytes)`],
       createdAt: now,
       updatedAt: now,
     }
@@ -169,16 +108,10 @@ export class ModulePipelineService {
     return job
   }
 
-  /**
-   * Fetch current job state
-   */
   public getJob(jobId: string): ModulePipelineJob | undefined {
     return activeJobs.get(jobId)
   }
 
-  /**
-   * Helper to append logs and update stage progress
-   */
   private updateJobStage(
     jobId: string,
     stage: PipelineStage,
@@ -195,370 +128,249 @@ export class ModulePipelineService {
     if (stageIdx !== -1) {
       job.stages[stageIdx].status = status
       if (message) job.stages[stageIdx].message = message
-      if (status === 'in_progress') job.stages[stageIdx].startedAt = new Date().toISOString()
-      if (status === 'success' || status === 'error')
-        job.stages[stageIdx].completedAt = new Date().toISOString()
+      if (status === 'in_progress') job.stages[stageIdx].startedAt = job.updatedAt
+      if (status === 'success' || status === 'error') job.stages[stageIdx].completedAt = job.updatedAt
     }
 
-    if (message) {
-      job.logs.push(`[${new Date().toLocaleTimeString()}] [${stage}] ${message}`)
-    }
+    if (message) job.logs.push(`[${new Date().toLocaleTimeString()}] [${stage}] ${message}`)
 
     return job
   }
 
   /**
-   * Zip Slip vulnerability check: verify target path stays within base directory
+   * Validates a candidate module's manifest and layout against the CAPModule
+   * contract, using files actually present in the archive.
+   *
+   * @param manifestSources Parsed contents of `module.manifest.json` and/or
+   * `package.json`, keyed by filename; absent files are simply missing.
+   * @param filePaths Every file path in the archive, relative to the module root.
    */
-  public isPathSafe(baseDir: string, targetPath: string): boolean {
-    const resolvedBase = pathUtil.resolve(baseDir)
-    const resolvedTarget = pathUtil.resolve(targetPath)
-    return resolvedTarget.startsWith(resolvedBase + pathUtil.sep) || resolvedTarget === resolvedBase
-  }
-
-  /**
-   * Validate uploaded candidate module contract
-   */
-  public validateModuleContract(moduleDir: string): ModuleContractValidationResult {
+  public validateModuleContract(
+    manifestSources: Partial<Record<string, string>>,
+    filePaths: string[],
+  ): ModuleContractValidationResult {
     const errors: string[] = []
     const warnings: string[] = []
-    let manifest: Partial<CAPModule> = {}
+    const manifest: Partial<CAPModule> = {}
 
-    // Check for package.json or module.manifest.json
-    const packageJsonPath = pathUtil.join(moduleDir, 'package.json')
-    const manifestJsonPath = pathUtil.join(moduleDir, 'module.manifest.json')
-    const indexPath = pathUtil.join(moduleDir, 'src', 'index.ts')
+    const manifestRaw = manifestSources[MANIFEST_FILENAME]
+    const packageRaw = manifestSources[PACKAGE_FILENAME]
 
-    if (checkExistsSync(packageJsonPath)) {
+    if (manifestRaw) {
       try {
-        const pkgContent = safeReadFileSync(packageJsonPath, 'utf8')
-        const pkgData = JSON.parse(pkgContent)
-        manifest.id = pkgData.name?.replace(/^@cap\/module-/, '') || pkgData.name
-        manifest.version = pkgData.version
-        manifest.description = pkgData.description
+        const parsed = JSON.parse(manifestRaw)
+        Object.assign(manifest, parsed)
       } catch (err: any) {
-        errors.push(`Failed to parse package.json: ${err.message}`)
+        errors.push(`Failed to parse ${MANIFEST_FILENAME}: ${err.message}`)
       }
-    } else if (checkExistsSync(manifestJsonPath)) {
+    } else if (packageRaw) {
       try {
-        const manifestContent = safeReadFileSync(manifestJsonPath, 'utf8')
-        manifest = JSON.parse(manifestContent)
+        const pkg = JSON.parse(packageRaw)
+        manifest.id = pkg.name?.replace(/^@[^/]+\/(module-)?/, '')
+        manifest.version = pkg.version
+        manifest.name = pkg.displayName
+        manifest.description = pkg.description
+        warnings.push(
+          `No ${MANIFEST_FILENAME} found; the contract was inferred from ${PACKAGE_FILENAME}.`,
+        )
       } catch (err: any) {
-        errors.push(`Failed to parse module.manifest.json: ${err.message}`)
+        errors.push(`Failed to parse ${PACKAGE_FILENAME}: ${err.message}`)
       }
     } else {
-      warnings.push('No package.json or module.manifest.json found in candidate module root')
-    }
-
-    // Inspect index.ts / index.js for contract exports
-    const rootIndexPath = pathUtil.join(moduleDir, 'index.ts')
-    const hasNode = typeof process !== 'undefined' && process.versions?.node != null
-    if (hasNode && !checkExistsSync(indexPath) && !checkExistsSync(rootIndexPath)) {
-      errors.push('Missing entry point: expected src/index.ts or index.ts')
+      errors.push(`Archive contains neither ${MANIFEST_FILENAME} nor ${PACKAGE_FILENAME}.`)
     }
 
     if (!manifest.id) {
-      errors.push('Module ID is required in package.json or manifest')
+      errors.push('Module id is required (manifest `id`, or package `name`).')
     } else if (!/^[a-z0-9-]+$/.test(manifest.id)) {
       errors.push(
-        `Invalid module ID "${manifest.id}". Must contain lowercase alphanumeric characters and hyphens only.`,
+        `Invalid module id "${manifest.id}". Use lowercase letters, digits and hyphens only.`,
       )
+    } else if (ModuleRegistry.getInstance().getModules().some((m) => m.id === manifest.id)) {
+      errors.push(`A module with id "${manifest.id}" is already registered in this shell.`)
     }
 
     if (!manifest.version) {
-      manifest.version = '1.0.0'
-      warnings.push('Version not specified. Defaulting to 1.0.0')
+      errors.push('Module version is required.')
+    } else if (!/^\d+\.\d+\.\d+/.test(manifest.version)) {
+      warnings.push(`Version "${manifest.version}" is not semantic versioning (major.minor.patch).`)
     }
 
-    return {
-      valid: errors.length === 0,
-      errors,
-      warnings,
-      manifest,
+    const entryPoint = ENTRY_POINT_CANDIDATES.find((candidate) => filePaths.includes(candidate))
+    if (!entryPoint) {
+      errors.push(
+        `Missing entry point. Expected one of: ${ENTRY_POINT_CANDIDATES.slice(0, 4).join(', ')}.`,
+      )
     }
+
+    if (!manifest.description) {
+      warnings.push('No description provided; the module will list without one.')
+    }
+    if (!filePaths.some((p) => /dictionaries?\/.+\.json$/i.test(p) || /(^|\/)i18n\//i.test(p))) {
+      warnings.push('No i18n dictionaries found; the module may ship untranslated strings.')
+    }
+    if (!filePaths.some((p) => /\.(test|spec)\.[tj]sx?$/.test(p))) {
+      warnings.push('No test files found in the package.')
+    }
+
+    return { valid: errors.length === 0, errors, warnings, manifest }
   }
 
   /**
-   * Execute full 4-stage pipeline for candidate module zip
+   * Runs the full inspection against the archive bytes.
+   *
+   * Resolves with the job in either `COMPLETE` or `FAILED`; it does not throw
+   * for invalid packages, since an invalid package is a result, not a crash.
    */
-  public async executePipeline(
-    jobId: string,
-    zipContent: Buffer | ArrayBuffer | string,
-  ): Promise<ModulePipelineJob> {
+  public async inspectArchive(jobId: string, zipContent: ArrayBuffer): Promise<ModulePipelineJob> {
     const job = activeJobs.get(jobId)
     if (!job) throw new Error(`Job ${jobId} not found`)
 
-    const jobStagingFolder = pathUtil.join(this.stagingDir, jobId)
-
     try {
-      // STAGE 1: UPLOADING -> EXTRACTING
-      this.updateJobStage(jobId, 'UPLOADING', 'success', 'File received successfully')
-      this.updateJobStage(jobId, 'EXTRACTING', 'in_progress', 'Preparing safe staging folder...')
+      // STAGE 1 — read the bytes and parse the archive structure.
+      this.updateJobStage(jobId, 'READING', 'in_progress', 'Parsing ZIP central directory...')
 
-      await safeMkdir(jobStagingFolder, { recursive: true })
+      const archive = readZipArchive(zipContent)
+      const files = archive.entries.filter((entry) => !entry.isDirectory)
 
-      // Write zip file to staging area
-      const zipPath = pathUtil.join(jobStagingFolder, 'candidate.zip')
-      const bufferData =
-        typeof Buffer !== 'undefined' && Buffer.isBuffer(zipContent)
-          ? zipContent
-          : typeof Buffer !== 'undefined'
-            ? Buffer.from(zipContent as ArrayBuffer)
-            : (zipContent as any)
-      await safeWriteFile(zipPath, bufferData)
+      if (files.length === 0) {
+        throw new ZipFormatError('The archive contains no files.')
+      }
 
       this.updateJobStage(
         jobId,
-        'EXTRACTING',
-        'in_progress',
-        'Extracting zip content with Zip Slip path verification...',
+        'READING',
+        'success',
+        `Read ${files.length} file${files.length === 1 ? '' : 's'} from the archive.`,
       )
 
-      // Simulate safe unzipping / unpacking logic
-      // Create extracted module folder structure inside staging
-      const extractedDir = pathUtil.join(jobStagingFolder, 'extracted')
-      await safeMkdir(extractedDir, { recursive: true })
-
-      // Verify path safety
-      if (!this.isPathSafe(this.stagingDir, extractedDir)) {
-        throw new Error('Security Error: Zip Slip path traversal detected in archive structure!')
-      }
-
-      this.updateJobStage(jobId, 'EXTRACTING', 'success', 'Extracted archive safely')
-
-      // STAGE 2: VALIDATING_CONTRACT
+      // STAGE 2 — path safety and expansion limits, against real entry names.
       this.updateJobStage(
         jobId,
-        'VALIDATING_CONTRACT',
+        'INSPECTING',
         'in_progress',
-        'Checking module contract & manifest...',
+        'Checking entry paths for traversal and expansion limits...',
       )
 
-      // Generate a valid mock module structure inside staging for verification testing if raw zip was binary mock
-      const candidateSrc = pathUtil.join(extractedDir, 'src')
-      await safeMkdir(candidateSrc, { recursive: true })
-
-      const inferredId = job.filename
-        .replace(/\.zip$/i, '')
-        .toLowerCase()
-        .replace(/[^a-z0-9-]/g, '-')
-
-      const candidatePkg = {
-        name: inferredId,
-        version: '1.0.0',
-        description: `Auto-registered module ${inferredId}`,
+      const unsafe = archive.entries.filter((entry) => !isEntryPathSafe(entry.name))
+      if (unsafe.length > 0) {
+        throw new Error(
+          `Zip Slip check failed. Unsafe entry path${unsafe.length === 1 ? '' : 's'}: ` +
+            unsafe
+              .slice(0, 5)
+              .map((entry) => `"${entry.name}"`)
+              .join(', '),
+        )
       }
-      await safeWriteFile(
-        pathUtil.join(extractedDir, 'package.json'),
-        JSON.stringify(candidatePkg, null, 2),
+
+      const uncompressedBytes = files.reduce((sum, entry) => sum + entry.uncompressedSize, 0)
+      const compressedBytes = files.reduce((sum, entry) => sum + entry.compressedSize, 0)
+
+      if (uncompressedBytes > MAX_TOTAL_UNCOMPRESSED_BYTES) {
+        throw new Error(
+          `Archive expands to ${(uncompressedBytes / 1024 / 1024).toFixed(1)} MB, above the ` +
+            `${MAX_TOTAL_UNCOMPRESSED_BYTES / 1024 / 1024} MB inspection limit.`,
+        )
+      }
+      if (
+        uncompressedBytes > RATIO_CHECK_MIN_BYTES &&
+        compressedBytes > 0 &&
+        uncompressedBytes / compressedBytes > MAX_COMPRESSION_RATIO
+      ) {
+        throw new Error(
+          `Suspicious compression ratio (${Math.round(uncompressedBytes / compressedBytes)}:1). ` +
+            'The archive was rejected as a possible zip bomb.',
+        )
+      }
+
+      job.entryCount = files.length
+      job.uncompressedBytes = uncompressedBytes
+
+      const rootPrefix = detectRootPrefix(files)
+      if (rootPrefix) {
+        job.logs.push(`[SYSTEM] Module root detected at "${rootPrefix}"`)
+      }
+
+      this.updateJobStage(
+        jobId,
+        'INSPECTING',
+        'success',
+        `All entry paths safe. Expands to ${(uncompressedBytes / 1024).toFixed(1)} KB.`,
       )
 
-      const candidateIndex = `import type { CAPModule } from '@cap/shared-types'
+      // STAGE 3 — read the manifest and validate the contract.
+      this.updateJobStage(
+        jobId,
+        'VALIDATING',
+        'in_progress',
+        'Reading manifest and validating the CAPModule contract...',
+      )
 
-export const ${inferredId.replace(/-/g, '_')}Module: CAPModule = {
-  id: '${inferredId}',
-  version: '1.0.0',
-  name: '${inferredId}',
-  description: 'Auto-registered dynamic module',
-  routes: [
-    {
-      path: '/${inferredId}',
-      element: null,
-      layout: 'vertical'
-    }
-  ],
-  navItems: [
-    {
-      id: '${inferredId}-nav',
-      label: '${inferredId}',
-      path: '/${inferredId}',
-      icon: 'tabler-box'
-    }
-  ]
-}
+      const relativePaths = files.map((entry) => entry.name.slice(rootPrefix.length))
+      const manifestSources: Partial<Record<string, string>> = {}
 
-export default ${inferredId.replace(/-/g, '_')}Module
-`
-      await safeWriteFile(pathUtil.join(candidateSrc, 'index.ts'), candidateIndex)
+      for (const filename of [MANIFEST_FILENAME, PACKAGE_FILENAME]) {
+        const entry = files.find((file) => file.name === `${rootPrefix}${filename}`)
+        if (!entry) continue
+        try {
+          manifestSources[filename] = await archive.readText(entry)
+          job.logs.push(`[SYSTEM] Read ${filename} (${entry.uncompressedSize} bytes)`)
+        } catch (err: any) {
+          job.logs.push(`[WARN] Could not read ${filename}: ${err.message}`)
+        }
+      }
 
-      const validation = this.validateModuleContract(extractedDir)
+      const validation = this.validateModuleContract(manifestSources, relativePaths)
+      job.validation = validation
+      job.moduleId = validation.manifest?.id
+      job.moduleName = validation.manifest?.name || validation.manifest?.id
+      job.version = validation.manifest?.version
+
+      validation.warnings.forEach((warning) => job.logs.push(`[WARN] ${warning}`))
 
       if (!validation.valid) {
-        throw new Error(`Contract Validation Failed:\n${validation.errors.join('\n')}`)
+        validation.errors.forEach((error) => job.logs.push(`[ERROR] ${error}`))
+        this.updateJobStage(
+          jobId,
+          'VALIDATING',
+          'error',
+          `Contract validation failed with ${validation.errors.length} error${
+            validation.errors.length === 1 ? '' : 's'
+          }.`,
+        )
+        job.currentStage = 'FAILED'
+        job.error = validation.errors[0]
+        return job
       }
 
-      job.moduleId = validation.manifest?.id || inferredId
-      job.moduleName = validation.manifest?.name || inferredId
-      job.version = validation.manifest?.version || '1.0.0'
-
       this.updateJobStage(
         jobId,
-        'VALIDATING_CONTRACT',
+        'VALIDATING',
         'success',
-        `Contract valid for module "${job.moduleId}" v${job.version}`,
+        `Contract valid for "${job.moduleId}" v${job.version}.`,
       )
 
-      // STAGE 3: RUNNING_TESTS
-      this.updateJobStage(
-        jobId,
-        'RUNNING_TESTS',
-        'in_progress',
-        'Executing test suite and type verification...',
-      )
-
-      job.logs.push(`[TEST RUNNER] Spawning isolated test process for module "${job.moduleId}"`)
-      job.logs.push(`[TEST RUNNER] Checking TypeScript type signatures... OK`)
-      job.logs.push(`[TEST RUNNER] Running unit test assertions... PASS (3/3 tests passed)`)
-
-      this.updateJobStage(
-        jobId,
-        'RUNNING_TESTS',
-        'success',
-        'All tests and contract checks passed!',
-      )
-
-      // STAGE 4: PROMOTING
-      this.updateJobStage(
-        jobId,
-        'PROMOTING',
-        'in_progress',
-        `Deploying module to repository packages/modules/${job.moduleId}...`,
-      )
-
-      const targetModulePath = pathUtil.join(this.modulesDir, job.moduleId)
-      await safeMkdir(targetModulePath, { recursive: true })
-      await safeMkdir(pathUtil.join(targetModulePath, 'src'), { recursive: true })
-
-      await safeWriteFile(
-        pathUtil.join(targetModulePath, 'package.json'),
-        JSON.stringify(candidatePkg, null, 2),
-      )
-      await safeWriteFile(pathUtil.join(targetModulePath, 'src', 'index.ts'), candidateIndex)
-
-      this.updateJobStage(
-        jobId,
-        'PROMOTING',
-        'success',
-        `Module "${job.moduleId}" deployed successfully to ${targetModulePath}`,
-      )
-
-      // Complete job
       job.currentStage = 'COMPLETE'
-      job.logs.push(`[SYSTEM] Pipeline complete! Module ${job.moduleId} is active.`)
-
-      // Clean up staging folder asynchronously
-      try {
-        await safeRm(jobStagingFolder, { recursive: true, force: true })
-      } catch {
-        // non-blocking cleanup
-      }
+      job.updatedAt = new Date().toISOString()
+      job.logs.push(
+        '[SYSTEM] Inspection complete. This package was validated, not installed: ' +
+          'installing a module writes into packages/modules/ and rebuilds the workspace, ' +
+          'which the browser cannot do.',
+      )
 
       return job
     } catch (err: any) {
-      job.currentStage = 'FAILED'
-      job.error = err.message || 'Pipeline execution failed'
-      job.logs.push(`[ERROR] ${job.error}`)
-
-      // Mark current in_progress stage as error
+      const message = err?.message || 'Archive inspection failed.'
       const activeStage = job.stages.find((s) => s.status === 'in_progress')
       if (activeStage) {
-        activeStage.status = 'error'
-        activeStage.message = err.message
+        this.updateJobStage(jobId, activeStage.stage, 'error', message)
       }
-
-      // Cleanup staging directory on error
-      try {
-        await safeRm(jobStagingFolder, { recursive: true, force: true })
-      } catch {
-        // ignore cleanup error
-      }
-
+      job.currentStage = 'FAILED'
+      job.error = message
+      job.updatedAt = new Date().toISOString()
+      job.logs.push(`[ERROR] ${message}`)
       return job
     }
-  }
-
-  /**
-   * List installed modules in the workspace
-   */
-  public async getInstalledModules(): Promise<ModuleStatusInfo[]> {
-    const modules: ModuleStatusInfo[] = [
-      {
-        id: 'auth',
-        name: 'Authentication & Platform Cluster',
-        version: '1.0.0',
-        description: 'Core IDaaS authentication, developer tools, and platform governance.',
-        status: 'active',
-        routeCount: 14,
-        navCount: 8,
-        installedAt: '2026-01-01T00:00:00Z',
-        isCore: true,
-      },
-      {
-        id: 'landing',
-        name: 'Landing Page & Marketing',
-        version: '1.0.0',
-        description: 'Public landing page, features showcase, and guest onboarding.',
-        status: 'active',
-        routeCount: 3,
-        navCount: 2,
-        installedAt: '2026-01-01T00:00:00Z',
-        isCore: true,
-      },
-    ]
-
-    try {
-      if (await checkExists(this.modulesDir)) {
-        const dirs: any[] = await safeReaddir(this.modulesDir, { withFileTypes: true })
-
-        const customModules = await Promise.all(
-          dirs.map(async (dir) => {
-            const dirName = typeof dir === 'string' ? dir : dir.name
-            const isDir = typeof dir === 'string' ? true : dir.isDirectory?.()
-
-            if (isDir && dirName !== 'auth' && dirName !== 'landing') {
-              const pkgPath = pathUtil.join(this.modulesDir, dirName, 'package.json')
-              let version = '1.0.0'
-              let description = 'Auto-registered custom module'
-
-              if (await checkExists(pkgPath)) {
-                try {
-                  const pkgContent = await safeReadFile(pkgPath, 'utf8')
-                  if (pkgContent) {
-                    const pkg = JSON.parse(pkgContent)
-                    version = pkg.version || version
-                    description = pkg.description || description
-                  }
-                } catch {
-                  // fallback
-                }
-              }
-
-              return {
-                id: dirName,
-                name: dirName,
-                version,
-                description,
-                status: 'active',
-                routeCount: 2,
-                navCount: 1,
-                installedAt: new Date().toISOString(),
-                isCore: false,
-              } as ModuleStatusInfo
-            }
-            return null
-          }),
-        )
-
-        // Filter out nulls and add to main modules array
-        for (const mod of customModules) {
-          if (mod) modules.push(mod)
-        }
-      }
-    } catch (err) {
-      console.error('Error scanning installed modules directory:', err)
-    }
-
-    return modules
   }
 }
 

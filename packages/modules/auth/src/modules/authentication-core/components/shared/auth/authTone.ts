@@ -16,3 +16,25 @@ export const isAuthTone = (value: unknown): value is AuthTone =>
   value === 'error' ||
   value === 'warning' ||
   value === 'info'
+
+/**
+ * Brand-kit semantic CSS variables for a tone (`uikit.html` badges/alerts).
+ * `text` is the AA-safe variant to use whenever the colour is applied to TEXT;
+ * `bg` / `border` are the tint pair a badge or alert sits on; `dot` is the
+ * saturated colour for dots and icons. `primary` maps onto the info scale.
+ * Each carries a palette fallback so a tenant theme that omits the `--sf-*`
+ * layer still renders.
+ */
+export const toneVars = (
+  theme: Theme,
+  tone: AuthTone,
+): { text: string; bg: string; border: string; dot: string } => {
+  const key = tone === 'primary' ? 'info' : tone
+  const main = theme.palette[tone].main
+  return {
+    text: `var(--sf-${key}-text, ${theme.palette[tone].dark})`,
+    bg: `var(--sf-${key}-bg, ${main}1a)`,
+    border: `var(--sf-${key}-border, ${main}59)`,
+    dot: main,
+  }
+}

@@ -1190,7 +1190,7 @@
       "signInHere": "سجل دخولك هنا",
       "submit": "إنشاء حساب",
       "submitting": "جاري إنشاء الحساب...",
-      "subtitle": "انضم إلى Antigravity OS اليوم",
+      "subtitle": "أنشئ حسابك في Serafort",
       "termsOfService": "شروط الخدمة",
       "title": "إنشاء حساب"
     },
@@ -1276,7 +1276,7 @@
       "scope_roles_desc": "عرض أذونات المجموعات المعينة لك.",
       "search_clients": "البحث بالاسم أو معرف العميل...",
       "secure_badge": "شارة الأمان",
-      "secure_encryption_tag": "تم التحقق والمحماية بواسطة Antigravity OS",
+      "secure_encryption_tag": "تم التحقق والمحماية بواسطة Serafort",
       "security_assertions": "الأمان والتأكيدات",
       "security_best_practice": "توصية أمنية",
       "sign_assertions": "توقيع التأكيدات",
@@ -1334,7 +1334,8 @@
     "close": "إغلاق",
     "continue": "متابعة",
     "removing": "جارٍ الإزالة...",
-    "saving": "جارٍ الحفظ..."
+    "saving": "جارٍ الحفظ...",
+    "retry": "إعادة المحاولة"
   },
   "email_test": {
     "col_recipient": "المستلم",
@@ -1384,6 +1385,7 @@
     "elevatedSession": "وصول مرتفع · {{minutes}} د",
     "enableButton": "تفعيل",
     "enableSensor": "إعداد",
+    "enableSensorThisDevice": "إضافة هذا الجهاز",
     "enrolledCount": "{{count}} مسجّل",
     "factorsTitle": "عواملك",
     "fido2Desc": "FIDO2 / WebAuthn. مقاوم للتصيد، وأقوى عامل متاح.",
@@ -1463,7 +1465,16 @@
     "verifyHeading": "المصادقة الثنائية",
     "verifySetupButton": "تحقق وفعّل المصادقة الثنائية",
     "waitingPrompt": "جارٍ التحقق من مصادق الجهاز...",
-    "verifying": "جارٍ التحقق..."
+    "verifying": "جارٍ التحقق...",
+    "smsSetupHeading": "إعداد التحقق عبر الرسائل النصية",
+    "smsNoPhoneTitle": "أضف رقم هاتف أولاً",
+    "smsNoPhoneDesc": "تتطلب رموز الرسائل النصية رقم هاتف في حسابك. أضف رقمًا إلى ملفك الشخصي، ثم عد إلى هنا.",
+    "smsGoToProfile": "إضافة رقم هاتف",
+    "smsUnavailableTitle": "التحقق عبر الرسائل النصية غير متاح",
+    "smsUnavailableDesc": "رموز تسجيل الدخول عبر الرسائل النصية غير مفعّلة لهذا الحساب بعد. استخدم تطبيق مصادقة أو مفتاح مرور بدلاً من ذلك.",
+    "smsBackToSecurity": "العودة إلى التحقق بخطوتين",
+    "notOnThisDevice": "غير متاح على هذا الجهاز",
+    "biometricAdded": "تم إعداد المستشعر المدمج في هذا الجهاز كمفتاح مرور."
   },
   "monitoring_dashboard": {
     "dashboard": {

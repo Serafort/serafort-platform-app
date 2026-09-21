@@ -6,4 +6,4 @@ export * from './hooks'
 
 import { platformClusterDictionaries, registerDictionary } from './i18n/registry'
 
-registerDictionary(platformClusterDictionaries as any)
+registerDictionary(platformClusterDictionaries)

@@ -15,7 +15,6 @@ export * from './DeleteUserDialog'
 export { default as BulkActionModal } from './BulkActionModal'
 export * from './BulkActionModal'
 
-export { default as CreateUserDialog } from './CreateUserDialog'
 export { default as IssueBanDialog } from './IssueBanDialog'
-export { default as ResetPasswordDialog } from './ResetPasswordDialog'
-export { default as CustomAvatar } from './CustomAvatar'
+
+export { default as DialogCloseButton } from './DialogCloseButton'

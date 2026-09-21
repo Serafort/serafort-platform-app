@@ -1,6 +1,7 @@
 import React from 'react'
 import { AuthRouteConfig } from '@cap/platform-core'
 import Path from './../screens/path'
+import '../i18n/registry' // side effect: registers the access-control en/fr/ar dictionaries
 import { createAdminRoute } from '../../../routes/routeHelpers'
 
 const NfcCardInventory = React.lazy(() => import('../screens/cards/NfcCardInventory'))

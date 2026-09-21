@@ -80,9 +80,12 @@ function ChangeEmail() {
 
   const { mutate: changeEmail, isPending } = useChangeEmail({
     onSuccess: (response) => {
+      const body = response.data as { message?: string; verifyUrl?: string } | undefined
       setSuccessData({
-        message: (response.data as any)?.message || t('auth.account.change_email_success_message', 'Verification email dispatched.'),
-        verifyUrl: (response.data as any).verifyUrl,
+        message:
+          body?.message ||
+          t('auth.account.change_email_success_message', 'Verification email dispatched.'),
+        verifyUrl: body?.verifyUrl,
       })
       addNotification({
         type: 'success',
@@ -104,7 +107,7 @@ function ChangeEmail() {
     changeEmail({
       email: data.newEmail,
       password: data.password,
-    } as any)
+    })
   }
 
   if (successData) {
@@ -158,7 +161,7 @@ function ChangeEmail() {
                 }}
               >
                 <Typography variant='body2' fontWeight='bold'>
-                  Dev Mode: Verification Link
+                  {t('auth.userDirectory.changeEmail.devModeVerificationLink', 'Dev Mode: Verification Link')}
                 </Typography>
                 <Link
                   href={successData.verifyUrl}
@@ -174,7 +177,7 @@ function ChangeEmail() {
             <Button
               variant='contained'
               fullWidth
-              onClick={() => navigate(Path.account.view || '/profile')}
+              onClick={() => navigate(Path.account.view)}
               sx={{
                 minHeight: 48,
                 borderRadius: 'var(--sf-radius-md, 8px)',
@@ -221,7 +224,7 @@ function ChangeEmail() {
           <Box sx={{ width: '100%', maxWidth: 480, mb: 2.5 }}>
             <Button
               startIcon={<ArrowBack />}
-              onClick={() => navigate(Path.account.view || '/profile')}
+              onClick={() => navigate(Path.account.view)}
               sx={{
                 textTransform: 'none',
                 fontWeight: 600,
@@ -456,7 +459,7 @@ function ChangeEmail() {
                                     onClick={handleClickShowConfirmPassword}
                                     edge='end'
                                     sx={{ minWidth: 44, minHeight: 44 }}
-                                    aria-label='toggle password visibility'
+                                    aria-label={t('auth.userDirectory.changeEmail.togglePasswordVisibility', 'toggle password visibility')}
                                   >
                                     {showConfirmPassword ? (
                                       <VisibilityOff sx={{ fontSize: 20 }} />
@@ -528,7 +531,7 @@ function ChangeEmail() {
                     <Button
                       variant='outlined'
                       fullWidth
-                      onClick={() => navigate(Path.account.view || '/profile')}
+                      onClick={() => navigate(Path.account.view)}
                       sx={{
                         minHeight: 44,
                         borderRadius: 'var(--sf-radius-md, 8px)',

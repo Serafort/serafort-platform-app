@@ -55,7 +55,7 @@ export default function EmailChangeStatus() {
   const { t } = useTranslation('auth')
   const navigate = useNavigate()
   const { data: response, isLoading, isError, refetch } = useEmailChanges()
-  const requests: EmailChangeRequest[] = response?.data || []
+  const requests: EmailChangeRequest[] = (Array.isArray(response?.data) ? response.data : []) as EmailChangeRequest[]
 
   const renderStatus = (rawStatus: string) => {
     const config = STATUS_MAP[rawStatus]
@@ -122,7 +122,7 @@ export default function EmailChangeStatus() {
               minHeight: 44,
               borderRadius: 'var(--sf-radius-lg, 12px)',
               textTransform: 'none',
-              fontWeight: 800,
+              fontWeight: 700,
             }}
           >
             {t('email.newRequest', 'New Request')}
@@ -140,7 +140,7 @@ export default function EmailChangeStatus() {
           icon={<MarkEmailUnreadOutlined />}
           sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)' }}
         >
-          <AlertTitle sx={{ fontWeight: 800 }}>
+          <AlertTitle sx={{ fontWeight: 700 }}>
             {t('email.pendingWarningTitle', 'Verification pending')}
           </AlertTitle>
           {t(
@@ -196,7 +196,7 @@ export default function EmailChangeStatus() {
                       <Typography
                         variant='caption'
                         sx={{
-                          fontWeight: 800,
+                          fontWeight: 700,
                           textTransform: 'uppercase',
                           color: 'text.secondary',
                         }}

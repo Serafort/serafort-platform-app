@@ -46,7 +46,7 @@ const AdminStatCard: React.FC<AdminStatCardProps> = ({
         height: '100%',
         border: '1px solid',
         borderColor: 'divider',
-        boxShadow: 'none',
+        boxShadow: 'var(--sf-shadow-xs, none)',
         borderRadius: 'var(--sf-radius-lg, 12px)',
         transition: 'transform 0.15s ease, border-color 0.15s ease',
         '&:hover': { transform: 'translateY(-2px)', borderColor: alpha(color, 0.4) },
@@ -78,10 +78,11 @@ const AdminStatCard: React.FC<AdminStatCardProps> = ({
             color='text.secondary'
             sx={{
               display: 'block',
-              fontWeight: 700,
+              fontFamily: 'var(--sf-font-mono, ui-monospace, monospace)',
+              fontWeight: 500,
               textTransform: 'uppercase',
-              letterSpacing: '0.075em',
-              fontSize: '0.65rem',
+              letterSpacing: '0.05em',
+              fontSize: 'var(--sf-text-2xs, 0.6875rem)',
               mb: 0.25,
             }}
           >
@@ -90,7 +91,16 @@ const AdminStatCard: React.FC<AdminStatCardProps> = ({
           {loading ? (
             <Skeleton variant='text' width={72} height={32} aria-hidden />
           ) : (
-            <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+            <Typography
+              variant='h5'
+              sx={{
+                fontFamily: 'var(--sf-font-display, inherit)',
+                fontWeight: 700,
+                fontSize: 'var(--sf-text-2xl, 1.875rem)',
+                lineHeight: 1.2,
+                letterSpacing: '-0.02em',
+              }}
+            >
               {value}
             </Typography>
           )}

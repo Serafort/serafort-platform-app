@@ -26,8 +26,8 @@ const passwordlessInitiateSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, 'Please enter your email address.')
-    .email('Please enter a valid email address.'),
+    .min(1, 'passwordless.error_incomplete')
+    .email('passwordless.error_invalid_email'),
 })
 
 type PasswordlessInitiateFormData = z.infer<typeof passwordlessInitiateSchema>
@@ -133,7 +133,7 @@ export default function PasswordlessInitiation() {
                     error={Boolean(errors.email)}
                     helperText={
                       errors.email?.message
-                        ? t(errors.email.message, errors.email.message)
+                        ? t(errors.email.message, 'Please enter a valid email address.')
                         : undefined
                     }
                     disabled={isLoading}

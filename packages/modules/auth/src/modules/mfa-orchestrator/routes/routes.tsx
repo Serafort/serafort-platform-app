@@ -1,13 +1,18 @@
 import React from 'react'
 import { AuthRouteConfig } from '@cap/platform-core'
 import Path from '../screens/path'
-import { createAdminRoute, createAuthRoute } from '../../../routes/routeHelpers'
-import GuestRoute from '../../authentication-core/middlewares/GuestRoute'
+import {
+  createAdminRoute,
+  createAuthRoute,
+  createGuestRoute,
+  createPublicRoute,
+} from '../../../routes/routeHelpers'
 
 // ---------------------------------------------------------------------------
 // MFA
 // ---------------------------------------------------------------------------
 const MFASetupScreen = React.lazy(() => import('../screens/mfa/MFASetupScreen'))
+const MFASmsSetupScreen = React.lazy(() => import('../screens/mfa/MFASmsSetupScreen'))
 const MFAVerificationScreen = React.lazy(() => import('../screens/mfa/MFAVerificationScreen'))
 const MFAManagement = React.lazy(() => import('../screens/mfa/MFAManagement'))
 
@@ -21,9 +26,7 @@ const PasskeyRegistrationPrompt = React.lazy(
   () => import('../screens/passkey/PasskeyRegistrationPrompt'),
 )
 const PasskeySetup = React.lazy(() => import('../screens/passkey/PasskeySetup'))
-const PasskeySetupAuto = React.lazy(() => import('../screens/passkey/PasskeySetupAuto'))
 const PasskeyUsageStats = React.lazy(() => import('../screens/passkey/PasskeyUsageStats'))
-const PasskeySetupAutoExample = React.lazy(() => import('../screens/passkey/PasskeySetupExample'))
 
 // ---------------------------------------------------------------------------
 // Platform Auth
@@ -34,22 +37,15 @@ const PlatformAuthRegister = React.lazy(() => import('../screens/platform/Platfo
 export const mfaOrchestratorRouteConfig: AuthRouteConfig[] = [
   // --- MFA flows ---
   createAuthRoute(Path.mfa.setup, <MFASetupScreen />, { layout: 'noLayout' }),
-  { path: Path.mfa.verification, element: <MFAVerificationScreen />, layout: 'noLayout' },
+  createAuthRoute(Path.mfa.setup_sms, <MFASmsSetupScreen />, { layout: 'noLayout' }),
+  createPublicRoute(Path.mfa.verification, <MFAVerificationScreen />),
   createAuthRoute(Path.mfa.management, <MFAManagement />, {
-    requiresVerification: true,
-    layout: 'admin',
-  }),
-  createAuthRoute(Path.mfa.dashboard, <MFAManagement />, {
     requiresVerification: true,
     layout: 'admin',
   }),
 
   // --- Passkey flows ---
-  {
-    path: Path.passkey.login,
-    element: <GuestRoute element={<PasskeyLoginOption />} />,
-    layout: 'noLayout',
-  },
+  createGuestRoute(Path.passkey.login, <PasskeyLoginOption />),
   createAuthRoute(Path.passkey.management, <PasskeyManagement />, {
     requiresVerification: true,
     layout: 'admin',
@@ -57,10 +53,8 @@ export const mfaOrchestratorRouteConfig: AuthRouteConfig[] = [
   createAuthRoute(Path.passkey.recovery, <PasskeyRecoveryOptions />, { layout: 'noLayout' }),
   createAuthRoute(Path.passkey.prompt, <PasskeyRegistrationPrompt />, { layout: 'noLayout' }),
   createAdminRoute(Path.passkey.setup, <PasskeySetup />),
-  createAdminRoute(Path.passkey.setup_auto, <PasskeySetupAuto />),
   createAdminRoute(Path.passkey.usage_stats, <PasskeyUsageStats />),
-  createAdminRoute(Path.passkey.example, <PasskeySetupAutoExample />),
 
-  { path: Path.platform.login, element: <PlatformAuthLogin />, layout: 'noLayout' },
+  createPublicRoute(Path.platform.login, <PlatformAuthLogin />),
   createAuthRoute(Path.platform.register, <PlatformAuthRegister />, { layout: 'noLayout' }),
 ]

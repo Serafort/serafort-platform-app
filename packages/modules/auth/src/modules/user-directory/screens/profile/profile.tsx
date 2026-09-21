@@ -78,6 +78,9 @@ import {
 import { useAuth, useNotifications } from '@cap/platform-core'
 import { useAbility } from '@cap/authorization'
 import { normalizeRole, PlatformRoles, Roles } from '@cap/shared-types'
+import type { UpdateMeRequest } from '@idaas/authentication-core/types/api.types'
+import { getPlainErrorMessage } from '../../types/api.types'
+import { extractFieldErrors, type ProfileUserView } from './profile.types'
 import {
   updateProfileSchema,
   UpdateProfileFormData,
@@ -215,7 +218,10 @@ export default function ProfileView({
 
   // Determine if current user is superadmin / platform owner
   const normalizedRole = useMemo(() => {
-    const rawRole = (user as any)?.role || (user as any)?.roleName || (user as any)?.roleObject
+    const view = user as ProfileUserView | null | undefined
+    const rawRole = (view?.role || view?.roleName || view?.roleObject) as Parameters<
+      typeof normalizeRole
+    >[0]
     return normalizeRole(rawRole)
   }, [user])
 
@@ -227,9 +233,9 @@ export default function ProfileView({
       normalizedRole === PlatformRoles.PLATFORM_OWNER ||
       normalizedRole === PlatformRoles.SUPER_ADMIN ||
       normalizedRole === Roles.SUPERADMIN ||
-      (user as any)?.plane === 'platform' ||
-      can('update', 'user:email' as any) ||
-      can('manage', 'all' as any)
+      (user as ProfileUserView | null | undefined)?.plane === 'platform' ||
+      can('update', 'user:email' as unknown as Parameters<typeof can>[1]) ||
+      can('manage', 'all' as unknown as Parameters<typeof can>[1])
     )
   }, [normalizedRole, user, can])
 
@@ -296,7 +302,7 @@ export default function ProfileView({
   // Populate form with user profile once resolved
   useEffect(() => {
     if (user) {
-      const userAny = user as any
+      const userAny = user as ProfileUserView | null | undefined
       const profile = userAny?.profile || userAny
       resetProfileForm({
         firstName: user?.firstName || userAny?.firstname || '',
@@ -351,11 +357,11 @@ export default function ProfileView({
       }
       onSave?.()
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       // Backend validation error mapping (e.g., 422 Unprocessable Entity or field errors)
-      const fieldErrors = error?.data?.errors || error?.response?.data?.errors
-      if (fieldErrors && typeof fieldErrors === 'object') {
-        Object.entries(fieldErrors).forEach(([field, msg]: [string, any]) => {
+      const fieldErrors = extractFieldErrors(error)
+      if (fieldErrors) {
+        Object.entries(fieldErrors).forEach(([field, msg]) => {
           const messageStr = Array.isArray(msg) ? msg[0] : String(msg)
           if (field in updateProfileSchema.shape) {
             setProfileError(field as keyof UpdateProfileFormData, {
@@ -370,8 +376,8 @@ export default function ProfileView({
         type: 'error',
         title: t('user.profile.error', 'Update Failed'),
         message:
-          error?.message ||
-          error?.data?.message ||
+          getPlainErrorMessage(error) ||
+          (error as { data?: { message?: string } } | null)?.data?.message ||
           t('user.profile.update_error', 'Failed to update profile details.'),
       })
     },
@@ -386,13 +392,13 @@ export default function ProfileView({
         message: t('user.profile.avatar_updated', 'Profile photo updated successfully.'),
       })
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       setPreviewAvatarUrl(null)
       addNotification({
         type: 'error',
         title: t('user.profile.error', 'Upload Failed'),
         message:
-          err?.message ||
+          getPlainErrorMessage(err) ||
           t('user.profile.avatar_update_error', 'Failed to upload new profile photo.'),
       })
     },
@@ -407,11 +413,11 @@ export default function ProfileView({
         message: t('user.profile.avatar_removed', 'Profile photo removed successfully.'),
       })
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       addNotification({
         type: 'error',
         title: t('user.profile.error', 'Error'),
-        message: err?.message || t('user.profile.avatar_remove_error', 'Failed to remove avatar.'),
+        message: getPlainErrorMessage(err) || t('user.profile.avatar_remove_error', 'Failed to remove avatar.'),
       })
     },
   })
@@ -426,10 +432,10 @@ export default function ProfileView({
       setPasswordDialogOpen(false)
       passwordForm.reset()
     },
-    onError: (error: any) => {
-      const fieldErrors = error?.data?.errors || error?.response?.data?.errors
-      if (fieldErrors && typeof fieldErrors === 'object') {
-        Object.entries(fieldErrors).forEach(([field, msg]: [string, any]) => {
+    onError: (error: unknown) => {
+      const fieldErrors = extractFieldErrors(error)
+      if (fieldErrors) {
+        Object.entries(fieldErrors).forEach(([field, msg]) => {
           const messageStr = Array.isArray(msg) ? msg[0] : String(msg)
           if (field in changePasswordBaseSchema.shape) {
             passwordForm.setError(field as keyof ChangePasswordFormData, {
@@ -443,7 +449,7 @@ export default function ProfileView({
         type: 'error',
         title: t('user.profile.error', 'Error'),
         message:
-          error?.message || t('user.profile.password_change_failed', 'Failed to change password.'),
+          getPlainErrorMessage(error) || t('user.profile.password_change_failed', 'Failed to change password.'),
       })
     },
   })
@@ -461,12 +467,12 @@ export default function ProfileView({
       setEmailDialogOpen(false)
       emailForm.reset()
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       addNotification({
         type: 'error',
         title: t('user.profile.error', 'Request Failed'),
         message:
-          error?.message ||
+          getPlainErrorMessage(error) ||
           t('user.profile.email_change_failed', 'Failed to request email change.'),
       })
     },
@@ -480,12 +486,12 @@ export default function ProfileView({
         message: t('user.profile.verification_resent', 'Verification email sent successfully.'),
       })
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       addNotification({
         type: 'error',
         title: t('user.profile.error', 'Error'),
         message:
-          error?.message ||
+          getPlainErrorMessage(error) ||
           t('user.profile.verification_resend_failed', 'Failed to resend verification email.'),
       })
     },
@@ -562,7 +568,7 @@ export default function ProfileView({
     }
     // Revert form values to existing user data
     if (user) {
-      const userAny = user as any
+      const userAny = user as ProfileUserView | null | undefined
       const profile = userAny?.profile || userAny
       resetProfileForm({
         firstName: user?.firstName || userAny?.firstname || '',
@@ -632,7 +638,7 @@ export default function ProfileView({
       ...(isSuperAdmin ? { email: values.email } : {}),
     }
 
-    updateProfileMutation.mutate(payload as any)
+    updateProfileMutation.mutate(payload as UpdateMeRequest)
   }
 
   // Quick Action: Export Data — queues a full GDPR data-export job on the
@@ -655,7 +661,7 @@ export default function ProfileView({
       addNotification({
         type: 'error',
         title: t('user.profile.error', 'Error'),
-        message: err?.message || t('user.profile.export_failed', 'Failed to request data export.'),
+        message: getPlainErrorMessage(err) || t('user.profile.export_failed', 'Failed to request data export.'),
       })
     },
   })
@@ -667,7 +673,7 @@ export default function ProfileView({
   }, [exportMutation])
 
   const displayName = useMemo(() => {
-    const userAny = user as any
+    const userAny = user as ProfileUserView | null | undefined
     if (userAny?.displayName) return userAny.displayName
     if (user?.firstName && user?.lastName) return `${user.firstName} ${user.lastName}`
     if (user?.name) return user.name
@@ -677,12 +683,12 @@ export default function ProfileView({
 
   const currentAvatarSrc = useMemo(() => {
     if (previewAvatarUrl) return previewAvatarUrl
-    const userAny = user as any
+    const userAny = user as ProfileUserView | null | undefined
     return userAny?.avatarUrl || userAny?.avatar || avatarPlaceHolder
   }, [previewAvatarUrl, user])
 
   const hasCustomAvatar = useMemo(() => {
-    const userAny = user as any
+    const userAny = user as ProfileUserView | null | undefined
     const src = userAny?.avatarUrl || userAny?.avatar
     return Boolean(src && src !== avatarPlaceHolder)
   }, [user])
@@ -760,7 +766,7 @@ export default function ProfileView({
   ])
 
   const personalDetailsFields = useMemo(() => {
-    const userAny = user as any
+    const userAny = user as ProfileUserView | null | undefined
     const profile = userAny?.profile || userAny
     const fields = [
       {
@@ -825,7 +831,7 @@ export default function ProfileView({
       fields.push({
         id: 'biography',
         label: t('user.profile.bio', 'Biography'),
-        value: profile.bio || profile.biography,
+        value: profile?.bio || profile?.biography || '',
       })
     }
 
@@ -1014,7 +1020,7 @@ export default function ProfileView({
                   borderRadius: 'var(--sf-radius-md, 8px)',
                   px: 2.5,
                   py: 0.8,
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
+                  boxShadow: `0 1px 3px ${alpha(theme.palette.common.black, 0.12)}`,
                 }}
               >
                 {updateProfileMutation.isPending || isProfileSubmitting
@@ -1037,12 +1043,12 @@ export default function ProfileView({
                 px: 2,
                 py: 0.8,
                 backgroundColor: 'background.paper',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+                boxShadow: `0 1px 2px ${alpha(theme.palette.common.black, 0.05)}`,
                 transition: 'all 0.2s ease-in-out',
                 '&:hover': {
                   borderColor: 'text.secondary',
                   backgroundColor: alpha(theme.palette.action.hover, 0.06),
-                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+                  boxShadow: `0 2px 6px ${alpha(theme.palette.common.black, 0.08)}`,
                 },
               }}
             >
@@ -1065,7 +1071,7 @@ export default function ProfileView({
                 borderRadius: 'var(--sf-radius-lg, 12px)',
                 borderColor: 'divider',
                 backgroundColor: 'background.paper',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+                boxShadow: `0 1px 3px ${alpha(theme.palette.common.black, 0.03)}`,
                 display: 'flex',
                 flexDirection: { xs: 'column', sm: 'row' },
                 alignItems: { xs: 'center', sm: 'flex-start' },
@@ -1105,7 +1111,7 @@ export default function ProfileView({
                         height: 120,
                         border: 3,
                         borderColor: 'divider',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                        boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.08)}`,
                       }}
                     />
 
@@ -1117,7 +1123,7 @@ export default function ProfileView({
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        bgcolor: 'rgba(0, 0, 0, 0.55)',
+                        bgcolor: `${alpha(theme.palette.common.black, 0.55)}`,
                         borderRadius: '50%',
                         display: 'flex',
                         flexDirection: 'column',
@@ -1129,13 +1135,13 @@ export default function ProfileView({
                       }}
                     >
                       {uploadAvatarMutation.isPending ? (
-                        <CircularProgress size={28} sx={{ color: 'white' }} />
+                        <CircularProgress size={28} sx={{ color: 'common.white' }} />
                       ) : (
                         <>
-                          <PhotoCamera sx={{ color: 'white', fontSize: 26 }} />
+                          <PhotoCamera sx={{ color: 'common.white', fontSize: 26 }} />
                           <Typography
                             variant='caption'
-                            sx={{ color: 'white', fontWeight: 600, fontSize: '0.6875rem', mt: 0.5 }}
+                            sx={{ color: 'common.white', fontWeight: 600, fontSize: '0.6875rem', mt: 0.5 }}
                           >
                             {t('user.profile.change', 'Change')}
                           </Typography>
@@ -1151,7 +1157,7 @@ export default function ProfileView({
                         bottom: 0,
                         right: 0,
                         bgcolor: 'primary.main',
-                        color: 'white',
+                        color: 'common.white',
                         border: 2,
                         borderColor: 'background.paper',
                         zIndex: zIndexScale.local.overlay,
@@ -1234,15 +1240,15 @@ export default function ProfileView({
                   <Chip
                     icon={<Verified sx={{ fontSize: 14 }} />}
                     label={
-                      (user as any)?.emailVerified !== false &&
-                      (user as any)?.isEmailVerified !== false
+                      (user as ProfileUserView | null | undefined)?.emailVerified !== false &&
+                      (user as ProfileUserView | null | undefined)?.isEmailVerified !== false
                         ? t('user.profile.verified', 'Verified')
                         : t('user.profile.unverified', 'Unverified')
                     }
                     size='small'
                     color={
-                      (user as any)?.emailVerified !== false &&
-                      (user as any)?.isEmailVerified !== false
+                      (user as ProfileUserView | null | undefined)?.emailVerified !== false &&
+                      (user as ProfileUserView | null | undefined)?.isEmailVerified !== false
                         ? 'success'
                         : 'default'
                     }
@@ -1355,7 +1361,7 @@ export default function ProfileView({
 
                       <Typography variant='body2' fontWeight={600} noWrap>
                         {formatDate(
-                          user?.updatedAt || (user as any)?.lastLoginAt || new Date().toISOString(),
+                          user?.updatedAt || (user as ProfileUserView | null | undefined)?.lastLoginAt || new Date().toISOString(),
                         )}
                       </Typography>
                     </Box>
@@ -1407,7 +1413,7 @@ export default function ProfileView({
                     borderRadius: 'var(--sf-radius-lg, 12px)',
                     borderColor: 'divider',
                     backgroundColor: 'background.paper',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+                    boxShadow: `0 1px 3px ${alpha(theme.palette.common.black, 0.03)}`,
                     p: 3,
                   }}
                 >
@@ -1465,7 +1471,7 @@ export default function ProfileView({
                             value={field.value || ''}
                             fullWidth
                             label={t('user.profile.display_name', 'Display Name')}
-                            placeholder='e.g. Alex Morgan'
+                            placeholder={t('auth.userDirectory.profileScreen.eGAlexMorgan', 'e.g. Alex Morgan')}
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
                             sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
@@ -1545,7 +1551,7 @@ export default function ProfileView({
                             value={field.value || ''}
                             fullWidth
                             label={t('user.profile.job_title', 'Job Title')}
-                            placeholder='e.g. Lead Platform Engineer'
+                            placeholder={t('auth.userDirectory.profileScreen.eGLeadPlatform', 'e.g. Lead Platform Engineer')}
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
                             sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
@@ -1564,7 +1570,7 @@ export default function ProfileView({
                             value={field.value || ''}
                             fullWidth
                             label={t('user.profile.department', 'Department')}
-                            placeholder='e.g. Engineering / Security'
+                            placeholder={t('auth.userDirectory.profileScreen.eGEngineeringSecurity', 'e.g. Engineering / Security')}
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
                             sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
@@ -1601,7 +1607,7 @@ export default function ProfileView({
                             value={field.value || ''}
                             fullWidth
                             label={t('user.profile.location', 'Location')}
-                            placeholder='e.g. San Francisco, CA'
+                            placeholder={t('auth.userDirectory.profileScreen.eGSanFrancisco', 'e.g. San Francisco, CA')}
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message}
                             sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--sf-radius-lg, 12px)' } }}
@@ -1664,7 +1670,7 @@ export default function ProfileView({
                     borderRadius: 'var(--sf-radius-lg, 12px)',
                     borderColor: 'divider',
                     backgroundColor: 'background.paper',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+                    boxShadow: `0 1px 3px ${alpha(theme.palette.common.black, 0.03)}`,
                     p: 3,
                   }}
                 >
@@ -1766,7 +1772,7 @@ export default function ProfileView({
                     borderRadius: 'var(--sf-radius-lg, 12px)',
                     borderColor: 'divider',
                     backgroundColor: 'background.paper',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+                    boxShadow: `0 1px 3px ${alpha(theme.palette.common.black, 0.03)}`,
                     p: 3,
                   }}
                 >
@@ -1907,11 +1913,11 @@ export default function ProfileView({
                           borderRadius: 'var(--sf-radius-lg, 12px)',
                           borderColor: 'divider',
                           backgroundColor: 'background.paper',
-                          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',
+                          boxShadow: `0 1px 2px ${alpha(theme.palette.common.black, 0.02)}`,
                           transition: 'all 0.15s ease-in-out',
                           '&:hover': {
                             borderColor: alpha(theme.palette.primary.main, 0.3),
-                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.04)',
+                            boxShadow: `0 2px 6px ${alpha(theme.palette.common.black, 0.04)}`,
                           },
                         }}
                       >
@@ -1957,7 +1963,7 @@ export default function ProfileView({
               borderRadius: 'var(--sf-radius-lg, 12px)',
               borderColor: 'divider',
               backgroundColor: 'background.paper',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+              boxShadow: `0 1px 3px ${alpha(theme.palette.common.black, 0.03)}`,
               overflow: 'hidden',
             }}
           >
@@ -2132,6 +2138,7 @@ export default function ProfileView({
                         <InputAdornment position='end'>
                           <IconButton
                             size='small'
+                            sx={{ minWidth: 44, minHeight: 44 }}
                             onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                             edge='end'
                           >
@@ -2168,6 +2175,7 @@ export default function ProfileView({
                         <InputAdornment position='end'>
                           <IconButton
                             size='small'
+                            sx={{ minWidth: 44, minHeight: 44 }}
                             onClick={() => setShowNewPassword(!showNewPassword)}
                             edge='end'
                           >
@@ -2204,6 +2212,7 @@ export default function ProfileView({
                         <InputAdornment position='end'>
                           <IconButton
                             size='small'
+                            sx={{ minWidth: 44, minHeight: 44 }}
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                             edge='end'
                           >

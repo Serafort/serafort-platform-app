@@ -65,7 +65,7 @@ export default function EmailChangeVerification() {
             }}
           >
             <CircularProgress size={56} thickness={4} />
-            <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+            <Typography variant='h5' sx={{ fontWeight: 700, letterSpacing: '-0.02em' }}>
               {t('email.verifyingHeading', 'Verifying your new email')}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
@@ -122,7 +122,7 @@ export default function EmailChangeVerification() {
             sx={{
               minHeight: 48,
               borderRadius: 'var(--sf-radius-lg, 12px)',
-              fontWeight: 800,
+              fontWeight: 700,
               fontSize: '1rem',
               textTransform: 'none',
             }}

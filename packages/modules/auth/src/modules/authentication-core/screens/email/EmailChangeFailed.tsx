@@ -7,6 +7,7 @@ import ArrowForward from '@mui/icons-material/ArrowForward'
 import { useTranslation } from 'react-i18next'
 import { Path } from '@cap/module-auth/routes/path'
 import { AuthOutcomeScreen, AuthStatusBadge } from '../../components/shared/auth'
+import { AppPaths } from '@cap/shared-types'
 
 export default function EmailChangeFailed() {
   const { t } = useTranslation('auth')
@@ -33,7 +34,7 @@ export default function EmailChangeFailed() {
             sx={{
               minHeight: 48,
               borderRadius: 'var(--sf-radius-lg, 12px)',
-              fontWeight: 800,
+              fontWeight: 700,
               fontSize: '1rem',
               textTransform: 'none',
             }}
@@ -46,7 +47,7 @@ export default function EmailChangeFailed() {
             size='large'
             fullWidth
             startIcon={<ContactSupport />}
-            onClick={() => navigate('/support')}
+            onClick={() => navigate(AppPaths.landing.contact)}
             sx={{
               minHeight: 48,
               borderRadius: 'var(--sf-radius-lg, 12px)',

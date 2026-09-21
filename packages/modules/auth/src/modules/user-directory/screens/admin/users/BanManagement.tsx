@@ -25,6 +25,7 @@ import {
   DialogContentText,
   DialogActions,
   Tooltip,
+  type Theme,
 } from '@mui/material'
 import Gavel from '@mui/icons-material/Gavel'
 import History from '@mui/icons-material/History'
@@ -38,7 +39,7 @@ import Edit from '@mui/icons-material/Edit'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { AdminUser } from '@idaas/authentication-core/hooks/useAdminQuery'
+import { AdminUser } from '@auth/authorization-engine/hooks/useAdminQuery'
 import { useTranslation } from 'react-i18next'
 import {
   useUsers,
@@ -47,12 +48,52 @@ import {
   useAdminDashboard,
   useAppeals,
   useResolveAppeal,
-} from '@idaas/authentication-core/hooks/useAdminQuery'
+} from '@auth/authorization-engine/hooks/useAdminQuery'
 import { toast } from 'react-toastify'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import Path from '../../path'
 import IssueBanDialog from '../../../components/IssueBanDialog'
+import { getPlainErrorMessage } from '../../../types/api.types'
+
+/** `{ data, meta }` page envelope used by the admin list endpoints. */
+interface PageOf<T> {
+  data?: T[]
+  meta?: { last_page?: number }
+}
+
+/** Headline counters from the admin dashboard endpoint. */
+interface BanDashboardStats {
+  totalBanned?: number
+  newBans?: number
+  pendingAppeals?: number
+}
+
+/** A ban appeal as returned by the appeals endpoint (payload is untyped upstream). */
+interface BanAppeal {
+  id: number
+  reason?: string
+  createdAt: string
+  user?: { firstName?: string; lastName?: string; email: string }
+}
+
+/** A suspension/activation audit-log row (camelCased by the API layer). */
+interface BanLogEntry {
+  id: number | string
+  action: string
+  userId?: number | null
+  ipAddress?: string | null
+  createdAt: string
+}
+
+/** One summary tile in the ban-management stat row. */
+interface BanStat {
+  label: string
+  value: React.ReactNode
+  icon: React.ReactNode
+  color: 'error' | 'warning' | 'info' | 'success'
+  tooltip?: string
+}
 
 export default function BanManagement() {
   const { t } = useTranslation('common')
@@ -64,6 +105,7 @@ export default function BanManagement() {
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null)
   const [page, setPage] = useState(1)
   const { data: dashboardData } = useAdminDashboard()
+  const dashboardStats = dashboardData?.data as BanDashboardStats | undefined
 
   const {
     data: bannedUsersData,
@@ -74,14 +116,15 @@ export default function BanManagement() {
     search: searchQuery,
     page,
   })
+  const bannedPage = bannedUsersData?.data as PageOf<AdminUser> | undefined
 
   const unbanMutation = useUnbanUser({
     onSuccess: () => {
       toast.success(t('auth.admin.userUnbannedSuccess'))
       refetch()
     },
-    onError: (error: any) => {
-      toast.error(error.message || t('auth.common.errorOccurred'))
+    onError: (error: unknown) => {
+      toast.error(getPlainErrorMessage(error, t('auth.common.errorOccurred')))
     },
   })
 
@@ -115,7 +158,7 @@ export default function BanManagement() {
           '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
         }}
       >
-        Back to User Directory
+        {t('auth.userDirectory.banMgmt.backToUserDirectory', 'Back to User Directory')}
       </Button>
 
       {/* Header */}
@@ -170,39 +213,39 @@ export default function BanManagement() {
       </Box>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {[
+        {([
           {
             label: t('auth.admin.statTotalActiveBans'),
-            value: dashboardData?.data?.totalBanned ?? '...',
+            value: dashboardStats?.totalBanned ?? '...',
             icon: <Block />,
             color: 'error',
           },
           {
             label: t('auth.admin.statNewBansToday'),
-            value: dashboardData?.data?.newBans ?? '...',
+            value: dashboardStats?.newBans ?? '...',
             icon: <Gavel />,
             color: 'warning',
           },
           {
             label: t('auth.admin.statAppealsPending'),
             value:
-              dashboardData?.data?.pendingAppeals === 0
+              dashboardStats?.pendingAppeals === 0
                 ? '—'
-                : (dashboardData?.data?.pendingAppeals ?? '...'),
+                : (dashboardStats?.pendingAppeals ?? '...'),
             tooltip:
-              dashboardData?.data?.pendingAppeals === 0
+              dashboardStats?.pendingAppeals === 0
                 ? t('auth.admin.appealTrackingNotImplemented')
                 : undefined,
             icon: <History />,
             color: 'info',
           },
-        ].map((stat, idx) => (
+        ] as BanStat[]).map((stat, idx) => (
           <Grid key={idx} size={{ xs: 12, sm: 4 }}>
             <Card
-              sx={(theme: any) => ({
+              sx={(theme: Theme) => ({
                 borderRadius: 'var(--sf-radius-lg, 16px)',
-                bgcolor: alpha((theme.palette as any)[stat.color].main, 0.04),
-                border: '1px solid ' + alpha((theme.palette as any)[stat.color].main, 0.1),
+                bgcolor: alpha(theme.palette[stat.color].main, 0.04),
+                border: '1px solid ' + alpha(theme.palette[stat.color].main, 0.1),
                 ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
               })}
             >
@@ -214,8 +257,8 @@ export default function BanManagement() {
                     <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 600 }}>
                       {stat.label}
                     </Typography>
-                    {(stat as any).tooltip ? (
-                      <Tooltip title={(stat as any).tooltip}>
+                    {stat.tooltip ? (
+                      <Tooltip title={stat.tooltip}>
                         <Typography variant='h4' sx={{ fontWeight: 800, mt: 0.5, cursor: 'help' }}>
                           {stat.value}
                         </Typography>
@@ -226,7 +269,7 @@ export default function BanManagement() {
                       </Typography>
                     )}
                   </Box>
-                  <Box sx={{ color: (theme.palette as any)[stat.color].main }}>{stat.icon}</Box>
+                  <Box sx={{ color: theme.palette[stat.color].main }}>{stat.icon}</Box>
                 </Box>
               </CardContent>
             </Card>
@@ -294,20 +337,20 @@ export default function BanManagement() {
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
               <Typography>{t('auth.common.loading')}</Typography>
             </Box>
-          ) : !bannedUsersData?.data?.data?.length ? (
+          ) : !bannedPage?.data?.length ? (
             <Alert
               severity='info'
-              sx={(theme: any) => ({
+              sx={(theme: Theme) => ({
                 ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
               })}
             >
               {t('auth.admin.noBannedUsers')}
             </Alert>
           ) : (
-            bannedUsersData.data.data.map((user: AdminUser) => (
+            bannedPage.data.map((user: AdminUser) => (
               <Card
                 key={user.id}
-                sx={(theme: any) => ({
+                sx={(theme: Theme) => ({
                   borderRadius: 'var(--sf-radius-lg, 16px)',
                   border: '1px solid ' + theme.palette.divider,
                   transition: 'border-color 0.2s',
@@ -388,14 +431,14 @@ export default function BanManagement() {
                           sx={{ fontWeight: 700, borderRadius: 'var(--sf-radius-xs, 4px)' }}
                         />
                       </Box>
-                      {(user as any).suspendedReason && (
+                      {(user as AdminUser & { suspendedReason?: string }).suspendedReason && (
                         <Typography
                           variant='caption'
                           color='error.main'
                           sx={{ display: 'block', mb: 1, mt: -1 }}
                         >
                           {/* i18n: auth.admin.banReason */}
-                          {t('auth.admin.banReason')}: {(user as any).suspendedReason}
+                          {t('auth.admin.banReason')}: {(user as AdminUser & { suspendedReason?: string }).suspendedReason}
                         </Typography>
                       )}
 
@@ -453,7 +496,7 @@ export default function BanManagement() {
                       <Box sx={{ flexGrow: 1 }} />
                       <IconButton
                         size='small'
-                        aria-label='More options'
+                        aria-label={t('auth.userDirectory.banMgmt.moreOptions', 'More options')}
                         sx={{
                           alignSelf: 'flex-end',
                           width: 44,
@@ -471,10 +514,10 @@ export default function BanManagement() {
               </Card>
             ))
           )}
-          {bannedUsersData?.data?.meta?.last_page && bannedUsersData.data.meta.last_page > 1 && (
+          {bannedPage?.meta?.last_page && bannedPage.meta.last_page > 1 && (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
               <Pagination
-                count={bannedUsersData?.data?.meta?.last_page || 1}
+                count={bannedPage?.meta?.last_page || 1}
                 page={page}
                 onChange={(_, val) => setPage(val)}
                 color='primary'
@@ -501,7 +544,7 @@ export default function BanManagement() {
         onClose={() => setEditingUser(null)}
         slotProps={{
           paper: {
-            sx: (theme: any) => ({
+            sx: (theme: Theme) => ({
               borderRadius: 'var(--sf-radius-lg, 16px)',
               ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
             }),
@@ -533,27 +576,28 @@ function AppealsQueue() {
   const [resolvingAppealId, setResolvingAppealId] = useState<number | null>(null)
 
   const resolveMutation = useResolveAppeal({
-    onSuccess: (_: any, variables: any) => {
+    onSuccess: (_, variables) => {
       toast.success(
-        variables.action === 'approved'
+        variables.data.status === 'APPROVED'
           ? t('auth.admin.appealApproved')
           : t('auth.admin.appealDenied'),
         {},
       )
       refetch()
     },
-    onError: (err: any) => {
-      toast.error(err.message || t('auth.common.errorOccurred'), {})
+    onError: (err: unknown) => {
+      toast.error(getPlainErrorMessage(err, t('auth.common.errorOccurred')), {})
     },
   })
 
-  const appeals = data?.data?.data ?? []
+  const appealPage = data?.data as PageOf<BanAppeal> | undefined
+  const appeals = appealPage?.data ?? []
 
   return (
     <Stack spacing={3} className='animate-scale-in'>
       <Alert
         severity='info'
-        sx={(theme: any) => ({
+        sx={(theme: Theme) => ({
           borderRadius: 'var(--sf-radius-md, 12px)',
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
         })}
@@ -567,7 +611,7 @@ function AppealsQueue() {
       ) : appeals.length === 0 ? (
         <Alert
           severity='success'
-          sx={(theme: any) => ({
+          sx={(theme: Theme) => ({
             borderRadius: 'var(--sf-radius-md, 12px)',
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
           })}
@@ -576,10 +620,10 @@ function AppealsQueue() {
         </Alert>
       ) : (
         <Stack spacing={2}>
-          {appeals.map((appeal: any) => (
+          {appeals.map((appeal) => (
             <Card
               key={appeal.id}
-              sx={(theme: any) => ({
+              sx={(theme: Theme) => ({
                 borderRadius: 'var(--sf-radius-lg, 16px)',
                 border: '1px solid ' + alpha(theme.palette.warning.main, 0.3),
                 ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -640,7 +684,7 @@ function AppealsQueue() {
                       color='success'
                       size='small'
                       startIcon={<Undo />}
-                      onClick={() => resolveMutation.mutate({ id: appeal.id, action: 'approved' })}
+                      onClick={() => resolveMutation.mutate({ id: appeal.id, data: { status: 'APPROVED' } })}
                       disabled={resolveMutation.isPending}
                       sx={{
                         minHeight: 40,
@@ -674,10 +718,10 @@ function AppealsQueue() {
               </CardContent>
             </Card>
           ))}
-          {data?.data?.meta?.last_page && data.data.meta.last_page > 1 && (
+          {appealPage?.meta?.last_page && appealPage.meta.last_page > 1 && (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
               <Pagination
-                count={data.data.meta.last_page}
+                count={appealPage.meta.last_page}
                 page={page}
                 onChange={(_, val) => setPage(val)}
                 color='primary'
@@ -697,7 +741,7 @@ function AppealsQueue() {
         onClose={() => setResolvingAppealId(null)}
         slotProps={{
           paper: {
-            sx: (theme: any) => ({
+            sx: (theme: Theme) => ({
               borderRadius: 'var(--sf-radius-lg, 16px)',
               ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
             }),
@@ -729,7 +773,7 @@ function AppealsQueue() {
             onClick={() => {
               if (resolvingAppealId) {
                 resolveMutation.mutate(
-                  { id: resolvingAppealId, action: 'rejected' },
+                  { id: resolvingAppealId, data: { status: 'DENIED' } },
                   {
                     onSettled: () => setResolvingAppealId(null),
                   },
@@ -761,15 +805,15 @@ function BanFullHistory() {
 
   const rawLogs = [...(suspendedData?.data?.logs ?? []), ...(activatedData?.data?.logs ?? [])].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  )
+  ) as unknown as BanLogEntry[]
   const logs = search
-    ? rawLogs.filter((l: any) => JSON.stringify(l).toLowerCase().includes(search.toLowerCase()))
+    ? rawLogs.filter((l) => JSON.stringify(l).toLowerCase().includes(search.toLowerCase()))
     : rawLogs
 
   const handleExport = () => {
     const csv = [
       ['ID', 'Action', 'User ID', 'IP', 'Date'].join(','),
-      ...rawLogs.map((l: any) =>
+      ...rawLogs.map((l) =>
         [
           l.id,
           l.action,
@@ -838,7 +882,7 @@ function BanFullHistory() {
       ) : logs.length === 0 ? (
         <Alert
           severity='info'
-          sx={(theme: any) => ({
+          sx={(theme: Theme) => ({
             borderRadius: 'var(--sf-radius-md, 12px)',
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
           })}
@@ -846,10 +890,10 @@ function BanFullHistory() {
           {t('auth.admin.noBanHistory')}
         </Alert>
       ) : (
-        logs.map((log: any) => (
+        logs.map((log) => (
           <Card
             key={log.id}
-            sx={(theme: any) => ({
+            sx={(theme: Theme) => ({
               borderRadius: 'var(--sf-radius-md, 12px)',
               border: '1px solid ' + theme.palette.divider,
               ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),

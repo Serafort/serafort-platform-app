@@ -7,7 +7,20 @@ import {
   ISignup,
 } from '@cap/platform-core'
 
-import { SecurityLogParams } from '../types/api.types'
+import type {
+  RegisterRequest,
+  SecurityLogParams,
+  MessageResponse,
+  TokenResponse,
+  PasswordResetVerifyResponse,
+  PasswordResetResponse,
+  EmailVerificationResult,
+  ValidateUserResponse,
+  SessionResponse,
+  SessionsResponse,
+  LoginHistoryResponse,
+  SsoDiscoveryResponse,
+} from '../types/api.types'
 import { ENDPOINTS } from '@cap/platform-core'
 import { TenantService } from '@cap/platform-core'
 
@@ -58,8 +71,8 @@ const authService = {
       )
     }
   },
-  signup: async (body: ISignup): Promise<FetchResponse<any>> => {
-    const response = await apiClient.post(ENDPOINTS.auth.signup, body)
+  signup: async (body: ISignup | RegisterRequest): Promise<FetchResponse<MessageResponse>> => {
+    const response = await apiClient.post<MessageResponse>(ENDPOINTS.auth.signup, body)
     const data: any = response?.data
     if (data?.user || data?.userId) {
       const userId = String(data?.user?.id || data?.userId || 'unknown')
@@ -85,9 +98,9 @@ const authService = {
     return response
   },
 
-  signin: async (body: ILogin): Promise<FetchResponse<any>> => {
+  signin: async (body: ILogin): Promise<FetchResponse<TokenResponse>> => {
     try {
-      const response = await apiClient.post(ENDPOINTS.auth.login, body)
+      const response = await apiClient.post<TokenResponse>(ENDPOINTS.auth.login, body)
       const data: any = response?.data
       if (data) {
         const userId = String(data?.user?.id || data?.user?.userId || data?.userId || 'unknown')
@@ -137,8 +150,8 @@ const authService = {
     }
   },
 
-  signout: async (): Promise<FetchResponse<any>> => {
-    const response = await apiClient.post(ENDPOINTS.auth.logout)
+  signout: async (): Promise<FetchResponse<MessageResponse>> => {
+    const response = await apiClient.post<MessageResponse>(ENDPOINTS.auth.logout)
     await eventBus.publish(
       createSessionRevokedEvent({
         sessionId: 'current-session',
@@ -150,8 +163,8 @@ const authService = {
     return response
   },
 
-  refreshToken: async (): Promise<FetchResponse<any>> => {
-    const response = await apiClient.post(ENDPOINTS.auth.refresh)
+  refreshToken: async (): Promise<FetchResponse<TokenResponse>> => {
+    const response = await apiClient.post<TokenResponse>(ENDPOINTS.auth.refresh)
     const data: any = response?.data
     if (data) {
       await eventBus.publish(
@@ -166,30 +179,30 @@ const authService = {
     return response
   },
 
-  forgotPassword: (body: IForgetPassword): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.auth.forgotPassword, body)
+  forgotPassword: (body: IForgetPassword): Promise<FetchResponse<MessageResponse>> => {
+    return apiClient.post<MessageResponse>(ENDPOINTS.auth.forgotPassword, body)
   },
 
-  resetPassword: (body: IResetPassword): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.auth.resetPassword, body)
+  resetPassword: (body: IResetPassword): Promise<FetchResponse<PasswordResetResponse>> => {
+    return apiClient.post<PasswordResetResponse>(ENDPOINTS.auth.resetPassword, body)
   },
 
-  discoverSso: (identifier: string): Promise<FetchResponse<any>> => {
+  discoverSso: (identifier: string): Promise<FetchResponse<SsoDiscoveryResponse>> => {
     const isEmail = identifier.includes('@')
     const params = isEmail ? { email: identifier } : { domain: identifier }
-    return apiClient.get(ENDPOINTS.auth.sso.discover, { params })
+    return apiClient.get<SsoDiscoveryResponse>(ENDPOINTS.auth.sso.discover, { params })
   },
 
-  verifyResetPassword: (email: string, signature: string): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.verifyResetPassword(email, signature))
+  verifyResetPassword: (email: string, signature: string): Promise<FetchResponse<PasswordResetVerifyResponse>> => {
+    return apiClient.get<PasswordResetVerifyResponse>(ENDPOINTS.auth.verifyResetPassword(email, signature))
   },
 
-  verifyResetToken: (email: string, token: string): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.auth.verifyResetToken, { email, token })
+  verifyResetToken: (email: string, token: string): Promise<FetchResponse<PasswordResetVerifyResponse>> => {
+    return apiClient.post<PasswordResetVerifyResponse>(ENDPOINTS.auth.verifyResetToken, { email, token })
   },
 
-  appealBan: (email: string, reason: string): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.auth.appealBan, { email, reason })
+  appealBan: (email: string, reason: string): Promise<FetchResponse<MessageResponse>> => {
+    return apiClient.post<MessageResponse>(ENDPOINTS.auth.appealBan, { email, reason })
   },
 
   /**
@@ -201,8 +214,8 @@ const authService = {
    * passing the address separately in the body would not be covered by the
    * signature and is ignored.
    */
-  verifyEmail: (search: string): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.auth.verifyEmail(search))
+  verifyEmail: (search: string): Promise<FetchResponse<EmailVerificationResult>> => {
+    return apiClient.post<EmailVerificationResult>(ENDPOINTS.auth.verifyEmail(search))
   },
 
   /**
@@ -219,29 +232,29 @@ const authService = {
    * Restore the call once the backend validates a code; until then this path
    * rejects, and the sign-up screen shows its existing invalid-code message.
    */
-  verifyEmailCode: (_email: string, _token: string): Promise<FetchResponse<any>> => {
+  verifyEmailCode: (_email: string, _token: string): Promise<FetchResponse<EmailVerificationResult>> => {
     return Promise.reject(
       new Error('Email verification by typed code is not supported by the API yet.'),
     )
   },
 
-  resendVerification: (email: string): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.auth.resendVerification, { email })
+  resendVerification: (email: string): Promise<FetchResponse<MessageResponse>> => {
+    return apiClient.post<MessageResponse>(ENDPOINTS.auth.resendVerification, { email })
   },
 
-  verifyEmailChange: (token: string): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.user.verifyEmailChange, { token })
+  verifyEmailChange: (token: string): Promise<FetchResponse<unknown>> => {
+    return apiClient.post<MessageResponse>(ENDPOINTS.user.verifyEmailChange, { token })
   },
 
-  validateUser: (id: string | number, token: string): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.auth.validateUser, { id, token })
+  validateUser: (id: string | number, token: string): Promise<FetchResponse<ValidateUserResponse>> => {
+    return apiClient.post<ValidateUserResponse>(ENDPOINTS.auth.validateUser, { id, token })
   },
 
   // ========================================================================
   // Session Management
   // ========================================================================
-  getSession: (): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.session)
+  getSession: (): Promise<FetchResponse<SessionResponse>> => {
+    return apiClient.get<SessionResponse>(ENDPOINTS.auth.session)
   },
 
   /**
@@ -249,16 +262,16 @@ const authService = {
    * profile loaded. `getSession` answers a bare serialization of the user and
    * says whether the session is live; this is the one to read a user from.
    */
-  getMe: (): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.me)
+  getMe: (): Promise<FetchResponse<unknown>> => {
+    return apiClient.get<SessionResponse>(ENDPOINTS.auth.me)
   },
 
-  getSessions: (): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.sessions)
+  getSessions: (): Promise<FetchResponse<SessionsResponse>> => {
+    return apiClient.get<SessionsResponse>(ENDPOINTS.auth.sessions)
   },
 
-  revokeSession: async (sessionId: string): Promise<FetchResponse<any>> => {
-    const response = await apiClient.delete(ENDPOINTS.auth.revokeSession(sessionId))
+  revokeSession: async (sessionId: string): Promise<FetchResponse<MessageResponse>> => {
+    const response = await apiClient.delete<MessageResponse>(ENDPOINTS.auth.revokeSession(sessionId))
     await eventBus.publish(
       createSessionRevokedEvent({
         sessionId,
@@ -270,8 +283,8 @@ const authService = {
     return response
   },
 
-  revokeAllSessions: async (): Promise<FetchResponse<any>> => {
-    const response = await apiClient.post(ENDPOINTS.auth.revokeAllSessions)
+  revokeAllSessions: async (): Promise<FetchResponse<MessageResponse>> => {
+    const response = await apiClient.post<MessageResponse>(ENDPOINTS.auth.revokeAllSessions)
     await eventBus.publish(
       createSessionRevokedEvent({
         sessionId: 'all-sessions',
@@ -287,14 +300,14 @@ const authService = {
   // Login History & Security Logs
   // ========================================================================
 
-  getLoginHistory: (limit: number = 50): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.loginHistory, {
+  getLoginHistory: (limit: number = 50): Promise<FetchResponse<LoginHistoryResponse>> => {
+    return apiClient.get<LoginHistoryResponse>(ENDPOINTS.auth.loginHistory, {
       params: { limit },
     })
   },
 
-  getSecurityLogs: (params?: SecurityLogParams): Promise<FetchResponse<any>> => {
-    return apiClient.get(ENDPOINTS.auth.securityLogs, { params })
+  getSecurityLogs: (params?: SecurityLogParams): Promise<FetchResponse<unknown>> => {
+    return apiClient.get<LoginHistoryResponse>(ENDPOINTS.auth.securityLogs, { params })
   },
 
   // MFA and Passkey logic is handled by plugins in packages/modules/auth/src/plugins/
@@ -306,7 +319,7 @@ const authService = {
     /** Send a magic link to the user's email */
     send: (
       payload: string | { email: string; redirectUrl?: string },
-    ): Promise<FetchResponse<any>> => {
+    ): Promise<FetchResponse<unknown>> => {
       const body = typeof payload === 'string' ? { email: payload } : payload
       return apiClient.post(ENDPOINTS.auth.passwordless.send, body)
     },
@@ -314,7 +327,7 @@ const authService = {
     /** Verify a magic link token and hydrate session */
     verify: async (
       tokenOrParams: string | { token: string; email?: string },
-    ): Promise<FetchResponse<any>> => {
+    ): Promise<FetchResponse<unknown>> => {
       const params = typeof tokenOrParams === 'string' ? { token: tokenOrParams } : tokenOrParams
       const response = await apiClient.get(ENDPOINTS.auth.passwordless.verify, { params })
       const data: any = response?.data
@@ -378,7 +391,7 @@ const authService = {
   // ========================================================================
   deviceCode: {
     /** Request a device code */
-    authorize: (clientId: string): Promise<FetchResponse<any>> => {
+    authorize: (clientId: string): Promise<FetchResponse<unknown>> => {
       return apiClient.post(ENDPOINTS.auth.oidcDevice.authorize, { client_id: clientId })
     },
     /** Verify a device code entered by the user */
@@ -393,7 +406,7 @@ const authService = {
   // Social Auth
   // ========================================================================
   social: {
-    exchange: (code: string): Promise<FetchResponse<any>> => {
+    exchange: (code: string): Promise<FetchResponse<unknown>> => {
       return apiClient.post(ENDPOINTS.auth.social.exchange, { code })
     },
   },
@@ -402,43 +415,43 @@ const authService = {
   // OIDC Compliance & SAML SSO
   // ========================================================================
   oidc: {
-    userinfo: (): Promise<FetchResponse<any>> => {
+    userinfo: (): Promise<FetchResponse<unknown>> => {
       return apiClient.get(ENDPOINTS.auth.oidc.userinfo)
     },
-    introspect: (token: string): Promise<FetchResponse<any>> => {
+    introspect: (token: string): Promise<FetchResponse<unknown>> => {
       return apiClient.post(ENDPOINTS.auth.oidc.introspect, { token })
     },
-    revoke: (token: string): Promise<FetchResponse<any>> => {
+    revoke: (token: string): Promise<FetchResponse<unknown>> => {
       return apiClient.post(ENDPOINTS.auth.oidc.revoke, { token })
     },
-    endSession: (): Promise<FetchResponse<any>> => {
+    endSession: (): Promise<FetchResponse<unknown>> => {
       return apiClient.get(ENDPOINTS.auth.oidc.endSession)
     },
   },
 
   saml: {
-    sso: (data: any): Promise<FetchResponse<any>> => {
+    sso: (data: any): Promise<FetchResponse<unknown>> => {
       return apiClient.post(ENDPOINTS.auth.saml.sso, data)
     },
   },
 
   oidcInteraction: {
-    get: (uid: string): Promise<FetchResponse<any>> => {
+    get: (uid: string): Promise<FetchResponse<unknown>> => {
       return apiClient.get(ENDPOINTS.auth.oidcInteraction.get(uid))
     },
-    login: (uid: string, credentials: any): Promise<FetchResponse<any>> => {
+    login: (uid: string, credentials: any): Promise<FetchResponse<unknown>> => {
       return apiClient.post(ENDPOINTS.auth.oidcInteraction.login(uid), credentials)
     },
-    mfa: (uid: string, data: any): Promise<FetchResponse<any>> => {
+    mfa: (uid: string, data: any): Promise<FetchResponse<unknown>> => {
       return apiClient.post(ENDPOINTS.auth.oidcInteraction.mfa(uid), data)
     },
-    consent: (uid: string): Promise<FetchResponse<any>> => {
+    consent: (uid: string): Promise<FetchResponse<unknown>> => {
       return apiClient.get(ENDPOINTS.auth.oidcInteraction.consent(uid))
     },
-    confirm: (uid: string, data?: any): Promise<FetchResponse<any>> => {
+    confirm: (uid: string, data?: any): Promise<FetchResponse<unknown>> => {
       return apiClient.post(ENDPOINTS.auth.oidcInteraction.confirm(uid), data || {})
     },
-    abort: (uid: string): Promise<FetchResponse<any>> => {
+    abort: (uid: string): Promise<FetchResponse<unknown>> => {
       return apiClient.get(ENDPOINTS.auth.oidcInteraction.abort(uid))
     },
   },

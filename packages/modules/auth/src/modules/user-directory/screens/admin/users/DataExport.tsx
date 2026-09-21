@@ -43,6 +43,15 @@ import {
   AdminRowActionButton,
 } from '../../../../authentication-core/components/shared/admin'
 
+/** A user data-export job as listed by the admin API. */
+interface DataExportItem {
+  id: number | string
+  status: string
+  created_at: string
+  expires_at?: string
+  download_url?: string
+}
+
 const DataExport: React.FC = () => {
   const { id: userId } = useParams()
   const { t } = useTranslation('common')
@@ -50,7 +59,7 @@ const DataExport: React.FC = () => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [requesting, setRequesting] = useState(false)
-  const [exports, setExports] = useState<any[]>([])
+  const [exports, setExports] = useState<DataExportItem[]>([])
   const tracker = useChunkProgressTracker({
     totalChunks: 30,
     chunkSize: 200,
@@ -62,7 +71,7 @@ const DataExport: React.FC = () => {
     setLoading(true)
     try {
       const response = await adminService.listDataExports(Number(userId))
-      setExports(response.data || [])
+      setExports((response.data || []) as unknown as DataExportItem[])
     } catch (error) {
       console.error('Failed to fetch exports', error)
       // Mocking for demonstration if service call fails or is empty

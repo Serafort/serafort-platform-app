@@ -34,7 +34,7 @@ export interface PasswordlessVerifyResponse {
   message?: string
   token: string
   refreshToken?: string
-  user: any
+  user: Record<string, unknown>
   expiresIn?: number
 }
 
@@ -50,7 +50,8 @@ export function usePasswordlessSend(
   >,
 ) {
   return useMutation({
-    mutationFn: (payload: PasswordlessSendRequest) => authService.passwordless.send(payload),
+    mutationFn: (payload: PasswordlessSendRequest) =>
+      authService.passwordless.send(payload) as Promise<FetchResponse<PasswordlessSendResponse>>,
     ...options,
   })
 }
@@ -72,7 +73,8 @@ export function usePasswordlessVerify(
     queryKey: QUERY_KEYS?.auth?.passwordless?.verify
       ? QUERY_KEYS.auth.passwordless.verify(token)
       : ['auth', 'passwordless', 'verify', token],
-    queryFn: () => authService.passwordless.verify(tokenOrParams),
+    queryFn: () =>
+      authService.passwordless.verify(tokenOrParams) as Promise<FetchResponse<PasswordlessVerifyResponse>>,
     enabled: Boolean(token),
     retry: false,
     staleTime: 0,

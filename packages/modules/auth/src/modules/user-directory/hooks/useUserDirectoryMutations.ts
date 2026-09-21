@@ -12,14 +12,16 @@ import {
   AssignRolesRequestDTO,
   BulkUserActionRequestDTO,
   UserDirectoryFilterParams,
+  UserDirectoryItemDTO,
 } from '../types/userDirectory.types'
 import { BulkInviteUserFormData } from '../schemas/userDirectory.schema'
+import { getErrorMessage } from '../types/api.types'
 
 /**
  * Mutation hook for inviting single user
  */
 export function useInviteUserMutation(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, InviteUserRequestDTO>,
+  options?: UseMutationOptions<FetchResponse, HttpError, InviteUserRequestDTO>,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()
@@ -35,21 +37,19 @@ export function useInviteUserMutation(
         message: `Invitation email sent successfully to ${vars.email}.`,
       })
       if (customOnSuccess) {
-        ;(customOnSuccess as any)(res, vars, context)
+        ;(customOnSuccess as (...args: unknown[]) => unknown)(res, vars, context)
       }
     },
-    onError: (err: any, vars, context) => {
+    onError: (err: HttpError, vars, context) => {
       const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Failed to invite user. Please check the details.'
+        getErrorMessage(err, 'Failed to invite user. Please check the details.')
       addNotification?.({
         type: 'error',
         title: 'Invitation Failed',
         message,
       })
       if (customOnError) {
-        ;(customOnError as any)(err, vars, context)
+        ;(customOnError as (...args: unknown[]) => unknown)(err, vars, context)
       }
     },
     ...restOptions,
@@ -60,7 +60,7 @@ export function useInviteUserMutation(
  * Mutation hook for bulk inviting users
  */
 export function useBulkInviteUsersMutation(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, BulkInviteUserFormData>,
+  options?: UseMutationOptions<FetchResponse, HttpError, BulkInviteUserFormData>,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()
@@ -87,17 +87,17 @@ export function useBulkInviteUsersMutation(
         message: 'All user invitations have been queued successfully.',
       })
       if (customOnSuccess) {
-        ;(customOnSuccess as any)(res, vars, context)
+        ;(customOnSuccess as (...args: unknown[]) => unknown)(res, vars, context)
       }
     },
-    onError: (err: any, vars, context) => {
+    onError: (err: HttpError, vars, context) => {
       addNotification?.({
         type: 'error',
         title: 'Bulk Invite Failed',
-        message: err?.response?.data?.message || err?.message || 'Failed to send bulk invitations.',
+        message: getErrorMessage(err, 'Failed to send bulk invitations.'),
       })
       if (customOnError) {
-        ;(customOnError as any)(err, vars, context)
+        ;(customOnError as (...args: unknown[]) => unknown)(err, vars, context)
       }
     },
     ...restOptions,
@@ -109,7 +109,7 @@ export function useBulkInviteUsersMutation(
  */
 export function useUpdateUserMutation(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse,
     HttpError,
     { id: string | number; data: UpdateUserRequestDTO }
   >,
@@ -129,17 +129,17 @@ export function useUpdateUserMutation(
         message: 'User profile updated successfully.',
       })
       if (customOnSuccess) {
-        ;(customOnSuccess as any)(res, vars, context)
+        ;(customOnSuccess as (...args: unknown[]) => unknown)(res, vars, context)
       }
     },
-    onError: (err: any, vars, context) => {
+    onError: (err: HttpError, vars, context) => {
       addNotification?.({
         type: 'error',
         title: 'Update Failed',
-        message: err?.response?.data?.message || err?.message || 'Failed to update user profile.',
+        message: getErrorMessage(err, 'Failed to update user profile.'),
       })
       if (customOnError) {
-        ;(customOnError as any)(err, vars, context)
+        ;(customOnError as (...args: unknown[]) => unknown)(err, vars, context)
       }
     },
     ...restOptions,
@@ -151,7 +151,7 @@ export function useUpdateUserMutation(
  */
 export function useUpdateUserStatusMutation(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse,
     HttpError,
     { id: string | number; data: UpdateUserStatusRequestDTO }
   >,
@@ -171,17 +171,17 @@ export function useUpdateUserStatusMutation(
         message: `User status changed to ${vars.data.status}.`,
       })
       if (customOnSuccess) {
-        ;(customOnSuccess as any)(res, vars, context)
+        ;(customOnSuccess as (...args: unknown[]) => unknown)(res, vars, context)
       }
     },
-    onError: (err: any, vars, context) => {
+    onError: (err: HttpError, vars, context) => {
       addNotification?.({
         type: 'error',
         title: 'Status Change Failed',
-        message: err?.response?.data?.message || err?.message || 'Failed to update user status.',
+        message: getErrorMessage(err, 'Failed to update user status.'),
       })
       if (customOnError) {
-        ;(customOnError as any)(err, vars, context)
+        ;(customOnError as (...args: unknown[]) => unknown)(err, vars, context)
       }
     },
     ...restOptions,
@@ -193,7 +193,7 @@ export function useUpdateUserStatusMutation(
  */
 export function useDeleteUserMutation(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse,
     HttpError,
     { id: string | number; reason?: string }
   >,
@@ -213,17 +213,17 @@ export function useDeleteUserMutation(
         message: 'The user account has been removed successfully.',
       })
       if (customOnSuccess) {
-        ;(customOnSuccess as any)(res, vars, context)
+        ;(customOnSuccess as (...args: unknown[]) => unknown)(res, vars, context)
       }
     },
-    onError: (err: any, vars, context) => {
+    onError: (err: HttpError, vars, context) => {
       addNotification?.({
         type: 'error',
         title: 'Deletion Failed',
-        message: err?.response?.data?.message || err?.message || 'Failed to delete user.',
+        message: getErrorMessage(err, 'Failed to delete user.'),
       })
       if (customOnError) {
-        ;(customOnError as any)(err, vars, context)
+        ;(customOnError as (...args: unknown[]) => unknown)(err, vars, context)
       }
     },
     ...restOptions,
@@ -235,7 +235,7 @@ export function useDeleteUserMutation(
  */
 export function useAssignRolesMutation(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse,
     HttpError,
     { id: string | number; data: AssignRolesRequestDTO }
   >,
@@ -255,17 +255,17 @@ export function useAssignRolesMutation(
         message: 'User roles and permissions have been updated.',
       })
       if (customOnSuccess) {
-        ;(customOnSuccess as any)(res, vars, context)
+        ;(customOnSuccess as (...args: unknown[]) => unknown)(res, vars, context)
       }
     },
-    onError: (err: any, vars, context) => {
+    onError: (err: HttpError, vars, context) => {
       addNotification?.({
         type: 'error',
         title: 'Role Assignment Failed',
-        message: err?.response?.data?.message || err?.message || 'Failed to update user roles.',
+        message: getErrorMessage(err, 'Failed to update user roles.'),
       })
       if (customOnError) {
-        ;(customOnError as any)(err, vars, context)
+        ;(customOnError as (...args: unknown[]) => unknown)(err, vars, context)
       }
     },
     ...restOptions,
@@ -276,7 +276,7 @@ export function useAssignRolesMutation(
  * Mutation hook for bulk operations (status, delete)
  */
 export function useBulkActionMutation(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, BulkUserActionRequestDTO>,
+  options?: UseMutationOptions<FetchResponse, HttpError, BulkUserActionRequestDTO>,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()
@@ -308,17 +308,17 @@ export function useBulkActionMutation(
         message: `Action successfully applied to ${vars.userIds.length} users.`,
       })
       if (customOnSuccess) {
-        ;(customOnSuccess as any)(res, vars, context)
+        ;(customOnSuccess as (...args: unknown[]) => unknown)(res, vars, context)
       }
     },
-    onError: (err: any, vars, context) => {
+    onError: (err: HttpError, vars, context) => {
       addNotification?.({
         type: 'error',
         title: 'Bulk Action Failed',
-        message: err?.response?.data?.message || err?.message || 'Failed to complete bulk action.',
+        message: getErrorMessage(err, 'Failed to complete bulk action.'),
       })
       if (customOnError) {
-        ;(customOnError as any)(err, vars, context)
+        ;(customOnError as (...args: unknown[]) => unknown)(err, vars, context)
       }
     },
     ...restOptions,
@@ -329,7 +329,7 @@ export function useBulkActionMutation(
  * Mutation hook for sending admin password reset
  */
 export function useSendPasswordResetMutation(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, string | number>,
+  options?: UseMutationOptions<FetchResponse, HttpError, string | number>,
 ) {
   const { addNotification } = useNotifications()
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
@@ -343,17 +343,17 @@ export function useSendPasswordResetMutation(
         message: 'Password reset instructions have been dispatched to the user.',
       })
       if (customOnSuccess) {
-        ;(customOnSuccess as any)(res, vars, context)
+        ;(customOnSuccess as (...args: unknown[]) => unknown)(res, vars, context)
       }
     },
-    onError: (err: any, vars, context) => {
+    onError: (err: HttpError, vars, context) => {
       addNotification?.({
         type: 'error',
         title: 'Failed to Send Reset',
-        message: err?.response?.data?.message || err?.message || 'Could not send password reset.',
+        message: getErrorMessage(err, 'Could not send password reset.'),
       })
       if (customOnError) {
-        ;(customOnError as any)(err, vars, context)
+        ;(customOnError as (...args: unknown[]) => unknown)(err, vars, context)
       }
     },
     ...restOptions,
@@ -364,7 +364,7 @@ export function useSendPasswordResetMutation(
  * Mutation hook for resetting user MFA
  */
 export function useResetMfaMutation(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, string | number>,
+  options?: UseMutationOptions<FetchResponse, HttpError, string | number>,
 ) {
   const queryClient = useQueryClient()
   const { addNotification } = useNotifications()
@@ -380,17 +380,17 @@ export function useResetMfaMutation(
         message: 'Two-factor authentication has been reset for this user.',
       })
       if (customOnSuccess) {
-        ;(customOnSuccess as any)(res, vars, context)
+        ;(customOnSuccess as (...args: unknown[]) => unknown)(res, vars, context)
       }
     },
-    onError: (err: any, vars, context) => {
+    onError: (err: HttpError, vars, context) => {
       addNotification?.({
         type: 'error',
         title: 'MFA Reset Failed',
-        message: err?.response?.data?.message || err?.message || 'Could not reset MFA.',
+        message: getErrorMessage(err, 'Could not reset MFA.'),
       })
       if (customOnError) {
-        ;(customOnError as any)(err, vars, context)
+        ;(customOnError as (...args: unknown[]) => unknown)(err, vars, context)
       }
     },
     ...restOptions,
@@ -409,7 +409,7 @@ export function useExportUsersMutation() {
       fallbackData,
     }: {
       filters: UserDirectoryFilterParams
-      fallbackData?: any[]
+      fallbackData?: UserDirectoryItemDTO[]
     }) => userDirectoryService.exportUsers(filters, fallbackData),
     onSuccess: () => {
       addNotification?.({
@@ -418,11 +418,11 @@ export function useExportUsersMutation() {
         message: 'User directory CSV export has been downloaded.',
       })
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       addNotification?.({
         type: 'error',
         title: 'Export Failed',
-        message: err?.message || 'Failed to export user directory.',
+        message: getErrorMessage(err, 'Failed to export user directory.'),
       })
     },
   })

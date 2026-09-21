@@ -62,7 +62,7 @@ export interface UserActivityLogDTO {
   ipAddress?: string
   userAgent?: string
   createdAt: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface UserDetailDTO extends UserDirectoryItemDTO {

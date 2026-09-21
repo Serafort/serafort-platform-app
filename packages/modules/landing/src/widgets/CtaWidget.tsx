@@ -1,10 +1,13 @@
 import React from 'react'
 import { Box, Paper, Typography, Button, alpha, useTheme } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { AppPaths } from '@cap/shared-types'
 
 export const CtaWidget: React.FC = () => {
   const navigate = useNavigate()
   const theme = useTheme()
+  const { t } = useTranslation()
 
   return (
     <Paper
@@ -41,15 +44,17 @@ export const CtaWidget: React.FC = () => {
             color: 'text.primary',
           }}
         >
-          Ready to Get Started?
+          {t('landing.cta.title', 'Ready to get started?')}
         </Typography>
         <Typography
           variant='body1'
           color='text.secondary'
           sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}
         >
-          Join thousands of job seekers and recruiters who trust our platform for their career
-          journey
+          {t(
+            'landing.cta.subtitle',
+            'Create your workspace and bring your team onto a single, secure identity platform.',
+          )}
         </Typography>
         <Box
           sx={{
@@ -59,13 +64,17 @@ export const CtaWidget: React.FC = () => {
             flexWrap: 'wrap',
           }}
         >
-          <Button variant='contained' size='large' onClick={() => navigate('/scraper')}>
-            Start Scraping
+          <Button
+            variant='contained'
+            size='large'
+            onClick={() => navigate(AppPaths.auth.signup)}
+          >
+            {t('landing.cta.primary', 'Create an account')}
           </Button>
           <Button
             variant='outlined'
             size='large'
-            onClick={() => navigate('/jobs')}
+            onClick={() => navigate(AppPaths.landing.pricing)}
             sx={{
               borderColor: alpha(theme.palette.primary.main, 0.5),
               color: 'primary.main',
@@ -75,7 +84,7 @@ export const CtaWidget: React.FC = () => {
               },
             }}
           >
-            Browse Jobs
+            {t('landing.cta.secondary', 'See pricing')}
           </Button>
         </Box>
       </Box>

@@ -32,8 +32,8 @@ import { StepUpActionMetadata } from '../hooks/useStepUpAuth'
 export interface StepUpAuthDialogProps {
   open: boolean
   onClose: () => void
-  onVerifyBiometric: () => Promise<any>
-  onVerifyTotp: (code: string) => Promise<any>
+  onVerifyBiometric: () => Promise<unknown>
+  onVerifyTotp: (code: string) => Promise<unknown>
   isVerifying?: boolean
   error?: string | null
   metadata?: StepUpActionMetadata | null

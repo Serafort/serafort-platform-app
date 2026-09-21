@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { errorMessage, errorName } from '../utils/errors'
+import type { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/browser'
 import { startAuthentication } from '@simplewebauthn/browser'
 import { mfaService, StepUpVerificationResult } from '../services/mfa.service'
 
@@ -123,7 +125,7 @@ export function useStepUpAuth() {
         pendingActionRef.current = null
         try {
           await action()
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error('Failed to execute pending elevated action:', err)
         }
       }
@@ -142,20 +144,20 @@ export function useStepUpAuth() {
       }
 
       const assertionResult = await startAuthentication({
-        optionsJSON: challengeRes.data as any,
+        optionsJSON: challengeRes.data as unknown as PublicKeyCredentialRequestOptionsJSON,
       })
 
       const verifyRes = await mfaService.stepUp.verifyBiometric(assertionResult)
       await handleVerificationSuccess(verifyRes.data)
       return verifyRes.data
-    } catch (err: any) {
-      if (err.name === 'NotAllowedError') {
+    } catch (err: unknown) {
+      if (errorName(err) === 'NotAllowedError') {
         const cancelMsg = 'Biometric verification was cancelled or timed out.'
         setError(cancelMsg)
         setIsVerifying(false)
         throw new Error(cancelMsg)
       }
-      const msg = err.response?.data?.message || err.message || 'Biometric authentication failed.'
+      const msg = errorMessage(err) || 'Biometric authentication failed.'
       setError(msg)
       setIsVerifying(false)
       throw err
@@ -176,8 +178,8 @@ export function useStepUpAuth() {
         const verifyRes = await mfaService.stepUp.verifyTotp(code.trim())
         await handleVerificationSuccess(verifyRes.data)
         return verifyRes.data
-      } catch (err: any) {
-        const msg = err.response?.data?.message || err.message || 'Invalid verification code.'
+      } catch (err: unknown) {
+        const msg = errorMessage(err) || 'Invalid verification code.'
         setError(msg)
         setIsVerifying(false)
         throw err
@@ -201,8 +203,8 @@ export function useStepUpAuth() {
         const verifyRes = await mfaService.stepUp.verifyRecovery(trimmed)
         await handleVerificationSuccess(verifyRes.data)
         return verifyRes.data
-      } catch (err: any) {
-        const msg = err.response?.data?.message || err.message || 'Invalid recovery code.'
+      } catch (err: unknown) {
+        const msg = errorMessage(err) || 'Invalid recovery code.'
         setError(msg)
         setIsVerifying(false)
         throw err

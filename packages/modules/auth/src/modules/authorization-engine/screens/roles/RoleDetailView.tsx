@@ -57,6 +57,7 @@ import {
   useDeleteRole,
   useDuplicateRole,
 } from '@auth/authorization-engine/hooks/useAdminQuery'
+import RoleMembersPanel from './RoleMembersPanel'
 import ConfirmationDialog from '@auth/modules/authentication-core/components/shared/Modals/ConfirmationDialog'
 
 // Resource Icon Mapping for better visual grouping
@@ -92,13 +93,14 @@ export default function RoleDetailView() {
   const [tab, setTab] = useState(0)
 
   // ── Data Fetching ──────────────────────────────────────────────────────────
-  const roleId = Number(id)
+  // Role ids are UUIDs — pass the route param through untouched (`Number()`
+  // on a UUID is NaN, which made every role read as "no longer exists").
   const isNew = id === 'new'
   const {
     data: roleResponse,
     isLoading: isLoadingRole,
     error: roleError,
-  } = useRole(isNew ? 0 : roleId)
+  } = useRole(isNew ? null : id)
   const { data: permissionsResponse, isLoading: isLoadingPerms } = usePermissions()
   const { data: allRolesResponse } = useRoles({ limit: 100 })
 
@@ -139,9 +141,9 @@ export default function RoleDetailView() {
 
   // ── Local State ──────────────────────────────────────────────────────────
   const [editData, setEditData] = useState({ name: '', description: '' })
-  const [lastRoleId, setLastRoleId] = useState<number | null>(null)
+  const [lastRoleId, setLastRoleId] = useState<string | null>(null)
   const [openParentDialog, setOpenParentDialog] = useState(false)
-  const [selectedParentIds, setSelectedParentIds] = useState<number[]>([])
+  const [selectedParentIds, setSelectedParentIds] = useState<string[]>([])
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
 
   // Sync editData when role changes
@@ -156,7 +158,7 @@ export default function RoleDetailView() {
   }
 
   const inheritedPermissionIds = useMemo(() => {
-    const ids = new Set<number>()
+    const ids = new Set<string>()
     role?.parents?.forEach((parent) => {
       parent.permissions?.forEach((p) => ids.add(p.id))
     })
@@ -172,7 +174,7 @@ export default function RoleDetailView() {
   }, [allPermissions])
 
   // ── Handlers ─────────────────────────────────────────────────────────────
-  const handleTogglePermission = (permissionId: number) => {
+  const handleTogglePermission = (permissionId: string) => {
     if (!role) return
     const currentPermissionIds = (role.permissions ?? []).map((p) => p.id)
     const isAssigned = currentPermissionIds.includes(permissionId)
@@ -299,7 +301,7 @@ export default function RoleDetailView() {
                 sx={{ height: 14, alignSelf: 'center', opacity: 0.3 }}
               />
               <Typography variant='body2' color='primary.main' sx={{ fontWeight: 800 }}>
-                {role.users_count || 0} {t('auth.admin.members_lowercase') || 'Members'}
+                {t('auth.admin.roleMemberCount', { count: role.users_count || 0 })}
               </Typography>
               <Chip
                 label={(role.guard_name || 'web').toUpperCase()}
@@ -473,6 +475,7 @@ export default function RoleDetailView() {
                                 </Typography>
                                 <Typography
                                   variant='caption'
+                                  component='div'
                                   color='text.secondary'
                                   sx={{ opacity: 0.7 }}
                                 >
@@ -650,52 +653,7 @@ export default function RoleDetailView() {
       </TabPanel>
 
       <TabPanel value={tab} index={1}>
-        <Card
-          sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none', borderRadius: 'var(--sf-radius-lg, 16px)' }}
-        >
-          <Box
-            sx={{
-              p: 4,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-            }}
-          >
-            <Box>
-              <Typography variant='h6' sx={{ fontWeight: 800, textTransform: 'uppercase' }}>
-                {t('auth.admin.equippedMembers')}
-              </Typography>
-              <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-                {t('auth.admin.equippedMembersDesc')}
-              </Typography>
-            </Box>
-            <Button
-              variant='contained'
-              startIcon={<Add />}
-              onClick={() => navigate(Path.admin.users)}
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 800, textTransform: 'none', minHeight: 44 }}
-            >
-              {t('auth.admin.assignNewUser')}
-            </Button>
-          </Box>
-          <Box sx={{ p: 10, textAlign: 'center' }}>
-            <Avatar sx={{ width: 64, height: 64, mx: 'auto', mb: 2, bgcolor: 'action.hover' }}>
-              <Group sx={{ fontSize: 32, color: 'text.disabled' }} />
-            </Avatar>
-            <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
-              {t('auth.admin.noMembersFound')}
-            </Typography>
-            <Typography
-              variant='body2'
-              color='text.secondary'
-              sx={{ maxWidth: 300, mx: 'auto', mt: 1 }}
-            >
-              {t('auth.admin.noMembersHint')}
-            </Typography>
-          </Box>
-        </Card>
+        <RoleMembersPanel roleId={role.id} />
       </TabPanel>
 
       <TabPanel value={tab} index={2}>

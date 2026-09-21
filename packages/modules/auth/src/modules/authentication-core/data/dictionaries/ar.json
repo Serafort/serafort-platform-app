@@ -609,6 +609,18 @@
     "browser": {
       "not_supported_title": "تحديث مطلوب"
     },
+    "callback": {
+      "title": "جارٍ إكمال تسجيل الدخول",
+      "description": "ننهي العملية مع مزوّدك ونجهّز حسابك.",
+      "success_title": "تم تسجيل دخولك",
+      "success_description": "جارٍ نقلك إلى حسابك…",
+      "error_title": "تعذّر إكمال تسجيل الدخول",
+      "expired": "انتهت صلاحية رابط تسجيل الدخول هذا أو تم استخدامه من قبل. يُرجى تسجيل الدخول مرة أخرى.",
+      "inactive": "هذا الحساب غير نشط. تواصل مع المسؤول للحصول على الوصول.",
+      "failed": "تعذّر إكمال تسجيل الدخول. يُرجى المحاولة مرة أخرى.",
+      "missing_code": "رابط تسجيل الدخول هذا غير مكتمل. يُرجى البدء من جديد من صفحة تسجيل الدخول.",
+      "no_session": "اكتمل تسجيل الدخول لكن لم يُعد أي حساب. يُرجى المحاولة مرة أخرى."
+    },
     "common": {
       "actions": "إجراءات",
       "active": "نشط",
@@ -1172,13 +1184,15 @@
       "signInHere": "سجل دخولك هنا",
       "submit": "إنشاء حساب",
       "submitting": "جاري إنشاء الحساب...",
-      "subtitle": "انضم إلى Antigravity OS اليوم",
+      "subtitle": "أنشئ حسابك في Serafort",
       "termsOfService": "شروط الخدمة",
       "title": "إنشاء حساب"
     },
     "signup": {
       "keywords": "تسجيل، إنشاء حساب، {{appName}}",
-      "title_page": "إنشاء حساب"
+      "title_page": "إنشاء حساب",
+      "toggle_password": "إظهار أو إخفاء كلمة المرور",
+      "toggle_confirm_password": "إظهار أو إخفاء تأكيد كلمة المرور"
     },
     "sso": {
       "active_certificates": "الشهادات النشطة",
@@ -1262,7 +1276,7 @@
       "scope_roles_desc": "عرض أذونات المجموعات المعينة لك.",
       "search_clients": "البحث بالاسم أو معرف العميل...",
       "secure_badge": "شارة الأمان",
-      "secure_encryption_tag": "تم التحقق والمحماية بواسطة Antigravity OS",
+      "secure_encryption_tag": "تم التحقق والمحماية بواسطة Serafort",
       "security_assertions": "الأمان والتأكيدات",
       "security_best_practice": "توصية أمنية",
       "sign_assertions": "توقيع التأكيدات",
@@ -1295,6 +1309,10 @@
       "verifyButton": "التحقق من الرمز",
       "verifying": "جاري التحقق..."
     },
+    "user_form": {
+      "success_reset_password": "تمت إعادة تعيين كلمة المرور بنجاح",
+      "error_reset_password": "فشلت إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى."
+    },
     "validate": {
       "already_validated": "هذا الحساب مُفعَّل بالفعل.",
       "success_message": "تم تفعيل حسابك. يمكنك تسجيل الدخول الآن.",
@@ -1309,10 +1327,6 @@
       "alreadyValidatedTitle": "تم التحقق مسبقًا",
       "successTitle": "تم التحقق من الحساب!",
       "prompt": "يرجى التحقق من الرابط أو تسجيل الدخول أدناه."
-    },
-    "user_form": {
-      "success_reset_password": "تمت إعادة تعيين كلمة المرور بنجاح",
-      "error_reset_password": "فشلت إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى."
     }
   },
   "common": {
@@ -1646,7 +1660,7 @@
     "submit": "إنشاء الحساب",
     "submitAppeal": "إرسال الاعتراض",
     "submitting": "جارٍ إنشاء الحساب...",
-    "subtitle": "انضم إلى Antigravity OS اليوم",
+    "subtitle": "أنشئ حسابك في Serafort",
     "successSubtitle": "حسابك جاهز للاستخدام.",
     "successTitle": "تم إنشاء الحساب",
     "termsOfService": "شروط الخدمة",

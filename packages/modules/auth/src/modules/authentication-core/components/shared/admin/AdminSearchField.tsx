@@ -44,7 +44,7 @@ const AdminSearchField: React.FC<AdminSearchFieldProps> = ({
       input: {
         startAdornment: (
           <InputAdornment position='start'>
-            <Search sx={{ fontSize: 20, color: 'text.disabled' }} />
+            <Search sx={{ fontSize: 20, color: 'var(--sf-text-tertiary, inherit)' }} />
           </InputAdornment>
         ),
       },

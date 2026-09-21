@@ -18,7 +18,6 @@ export {
   AdminTableRow,
   AdminStatusBadge,
   AdminRowActionButton,
-  AdminTablePagination,
   type AdminTableCardProps,
   type AdminTableHeadProps,
   type AdminTableHeadCellProps,
@@ -26,5 +25,4 @@ export {
   type AdminStatusTone,
   type AdminStatusBadgeProps,
   type AdminRowActionButtonProps,
-  type AdminTablePaginationProps,
 } from './AdminTable'

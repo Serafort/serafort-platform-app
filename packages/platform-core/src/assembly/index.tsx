@@ -5,6 +5,14 @@ import { useAppStore } from '@cap/platform-store'
 import { ModuleRegistry, type AuthRouteConfig } from './ModuleRegistry'
 import { NotFound } from '../components/NotFound'
 import { RouteGuard } from '@cap/authorization'
+import { moduleEnablementService } from '../services/module-enablement.service'
+
+/**
+ * Modules switched off in Module Management stay registered — so the screen
+ * can still list and re-enable them — but contribute no routes, no menu
+ * entries and no command-palette entries to the assembled shell.
+ */
+const isModuleEnabled = (module: CAPModule) => moduleEnablementService.isEnabled(module.id)
 
 export type { AuthRouteConfig }
 
@@ -49,10 +57,10 @@ export const getNavItems = () => useAppStore.getState().navItems
 /**
  * Returns all merged search items from all registered modules.
  */
-export const getSearchItems = () => ModuleRegistry.getInstance().getSearchItems()
+export const getSearchItems = () => ModuleRegistry.getInstance().getSearchItems(isModuleEnabled)
 
 /**
- * Returns all registered modules.
+ * Returns all registered modules, including any currently switched off.
  */
 export const getModules = () => ModuleRegistry.getInstance().getModules()
 
@@ -64,7 +72,8 @@ export const assembleApp = ({ modules, layoutWrapper }: AssembleAppProps) => {
     registry.registerModule(module)
   })
 
-  const { allRouteConfigs, routeNavItems, navItemsToRegister } = registry.extractRoutesAndNav()
+  const { allRouteConfigs, routeNavItems, navItemsToRegister } =
+    registry.extractRoutesAndNav(isModuleEnabled)
   const Wrapper = layoutWrapper ?? PassthroughRouteElementWrapper
 
   // Populate navigation items in store inside useEffect to prevent setState during render

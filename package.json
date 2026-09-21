@@ -20,8 +20,9 @@
     "release:build": "pnpm --filter @cap/app run build && node scripts/package-release.mjs",
     "generate:module": "plop",
     "lint:boundaries": "node scripts/check-tier-boundaries.mjs",
-    "lint:architecture": "pnpm lint:boundaries && pnpm lint:boundaries:eslint && pnpm lint:circular",
-    "lint:boundaries:eslint": "eslint --quiet --config eslint.config.js \"packages/**/src/**/*.{ts,tsx}\" \"app/src/**/*.{ts,tsx}\""
+    "lint:architecture": "pnpm lint:boundaries && pnpm lint:boundaries:eslint && pnpm lint:routes && pnpm lint:circular",
+    "lint:boundaries:eslint": "eslint --quiet --config eslint.config.js \"packages/**/src/**/*.{ts,tsx}\" \"app/src/**/*.{ts,tsx}\"",
+    "lint:routes": "node scripts/check-route-literals.mjs"
   },
   "dependencies": {
     "@mui/utils": "^7.3.9",

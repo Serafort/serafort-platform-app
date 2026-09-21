@@ -8,10 +8,17 @@
  *
  * Usage (from the repo root, dev server already up on :5173):
  *
+ * Usage (Git Bash — MSYS_NO_PATHCONV=1 is REQUIRED, see note below):
+ *
+ *   MSYS_NO_PATHCONV=1 node .claude/skills/run-serafort-app/driver.mjs probe /
+ *   MSYS_NO_PATHCONV=1 node .claude/skills/run-serafort-app/driver.mjs shot / out/landing.png
+ *   MSYS_NO_PATHCONV=1 node .claude/skills/run-serafort-app/driver.mjs shot /dashboard out/nav.png --shell
+ *   MSYS_NO_PATHCONV=1 node .claude/skills/run-serafort-app/driver.mjs measure /dashboard ".vertical-nav-header img" --shell
+ *
+ * PowerShell / cmd (no prefix needed):
+ *
  *   node .claude/skills/run-serafort-app/driver.mjs probe /
- *   node .claude/skills/run-serafort-app/driver.mjs shot / out/landing.png
  *   node .claude/skills/run-serafort-app/driver.mjs shot /dashboard out/nav.png --shell
- *   node .claude/skills/run-serafort-app/driver.mjs measure /dashboard ".vertical-nav-header img" --shell
  *
  * Options:
  *   --shell          render an authenticated route (see THE SHELL RACE below)
@@ -61,10 +68,18 @@ if (!['probe', 'shot', 'measure'].includes(cmd)) {
   process.exit(2)
 }
 
-// Git Bash / MSYS rewrites a bare "/" argument into a Windows path. Callers
-// should prefix with MSYS_NO_PATHCONV=1; normalise defensively regardless.
+function normalizeRoute(rawInput) {
+  if (!rawInput || rawInput === '/') return '/'
+  let clean = rawInput.replace(/\\/g, '/')
+  if (/^[A-Za-z]:/i.test(clean)) {
+    clean = clean.replace(/^[A-Za-z]:/i, '')
+    clean = clean.replace(/^\/(?:Program\s+Files(?:\s+\(x86\))?\/)?(?:Git\/|msys(?:64)?\/|cygwin(?:64)?\/)?/i, '/')
+  }
+  return clean.startsWith('/') ? clean : '/' + clean
+}
+
 const raw = positional[0] || '/'
-const route = /^[A-Za-z]:[\\/]/.test(raw) ? '/' : raw.startsWith('/') ? raw : '/' + raw
+const route = normalizeRoute(raw)
 
 const BASE = flag('base', 'http://localhost:5173')
 const viewport = { width: Number(flag('width', 1440)), height: Number(flag('height', 900)) }

@@ -26,11 +26,77 @@ import {
   UserActivityLogDTO,
   UserStatus,
 } from '../types/userDirectory.types'
+import { getErrorMessage } from '../types/api.types'
+
+/** Raw (backend-serialised) shapes consumed by the normalisers below. */
+interface RawPermission {
+  id?: number
+  slug?: string
+  name?: string
+  description?: string
+}
+interface RawRole {
+  id: number
+  name: string
+  slug?: string
+  description?: string
+  permissions?: RawPermission[]
+  usersCount?: number
+}
+interface RawUser {
+  id: number
+  email: string
+  firstName?: string
+  lastName?: string
+  name?: string
+  avatarUrl?: string | null
+  avatar?: string | null
+  phoneNumber?: string | null
+  status?: unknown
+  isEmailVerified?: boolean
+  emailVerified?: boolean
+  mfaEnabled?: boolean
+  mfaEnrolledAt?: string | null
+  role?: RawRole | null
+  organizationMembers?: Array<{ organization?: { name?: string } }>
+  tenantId?: number | null
+  profile?: {
+    company?: string
+    location?: string
+    websiteUrl?: string
+    website?: string
+    biography?: string
+  } | null
+  timezone?: string
+  language?: string
+  dateFormat?: string
+  lastLoginAt?: string | null
+  createdAt: string
+  updatedAt: string
+}
+interface RawSession {
+  id: string
+  name?: string
+  lastUsedAt?: string
+  createdAt: string
+}
+interface RawLog {
+  id: string | number
+  action: string
+  ipAddress?: string
+  userAgent?: string
+  createdAt: string
+  metadata?: Record<string, unknown>
+}
+interface RawList<T> {
+  data?: T[]
+  meta?: PaginatedUsersResponseDTO['meta']
+}
 
 /**
  * Helper to build clean query string from filter object
  */
-function buildQueryString(params: Record<string, any>): string {
+function buildQueryString(params: Record<string, unknown>): string {
   const searchParams = new URLSearchParams()
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '' && value !== 'ALL') {
@@ -59,7 +125,7 @@ function normalizeStatus(rawStatus: unknown): UserStatus {
  * Maps a `User.serialize()` payload (optionally with `profile`, `role`, and
  * `organizationMembers` preloaded) onto the directory's DTO shape.
  */
-function normalizeUser(raw: any): UserDetailDTO {
+function normalizeUser(raw: RawUser): UserDetailDTO {
   const role = raw.role
   const membership = Array.isArray(raw.organizationMembers) ? raw.organizationMembers[0] : null
 
@@ -74,7 +140,17 @@ function normalizeUser(raw: any): UserDetailDTO {
     status: normalizeStatus(raw.status),
     isEmailVerified: Boolean(raw.isEmailVerified || raw.emailVerified),
     mfaEnabled: Boolean(raw.mfaEnabled),
-    roles: role ? [{ id: role.id, name: role.name, slug: role.slug, permissions: role.permissions }] : [],
+    roles: role
+      ? [
+          {
+            id: role.id,
+            name: role.name,
+            slug: role.slug ?? '',
+            // The backend serialises permission objects here; kept as-is for callers.
+            permissions: role.permissions as unknown as string[] | undefined,
+          },
+        ]
+      : [],
     tenantId: raw.tenantId || null,
     tenantName: membership?.organization?.name || null,
     jobTitle: null,
@@ -87,7 +163,7 @@ function normalizeUser(raw: any): UserDetailDTO {
     locale: raw.language || 'en-us',
     dateFormat: raw.dateFormat || 'mm-dd-yyyy',
     directReportsCount: 0,
-    permissions: (role?.permissions || []).map((p: any) => p.slug || p.name),
+    permissions: (role?.permissions || []).map((p) => p.slug || p.name || ''),
     securitySummary: {
       passwordLastChangedAt: null,
       activeSessionsCount: 0,
@@ -118,14 +194,14 @@ async function applyPerUser(
   const results = settled.map((outcome, index) => ({
     id: userIds[index],
     status: outcome.status === 'fulfilled' ? 'success' : 'error',
-    message: outcome.status === 'rejected' ? String((outcome.reason as any)?.message || outcome.reason) : undefined,
+    message: outcome.status === 'rejected' ? String(getErrorMessage(outcome.reason, String(outcome.reason))) : undefined,
   }))
   return {
     data: { message: 'Bulk action completed', results },
     status: 200,
     statusText: 'OK',
-    headers: {} as any,
-    config: {} as any,
+    headers: {} as FetchResponse['headers'],
+    config: {} as FetchResponse['config'],
     ok: true,
   }
 }
@@ -145,14 +221,14 @@ export const userDirectoryService = {
       role: params.role,
     })
 
-    const response = await apiClient.get<any>(`${ENDPOINTS.admin.users.index}${queryString}`)
+    const response = await apiClient.get<RawList<RawUser> | null>(`${ENDPOINTS.admin.users.index}${queryString}`)
     const raw = response.data
 
     return {
       ...response,
       data: {
-        data: (raw?.data || []).map((item: any) => normalizeUser(item) as UserDirectoryItemDTO),
-        meta: raw?.meta,
+        data: (raw?.data || []).map((item) => normalizeUser(item) as UserDirectoryItemDTO),
+        meta: raw?.meta as PaginatedUsersResponseDTO['meta'],
       },
     }
   },
@@ -161,14 +237,14 @@ export const userDirectoryService = {
    * Get Single User Details & Metadata
    */
   getUserById: async (id: string | number): Promise<FetchResponse<UserDetailDTO>> => {
-    const response = await apiClient.get<any>(ENDPOINTS.admin.users.byId(Number(id)))
+    const response = await apiClient.get<RawUser>(ENDPOINTS.admin.users.byId(id))
     return { ...response, data: normalizeUser(response.data) }
   },
 
   /**
    * Create / Invite Single User
    */
-  inviteUser: async (payload: InviteUserRequestDTO): Promise<FetchResponse<any>> => {
+  inviteUser: async (payload: InviteUserRequestDTO): Promise<FetchResponse> => {
     return apiClient.post(ENDPOINTS.admin.users.store, {
       email: payload.email,
       firstname: payload.firstName,
@@ -187,7 +263,7 @@ export const userDirectoryService = {
     roleIds: number[]
     department?: string
     sendInviteEmail?: boolean
-  }): Promise<FetchResponse<any>> => {
+  }): Promise<FetchResponse> => {
     const results = await Promise.allSettled(
       payload.emails.map((email) =>
         apiClient.post(ENDPOINTS.admin.users.store, {
@@ -203,8 +279,8 @@ export const userDirectoryService = {
       data: { success: true, count: succeeded, total: payload.emails.length },
       status: 200,
       statusText: 'OK',
-      headers: {} as any,
-      config: {} as any,
+      headers: {} as FetchResponse['headers'],
+      config: {} as FetchResponse['config'],
       ok: true,
     }
   },
@@ -219,8 +295,8 @@ export const userDirectoryService = {
   updateUser: async (
     id: string | number,
     payload: UpdateUserRequestDTO,
-  ): Promise<FetchResponse<any>> => {
-    return apiClient.put(ENDPOINTS.admin.users.byId(Number(id)), {
+  ): Promise<FetchResponse> => {
+    return apiClient.put(ENDPOINTS.admin.users.byId(id), {
       email: payload.email,
       firstname: payload.firstName,
       lastname: payload.lastName,
@@ -241,11 +317,11 @@ export const userDirectoryService = {
   updateUserStatus: async (
     id: string | number,
     payload: UpdateUserStatusRequestDTO,
-  ): Promise<FetchResponse<any>> => {
+  ): Promise<FetchResponse> => {
     if (payload.status === 'BANNED') {
-      return apiClient.patch(ENDPOINTS.admin.users.ban(Number(id)), { reason: payload.reason })
+      return apiClient.patch(ENDPOINTS.admin.users.ban(id), { reason: payload.reason })
     }
-    return apiClient.patch(ENDPOINTS.admin.users.updateStatus(Number(id)), {
+    return apiClient.patch(ENDPOINTS.admin.users.updateStatus(id), {
       status: payload.status,
       reason: payload.reason,
     })
@@ -256,25 +332,25 @@ export const userDirectoryService = {
    * other status-changing calls but the backend's `destroy()` does not read a
    * request body, so it is not sent.
    */
-  deleteUser: async (id: string | number, _reason?: string): Promise<FetchResponse<any>> => {
-    return apiClient.delete(ENDPOINTS.admin.users.byId(Number(id)))
+  deleteUser: async (id: string | number, _reason?: string): Promise<FetchResponse> => {
+    return apiClient.delete(ENDPOINTS.admin.users.byId(id))
   },
 
   /**
    * Fetch All Available Roles
    */
   getRoles: async (): Promise<FetchResponse<RoleDTO[]>> => {
-    const response = await apiClient.get<any>(ENDPOINTS.rbac.roles.list)
+    const response = await apiClient.get<RawList<RawRole>>(ENDPOINTS.rbac.roles.list)
     const raw = response.data?.data || []
 
     return {
       ...response,
-      data: raw.map((r: any) => ({
+      data: raw.map((r) => ({
         id: r.id,
         name: r.name,
         slug: r.slug || r.name.toLowerCase().replace(/\s+/g, '-'),
         description: r.description || '',
-        permissions: r.permissions || [],
+        permissions: (r.permissions || []) as RoleDTO['permissions'],
         usersCount: r.usersCount || 0,
         isDefault: false,
       })),
@@ -289,8 +365,8 @@ export const userDirectoryService = {
     id: string | number,
     roleIds: number[],
     reason?: string,
-  ): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.admin.users.assignRole(Number(id)), {
+  ): Promise<FetchResponse> => {
+    return apiClient.post(ENDPOINTS.admin.users.assignRole(id), {
       roleId: roleIds[0],
       reason,
     })
@@ -305,7 +381,7 @@ export const userDirectoryService = {
     userIds: number[],
     status: string,
     reason?: string,
-  ): Promise<FetchResponse<any>> => {
+  ): Promise<FetchResponse> => {
     if (status === 'ACTIVE') {
       return apiClient.post(ENDPOINTS.admin.users.bulkAction, { userIds, action: 'activate', reason })
     }
@@ -314,12 +390,12 @@ export const userDirectoryService = {
     }
     if (status === 'BANNED') {
       return applyPerUser(userIds, (id) =>
-        apiClient.patch(ENDPOINTS.admin.users.ban(Number(id)), { reason }),
+        apiClient.patch(ENDPOINTS.admin.users.ban(id), { reason }),
       )
     }
     // SUSPENDED
     return applyPerUser(userIds, (id) =>
-      apiClient.post(ENDPOINTS.admin.users.suspend(Number(id)), { reason }),
+      apiClient.post(ENDPOINTS.admin.users.suspend(id), { reason }),
     )
   },
 
@@ -327,8 +403,8 @@ export const userDirectoryService = {
    * Bulk Delete Users — no bulk-delete action exists server-side, so this
    * issues one `DELETE` per user.
    */
-  bulkDelete: async (userIds: number[], _reason?: string): Promise<FetchResponse<any>> => {
-    return applyPerUser(userIds, (id) => apiClient.delete(ENDPOINTS.admin.users.byId(Number(id))))
+  bulkDelete: async (userIds: number[], _reason?: string): Promise<FetchResponse> => {
+    return applyPerUser(userIds, (id) => apiClient.delete(ENDPOINTS.admin.users.byId(id)))
   },
 
   /**
@@ -340,11 +416,11 @@ export const userDirectoryService = {
    * table, so those DTO fields are left unset rather than fabricated.
    */
   getUserSessions: async (id: string | number): Promise<FetchResponse<UserSessionDTO[]>> => {
-    const res = await apiClient.get<any>(ENDPOINTS.admin.users.sessions(Number(id)))
+    const res = await apiClient.get<RawSession[] | RawList<RawSession>>(ENDPOINTS.admin.users.sessions(id))
     const raw = Array.isArray(res.data) ? res.data : res.data?.data || []
     return {
       ...res,
-      data: raw.map((session: any) => ({
+      data: raw.map((session) => ({
         id: session.id,
         ipAddress: '',
         userAgent: '',
@@ -366,13 +442,13 @@ export const userDirectoryService = {
     id: string | number,
     limit: number = 20,
   ): Promise<FetchResponse<UserActivityLogDTO[]>> => {
-    const res = await apiClient.get<any>(
+    const res = await apiClient.get<RawLog[] | RawList<RawLog>>(
       `${ENDPOINTS.admin.auditLogs.index}?user_id=${id}&limit=${limit}`,
     )
     const raw = Array.isArray(res.data) ? res.data : res.data?.data || []
     return {
       ...res,
-      data: raw.map((log: any) => ({
+      data: raw.map((log) => ({
         id: log.id,
         action: log.action,
         description: log.action,
@@ -387,22 +463,22 @@ export const userDirectoryService = {
   /**
    * Trigger Admin Password Reset Link
    */
-  sendPasswordReset: async (id: string | number): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.admin.users.resetPassword(Number(id)), {})
+  sendPasswordReset: async (id: string | number): Promise<FetchResponse> => {
+    return apiClient.post(ENDPOINTS.admin.users.resetPassword(id), {})
   },
 
   /**
    * Reset User MFA
    */
-  resetMfa: async (id: string | number): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.admin.users.resetMfa(Number(id)), {})
+  resetMfa: async (id: string | number): Promise<FetchResponse> => {
+    return apiClient.post(ENDPOINTS.admin.users.resetMfa(id), {})
   },
 
   /**
    * Impersonate User (platform-admin only, enforced server-side)
    */
-  impersonateUser: async (id: string | number): Promise<FetchResponse<any>> => {
-    return apiClient.post(ENDPOINTS.admin.users.impersonate(Number(id)), {})
+  impersonateUser: async (id: string | number): Promise<FetchResponse> => {
+    return apiClient.post(ENDPOINTS.admin.users.impersonate(id), {})
   },
 
   /**
@@ -410,7 +486,7 @@ export const userDirectoryService = {
    * directory, so this always builds the CSV client-side from whatever page
    * of results is currently loaded.
    */
-  exportUsers: async (_params: UserDirectoryFilterParams = {}, fallbackData?: any[]): Promise<void> => {
+  exportUsers: async (_params: UserDirectoryFilterParams = {}, fallbackData?: UserDirectoryItemDTO[]): Promise<void> => {
     const usersToExport = fallbackData || []
     const headers = ['ID', 'Email', 'Full Name', 'Status', 'Roles', 'Created At']
     const rows = usersToExport.map((u) => [
@@ -418,7 +494,7 @@ export const userDirectoryService = {
       `"${(u.email || '').replace(/"/g, '""')}"`,
       `"${(u.fullName || '').replace(/"/g, '""')}"`,
       u.status,
-      `"${(u.roles?.map((r: any) => r.name || r).join(', ') || '').replace(/"/g, '""')}"`,
+      `"${(u.roles?.map((r) => r.name).join(', ') || '').replace(/"/g, '""')}"`,
       u.createdAt,
     ])
 

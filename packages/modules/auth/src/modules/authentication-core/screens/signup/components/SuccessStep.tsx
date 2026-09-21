@@ -39,7 +39,7 @@ export const SuccessStep: React.FC<SuccessStepProps> = ({ t, onContinue }) => {
         <Typography
           variant='h5'
           sx={{
-            fontWeight: 800,
+            fontWeight: 700,
             letterSpacing: '-0.02em',
             mb: 1.5,
             fontFamily: 'var(--font-h5, inherit)',

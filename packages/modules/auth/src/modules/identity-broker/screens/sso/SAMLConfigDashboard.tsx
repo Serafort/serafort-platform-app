@@ -37,19 +37,33 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'react-toastify'
 import { useSAMLConfig, useUpdateSAMLConfig, useJWKSKeys, Path } from '@auth'
+import { errorMessage } from '../../utils/errorMessage'
+
+const isNotImplemented = (err: unknown): boolean =>
+  typeof err === 'object' && err !== null && 'status' in err && err.status === 501
 
 export default function SAMLConfigDashboard() {
   const { t } = useTranslation()
   const theme = useTheme()
   const navigate = useNavigate()
-  const { data: configResponse, isLoading, isError, refetch } = useSAMLConfig()
+  // 501 = the backend ships SAML dark (SAML_SSO_ENABLED unset); retrying can't help.
+  const {
+    data: configResponse,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useSAMLConfig({
+    retry: (failureCount, err) => !isNotImplemented(err) && failureCount < 2,
+  })
+  const isFeatureDisabled = isNotImplemented(error)
   const { data: jwksResponse, isLoading: isKeysLoading } = useJWKSKeys()
   const updateConfig = useUpdateSAMLConfig({
     onSuccess: () => {
       toast.info(t('auth.sso.config_saved', 'Configuration saved successfully'))
     },
-    onError: (err: any) => {
-      toast.error(err?.message || t('auth.sso.save_failed', 'Failed to save configuration'), {})
+    onError: (err: unknown) => {
+      toast.error(errorMessage(err, t('auth.sso.save_failed', 'Failed to save configuration')), {})
     },
   })
 
@@ -120,6 +134,19 @@ export default function SAMLConfigDashboard() {
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
         <CircularProgress />
       </Box>
+    )
+  }
+
+  if (isFeatureDisabled) {
+    return (
+      <Container maxWidth='lg' sx={{ py: 4 }}>
+        <Alert severity='info'>
+          {t(
+            'auth.sso.saml_feature_disabled',
+            'SAML 2.0 SSO is not enabled in this environment. Ask an administrator to enable it on the server (SAML_SSO_ENABLED).',
+          )}
+        </Alert>
+      </Container>
     )
   }
 
@@ -717,7 +744,7 @@ export default function SAMLConfigDashboard() {
                     <CircularProgress size={20} />
                   </Box>
                 ) : jwksResponse?.data && jwksResponse.data.length > 0 ? (
-                  jwksResponse.data.slice(0, 3).map((key: any, idx: number) => (
+                  jwksResponse.data.slice(0, 3).map((key, idx) => (
                     <Box
                       key={key.kid || idx}
                       sx={{

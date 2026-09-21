@@ -29,6 +29,7 @@ import {
   ListItemIcon,
   ListItemText,
   Container,
+  type Theme,
 } from '@mui/material'
 import Search from '@mui/icons-material/Search'
 import MoreVert from '@mui/icons-material/MoreVert'
@@ -44,11 +45,12 @@ import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Path } from '@cap/module-auth/routes/path'
+import { AppPaths } from '@cap/shared-types'
 import {
   useOrganizationInvitations,
   useInviteOrganizationMember,
   useRevokeOrganizationInvitation,
-} from '@idaas/authentication-core/hooks/useAdminQuery'
+} from '@auth/authorization-engine/hooks/useAdminQuery'
 import { toast } from 'react-toastify'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
@@ -56,6 +58,7 @@ import {
   AdminStatusBadge,
   AdminRowActionButton,
 } from '@auth/authentication-core/components/shared/admin'
+import { getPlainErrorMessage } from '../../../types/api.types'
 
 interface Invitation {
   id: string | number
@@ -66,6 +69,7 @@ interface Invitation {
   createdAt?: string
   expires_at?: string
   expiresAt?: string
+  token?: string
 }
 
 export default function OrganizationInvitationDashboard() {
@@ -80,11 +84,11 @@ export default function OrganizationInvitationDashboard() {
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
   const [menuInvite, setMenuInvite] = useState<Invitation | null>(null)
 
-  const { data: response, isLoading } = useOrganizationInvitations(Number(id))
+  const { data: response, isLoading } = useOrganizationInvitations(id ?? '')
   const inviteMutation = useInviteOrganizationMember()
   const revokeMutation = useRevokeOrganizationInvitation()
 
-  if (!id || isNaN(Number(id))) {
+  if (!id) {
     return (
       <Box sx={{ p: 4 }}>
         <Typography color='error'>{t('auth.admin.invalidOrgId')}</Typography>
@@ -95,7 +99,7 @@ export default function OrganizationInvitationDashboard() {
     )
   }
 
-  const invitations: Invitation[] = (response?.data as any) || []
+  const invitations: Invitation[] = (response?.data as Invitation[] | undefined) || []
 
   // Derived stats
   const totalSent = invitations.length
@@ -113,7 +117,7 @@ export default function OrganizationInvitationDashboard() {
       return
     }
     inviteMutation.mutate(
-      { orgId: Number(id), email: inviteEmail, role: inviteRole },
+      { orgId: id, data: { email: inviteEmail, role: inviteRole } },
       {
         onSuccess: () => {
           toast.success(t('auth.admin.successInvitationSent'))
@@ -121,8 +125,8 @@ export default function OrganizationInvitationDashboard() {
           setInviteEmail('')
           setInviteRole('Member')
         },
-        onError: (err: any) => {
-          toast.error(err.message || t('auth.admin.errorSendInvitation'))
+        onError: (err: unknown) => {
+          toast.error(getPlainErrorMessage(err, t('auth.admin.errorSendInvitation')))
         },
       },
     )
@@ -272,7 +276,7 @@ export default function OrganizationInvitationDashboard() {
             <Card
               key={i}
               variant='outlined'
-              sx={(theme: any) => ({
+              sx={(theme: Theme) => ({
                 borderRadius: 'var(--sf-radius-lg, 16px)',
                 borderColor: theme.palette.divider,
                 ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -309,7 +313,7 @@ export default function OrganizationInvitationDashboard() {
 
         {/* Table */}
         <Paper
-        sx={(theme: any) => ({
+        sx={(theme: Theme) => ({
           borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid ' + theme.palette.divider,
           overflow: 'hidden',
@@ -435,18 +439,18 @@ export default function OrganizationInvitationDashboard() {
                   </TableCell>
                   <TableCell sx={{ py: 1.75 }}>
                     <Typography variant='body2' color='text.secondary'>
-                      {invite.created_at || (invite as any).createdAt
+                      {invite.created_at || invite.createdAt
                         ? new Date(
-                            invite.created_at || (invite as any).createdAt!,
+                            invite.created_at || invite.createdAt!,
                           ).toLocaleDateString()
                         : '—'}
                     </Typography>
                   </TableCell>
                   <TableCell sx={{ py: 1.75 }}>
                     <Typography variant='body2' color='text.secondary'>
-                      {invite.expires_at || (invite as any).expiresAt
+                      {invite.expires_at || invite.expiresAt
                         ? new Date(
-                            invite.expires_at || (invite as any).expiresAt!,
+                            invite.expires_at || invite.expiresAt!,
                           ).toLocaleDateString()
                         : '—'}
                     </Typography>
@@ -489,7 +493,7 @@ export default function OrganizationInvitationDashboard() {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         slotProps={{
           paper: {
-            sx: (theme: any) => ({
+            sx: (theme: Theme) => ({
               borderRadius: 'var(--sf-radius-md, 8px)',
               minWidth: 200,
               ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -501,7 +505,7 @@ export default function OrganizationInvitationDashboard() {
           onClick={() => {
             if (menuInvite) {
               inviteMutation.mutate(
-                { orgId: Number(id), email: menuInvite.email, role: menuInvite.role },
+                { orgId: id, data: { email: menuInvite.email, role: menuInvite.role } },
                 {
                   onSuccess: () => toast.success(t('auth.admin.successInvitationSent')),
                   onError: () => toast.error(t('auth.admin.errorSendInvitation')),
@@ -522,7 +526,7 @@ export default function OrganizationInvitationDashboard() {
           onClick={() => {
             if (menuInvite) {
               const baseUrl = window.location.origin
-              const link = `${baseUrl}/auth/join-organization?token=${(menuInvite as any).token || ''}&email=${menuInvite.email}`
+              const link = `${baseUrl}${AppPaths.auth.joinOrganization}?token=${menuInvite.token || ''}&email=${menuInvite.email}`
               navigator.clipboard.writeText(link)
               toast.info(t('auth.admin.linkCopied'))
             }
@@ -542,7 +546,7 @@ export default function OrganizationInvitationDashboard() {
             onClick={() => {
               if (menuInvite) {
                 revokeMutation.mutate(
-                  { orgId: Number(id), invitationId: menuInvite.id },
+                  { orgId: id, invitationId: menuInvite.id },
                   {
                     onSuccess: () => toast.warning(t('auth.admin.revokeInvitation')),
                     onError: () => toast.error(t('auth.admin.errorSendInvitation')),
@@ -570,7 +574,7 @@ export default function OrganizationInvitationDashboard() {
         maxWidth='xs'
         slotProps={{
           paper: {
-            sx: (theme: any) => ({
+            sx: (theme: Theme) => ({
               borderRadius: 'var(--sf-radius-lg, 16px)',
               p: 1,
               ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),

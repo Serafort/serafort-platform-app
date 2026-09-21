@@ -46,7 +46,7 @@ const AuthOutcomeScreen: React.FC<AuthOutcomeScreenProps> = ({
           title={title}
           subtitle={description}
           tone={tone}
-          toneTitle={tone !== 'primary'}
+          toneTitle={false}
           iconSize={64}
         />
         {children}

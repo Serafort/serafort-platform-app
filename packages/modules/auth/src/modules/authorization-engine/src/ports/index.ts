@@ -11,24 +11,24 @@ export interface IRoleReader {
     limit?: number
     search?: string
   }): Promise<{ roles: RoleDto[]; total: number }>
-  getRole(roleId: number): Promise<RoleDto>
+  getRole(roleId: string): Promise<RoleDto>
 }
 
 export interface IRoleWriter {
   createRole(data: { name: string; guard_name?: string; description?: string }): Promise<RoleDto>
-  updateRole(roleId: number, data: { name?: string; description?: string }): Promise<RoleDto>
-  deleteRole(roleId: number): Promise<void>
+  updateRole(roleId: string, data: { name?: string; description?: string }): Promise<RoleDto>
+  deleteRole(roleId: string): Promise<void>
 }
 
 export interface IRolePermissionManager {
-  getRolePermissions(roleId: number): Promise<PermissionDto[]>
-  assignPermissionToRole(data: { role_id: number; permission_id: number }): Promise<void>
-  syncRolePermissions(roleId: number, permissionIds: number[]): Promise<RoleDto>
+  getRolePermissions(roleId: string): Promise<PermissionDto[]>
+  assignPermissionToRole(data: { role_id: string; permission_id: string }): Promise<void>
+  syncRolePermissions(roleId: string, permissionIds: string[]): Promise<RoleDto>
 }
 
 export interface IPermissionReader {
   listPermissions(): Promise<PermissionDto[]>
-  getPermission(permissionId: number): Promise<PermissionDto>
+  getPermission(permissionId: string): Promise<PermissionDto>
 }
 
 export interface IPermissionWriter {
@@ -39,10 +39,10 @@ export interface IPermissionWriter {
     description?: string
   }): Promise<PermissionDto>
   updatePermission(
-    permissionId: number,
+    permissionId: string,
     data: { name?: string; guard_name?: string; resource?: string; description?: string },
   ): Promise<PermissionDto>
-  deletePermission(permissionId: number): Promise<void>
+  deletePermission(permissionId: string): Promise<void>
 }
 
 export interface IPermissionChecker {

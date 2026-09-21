@@ -35,7 +35,7 @@ import {
   useRetryFailedQueueMutation,
 } from '../../hooks/useQueueTelemetryQuery'
 import { isPlatformScopeError } from '../../services/audit-chain.service'
-import { AdminStatusBadge } from '@auth/authentication-core/components/shared/admin'
+import { AdminPageHeader, AdminStatusBadge } from '@auth/modules/authentication-core/components/shared/admin'
 import { queueSeverity, type QueueSummary } from '../../types/queue.types'
 
 /**
@@ -124,16 +124,14 @@ export const QueueTelemetryDashboard: React.FC = () => {
       transition={{ duration: 0.25 }}
       sx={{ py: 4 }}
     >
-      <Stack direction='row' alignItems='center' spacing={1.5} sx={{ mb: 1 }}>
-        <Layers color='primary' />
-        <Typography variant='h4'>{t('monitoring.queues.title', 'Background queues')}</Typography>
-      </Stack>
-      <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-        {t(
+      <AdminPageHeader
+        icon={<Layers />}
+        title={t('monitoring.queues.title', 'Background queues')}
+        description={t(
           'monitoring.queues.subtitle',
           'Per-queue job counts across the whole worker registry. A failed erasure or provisioning job is an obligation that has silently not been met.',
         )}
-      </Typography>
+      />
 
       {data && data.unreachable > 0 && (
         <Alert severity='warning' sx={{ mb: 3 }}>

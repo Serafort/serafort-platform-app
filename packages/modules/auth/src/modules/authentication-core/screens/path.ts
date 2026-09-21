@@ -1,51 +1,15 @@
+// ---------------------------------------------------------------------------
+// Path projection for the authentication-core sub-module.
+//
+// This file intentionally contains NO URL literals. The sign-in, sign-up, recovery and verification paths
+// live in the Tier 0 registry (`AppPaths` in @cap/shared-types) so that editing
+// a path there changes it everywhere -- router, links, navigation and tests.
+//
+// To add or change a route, edit `AppPaths.auth` in
+// packages/shared-types/src/routes.ts, not this file.
+// ---------------------------------------------------------------------------
 import { AppPaths } from '@cap/shared-types'
 
-const Path = {
-  //device paths
-  deviceCode: '/auth/device/code',
+const Path = AppPaths.auth
 
-  // email change link-landing paths (initiation lives in user-directory)
-  emailChangeStatus: '/auth/email/change-status',
-  emailChangeVerification: '/auth/email/verify-change/:token',
-  emailChangeSuccess: '/auth/email/change-success',
-  emailChangeFailed: '/auth/email/change-failed',
-  resendEmailVerification: '/auth/email/resend-verification',
-  VerificationEmail: '/auth/email/verification',
-
-  //organization paths
-  joinOrganization: '/auth/join-organization',
-
-  // recovery paths
-  forgotPassword: '/auth/recovery/forgot-password',
-  forgotPasswordAlias: '/auth/forgot-password',
-  forgotPasswordDirect: '/forgot-password',
-  resetPassword: '/auth/reset-password/:email',
-  resetPasswordRecovery: '/auth/recovery/reset-password/:email',
-  resetPasswordDirect: '/reset-password/:email',
-  setNewPassword: '/auth/recovery/set-new-password/:email',
-  passwordResetSuccess: '/auth/recovery/password-reset-success',
-  passwordResetSuccessAlias: '/auth/password-reset-success',
-
-  // sign in
-  // Public guest-entry routes: sourced from the Tier 0 registry (`@cap/shared-types`)
-  // so the layout engine can link to them without importing this module.
-  signin: AppPaths.auth.signin,
-  login: AppPaths.auth.login,
-
-  // sign up
-  signup: AppPaths.auth.signup,
-  signupV2: AppPaths.auth.signupV2,
-  registration: '/auth/register',
-  checkEmail: '/auth/verify-email-confirmation',
-  emailVerification: '/auth/verification/email-sent',
-  verifyEmail: '/auth/verify-email/:email',
-  verifyEmailAlias: '/auth/verify/:email',
-  verifyEmailDirect: '/verify/:email',
-  verificationLinkExpired: '/auth/verification-link-expired',
-  registrationSuccess: '/auth/registration-success',
-  signupSuccess: '/auth/sign-up/success',
-  emailVerifiedSuccess: '/auth/verify-email/success',
-  validate: '/auth/validate/:id?/:token?',
-  validateDirect: '/validate',
-}
 export default Path

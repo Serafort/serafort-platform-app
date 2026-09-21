@@ -13,6 +13,7 @@ import {
   IconButton,
   alpha,
   useTheme,
+  type Theme,
   Avatar,
   Breadcrumbs,
   FormControl,
@@ -41,6 +42,7 @@ import { toast } from 'react-toastify'
 import { Path, useCreateOIDCClient } from '@auth'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
+import { errorMessage } from '../../utils/errorMessage'
 
 const createOidcSchema = z.object({
   name: z.string().min(3, 'Client Name must be at least 3 characters').max(50),
@@ -92,7 +94,7 @@ export default function OIDCClientCreate() {
       redirectUris: redirectUrisList,
     }
 
-    createMutation.mutate(payload as any, {
+    createMutation.mutate(payload, {
       onSuccess: (res) => {
         if (res.data) {
           toast.success(t('auth.sso.client_created', 'OIDC Client registered successfully'))
@@ -102,8 +104,10 @@ export default function OIDCClientCreate() {
           })
         }
       },
-      onError: (err: any) => {
-        toast.error(err.message || t('auth.sso.client_create_error', 'Failed to create client'))
+      onError: (err: unknown) => {
+        toast.error(
+          errorMessage(err, t('auth.sso.client_create_error', 'Failed to create client')),
+        )
       },
     })
   }
@@ -171,7 +175,7 @@ export default function OIDCClientCreate() {
       {/* SUCCESS STATE - Show Credentials */}
       {newCredentials ? (
         <Card
-          sx={(theme: any) => ({
+          sx={(theme: Theme) => ({
             p: 4,
             borderRadius: 'var(--sf-radius-lg, 16px)',
             border: '1px solid ' + theme.palette.success.main,
@@ -309,7 +313,7 @@ export default function OIDCClientCreate() {
       ) : (
         /* CREATION FORM */
         <Card
-          sx={(theme: any) => ({
+          sx={(theme: Theme) => ({
             borderRadius: 'var(--sf-radius-lg, 16px)',
             border: '1px solid ' + theme.palette.divider,
             ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -382,12 +386,18 @@ export default function OIDCClientCreate() {
                   <FormControl fullWidth error={!!errors.grantTypes}>
                     <InputLabel>{t('auth.sso.grant_types', 'Grant Types')}</InputLabel>
                     <Select {...field} multiple label={t('auth.sso.grant_types', 'Grant Types')}>
-                      <MenuItem value='authorization_code'>Authorization Code (Standard)</MenuItem>
-                      <MenuItem value='client_credentials'>
-                        Client Credentials (Machine to Machine)
+                      <MenuItem value='authorization_code'>
+                        {t('auth.sso.grant_option_authorization_code', 'Authorization Code (Standard)')}
                       </MenuItem>
-                      <MenuItem value='implicit'>Implicit (Legacy)</MenuItem>
-                      <MenuItem value='refresh_token'>Refresh Token</MenuItem>
+                      <MenuItem value='client_credentials'>
+                        {t('auth.sso.grant_option_client_credentials', 'Client Credentials (Machine to Machine)')}
+                      </MenuItem>
+                      <MenuItem value='implicit'>
+                        {t('auth.sso.grant_option_implicit', 'Implicit (Legacy)')}
+                      </MenuItem>
+                      <MenuItem value='refresh_token'>
+                        {t('auth.sso.grant_option_refresh_token', 'Refresh Token')}
+                      </MenuItem>
                     </Select>
                     <FormHelperText>{errors.grantTypes?.message}</FormHelperText>
                   </FormControl>

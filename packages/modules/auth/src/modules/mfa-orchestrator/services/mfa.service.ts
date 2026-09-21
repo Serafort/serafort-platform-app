@@ -17,6 +17,8 @@ export interface StepUpChallengeResponse {
   }>
   timeout?: number
   userVerification?: 'required' | 'preferred' | 'discouraged'
+  /** Label of the action being stepped up for; set client-side, not by the server. */
+  action?: string
 }
 
 export interface StepUpVerificationResult {
@@ -35,6 +37,17 @@ export interface TOTPConfirmResponse {
   enrolled: boolean
   recoveryCodes: string[]
   message: string
+}
+
+/** Loose shape of the step-up endpoints' bodies; every field is optional because backends differ. */
+interface RawStepUpBody {
+  verified?: boolean
+  success?: boolean
+  elevationToken?: string
+  token?: string
+  expiresAt?: number
+  userId?: number | string
+  user?: { id?: number | string }
 }
 
 const ELEVATION_TTL_MS = 15 * 60 * 1000 // 15 minutes
@@ -70,7 +83,7 @@ function synthesizeElevationToken(method: 'passkey' | 'totp'): string {
  * the backend omits them.
  */
 function toStepUpResult(
-  res: FetchResponse<any>,
+  res: FetchResponse<RawStepUpBody>,
   method: 'passkey' | 'totp',
 ): FetchResponse<StepUpVerificationResult> {
   const success = res.data?.verified !== false && res.data?.success !== false
@@ -102,6 +115,8 @@ export interface PasskeyItem {
   lastUsedAt?: string | null
   deviceType?: 'laptop' | 'smartphone' | 'security_key' | string
   aaguid?: string
+  /** WebAuthn transports; `internal` marks a built-in sensor (Touch ID, Windows Hello). */
+  transports?: string[]
 }
 
 export interface MfaLoginCompletionResponse {
@@ -311,7 +326,7 @@ export const mfaService = {
   // --- Step-Up Authentication ---
   stepUp: {
     getChallenge: async (action?: string): Promise<FetchResponse<StepUpChallengeResponse>> => {
-      const res = await apiClient.post<any>(ENDPOINTS.auth.passkey.loginStart, {})
+      const res = await apiClient.post<StepUpChallengeResponse>(ENDPOINTS.auth.passkey.loginStart, {})
       return {
         ...res,
         data: {
@@ -343,7 +358,7 @@ export const mfaService = {
     verifyBiometric: async (
       assertionResponse: AuthenticationResponseJSON,
     ): Promise<FetchResponse<StepUpVerificationResult>> => {
-      const res = await apiClient.post<any>(ENDPOINTS.auth.passkey.loginFinish, assertionResponse)
+      const res = await apiClient.post<RawStepUpBody>(ENDPOINTS.auth.passkey.loginFinish, assertionResponse)
       const serverToken: string | undefined = res.data?.token
       const success = Boolean(res.data?.verified || serverToken)
       const token = serverToken || synthesizeElevationToken('passkey')
@@ -369,7 +384,7 @@ export const mfaService = {
       // looks for a pending secret in Redis and answers 422 once the user is
       // enrolled, so step-up could never succeed for the only users who can
       // reach it. `stepUp.totp` is the route that promotes the session.
-      const res = await apiClient.post<any>(ENDPOINTS.auth.mfa.stepUp.totp, { code })
+      const res = await apiClient.post<RawStepUpBody>(ENDPOINTS.auth.mfa.stepUp.totp, { code })
       return toStepUpResult(res, 'totp')
     },
 
@@ -379,7 +394,7 @@ export const mfaService = {
      * once.
      */
     verifyRecovery: async (code: string): Promise<FetchResponse<StepUpVerificationResult>> => {
-      const res = await apiClient.post<any>(ENDPOINTS.auth.mfa.stepUp.recovery, { code })
+      const res = await apiClient.post<RawStepUpBody>(ENDPOINTS.auth.mfa.stepUp.recovery, { code })
       return toStepUpResult(res, 'totp')
     },
   },

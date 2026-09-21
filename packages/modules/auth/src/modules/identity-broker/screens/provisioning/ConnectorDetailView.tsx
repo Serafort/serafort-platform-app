@@ -182,7 +182,7 @@ const ConnectorDetailView: React.FC = () => {
       toast.success(t('auth.admin.provisioning.connectors.messages.sync_queued'))
       refetchConnector()
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       logger.error('Sync failed', { error: err })
       toast.error(t('auth.admin.provisioning.connectors.messages.error_generic'))
     },
@@ -193,7 +193,7 @@ const ConnectorDetailView: React.FC = () => {
       toast.success(t('auth.admin.provisioning.connectors.messages.config_saved'))
       refetchConnector()
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       logger.error('Update failed', { error: err })
       toast.error(t('auth.admin.provisioning.connectors.messages.error_generic'))
     },
@@ -204,7 +204,7 @@ const ConnectorDetailView: React.FC = () => {
       toast.success(t('auth.admin.provisioning.connectors.messages.deleted'))
       navigate(Path.provisioning)
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       logger.error('Delete failed', { error: err })
       toast.error(t('auth.admin.provisioning.connectors.messages.error_generic'))
     },
@@ -239,7 +239,7 @@ const ConnectorDetailView: React.FC = () => {
   const handleSaveConfig = () => {
     updateMutation.mutate({
       id: connectorId,
-      data: { name: configName, status: configStatus } as any,
+      data: { name: configName, status: configStatus },
     })
   }
 
@@ -421,7 +421,7 @@ const ConnectorDetailView: React.FC = () => {
             disabled={syncMutation.isPending}
             sx={{
               bgcolor: 'info.main',
-              boxShadow: '0 4px 14px 0 rgba(0,118,255,0.35)',
+              boxShadow: (th) => `0 4px 14px 0 ${alpha(th.palette.info.main, 0.35)}`,
               height: 44,
               minHeight: 44,
               px: 3,
@@ -552,7 +552,7 @@ const ConnectorDetailView: React.FC = () => {
                       labelId='status-label'
                       value={configStatus}
                       label={t('auth.admin.provisioning.connectors.fields.status')}
-                      onChange={(e) => setConfigStatus(e.target.value as any)}
+                      onChange={(e) => setConfigStatus(e.target.value)}
                       sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700 }}
                     >
                       <MenuItem value='active' sx={{ fontWeight: 700 }}>
@@ -791,7 +791,7 @@ const ConnectorDetailView: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {logs.map((log: any, _idx: number) => (
+                      {logs.map((log) => (
                         <TableRow
                           key={log.id}
                           hover
@@ -799,12 +799,10 @@ const ConnectorDetailView: React.FC = () => {
                         >
                           <TableCell>
                             <Typography variant='body2' sx={{ fontWeight: 700 }}>
-                              {log.created_at
-                                ? new Date(log.created_at).toLocaleString()
-                                : new Date(log.createdAt).toLocaleString()}
+                              {new Date(log.created_at || log.createdAt || 0).toLocaleString()}
                             </Typography>
                           </TableCell>
-                          <TableCell>{getEventChip(log.action || log.event)}</TableCell>
+                          <TableCell>{getEventChip(log.action || log.event || '')}</TableCell>
                           <TableCell>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               {log.status === 'success' ? (

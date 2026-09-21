@@ -23,3 +23,21 @@ if (typeof global.ResizeObserver === 'undefined') {
     disconnect() {}
   } as any
 }
+
+// Node 26 exposes a native `localStorage` global that is unavailable without
+// --localstorage-file, and jsdom does not install its own over it. Browsers
+// always have one, so give tests an in-memory equivalent.
+if (typeof window !== 'undefined' && !window.localStorage) {
+  const store = new Map<string, string>()
+  const memoryStorage: Storage = {
+    get length() {
+      return store.size
+    },
+    key: (index: number) => [...store.keys()][index] ?? null,
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => void store.set(key, String(value)),
+    removeItem: (key: string) => void store.delete(key),
+    clear: () => store.clear(),
+  }
+  Object.defineProperty(window, 'localStorage', { value: memoryStorage, configurable: true })
+}

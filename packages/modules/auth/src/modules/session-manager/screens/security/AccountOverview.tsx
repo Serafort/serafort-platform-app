@@ -182,6 +182,7 @@ export const AccountOverview: React.FC = () => {
 
   const {
     data: linkedAccountsResponse,
+    isLoading: isLinkedLoading,
     isError: isLinkedError,
     refetch: refetchLinked,
     isFetching: isLinkedFetching,
@@ -189,6 +190,7 @@ export const AccountOverview: React.FC = () => {
 
   const {
     data: tokensResponse,
+    isLoading: isTokensLoading,
     isError: isTokensError,
     refetch: refetchTokens,
     isFetching: isTokensFetching,
@@ -273,14 +275,10 @@ export const AccountOverview: React.FC = () => {
   }, [user])
 
   const security = securityResponse?.data
-  const passkeys = useMemo(() => {
-    const raw = passkeysResponse?.data
-    if (Array.isArray(raw)) return raw
-    if (raw && typeof raw === 'object' && Array.isArray((raw as any).passkeys)) {
-      return (raw as any).passkeys
-    }
-    return []
-  }, [passkeysResponse])
+  const passkeys = useMemo(
+    () => (Array.isArray(passkeysResponse) ? passkeysResponse : []),
+    [passkeysResponse],
+  )
 
   const linkedAccounts = useMemo(() => {
     const raw = linkedAccountsResponse?.data
@@ -447,7 +445,7 @@ export const AccountOverview: React.FC = () => {
             borderRadius: 'var(--sf-radius-md, 10px)',
             px: 2,
             backgroundColor: 'background.paper',
-            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+            boxShadow: `0 1px 2px ${alpha(theme.palette.common.black, 0.05)}`,
             '&:hover': { borderColor: 'text.secondary', backgroundColor: alpha(theme.palette.action.hover, 0.04) },
           }}
         >
@@ -662,7 +660,7 @@ export const AccountOverview: React.FC = () => {
             fontSize: '0.875rem',
             whiteSpace: 'nowrap',
             backgroundColor: 'background.paper',
-            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+            boxShadow: `0 1px 2px ${alpha(theme.palette.common.black, 0.05)}`,
             width: { xs: '100%', sm: 'auto' },
             '&:hover': { borderColor: 'text.secondary', backgroundColor: alpha(theme.palette.action.hover, 0.04) },
           }}
@@ -732,7 +730,7 @@ export const AccountOverview: React.FC = () => {
             stats.isMfaEnabled ? t('auth.account.mfa.enabled', 'Enabled') : t('auth.account.mfa.disabled', 'Disabled')
           }
           valueLoading={isLoading}
-          linkTo={stats.isMfaEnabled ? Path.mfa.mfa.dashboard : Path.mfa.mfa.setup}
+          linkTo={stats.isMfaEnabled ? Path.mfa.mfa.management : Path.mfa.mfa.setup}
           linkLabel={
             stats.isMfaEnabled ? t('auth.account.mfa.manage', 'Manage MFA') : t('auth.account.mfa.enable_now', 'Enable 2FA Now')
           }
@@ -743,7 +741,9 @@ export const AccountOverview: React.FC = () => {
           icon={<LinkOutlined sx={{ fontSize: 18 }} />}
           tone='primary'
           value={stats.linkedAccounts}
-          valueLoading={isLoading}
+          // Each count waits on its own query — the shared `isLoading` never
+          // covered these two, so they flashed a false "0" first.
+          valueLoading={isLinkedLoading}
           linkTo={Path.user.profile.linkedAccounts}
           linkLabel={t('auth.account.manage_accounts', 'Manage Accounts')}
         />
@@ -753,7 +753,7 @@ export const AccountOverview: React.FC = () => {
           icon={<KeyOutlined sx={{ fontSize: 18 }} />}
           tone='info'
           value={stats.tokensCount}
-          valueLoading={isLoading}
+          valueLoading={isTokensLoading}
           // `Path.apiTokens` (top-level) is the whole authorization-engine path
           // object, not a route string — the real string lives under the
           // admin grouping key even though the route itself needs no admin

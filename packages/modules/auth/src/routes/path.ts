@@ -1,9 +1,18 @@
 // ---------------------------------------------------------------------------
-// Canonical path registry for the entire auth module.
-// Each sub-module also keeps its own path.ts (scoped to that module's paths).
-// This file is the single source of truth used by the central route aggregator
-// and exported as `AuthPath` from the package root.
+// Aggregated path registry for the auth module.
+//
+// This file contains NO URL literals. Every value below is projected from the
+// Tier 0 registry (`AppPaths` in @cap/shared-types), which is the single place
+// a path is written. Editing a path there changes it here, in every sub-module
+// `path.ts`, in the router, and in every link -- which is the whole point.
+//
+// What this file adds on top of `AppPaths` is *shape*: the groupings the auth
+// screens have always consumed (`Path.account.*`, `Path.admin.*`, the flat
+// aliases). Adding a NEW path belongs in `AppPaths`; adding a new *grouping* of
+// existing paths belongs here.
 // ---------------------------------------------------------------------------
+import { AppPaths } from '@cap/shared-types'
+
 import authCorePath from '../modules/authentication-core/screens/path'
 import authorizationPath from '../modules/authorization-engine/screens/path'
 import accessControlPath from '../modules/access-control/screens/path'
@@ -16,7 +25,7 @@ import sessionManagerPath from '../modules/session-manager/screens/path'
 import userDirectoryPath from '../modules/user-directory/screens/path'
 
 export const Path = {
-  // 1. Canonical sub-module namespace objects
+  // 1. Sub-module namespaces
   auth: authCorePath,
   authorization: authorizationPath,
   accessControl: accessControlPath,
@@ -32,179 +41,43 @@ export const Path = {
   session: sessionManagerPath,
   user: userDirectoryPath,
   apiTokens: authorizationPath,
-  sso: {
-    authWait: identityBrokerPath.authWait,
-    jwksManagement: identityBrokerPath.jwksManagement,
-    oidcClientCreate: identityBrokerPath.oidcClientCreate,
-    oidcClientEdit: identityBrokerPath.oidcClientEdit,
-    oidcConfigBrowser: identityBrokerPath.oidcConfigBrowser,
-    oidcLoginPrompt: identityBrokerPath.oidcLoginPrompt,
-    oidcWait: identityBrokerPath.oidcWait,
-    permissionConsent: identityBrokerPath.permissionConsent,
-    samlConfigDashboard: identityBrokerPath.samlConfigDashboard,
-    samlMetadataBrowser: identityBrokerPath.samlMetadataBrowser,
-    samlMetadataDisplay: identityBrokerPath.samlMetadataDisplay,
-    samlWait: identityBrokerPath.samlWait,
-    samlSSOInitiation: identityBrokerPath.samlSSOInitiation,
-    providerSelection: identityBrokerPath.providerSelection,
-    ssfConfiguration: identityBrokerPath.ssfConfiguration,
-  },
+  sso: AppPaths.sso,
 
-  // 2. Account & Settings Namespaces (Session & User Directory)
-  account: {
-    overview: sessionManagerPath.overview,
-    profile: sessionManagerPath.overview,
-    view: userDirectoryPath.profile.view,
-    changeEmail: userDirectoryPath.settings.change_email,
-    changePassword: sessionManagerPath.changePassword,
-    delete: userDirectoryPath.settings.delete,
-    deactivate: userDirectoryPath.settings.deactivate,
-    dataExport: userDirectoryPath.settings.data_export,
-    linkedAccounts: userDirectoryPath.profile.linkedAccounts,
-    activeSessions: sessionManagerPath.activeSessions,
-    sessions: sessionManagerPath.activeSessions,
-    emailChangeStatus: userDirectoryPath.settings.email_change_status,
-    initiateEmailChange: userDirectoryPath.settings.initiate_email_change,
-    activityTimeline: sessionManagerPath.activityTimeline,
-    security: sessionManagerPath.overview,
-    settings: userDirectoryPath.settings.change_email,
-  },
+  // 2. Cross-cutting views
+  account: AppPaths.account,
+  admin: AppPaths.admin,
 
-  // 3. Admin Namespace (Organization, Users, Roles, Cluster & SSO)
-  admin: {
-    root: '/admin',
-    dashboard: '/admin/dashboard',
-    themeEditor: '/admin/theme-editor',
-    themeBuilder: '/admin/theme-builder',
-    overview: '/admin',
-
-    // User Directory Admin
-    users: userDirectoryPath.admin.users.list,
-    userProfile: userDirectoryPath.admin.users.user_profile,
-    userCreate: userDirectoryPath.admin.users.user_create,
-    userDataExport: userDirectoryPath.admin.users.data_export,
-    banManagement: userDirectoryPath.admin.users.ban_management,
-    impersonationLogs: userDirectoryPath.admin.users.impersonation_logs,
-    issuesBanDialog: userDirectoryPath.admin.users.issues_ban_dialog,
-    resetPasswordDialog: userDirectoryPath.admin.users.reset_password_dialog,
-
-    // Organizations Admin
-    organizations: userDirectoryPath.admin.organizations.list,
-    organizationProfile: userDirectoryPath.admin.organizations.organizationProfile,
-    invitations: userDirectoryPath.admin.organizations.invitations,
-    orgDomainVerification: userDirectoryPath.admin.organizations.domain_verification,
-
-    // Authorization & Policies
-    roles: authorizationPath.roles,
-    roleDetail: authorizationPath.roleDetail,
-    permissions: '/admin/permissions',
-    policies: '/admin/organizations/:id/policies',
-    policyCanvas: authorizationPath.policyCanvas,
-    domainVerification: authorizationPath.domainVerification,
-    machineIdentities: authorizationPath.machineIdentities,
-    apiTokens: authorizationPath.dashboard,
-
-    // Developer & Applications
-    developerDashboard: platformClusterPath.developer.dashboard,
-    applications: platformClusterPath.developer.application,
-    appDetail: platformClusterPath.developer.application_detail_view,
-    scopes: platformClusterPath.developer.scopes_registry,
-    moduleManagement: platformClusterPath.developer.module_management,
-    developerWebhooks: platformClusterPath.developer.webhooks,
-    developerConsole: developerConsolePath.developerConsole,
-    webhooks: developerConsolePath.webhooks,
-    apiExplorer: '/admin/api-explorer',
-
-    // Provisioning & SCIM
-    provisioning: identityBrokerPath.provisioning,
-    scim: identityBrokerPath.scim,
-    syncLogs: identityBrokerPath.syncLogs,
-    connectorDetail: identityBrokerPath.connectorDetail,
-
-    // SSO & SAML/OIDC Admin
-    samlMetadataDisplay: identityBrokerPath.samlMetadataDisplay,
-    samlMetadataBrowser: identityBrokerPath.samlMetadataBrowser,
-    oidcConfigBrowser: identityBrokerPath.oidcConfigBrowser,
-    oidcClientCreate: identityBrokerPath.oidcClientCreate,
-    oidcClientEdit: identityBrokerPath.oidcClientEdit,
-    samlConfigDashboard: identityBrokerPath.samlConfigDashboard,
-    ssfConfiguration: identityBrokerPath.ssfConfiguration,
-    jwksManagement: identityBrokerPath.jwksManagement,
-
-    // Monitoring & Cluster Health
-    monitoringDashboard: platformClusterPath.monitor.dashboard,
-    events: platformClusterPath.monitor.events,
-    emailTemplatePreview: platformClusterPath.monitor.emailTemplatePreview,
-    emailTesting: platformClusterPath.monitor.emailTesting,
-    exportAudit: platformClusterPath.monitor.exportAudit,
-    mfaAnalytics: platformClusterPath.monitor.mfa_analytics,
-    realTimeEvents: platformClusterPath.monitor.real_time,
-    realTimeEventsV2: platformClusterPath.monitor.real_time_v2,
-    health: platformClusterPath.monitor.health,
-    securityHealth: platformClusterPath.monitor.security_health,
-  },
-
-  // 4. Flat aliases for direct access / backwards compatibility
-  profile: sessionManagerPath.overview,
-  overview: sessionManagerPath.overview,
+  // 3. Flat aliases for the screens that navigate by bare name
   signin: authCorePath.signin,
-  signinV2: authCorePath.signin,
-  login: authCorePath.signin,
   signup: authCorePath.signup,
-  signupV2: authCorePath.signupV2,
-  registration: authCorePath.registration,
-  signupSuccess: authCorePath.signupSuccess,
   checkEmail: authCorePath.checkEmail,
   verifyEmail: authCorePath.verifyEmail,
-  verifyEmailAlias: authCorePath.verifyEmailAlias,
-  verifyEmailDirect: authCorePath.verifyEmailDirect,
-  verificationLinkExpired: authCorePath.verificationLinkExpired,
-  forgotPassword: authCorePath.forgotPassword,
-  forgotPasswordAlias: authCorePath.forgotPasswordAlias,
-  forgotPasswordDirect: authCorePath.forgotPasswordDirect,
-  resetPassword: authCorePath.resetPassword,
-  resetPasswordRecovery: authCorePath.resetPasswordRecovery,
-  resetPasswordDirect: authCorePath.resetPasswordDirect,
-  setNewPassword: authCorePath.setNewPassword,
-  passwordResetSuccess: authCorePath.passwordResetSuccess,
-  passwordResetSuccessAlias: authCorePath.passwordResetSuccessAlias,
-  registrationSuccess: authCorePath.registrationSuccess,
   emailVerification: authCorePath.emailVerification,
   emailVerifiedSuccess: authCorePath.emailVerifiedSuccess,
-  resendEmailVerification: authCorePath.resendEmailVerification,
-  VerificationEmail: authCorePath.VerificationEmail,
-  requestEmailChange: userDirectoryPath.settings.initiate_email_change,
-  initiateEmailChange: userDirectoryPath.settings.initiate_email_change,
+  verificationLinkExpired: authCorePath.verificationLinkExpired,
+  registrationSuccess: authCorePath.registrationSuccess,
+  forgotPassword: authCorePath.forgotPassword,
+  resetPassword: authCorePath.resetPassword,
+  passwordResetSuccess: authCorePath.passwordResetSuccess,
+  emailChangeStatus: authCorePath.emailChangeStatus,
   emailChangeVerification: authCorePath.emailChangeVerification,
   emailChangeSuccess: authCorePath.emailChangeSuccess,
   emailChangeFailed: authCorePath.emailChangeFailed,
-  emailChangeStatus: authCorePath.emailChangeStatus,
+  initiateEmailChange: userDirectoryPath.settings.initiate_email_change,
+  requestEmailChange: userDirectoryPath.settings.initiate_email_change,
   validate: authCorePath.validate,
-  validateDirect: authCorePath.validateDirect,
-  mfaVerification: mfaOrchestratorPath.mfa.verification,
   deviceCode: authCorePath.deviceCode,
   joinOrganization: authCorePath.joinOrganization,
-  setup: mfaOrchestratorPath.mfa.setup,
+  profile: sessionManagerPath.overview,
+  overview: sessionManagerPath.overview,
   security: sessionManagerPath.overview,
+  setup: mfaOrchestratorPath.mfa.setup,
+  mfaVerification: mfaOrchestratorPath.mfa.verification,
   samlWait: identityBrokerPath.samlWait,
   oidcWait: identityBrokerPath.oidcWait,
   providerSelection: identityBrokerPath.providerSelection,
   permissionConsent: identityBrokerPath.permissionConsent,
   oidcLoginPrompt: identityBrokerPath.oidcLoginPrompt,
-}
-
-// Flat aliases for direct access
-export const FlatPath = {
-  ...Path,
-  profile: Path.account.overview,
-  signin: Path.auth.signin,
-  signup: Path.auth.signup,
-  forgotPassword: Path.auth.forgotPassword,
-  resetPassword: Path.auth.resetPassword,
-  checkEmail: Path.auth.checkEmail,
-  verifyEmail: Path.auth.verifyEmail,
-  verificationLinkExpired: Path.auth.verificationLinkExpired,
-  registration: Path.auth.registration,
 }
 
 export {

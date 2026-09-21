@@ -1,5 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { developerService, type DeveloperApiKeyItem, type WebhookItem } from '@cap/auth-contracts'
+import {
+  developerService,
+  type DeveloperApiKeyItem,
+  type WebhookItem,
+  type WebhookTestResult,
+} from '@cap/auth-contracts'
 
 // ---------------------------------------------------------------------------
 // Query Key Registry
@@ -14,6 +19,36 @@ export const DEVCON_QUERY_KEYS = {
   // Webhooks
   webhooks: () => ['admin', 'webhooks'] as const,
   webhookById: (id: number | string) => ['admin', 'webhooks', id] as const,
+  // Kept outside the `['admin', 'webhooks']` prefix on purpose: the catalogue is
+  // static config, so mutating a subscription must not invalidate it.
+  webhookEventTypes: () => ['admin', 'webhook-event-types'] as const,
+}
+
+/**
+ * An API key row as the backend may serialise it. The contract type is
+ * camelCase, but older deployments answer snake_case and some carry a legacy
+ * `title`; the screen reads whichever is present.
+ */
+export interface DeveloperApiKeyRecord extends DeveloperApiKeyItem {
+  title?: string
+  expires_at?: string | null
+  created_at?: string | null
+  last_used_at?: string | null
+  lastUsedAt?: string | null
+}
+
+/**
+ * Unwraps a list that may arrive bare or wrapped in `{ <key>: [...] }`,
+ * `{ items: [...] }` or `{ data: [...] }`.
+ */
+function unwrapList<T>(raw: unknown, wrapperKey: string): T[] {
+  if (Array.isArray(raw)) return raw as T[]
+  if (raw && typeof raw === 'object') {
+    const bag = raw as Record<string, unknown>
+    const inner = bag[wrapperKey] ?? bag.items ?? bag.data
+    if (Array.isArray(inner)) return inner as T[]
+  }
+  return []
 }
 
 // ---------------------------------------------------------------------------
@@ -28,11 +63,8 @@ export function useApiKeysQuery() {
     queryKey: DEVCON_QUERY_KEYS.apiKeys(),
     queryFn: async () => {
       const response = await developerService.listApiKeys()
-      const raw = response?.data
-      if (Array.isArray(raw)) return raw as DeveloperApiKeyItem[]
       // Handle wrapped responses (e.g. { data: [...] }, { keys: [...] })
-      const inner = (raw as any)?.keys ?? (raw as any)?.items ?? (raw as any)?.data
-      return Array.isArray(inner) ? (inner as DeveloperApiKeyItem[]) : []
+      return unwrapList<DeveloperApiKeyRecord>(response?.data, 'keys')
     },
     staleTime: 30_000,
   })
@@ -82,12 +114,30 @@ export function useWebhooksQuery() {
     queryKey: DEVCON_QUERY_KEYS.webhooks(),
     queryFn: async () => {
       const response = await developerService.listWebhooks()
-      const raw = response?.data
-      if (Array.isArray(raw)) return raw as WebhookItem[]
-      const inner = (raw as any)?.webhooks ?? (raw as any)?.items ?? (raw as any)?.data
-      return Array.isArray(inner) ? (inner as WebhookItem[]) : []
+      return unwrapList<WebhookItem>(response?.data, 'webhooks')
     },
     staleTime: 30_000,
+  })
+}
+
+/**
+ * Fetch the server-owned catalogue of subscribable event types.
+ *
+ * The console used to hardcode this list, which drifted from the backend: a
+ * subscription to an event the UI did not know about (`audit.checkpoint`,
+ * `user.locked`) was invisible in the picker and silently dropped on save.
+ */
+export function useWebhookEventTypesQuery() {
+  return useQuery({
+    queryKey: DEVCON_QUERY_KEYS.webhookEventTypes(),
+    queryFn: async () => {
+      const response = await developerService.listWebhookEventTypes()
+      const categories = response?.data?.categories
+      return categories && typeof categories === 'object'
+        ? (categories as Record<string, string[]>)
+        : {}
+    },
+    staleTime: 5 * 60_000,
   })
 }
 
@@ -146,13 +196,22 @@ export function useDeleteWebhookMutation() {
 }
 
 /**
- * Send a test ping to a webhook endpoint.
+ * Send a real test ping to a webhook endpoint.
+ *
+ * The server dials the URL for real, so the attempt moves `lastTriggeredAt` and
+ * `failureCount` on the record (and can auto-disable a dead endpoint once the
+ * retry budget is spent). The list is therefore invalidated on both outcomes,
+ * not just on success, so the table reflects what the ping did.
  */
 export function useTestWebhookMutation() {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (id: number | string) => {
       const response = await developerService.testWebhook(id)
-      return response.data as { message: string; webhookUrl: string; payload: unknown }
+      return response.data as WebhookTestResult
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: DEVCON_QUERY_KEYS.webhooks() })
     },
   })
 }

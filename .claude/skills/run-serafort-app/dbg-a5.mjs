@@ -1,0 +1,10 @@
+import { chromium } from 'playwright'
+const b = await chromium.launch(); const p = await (await b.newContext()).newPage()
+p.on('response', async r => { if (r.url().includes('3333')) console.log(r.status(), r.request().method(), r.url().replace(/.*3333/,''), r.status()>=400 ? (await r.text().catch(()=>'')).slice(0,200):'') })
+p.on('pageerror', e=>console.log('PAGEERR', e.message.slice(0,200)))
+await p.goto('http://localhost:5173/auth/sign-in'); await p.waitForSelector('input[type=password]')
+const e = p.locator('input:not([type=password]):visible').first(); await e.click(); await e.pressSequentially('admin@example.com')
+const pw = p.locator('input[type=password]').first(); await pw.click(); await pw.pressSequentially('TestPassword123!')
+await p.screenshot({path: process.env.TEMP+'/shots/a5/dbg1.png'})
+await pw.press('Enter'); await p.waitForTimeout(4000); console.log(p.url()); await p.screenshot({path: process.env.TEMP+'/shots/a5/dbg2.png'})
+await b.close()

@@ -39,7 +39,7 @@ export const RoleIndicator = (props: { showLabel?: boolean; size?: string }) => 
 // 2. Constants & Data Structures
 export const Path = {
   auth: {
-    signin: AppPaths.auth.login,
+    signin: AppPaths.auth.signin,
     signup: AppPaths.auth.signup,
   },
   admin: {

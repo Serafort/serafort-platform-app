@@ -36,10 +36,11 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useNotifications } from '@cap/platform-core'
-import { useVerifyDomain } from '@idaas/authentication-core/hooks/useAdminQuery'
+import { useVerifyDomain } from '@auth/authorization-engine/hooks/useAdminQuery'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
 import { Path } from '@cap/module-auth/routes/path'
+import { getErrorMessage } from '../../../types/api.types'
 
 export default function DomainVerification() {
   const { t } = useTranslation('common')
@@ -67,11 +68,11 @@ export default function DomainVerification() {
         ),
       })
     },
-    onError: (err: any) => {
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        t('auth.domainVerification.errorDns', 'DNS verification failed.')
+    onError: (err: unknown) => {
+      const message = getErrorMessage(
+        err,
+        t('auth.domainVerification.errorDns', 'DNS verification failed.'),
+      )
       addNotification?.({
         type: 'error',
         title: t('auth.domainVerification.errorTitle', 'Verification Failed'),
@@ -291,17 +292,17 @@ export default function DomainVerification() {
                     {/* Table Header */}
                     <Grid size={{ xs: 2 }}>
                       <Typography variant='caption' fontWeight={700} color='text.secondary'>
-                        TYPE
+                        {t('auth.userDirectory.domainVerify.type', 'TYPE')}
                       </Typography>
                     </Grid>
                     <Grid size={{ xs: 3 }}>
                       <Typography variant='caption' fontWeight={700} color='text.secondary'>
-                        HOST / NAME
+                        {t('auth.userDirectory.domainVerify.hostName', 'HOST / NAME')}
                       </Typography>
                     </Grid>
                     <Grid size={{ xs: 7 }}>
                       <Typography variant='caption' fontWeight={700} color='text.secondary'>
-                        VALUE / TARGET
+                        {t('auth.userDirectory.domainVerify.valueTarget', 'VALUE / TARGET')}
                       </Typography>
                     </Grid>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
   Box,
   Typography,
@@ -14,14 +14,13 @@ import {
   ListItemText,
   ListItemIcon,
   CircularProgress,
-  Alert,
 } from '@mui/material'
+import { AdminPageHeader } from '@auth/modules/authentication-core/components/shared/admin'
 import { useTheme } from '@mui/material/styles'
 import Send from '@mui/icons-material/Send'
 import History from '@mui/icons-material/History'
 import CheckCircle from '@mui/icons-material/CheckCircle'
 import Error from '@mui/icons-material/Error'
-import SettingsApplications from '@mui/icons-material/SettingsApplications'
 import { useTranslation } from 'react-i18next'
 import { useNotifications } from '@cap/platform-core'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
@@ -30,6 +29,7 @@ import {
   useEmailTemplatesQuery,
   useSendTestEmailMutation,
 } from '../../hooks/useAdminMonitoringQuery'
+import { getErrorMessage } from '../../utils/errors'
 
 export default function EmailTestingDashboard() {
   const { t } = useTranslation('common')
@@ -48,15 +48,7 @@ export default function EmailTestingDashboard() {
       time: string
       error?: string
     }>
-  >([
-    {
-      id: '1',
-      template: 'Welcome Email',
-      recipient: 'admin@cap-saas.com',
-      status: 'delivered',
-      time: 'Just now',
-    },
-  ])
+  >([])
 
   const { data: templates, isLoading: loadingTemplates } = useEmailTemplatesQuery()
   const sendEmailMutation = useSendTestEmailMutation()
@@ -65,8 +57,11 @@ export default function EmailTestingDashboard() {
     if (!testEmail || !testEmail.includes('@')) {
       addNotification({
         type: 'error',
-        title: 'Invalid Email',
-        message: 'Please provide a valid recipient email address.',
+        title: t('monitoring.email.invalid_title', 'Invalid email'),
+        message: t(
+          'monitoring.email.invalid_body',
+          'Please provide a valid recipient email address.',
+        ),
       })
       return
     }
@@ -79,8 +74,10 @@ export default function EmailTestingDashboard() {
 
       addNotification({
         type: 'success',
-        title: 'Test Email Dispatched',
-        message: `Template "${selectedTemplate}" queued for delivery to ${testEmail}.`,
+        title: t('monitoring.email.sent_title', 'Test email dispatched'),
+        message: t('monitoring.email.sent_body', 'Template "{{template}}" queued for delivery.', {
+          template: selectedTemplate,
+        }),
       })
 
       setTestLogs((prev) => [
@@ -89,16 +86,18 @@ export default function EmailTestingDashboard() {
           template: selectedTemplate,
           recipient: testEmail,
           status: 'delivered',
-          time: 'Just now',
+          time: new Date().toLocaleTimeString(),
         },
         ...prev,
       ])
       setTestEmail('')
-    } catch (err: any) {
+    } catch (err: unknown) {
       addNotification({
         type: 'error',
-        title: 'Dispatch Failed',
-        message: err?.message || 'Failed to dispatch test email.',
+        title: t('monitoring.email.failed_title', 'Dispatch failed'),
+        message:
+          getErrorMessage(err) ||
+          t('monitoring.email.failed_body', 'The test email could not be dispatched.'),
       })
 
       setTestLogs((prev) => [
@@ -107,8 +106,8 @@ export default function EmailTestingDashboard() {
           template: selectedTemplate,
           recipient: testEmail,
           status: 'failed',
-          time: 'Just now',
-          error: err?.message || 'Delivery error',
+          time: new Date().toLocaleTimeString(),
+          error: getErrorMessage(err) || t('monitoring.email.delivery_error', 'Delivery error'),
         },
         ...prev,
       ])
@@ -127,17 +126,14 @@ export default function EmailTestingDashboard() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1100, mx: 'auto' }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' sx={{ fontWeight: 800, mb: 1 }}>
-          {t('auth.admin.emailTesting', 'Transactional Email Testing')}
-        </Typography>
-        <Typography variant='body1' color='text.secondary'>
-          {t(
-            'auth.admin.emailTesting_subtitle',
-            'Validate transactional email relays, preview dynamic parameters, and inspect delivery telemetry.',
-          )}
-        </Typography>
-      </Box>
+      <AdminPageHeader
+        icon={<Send />}
+        title={t('auth.admin.emailTesting', 'Transactional Email Testing')}
+        description={t(
+          'auth.admin.emailTesting_subtitle',
+          'Validate transactional email relays, preview dynamic parameters, and inspect delivery telemetry.',
+        )}
+      />
 
       <Grid container spacing={4}>
         <Grid size={{ xs: 12, md: 5 }}>
@@ -207,36 +203,6 @@ export default function EmailTestingDashboard() {
                 </Stack>
               </CardContent>
             </Card>
-
-            {/* Config Status */}
-            <Card
-              sx={{
-                px: 2,
-                py: 1,
-                border: '1px solid',
-                borderColor: 'divider',
-                boxShadow: 'none',
-                borderRadius: 'var(--sf-radius-md, 8px)',
-              }}
-            >
-              <List>
-                <ListItem sx={{ px: 1 }}>
-                  <ListItemIcon sx={{ minWidth: 40 }}>
-                    <SettingsApplications color='action' />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary='Relay: AdonisJS Mail (SMTP / SES)'
-                    primaryTypographyProps={{ variant: 'caption', fontWeight: 800 }}
-                  />
-                  <Chip
-                    label='Operational'
-                    size='small'
-                    color='success'
-                    sx={{ height: 16, fontSize: '0.6rem', fontWeight: 800 }}
-                  />
-                </ListItem>
-              </List>
-            </Card>
           </Stack>
         </Grid>
 
@@ -256,6 +222,18 @@ export default function EmailTestingDashboard() {
                   {t('auth.admin.emailLogs', 'Recent Test Dispatches')}
                 </Typography>
               </Box>
+              {testLogs.length === 0 && (
+                <Typography
+                  variant='body2'
+                  color='text.secondary'
+                  sx={{ py: 3, textAlign: 'center' }}
+                >
+                  {t(
+                    'monitoring.email.logs_empty',
+                    'No test emails sent in this session yet. Dispatch one from the panel to see delivery results here.',
+                  )}
+                </Typography>
+              )}
               <List disablePadding>
                 {testLogs.map((log) => (
                   <ListItem
@@ -287,8 +265,8 @@ export default function EmailTestingDashboard() {
                             color={log.status === 'delivered' ? 'success' : 'error'}
                             variant='outlined'
                             sx={{
-                              height: 18,
-                              fontSize: '0.6rem',
+                              height: 22,
+                              fontSize: '0.75rem',
                               fontWeight: 800,
                               textTransform: 'uppercase',
                             }}

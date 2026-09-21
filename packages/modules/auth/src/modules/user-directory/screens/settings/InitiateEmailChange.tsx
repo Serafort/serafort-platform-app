@@ -122,7 +122,7 @@ export default function InitiateEmailChange() {
         <Box sx={{ mb: 4 }}>
           <Button
             startIcon={<ArrowBack />}
-            onClick={() => navigate(Path.account.view || '/profile')}
+            onClick={() => navigate(Path.account.view)}
             sx={{
               mb: 2.5,
               textTransform: 'none',

@@ -1,4 +1,4 @@
-export * from './components'
+export { default as RefreshButton } from './components/RefreshButton'
 export * from './screens'
 export * from './middlewares'
 export * from './hooks'

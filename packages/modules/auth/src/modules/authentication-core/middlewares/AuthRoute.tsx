@@ -7,6 +7,7 @@ import { useSessionGuard } from '../../session-manager/middlewares/useSessionGua
 import { Path } from '@auth/routes/path'
 import { normalizeAuthUser } from '../utils/normalizeAuthUser'
 import { useCan } from '@cap/authorization'
+import { AppPaths } from '@cap/shared-types'
 
 interface AuthRouteProps {
   element: ReactNode
@@ -43,7 +44,7 @@ const AuthRoute = ({
 
   if (isLoading) {
     return (
-      <Backdrop open style={{ background: '#FFF', zIndex: 1400 }}>
+      <Backdrop open sx={{ bgcolor: 'background.default', zIndex: 1400 }}>
         <CircularProgress color='inherit' />
       </Backdrop>
     )
@@ -75,7 +76,7 @@ const AuthRoute = ({
   if (!isAuthenticated) {
     return (
       <React.Fragment>
-        <Backdrop open style={{ background: '#FFF', zIndex: 1400 }} />
+        <Backdrop open sx={{ bgcolor: 'background.default', zIndex: 1400 }} />
         <Navigate to={Path.auth.signin} replace state={{ from: location }} />
       </React.Fragment>
     )
@@ -99,7 +100,7 @@ const AuthRoute = ({
           <Alert severity='error' sx={{ maxWidth: 500 }}>
             You don&rsquo;t have permission to access this page.
           </Alert>
-          <Button variant='contained' onClick={() => navigate('/dashboard')}>
+          <Button variant='contained' onClick={() => navigate(AppPaths.dashboard.dashboard)}>
             Go to Dashboard
           </Button>
         </Box>
@@ -143,7 +144,7 @@ const AuthRoute = ({
   return (
     <Suspense
       fallback={
-        <Backdrop open style={{ background: '#FFF', zIndex: 1400 }}>
+        <Backdrop open sx={{ bgcolor: 'background.default', zIndex: 1400 }}>
           <CircularProgress color='inherit' />
         </Backdrop>
       }

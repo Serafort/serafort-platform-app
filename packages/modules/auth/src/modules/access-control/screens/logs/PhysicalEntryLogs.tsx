@@ -32,7 +32,7 @@ import { useActiveOrganizationId } from '../../../authentication-core/hooks/useA
 import { useAccessLogsQuery, useAccessPointsQuery } from '../../hooks/useAccessControlQuery'
 import type { AccessDecision, AccessLogDirection } from '../../types/accessControl.types'
 import { NoOrganizationNotice } from '../NoOrganizationNotice'
-import { AdminDataState, AdminStatusBadge } from '../../../authentication-core/components/shared/admin'
+import { AdminDataState, AdminPageHeader, AdminStatusBadge } from '../../../authentication-core/components/shared/admin'
 
 /**
  * Physical Entry Logs.
@@ -93,28 +93,20 @@ export const PhysicalEntryLogs: React.FC = () => {
 
   return (
     <Container maxWidth='lg' sx={{ py: 4 }}>
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        justifyContent='space-between'
-        alignItems={{ sm: 'center' }}
-        spacing={2}
-        sx={{ mb: 1 }}
-      >
-        <Stack direction='row' alignItems='center' spacing={1.5}>
-          <History color='primary' />
-          <Typography variant='h4'>{t('accessControl.logs.title', 'Entry logs')}</Typography>
-        </Stack>
-        <FormControlLabel
-          control={<Switch checked={live} onChange={(event) => setLive(event.target.checked)} />}
-          label={t('accessControl.logs.live', 'Live')}
-        />
-      </Stack>
-      <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-        {t(
+      <AdminPageHeader
+        icon={<History />}
+        title={t('accessControl.logs.title', 'Entry logs')}
+        description={t(
           'accessControl.logs.subtitle',
           'Every badge presented at a reader, granted or denied. A denial with no holder is an unknown badge rather than a refused member.',
         )}
-      </Typography>
+        actions={
+          <FormControlLabel
+            control={<Switch checked={live} onChange={(event) => setLive(event.target.checked)} />}
+            label={t('accessControl.logs.live', 'Live')}
+          />
+        }
+      />
 
       <Card variant='outlined' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}>
         <CardContent>

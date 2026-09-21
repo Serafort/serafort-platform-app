@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { errorMessage, serverMessage } from '../../utils/errors'
 import { useNavigate } from 'react-router-dom'
 import {
   Box,
@@ -61,11 +62,10 @@ export default function MFASetupScreen() {
         if (isMounted && response.data) {
           setSetupData(response.data)
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (isMounted) {
           setError(
-            err.response?.data?.message ||
-              err.message ||
+            errorMessage(err) ||
               t('mfa.setupError', 'Failed to initialize MFA setup.'),
           )
         }
@@ -91,11 +91,11 @@ export default function MFASetupScreen() {
         setRecoveryCodes(response.data.recoveryCodes)
         setStep('recovery')
       } else {
-        navigate(Path.mfa.verification_success)
+        navigate(Path.mfa.management)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
-        err.response?.data?.message ||
+        serverMessage(err) ||
           t('mfa.invalidCode', 'Invalid verification code. Please try again.'),
       )
     } finally {
@@ -298,7 +298,7 @@ export default function MFASetupScreen() {
             fullWidth
             variant='contained'
             size='large'
-            onClick={() => navigate(Path.mfa.management || Path.mfa.dashboard)}
+            onClick={() => navigate(Path.mfa.management)}
             endIcon={<ArrowForward />}
             sx={{
               minHeight: 48,

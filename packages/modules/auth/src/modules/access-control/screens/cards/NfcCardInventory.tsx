@@ -43,7 +43,7 @@ import {
   type NfcCardStatus,
 } from '../../types/accessControl.types'
 import { NoOrganizationNotice } from '../NoOrganizationNotice'
-import { AdminDataState, AdminStatusBadge } from '../../../authentication-core/components/shared/admin'
+import { AdminDataState, AdminPageHeader, AdminStatusBadge } from '../../../authentication-core/components/shared/admin'
 import { AuthConfirmDrawer } from '../../../authentication-core/components/shared/auth'
 
 /**
@@ -83,39 +83,29 @@ export const NfcCardInventory: React.FC = () => {
 
   return (
     <Container maxWidth='lg' sx={{ py: 4 }}>
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        justifyContent='space-between'
-        alignItems={{ sm: 'center' }}
-        spacing={2}
-        sx={{ mb: 1 }}
-      >
-        <Stack direction='row' alignItems='center' spacing={1.5}>
-          <CreditCard color='primary' />
-          <Typography variant='h4'>
-            {t('accessControl.cards.title', 'NFC card inventory')}
-          </Typography>
-        </Stack>
-        <Button
-          variant='contained'
-          startIcon={<AddCard />}
-          onClick={() => setRegisterOpen(true)}
-          sx={{
-            minHeight: 44,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
-        >
-          {t('accessControl.cards.register', 'Register badge')}
-        </Button>
-      </Stack>
-      <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-        {t(
+      <AdminPageHeader
+        icon={<CreditCard />}
+        title={t('accessControl.cards.title', 'NFC card inventory')}
+        description={t(
           'accessControl.cards.subtitle',
           'Badges registered to members of this organization. Revoking stops a card opening doors immediately while keeping its entry history attributable.',
         )}
-      </Typography>
+        actions={
+          <Button
+            variant='contained'
+            startIcon={<AddCard />}
+            onClick={() => setRegisterOpen(true)}
+            sx={{
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              textTransform: 'none',
+              fontWeight: 600,
+            }}
+          >
+            {t('accessControl.cards.register', 'Register badge')}
+          </Button>
+        }
+      />
 
       {updateStatus.error && (
         <Alert severity='error' sx={{ mb: 2, borderRadius: 'var(--sf-radius-md, 8px)' }}>

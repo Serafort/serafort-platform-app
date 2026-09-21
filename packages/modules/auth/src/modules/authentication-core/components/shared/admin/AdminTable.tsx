@@ -1,11 +1,11 @@
 import React, { forwardRef } from 'react'
+import { toneVars } from '../auth/authTone'
 import {
   Box,
   Card,
   IconButton,
   TableCell,
   TableHead,
-  TablePagination,
   TableRow,
   alpha,
   type CardProps,
@@ -13,7 +13,6 @@ import {
   type SxProps,
   type TableCellProps,
   type TableHeadProps,
-  type TablePaginationProps,
   type TableRowProps,
   type Theme,
 } from '@mui/material'
@@ -51,7 +50,7 @@ export const AdminTableCard: React.FC<AdminTableCardProps> = ({ sx, children, ..
         borderRadius: 'var(--sf-radius-lg, 12px)',
         borderColor: 'divider',
         backgroundColor: 'background.paper',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+        boxShadow: 'var(--sf-shadow-sm, none)',
         overflow: 'hidden',
       },
       sx,
@@ -84,7 +83,7 @@ export const AdminTableHeadCell: React.FC<AdminTableHeadCellProps> = ({ sx, chil
     {...props}
     sx={mergeSx(
       (theme: Theme) => ({
-        fontFamily: 'ui-monospace, monospace',
+        fontFamily: 'var(--sf-font-mono, ui-monospace, monospace)',
         fontSize: 'var(--sf-text-2xs, 0.6875rem)',
         fontWeight: 500,
         letterSpacing: '0.05em',
@@ -138,17 +137,18 @@ export const AdminTableRow: React.FC<AdminTableRowProps> = ({
       {...props}
       sx={mergeSx(
         {
-          transition: 'background-color 0.15s ease',
+          transition: 'background-color var(--sf-duration-fast, 120ms) var(--sf-ease-standard, ease)',
+          '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
           '& > .MuiTableCell-root': { borderColor: 'divider' },
           '&:last-of-type > .MuiTableCell-root': { border: 0 },
           ...(clickable && {
             cursor: 'pointer',
             '&:hover': {
               backgroundColor: (theme: Theme) =>
-                `var(--sf-surface-sunken, ${theme.palette.mode === 'dark' ? '#0D2653' : '#ECF0F7'})`,
+                `var(--sf-surface-sunken, ${theme.palette.action.hover})`,
             },
             '&:focus-visible': {
-              outline: (theme: Theme) => `2px solid ${theme.palette.primary.main}`,
+              outline: '2px solid var(--sf-cyan, currentColor)',
               outlineOffset: '-2px',
             },
           }),
@@ -228,25 +228,22 @@ export const AdminStatusBadge: React.FC<AdminStatusBadgeProps> = ({ tone, label,
     sx={mergeSx(
       (theme: Theme) => {
         const isNeutral = tone === 'neutral'
+        const vars = isNeutral ? null : toneVars(theme, tone === 'info' ? 'primary' : tone)
         const main = isNeutral ? theme.palette.text.secondary : theme.palette[tone].main
-        const textColor = isNeutral
-          ? theme.palette.text.secondary
-          : theme.palette.mode === 'dark'
-            ? theme.palette[tone].light
-            : theme.palette[tone].dark
+        const textColor = vars ? vars.text : theme.palette.text.secondary
         return {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '6px',
-          fontFamily: 'ui-monospace, monospace',
+          fontFamily: 'var(--sf-font-mono, ui-monospace, monospace)',
           fontSize: 'var(--sf-text-xs, 0.75rem)',
           fontWeight: 500,
           lineHeight: 1,
           padding: '4px 10px',
           borderRadius: 'var(--sf-radius-full, 9999px)',
           border: '1px solid',
-          borderColor: isNeutral ? 'divider' : alpha(main, 0.35),
-          backgroundColor: alpha(main, isNeutral ? 0.08 : 0.12),
+          borderColor: vars ? vars.border : 'var(--sf-border, currentColor)',
+          backgroundColor: vars ? vars.bg : 'var(--sf-surface-sunken, transparent)',
           color: textColor,
           '& .dot': {
             width: 6,
@@ -265,12 +262,3 @@ export const AdminStatusBadge: React.FC<AdminStatusBadgeProps> = ({ tone, label,
   </Box>
 )
 
-export type AdminTablePaginationProps = TablePaginationProps
-
-/** Pagination footer with the standard `borderTop` divider. */
-export const AdminTablePagination: React.FC<AdminTablePaginationProps> = ({ sx, ...props }) => (
-  <TablePagination
-    {...props}
-    sx={mergeSx({ borderTop: '1px solid', borderColor: 'divider' }, sx)}
-  />
-)

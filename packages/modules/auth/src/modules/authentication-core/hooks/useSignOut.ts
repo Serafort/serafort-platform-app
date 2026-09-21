@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSignout } from './useAuthQuery'
 import { useAuth, StorageManager } from '@cap/platform-core'
 import { useAuthStore } from '../store'
+import { AppPaths } from '@cap/shared-types'
 
 interface UseSignOutOptions {
   redirectTo?: string
@@ -21,7 +22,7 @@ interface UseSignOutOptions {
  * @example
  * ```tsx
  * const { signOut, isSigningOut } = useSignOut({
- *   redirectTo: '/auth/signin',
+ *   redirectTo: AppPaths.auth.signin,
  *   onSuccess: () => console.log('Signed out successfully')
  * })
  *
@@ -30,7 +31,7 @@ interface UseSignOutOptions {
  */
 export const useSignOut = (options: UseSignOutOptions = {}) => {
   const {
-    redirectTo = '/auth/sign-in',
+    redirectTo = AppPaths.auth.signin,
     onSuccess: customOnSuccess,
     onError: customOnError,
   } = options

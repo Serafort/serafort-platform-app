@@ -1,13 +1,19 @@
 import type { Theme } from "@mui/material/styles";
+import ErrorOutline from "@mui/icons-material/ErrorOutline";
+import WarningAmberOutlined from "@mui/icons-material/WarningAmberOutlined";
+import InfoOutlined from "@mui/icons-material/InfoOutlined";
+import CheckCircleOutline from "@mui/icons-material/CheckCircleOutline";
 
+// MUI icons, not tabler `<i>` classes: the app loads no tabler icon font, so
+// those rendered as an empty box and every Alert showed a blank icon slot.
 const alerts: Theme["components"] = {
   MuiAlert: {
     defaultProps: {
       iconMapping: {
-        error: <i className="tabler-alert-circle" />,
-        warning: <i className="tabler-alert-triangle" />,
-        info: <i className="tabler-info-circle" />,
-        success: <i className="tabler-circle-check" />,
+        error: <ErrorOutline fontSize="small" />,
+        warning: <WarningAmberOutlined fontSize="small" />,
+        info: <InfoOutlined fontSize="small" />,
+        success: <CheckCircleOutline fontSize="small" />,
       },
     },
     styleOverrides: {
@@ -29,7 +35,7 @@ const alerts: Theme["components"] = {
         borderRadius: "var(--mui-shape-borderRadius)",
         alignItems: "center",
         justifyContent: "center",
-        "& i, & svg": {
+        "& i": {
           fontSize: "inherit",
         },
       },

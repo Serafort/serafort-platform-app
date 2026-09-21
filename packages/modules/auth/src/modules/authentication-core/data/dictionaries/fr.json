@@ -609,6 +609,18 @@
     "browser": {
       "not_supported_title": "Mise à jour requise"
     },
+    "callback": {
+      "title": "Finalisation de la connexion",
+      "description": "Nous terminons avec votre fournisseur et préparons votre compte.",
+      "success_title": "Vous êtes connecté",
+      "success_description": "Redirection vers votre compte…",
+      "error_title": "La connexion n'a pas pu être finalisée",
+      "expired": "Ce lien de connexion a expiré ou a déjà été utilisé. Veuillez vous reconnecter.",
+      "inactive": "Ce compte est inactif. Contactez votre administrateur pour y accéder.",
+      "failed": "Nous n'avons pas pu finaliser votre connexion. Veuillez réessayer.",
+      "missing_code": "Ce lien de connexion est incomplet. Veuillez recommencer depuis la page de connexion.",
+      "no_session": "La connexion a abouti mais aucun compte n'a été renvoyé. Veuillez réessayer."
+    },
     "common": {
       "actions": "Actions",
       "active": "Actif",
@@ -697,7 +709,7 @@
     },
     "forgotPassword": {
       "backToSignIn": "Retour à la connexion",
-      "emailLabel": "ADRESSE E-MAIL",
+      "emailLabel": "Adresse e-mail",
       "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
       "submit": "Envoyer le lien de réinitialisation",
       "submitting": "Envoi en cours...",
@@ -1079,10 +1091,10 @@
       "verification_sent_title": "Vérification par e-mail envoyée!"
     },
     "resetPassword": {
-      "confirmPasswordLabel": "CONFIRMER LE MOT DE PASSE",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
       "invalidLinkDesc": "Ce lien de réinitialisation de mot de passe est invalide ou a expiré. Veuillez en demander un nouveau.",
       "invalidLinkTitle": "Lien invalide ou expiré",
-      "newPasswordLabel": "NOUVEAU MOT DE PASSE",
+      "newPasswordLabel": "Nouveau mot de passe",
       "requestNewLink": "Demander un nouveau lien",
       "submit": "Réinitialiser le mot de passe",
       "submitting": "Réinitialisation...",
@@ -1140,15 +1152,15 @@
     "signIn": {
       "checking": "Vérification...",
       "continueSso": "Continuer avec le SSO",
-      "emailLabel": "ADRESSE E-MAIL",
+      "emailLabel": "Adresse e-mail",
       "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
       "errorIncomplete": "Veuillez remplir tous les champs.",
       "errorInvalid": "E-mail ou mot de passe invalide.",
       "forgotPassword": "Mot de passe oublié ?",
       "github": "GitHub",
       "noAccount": "Vous n'avez pas de compte ?",
-      "orSignInWith": "OU SE CONNECTER AVEC",
-      "passwordLabel": "MOT DE PASSE",
+      "orSignInWith": "Ou se connecter avec",
+      "passwordLabel": "Mot de passe",
       "rememberMe": "Se souvenir de moi",
       "signUpHere": "Inscrivez-vous ici",
       "submit": "Se connecter",
@@ -1159,26 +1171,28 @@
     "signUp": {
       "alreadyHaveAccount": "Vous avez déjà un compte ?",
       "and": "et la",
-      "emailLabel": "ADRESSE E-MAIL",
+      "emailLabel": "Adresse e-mail",
       "errorGeneric": "Une erreur est survenue lors de l'inscription.",
       "errorIncomplete": "Veuillez remplir tous les champs.",
       "errorTerms": "Vous devez accepter les conditions d'utilisation.",
       "firstNameLabel": "PRÉNOM",
       "iAgreeTo": "J'accepte les",
       "lastNameLabel": "NOM",
-      "orSignUpWith": "OU S'INSCRIRE AVEC",
-      "passwordLabel": "MOT DE PASSE",
+      "orSignUpWith": "Ou s'inscrire avec",
+      "passwordLabel": "Mot de passe",
       "privacyPolicy": "Politique de confidentialité",
       "signInHere": "Connectez-vous ici",
       "submit": "Créer un compte",
       "submitting": "Création du compte...",
-      "subtitle": "Rejoignez Antigravity OS dès aujourd'hui",
+      "subtitle": "Créez votre compte Serafort",
       "termsOfService": "Conditions d'utilisation",
       "title": "Créer un compte"
     },
     "signup": {
       "keywords": "inscription, créer un compte, {{appName}}",
-      "title_page": "Créer un compte"
+      "title_page": "Créer un compte",
+      "toggle_password": "Afficher ou masquer le mot de passe",
+      "toggle_confirm_password": "Afficher ou masquer la confirmation du mot de passe"
     },
     "sso": {
       "active_certificates": "Certificats actifs",
@@ -1262,7 +1276,7 @@
       "scope_roles_desc": "Consultez vos autorisations de groupe attribuées.",
       "search_clients": "Rechercher par nom ou ID client...",
       "secure_badge": "Badge de sécurité",
-      "secure_encryption_tag": "Vérifié et protégé par Antigravity OS",
+      "secure_encryption_tag": "Vérifié et protégé par Serafort",
       "security_assertions": "Sécurité et assertions",
       "security_best_practice": "Recommandation de sécurité",
       "sign_assertions": "Signer les assertions",
@@ -1295,6 +1309,10 @@
       "verifyButton": "Vérifier le code",
       "verifying": "Vérification..."
     },
+    "user_form": {
+      "success_reset_password": "Mot de passe réinitialisé avec succès",
+      "error_reset_password": "Échec de la réinitialisation du mot de passe. Veuillez réessayer."
+    },
     "validate": {
       "already_validated": "Ce compte est déjà validé.",
       "success_message": "Votre compte a été validé. Vous pouvez maintenant vous connecter.",
@@ -1309,10 +1327,6 @@
       "alreadyValidatedTitle": "Déjà validé",
       "successTitle": "Compte validé !",
       "prompt": "Veuillez vérifier votre lien ou vous connecter ci-dessous."
-    },
-    "user_form": {
-      "success_reset_password": "Mot de passe réinitialisé avec succès",
-      "error_reset_password": "Échec de la réinitialisation du mot de passe. Veuillez réessayer."
     }
   },
   "common": {
@@ -1437,7 +1451,7 @@
   },
   "forgotPassword": {
     "backToSignIn": "Retour à la connexion",
-    "emailLabel": "ADRESSE E-MAIL",
+    "emailLabel": "Adresse e-mail",
     "errorGeneric": "Une erreur s’est produite. Veuillez réessayer.",
     "keywords": "{{appName}} mot de passe oublié réinitialisation",
     "privacyNote": "Pour votre sécurité, nous envoyons la même confirmation, que l'adresse soit enregistrée ou non.",
@@ -1527,13 +1541,13 @@
     "unauthorizedAction": "Vous n'êtes pas à l'origine de cette demande ?"
   },
   "resetPassword": {
-    "confirmPasswordLabel": "CONFIRMER LE MOT DE PASSE",
+    "confirmPasswordLabel": "Confirmer le mot de passe",
     "errorGeneric": "Une erreur s'est produite. Veuillez réessayer.",
     "invalidLink": "Lien de réinitialisation invalide.",
     "invalidLinkDesc": "Ce lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.",
     "invalidLinkTitle": "Lien invalide ou expiré",
     "linkExpired": "Le lien de réinitialisation a expiré ou est invalide.",
-    "newPasswordLabel": "NOUVEAU MOT DE PASSE",
+    "newPasswordLabel": "Nouveau mot de passe",
     "requestNewLink": "Demander un nouveau lien",
     "submit": "Réinitialiser le mot de passe",
     "submitting": "Réinitialisation...",
@@ -1563,15 +1577,15 @@
   "signIn": {
     "checking": "Vérification...",
     "continueSso": "Continuer avec le SSO",
-    "emailLabel": "ADRESSE E-MAIL",
+    "emailLabel": "Adresse e-mail",
     "errorGeneric": "Une erreur s’est produite. Veuillez réessayer.",
     "errorIncomplete": "Veuillez remplir tous les champs.",
     "errorInvalid": "E-mail ou mot de passe invalide.",
     "forgotPassword": "Mot de passe oublié ?",
     "github": "GitHub",
     "noAccount": "Vous n’avez pas de compte ?",
-    "orSignInWith": "OU SE CONNECTER AVEC",
-    "passwordLabel": "MOT DE PASSE",
+    "orSignInWith": "Ou se connecter avec",
+    "passwordLabel": "Mot de passe",
     "rememberMe": "Se souvenir de moi",
     "signUpHere": "Inscrivez-vous ici",
     "submit": "Se connecter",
@@ -1591,7 +1605,7 @@
     "cancel": "Annuler",
     "close": "Fermer",
     "codeResent": "Un nouveau code a été envoyé.",
-    "confirmPasswordLabel": "CONFIRMER LE MOT DE PASSE",
+    "confirmPasswordLabel": "Confirmer le mot de passe",
     "continueNow": "Continuer maintenant",
     "countdown": "Le code expire dans {{time}}",
     "criteriaLowercase": "Minuscule",
@@ -1600,7 +1614,7 @@
     "criteriaSpecial": "Symbole",
     "criteriaUppercase": "Majuscule",
     "email": "E-mail",
-    "emailLabel": "ADRESSE E-MAIL",
+    "emailLabel": "Adresse e-mail",
     "emailMissing": "L'adresse e-mail est manquante.",
     "emailPlaceholder": "nom@entreprise.com",
     "emailVerifiedSuccess": "E-mail vérifié avec succès.",
@@ -1617,7 +1631,7 @@
     "lastNamePlaceholder": "Dupont",
     "lockedMessage": "Trop de tentatives. Votre compte est temporairement verrouillé.",
     "orSignUpWith": "OU S’INSCRIRE AVEC",
-    "passwordLabel": "MOT DE PASSE",
+    "passwordLabel": "Mot de passe",
     "passwordStrength": "Force du mot de passe",
     "privacyPolicy": "Politique de confidentialité",
     "progressCaption": "Étape {{current}} sur {{total}}",
@@ -1646,7 +1660,7 @@
     "submit": "Créer un compte",
     "submitAppeal": "Envoyer la contestation",
     "submitting": "Création du compte...",
-    "subtitle": "Rejoignez Antigravity OS dès aujourd’hui",
+    "subtitle": "Créez votre compte Serafort dès aujourd’hui",
     "successSubtitle": "Votre compte est prêt à être utilisé.",
     "successTitle": "Compte créé",
     "termsOfService": "Conditions d’utilisation",

@@ -23,16 +23,24 @@
  * mounts. Every other API call still 404s (there is no backend), so screens
  * render their genuine empty / error states.
  *
- * Usage — identical shape to driver.mjs:
- *   node .claude/skills/run-serafort-app/admin-driver.mjs probe   /auth/sso/jwks
- *   node .claude/skills/run-serafort-app/admin-driver.mjs shot    /admin/provisioning out/prov.png
- *   node .claude/skills/run-serafort-app/admin-driver.mjs measure /auth/sso/jwks "main h4"
- *   node .claude/skills/run-serafort-app/admin-driver.mjs text    /auth/sso/jwks   # dump <main> innerText
+ * Usage (Git Bash — MSYS_NO_PATHCONV=1 is REQUIRED):
+ *
+ *   MSYS_NO_PATHCONV=1 node .claude/skills/run-serafort-app/admin-driver.mjs probe   /auth/sso/jwks
+ *   MSYS_NO_PATHCONV=1 node .claude/skills/run-serafort-app/admin-driver.mjs shot    /admin/provisioning out/prov.png
+ *   MSYS_NO_PATHCONV=1 node .claude/skills/run-serafort-app/admin-driver.mjs measure /auth/sso/jwks "main h4"
+ *   MSYS_NO_PATHCONV=1 node .claude/skills/run-serafort-app/admin-driver.mjs text    /auth/sso/jwks
+ *
+ * PowerShell / cmd (no prefix needed):
+ *
+ *   node .claude/skills/run-serafort-app/admin-driver.mjs shot /admin/provisioning out/prov.png
+ *
+ * WHY MSYS_NO_PATHCONV=1: Git Bash rewrites every bare route argument that
+ * starts with "/" into a Windows absolute path (e.g. /admin/provisioning →
+ * C:/Program Files/Git/admin/provisioning). Without this flag, every admin/*
+ * screenshot navigates to the landing page instead and returns a blank image.
  *
  * Options: --dark  --width N  --height N  --clip x,y,w,h  --wait <selector>
  *          --base <url>  --role <super_admin|admin|...>
- *
- * In Git Bash prefix with MSYS_NO_PATHCONV=1 (bare "/" arg gets path-mangled).
  */
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
@@ -55,8 +63,18 @@ if (!['probe', 'shot', 'measure', 'text'].includes(cmd)) {
   process.exit(2)
 }
 
+function normalizeRoute(rawInput) {
+  if (!rawInput || rawInput === '/') return '/'
+  let clean = rawInput.replace(/\\/g, '/')
+  if (/^[A-Za-z]:/i.test(clean)) {
+    clean = clean.replace(/^[A-Za-z]:/i, '')
+    clean = clean.replace(/^\/(?:Program\s+Files(?:\s+\(x86\))?\/)?(?:Git\/|msys(?:64)?\/|cygwin(?:64)?\/)?/i, '/')
+  }
+  return clean.startsWith('/') ? clean : '/' + clean
+}
+
 const raw = positional[0] || '/'
-const route = /^[A-Za-z]:[\\/]/.test(raw) ? '/' : raw.startsWith('/') ? raw : '/' + raw
+const route = normalizeRoute(raw)
 
 const BASE = flag('base', 'http://localhost:5173')
 const viewport = { width: Number(flag('width', 1440)), height: Number(flag('height', 900)) }

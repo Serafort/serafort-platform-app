@@ -174,7 +174,7 @@ export const exportState = () => {
 
   const link = document.createElement("a");
   link.href = url;
-  link.download = `linkedin-scraper-state-${new Date().toISOString()}.json`;
+  link.download = `serafort-state-${new Date().toISOString()}.json`;
   link.click();
 
   URL.revokeObjectURL(url);

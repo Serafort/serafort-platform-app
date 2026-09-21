@@ -2,11 +2,11 @@ import React from 'react'
 import { Box, Card, CardContent, Typography, alpha, useTheme } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { useNavigate } from 'react-router-dom'
-import WorkOutlineIcon from '@mui/icons-material/WorkOutline'
-import SearchIcon from '@mui/icons-material/Search'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import BusinessIcon from '@mui/icons-material/Business'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
+import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined'
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined'
 
 export const featuresList = [
   {
@@ -16,16 +16,16 @@ export const featuresList = [
     link: '/chronos-mycelium',
   },
   {
-    icon: <SearchIcon sx={{ fontSize: 48 }} />,
-    title: 'Smart Job Search',
-    description: 'Advanced search algorithms to find your perfect opportunity',
-    link: '/jobs',
+    icon: <DashboardOutlinedIcon sx={{ fontSize: 48 }} />,
+    title: 'Live Dashboard',
+    description: 'Drag-and-drop widget workspace with multi-tenant layout persistence',
+    link: '/dashboard',
   },
   {
-    icon: <WorkOutlineIcon sx={{ fontSize: 48 }} />,
-    title: 'Automated Scraper',
-    description: 'AI-powered data collection from multiple platforms',
-    link: '/scraper',
+    icon: <PaletteOutlinedIcon sx={{ fontSize: 48 }} />,
+    title: 'Theme Studio',
+    description: 'AI-powered tenant branding — generate, preview, and publish in seconds',
+    link: '/theme',
   },
   {
     icon: <BarChartIcon sx={{ fontSize: 48 }} />,

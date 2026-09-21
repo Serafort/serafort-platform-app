@@ -5,6 +5,7 @@ import Devices from '@mui/icons-material/Devices'
 import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline'
 import { useNavigate } from 'react-router-dom'
 import { useDeviceAuth } from '@idaas/authentication-core/hooks'
+import { parseAuthRequestError } from '../../utils/authRequestError'
 import {
   AuthPageLayout,
   AuthCard,
@@ -32,16 +33,16 @@ const DeviceCodeDisplay = () => {
     setErrorMessage(null)
 
     verifyCode(value, {
-      onSuccess: (response: any) => {
+      onSuccess: (response) => {
         if (response.data.success && response.data.redirectUrl) {
           window.location.href = response.data.redirectUrl
         } else {
           setErrorMessage(t('device.errorGeneric', 'Verification failed. Please check the code.'))
         }
       },
-      onError: (err: any) => {
+      onError: (err) => {
         setErrorMessage(
-          err.response?.data?.error === 'invalid_user_code'
+          parseAuthRequestError(err).errorCode === 'invalid_user_code'
             ? t('device.invalidCode', 'Invalid or expired code. Please try again.')
             : t('device.errorGeneric', 'Verification failed.'),
         )
@@ -121,7 +122,7 @@ const DeviceCodeDisplay = () => {
               sx={{
                 minHeight: 48,
                 borderRadius: 'var(--sf-radius-lg, 12px)',
-                fontWeight: 800,
+                fontWeight: 700,
                 fontSize: '1rem',
                 textTransform: 'none',
               }}

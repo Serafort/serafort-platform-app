@@ -21,7 +21,7 @@ import Storage from '@mui/icons-material/Storage'
 import Layers from '@mui/icons-material/Layers'
 import VerifiedUser from '@mui/icons-material/VerifiedUser'
 import Mail from '@mui/icons-material/Mail'
-import ChevronRight from '@mui/icons-material/ChevronRight'
+import { NextChevronIcon as ChevronRight } from '../../components/common/DirectionalIcon'
 import CheckCircle from '@mui/icons-material/CheckCircle'
 import Warning from '@mui/icons-material/Warning'
 import ErrorIcon from '@mui/icons-material/Error'
@@ -47,6 +47,17 @@ interface Dependency extends ApiDependency {
   iconBg: string
 }
 
+/** The detailed-health payload the dashboard renders, bare or wrapped in `{ data }`. */
+interface HealthPayload {
+  dependencies?: ApiDependency[]
+  lastCheck?: string
+  healthScore?: number
+  appVersion?: string
+  environment?: string
+  uptime?: string
+  server?: string
+}
+
 interface SystemHealthDashboardProps {
   onRefresh?: () => void
   onDownloadLogs?: () => void
@@ -70,9 +81,10 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
     refetchInterval: 30000,
     staleTime: 10000,
     refetchOnWindowFocus: false,
-  } as any)
+  })
 
-  const healthData = (healthResponse as any)?.data || healthResponse
+  const healthData = ((healthResponse as { data?: HealthPayload } | undefined)?.data ??
+    healthResponse) as HealthPayload | undefined
 
   // Map dependency IDs to icons and colors
   const getIconConfig = (id: string) => {

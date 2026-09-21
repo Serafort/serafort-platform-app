@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useDeactivateAccount, useUserProfile } from '../../hooks/useUserQuery'
+import { getPlainErrorMessage } from '../../types/api.types'
 import logger from '@idaas/authentication-core/utils/logger'
 import { Path } from '../../../../routes/path'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
@@ -35,7 +36,7 @@ export default function DeactivateAccount() {
   const [confirmText, setConfirmText] = useState('')
   const deactivateAccountMutation = useDeactivateAccount()
   const { data: userProfile } = useUserProfile()
-  const user = userProfile?.data as any
+  const user = userProfile?.data as { id?: number | string } | undefined
 
   const handleDeactivate = useCallback(async () => {
     if (confirmText.toUpperCase() !== 'DEACTIVATE' && confirmText.toUpperCase() !== 'DELETE') {
@@ -53,7 +54,7 @@ export default function DeactivateAccount() {
   }, [confirmText, deactivateAccountMutation, navigate, user])
 
   const handleCancel = useCallback(() => {
-    navigate(Path.account.view || '/profile')
+    navigate(Path.account.view)
   }, [navigate])
 
   return (
@@ -159,7 +160,7 @@ export default function DeactivateAccount() {
                   borderColor: alpha(theme.palette.error.main, 0.2),
                 }}
               >
-                {(deactivateAccountMutation.error as any)?.message ||
+                {getPlainErrorMessage(deactivateAccountMutation.error) ||
                   t('auth.common.errorOccurred', 'An error occurred during deactivation')}
               </Alert>
             )}

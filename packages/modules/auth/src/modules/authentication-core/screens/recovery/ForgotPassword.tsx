@@ -98,7 +98,7 @@ export default function ForgotPassword() {
             <Stack spacing={3}>
               <Box>
                 <AuthInputLabel htmlFor='forgot-password-email'>
-                  {t('forgotPassword.emailLabel', 'EMAIL ADDRESS')}
+                  {t('forgotPassword.emailLabel', 'Email address')}
                 </AuthInputLabel>
                 <Controller
                   name='email'

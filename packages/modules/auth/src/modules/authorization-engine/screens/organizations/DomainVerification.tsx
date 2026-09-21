@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import {
   Alert,
   Box,
@@ -24,9 +24,9 @@ import Add from '@mui/icons-material/Add'
 import Verified from '@mui/icons-material/Verified'
 import Pending from '@mui/icons-material/Pending'
 import { useTranslation } from 'react-i18next'
-import { useNotifications } from '@cap/platform-core'
+import { toast } from 'react-toastify'
 
-import { adminService, DomainVerification as DomainType } from '../../services/adminService'
+import { useCheckDomain, useDomains, useVerifyDomain } from '../../hooks/useAdminQuery'
 import { normalizeDomain } from '../../../authentication-core/utils/schema'
 import { useActiveOrganizationId } from '../../../authentication-core/hooks/useActiveOrganizationId'
 import {
@@ -53,34 +53,61 @@ import { AuthCopyField } from '../../../authentication-core/components/shared/au
  * Note the record goes on the apex domain: the controller resolves `domain`
  * itself, even though `DomainVerification.getDnsRecord()` in the backend model
  * names `_verification.<domain>`. The controller is what runs on verify.
+ *
+ * `http` records are checked by fetching `/.well-known/oneauth-verification`
+ * on the domain instead, so their instructions differ.
  */
+
+const HTTP_VERIFICATION_PATH = '/.well-known/oneauth-verification'
+
+/*
+ * Feedback goes through a toast. It used to go to `useNotifications`, which
+ * only files an entry in the header's notification inbox, so adding or
+ * checking a domain gave no visible response on the page itself.
+ */
+function notify({
+  type,
+  title,
+  message,
+}: {
+  type: 'success' | 'warning' | 'error'
+  title: string
+  message: string
+}) {
+  toast[type](
+    <Box>
+      <Typography variant='subtitle2' component='p' sx={{ fontWeight: 700 }}>
+        {title}
+      </Typography>
+      <Typography variant='body2' component='p'>
+        {message}
+      </Typography>
+    </Box>,
+  )
+}
 
 const DomainVerification: React.FC = () => {
   const { t } = useTranslation()
-  const { addNotification } = useNotifications()
   const orgId = useActiveOrganizationId()
 
-  const [domains, setDomains] = useState<DomainType[]>([])
   const [newDomain, setNewDomain] = useState('')
-  const [isAdding, setIsAdding] = useState(false)
-  const [checkingId, setCheckingId] = useState<number | null>(null)
+  const [checkingId, setCheckingId] = useState<string | null>(null)
 
   /*
-   * The backend serves POST /domains/verify and POST /domains/check, but no
-   * endpoint that lists an organization's domains — see `adminService`, where
-   * the org-scoped list routes are documented as never having been served.
-   * The screen therefore starts empty and shows what this session adds or
-   * checks, rather than the organization's full registry. It used to seed
-   * itself with a hardcoded `example.com` row, which read as real data.
+   * The organization's full registry, from GET /api/admin/domains. This screen
+   * used to start empty on every visit and show only what the current session
+   * had added, because no list endpoint existed.
    */
-  useEffect(() => {
-    setDomains([])
-  }, [orgId])
+  const domainsQuery = useDomains(orgId)
+  const domains = domainsQuery.data ?? []
+  const verifyDomain = useVerifyDomain()
+  const checkDomain = useCheckDomain()
+  const isAdding = verifyDomain.isPending
 
   const handleAddDomain = useCallback(async () => {
     const normalized = normalizeDomain(newDomain)
     if (!normalized) {
-      addNotification({
+      notify({
         type: 'error',
         title: t('auth.admin.domainVerification.invalid_title', 'That does not look like a domain'),
         message: t(
@@ -91,16 +118,14 @@ const DomainVerification: React.FC = () => {
       return
     }
 
-    setIsAdding(true)
     try {
-      const response = await adminService.verifyDomain(Number(orgId), normalized)
+      // No organization id is sent: the backend resolves it from the session.
+      // This used to send `Number(orgId)`, which is NaN for the UUID ids the
+      // backend uses, so every add failed with "No organization found".
+      const response = await verifyDomain.mutateAsync({ domain: normalized })
       if (response.data) {
-        setDomains((current) => [
-          ...current.filter((entry) => entry.domain !== response.data!.domain),
-          response.data,
-        ])
         setNewDomain('')
-        addNotification({
+        notify({
           type: 'success',
           title: t('auth.admin.domainVerification.added_title', 'Domain added'),
           message: t(
@@ -109,35 +134,36 @@ const DomainVerification: React.FC = () => {
           ),
         })
       }
-    } catch {
-      addNotification({
+    } catch (error) {
+      const conflict = (error as { status?: number } | null)?.status === 409
+      notify({
         type: 'error',
         title: t('auth.admin.domainVerification.add_failed_title', 'The domain could not be added'),
-        message: t(
-          'auth.admin.domainVerification.add_failed_body',
-          'Nothing has been changed. Check the domain and try again.',
-        ),
+        message: conflict
+          ? t(
+              'auth.admin.domainVerification.add_conflict_body',
+              'This domain is already registered to another organization.',
+            )
+          : t(
+              'auth.admin.domainVerification.add_failed_body',
+              'Nothing has been changed. Check the domain and try again.',
+            ),
       })
-    } finally {
-      setIsAdding(false)
     }
-  }, [addNotification, newDomain, orgId, t])
+  }, [newDomain, t, verifyDomain])
 
   // Takes the record rather than just its id: the backend looks the pending
   // verification up by domain name, and the id is still needed to slot the
   // refreshed record back into the list.
   const handleCheckStatus = useCallback(
-    async (domainId: number, domainName: string) => {
+    async (domainId: string, domainName: string) => {
       setCheckingId(domainId)
       try {
-        const response = await adminService.checkDomain(domainName)
+        const response = await checkDomain.mutateAsync({ domain: domainName })
         if (response.data) {
           const updated = response.data
-          setDomains((current) =>
-            current.map((entry) => (entry.id === domainId ? updated : entry)),
-          )
           if (updated.status === 'verified') {
-            addNotification({
+            notify({
               type: 'success',
               title: t('auth.admin.domainVerification.verified_title', 'Domain verified'),
               message: t(
@@ -146,18 +172,18 @@ const DomainVerification: React.FC = () => {
               ),
             })
           } else {
-            addNotification({
+            notify({
               type: 'warning',
               title: t('auth.admin.domainVerification.pending_title', 'Not verified yet'),
               message: t(
                 'auth.admin.domainVerification.pending_body',
-                'The TXT record was not found. DNS changes can take up to an hour to propagate.',
+                'The verification record was not found. DNS changes can take up to an hour to propagate.',
               ),
             })
           }
         }
       } catch {
-        addNotification({
+        notify({
           type: 'error',
           title: t('auth.admin.domainVerification.check_failed_title', 'The status could not be checked'),
           message: t(
@@ -169,7 +195,7 @@ const DomainVerification: React.FC = () => {
         setCheckingId(null)
       }
     },
-    [addNotification, t],
+    [checkDomain, t],
   )
 
   const verifiedCount = domains.filter((entry) => entry.status === 'verified').length
@@ -277,6 +303,9 @@ const DomainVerification: React.FC = () => {
                   {t('auth.admin.domainVerification.col_status', 'Status')}
                 </AdminTableHeadCell>
                 <AdminTableHeadCell>
+                  {t('auth.admin.domainVerification.col_method', 'Method')}
+                </AdminTableHeadCell>
+                <AdminTableHeadCell>
                   {t('auth.admin.domainVerification.col_added', 'Added')}
                 </AdminTableHeadCell>
                 <AdminTableHeadCell align='right'>
@@ -287,7 +316,10 @@ const DomainVerification: React.FC = () => {
             <TableBody>
             <AdminDataState
               asTableRow
-              skeletonColumns={4}
+              skeletonColumns={5}
+              loading={domainsQuery.isLoading}
+              error={domainsQuery.error}
+              onRetry={() => domainsQuery.refetch()}
               empty={domains.length === 0}
               emptyIcon={<Language sx={{ fontSize: 32 }} />}
               emptyTitle={t('auth.admin.domainVerification.empty_title', 'No domains added yet')}
@@ -298,6 +330,7 @@ const DomainVerification: React.FC = () => {
             >
               {domains.map((domain) => {
                 const verified = domain.status === 'verified'
+                const isHttp = domain.method === 'http'
                 return (
                   <React.Fragment key={domain.id}>
                     <TableRow hover>
@@ -318,6 +351,13 @@ const DomainVerification: React.FC = () => {
                               : t('auth.admin.domainVerification.status_pending', 'Pending')
                           }
                         />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant='body2' color='text.secondary'>
+                          {isHttp
+                            ? t('auth.admin.domainVerification.method_http', 'HTTP file')
+                            : t('auth.admin.domainVerification.method_dns', 'DNS TXT')}
+                        </Typography>
                       </TableCell>
                       <TableCell>
                         <Typography variant='caption' color='text.secondary'>
@@ -360,13 +400,18 @@ const DomainVerification: React.FC = () => {
 
                     {!verified && domain.verification_token && (
                       <TableRow>
-                        <TableCell colSpan={4} sx={{ bgcolor: 'action.hover' }}>
+                        <TableCell colSpan={5} sx={{ bgcolor: 'action.hover' }}>
                           <Box sx={{ py: 1 }}>
                             <Typography
                               variant='caption'
                               sx={{ fontWeight: 800, mb: 1, display: 'block' }}
                             >
-                              {t('auth.admin.domainVerification.txt_required', 'Add this DNS TXT record')}
+                              {isHttp
+                                ? t('auth.admin.domainVerification.http_required', {
+                                    url: `https://${domain.domain}${HTTP_VERIFICATION_PATH}`,
+                                    defaultValue: 'Serve this value as the only content of {{url}}',
+                                  })
+                                : t('auth.admin.domainVerification.txt_required', 'Add this DNS TXT record')}
                             </Typography>
                             {/*
                               Was a hand-rolled code box on `grey.900` with a
@@ -377,12 +422,20 @@ const DomainVerification: React.FC = () => {
                             */}
                             <AuthCopyField
                               value={domain.verification_token}
-                              label={t(
-                                'auth.admin.domainVerification.txt_label',
-                                'TXT record value, on {{domain}}',
-                                { domain: domain.domain },
-                              )}
-                              copyLabel={t('auth.admin.domainVerification.txt_copy', 'Copy TXT record')}
+                              label={
+                                isHttp
+                                  ? t('auth.admin.domainVerification.http_label', 'File content')
+                                  : t(
+                                      'auth.admin.domainVerification.txt_label',
+                                      'TXT record value, on {{domain}}',
+                                      { domain: domain.domain },
+                                    )
+                              }
+                              copyLabel={
+                                isHttp
+                                  ? t('auth.admin.domainVerification.http_copy', 'Copy file content')
+                                  : t('auth.admin.domainVerification.txt_copy', 'Copy TXT record')
+                              }
                             />
                           </Box>
                         </TableCell>

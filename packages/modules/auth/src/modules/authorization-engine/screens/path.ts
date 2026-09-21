@@ -1,24 +1,15 @@
-const Path = {
-  // --- API Tokens ---
-  dashboard: '/auth/api-tokens',
-  createBasic: '/auth/api-tokens/create/basic',
-  createRestrictions: '/auth/api-tokens/create/restrictions',
-  details: '/auth/api-tokens/:tokenId',
-  display: '/auth/api-tokens/:tokenId/display',
-  actions: '/auth/api-tokens/:tokenId/actions',
-  securityWarning: '/auth/api-tokens/security-warning',
-  machineIdentities: '/admin/machine-identities',
+// ---------------------------------------------------------------------------
+// Path projection for the authorization-engine sub-module.
+//
+// This file intentionally contains NO URL literals. The API-token, role and policy paths
+// live in the Tier 0 registry (`AppPaths` in @cap/shared-types) so that editing
+// a path there changes it everywhere -- router, links, navigation and tests.
+//
+// To add or change a route, edit `AppPaths.authorization` in
+// packages/shared-types/src/routes.ts, not this file.
+// ---------------------------------------------------------------------------
+import { AppPaths } from '@cap/shared-types'
 
-  // -- Domain Verification
-  domainVerification: '/admin/domain-verification',
-  // -- Policies
-  policyCanvas: '/admin/policies/canvas',
-  // -- Roles
-  roles: '/admin/roles',
-  roleDetail: '/admin/roles/:id',
-
-  // -- Permissions
-  permissions: '/admin/permissions',
-}
+const Path = AppPaths.authorization
 
 export default Path

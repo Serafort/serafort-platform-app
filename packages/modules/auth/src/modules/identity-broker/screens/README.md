@@ -1,6 +1,7 @@
 # Identity Broker Screens
 
-This directory contains screens built for SSO (OIDC/SAML/JWKS) and provisioning (SCIM).
+SSO (OIDC / SAML / JWKS / SSF) and provisioning (SCIM) screens. All are routed
+from `routes/routes.tsx`; paths come from `AppPaths.identity` via `./path.ts`.
 
-> [!NOTE]
-> These screens (~15 admin screens) are currently unrouted and are reserved for integration with the future `admin` module.
+- `sso/` admin configuration plus the interactive login / consent / wait flows.
+- `provisioning/` directory sync, connector detail, SCIM and sync logs.

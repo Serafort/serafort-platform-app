@@ -29,7 +29,7 @@ import {
   Alert,
 } from '@mui/material'
 import Save from '@mui/icons-material/Save'
-import ArrowBack from '@mui/icons-material/ArrowBack'
+import { BackIcon as ArrowBack } from '../../components/common/DirectionalIcon'
 import Security from '@mui/icons-material/Security'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import Refresh from '@mui/icons-material/Refresh'
@@ -48,7 +48,7 @@ import {
   useOIDCClient,
   useUpdateOIDCClient,
   useRotateClientSecret,
-} from '@idaas/authentication-core/hooks/useAdminQuery'
+} from '@auth/authorization-engine/hooks/useAdminQuery'
 import { Path } from '@cap/module-auth/routes/path'
 import ConfirmationDialog from '@idaas/authentication-core/components/shared/Modals/ConfirmationDialog'
 
@@ -63,7 +63,7 @@ function TabPanel(props: TabPanelProps) {
   const { children, value, index, sx, ...other } = props
   return (
     <div role='tabpanel' hidden={value !== index} {...other}>
-      {value === index && <Box sx={{ py: 3, ...(sx as any) }}>{children}</Box>}
+      {value === index && <Box sx={[{ py: 3 }, ...(Array.isArray(sx) ? sx : [sx])]}>{children}</Box>}
     </div>
   )
 }
@@ -133,7 +133,7 @@ export default function ApplicationDetailView() {
 
     updateMutation.mutate(
       {
-        id: id as any,
+        id,
         data: {
           name: formData.name,
           description: formData.description,
@@ -143,7 +143,7 @@ export default function ApplicationDetailView() {
         onSuccess: () => {
           toast.success(t('auth.admin.successUpdateApp'))
         },
-        onError: (error: any) => {
+        onError: (error) => {
           toast.error(error.message || t('auth.admin.errorUpdateApp'))
         },
       },
@@ -165,7 +165,7 @@ export default function ApplicationDetailView() {
 
   const onRotateConfirm = () => {
     if (!id) return
-    rotateSecretMutation.mutate(id as any, {
+    rotateSecretMutation.mutate(id, {
       onSuccess: () => {
         toast.success(
           t('auth.admin.successRotateSecret') || 'Client secret rotated successfully',
@@ -173,7 +173,7 @@ export default function ApplicationDetailView() {
         )
         setShowRotateConfirm(false)
       },
-      onError: (error: any) => {
+      onError: (error) => {
         toast.error(
           error.message || t('auth.admin.errorRotateSecret') || 'Failed to rotate client secret',
           {},
@@ -230,9 +230,12 @@ export default function ApplicationDetailView() {
               <Button
                 startIcon={<ArrowBack />}
                 onClick={() => navigate(Path.admin.applications)}
+                aria-label={t('admin.developer.applications.back', 'Back to applications')}
                 sx={{
                   p: 0,
-                  minWidth: 'auto',
+                  minWidth: 44,
+                  minHeight: 44,
+                  '& .MuiButton-startIcon': { m: 0 },
                   color: 'text.secondary',
                   '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
                 }}
@@ -258,7 +261,7 @@ export default function ApplicationDetailView() {
                   size='small'
                   color='primary'
                   variant='filled'
-                  sx={{ fontWeight: 800, height: 20, fontSize: '0.65rem' }}
+                  sx={{ fontWeight: 800, height: 22, fontSize: '0.75rem' }}
                 />
               )}
               <Chip
@@ -514,7 +517,7 @@ export default function ApplicationDetailView() {
                               onSuccess: () => {
                                 toast.success(t('auth.admin.successUpdateApp'))
                               },
-                              onError: (error: any) => {
+                              onError: (error) => {
                                 toast.error(error.message || t('auth.admin.errorUpdateApp'))
                               },
                             },

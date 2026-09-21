@@ -30,7 +30,8 @@ const ConfirmDeleteModal = ({
       onClose={onClose}
       PaperProps={{
         sx: {
-          borderRadius: 'var(--sf-radius-lg, 12px)',
+          borderRadius: 'var(--sf-radius-xl, 16px)',
+          boxShadow: 'var(--sf-shadow-xl)',
           bgcolor: 'background.paper',
           color: 'text.primary',
           border: '1px solid',
@@ -45,7 +46,7 @@ const ConfirmDeleteModal = ({
           sx={{
             width: 64,
             height: 64,
-            borderRadius: '50%',
+            borderRadius: 'var(--sf-radius-lg, 12px)',
             background: alpha(theme.palette.error.main, 0.1),
             display: 'flex',
             alignItems: 'center',
@@ -57,7 +58,16 @@ const ConfirmDeleteModal = ({
           <ErrorOutline sx={{ fontSize: 32, color: 'error.main' }} />
         </Box>
 
-        <Typography variant='h5' sx={{ fontWeight: 700, mb: 1 }}>
+        <Typography
+          variant='h5'
+          component='h2'
+          sx={{
+            fontFamily: 'var(--sf-font-display, inherit)',
+            fontWeight: 700,
+            fontSize: 'var(--sf-text-lg, 1.0625rem)',
+            mb: 1,
+          }}
+        >
           {title || t('common.confirm_deletion', 'Confirm Deletion')}
         </Typography>
 

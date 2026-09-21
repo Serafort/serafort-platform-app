@@ -1,6 +1,7 @@
 import { apiClient, ENDPOINTS, type FetchResponse } from '@cap/platform-core'
 import type {
   OIDCClient,
+  RawOIDCClient,
   CreateOIDCClientDTO,
   UpdateOIDCClientDTO,
   RotateClientSecretResult,
@@ -25,12 +26,12 @@ import type {
  * exactly as snake_case. Tolerate both casings here so this keeps working
  * whether or not that middleware gets wired up later.
  */
-function normalizeOidcClient(raw: any): OIDCClient {
-  if (!raw) return raw
+function normalizeOidcClient(raw: RawOIDCClient | null | undefined): OIDCClient {
+  if (!raw) return raw as unknown as OIDCClient
   return {
-    id: raw.id,
-    clientId: raw.clientId ?? raw.client_id,
-    clientName: raw.clientName ?? raw.client_name ?? raw.name,
+    id: raw.id as string,
+    clientId: (raw.clientId ?? raw.client_id) as string,
+    clientName: (raw.clientName ?? raw.client_name ?? raw.name) as string,
     clientSecret: raw.clientSecret ?? raw.client_secret,
     redirectUris: raw.redirectUris ?? raw.redirect_uris ?? [],
     responseTypes: raw.responseTypes ?? raw.response_types,
@@ -40,6 +41,8 @@ function normalizeOidcClient(raw: any): OIDCClient {
     policyUri: raw.policyUri ?? raw.policy_uri ?? null,
     tosUri: raw.tosUri ?? raw.tos_uri ?? null,
     scope: raw.scope,
+    isActive: raw.isActive ?? raw.is_active,
+    description: raw.description,
     organizationId: raw.organizationId ?? raw.organization_id ?? null,
     createdAt: raw.createdAt ?? raw.created_at,
     updatedAt: raw.updatedAt ?? raw.updated_at,
@@ -49,17 +52,17 @@ function normalizeOidcClient(raw: any): OIDCClient {
 export const oidcService = {
   // --- Admin OIDC Clients Management ---
   listClients: async (): Promise<FetchResponse<OIDCClient[]>> => {
-    const res = await apiClient.get<any[]>(ENDPOINTS.admin.clients.index)
+    const res = await apiClient.get<RawOIDCClient[]>(ENDPOINTS.admin.clients.index)
     return { ...res, data: (res.data || []).map(normalizeOidcClient) }
   },
 
   getClient: async (id: string): Promise<FetchResponse<OIDCClient>> => {
-    const res = await apiClient.get<any>(ENDPOINTS.admin.clients.byId(id))
+    const res = await apiClient.get<RawOIDCClient>(ENDPOINTS.admin.clients.byId(id))
     return { ...res, data: normalizeOidcClient(res.data) }
   },
 
   createClient: async (data: CreateOIDCClientDTO): Promise<FetchResponse<OIDCClient>> => {
-    const res = await apiClient.post<any>(ENDPOINTS.admin.clients.store, data)
+    const res = await apiClient.post<RawOIDCClient>(ENDPOINTS.admin.clients.store, data)
     return { ...res, data: normalizeOidcClient(res.data) }
   },
 
@@ -72,11 +75,11 @@ export const oidcService = {
     id: string,
     data: UpdateOIDCClientDTO,
   ): Promise<FetchResponse<OIDCClient>> => {
-    const res = await apiClient.patch<{ message?: string; client?: any }>(
+    const res = await apiClient.patch<{ message?: string; client?: RawOIDCClient }>(
       ENDPOINTS.admin.clients.update(id),
       data,
     )
-    return { ...res, data: normalizeOidcClient(res.data?.client ?? res.data) }
+    return { ...res, data: normalizeOidcClient(res.data?.client ?? (res.data as RawOIDCClient)) }
   },
 
   deleteClient: async (id: string): Promise<FetchResponse<{ message?: string }>> => {
@@ -159,12 +162,12 @@ export const oidcService = {
   },
 
   // --- OIDC Compliance Protocols ---
-  getUserInfo: async (): Promise<FetchResponse<Record<string, any>>> => {
-    return apiClient.get<Record<string, any>>(ENDPOINTS.auth.oidc.userinfo)
+  getUserInfo: async (): Promise<FetchResponse<Record<string, unknown>>> => {
+    return apiClient.get<Record<string, unknown>>(ENDPOINTS.auth.oidc.userinfo)
   },
 
-  introspectToken: async (token: string): Promise<FetchResponse<Record<string, any>>> => {
-    return apiClient.post<Record<string, any>>(ENDPOINTS.auth.oidc.introspect, { token })
+  introspectToken: async (token: string): Promise<FetchResponse<Record<string, unknown>>> => {
+    return apiClient.post<Record<string, unknown>>(ENDPOINTS.auth.oidc.introspect, { token })
   },
 
   revokeToken: async (token: string): Promise<FetchResponse<{ message?: string }>> => {
@@ -176,14 +179,14 @@ export const oidcService = {
   },
 
   pushedAuthorizationRequest: async (
-    data: Record<string, any>,
+    data: Record<string, unknown>,
   ): Promise<FetchResponse<{ request_uri: string; expires_in: number }>> => {
     return apiClient.post(ENDPOINTS.auth.oidc.par, data)
   },
 
   registerClientDynamic: async (
-    data: Record<string, any>,
-  ): Promise<FetchResponse<Record<string, any>>> => {
+    data: Record<string, unknown>,
+  ): Promise<FetchResponse<Record<string, unknown>>> => {
     return apiClient.post(ENDPOINTS.auth.oidc.register, data)
   },
 
@@ -193,7 +196,7 @@ export const oidcService = {
     return apiClient.post(ENDPOINTS.auth.oidc.backchannelLogout, data)
   },
 
-  samlSso: async (data: Record<string, any>): Promise<FetchResponse<any>> => {
+  samlSso: async (data: Record<string, unknown>): Promise<FetchResponse<Record<string, unknown>>> => {
     return apiClient.post(ENDPOINTS.auth.saml.sso, data)
   },
 

@@ -15,7 +15,8 @@ import type { SAMLConfig, JWKSKey } from '../../../domain-kernel/src/types'
 export type { SAMLConfig, JWKSKey }
 
 export interface AdminOrganization {
-  id: number
+  /** UUIDv7 in the current backend; legacy numeric ids still type-check. */
+  id: number | string
   name: string
   slug: string
   status: string
@@ -23,6 +24,9 @@ export interface AdminOrganization {
   updatedAt: string
   ownerId: number
   domain?: string
+  supportEmail?: string | null
+  /** Legacy snake_case alias; the API serializes `supportEmail`. */
+  support_email?: string | null
   members?: any[]
   members_count?: number
   domainVerifications?: any[]
@@ -237,12 +241,45 @@ export interface UpdateMeRequest {
 // ============================================================================
 
 export interface TokenResponse {
+  /** Legacy route field; `/api/v1/auth/login` answers `accessToken` instead. */
   token: string
+  accessToken?: string
   refresh_token: string
   user: User
   expires_in: number
+  expiresIn?: number
   mfa_required?: boolean
+  mfaRequired?: boolean
   userId?: number
+}
+
+/** Response of a password-reset verification (signed link or token). */
+export interface PasswordResetVerifyResponse {
+  token?: string
+  message?: string
+}
+
+/** Response of a completed password reset; may sign the user straight in. */
+export interface PasswordResetResponse extends MessageResponse {
+  token?: string
+  user?: User
+}
+
+/** Response of verifying an email address, by link or by typed code. */
+export interface EmailVerificationResult {
+  message?: string
+  success?: boolean
+  name?: string
+  user?: { name?: string } & Partial<User>
+  alreadyVerified?: boolean
+  token?: string
+  accessToken?: string
+}
+
+/** Response of the admin-issued account validation link. */
+export interface ValidateUserResponse {
+  type?: string
+  user?: { firstname?: string; lastname?: string }
 }
 
 export interface MessageResponse {

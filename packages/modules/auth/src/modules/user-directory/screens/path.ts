@@ -1,38 +1,15 @@
-const Path = {
-  admin: {
-    organizations: {
-      domain_verification: '/organizations/domain-verification',
-      list: '/organizations',
-      organizationProfile: '/organizations/:id',
-      invitations: '/organizations/:id/invitations',
-    },
-    users: {
-      user_profile: '/admin/user/:id',
-      ban_management: '/admin/user/:id/ban',
-      user_create: '/admin/user',
-      data_export: '/admin/user/data-export',
-      impersonation_logs: '/admin/user/:id/impersonation-logs',
-      issues_ban_dialog: '/admin/issues-ban-dialog',
-      reset_password_dialog: '/admin/reset-password-dialog',
-      list: '/admin/users',
-    },
-    compliance: {
-      reports: '/admin/compliance/reports',
-    },
-  },
-  profile: {
-    view: '/profile',
-    linkedAccounts: '/profile/linked-accounts',
-  },
-  settings: {
-    change_email: '/user/change-email',
-    data_export: '/user/data-export',
-    deactivate: '/user/deactivate',
-    delete: '/user/delete',
-    email_change_status: '/user/email-change-status',
-    initiate_email_change: '/user/initiate-email-change',
-    privacy: '/account/privacy',
-    erasure: '/account/privacy/erasure',
-  },
-}
+// ---------------------------------------------------------------------------
+// Path projection for the user-directory sub-module.
+//
+// This file intentionally contains NO URL literals. The admin directory and self-service settings paths
+// live in the Tier 0 registry (`AppPaths` in @cap/shared-types) so that editing
+// a path there changes it everywhere -- router, links, navigation and tests.
+//
+// To add or change a route, edit `AppPaths.user` in
+// packages/shared-types/src/routes.ts, not this file.
+// ---------------------------------------------------------------------------
+import { AppPaths } from '@cap/shared-types'
+
+const Path = AppPaths.user
+
 export default Path

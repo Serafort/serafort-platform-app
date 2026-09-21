@@ -5,6 +5,7 @@ import ArrowForward from '@mui/icons-material/ArrowForward'
 import { useTranslation } from 'react-i18next'
 import { Path } from '../../../../../routes/path'
 import { AuthOutcomeScreen, AuthActionButton } from '../../../components/shared/auth'
+import { AppPaths } from '@cap/shared-types'
 
 export default function EmailVerifiedSuccess() {
   const { t } = useTranslation('auth')
@@ -23,7 +24,7 @@ export default function EmailVerifiedSuccess() {
         <>
           <AuthActionButton
             fullWidth
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate(AppPaths.dashboard.dashboard)}
             endIcon={<ArrowForward />}
             label={t('verify.getStarted', 'Explore Dashboard')}
           />

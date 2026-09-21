@@ -7,8 +7,8 @@ export interface OpenAPIParameter {
   description?: string
   schema?: {
     type?: string
-    default?: any
-    example?: any
+    default?: unknown
+    example?: unknown
     enum?: string[]
   }
 }
@@ -24,12 +24,12 @@ export interface OpenAPIPathItem {
     required?: boolean
     content?: {
       'application/json'?: {
-        schema?: any
-        example?: any
+        schema?: unknown
+        example?: unknown
       }
     }
   }
-  responses?: Record<string, { description?: string; content?: any }>
+  responses?: Record<string, { description?: string; content?: unknown }>
   [key: string]: unknown
 }
 
@@ -41,13 +41,13 @@ export interface OpenAPISpec {
     description?: string
   }
   paths?: Record<string, Record<string, OpenAPIPathItem>>
-  components?: Record<string, any>
+  components?: Record<string, unknown>
 }
 
 export interface SandboxExecutionParams {
   path: string
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | string
-  data?: any
+  data?: unknown
   headers?: Record<string, string>
   params?: Record<string, string>
 }
@@ -57,7 +57,7 @@ export interface SandboxExecutionResult {
   statusText?: string
   responseTimeMs?: number
   headers?: Record<string, string>
-  data: any
+  data: unknown
 }
 
 const apiExplorerService = {
@@ -86,11 +86,11 @@ const apiExplorerService = {
           responseTimeMs: response.data?.responseTimeMs ?? duration,
         },
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Direct API fallback execution
       const duration = Math.round(performance.now() - startTime)
       const method = (params.method || 'GET').toLowerCase()
-      let directRes: FetchResponse<any>
+      let directRes: FetchResponse<unknown>
       if (method === 'get') {
         const q = params.params ? `?${new URLSearchParams(params.params).toString()}` : ''
         directRes = await apiClient.get(`${params.path}${q}`)

@@ -287,6 +287,9 @@ export const API_ENDPOINTS = {
     apiKeys: "/api/admin/developer-api-keys",
     apiKeyById: (id: string | number) => `/api/admin/developer-api-keys/${id}`,
     webhooks: "/api/admin/webhooks",
+    // Server-owned catalogue of subscribable event names, so the console's
+    // event picker cannot drift from what the backend will accept.
+    webhookEventTypes: "/api/admin/webhooks/event-types",
     webhookById: (id: string | number) => `/api/admin/webhooks/${id}`,
     testWebhook: (id: string | number) => `/api/admin/webhooks/${id}/test`,
   },
@@ -318,14 +321,6 @@ export const API_ENDPOINTS = {
     preferences: "/api/notifications/preferences",
     updatePreferences: "/api/notifications/preferences",
     unreadCount: "/api/notifications/unread-count",
-    sse: "/api/sse/notifications",
-  },
-
-  sse: {
-    scrapingProgress: (sessionId: number | string) =>
-      `/api/sse/scraping/${sessionId}`,
-    analysisProgress: (analysisId: number | string) =>
-      `/api/sse/analysis/${analysisId}`,
   },
 
   security: {
@@ -372,28 +367,28 @@ export const API_ENDPOINTS = {
     users: {
       index: "/api/admin/users",
       store: "/api/admin/users",
-      byId: (id: number) => `/api/admin/users/${id}`,
-      activate: (id: number) => `/api/admin/users/${id}/activate`,
-      deactivate: (id: number) => `/api/admin/users/${id}/deactivate`,
-      ban: (id: number) => `/api/admin/users/${id}/ban`,
-      unban: (id: number) => `/api/admin/users/${id}/unsuspend`,
-      unsuspend: (id: number) => `/api/admin/users/${id}/unsuspend`,
-      resetPassword: (id: number) => `/api/admin/users/${id}/reset-password`,
-      resetMfa: (id: number) => `/api/admin/users/${id}/mfa-reset`,
+      byId: (id: string | number) => `/api/admin/users/${id}`,
+      activate: (id: string | number) => `/api/admin/users/${id}/activate`,
+      deactivate: (id: string | number) => `/api/admin/users/${id}/deactivate`,
+      ban: (id: string | number) => `/api/admin/users/${id}/ban`,
+      unban: (id: string | number) => `/api/admin/users/${id}/unsuspend`,
+      unsuspend: (id: string | number) => `/api/admin/users/${id}/unsuspend`,
+      resetPassword: (id: string | number) => `/api/admin/users/${id}/reset-password`,
+      resetMfa: (id: string | number) => `/api/admin/users/${id}/mfa-reset`,
       bulkAction: "/api/admin/users/bulk",
-      assignRole: (id: number) => `/api/admin/users/${id}/assign-role`,
-      impersonate: (id: number) => `/api/admin/users/${id}/impersonate`,
-      unlock: (id: number) => `/api/admin/users/${id}/unlock`,
-      sessions: (id: number) => `/api/admin/users/${id}/sessions`,
-      suspend: (id: number) => `/api/admin/users/${id}/suspend`,
+      assignRole: (id: string | number) => `/api/admin/users/${id}/assign-role`,
+      impersonate: (id: string | number) => `/api/admin/users/${id}/impersonate`,
+      unlock: (id: string | number) => `/api/admin/users/${id}/unlock`,
+      sessions: (id: string | number) => `/api/admin/users/${id}/sessions`,
+      suspend: (id: string | number) => `/api/admin/users/${id}/suspend`,
       /** PATCH — set the account status directly, where `ban`/`unsuspend`
        *  above are the two named transitions. */
-      updateStatus: (id: number) => `/api/admin/users/${id}/status`,
+      updateStatus: (id: string | number) => `/api/admin/users/${id}/status`,
       // Only ever mounted on v1 — the legacy paths these used to name were
       // never served, so both calls 404'd. An exception to keeping admin on the
       // legacy tree, and a safe one: the v1 routes carry `admin()`.
-      dataExports: (id: number) => `/api/v1/admin/users/${id}/data-exports`,
-      requestDataExport: (id: number) =>
+      dataExports: (id: string | number) => `/api/v1/admin/users/${id}/data-exports`,
+      requestDataExport: (id: string | number) =>
         `/api/v1/admin/users/${id}/data-exports`,
     },
     appeals: {
@@ -447,6 +442,7 @@ export const API_ENDPOINTS = {
       destroy: (id: number) => `/api/admin/scopes/${id}`,
     },
     domains: {
+      index: "/api/admin/domains",
       verify: "/api/admin/domains/verify",
       check: "/api/admin/domains/check",
     },
@@ -461,20 +457,20 @@ export const API_ENDPOINTS = {
     organizations: {
       index: "/api/admin/organizations",
       store: "/api/admin/organizations",
-      byId: (id: number) => `/api/admin/organizations/${id}`,
-      destroy: (id: number) => `/api/admin/organizations/${id}`,
-      addMember: (id: number) => `/api/admin/organizations/${id}/members`,
-      removeMember: (id: number, userId: number) =>
+      byId: (id: number | string) => `/api/admin/organizations/${id}`,
+      destroy: (id: number | string) => `/api/admin/organizations/${id}`,
+      addMember: (id: number | string) => `/api/admin/organizations/${id}/members`,
+      removeMember: (id: number | string, userId: number) =>
         `/api/admin/organizations/${id}/members/${userId}`,
-      logo: (id: number) => `/api/admin/organizations/${id}/logo`,
-      invite: (id: number) => `/api/admin/organizations/${id}/invite`,
-      invitations: (id: number) => `/api/admin/organizations/${id}/invitations`,
-      revokeInvitation: (orgId: number, invitationId: number | string) =>
+      logo: (id: number | string) => `/api/admin/organizations/${id}/logo`,
+      invite: (id: number | string) => `/api/admin/organizations/${id}/invite`,
+      invitations: (id: number | string) => `/api/admin/organizations/${id}/invitations`,
+      revokeInvitation: (orgId: number | string, invitationId: number | string) =>
         `/api/admin/organizations/${orgId}/invitations/${invitationId}/revoke`,
-      policies: (id: number) => `/api/admin/organizations/${id}/policies`,
-      impersonate: (id: number) => `/api/admin/organizations/${id}/impersonate`,
+      policies: (id: number | string) => `/api/admin/organizations/${id}/policies`,
+      impersonate: (id: number | string) => `/api/admin/organizations/${id}/impersonate`,
       /** Tenant branding: GET reads the saved styles, POST replaces them. */
-      styles: (id: number) => `/api/admin/organizations/${id}/styles`,
+      styles: (id: number | string) => `/api/admin/organizations/${id}/styles`,
       // Organization-scoped domain routes were removed: the backend serves
       // domain verification only at the tenant level, as `admin.domains.verify`
       // and `admin.domains.check`. Nothing ever answered
@@ -644,19 +640,20 @@ export const API_ENDPOINTS = {
       list: "/api/admin/rbac/roles",
       stats: "/api/admin/rbac/roles/stats",
       store: "/api/admin/rbac/roles",
-      byId: (id: number) => `/api/admin/rbac/roles/${id}`,
-      update: (id: number) => `/api/admin/rbac/roles/${id}`,
-      destroy: (id: number) => `/api/admin/rbac/roles/${id}`,
+      byId: (id: string | number) => `/api/admin/rbac/roles/${id}`,
+      update: (id: string | number) => `/api/admin/rbac/roles/${id}`,
+      destroy: (id: string | number) => `/api/admin/rbac/roles/${id}`,
+      members: (id: string) => `/api/admin/rbac/roles/${id}/members`,
       permissions: (role: string) =>
         `/api/admin/rbac/roles/${role}/permissions`,
       assignPermission: "/api/admin/rbac/roles/assign-permission",
-      syncPermissions: (id: number) =>
+      syncPermissions: (id: string | number) =>
         `/api/admin/rbac/roles/${id}/permissions`,
-      syncParents: (id: number) => `/api/admin/rbac/roles/${id}/parents`,
+      syncParents: (id: string | number) => `/api/admin/rbac/roles/${id}/parents`,
     },
     permissions: {
       list: "/api/admin/rbac/permissions",
-      byId: (id: number) => `/api/admin/rbac/permissions/${id}`,
+      byId: (id: string | number) => `/api/admin/rbac/permissions/${id}`,
       store: "/api/admin/rbac/permissions",
       grant: "/api/admin/rbac/permissions/grant",
       revoke: "/api/admin/rbac/permissions/revoke",
@@ -857,7 +854,7 @@ export const API_QUERY_KEYS = {
     organizations: {
       all: ["admin", "organizations"] as const,
       index: ["admin", "organizations"] as const,
-      byId: (id: number) => ["admin", "organizations", id] as const,
+      byId: (id: number | string) => ["admin", "organizations", id] as const,
     },
     clients: {
       all: ["admin", "clients"] as const,

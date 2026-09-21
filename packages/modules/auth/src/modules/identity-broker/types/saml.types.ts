@@ -30,7 +30,7 @@ export interface UpdateSAMLConfigDTO {
 /**
  * `GET /api/admin/saml/metadata` (`SamlConfigController.getMetadata`) does not
  * return JSON at all — it responds with `Content-Type: application/xml` and a
- * raw SP metadata XML document as the body. `saml.service.ts#getMetadata`
+ * raw SP metadata XML document as the body. the SAML metadata endpoint
  * requests it with `responseType: 'text'` and hands back that raw string, so
  * there is no JSON shape to declare here; consumers get `FetchResponse<string>`.
  */
@@ -84,4 +84,16 @@ export interface SAMLSSOInitiateResponse {
   url?: string
   samlRequest?: string
   relayState?: string
+}
+
+/**
+ * `sso_discovery_controller` answers with the provider a work email/domain
+ * resolves to, plus whichever hand-off fields that provider needs.
+ */
+export interface SsoDiscoveryResult {
+  provider?: 'saml' | 'oidc' | 'google' | 'github' | 'microsoft' | 'password' | string
+  organizationId?: number | string
+  clientId?: string
+  loginUrl?: string
+  url?: string
 }

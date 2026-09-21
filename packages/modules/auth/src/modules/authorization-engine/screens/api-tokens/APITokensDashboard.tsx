@@ -175,7 +175,8 @@ const APITokensDashboard: React.FC = () => {
         breadcrumbs={[
           {
             label: t('auth.account.overview_title', 'Account Overview'),
-            to: '/auth/account/overview',
+            // Was a hardcoded '/auth/account/overview', which is not a route (404).
+            to: Path.account.overview,
           },
           { label: t('auth.api_tokens.title', 'API Tokens') },
         ]}
@@ -195,14 +196,16 @@ const APITokensDashboard: React.FC = () => {
           tone='primary'
           label={t('auth.api_tokens.total_active', 'Active tokens')}
           value={isLoading ? undefined : stats.active}
+          caption={t('auth.api_tokens.total_active_caption', 'currently valid')}
         />
         {/*
-          This tile was hardcoded to 0 and never measured anything. `expiresAt`
-          is on the DTO, so it is now counted.
+          Counts active tokens with 30 days or less to run. The table's
+          "Expires" column flags the same tokens, so the number can be traced
+          back to rows. It only turns amber when something is actually due.
         */}
         <AdminStatCard
           icon={<TimerIcon />}
-          tone='warning'
+          tone={stats.expiring > 0 ? 'warning' : 'success'}
           label={t('auth.api_tokens.expiring_soon', 'Expiring soon')}
           value={isLoading ? undefined : stats.expiring}
           caption={t('auth.api_tokens.expiring_soon_caption', 'within 30 days')}
@@ -241,6 +244,7 @@ const APITokensDashboard: React.FC = () => {
                   t('auth.api_tokens.header_name', 'Token name'),
                   t('auth.api_tokens.header_status', 'Status'),
                   t('auth.api_tokens.header_created', 'Created'),
+                  t('auth.api_tokens.header_expires', 'Expires'),
                   t('auth.api_tokens.header_last_used', 'Last used'),
                 ].map((column) => (
                   <AdminTableHeadCell key={String(column)} sx={{ py: 2 }}>
@@ -256,7 +260,7 @@ const APITokensDashboard: React.FC = () => {
             <TableBody>
               <AdminDataState
                 asTableRow
-                skeletonColumns={5}
+                skeletonColumns={6}
                 loading={isLoading}
                 error={isError || undefined}
                 onRetry={() => void refetch()}
@@ -281,6 +285,13 @@ const APITokensDashboard: React.FC = () => {
                   const status = (token.status || 'active') as TokenStatus
                   const created = token.createdAt ?? token.created_at
                   const lastUsed = token.lastUsedAt ?? token.last_used_at
+                  const expiresAt = token.expiresAt ?? token.expires_at
+                  const daysLeft = daysUntil(expiresAt)
+                  const isExpiring =
+                    status === 'active' &&
+                    daysLeft !== null &&
+                    daysLeft >= 0 &&
+                    daysLeft <= EXPIRY_WARNING_DAYS
                   return (
                     <AdminTableRow
                       key={token.id}
@@ -328,6 +339,32 @@ const APITokensDashboard: React.FC = () => {
                         <AdminStatusBadge tone={STATUS_TONE[status]} label={statusLabel(status)} />
                       </TableCell>
                       <TableCell>{created ? new Date(created).toLocaleDateString() : '—'}</TableCell>
+                      <TableCell>
+                        {expiresAt ? (
+                          <>
+                            <Typography variant='body2'>
+                              {new Date(expiresAt).toLocaleDateString()}
+                            </Typography>
+                            {isExpiring && (
+                              <Typography
+                                variant='caption'
+                                sx={{ color: 'warning.dark', fontWeight: 700 }}
+                              >
+                                {daysLeft === 0
+                                  ? t('auth.api_tokens.expires_today', 'Expires today')
+                                  : t('auth.api_tokens.expires_in_days', {
+                                      count: daysLeft ?? 0,
+                                      defaultValue: 'in {{count}} days',
+                                    })}
+                              </Typography>
+                            )}
+                          </>
+                        ) : (
+                          <Typography variant='body2' color='text.secondary'>
+                            {t('auth.api_tokens.no_expiry', 'No expiry')}
+                          </Typography>
+                        )}
+                      </TableCell>
                       <TableCell>
                         {lastUsed
                           ? new Date(lastUsed).toLocaleString()

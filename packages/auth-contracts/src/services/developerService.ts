@@ -12,14 +12,58 @@ export interface DeveloperApiKeyItem {
   updatedAt?: string;
 }
 
+/**
+ * A webhook subscription as `Webhook.serialize()` returns it. Note `id` is a
+ * uuid string, not a number — the table's primary key is `uuid`.
+ */
 export interface WebhookItem {
-  id: number;
+  id: string;
   url: string;
   eventTypes: string[];
   isActive: boolean;
-  secret: string;
+  /** True when auto-disabled by the retry budget, or manually paused. */
+  isDisabled: boolean;
+  maxRetries: number;
+  timeoutSeconds: number;
+  failureCount: number;
+  lastTriggeredAt: string | null;
+  /**
+   * Set when the retry budget auto-disabled the endpoint. Null with
+   * `isActive: false` means an admin simply paused it.
+   */
+  disabledAt: string | null;
+  /**
+   * Only ever populated on the create response. Reads withhold it, so treat any
+   * value here as one-time-only.
+   */
+  secret?: string;
   createdAt: string;
   updatedAt?: string;
+}
+
+/** The catalogue of subscribable events, grouped by category. */
+export interface WebhookEventCatalog {
+  categories: Record<string, string[]>;
+}
+
+/**
+ * What actually happened when the server dialled the endpoint. Returned on a
+ * successful ping (HTTP 200) and on a failed one (HTTP 502) alike, so the
+ * console can render the transport detail either way.
+ */
+export interface WebhookTestResult {
+  ok: boolean;
+  message: string;
+  webhookUrl: string;
+  statusCode: number | null;
+  statusText: string | null;
+  durationMs: number;
+  requestHeaders: Record<string, string>;
+  responseHeaders: Record<string, string> | null;
+  responseBody: string | null;
+  error: string | null;
+  payload: unknown;
+  webhook: WebhookItem;
 }
 
 export class DeveloperService {
@@ -55,6 +99,15 @@ export class DeveloperService {
    */
   async listWebhooks(): Promise<FetchResponse<WebhookItem[]>> {
     return apiClient.get<WebhookItem[]>(ENDPOINTS.developer.webhooks);
+  }
+
+  /**
+   * Fetch the server's catalogue of subscribable event types
+   */
+  async listWebhookEventTypes(): Promise<FetchResponse<WebhookEventCatalog>> {
+    return apiClient.get<WebhookEventCatalog>(
+      ENDPOINTS.developer.webhookEventTypes,
+    );
   }
 
   /**
@@ -108,14 +161,11 @@ export class DeveloperService {
    */
   async testWebhook(
     id: number | string,
-  ): Promise<
-    FetchResponse<{ message: string; webhookUrl: string; payload: unknown }>
-  > {
-    return apiClient.post<{
-      message: string;
-      webhookUrl: string;
-      payload: unknown;
-    }>(ENDPOINTS.developer.testWebhook(id), {});
+  ): Promise<FetchResponse<WebhookTestResult>> {
+    return apiClient.post<WebhookTestResult>(
+      ENDPOINTS.developer.testWebhook(id),
+      {},
+    );
   }
 }
 

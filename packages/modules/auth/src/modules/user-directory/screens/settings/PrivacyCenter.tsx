@@ -108,7 +108,7 @@ export const PrivacyCenter: React.FC = () => {
       <Container maxWidth='md' sx={{ py: { xs: 3, md: 5 } }}>
         <Button
           startIcon={<ArrowBack />}
-          onClick={() => navigate(Path.profile.view || '/profile')}
+          onClick={() => navigate(Path.profile.view)}
           sx={{
             mb: 2.5,
             textTransform: 'none',

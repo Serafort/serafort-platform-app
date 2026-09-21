@@ -1,6 +1,7 @@
 import { Stack, Button } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { AppPaths } from '@cap/shared-types'
 
 const AuthButtons = () => {
   const { t } = useTranslation()
@@ -9,7 +10,7 @@ const AuthButtons = () => {
     <Stack direction='row' spacing={2} marginLeft='10px'>
       <Button
         component={Link}
-        to='/auth/sign-up'
+        to={AppPaths.auth.signup}
         variant='outlined'
         size='small'
         sx={{
@@ -21,7 +22,7 @@ const AuthButtons = () => {
       </Button>
       <Button
         component={Link}
-        to='/auth/sign-in'
+        to={AppPaths.auth.signin}
         variant='contained'
         size='small'
         sx={{

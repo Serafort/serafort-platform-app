@@ -13,6 +13,7 @@ import {
   StepLabel,
   CircularProgress,
   Alert,
+  AlertTitle,
   Paper,
   Stack,
   Chip,
@@ -27,8 +28,10 @@ import ErrorIcon from '@mui/icons-material/Error'
 import TerminalIcon from '@mui/icons-material/Terminal'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { getErrorMessage } from '../../../utils/errors'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
+import { useTranslation } from 'react-i18next'
 
 import { modulesRouterService } from '@cap/platform-core'
 import type { ModulePipelineJob, PipelineStage } from '@cap/shared-types'
@@ -39,17 +42,38 @@ interface ModuleUploadModalProps {
   onSuccess?: () => void
 }
 
-const PIPELINE_STEPS: { stage: PipelineStage; label: string; desc: string }[] = [
-  { stage: 'UPLOADING', label: 'Upload Archive', desc: 'Receiving zip payload' },
-  { stage: 'EXTRACTING', label: 'Unpack & Inspect', desc: 'Sanitizing archive & Zip Slip checks' },
-  { stage: 'VALIDATING_CONTRACT', label: 'Validate Contract', desc: 'Verifying CAPModule exports' },
-  {
-    stage: 'RUNNING_TESTS',
-    label: 'Run Test Suite',
-    desc: 'Running unit tests & TypeScript checks',
-  },
-  { stage: 'PROMOTING', label: 'Auto-Register', desc: 'Deploying into repository workspace' },
-]
+const MAX_ARCHIVE_BYTES = 50 * 1024 * 1024
+
+const PIPELINE_STEPS: { stage: PipelineStage; labelKey: string; label: string; descKey: string; desc: string }[] =
+  [
+    {
+      stage: 'READING',
+      labelKey: 'monitoring.modules.step_read',
+      label: 'Read Archive',
+      descKey: 'monitoring.modules.step_read_desc',
+      desc: 'Parsing the ZIP directory',
+    },
+    {
+      stage: 'INSPECTING',
+      labelKey: 'monitoring.modules.step_inspect',
+      label: 'Inspect Entries',
+      descKey: 'monitoring.modules.step_inspect_desc',
+      desc: 'Path-traversal and expansion checks',
+    },
+    {
+      stage: 'VALIDATING',
+      labelKey: 'monitoring.modules.step_validate',
+      label: 'Validate Contract',
+      descKey: 'monitoring.modules.step_validate_desc',
+      desc: 'Checking the CAPModule manifest',
+    },
+  ]
+
+const formatBytes = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(2)} MB`
+}
 
 export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
   open,
@@ -57,79 +81,98 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
   onSuccess,
 }) => {
   const theme = useTheme()
+  const { t } = useTranslation('common')
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
+  const [isInspecting, setIsInspecting] = useState(false)
   const [activeJob, setActiveJob] = useState<ModulePipelineJob | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [showLogs, setShowLogs] = useState(true)
-  const [_logCopied, setLogCopied] = useState(false)
+  const [logsCopied, setLogsCopied] = useState(false)
+
+  const isFinished = activeJob?.currentStage === 'COMPLETE' || activeJob?.currentStage === 'FAILED'
 
   const activeStepIndex = React.useMemo(() => {
     if (!activeJob) return 0
     if (activeJob.currentStage === 'COMPLETE') return PIPELINE_STEPS.length
     if (activeJob.currentStage === 'FAILED') {
-      const failedIdx = PIPELINE_STEPS.findIndex(
-        (s) => s.stage === activeJob.stages.find((st) => st.status === 'error')?.stage,
-      )
+      const failedStage = activeJob.stages.find((st) => st.status === 'error')?.stage
+      const failedIdx = PIPELINE_STEPS.findIndex((s) => s.stage === failedStage)
       return failedIdx !== -1 ? failedIdx : 0
     }
     const currentIdx = PIPELINE_STEPS.findIndex((s) => s.stage === activeJob.currentStage)
     return currentIdx !== -1 ? currentIdx : 0
   }, [activeJob])
 
-  // Polling loop for active job status
+  // Keyed on the job id, not the job object: every poll tick produces a new
+  // object, and depending on it would tear down and rebuild the interval.
+  const jobId = activeJob?.jobId
+
   useEffect(() => {
-    if (
-      !activeJob ||
-      activeJob.currentStage === 'COMPLETE' ||
-      activeJob.currentStage === 'FAILED'
-    ) {
-      return
-    }
+    if (!jobId || isFinished) return
 
     const interval = setInterval(async () => {
       try {
-        const updated = await modulesRouterService.getJobStatus(activeJob.jobId)
-        setActiveJob(updated)
-
-        if (updated.currentStage === 'COMPLETE') {
-          setIsUploading(false)
-          if (onSuccess) onSuccess()
-        } else if (updated.currentStage === 'FAILED') {
-          setIsUploading(false)
-          setErrorMessage(updated.error || 'Pipeline execution failed')
-        }
-      } catch (err: any) {
+        setActiveJob({ ...(await modulesRouterService.getJobStatus(jobId)) })
+      } catch (err) {
         console.error('Polling job status error:', err)
       }
-    }, 800)
+    }, 200)
 
     return () => clearInterval(interval)
-  }, [activeJob, onSuccess])
+  }, [jobId, isFinished])
+
+  // Settle separately from the poll: a small archive can finish before the
+  // first tick, and the poll would then never observe the transition. Guarded
+  // by job id and held behind a ref so a parent re-render (which `onSuccess`
+  // triggers) cannot run the completion handler a second time.
+  const settledJobIdRef = useRef<string | null>(null)
+  const onSuccessRef = useRef(onSuccess)
+  useEffect(() => {
+    onSuccessRef.current = onSuccess
+  })
+
+  useEffect(() => {
+    if (!activeJob || !isFinished || settledJobIdRef.current === activeJob.jobId) return
+    settledJobIdRef.current = activeJob.jobId
+    setIsInspecting(false)
+
+    if (activeJob.currentStage === 'COMPLETE') {
+      onSuccessRef.current?.()
+    } else if (!activeJob.validation) {
+      // Contract failures are already listed item by item below; only surface
+      // failures that never reached validation (unreadable or unsafe archive).
+      setErrorMessage(
+        activeJob.error || t('monitoring.modules.inspect_failed', 'Inspection failed.'),
+      )
+    }
+  }, [activeJob, isFinished, t])
 
   const handleReset = useCallback(() => {
     setSelectedFile(null)
-    setIsUploading(false)
+    setIsInspecting(false)
     setActiveJob(null)
     setErrorMessage(null)
+    settledJobIdRef.current = null
   }, [])
 
   const handleClose = () => {
-    if (isUploading) return
+    if (isInspecting) return
     handleReset()
     onClose()
   }
 
   const handleFileSelect = (file: File) => {
-    if (!file.name.endsWith('.zip')) {
-      setErrorMessage('Invalid file format. Please upload a valid .zip module archive.')
+    if (!file.name.toLowerCase().endsWith('.zip')) {
+      setErrorMessage(
+        t('monitoring.modules.err_format', 'Invalid file format. Please select a .zip archive.'),
+      )
       return
     }
-    if (file.size > 50 * 1024 * 1024) {
-      setErrorMessage('File size exceeds 50MB limit.')
+    if (file.size > MAX_ARCHIVE_BYTES) {
+      setErrorMessage(t('monitoring.modules.err_size', 'File size exceeds the 50 MB limit.'))
       return
     }
     setErrorMessage(null)
@@ -139,32 +182,41 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsDragOver(false)
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    if (e.dataTransfer.files?.length) {
       handleFileSelect(e.dataTransfer.files[0])
     }
   }
 
-  const handleUploadStart = async () => {
+  const handleInspectStart = async () => {
     if (!selectedFile) return
-    setIsUploading(true)
+    setIsInspecting(true)
     setErrorMessage(null)
 
     try {
       const response = await modulesRouterService.uploadModuleZip(selectedFile)
-      const initialJob = await modulesRouterService.getJobStatus(response.jobId)
-      setActiveJob(initialJob)
-    } catch (err: any) {
-      setIsUploading(false)
-      setErrorMessage(err.message || 'Failed to launch upload pipeline')
+      // Copy: the service mutates its own job object, and React needs a new
+      // reference on every observed change.
+      setActiveJob({ ...(await modulesRouterService.getJobStatus(response.jobId)) })
+    } catch (err: unknown) {
+      setIsInspecting(false)
+      setErrorMessage(
+        getErrorMessage(err) || t('monitoring.modules.inspect_start_failed', 'Could not read that archive.'),
+      )
     }
   }
 
-  const handleCopyLogs = () => {
+  const handleCopyLogs = async () => {
     if (!activeJob) return
-    navigator.clipboard.writeText(activeJob.logs.join('\n'))
-    setLogCopied(true)
-    setTimeout(() => setLogCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(activeJob.logs.join('\n'))
+      setLogsCopied(true)
+      setTimeout(() => setLogsCopied(false), 2000)
+    } catch {
+      setErrorMessage(t('monitoring.modules.copy_failed', 'Could not copy the logs.'))
+    }
   }
+
+  const validation = activeJob?.validation
 
   return (
     <Dialog
@@ -172,13 +224,15 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
       onClose={handleClose}
       maxWidth='md'
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 'var(--sf-radius-lg, 12px)',
-          bgcolor: 'background.paper',
-          backgroundImage: 'none',
-          border: '1px solid',
-          borderColor: 'divider',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 'var(--sf-radius-lg, 12px)',
+            bgcolor: 'background.paper',
+            backgroundImage: 'none',
+            border: '1px solid',
+            borderColor: 'divider',
+          },
         },
       }}
     >
@@ -210,14 +264,22 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
           </Box>
           <Box>
             <Typography variant='h6' sx={{ fontWeight: 800 }}>
-              Module Package Uploader
+              {t('monitoring.modules.modal_title', 'Module Package Inspector')}
             </Typography>
             <Typography variant='caption' color='text.secondary'>
-              Upload zip archive to validate, test, and auto-register new features
+              {t(
+                'monitoring.modules.modal_subtitle',
+                'Check a .zip against the CAPModule contract before it goes into the workspace.',
+              )}
             </Typography>
           </Box>
         </Box>
-        <IconButton onClick={handleClose} disabled={isUploading} size='small'>
+        <IconButton
+          onClick={handleClose}
+          disabled={isInspecting}
+          size='small'
+          aria-label={t('monitoring.modules.close', 'Close')}
+        >
           <CloseIcon fontSize='small' />
         </IconButton>
       </DialogTitle>
@@ -229,125 +291,136 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
           </Alert>
         )}
 
-        {/* Dropzone area when no upload in progress */}
         {!activeJob && (
-          <Paper
-            onDragOver={(e) => {
-              e.preventDefault()
-              setIsDragOver(true)
-            }}
-            onDragLeave={() => setIsDragOver(false)}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-            sx={{
-              p: 5,
-              textAlign: 'center',
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              border: '2px dashed',
-              borderColor: isDragOver ? 'primary.main' : selectedFile ? 'success.main' : 'divider',
-              bgcolor: isDragOver
-                ? alpha(theme.palette.primary.main, 0.05)
-                : selectedFile
-                  ? alpha(theme.palette.success.main, 0.03)
-                  : alpha(theme.palette.text.primary, 0.02),
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              '&:hover': {
-                borderColor: 'primary.main',
-                bgcolor: alpha(theme.palette.primary.main, 0.04),
-              },
-            }}
-          >
-            <input
-              type='file'
-              ref={fileInputRef}
-              accept='.zip'
-              style={{ display: 'none' }}
-              onChange={(e) => {
-                if (e.target.files && e.target.files.length > 0) {
-                  handleFileSelect(e.target.files[0])
-                }
+          <Stack spacing={2}>
+            <Paper
+              onDragOver={(e) => {
+                e.preventDefault()
+                setIsDragOver(true)
               }}
-            />
+              onDragLeave={() => setIsDragOver(false)}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              sx={{
+                p: 5,
+                textAlign: 'center',
+                borderRadius: 'var(--sf-radius-lg, 12px)',
+                border: '2px dashed',
+                borderColor: isDragOver ? 'primary.main' : selectedFile ? 'success.main' : 'divider',
+                bgcolor: isDragOver
+                  ? alpha(theme.palette.primary.main, 0.05)
+                  : selectedFile
+                    ? alpha(theme.palette.success.main, 0.03)
+                    : alpha(theme.palette.text.primary, 0.02),
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                },
+              }}
+            >
+              <input
+                type='file'
+                ref={fileInputRef}
+                accept='.zip,application/zip'
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  if (e.target.files?.length) handleFileSelect(e.target.files[0])
+                }}
+              />
 
-            {selectedFile ? (
-              <Stack spacing={1.5} alignItems='center'>
-                <InsertDriveFileIcon sx={{ fontSize: 48, color: 'success.main' }} />
-                <Typography variant='h6' sx={{ fontWeight: 700 }}>
-                  {selectedFile.name}
-                </Typography>
-                <Chip
-                  label={`${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB`}
-                  color='success'
-                  size='small'
-                  variant='outlined'
-                />
-                <Typography variant='caption' color='text.secondary'>
-                  Click or drag another file to replace
-                </Typography>
-              </Stack>
-            ) : (
-              <Stack spacing={1.5} alignItems='center'>
-                <CloudUploadIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.8 }} />
-                <Typography variant='subtitle1' sx={{ fontWeight: 700 }}>
-                  Drag & Drop Module Zip Package Here
-                </Typography>
-                <Typography variant='body2' color='text.secondary'>
-                  or click to browse your file system (.zip files up to 50MB)
-                </Typography>
-              </Stack>
-            )}
-          </Paper>
+              {selectedFile ? (
+                <Stack spacing={1.5} alignItems='center'>
+                  <InsertDriveFileIcon sx={{ fontSize: 48, color: 'success.main' }} />
+                  <Typography variant='h6' sx={{ fontWeight: 700 }}>
+                    {selectedFile.name}
+                  </Typography>
+                  <Chip
+                    label={formatBytes(selectedFile.size)}
+                    color='success'
+                    size='small'
+                    variant='outlined'
+                  />
+                  <Typography variant='caption' color='text.secondary'>
+                    {t('monitoring.modules.drop_replace', 'Click or drag another file to replace')}
+                  </Typography>
+                </Stack>
+              ) : (
+                <Stack spacing={1.5} alignItems='center'>
+                  <CloudUploadIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.8 }} />
+                  <Typography variant='subtitle1' sx={{ fontWeight: 700 }}>
+                    {t('monitoring.modules.drop_title', 'Drag & drop a module .zip here')}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    {t(
+                      'monitoring.modules.drop_hint',
+                      'or click to browse your file system (.zip up to 50 MB)',
+                    )}
+                  </Typography>
+                </Stack>
+              )}
+            </Paper>
+
+            <Alert severity='info' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+              {t(
+                'monitoring.modules.inspect_only_notice',
+                'This inspector validates a package; it does not install one. Installing a module means adding it under packages/modules/ and rebuilding the workspace.',
+              )}
+            </Alert>
+          </Stack>
         )}
 
-        {/* Live Stepper & Log Terminal during pipeline execution */}
         {activeJob && (
           <Stack spacing={3}>
             <Stepper activeStep={activeStepIndex} alternativeLabel>
               {PIPELINE_STEPS.map((step, idx) => {
                 const isFailedStep = activeJob.currentStage === 'FAILED' && idx === activeStepIndex
+                const isDone = idx < activeStepIndex || activeJob.currentStage === 'COMPLETE'
                 return (
                   <Step key={step.stage}>
                     <StepLabel
                       error={isFailedStep}
-                      StepIconComponent={() => (
-                        <Box
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            bgcolor: isFailedStep
-                              ? 'error.main'
-                              : idx < activeStepIndex || activeJob.currentStage === 'COMPLETE'
-                                ? 'success.main'
-                                : idx === activeStepIndex
-                                  ? 'primary.main'
-                                  : 'action.disabledBackground',
-                            color: 'white',
-                          }}
-                        >
-                          {isFailedStep ? (
-                            <ErrorIcon fontSize='small' />
-                          ) : idx < activeStepIndex || activeJob.currentStage === 'COMPLETE' ? (
-                            <CheckCircleIcon fontSize='small' />
-                          ) : idx === activeStepIndex ? (
-                            <CircularProgress size={16} color='inherit' />
-                          ) : (
-                            <Typography variant='caption' sx={{ fontWeight: 800 }}>
-                              {idx + 1}
-                            </Typography>
-                          )}
-                        </Box>
-                      )}
+                      slots={{
+                        stepIcon: () => (
+                          <Box
+                            sx={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              bgcolor: isFailedStep
+                                ? 'error.main'
+                                : isDone
+                                  ? 'success.main'
+                                  : idx === activeStepIndex
+                                    ? 'primary.main'
+                                    : 'action.disabledBackground',
+                              color: 'common.white',
+                            }}
+                          >
+                            {isFailedStep ? (
+                              <ErrorIcon fontSize='small' />
+                            ) : isDone ? (
+                              <CheckCircleIcon fontSize='small' />
+                            ) : idx === activeStepIndex ? (
+                              <CircularProgress size={16} color='inherit' />
+                            ) : (
+                              <Typography variant='caption' sx={{ fontWeight: 800 }}>
+                                {idx + 1}
+                              </Typography>
+                            )}
+                          </Box>
+                        ),
+                      }}
                     >
                       <Typography variant='subtitle2' sx={{ fontWeight: 700 }}>
-                        {step.label}
+                        {t(step.labelKey, step.label)}
                       </Typography>
                       <Typography variant='caption' color='text.secondary' display='block'>
-                        {step.desc}
+                        {t(step.descKey, step.desc)}
                       </Typography>
                     </StepLabel>
                   </Step>
@@ -355,50 +428,127 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
               })}
             </Stepper>
 
-            {/* Status Alert */}
+            {/* Real archive facts */}
+            {activeJob.entryCount != null && (
+              <Stack direction='row' spacing={1} flexWrap='wrap' useFlexGap>
+                <Chip
+                  size='small'
+                  variant='outlined'
+                  label={t('monitoring.modules.archive_files', {
+                    count: activeJob.entryCount,
+                    defaultValue_one: '{{count}} file',
+                    defaultValue: '{{count}} files',
+                  })}
+                />
+                <Chip
+                  size='small'
+                  variant='outlined'
+                  label={t('monitoring.modules.archive_expands', {
+                    size: formatBytes(activeJob.uncompressedBytes ?? 0),
+                    defaultValue: 'expands to {{size}}',
+                  })}
+                />
+                {activeJob.moduleId && (
+                  <Chip
+                    size='small'
+                    variant='outlined'
+                    color='primary'
+                    sx={{ fontFamily: 'monospace' }}
+                    label={`${activeJob.moduleId}${activeJob.version ? ` · v${activeJob.version}` : ''}`}
+                  />
+                )}
+              </Stack>
+            )}
+
             {activeJob.currentStage === 'COMPLETE' && (
               <Alert severity='success' icon={<CheckCircleIcon />} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
-                Module <strong>"{activeJob.moduleId}"</strong> has been successfully validated,
-                tested, and auto-registered!
+                <AlertTitle sx={{ fontWeight: 800 }}>
+                  {t('monitoring.modules.result_valid_title', 'Package is a valid CAPModule')}
+                </AlertTitle>
+                {t('monitoring.modules.result_valid_body', {
+                  id: activeJob.moduleId,
+                  defaultValue:
+                    '"{{id}}" passed contract validation. It has not been installed: add the package under packages/modules/ and restart the dev server to register it.',
+                })}
               </Alert>
             )}
 
-            {/* Logs Terminal Window */}
+            {validation && validation.errors.length > 0 && (
+              <Alert severity='error' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+                <AlertTitle sx={{ fontWeight: 800 }}>
+                  {t('monitoring.modules.result_errors_title', 'Contract validation failed')}
+                </AlertTitle>
+                <Box component='ul' sx={{ m: 0, pl: 2.5 }}>
+                  {validation.errors.map((message) => (
+                    <li key={message}>{message}</li>
+                  ))}
+                </Box>
+              </Alert>
+            )}
+
+            {validation && validation.warnings.length > 0 && (
+              <Alert severity='warning' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+                <AlertTitle sx={{ fontWeight: 800 }}>
+                  {t('monitoring.modules.result_warnings_title', 'Warnings')}
+                </AlertTitle>
+                <Box component='ul' sx={{ m: 0, pl: 2.5 }}>
+                  {validation.warnings.map((message) => (
+                    <li key={message}>{message}</li>
+                  ))}
+                </Box>
+              </Alert>
+            )}
+
+            {/* Diagnostic log */}
             <Paper
-              sx={{
-                bgcolor: '#0d1117',
-                color: '#c9d1d9',
+              sx={(theme) => ({
+                // A log console is a dark surface in both colour modes.
+                bgcolor: theme.palette.grey[900],
+                color: theme.palette.grey[300],
                 borderRadius: 'var(--sf-radius-lg, 12px)',
                 border: '1px solid',
-                borderColor: '#30363d',
+                borderColor: theme.palette.grey[800],
                 overflow: 'hidden',
-              }}
+              })}
             >
               <Box
-                sx={{
+                sx={(theme) => ({
                   px: 2,
                   py: 1,
-                  bgcolor: '#161b22',
-                  borderBottom: '1px solid #30363d',
+                  bgcolor: alpha(theme.palette.common.white, 0.04),
+                  borderBottom: '1px solid',
+                  borderColor: theme.palette.grey[800],
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                }}
+                })}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <TerminalIcon sx={{ fontSize: 18, color: '#58a6ff' }} />
+                  <TerminalIcon sx={{ fontSize: 18, color: 'info.light' }} />
                   <Typography variant='caption' sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
-                    Pipeline Diagnostic Logs
+                    {t('monitoring.modules.logs_title', 'Inspection log')}
                   </Typography>
                 </Box>
-                <Stack direction='row' spacing={0.5}>
-                  <IconButton size='small' onClick={handleCopyLogs} sx={{ color: '#8b949e' }}>
+                <Stack direction='row' spacing={0.5} alignItems='center'>
+                  {logsCopied && (
+                    <Typography variant='caption' sx={{ color: 'success.light' }}>
+                      {t('monitoring.modules.logs_copied', 'Copied')}
+                    </Typography>
+                  )}
+                  <IconButton
+                    size='small'
+                    onClick={handleCopyLogs}
+                    sx={{ color: 'grey.400', minWidth: 44, minHeight: 44 }}
+                    aria-label={t('monitoring.modules.logs_copy', 'Copy log')}
+                  >
                     <ContentCopyIcon fontSize='inherit' />
                   </IconButton>
                   <IconButton
                     size='small'
                     onClick={() => setShowLogs(!showLogs)}
-                    sx={{ color: '#8b949e' }}
+                    sx={{ color: 'grey.400', minWidth: 44, minHeight: 44 }}
+                    aria-expanded={showLogs}
+                    aria-label={t('monitoring.modules.logs_toggle', 'Toggle log')}
                   >
                     {showLogs ? (
                       <ExpandLessIcon fontSize='inherit' />
@@ -418,16 +568,20 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
                     fontFamily: 'monospace',
                     fontSize: '0.78rem',
                     lineHeight: 1.6,
+                    direction: 'ltr',
+                    textAlign: 'left',
                   }}
                 >
                   {activeJob.logs.map((logLine, index) => {
-                    const isError = logLine.includes('[ERROR]') || logLine.includes('Failed')
-                    const isSuccess = logLine.includes('COMPLETE') || logLine.includes('success')
+                    const isError = logLine.startsWith('[ERROR]') || logLine.includes('[ERROR]')
+                    const isWarning = logLine.includes('[WARN]')
                     return (
                       <Box
-                        key={index}
+                        key={`${index}-${logLine}`}
                         sx={{
-                          color: isError ? '#ff7b72' : isSuccess ? '#7ee787' : '#c9d1d9',
+                          color: isError ? 'error.light' : isWarning ? 'warning.light' : 'grey.300',
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word',
                         }}
                       >
                         {logLine}
@@ -448,18 +602,18 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
               onClick={handleClose}
               variant='outlined'
               color='inherit'
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
+              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
             >
-              Cancel
+              {t('monitoring.modules.cancel', 'Cancel')}
             </Button>
             <Button
-              onClick={handleUploadStart}
+              onClick={handleInspectStart}
               variant='contained'
-              disabled={!selectedFile || isUploading}
-              startIcon={isUploading ? <CircularProgress size={18} /> : <CloudUploadIcon />}
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', px: 3, fontWeight: 700 }}
+              disabled={!selectedFile || isInspecting}
+              startIcon={isInspecting ? <CircularProgress size={18} /> : <CloudUploadIcon />}
+              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', px: 3, fontWeight: 700, minHeight: 44 }}
             >
-              Start Pipeline & Register
+              {t('monitoring.modules.inspect_start', 'Inspect package')}
             </Button>
           </>
         ) : (
@@ -467,18 +621,18 @@ export const ModuleUploadModal: React.FC<ModuleUploadModalProps> = ({
             <Button
               onClick={handleReset}
               variant='outlined'
-              disabled={isUploading}
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}
+              disabled={isInspecting}
+              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
             >
-              Upload Another Package
+              {t('monitoring.modules.inspect_another', 'Inspect another package')}
             </Button>
             <Button
               onClick={handleClose}
               variant='contained'
-              disabled={isUploading}
-              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', px: 3, fontWeight: 700 }}
+              disabled={isInspecting}
+              sx={{ borderRadius: 'var(--sf-radius-md, 8px)', px: 3, fontWeight: 700, minHeight: 44 }}
             >
-              Done
+              {t('monitoring.modules.done', 'Done')}
             </Button>
           </>
         )}

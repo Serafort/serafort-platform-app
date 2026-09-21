@@ -23,11 +23,8 @@ const OrganizationProfile = React.lazy(
 // ---------------------------------------------------------------------------
 const AdminUserProfile = React.lazy(() => import('./../screens/admin/users/AdminUserProfile'))
 const BanManagement = React.lazy(() => import('./../screens/admin/users/BanManagement'))
-const CreateUserDialog = React.lazy(() => import('../components/CreateUserDialog'))
 const UserDataExport = React.lazy(() => import('./../screens/admin/users/DataExport'))
 const UserImpersonationLogs = React.lazy(() => import('./../screens/admin/users/ImpersonationLogs'))
-const IssueBanDialog = React.lazy(() => import('../components/IssueBanDialog'))
-const ResetPasswordDialog = React.lazy(() => import('../components/ResetPasswordDialog'))
 const UserList = React.lazy(() => import('./../screens/admin/users/UserList'))
 const ComplianceReports = React.lazy(() => import('./../screens/admin/users/ComplianceReports'))
 // ---------------------------------------------------------------------------

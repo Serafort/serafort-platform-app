@@ -6,145 +6,133 @@ import {
   type UseMutationOptions,
 } from '@tanstack/react-query'
 import type { FetchResponse, HttpError } from '@cap/platform-core'
-import samlService from '../services/saml.service'
+import { adminService } from '../../authorization-engine/services/adminService'
 import type {
   SAMLConfig,
-  UpdateSAMLConfigDTO,
-  RemoteMetadataFetchDTO,
-  RemoteMetadataResult,
-  UploadSAMLMetadataResult,
-  RecentSAMLEntity,
-  SAMLSSOInitiateDTO,
-  SAMLSSOInitiateResponse,
-} from '../types/saml.types'
+  MessageResponse,
+  JsonObject,
+} from '../../authorization-engine/services/adminService'
+import { adminKeys } from '../../authorization-engine/hooks/useAdminQuery'
 
-export const samlKeys = {
-  all: ['admin', 'saml'] as const,
-  config: () => [...samlKeys.all, 'config'] as const,
-  metadata: () => [...samlKeys.all, 'metadata'] as const,
-  recentEntities: () => [...samlKeys.all, 'recent-entities'] as const,
-  discovery: (identifier: string) => ['auth', 'sso', 'discover', identifier] as const,
-}
-
+// ============================================================================
+// SAML Configuration Hooks
+// ============================================================================
+/**
+ * Get SAML configuration
+ */
 export function useSAMLConfig(
   options?: Omit<UseQueryOptions<FetchResponse<SAMLConfig>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
-    queryKey: samlKeys.config(),
-    queryFn: () => samlService.getConfig(),
+    queryKey: adminKeys.saml.config(),
+    queryFn: () => adminService.getSAMLConfig(),
+    staleTime: 1000 * 60 * 10, // 10 minutes
     ...options,
   })
 }
 
+/**
+ * Update SAML configuration
+ */
 export function useUpdateSAMLConfig(
-  options?: UseMutationOptions<
-    FetchResponse<{ message: string; config?: SAMLConfig }>,
-    HttpError,
-    UpdateSAMLConfigDTO,
-    unknown
-  >,
+  options?: UseMutationOptions<FetchResponse<SAMLConfig>, HttpError, Partial<SAMLConfig>, unknown>,
 ) {
   const queryClient = useQueryClient()
-  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
+  const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
   return useMutation({
-    mutationFn: (data: UpdateSAMLConfigDTO) => samlService.updateConfig(data),
-    ...restOptions,
+    mutationFn: (data) => adminService.updateSAMLConfig(data),
+    ...options,
     onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: samlKeys.config() })
+      queryClient.invalidateQueries({ queryKey: adminKeys.saml.config() })
       customOnSuccess?.(...args)
     },
+    onError: (...args) => {
+      customOnError?.(...args)
+    },
+    ...restOptions,
   })
 }
 
+/**
+ * Get SAML metadata
+ */
 export function useSAMLMetadata(
   options?: Omit<UseQueryOptions<FetchResponse<string>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
-    queryKey: samlKeys.metadata(),
-    queryFn: () => samlService.getMetadata(),
+    queryKey: adminKeys.saml.metadata(),
+    queryFn: () => adminService.getSAMLMetadata(),
+    staleTime: 1000 * 60 * 10,
+  })
+}
+
+/**
+ * Upload SAML metadata
+ */
+export function useUploadSAMLMetadata(
+  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, File, unknown>,
+) {
+  const queryClient = useQueryClient()
+  const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
+  return useMutation({
+    mutationFn: (file) => adminService.uploadSAMLMetadata(file),
+    ...options,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.saml.config() })
+      queryClient.invalidateQueries({ queryKey: adminKeys.saml.metadata() })
+      customOnSuccess?.(...args)
+    },
+    onError: (...args) => {
+      customOnError?.(...args)
+    },
+    ...restOptions,
+  })
+}
+
+/**
+ * Fetch remote SAML metadata from a URL
+ */
+export function useFetchRemoteMetadata(
+  options?: UseMutationOptions<
+    FetchResponse<{ xml: string; entityId: string; name: string }>,
+    HttpError,
+    string,
+    unknown
+  >,
+) {
+  return useMutation({
+    mutationFn: (url: string) => adminService.fetchRemoteMetadata(url),
     ...options,
   })
 }
 
-export function useUploadSAMLMetadata(
-  options?: UseMutationOptions<
-    FetchResponse<UploadSAMLMetadataResult>,
-    HttpError,
-    FormData | { metadata: string },
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
-  return useMutation({
-    mutationFn: (payload: FormData | { metadata: string }) => samlService.uploadMetadata(payload),
-    ...restOptions,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: samlKeys.config() })
-      queryClient.invalidateQueries({ queryKey: samlKeys.recentEntities() })
-      customOnSuccess?.(...args)
-    },
-  })
-}
-
-export function useFetchRemoteMetadata(
-  options?: UseMutationOptions<
-    FetchResponse<RemoteMetadataResult>,
-    HttpError,
-    string | RemoteMetadataFetchDTO,
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
-  return useMutation({
-    mutationFn: (payload: string | RemoteMetadataFetchDTO) => {
-      const dto = typeof payload === 'string' ? { url: payload } : payload
-      return samlService.fetchRemoteMetadata(dto)
-    },
-    ...restOptions,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: samlKeys.recentEntities() })
-      customOnSuccess?.(...args)
-    },
-  })
-}
-
-export function useRecentSAMLEntities(
+/**
+ * Get remote SAML metadata from a URL (Query)
+ */
+export function useRemoteMetadata(
+  url: string,
   options?: Omit<
-    UseQueryOptions<FetchResponse<RecentSAMLEntity[]>, HttpError>,
+    UseQueryOptions<FetchResponse<{ xml: string; entityId: string; name: string }>, HttpError>,
     'queryKey' | 'queryFn'
   >,
 ) {
   return useQuery({
-    queryKey: samlKeys.recentEntities(),
-    queryFn: () => samlService.listRecentEntities(),
+    queryKey: ['admin', 'saml', 'remote', url],
+    queryFn: () => adminService.fetchRemoteMetadata(url),
+    enabled: !!url,
     ...options,
   })
 }
 
-export function useInitiateSamlSso(
-  options?: UseMutationOptions<
-    FetchResponse<SAMLSSOInitiateResponse>,
-    HttpError,
-    SAMLSSOInitiateDTO,
-    unknown
-  >,
-) {
-  return useMutation({
-    mutationFn: (data: SAMLSSOInitiateDTO) => samlService.initiateSso(data),
-    ...options,
-  })
-}
-
-export function useSsoDiscovery(
-  identifier: string | null | undefined,
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+/**
+ * List recently explored SAML entities
+ */
+export function useRecentSAMLEntities(
+  options?: Omit<UseQueryOptions<FetchResponse<JsonObject[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
-    queryKey: samlKeys.discovery(identifier || ''),
-    queryFn: () => samlService.discoverSso(identifier || ''),
-    enabled: !!identifier && identifier.trim().length > 0,
+    queryKey: ['admin', 'saml', 'recent'],
+    queryFn: () => adminService.listRecentSAMLEntities(),
     staleTime: 1000 * 60 * 5,
     ...options,
   })

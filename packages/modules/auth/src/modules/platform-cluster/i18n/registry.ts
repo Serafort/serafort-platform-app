@@ -17,7 +17,7 @@ export const platformClusterDictionaries = {
 }
 
 // Register platform cluster dictionaries in the framework-wide i18n registry
-registerDictionary(platformClusterDictionaries as any)
+registerDictionary(platformClusterDictionaries)
 
 export {
   registerDictionary,

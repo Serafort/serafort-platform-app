@@ -53,6 +53,7 @@ import { getTenantThemeEffects } from '@cap/theme'
 import { Path } from '@cap/module-auth/routes/path'
 import { useLinkedAccounts, useUnlinkAccount, useGetUser } from '../../hooks/useUserQuery'
 import { LinkedAccountDTO } from '@idaas/authentication-core/types/api.types'
+import { getErrorMessage, getPlainErrorMessage } from '../../types/api.types'
 
 const BRAND_COLORS = {
   google: '#EA4335',
@@ -62,7 +63,7 @@ const BRAND_COLORS = {
 }
 
 // Custom Microsoft SVG Icon
-function MicrosoftIconSvg(props: any) {
+function MicrosoftIconSvg(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg width='20' height='20' viewBox='0 0 21 21' fill='none' {...props}>
       <rect x='1' y='1' width='9' height='9' fill='#F25022' />
@@ -118,9 +119,8 @@ export default function LinkedAccountsDashboard() {
         message: 'The identity provider has been disconnected from your profile.',
       })
     },
-    onError: (err: any) => {
-      const message =
-        err?.response?.data?.message || err?.message || 'Failed to disconnect account.'
+    onError: (err: unknown) => {
+      const message = getErrorMessage(err, 'Failed to disconnect account.')
       addNotification?.({
         type: 'error',
         title: 'Unlink Failed',
@@ -203,10 +203,17 @@ export default function LinkedAccountsDashboard() {
 
   const selectedProvider = providers.find((p) => p.id === selectedProviderId) || providers[0]
   const isSelectedConnected = Boolean(selectedProvider?.account)
+  const linkedAtSource = selectedProvider?.account as
+    | { linkedAt?: string; created_at?: string; createdAt?: string }
+    | undefined
+  const connectedAt =
+    linkedAtSource?.linkedAt || linkedAtSource?.created_at || linkedAtSource?.createdAt
 
   // Safeguard: Check if user has a password or other accounts
   const hasLocalPassword = Boolean(
-    (currentUser as any)?.hasPassword !== false && (currentUser as any)?.password !== '',
+    (currentUser as { hasPassword?: boolean; password?: string } | null | undefined)
+      ?.hasPassword !== false &&
+      (currentUser as { password?: string } | null | undefined)?.password !== '',
   )
   const isOnlyLoginMethod = !hasLocalPassword && accounts.length <= 1
 
@@ -245,7 +252,7 @@ export default function LinkedAccountsDashboard() {
           <Box>
             <Button
               startIcon={<ArrowBackIcon />}
-              onClick={() => navigate(Path.account.view || '/profile')}
+              onClick={() => navigate(Path.account.view)}
               sx={{
                 mb: 1.5,
                 textTransform: 'none',
@@ -311,7 +318,7 @@ export default function LinkedAccountsDashboard() {
               </Button>
             }
           >
-            {(accountsError as any)?.message ||
+            {getPlainErrorMessage(accountsError) ||
               t('auth.linkedAccounts.errorLoading', 'Failed to load linked accounts. Please try again.')}
           </Alert>
         )}
@@ -396,7 +403,7 @@ export default function LinkedAccountsDashboard() {
                                 </Typography>
                                 {isConnected && (
                                   <Chip
-                                    label='Connected'
+                                    label={t('auth.userDirectory.linked.connected', 'Connected')}
                                     size='small'
                                     color='success'
                                     sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700 }}
@@ -568,14 +575,8 @@ export default function LinkedAccountsDashboard() {
                             {t('auth.linkedAccounts.connectedOn', 'Connected On')}
                           </Typography>
                           <Typography variant='body2' fontWeight={600}>
-                            {(selectedProvider.account as any)?.linkedAt ||
-                            (selectedProvider.account as any)?.created_at ||
-                            (selectedProvider.account as any)?.createdAt
-                              ? new Date(
-                                  (selectedProvider.account as any)?.linkedAt ||
-                                    (selectedProvider.account as any)?.created_at ||
-                                    (selectedProvider.account as any)?.createdAt,
-                                ).toLocaleDateString(undefined, {
+                            {connectedAt
+                              ? new Date(connectedAt).toLocaleDateString(undefined, {
                                   month: 'short',
                                   day: 'numeric',
                                   year: 'numeric',
@@ -864,7 +865,7 @@ export default function LinkedAccountsDashboard() {
               startIcon={<VpnKeyIcon />}
               onClick={() => {
                 setIsUnlinkDialogOpen(false)
-                navigate(Path.account.view ? `${Path.account.view}?edit=true` : '/profile?edit=true')
+                navigate(`${Path.account.view}?edit=true`)
               }}
               sx={{
                 textTransform: 'none',

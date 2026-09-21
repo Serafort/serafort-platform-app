@@ -51,13 +51,32 @@ import {
   useGetJWKSKeyDetail,
   CreateJWKSKeyRequest,
 } from '@auth'
+import { AppPaths } from '@cap/shared-types'
+
+type StatusColor = 'success' | 'error' | 'info'
+
+const STATUS_ORDER = ['active', 'standby', 'revoked']
+
+const getStatusColor = (status?: string): StatusColor =>
+  status === 'active' ? 'success' : status === 'revoked' ? 'error' : 'info'
+
+const captionSx = {
+  fontWeight: 700,
+  textTransform: 'uppercase',
+  letterSpacing: '0.075em',
+  color: 'text.secondary',
+  display: 'block',
+  whiteSpace: 'nowrap',
+} as const
 
 export default function JWKSManagement() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const theme = useTheme()
   const navigate = useNavigate()
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
   const [detailKid, setDetailKid] = React.useState<string | null>(null)
+  const [deleteKid, setDeleteKid] = React.useState<string | null>(null)
+  const [isRotateConfirmOpen, setIsRotateConfirmOpen] = React.useState(false)
   const [formData, setFormData] = React.useState<CreateJWKSKeyRequest>({
     kid: '',
     privateKey: '',
@@ -71,6 +90,20 @@ export default function JWKSManagement() {
   // Queries & Mutations
   const { data: keysResponse, isLoading } = useJWKSKeys()
   const keys = keysResponse?.data || []
+  // Active signing key first, then standby, then revoked.
+  const sortedKeys = React.useMemo(
+    () => [...keys].sort((a, b) => STATUS_ORDER.indexOf(a.status ?? '') - STATUS_ORDER.indexOf(b.status ?? '')),
+    [keys],
+  )
+  const deleteTarget = keys.find((k) => k.kid === deleteKid)
+
+  // The list endpoint sends date-only ISO strings, or the literal 'Never'.
+  const formatDate = (value?: string) => {
+    if (!value || value === 'Never') return t('auth.common.never', 'Never')
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return value
+    return new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeZone: 'UTC' }).format(date)
+  }
 
   const { data: keyDetailResponse, isLoading: isDetailLoading } = useGetJWKSKeyDetail(detailKid)
   const keyDetail = keyDetailResponse?.data || null
@@ -80,7 +113,7 @@ export default function JWKSManagement() {
       toast.success(t('auth.sso.keys_rotated', 'Keys rotated successfully'))
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to rotate keys')
+      toast.error(error.message || t('auth.sso.rotate_failed', 'Failed to rotate keys'))
     },
   })
 
@@ -89,7 +122,7 @@ export default function JWKSManagement() {
       toast.success(t('auth.sso.key_deleted', 'Key deleted successfully'))
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to delete key')
+      toast.error(error.message || t('auth.sso.delete_key_failed', 'Failed to delete key'))
     },
   })
 
@@ -108,14 +141,21 @@ export default function JWKSManagement() {
       })
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to create key')
+      toast.error(error.message || t('auth.sso.create_key_failed', 'Failed to create key'))
     },
   })
 
-  const onRotate = () => rotateMutation.mutate()
-  const onDeleteKey = (kid: string) => deleteMutation.mutate(kid)
+  const onRotate = () => setIsRotateConfirmOpen(true)
+  const confirmRotate = () => {
+    setIsRotateConfirmOpen(false)
+    rotateMutation.mutate()
+  }
+  const confirmDelete = () => {
+    if (!deleteKid) return
+    deleteMutation.mutate(deleteKid, { onSettled: () => setDeleteKid(null) })
+  }
   const onAddKey = () => setIsAddModalOpen(true)
-  const onViewHistory = () => navigate('/admin/audit-logs?action=JWKS')
+  const onViewHistory = () => navigate(`${AppPaths.admin.exportAudit}?action=JWKS`)
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -215,8 +255,9 @@ export default function JWKSManagement() {
         >
           <Button
             variant='outlined'
-            startIcon={<Refresh />}
+            startIcon={rotateMutation.isPending ? <CircularProgress size={16} /> : <Refresh />}
             onClick={onRotate}
+            disabled={rotateMutation.isPending || keys.length === 0}
             sx={{
               minHeight: 44,
               borderRadius: 'var(--sf-radius-md, 8px)',
@@ -357,184 +398,161 @@ export default function JWKSManagement() {
           </Button>
         </Card>
       ) : (
-        <Grid container spacing={3}>
-          {keys.map((key) => (
-            <Grid key={key.kid} size={{ xs: 12, xl: 6 }}>
+        <Stack spacing={2}>
+          {sortedKeys.map((key) => {
+            const statusColor = getStatusColor(key.status)
+            const health = key.health ?? 100
+            const healthColor = health > 90 ? 'success' : 'warning'
+            return (
               <Card
+                key={key.kid}
                 sx={{
                   borderRadius: 'var(--sf-radius-lg, 16px)',
                   border: '1px solid',
-                  borderColor: alpha(theme.palette.primary.main, 0.1),
+                  borderColor:
+                    key.status === 'active'
+                      ? alpha(theme.palette.success.main, 0.35)
+                      : alpha(theme.palette.primary.main, 0.1),
                   boxShadow: 'none',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
                   bgcolor: (th) => th.palette.background.paper,
-                  backdropFilter: 'blur(24px)',
-                  position: 'relative',
-                  overflow: 'hidden',
                   '&:hover': {
                     borderColor: theme.palette.primary.main,
-                    transform: 'translateY(-4px)',
-                    boxShadow: `0 12px 40px -12px ${alpha(theme.palette.primary.main, 0.25)}`,
+                    boxShadow: `0 8px 24px -12px ${alpha(theme.palette.primary.main, 0.25)}`,
                   },
                 }}
               >
-                <CardContent sx={{ p: 3 }}>
-                  <Grid container spacing={3} alignItems='center'>
+                <CardContent sx={{ p: { xs: 2, md: 3 }, '&:last-child': { pb: { xs: 2, md: 3 } } }}>
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      // Fixed column widths so health/dates line up from card to card.
+                      gridTemplateColumns: {
+                        xs: 'minmax(0, 1fr)',
+                        sm: 'minmax(0, 1fr) 228px',
+                        lg: 'minmax(0, 1fr) 180px 228px 148px',
+                      },
+                      gridTemplateAreas: {
+                        xs: '"id" "health" "dates" "actions"',
+                        sm: '"id actions" "health dates"',
+                        lg: '"id health dates actions"',
+                      },
+                      columnGap: 4,
+                      rowGap: 2,
+                      alignItems: 'center',
+                    }}
+                  >
                     {/* Key Identity */}
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Avatar
-                          sx={{
-                            width: 48,
-                            height: 48,
-                            backgroundColor: alpha(theme.palette.primary.main, 0.08),
-                            color: 'primary.main',
-                            borderRadius: 'var(--sf-radius-md, 12px)',
-                          }}
-                        >
-                          <Key />
-                        </Avatar>
-                        <Box>
-                          <Typography variant='subtitle1' sx={{ fontWeight: 800 }}>
-                            {key.kid}
-                          </Typography>
-                          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 0.5 }}>
-                            <Chip
-                              label={(key.status || 'unknown').toUpperCase()}
-                              size='small'
-                              sx={{
-                                height: 20,
-                                fontSize: '0.65rem',
-                                fontWeight: 800,
-                                borderRadius: 'var(--sf-radius-xs, 4px)',
-                                bgcolor: alpha(
-                                  key.status === 'active'
-                                    ? theme.palette.success.main
-                                    : key.status === 'revoked'
-                                      ? theme.palette.error.main
-                                      : theme.palette.info.main,
-                                  0.15,
-                                ),
-                                color:
-                                  key.status === 'active'
-                                    ? 'success.main'
-                                    : key.status === 'revoked'
-                                      ? 'error.main'
-                                      : 'info.main',
-                                border: '1px solid',
-                                borderColor: alpha(
-                                  key.status === 'active'
-                                    ? theme.palette.success.main
-                                    : key.status === 'revoked'
-                                      ? theme.palette.error.main
-                                      : theme.palette.info.main,
-                                  0.2,
-                                ),
-                              }}
-                            />
-                            <Typography
-                              variant='caption'
-                              sx={{
-                                fontWeight: 700,
-                                color: 'text.secondary',
-                                letterSpacing: '0.05em',
-                              }}
-                            >
-                              {key.alg}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Box>
-                    </Grid>
-
-                    {/* Health */}
-                    <Grid size={{ xs: 12, sm: 3 }}>
-                      <Typography
-                        variant='caption'
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        minWidth: 0,
+                        gridArea: 'id',
+                      }}
+                    >
+                      <Avatar
                         sx={{
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.075em',
-                          color: 'text.secondary',
-                          display: 'block',
-                          mb: 1,
+                          width: 48,
+                          height: 48,
+                          flexShrink: 0,
+                          bgcolor: alpha(theme.palette[statusColor].main, 0.1),
+                          color: `${statusColor}.main`,
+                          borderRadius: 'var(--sf-radius-md, 12px)',
                         }}
                       >
+                        <Key />
+                      </Avatar>
+                      <Box sx={{ minWidth: 0 }}>
+                        <Tooltip title={key.kid} placement='top-start'>
+                          <Typography
+                            variant='subtitle1'
+                            noWrap
+                            sx={{ fontWeight: 800, fontFamily: 'monospace', fontSize: '0.95rem' }}
+                          >
+                            {key.kid}
+                          </Typography>
+                        </Tooltip>
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 0.5 }}>
+                          <Chip
+                            label={t(`auth.sso.key_status_${key.status || 'unknown'}`, (key.status || 'unknown').toUpperCase())}
+                            size='small'
+                            sx={{
+                              height: 20,
+                              fontSize: '0.65rem',
+                              fontWeight: 800,
+                              borderRadius: 'var(--sf-radius-xs, 4px)',
+                              bgcolor: alpha(theme.palette[statusColor].main, 0.15),
+                              color: `${statusColor}.main`,
+                              border: '1px solid',
+                              borderColor: alpha(theme.palette[statusColor].main, 0.2),
+                            }}
+                          />
+                          <Typography
+                            variant='caption'
+                            sx={{ fontWeight: 700, color: 'text.secondary', letterSpacing: '0.05em' }}
+                          >
+                            {key.alg}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {/* Health */}
+                    <Box sx={{ minWidth: 0, gridArea: 'health' }}>
+                      <Typography variant='caption' sx={{ ...captionSx, mb: 1 }}>
                         {t('auth.sso.key_health', 'Certificate Health')}
                       </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <LinearProgress
                           variant='determinate'
-                          value={key.health ?? 100}
+                          value={health}
+                          color={healthColor}
+                          aria-label={t('auth.sso.key_health', 'Certificate Health')}
                           sx={{
                             flexGrow: 1,
                             height: 6,
                             borderRadius: 'var(--sf-radius-xs, 4px)',
                             bgcolor: alpha(theme.palette.divider, 0.1),
-                            '& .MuiLinearProgress-bar': {
-                              borderRadius: 'var(--sf-radius-xs, 4px)',
-                              background:
-                                (key.health ?? 100) > 90
-                                  ? `linear-gradient(90deg, ${theme.palette.success.main} 0%, ${alpha(theme.palette.success.main, 0.7)} 100%)`
-                                  : `linear-gradient(90deg, ${theme.palette.warning.main} 0%, ${alpha(theme.palette.warning.main, 0.7)} 100%)`,
-                              boxShadow:
-                                (key.health ?? 100) > 90
-                                  ? `0 0 10px ${alpha(theme.palette.success.main, 0.5)}`
-                                  : `0 0 10px ${alpha(theme.palette.warning.main, 0.5)}`,
-                            },
+                            '& .MuiLinearProgress-bar': { borderRadius: 'var(--sf-radius-xs, 4px)' },
                           }}
                         />
                         <Typography
                           variant='body2'
-                          sx={{
-                            fontWeight: 800,
-                            minWidth: 40,
-                            color: (key.health ?? 100) > 90 ? 'success.main' : 'warning.main',
-                          }}
+                          sx={{ fontWeight: 800, color: `${healthColor}.main`, whiteSpace: 'nowrap' }}
                         >
-                          {key.health ?? 100}%
+                          {health}%
                         </Typography>
                       </Box>
-                    </Grid>
+                    </Box>
 
                     {/* Dates */}
-                    <Grid size={{ xs: 12, sm: 3 }}>
-                      <Box sx={{ display: 'flex', gap: 4 }}>
-                        {[
-                          { label: t('auth.common.created', 'Created'), value: key.created },
-                          { label: t('auth.common.expires', 'Expires'), value: key.expires },
-                        ].map(({ label, value }) => (
-                          <Box key={label}>
-                            <Typography
-                              variant='caption'
-                              sx={{
-                                fontWeight: 700,
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.075em',
-                                color: 'text.secondary',
-                                display: 'block',
-                                mb: 0.5,
-                              }}
-                            >
-                              {label}
-                            </Typography>
-                            <Typography variant='body2' sx={{ fontWeight: 700 }}>
-                              {value}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Box>
-                    </Grid>
+                    <Box sx={{ gridArea: 'dates', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                      {[
+                        { label: t('auth.common.created', 'Created'), value: formatDate(key.created) },
+                        { label: t('auth.common.expires', 'Expires'), value: formatDate(key.expires) },
+                      ].map(({ label, value }) => (
+                        <Box key={label}>
+                          <Typography variant='caption' sx={{ ...captionSx, mb: 0.5 }}>
+                            {label}
+                          </Typography>
+                          <Typography variant='body2' sx={{ fontWeight: 700, whiteSpace: 'nowrap' }}>
+                            {value}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
 
                     {/* Actions */}
-                    <Grid size={{ xs: 12, sm: 2 }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: { xs: 'flex-start', sm: 'flex-end' },
-                          gap: 1,
-                        }}
-                      >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: { xs: 'flex-start', sm: 'flex-end' },
+                        gap: 1,
+                        gridArea: 'actions',
+                      }}
+                    >
                         <Tooltip title={t('auth.sso.copy_kid', 'Copy KID')}>
                           <IconButton
                             size='small'
@@ -559,7 +577,7 @@ export default function JWKSManagement() {
                           <IconButton
                             size='small'
                             color='error'
-                            onClick={() => onDeleteKey?.(key.kid)}
+                            onClick={() => setDeleteKid(key.kid)}
                             sx={{
                               minWidth: 44,
                               minHeight: 44,
@@ -571,14 +589,13 @@ export default function JWKSManagement() {
                             <Delete fontSize='small' />
                           </IconButton>
                         </Tooltip>
-                      </Box>
-                    </Grid>
-                  </Grid>
+                    </Box>
+                  </Box>
                 </CardContent>
               </Card>
-            </Grid>
-          ))}
-        </Grid>
+            )
+          })}
+        </Stack>
       )}
 
       {/* ── Audit Log Card ────────────────────────────────────── */}
@@ -678,12 +695,12 @@ export default function JWKSManagement() {
           <DialogContent sx={{ p: 3, pt: 3 }}>
             <Stack spacing={3} sx={{ mt: 1 }}>
               <TextField
-                label='Key ID (KID)'
+                label={t('auth.sso.key_id_label', 'Key ID (KID)')}
                 fullWidth
                 required
                 value={formData.kid}
                 onChange={(e) => setFormData({ ...formData, kid: e.target.value })}
-                placeholder='e.g., prod-key-2024'
+                placeholder={t('auth.sso.key_id_placeholder', 'e.g., prod-key-2024')}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 'var(--sf-radius-md, 8px)',
@@ -694,7 +711,7 @@ export default function JWKSManagement() {
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
-                    label='Algorithm'
+                    label={t('auth.sso.algorithm', 'Algorithm')}
                     select
                     fullWidth
                     value={formData.algorithm}
@@ -714,11 +731,11 @@ export default function JWKSManagement() {
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
-                    label='Status'
+                    label={t('auth.common.status', 'Status')}
                     select
                     fullWidth
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as CreateJWKSKeyRequest['status'] })}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: 'var(--sf-radius-md, 8px)',
@@ -726,20 +743,20 @@ export default function JWKSManagement() {
                       },
                     }}
                   >
-                    <MenuItem value='active'>Active</MenuItem>
-                    <MenuItem value='standby'>Standby</MenuItem>
+                    <MenuItem value='active'>{t('auth.sso.key_status_active', 'Active')}</MenuItem>
+                    <MenuItem value='standby'>{t('auth.sso.key_status_standby', 'Standby')}</MenuItem>
                   </TextField>
                 </Grid>
               </Grid>
               <TextField
-                label='Private Key (JWK or PEM)'
+                label={t('auth.sso.private_key_label', 'Private Key (JWK or PEM)')}
                 multiline
                 rows={4}
                 fullWidth
                 required
                 value={formData.privateKey}
                 onChange={(e) => setFormData({ ...formData, privateKey: e.target.value })}
-                placeholder='Paste your private key here...'
+                placeholder={t('auth.sso.private_key_placeholder', 'Paste your private key here...')}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 'var(--sf-radius-md, 8px)',
@@ -748,14 +765,14 @@ export default function JWKSManagement() {
                 }}
               />
               <TextField
-                label='Public Key (JWK or PEM)'
+                label={t('auth.sso.public_key_label', 'Public Key (JWK or PEM)')}
                 multiline
                 rows={4}
                 fullWidth
                 required
                 value={formData.publicKey}
                 onChange={(e) => setFormData({ ...formData, publicKey: e.target.value })}
-                placeholder='Paste your public key here...'
+                placeholder={t('auth.sso.public_key_placeholder', 'Paste your public key here...')}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 'var(--sf-radius-md, 8px)',
@@ -764,7 +781,7 @@ export default function JWKSManagement() {
                 }}
               />
               <TextField
-                label='Expires At'
+                label={t('auth.sso.expires_at_label', 'Expires At')}
                 type='date'
                 fullWidth
                 InputLabelProps={{ shrink: true }}
@@ -807,6 +824,102 @@ export default function JWKSManagement() {
             </Button>
           </DialogActions>
         </form>
+      </Dialog>
+
+      {/* ── Rotate Confirmation ───────────────────────────────── */}
+      <Dialog
+        open={isRotateConfirmOpen}
+        onClose={() => setIsRotateConfirmOpen(false)}
+        maxWidth='xs'
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } } }}
+      >
+        <DialogTitle sx={{ fontWeight: 800 }}>
+          {t('auth.sso.jwks_confirm_rotate_title', 'Rotate signing keys?')}
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant='body2' color='text.secondary'>
+            {t(
+              'auth.sso.jwks_confirm_rotate_desc',
+              'A new key becomes the active signing key and the current one moves to standby. Relying parties that cache the JWKS must refresh before tokens signed with the new key validate.',
+            )}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, pt: 1 }}>
+          <Button
+            onClick={() => setIsRotateConfirmOpen(false)}
+            sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary', minHeight: 44 }}
+          >
+            {t('auth.common.cancel', 'Cancel')}
+          </Button>
+          <Button
+            variant='contained'
+            color='warning'
+            startIcon={<Refresh />}
+            onClick={confirmRotate}
+            sx={{ fontWeight: 800, textTransform: 'none', minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
+          >
+            {t('auth.sso.rotate_keys', 'Rotate')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ── Delete Confirmation ───────────────────────────────── */}
+      <Dialog
+        open={!!deleteKid}
+        onClose={() => !deleteMutation.isPending && setDeleteKid(null)}
+        maxWidth='xs'
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 'var(--sf-radius-lg, 16px)' } } }}
+      >
+        <DialogTitle sx={{ fontWeight: 800 }}>
+          {t('auth.sso.jwks_confirm_delete_title', 'Delete signing key?')}
+        </DialogTitle>
+        <DialogContent>
+          <Stack spacing={2}>
+            <Typography
+              variant='body2'
+              sx={{ fontFamily: 'monospace', fontWeight: 700, wordBreak: 'break-all' }}
+            >
+              {deleteKid}
+            </Typography>
+            {deleteTarget?.status === 'active' && (
+              <Alert severity='error' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+                {t(
+                  'auth.sso.jwks_delete_active_warning',
+                  'This is the active signing key. Deleting it invalidates every token it signed. Rotate first so another key takes over.',
+                )}
+              </Alert>
+            )}
+            <Typography variant='body2' color='text.secondary'>
+              {t(
+                'auth.sso.jwks_confirm_delete_desc',
+                'The key is removed from the JWKS endpoint and tokens signed with it will no longer validate. This cannot be undone.',
+              )}
+            </Typography>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, pt: 1 }}>
+          <Button
+            onClick={() => setDeleteKid(null)}
+            disabled={deleteMutation.isPending}
+            sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary', minHeight: 44 }}
+          >
+            {t('auth.common.cancel', 'Cancel')}
+          </Button>
+          <Button
+            variant='contained'
+            color='error'
+            startIcon={deleteMutation.isPending ? <CircularProgress size={16} color='inherit' /> : <Delete />}
+            onClick={confirmDelete}
+            disabled={deleteMutation.isPending}
+            sx={{ fontWeight: 800, textTransform: 'none', minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
+          >
+            {deleteMutation.isPending
+              ? t('auth.common.deleting', 'Deleting...')
+              : t('auth.common.delete', 'Delete')}
+          </Button>
+        </DialogActions>
       </Dialog>
 
       {/* ── Key Details Modal ──────────────────────────────────── */}
@@ -943,7 +1056,7 @@ export default function JWKSManagement() {
                       <Chip
                         label={value}
                         size='small'
-                        color={color as any}
+                        color={color as StatusColor}
                         sx={{ fontWeight: 800, fontSize: '0.7rem', borderRadius: 'var(--sf-radius-xs, 4px)' }}
                       />
                     ) : (

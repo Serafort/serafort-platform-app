@@ -268,9 +268,7 @@ const ContactUs: React.FC = () => {
                     <Typography variant='body2' color='text.secondary'>
                       SDK references, API endpoints, and guides.
                     </Typography>
-                    <Link href='/developer/docs' color='primary' fontWeight={500}>
-                      Browse API Reference & Guides
-                    </Link>
+                    Browse API Reference & Guides
                   </Box>
                 </CardContent>
               </Card>

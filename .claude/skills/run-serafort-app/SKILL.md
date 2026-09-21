@@ -62,16 +62,21 @@ node .claude/skills/run-serafort-app/driver.mjs measure /dashboard ".vertical-na
 Options: `--shell`, `--width N`, `--height N`, `--dark`, `--clip x,y,w,h`,
 `--wait <selector>`, `--base <url>`.
 
-**In Git Bash, prefix every driver call with `MSYS_NO_PATHCONV=1`** — MSYS
-rewrites a bare `/` argument into a Windows path and the driver navigates to
-`http://localhost:5173C:/Program Files/Git/`:
-
-```bash
-MSYS_NO_PATHCONV=1 node .claude/skills/run-serafort-app/driver.mjs probe /
-```
-
-(The driver also normalises the mangled form defensively, but the env var is the
-clean fix. PowerShell needs neither.)
+> [!WARNING]
+> **Git Bash path mangling — always prefix `MSYS_NO_PATHCONV=1`.**
+> Git Bash rewrites every route argument beginning with `/` into a Windows
+> absolute path (e.g. `/admin/provisioning` → `C:/Program Files/Git/admin/provisioning`).
+> Without this prefix, **all `/admin/*` routes silently navigate to the landing
+> page** and return blank or wrong screenshots — the most common cause of
+> "visual QA passed but nothing changed" failures.
+>
+> ```bash
+> MSYS_NO_PATHCONV=1 node .claude/skills/run-serafort-app/driver.mjs probe /
+> MSYS_NO_PATHCONV=1 node .claude/skills/run-serafort-app/admin-driver.mjs shot /admin/users out/users.png
+> ```
+>
+> PowerShell and cmd do not need the prefix. The driver also normalises the
+> mangled form defensively, but the env var is the authoritative fix.
 
 **Always open the screenshot afterwards.** The driver warns
 `WARNING: tiny file` under 3 KB and retries up to 3 times, but a

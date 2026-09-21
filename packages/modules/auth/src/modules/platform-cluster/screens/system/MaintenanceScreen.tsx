@@ -28,6 +28,7 @@ export default function MaintenanceScreen() {
             color: 'primary.main',
             position: 'absolute',
             animation: 'hammer 2s infinite ease-in-out',
+            '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
             '@keyframes hammer': {
               '0%': { transform: 'rotate(0deg)' },
               '50%': { transform: 'rotate(-20deg)' },

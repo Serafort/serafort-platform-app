@@ -27,6 +27,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
+import { AdminPageHeader } from '@auth/modules/authentication-core/components/shared/admin'
 import LinkIcon from '@mui/icons-material/Link'
 import VerifiedUser from '@mui/icons-material/VerifiedUser'
 import GppMaybe from '@mui/icons-material/GppMaybe'
@@ -136,18 +137,14 @@ export const AuditChainInspector: React.FC = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Container maxWidth='lg' sx={{ py: 4 }}>
-      <Stack direction='row' alignItems='center' spacing={1.5} sx={{ mb: 1 }}>
-        <LinkIcon color='primary' />
-        <Typography variant='h4'>
-          {t('monitoring.auditChain.title', 'Audit chain integrity')}
-        </Typography>
-      </Stack>
-      <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-        {t(
+      <AdminPageHeader
+        icon={<LinkIcon />}
+        title={t('monitoring.auditChain.title', 'Audit chain integrity')}
+        description={t(
           'monitoring.auditChain.subtitle',
           'Every audit row carries an HMAC over its own content and the previous row’s hash. Editing or deleting a row breaks verification from that point onward.',
         )}
-      </Typography>
+      />
 
       {status && !status.dedicatedKeyConfigured && (
         <Alert severity='warning' icon={<VpnKey />} sx={{ mb: 3 }}>

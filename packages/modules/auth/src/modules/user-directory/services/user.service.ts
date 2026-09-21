@@ -15,6 +15,7 @@ import {
   AuditLog,
 } from '@idaas/authentication-core/types/api.types'
 import { ENDPOINTS } from '@cap/platform-core'
+import type { ApiRecord } from '../types/api.types'
 
 const userService = {
   getMe: (): Promise<FetchResponse> => {
@@ -31,7 +32,7 @@ const userService = {
     return apiClient.get(ENDPOINTS.user.me)
   },
 
-  updateProfile: (data: any): Promise<FetchResponse> => {
+  updateProfile: (data: ApiRecord): Promise<FetchResponse> => {
     return apiClient
       .put('/api/user/profile', data)
       .catch(() => apiClient.patch(ENDPOINTS.user.update, data))
@@ -97,10 +98,11 @@ const userService = {
       | ChangePasswordRequest
       | { currentPassword: string; newPassword: string; confirmPassword: string },
   ): Promise<FetchResponse> => {
+    const loose = data as { newPassword?: string; password?: string }
     const payload = {
       currentPassword: data.currentPassword,
-      password: (data as any).newPassword || (data as any).password,
-      newPassword: (data as any).newPassword || (data as any).password,
+      password: loose.newPassword || loose.password,
+      newPassword: loose.newPassword || loose.password,
       confirmPassword: data.confirmPassword,
     }
     return apiClient
@@ -145,15 +147,15 @@ const userService = {
   },
 
   passkeys: {
-    list: (): Promise<FetchResponse<any[]>> => {
+    list: (): Promise<FetchResponse<ApiRecord[]>> => {
       return apiClient.get(ENDPOINTS.user.passkeys.index)
     },
 
-    update: (id: string | number, data: { name: string }): Promise<FetchResponse<any>> => {
+    update: (id: string | number, data: { name: string }): Promise<FetchResponse> => {
       return apiClient.put(ENDPOINTS.user.passkeys.update(id), data)
     },
 
-    delete: (id: string | number): Promise<FetchResponse<any>> => {
+    delete: (id: string | number): Promise<FetchResponse> => {
       return apiClient.delete(ENDPOINTS.user.passkeys.destroy(id))
     },
   },
@@ -161,7 +163,7 @@ const userService = {
     provider: string
     providerId: string
     email?: string
-    metadata?: any
+    metadata?: ApiRecord
   }): Promise<FetchResponse> => {
     return apiClient
       .post('/api/user/linked-accounts', data)

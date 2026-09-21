@@ -35,9 +35,9 @@ import {
   Stack,
   LinearProgress,
 } from '@mui/material'
+import { AdminPageHeader } from '@auth/modules/authentication-core/components/shared/admin'
 import Webhook from '@mui/icons-material/Webhook'
 import Add from '@mui/icons-material/Add'
-import ArrowBack from '@mui/icons-material/ArrowBack'
 import Delete from '@mui/icons-material/Delete'
 import PlayArrow from '@mui/icons-material/PlayArrow'
 import CheckCircle from '@mui/icons-material/CheckCircle'
@@ -49,7 +49,6 @@ import Settings from '@mui/icons-material/Settings'
 import NotificationsActive from '@mui/icons-material/NotificationsActive'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
@@ -61,6 +60,17 @@ import {
   useDeleteWebhook,
   useTestWebhook,
 } from '@idaas/authorization-engine/hooks'
+import { extractRows } from '../../utils/errors'
+
+/** A webhook as the list endpoint returns it (snake_case columns). */
+interface WebhookRow {
+  id: string | number
+  url: string
+  events?: string[]
+  status?: string
+  last_triggered_at?: string | null
+  success_rate?: number | null
+}
 
 const AVAILABLE_EVENTS = [
   'user.created',
@@ -88,7 +98,7 @@ function EventChips({ events, max = 2 }: { events: string[]; max?: number }) {
           size='small'
           sx={{
             height: 20,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
             bgcolor: alpha(theme.palette.primary.main, 0.06),
             maxWidth: 120,
@@ -103,7 +113,7 @@ function EventChips({ events, max = 2 }: { events: string[]; max?: number }) {
             size='small'
             sx={{
               height: 20,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 800,
               bgcolor: alpha(theme.palette.text.secondary, 0.08),
               color: 'text.secondary',
@@ -121,14 +131,13 @@ const WebhookManagement: React.FC = () => {
   const theme = useTheme()
   const effects = getTenantThemeEffects(theme)
   const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
-  const navigate = useNavigate()
   // ── Queries & Mutations ──────────────────────────────────────────
   const { data: webhooksData, isLoading } = useWebhooks()
   const createWebhook = useCreateWebhook()
   const deleteWebhook = useDeleteWebhook()
   const testWebhook = useTestWebhook()
 
-  const webhooks = (webhooksData?.data as any)?.data ?? webhooksData?.data ?? []
+  const webhooks = extractRows<WebhookRow>(webhooksData?.data)
 
   // ── State ────────────────────────────────────────────────────────
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
@@ -152,13 +161,14 @@ const WebhookManagement: React.FC = () => {
     createWebhook.mutate(
       { url, events: selectedEvents },
       {
-        onSuccess: (response: any) => {
+        onSuccess: (response) => {
           toast.success(t('admin.developer.webhooks.messages.create_success'))
           setIsCreateDialogOpen(false)
           setUrl('')
           setSelectedEvents([])
-          if (response?.data?.secret) {
-            setNewWebhookSecret(response.data.secret)
+          const created = response?.data as { secret?: string } | undefined
+          if (created?.secret) {
+            setNewWebhookSecret(created.secret)
             setIsSecretDialogOpen(true)
           }
         },
@@ -210,7 +220,7 @@ const WebhookManagement: React.FC = () => {
         size='small'
         sx={{
           fontWeight: 800,
-          fontSize: 10,
+          fontSize: 12,
           bgcolor: isFailing
             ? alpha(theme.palette.error.main, 0.1)
             : isDisabled
@@ -234,78 +244,30 @@ const WebhookManagement: React.FC = () => {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* ── Rule 2: Page Header ─────────────────────────────────────────────── */}
-      <Box
-        sx={{
-          mb: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {/* Entity avatar OR icon avatar - Strict Rule 2/34 */}
-          <Avatar
+      <AdminPageHeader
+        icon={<Webhook />}
+        title={t('admin.developer.webhooks.title', 'Webhooks')}
+        description={t(
+          'admin.developer.webhooks.subtitle',
+          'Deliver signed platform events to your own endpoints in real time.',
+        )}
+        actions={
+          <Button
+            variant='contained'
+            startIcon={<Add />}
+            onClick={() => setIsCreateDialogOpen(true)}
             sx={{
-              width: { xs: 56, md: 80 },
-              height: { xs: 56, md: 80 },
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              bgcolor: alpha(theme.palette.secondary.main, 0.12),
-              color: 'secondary.main',
+              minHeight: 48,
+              px: 3,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              fontWeight: 700,
+              textTransform: 'none',
             }}
           >
-            <Webhook sx={{ fontSize: { xs: 28, md: 40 } }} />
-          </Avatar>
-          <Box>
-            <Button
-              startIcon={<ArrowBack />}
-              onClick={() => navigate(-1)}
-              sx={{
-                p: 0,
-                minWidth: 'auto',
-                textTransform: 'none',
-                color: 'text.secondary',
-                '&:hover': { bgcolor: 'transparent', color: 'primary.main' },
-              }}
-            >
-              {t('admin.developer.webhooks.back_to_dashboard')}
-            </Button>
-            <Typography
-              variant='h4'
-              sx={{
-                fontWeight: 800,
-                letterSpacing: '-0.027em',
-                fontSize: { xs: '1.5rem', md: '2.125rem' },
-              }}
-            >
-              {t('admin.developer.webhooks.title')}
-            </Typography>
-            <Typography variant='body2' color='text.secondary'>
-              {t('admin.developer.webhooks.subtitle')}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Button
-          variant='contained'
-          startIcon={<Add />}
-          onClick={() => setIsCreateDialogOpen(true)}
-          sx={{
-            bgcolor: 'primary.main',
-            color: 'white',
-            minHeight: 48,
-            px: 3,
-            borderRadius: 'var(--sf-radius-md, 8px)',
-            fontWeight: 700,
-            textTransform: 'none',
-            flex: { xs: 1, sm: 'none' },
-          }}
-        >
-          {t('admin.developer.webhooks.create_button')}
-        </Button>
-      </Box>
+            {t('admin.developer.webhooks.create_button', 'Create webhook')}
+          </Button>
+        }
+      />
 
       {/* ── Rule 7: Stats Cards Row ───────────────────────────────────────────────── */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -318,7 +280,7 @@ const WebhookManagement: React.FC = () => {
           },
           {
             label: t('admin.developer.webhooks.stats.active'),
-            value: webhooks.filter((w: any) => w.status !== 'disabled').length,
+            value: webhooks.filter((w) => w.status !== 'disabled').length,
             icon: <NotificationsActive />,
             color: 'success',
           },
@@ -433,7 +395,12 @@ const WebhookManagement: React.FC = () => {
                 variant='outlined'
                 startIcon={<Add />}
                 onClick={() => setIsCreateDialogOpen(true)}
-                sx={{ borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700, minHeight: 44 }}
+                sx={{
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  minHeight: 44,
+                }}
               >
                 {t('admin.developer.webhooks.empty.button')}
               </Button>
@@ -471,7 +438,7 @@ const WebhookManagement: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {webhooks.map((hook: any) => (
+                  {webhooks.map((hook) => (
                     <TableRow key={hook.id} hover sx={{ '& td': { py: 2 } }}>
                       {/* Rule 8/116: URL — long text truncation with Tooltip */}
                       <TableCell sx={{ maxWidth: { xs: 120, md: 220 } }}>
@@ -690,7 +657,11 @@ const WebhookManagement: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-            <Alert icon={<Info fontSize='inherit' />} severity='info' sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}>
+            <Alert
+              icon={<Info fontSize='inherit' />}
+              severity='info'
+              sx={{ borderRadius: 'var(--sf-radius-lg, 12px)' }}
+            >
               {t('admin.developer.webhooks.dialogs.create.info_alert')}
             </Alert>
           </Stack>
@@ -827,7 +798,12 @@ const WebhookManagement: React.FC = () => {
             color='error'
             onClick={handleDelete}
             disabled={deleteWebhook.isPending}
-            sx={{ fontWeight: 700, textTransform: 'none', borderRadius: 'var(--sf-radius-md, 8px)', px: 3 }}
+            sx={{
+              fontWeight: 700,
+              textTransform: 'none',
+              borderRadius: 'var(--sf-radius-md, 8px)',
+              px: 3,
+            }}
           >
             {deleteWebhook.isPending ? (
               <CircularProgress size={18} color='inherit' />

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react'
-import { Box, TextField, Typography, alpha, useTheme } from '@mui/material'
+import { Box, TextField, Typography, useTheme } from '@mui/material'
 
 export interface AuthCodeInputProps {
   /** Current value, without separators. Shorter than `length` is fine. */
@@ -107,7 +107,7 @@ const AuthCodeInput: React.FC<AuthCodeInputProps> = ({
   }
 
   const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Backspace' && !chars[index] && index > 0) {
+    if ((event.key === 'Backspace' || event.key === 'Delete') && !chars[index] && index > 0) {
       event.preventDefault()
       const nextChars = [...chars]
       nextChars[index - 1] = ''
@@ -164,7 +164,7 @@ const AuthCodeInput: React.FC<AuthCodeInputProps> = ({
             {groupIndex > 0 && (
               <Typography
                 aria-hidden
-                sx={{ color: 'text.disabled', fontWeight: 800, px: 0.5, userSelect: 'none' }}
+                sx={{ color: 'text.disabled', fontWeight: 500, px: 0.5, userSelect: 'none' }}
               >
                 {separator}
               </Typography>
@@ -184,9 +184,16 @@ const AuthCodeInput: React.FC<AuthCodeInputProps> = ({
                   disabled={disabled}
                   error={error}
                   autoFocus={autoFocus && boxIndex === 0}
-                  autoComplete={boxIndex === 0 ? 'one-time-code' : 'off'}
+                  // One-time-code autofill is offered on whichever box is
+                  // focused when the SMS/authenticator suggestion appears, not
+                  // only the first: users can tap into any box first (e.g.
+                  // returning to a partially-filled code after switching
+                  // apps), and each box's onChange already knows how to
+                  // spread a full code pasted or autofilled into it.
+                  autoComplete='one-time-code'
                   slotProps={{
                     htmlInput: {
+                      type: 'text',
                       inputMode: mode === 'numeric' ? 'numeric' : 'text',
                       pattern: mode === 'numeric' ? '[0-9]*' : '[a-zA-Z0-9]*',
                       maxLength: length,
@@ -195,22 +202,26 @@ const AuthCodeInput: React.FC<AuthCodeInputProps> = ({
                         : `${label} ${boxIndex + 1}/${length}`,
                       style: {
                         textAlign: 'center',
-                        fontSize: '1.5rem',
-                        fontWeight: 800,
+                        fontFamily: 'var(--sf-font-mono, ui-monospace, monospace)',
+                        fontSize: 'var(--sf-text-xl, 1.4375rem)',
+                        fontWeight: 500,
                         padding: 0,
                       },
                     },
                     input: {
                       sx: {
-                        width: { xs: 44, sm: 52 },
+                        // Eight boxes at 52px overflow the card's inner column, so long
+                        // codes step down a size rather than bleeding past the padding.
+                        width: length > 6 ? { xs: 34, sm: 44 } : { xs: 44, sm: 52 },
                         height: 56,
-                        // Matches AuthTextField's 12px so a code box and a
-                        // text field read as the same control family.
-                        borderRadius: 'var(--sf-radius-lg, 12px)',
-                        bgcolor: alpha(theme.palette.background.paper, 0.6),
-                        '& fieldset': { borderWidth: 2 },
+                        // Same radius, ground and focus glow as AuthTextField so a
+                        // code box and a text field read as one control family.
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        bgcolor: `var(--sf-field-bg, ${theme.palette.background.paper})`,
+                        '& fieldset': { borderWidth: 1, borderColor: theme.palette.divider },
                         '&.Mui-focused': {
-                          bgcolor: alpha(theme.palette.primary.main, 0.06),
+                          boxShadow: 'var(--sf-shadow-glow, none)',
+                          '& fieldset': { borderWidth: 1, borderColor: theme.palette.primary.main },
                         },
                       },
                     },

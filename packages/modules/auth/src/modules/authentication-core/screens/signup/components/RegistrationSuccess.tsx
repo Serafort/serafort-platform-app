@@ -21,25 +21,34 @@ import {
   AuthCard,
   AuthCardHeader,
   AuthActionButton,
+  AuthPageLayout,
 } from '../../../components/shared/auth'
+import { AppPaths } from '@cap/shared-types'
 
 interface RegistrationSuccessProps {
   userName?: string
   redirectPath?: string
+  /**
+   * The parent already supplies the page shell (layout, backdrop, logo). Leave
+   * unset when the screen is routed directly, otherwise the card stretches to
+   * the full viewport width with no ground behind it.
+   */
+  embedded?: boolean
 }
 
 export default function RegistrationSuccess({
   userName,
-  redirectPath = '/dashboard',
+  redirectPath = AppPaths.dashboard.dashboard,
+  embedded = false,
 }: RegistrationSuccessProps) {
   const { t } = useTranslation('auth')
   const theme = useTheme()
   const navigate = useNavigate()
 
   const handleGoToDashboard = useCallback(() => navigate(redirectPath), [navigate, redirectPath])
-  const handleCompleteLater = useCallback(() => navigate('/profile/settings'), [navigate])
+  const handleCompleteLater = useCallback(() => navigate(AppPaths.account.view), [navigate])
 
-  return (
+  const card = (
     <Box sx={{ width: '100%' }}>
       <AuthCard padding='comfortable'>
         <AuthCardHeader
@@ -62,19 +71,19 @@ export default function RegistrationSuccess({
         {/* Onboarding Checklist — Peak-End Rule clarity */}
         <Box
           sx={{
-            bgcolor: 'var(--sf-surface-sunken, rgba(0, 0, 0, 0.04))',
+            bgcolor: (theme) => `var(--sf-surface-sunken, ${theme.palette.action.hover})`,
             border: '1px solid',
             borderColor: 'divider',
             borderRadius: 'var(--sf-radius-lg, 12px)',
             p: 2,
             mb: 3.5,
-            textAlign: 'left',
+            textAlign: 'start',
           }}
         >
           <Typography
             variant='caption'
             sx={{
-              fontWeight: 800,
+              fontWeight: 700,
               color: 'text.secondary',
               textTransform: 'uppercase',
               letterSpacing: 0.5,
@@ -159,4 +168,7 @@ export default function RegistrationSuccess({
       </AuthCard>
     </Box>
   )
+
+  if (embedded) return card
+  return <AuthPageLayout maxWidth={480}>{card}</AuthPageLayout>
 }

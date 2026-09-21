@@ -70,21 +70,28 @@ describe('useAdminMonitoringQuery', () => {
   })
 
   it('useAdminMfaStatsQuery returns MFA metrics', async () => {
+    // Snake_case, matching what StatsController.mfaStats actually returns.
+    // The previous fixture asserted a camelCase shape the endpoint has never
+    // produced, so it passed while the real screen read `undefined` from every
+    // field and fell back to placeholder numbers.
     const mockMfa = {
-      totpCount: 50,
-      smsCount: 20,
-      passkeyCount: 30,
-      recoveryCodesUsed: 5,
-      adoptionRatePercentage: 80,
-      enforcedUsersCount: 40,
-      voluntaryUsersCount: 60,
+      total_users: 100,
+      total_enabled: 80,
+      totp_count: 50,
+      passkey_count: 30,
+      sms_count: 20,
+      recovery_codes_used: 5,
+      adoption_rate: 80,
+      daily_challenges: [{ date: '2026-08-28', count: 12 }],
     }
     vi.mocked(adminMonitoringService.getMfaStats).mockResolvedValueOnce(createMockResponse(mockMfa))
 
     const { result } = renderHook(() => useAdminMfaStatsQuery(), { wrapper: createWrapper() })
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(result.current.data?.adoptionRatePercentage).toBe(80)
+    expect(result.current.data?.adoption_rate).toBe(80)
+    expect(result.current.data?.totp_count).toBe(50)
+    expect(result.current.data?.daily_challenges).toHaveLength(1)
   })
 
   it('useAdminAuditLogsQuery handles array and object payloads', async () => {

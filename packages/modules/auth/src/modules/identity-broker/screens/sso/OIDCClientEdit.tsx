@@ -12,6 +12,7 @@ import {
   IconButton,
   alpha,
   useTheme,
+  type Theme,
   Avatar,
   Breadcrumbs,
   FormControl,
@@ -46,6 +47,7 @@ import { toast } from 'react-toastify'
 import { Path, useOIDCClient, useUpdateOIDCClient, useRotateClientSecret } from '@auth'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
+import { errorMessage } from '../../utils/errorMessage'
 
 const updateOidcSchema = z.object({
   name: z.string().min(3, 'Client Name must be at least 3 characters').max(50),
@@ -90,11 +92,11 @@ export default function OIDCClientEdit() {
 
   useEffect(() => {
     if (clientResponse?.data) {
-      const client = clientResponse.data as any
-      setValue('name', client.client_name || client.name || '')
-      setValue('redirectUris', (client.redirect_uris || client.redirectUris || []).join('\\n'))
-      setValue('grantTypes', client.grant_types || client.grantTypes || [])
-      setValue('responseTypes', client.response_types || client.responseTypes || [])
+      const client = clientResponse.data
+      setValue('name', client.client_name || '')
+      setValue('redirectUris', (client.redirect_uris || []).join('\n'))
+      setValue('grantTypes', client.grant_types || [])
+      setValue('responseTypes', client.response_types || [])
       setValue('description', client.description || '')
     }
   }, [clientResponse, setValue])
@@ -119,8 +121,8 @@ export default function OIDCClientEdit() {
           toast.success(t('auth.sso.client_updated', 'OIDC Client updated successfully'))
           navigate(Path.identity.oidcConfigBrowser)
         },
-        onError: (err: any) => {
-          toast.error(err.message || t('auth.common.error', 'An error occurred'))
+        onError: (err: unknown) => {
+          toast.error(errorMessage(err, t('auth.common.error', 'An error occurred')))
         },
       },
     )
@@ -134,9 +136,9 @@ export default function OIDCClientEdit() {
         setNewSecret(res.data.client_secret)
         toast.success(t('auth.sso.secret_rotated', 'Client secret rotated successfully'))
       },
-      onError: (err: any) => {
+      onError: (err: unknown) => {
         setRotateDialogOpen(false)
-        toast.error(err.message || t('auth.common.error', 'Failed to rotate secret'))
+        toast.error(errorMessage(err, t('auth.common.error', 'Failed to rotate secret')))
       },
     })
   }
@@ -231,7 +233,7 @@ export default function OIDCClientEdit() {
       {/* Secret Rotation Alert (if rotated) */}
       {newSecret && (
         <Card
-          sx={(theme: any) => ({
+          sx={(theme: Theme) => ({
             p: 4,
             mb: 4,
             borderRadius: 'var(--sf-radius-lg, 16px)',
@@ -296,7 +298,7 @@ export default function OIDCClientEdit() {
       )}
 
       <Card
-        sx={(theme: any) => ({
+        sx={(theme: Theme) => ({
           borderRadius: 'var(--sf-radius-lg, 16px)',
           mb: 4,
           border: '1px solid ' + theme.palette.divider,
@@ -327,7 +329,7 @@ export default function OIDCClientEdit() {
                   color: 'text.primary',
                 }}
               >
-                {(clientResponse.data as any).client_id || (clientResponse.data as any).clientId}
+                {clientResponse.data.client_id}
               </Typography>
               <Tooltip title='Copy Client ID'>
                 <IconButton
@@ -335,8 +337,7 @@ export default function OIDCClientEdit() {
                   aria-label='Copy Client ID'
                   onClick={() =>
                     handleCopy(
-                      (clientResponse.data as any).client_id ||
-                        (clientResponse.data as any).clientId,
+                      clientResponse.data.client_id,
                       'Client ID',
                     )
                   }
@@ -425,12 +426,18 @@ export default function OIDCClientEdit() {
                 <FormControl fullWidth error={!!errors.grantTypes}>
                   <InputLabel>{t('auth.sso.grant_types', 'Grant Types')}</InputLabel>
                   <Select {...field} multiple label={t('auth.sso.grant_types', 'Grant Types')}>
-                    <MenuItem value='authorization_code'>Authorization Code (Standard)</MenuItem>
-                    <MenuItem value='client_credentials'>
-                      Client Credentials (Machine to Machine)
+                    <MenuItem value='authorization_code'>
+                      {t('auth.sso.grant_option_authorization_code', 'Authorization Code (Standard)')}
                     </MenuItem>
-                    <MenuItem value='implicit'>Implicit (Legacy)</MenuItem>
-                    <MenuItem value='refresh_token'>Refresh Token</MenuItem>
+                    <MenuItem value='client_credentials'>
+                      {t('auth.sso.grant_option_client_credentials', 'Client Credentials (Machine to Machine)')}
+                    </MenuItem>
+                    <MenuItem value='implicit'>
+                      {t('auth.sso.grant_option_implicit', 'Implicit (Legacy)')}
+                    </MenuItem>
+                    <MenuItem value='refresh_token'>
+                      {t('auth.sso.grant_option_refresh_token', 'Refresh Token')}
+                    </MenuItem>
                   </Select>
                   <FormHelperText>{errors.grantTypes?.message}</FormHelperText>
                 </FormControl>
@@ -500,7 +507,7 @@ export default function OIDCClientEdit() {
 
       {/* Danger Zone */}
       <Card
-        sx={(theme: any) => ({
+        sx={(theme: Theme) => ({
           borderRadius: 'var(--sf-radius-lg, 16px)',
           border: '1px solid ' + theme.palette.error.main,
           ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),

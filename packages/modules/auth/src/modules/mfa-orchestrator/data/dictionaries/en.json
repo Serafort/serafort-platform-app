@@ -126,7 +126,8 @@
     "copied": "Copied!",
     "or": "OR",
     "remove": "Remove",
-    "save": "Save Changes"
+    "save": "Save Changes",
+    "retry": "Retry"
   },
   "mfa": {
     "addPhone": "Add a phone",
@@ -177,6 +178,7 @@
     "email_pending": "We will send a code to your email address (Not yet implemented).",
     "enableButton": "Turn on",
     "enableSensor": "Set up",
+    "enableSensorThisDevice": "Add this device",
     "enable_2fa": "Enable MFA",
     "enabled_status": "Multi-factor authentication is enabled",
     "enrolledCount": "{{count}} enrolled",
@@ -316,7 +318,16 @@
     "verifyFailed": "Verification failed. Please check your code and try again.",
     "verifyHeading": "Two-Factor Authentication",
     "verifySetupButton": "Verify & Activate MFA",
-    "waitingPrompt": "Checking device authenticator..."
+    "waitingPrompt": "Checking device authenticator...",
+    "smsSetupHeading": "Set Up SMS Verification",
+    "smsNoPhoneTitle": "Add a phone number first",
+    "smsNoPhoneDesc": "SMS codes need a phone number on your account. Add one to your profile, then come back here.",
+    "smsGoToProfile": "Add a phone number",
+    "smsUnavailableTitle": "SMS verification is unavailable",
+    "smsUnavailableDesc": "SMS sign-in codes are not enabled for this account yet. Use an authenticator app or a passkey instead.",
+    "smsBackToSecurity": "Back to Two-step verification",
+    "notOnThisDevice": "Not on this device",
+    "biometricAdded": "This device’s built-in sensor is now set up as a passkey."
   },
   "passkey": {
     "checkBrowser": "Your browser or device should be asking you to confirm.",

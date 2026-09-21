@@ -15,7 +15,7 @@ export const adminKeys = {
   },
   users: {
     all: ['admin', 'users'] as const,
-    list: (params?: any) => [...adminKeys.users.all, params] as const,
+    list: (params?: unknown) => [...adminKeys.users.all, params] as const,
     detail: (id: string | number) => [...adminKeys.users.all, String(id)] as const,
     sessions: (id: string | number) => [...adminKeys.users.detail(id), 'sessions'] as const,
   },
@@ -35,12 +35,13 @@ export const adminKeys = {
     detail: (kid: string) => [...adminKeys.jwks.all, 'detail', kid] as const,
   },
   dashboard: () => ['admin', 'dashboard'] as const,
-  auditLogs: (params?: any) => ['admin', 'auditLogs', params] as const,
-  impersonationLogs: (params?: any) => ['admin', 'impersonationLogs', params] as const,
+  auditLogs: (params?: unknown) => ['admin', 'auditLogs', params] as const,
+  impersonationLogs: (params?: unknown) => ['admin', 'impersonationLogs', params] as const,
   appeals: {
     all: ['admin', 'appeals'] as const,
-    list: (params?: any) => [...adminKeys.appeals.all, params] as const,
+    list: (params?: unknown) => [...adminKeys.appeals.all, params] as const,
   },
+  domains: ['admin', 'domains'] as const,
   webhooks: {
     all: ['admin', 'webhooks'] as const,
     detail: (id: string | number) => [...adminKeys.webhooks.all, String(id)] as const,
@@ -51,15 +52,17 @@ export const adminKeys = {
     policies: () => [...adminKeys.rbac.all, 'policies'] as const,
     roles: {
       all: () => [...adminKeys.rbac.all, 'roles'] as const,
-      list: (params?: any) => [...adminKeys.rbac.roles.all(), params] as const,
+      list: (params?: unknown) => [...adminKeys.rbac.roles.all(), params] as const,
       stats: () => [...adminKeys.rbac.roles.all(), 'stats'] as const,
       detail: (id: string | number) => [...adminKeys.rbac.roles.all(), String(id)] as const,
       permissions: (role: string) => [...adminKeys.rbac.roles.detail(role), 'permissions'] as const,
+      members: (id: string, params?: { page?: number; limit?: number; search?: string }) =>
+        [...adminKeys.rbac.roles.detail(id), 'members', params] as const,
     },
   },
   organizations: {
     all: ['admin', 'organizations'] as const,
-    list: (params?: any) => [...adminKeys.organizations.all, params] as const,
+    list: (params?: unknown) => [...adminKeys.organizations.all, params] as const,
     detail: (id: string | number) => [...adminKeys.organizations.all, String(id)] as const,
     scimConfig: () => [...adminKeys.organizations.all, 'scimConfig'] as const,
   },
@@ -83,7 +86,7 @@ export const adminKeys = {
   },
   developerApiKeys: {
     all: ['admin', 'developer', 'apiKeys'] as const,
-    list: (orgId?: number) => [...adminKeys.developerApiKeys.all, orgId] as const,
+    list: (orgId?: string | number) => [...adminKeys.developerApiKeys.all, orgId] as const,
   },
 
   systemHealth: () => ['admin', 'systemHealth'] as const,
@@ -91,6 +94,7 @@ export const adminKeys = {
 }
 // ============================================================================
 import {
+  keepPreviousData,
   useQuery,
   useMutation,
   useQueryClient,
@@ -99,6 +103,7 @@ import {
 } from '@tanstack/react-query'
 import { FetchResponse, HttpError, PaginatedResponse } from '@cap/platform-core'
 import { adminService } from '../services/adminService'
+export type { AdminUser }
 import type {
   OIDCClient,
   CreateOIDCClientRequest,
@@ -114,6 +119,9 @@ import type {
   Organization,
   CreateOrganizationRequest,
   OrganizationMember,
+  OrganizationInvitation,
+  MemberOverride,
+  AuditLogsPage,
   Connector,
   ConnectorLog,
   SCIMToken,
@@ -137,6 +145,9 @@ import type {
   CreateJWKSKeyRequest,
   DomainVerification,
   DeveloperApiKey,
+  JsonObject,
+  PolicyGraph,
+  PolicySet,
 } from '../services/adminService'
 // ============================================================================
 // OIDC Client Management Hooks
@@ -271,7 +282,7 @@ export function useRotateClientSecret(
  */
 export function useClientBranding(
   id: string | number | null | undefined,
-  _options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+  _options?: Omit<UseQueryOptions<FetchResponse<JsonObject>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: adminKeys.oidc.branding(id!),
@@ -285,9 +296,9 @@ export function useClientBranding(
  */
 export function useUpdateClientBranding(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse<JsonObject>,
     HttpError,
-    { id: string | number; data: any },
+    { id: string | number; data: JsonObject },
     unknown
   >,
 ) {
@@ -556,7 +567,7 @@ export function useImpersonateUser(
 export function useAppeals(
   params?: { page?: number; limit?: number; status?: string },
   _options?: Omit<
-    UseQueryOptions<FetchResponse<PaginatedResponse<any>>, HttpError>,
+    UseQueryOptions<FetchResponse<PaginatedResponse<JsonObject>>, HttpError>,
     'queryKey' | 'queryFn'
   >,
 ) {
@@ -592,126 +603,20 @@ export function useResolveAppeal(
     ...restOptions,
   })
 }
-// ============================================================================
-// SAML Configuration Hooks
-// ============================================================================
-/**
- * Get SAML configuration
- */
-export function useSAMLConfig(
-  _options?: Omit<UseQueryOptions<FetchResponse<SAMLConfig>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: adminKeys.saml.config(),
-    queryFn: () => adminService.getSAMLConfig(),
-    staleTime: 1000 * 60 * 10, // 10 minutes
-  })
-}
-/**
- * Update SAML configuration
- */
-export function useUpdateSAMLConfig(
-  options?: UseMutationOptions<FetchResponse<SAMLConfig>, HttpError, Partial<SAMLConfig>, unknown>,
-) {
-  const queryClient = useQueryClient()
-  const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
-  return useMutation({
-    mutationFn: (data) => adminService.updateSAMLConfig(data),
-    ...options,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.saml.config() })
-      customOnSuccess?.(...args)
-    },
-    onError: (...args) => {
-      customOnError?.(...args)
-    },
-    ...restOptions,
-  })
-}
-/**
- * Get SAML metadata
- */
-export function useSAMLMetadata(
-  _options?: Omit<UseQueryOptions<FetchResponse<string>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: adminKeys.saml.metadata(),
-    queryFn: () => adminService.getSAMLMetadata(),
-    staleTime: 1000 * 60 * 10,
-  })
-}
-/**
- * Upload SAML metadata
- */
-export function useUploadSAMLMetadata(
-  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, File, unknown>,
-) {
-  const queryClient = useQueryClient()
-  const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
-  return useMutation({
-    mutationFn: (file) => adminService.uploadSAMLMetadata(file),
-    ...options,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.saml.config() })
-      queryClient.invalidateQueries({ queryKey: adminKeys.saml.metadata() })
-      customOnSuccess?.(...args)
-    },
-    onError: (...args) => {
-      customOnError?.(...args)
-    },
-    ...restOptions,
-  })
-}
-/**
- * Fetch remote SAML metadata from a URL
- */
-export function useFetchRemoteMetadata(
-  options?: UseMutationOptions<
-    FetchResponse<{ xml: string; entityId: string; name: string }>,
-    HttpError,
-    string,
-    unknown
-  >,
-) {
-  return useMutation({
-    mutationFn: (url: string) => adminService.fetchRemoteMetadata(url),
-    ...options,
-  })
-}
-
-/**
- * Get remote SAML metadata from a URL (Query)
- */
-export function useRemoteMetadata(
-  url: string,
-  options?: Omit<
-    UseQueryOptions<FetchResponse<{ xml: string; entityId: string; name: string }>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
-) {
-  return useQuery({
-    queryKey: ['admin', 'saml', 'remote', url],
-    queryFn: () => adminService.fetchRemoteMetadata(url),
-    enabled: !!url,
-    ...options,
-  })
-}
-
-/**
- * List recently explored SAML entities
- */
-export function useRecentSAMLEntities(
-  _options?: Omit<UseQueryOptions<FetchResponse<any[]>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: ['admin', 'saml', 'recent'],
-    queryFn: () => adminService.listRecentSAMLEntities(),
-    staleTime: 1000 * 60 * 5,
-  })
-}
-
 // Domain Verification Hooks
 // ============================================================================
+/**
+ * The acting organization's domains. Keyed per organization so switching
+ * tenant never shows the previous tenant's cached list.
+ */
+export function useDomains(organizationId: string | number | null) {
+  return useQuery({
+    queryKey: [...adminKeys.domains, organizationId ?? 'none'] as const,
+    queryFn: () => adminService.listDomains(),
+    select: (response) => (Array.isArray(response.data) ? response.data : []),
+    staleTime: 1000 * 60,
+  })
+}
 /**
  * Verify a domain
  */
@@ -719,15 +624,16 @@ export function useVerifyDomain(
   options?: UseMutationOptions<
     FetchResponse<DomainVerification>,
     HttpError,
-    { domain: string; organizationId?: number },
+    { domain: string },
     unknown
   >,
 ) {
+  const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
   return useMutation({
-    mutationFn: ({ domain, organizationId }) =>
-      adminService.verifyDomain(organizationId ?? 0, domain),
+    mutationFn: ({ domain }) => adminService.verifyDomain(domain),
     onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.domains })
       customOnSuccess?.(...args)
     },
     onError: (...args) => {
@@ -749,11 +655,12 @@ export function useCheckDomain(
     unknown
   >,
 ) {
+  const queryClient = useQueryClient()
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
   return useMutation({
     mutationFn: ({ domain }) => adminService.checkDomain(domain),
-    ...options,
     onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.domains })
       customOnSuccess?.(...args)
     },
     onError: (...args) => {
@@ -809,15 +716,13 @@ export function useAuditLogs(
     start_date?: string
     end_date?: string
   },
-  _options?: Omit<
-    UseQueryOptions<FetchResponse<{ logs: any[]; total: number; data?: any[] }>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
+  options?: Omit<UseQueryOptions<FetchResponse<AuditLogsPage>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: adminKeys.auditLogs(params),
     queryFn: () => adminService.getAuditLogs(params),
     staleTime: 1000 * 60 * 2,
+    ...options,
   })
 }
 /**
@@ -825,12 +730,13 @@ export function useAuditLogs(
  */
 export function useImpersonationLogs(
   params?: { page?: number; limit?: number },
-  _options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<FetchResponse<AuditLogsPage>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: adminKeys.impersonationLogs(params),
     queryFn: () => adminService.getImpersonationLogs(params),
     staleTime: 1000 * 60 * 2,
+    ...options,
   })
 }
 // ============================================================================
@@ -840,7 +746,7 @@ export function useImpersonationLogs(
  * List all webhooks
  */
 export function useWebhooks(
-  _options?: Omit<UseQueryOptions<FetchResponse<any[]>, HttpError>, 'queryKey' | 'queryFn'>,
+  _options?: Omit<UseQueryOptions<FetchResponse<JsonObject[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: adminKeys.webhooks.all,
@@ -853,7 +759,7 @@ export function useWebhooks(
  */
 export function useWebhook(
   id: string | number | null | undefined,
-  _options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+  _options?: Omit<UseQueryOptions<FetchResponse<JsonObject>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: adminKeys.webhooks.detail(id!),
@@ -867,7 +773,7 @@ export function useWebhook(
  */
 export function useCreateWebhook(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse<JsonObject>,
     HttpError,
     { url: string; events: string[]; secret?: string },
     unknown
@@ -892,9 +798,9 @@ export function useCreateWebhook(
  */
 export function useUpdateWebhook(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse<JsonObject>,
     HttpError,
-    { id: string | number; data: any },
+    { id: string | number; data: JsonObject },
     unknown
   >,
 ) {
@@ -996,21 +902,34 @@ export function useRolePermissions(
   })
 }
 export function useRole(
-  id: number | null | undefined,
+  id: string | null | undefined,
   _options?: Omit<UseQueryOptions<FetchResponse<Role>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: adminKeys.rbac.roles.detail(id!),
-    queryFn: () => adminService.getRole(id as number),
+    queryFn: () => adminService.getRole(id as string),
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
+  })
+}
+/** Holders of a role, one page at a time; keeps the previous page on screen while the next loads */
+export function useRoleMembers(
+  id: string | null | undefined,
+  params: { page?: number; limit?: number; search?: string },
+) {
+  return useQuery({
+    queryKey: adminKeys.rbac.roles.members(id ?? '', params),
+    queryFn: ({ signal }) => adminService.getRoleMembers(id as string, params, signal),
+    enabled: !!id,
+    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60,
   })
 }
 export function useUpdateRole(
   options?: UseMutationOptions<
     FetchResponse<Role>,
     HttpError,
-    { id: number; data: { name?: string; description?: string } },
+    { id: string; data: { name?: string; description?: string } },
     unknown
   >,
 ) {
@@ -1026,18 +945,30 @@ export function useUpdateRole(
     },
   })
 }
-export function useSyncRolePermissions(options?: any) {
+/** Snapshot taken before an optimistic role edit so a failure can roll it back. */
+interface RoleMutationContext {
+  previousRole?: FetchResponse<Role>
+}
+
+type RoleSyncOptions<TVariables> = Omit<
+  UseMutationOptions<FetchResponse<Role>, HttpError, TVariables, RoleMutationContext>,
+  'mutationFn'
+>
+
+export function useSyncRolePermissions(
+  options?: RoleSyncOptions<{ roleId: string; permissionIds: string[] }>,
+) {
   const queryClient = useQueryClient()
   const { onMutate, onError, onSuccess, onSettled, ...restOptions } = options || {}
   return useMutation<
     FetchResponse<Role>,
     HttpError,
-    { roleId: number; permissionIds: number[] },
-    any
+    { roleId: string; permissionIds: string[] },
+    RoleMutationContext
   >({
     mutationFn: ({ roleId, permissionIds }) =>
       adminService.syncRolePermissions(roleId, permissionIds),
-    onMutate: async (variables) => {
+    onMutate: async (variables, mutationContext) => {
       const { roleId, permissionIds } = variables
       await queryClient.cancelQueries({ queryKey: adminKeys.rbac.roles.detail(roleId) })
       const previousRole = queryClient.getQueryData<FetchResponse<Role>>(
@@ -1058,63 +989,68 @@ export function useSyncRolePermissions(options?: any) {
           },
         })
       }
-      const customContext = await onMutate?.(variables)
+      const customContext = (await onMutate?.(variables, mutationContext)) as RoleMutationContext | undefined
       return { previousRole, ...customContext }
     },
-    onError: (err, variables, context) => {
+    onError: (err, variables, context, mutationContext) => {
       if (context?.previousRole) {
         queryClient.setQueryData(
           adminKeys.rbac.roles.detail(variables.roleId),
           context.previousRole,
         )
       }
-      onError?.(err, variables, context)
+      onError?.(err, variables, context, mutationContext)
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data, variables, context, mutationContext) => {
       queryClient.invalidateQueries({ queryKey: adminKeys.rbac.roles.all() })
-      onSuccess?.(data, variables, context)
+      onSuccess?.(data, variables, context, mutationContext)
     },
-    onSettled: (data, error, variables, context) => {
+    onSettled: (data, error, variables, context, mutationContext) => {
       queryClient.invalidateQueries({ queryKey: adminKeys.rbac.roles.detail(variables.roleId) })
-      onSettled?.(data, error, variables, context)
+      onSettled?.(data, error, variables, context, mutationContext)
     },
     ...restOptions,
   })
 }
-export function useSyncRoleParents(options?: any) {
+export function useSyncRoleParents(
+  options?: RoleSyncOptions<{ roleId: string; parentIds: string[] }>,
+) {
   const queryClient = useQueryClient()
   const { onMutate, onError, onSuccess, onSettled, ...restOptions } = options || {}
-  return useMutation<FetchResponse<Role>, HttpError, { roleId: number; parentIds: number[] }, any>({
+  return useMutation<
+    FetchResponse<Role>,
+    HttpError,
+    { roleId: string; parentIds: string[] },
+    RoleMutationContext
+  >({
     mutationFn: ({ roleId, parentIds }) => adminService.syncRoleParents(roleId, parentIds),
-    onMutate: async (variables: any) => {
+    onMutate: async (variables, mutationContext) => {
       const { roleId } = variables
       await queryClient.cancelQueries({ queryKey: adminKeys.rbac.roles.detail(roleId) })
       const previousRole = queryClient.getQueryData<FetchResponse<Role>>(
         adminKeys.rbac.roles.detail(roleId),
       )
-      const customContext = await onMutate?.(variables)
+      const customContext = (await onMutate?.(variables, mutationContext)) as RoleMutationContext | undefined
       return { previousRole, ...customContext }
     },
-    onError: (...args: any[]) => {
-      const [, variables, context] = args
+    onError: (err, variables, context, mutationContext) => {
       if (context?.previousRole) {
         queryClient.setQueryData(
           adminKeys.rbac.roles.detail(variables.roleId),
           context.previousRole,
         )
       }
-      return onError?.(...args)
+      return onError?.(err, variables, context, mutationContext)
     },
-    onSuccess: (...args: any[]) => {
+    onSuccess: (data, variables, context, mutationContext) => {
       queryClient.invalidateQueries({ queryKey: adminKeys.rbac.roles.all() })
-      return onSuccess?.(...args)
+      return onSuccess?.(data, variables, context, mutationContext)
     },
-    onSettled: (...args: any[]) => {
-      const [, , variables] = args
+    onSettled: (data, error, variables, context, mutationContext) => {
       if (variables?.roleId) {
         queryClient.invalidateQueries({ queryKey: adminKeys.rbac.roles.detail(variables.roleId) })
       }
-      return onSettled?.(...args)
+      return onSettled?.(data, error, variables, context, mutationContext)
     },
     ...restOptions,
   })
@@ -1177,7 +1113,7 @@ export function useDuplicateRole(
   })
 }
 export function useDeleteRole(
-  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, number, unknown>,
+  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, string, unknown>,
 ) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -1222,7 +1158,7 @@ export function useUpdatePermission(
     FetchResponse<Permission>,
     HttpError,
     {
-      id: number
+      id: string
       data: { name?: string; guard_name?: string; resource?: string; description?: string }
     },
     unknown
@@ -1239,7 +1175,7 @@ export function useUpdatePermission(
   })
 }
 export function useDeletePermission(
-  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, number, unknown>,
+  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, string, unknown>,
 ) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -1288,15 +1224,15 @@ export function useSaveAccessPolicies(
 
 export function useSimulatePolicy(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse<JsonObject>,
     HttpError,
     {
-      graph: any
+      graph: PolicyGraph
       request: {
-        subject: Record<string, any>
+        subject: Record<string, unknown>
         action: string
-        resource: Record<string, any>
-        environment?: Record<string, any>
+        resource: Record<string, unknown>
+        environment?: Record<string, unknown>
       }
     },
     unknown
@@ -1309,7 +1245,7 @@ export function useSimulatePolicy(
 }
 
 export function useCompilePolicy(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, { graph: any }, unknown>,
+  options?: UseMutationOptions<FetchResponse<JsonObject>, HttpError, { graph: PolicyGraph }, unknown>,
 ) {
   return useMutation({
     mutationFn: (data) => adminService.compilePolicyGraph(data),
@@ -1318,7 +1254,7 @@ export function useCompilePolicy(
 }
 
 export function useDecompilePolicy(
-  options?: UseMutationOptions<FetchResponse<any>, HttpError, { policySet: any }, unknown>,
+  options?: UseMutationOptions<FetchResponse<JsonObject>, HttpError, { policySet: PolicySet }, unknown>,
 ) {
   return useMutation({
     mutationFn: (data) => adminService.decompilePolicySet(data),
@@ -1327,7 +1263,7 @@ export function useDecompilePolicy(
 }
 
 export function useDefaultPolicySet(
-  options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<FetchResponse<JsonObject>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: [...adminKeys.rbac.policies(), 'default'],
@@ -1342,16 +1278,16 @@ export function useEvaluatePolicy(
     FetchResponse<{
       effect: 'Permit' | 'Deny' | 'NotApplicable' | 'Indeterminate'
       reasons?: string[]
-      traces?: any[]
+      traces?: unknown[]
     }>,
     HttpError,
     {
-      policySet?: any
+      policySet?: PolicySet
       request: {
-        subject: Record<string, any>
+        subject: Record<string, unknown>
         action: string
-        resource: Record<string, any>
-        environment?: Record<string, any>
+        resource: Record<string, unknown>
+        environment?: Record<string, unknown>
       }
     },
     unknown
@@ -1366,7 +1302,7 @@ export function useEvaluatePolicy(
 export function useMemberOverrides(
   memberId: number | null | undefined,
   orgId: number | null | undefined,
-  options?: Omit<UseQueryOptions<FetchResponse<any[]>, HttpError>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<FetchResponse<MemberOverride[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: ['admin', 'members', memberId, 'overrides', orgId],
@@ -1426,12 +1362,12 @@ export function useRemoveMemberOverride(
 }
 
 export function useDeveloperApiKeys(
-  orgId?: number,
-  options?: Omit<UseQueryOptions<FetchResponse<any[]>, HttpError>, 'queryKey' | 'queryFn'>,
+  orgId?: string | number,
+  options?: Omit<UseQueryOptions<FetchResponse<DeveloperApiKey[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: adminKeys.developerApiKeys.list(orgId),
-    queryFn: () => adminService.getDeveloperApiKeys(orgId || 1),
+    queryFn: () => adminService.getDeveloperApiKeys(orgId),
     staleTime: 1000 * 60 * 2,
     ...options,
   })
@@ -1441,7 +1377,7 @@ export function useCreateDeveloperApiKey(
   options?: UseMutationOptions<
     FetchResponse<DeveloperApiKey & { key: string }>,
     HttpError,
-    { orgId: number; data: { name: string; expiresAt?: string } },
+    { orgId?: string | number; data: { name: string; expiresAt?: string } },
     unknown
   >,
 ) {
@@ -1462,7 +1398,7 @@ export function useRevokeDeveloperApiKey(
   options?: UseMutationOptions<
     FetchResponse<MessageResponse>,
     HttpError,
-    { orgId: number; keyId: number },
+    { orgId?: string | number; keyId: string | number },
     unknown
   >,
 ) {
@@ -1482,7 +1418,7 @@ export function useGrantPermission(
   options?: UseMutationOptions<
     FetchResponse<MessageResponse>,
     HttpError,
-    { role_id: number; permission_id: number },
+    { role_id: string; permission_id: string },
     unknown
   >,
 ) {
@@ -1500,7 +1436,7 @@ export function useRevokePermission(
   options?: UseMutationOptions<
     FetchResponse<MessageResponse>,
     HttpError,
-    { role_id: number; permission_id: number },
+    { role_id: string; permission_id: string },
     unknown
   >,
 ) {
@@ -1530,14 +1466,15 @@ export function useOrganizations(
   })
 }
 export function useOrganization(
-  id: number | null | undefined,
-  _options?: Omit<UseQueryOptions<FetchResponse<Organization>, HttpError>, 'queryKey' | 'queryFn'>,
+  id: number | string | null | undefined,
+  options?: Omit<UseQueryOptions<FetchResponse<Organization>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
-    queryKey: adminKeys.organizations.detail(id!),
-    queryFn: () => adminService.getOrganization(id as number),
+    queryKey: adminKeys.organizations.detail(id ?? ''),
+    queryFn: () => adminService.getOrganization(id!),
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
+    ...options,
   })
 }
 export function useCreateOrganization(
@@ -1563,7 +1500,7 @@ export function useUpdateOrganization(
   options?: UseMutationOptions<
     FetchResponse<Organization>,
     HttpError,
-    { id: number; data: Partial<Organization> },
+    { id: number | string; data: Partial<Organization> },
     unknown
   >,
 ) {
@@ -1582,9 +1519,9 @@ export function useUpdateOrganization(
 }
 export function useImpersonateOrganization(
   options?: UseMutationOptions<
-    FetchResponse<{ token: string; user: any }>,
+    FetchResponse<{ token: string; user: JsonObject }>,
     HttpError,
-    number,
+    number | string,
     unknown
   >,
 ) {
@@ -1594,7 +1531,7 @@ export function useImpersonateOrganization(
   })
 }
 export function useDeleteOrganization(
-  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, number, unknown>,
+  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, number | string, unknown>,
 ) {
   const queryClient = useQueryClient()
   const { onSuccess, ...restOptions } = options || {}
@@ -1647,27 +1584,31 @@ export function useRemoveOrganizationMember(
   })
 }
 export function useOrganizationInvitations(
-  orgId: number | null | undefined,
-  _options?: Omit<UseQueryOptions<FetchResponse<any[]>, HttpError>, 'queryKey' | 'queryFn'>,
+  orgId: number | string | null | undefined,
+  options?: Omit<
+    UseQueryOptions<FetchResponse<OrganizationInvitation[]>, HttpError>,
+    'queryKey' | 'queryFn'
+  >,
 ) {
   return useQuery({
     queryKey: [...adminKeys.organizations.detail(orgId!), 'invitations'],
     queryFn: () => adminService.getOrganizationInvitations(orgId!),
     enabled: !!orgId,
     staleTime: 1000 * 60 * 5,
+    ...options,
   })
 }
 export function useInviteOrganizationMember(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse<OrganizationInvitation>,
     HttpError,
-    { orgId: number; data: { email: string; role: string } },
+    { orgId: number | string; data: { email: string; role: string } },
     unknown
   >,
 ) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ orgId, data }) => adminService.inviteToOrganization(orgId, data as any),
+    mutationFn: ({ orgId, data }) => adminService.inviteToOrganization(orgId, data),
     ...options,
     onSuccess: (...args) => {
       const [, variables] = args
@@ -1680,9 +1621,9 @@ export function useInviteOrganizationMember(
 }
 export function useRevokeOrganizationInvitation(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse<JsonObject>,
     HttpError,
-    { orgId: number; invitationId: number | string },
+    { orgId: number | string; invitationId: number | string },
     unknown
   >,
 ) {
@@ -1704,7 +1645,7 @@ export function useUploadOrganizationLogo(
   options?: UseMutationOptions<
     FetchResponse<{ logo_url: string }>,
     HttpError,
-    { id: number; file: File },
+    { id: number | string; file: File },
     unknown
   >,
 ) {
@@ -1725,7 +1666,7 @@ export function useUploadOrganizationLogo(
  */
 export function useOrganizationPolicies(
   orgId: number | null | undefined,
-  _options?: Omit<UseQueryOptions<FetchResponse<any>, HttpError>, 'queryKey' | 'queryFn'>,
+  _options?: Omit<UseQueryOptions<FetchResponse<JsonObject>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: [...adminKeys.organizations.detail(orgId!), 'policies'],
@@ -1739,9 +1680,9 @@ export function useOrganizationPolicies(
  */
 export function useUpdateOrganizationPolicies(
   options?: UseMutationOptions<
-    FetchResponse<any>,
+    FetchResponse<JsonObject>,
     HttpError,
-    { orgId: number; data: any },
+    { orgId: number; data: JsonObject },
     unknown
   >,
 ) {
@@ -1754,149 +1695,6 @@ export function useUpdateOrganizationPolicies(
         queryKey: [...adminKeys.organizations.detail(variables.orgId), 'policies'],
       })
     },
-  })
-}
-// ============================================================================
-// ── PROVISIONING & SCIM ──────────────────────────────────────────────────
-export function useSCIMTokens(
-  _options?: Omit<UseQueryOptions<FetchResponse<SCIMToken[]>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: adminKeys.scim.tokens(),
-    queryFn: () => adminService.listSCIMTokens(),
-    staleTime: 1000 * 60 * 10,
-  })
-}
-export function useCreateSCIMToken(
-  options?: UseMutationOptions<
-    FetchResponse<SCIMToken>,
-    HttpError,
-    { label: string; expiresAt?: string },
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (data) => adminService.createSCIMToken(data),
-    ...options,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.scim.tokens() })
-      options?.onSuccess?.(...args)
-    },
-  })
-}
-export function useRevokeSCIMToken(
-  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, number, unknown>,
-) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (id) => adminService.revokeSCIMToken(id as number),
-    ...options,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.scim.tokens() })
-      options?.onSuccess?.(...args)
-    },
-  })
-}
-export function useProvisioningConnectors(
-  _options?: Omit<UseQueryOptions<FetchResponse<Connector[]>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: adminKeys.provisioning.connectors(),
-    queryFn: () => adminService.listConnectors(),
-    staleTime: 1000 * 60 * 5,
-  })
-}
-export function useProvisioningConnector(
-  id: number,
-  _options?: Omit<UseQueryOptions<FetchResponse<Connector>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: [...adminKeys.provisioning.all, 'detail', id],
-    queryFn: () => adminService.getConnector(id),
-    enabled: !!id,
-    staleTime: 1000 * 60 * 5,
-  })
-}
-export function useUpdateProvisioningConnector(
-  options?: UseMutationOptions<
-    FetchResponse<Connector>,
-    HttpError,
-    { id: number; data: Partial<Connector> },
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, data }) => adminService.updateConnector(id, data),
-    ...options,
-    onSuccess: (...args) => {
-      const [, variables] = args
-      queryClient.invalidateQueries({ queryKey: adminKeys.provisioning.all })
-      queryClient.invalidateQueries({
-        queryKey: [...adminKeys.provisioning.all, 'detail', variables.id],
-      })
-      options?.onSuccess?.(...args)
-    },
-  })
-}
-export function useDeleteProvisioningConnector(
-  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, number, unknown>,
-) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (id) => adminService.deleteConnector(id),
-    ...options,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.provisioning.all })
-      options?.onSuccess?.(...args)
-    },
-  })
-}
-export function useSyncProvisioningConnector(
-  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, number, unknown>,
-) {
-  return useMutation({
-    mutationFn: (id) => adminService.syncConnector(id),
-    ...options,
-  })
-}
-export function useCreateProvisioningConnector(
-  options?: UseMutationOptions<
-    FetchResponse<Connector>,
-    HttpError,
-    {
-      name: string
-      type: Connector['type']
-      organizationId: number
-      config: Record<string, unknown>
-    },
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (data) => adminService.createConnector(data),
-    ...options,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.provisioning.all })
-      options?.onSuccess?.(...args)
-    },
-  })
-}
-export function useProvisioningConnectorLogs(
-  id: number,
-  params?: { page?: number; limit?: number },
-  options?: Omit<
-    UseQueryOptions<FetchResponse<PaginatedResponse<ConnectorLog>>, HttpError>,
-    'queryKey' | 'queryFn'
-  >,
-) {
-  return useQuery({
-    queryKey: adminKeys.provisioning.logs(id),
-    queryFn: () => adminService.getConnectorLogs(id, params),
-    enabled: id > 0,
-    ...options,
   })
 }
 // ============================================================================
@@ -1961,7 +1759,7 @@ export function useBulkUserAction(
  */
 export function useUserSessions(
   userId: number | string | null | undefined,
-  _options?: Omit<UseQueryOptions<FetchResponse<any[]>, HttpError>, 'queryKey' | 'queryFn'>,
+  _options?: Omit<UseQueryOptions<FetchResponse<JsonObject[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery({
     queryKey: adminKeys.users.sessions(userId!),
@@ -2115,71 +1913,6 @@ export function useDeleteScope(
   })
 }
 
-// ============================================================================
-// Organization SCIM Hooks
-// ============================================================================
-/**
- * Get organization SCIM configuration
- */
-export function useOrganizationScimConfig(
-  options?: Omit<UseQueryOptions<FetchResponse<SCIMConfig>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: adminKeys.organizations.scimConfig(),
-    queryFn: () => adminService.getOrganizationScimConfig() as any,
-    ...options,
-  })
-}
-
-/**
- * Update organization SCIM configuration
- */
-export function useUpdateOrganizationScimConfig(
-  options?: UseMutationOptions<
-    FetchResponse<{ message: string; scimConfig: SCIMConfig }>,
-    HttpError,
-    Partial<SCIMConfig>,
-    unknown
-  >,
-) {
-  const queryClient = useQueryClient()
-  const { onSuccess, ...restOptions } = options || {}
-
-  return useMutation({
-    mutationFn: (data) => adminService.updateOrganizationScimConfig(data) as any,
-    ...restOptions,
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({
-        queryKey: adminKeys.organizations.scimConfig(),
-      })
-      if (options?.onSuccess) {
-        options.onSuccess(...args)
-      }
-    },
-  })
-}
-
-/**
- * Test SCIM connection
- */
-export function useTestSCIMConnection(
-  options?: UseMutationOptions<
-    FetchResponse<{ status: string; message: string; diagnostics: any }>,
-    HttpError,
-    void,
-    unknown
-  >,
-) {
-  return useMutation({
-    mutationFn: () => adminService.testSCIMConnection(),
-    ...options,
-  })
-}
-
-// ============================================================================
-// System Health Hooks
-// ============================================================================
-
 /**
  * Get detailed system health status
  */
@@ -2214,168 +1947,3 @@ export function useSystemMetrics(
 // ============================================================================
 // SSF Configuration Hooks
 // ============================================================================
-
-export function useSSFConfig(
-  options?: Omit<UseQueryOptions<FetchResponse<SSFConfig>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: adminKeys.ssf.config(),
-    queryFn: () => adminService.getSSFConfig(),
-    staleTime: 1000 * 60 * 5,
-    ...options,
-  })
-}
-
-export function useUpdateSSFConfig(
-  options?: Omit<
-    UseMutationOptions<FetchResponse<{ message: string; config: SSFConfig }>, HttpError, SSFConfig>,
-    'mutationFn'
-  >,
-) {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (config: SSFConfig) => adminService.updateSSFConfig(config),
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.ssf.config() })
-      if (options?.onSuccess) {
-        options.onSuccess(...args)
-      }
-    },
-    ...options,
-  })
-}
-
-export function useTestSSFStream(
-  options?: Omit<
-    UseMutationOptions<
-      FetchResponse<{ success: boolean; message: string; timestamp: string }>,
-      HttpError,
-      void
-    >,
-    'mutationFn'
-  >,
-) {
-  return useMutation({
-    mutationFn: () => adminService.testSSFStream(),
-    ...options,
-  })
-}
-
-export function useBroadcastSSFEvent(
-  options?: Omit<
-    UseMutationOptions<
-      FetchResponse<BroadcastSSFEventResponse>,
-      HttpError,
-      BroadcastSSFEventRequest
-    >,
-    'mutationFn'
-  >,
-) {
-  return useMutation({
-    mutationFn: (data: BroadcastSSFEventRequest) => adminService.broadcastSSFEvent(data),
-    ...options,
-  })
-}
-
-export function useSSFHistory(
-  options?: Omit<UseQueryOptions<FetchResponse<any[]>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: adminKeys.ssf.history(),
-    queryFn: () => adminService.getSSFHistory(),
-    staleTime: 1000 * 30, // 30 seconds
-    ...options,
-  })
-}
-// ============================================================================
-// JWKS Management Hooks
-// ============================================================================
-
-/**
- * Get all JWKS keys
- */
-export function useJWKSKeys(
-  options?: Omit<UseQueryOptions<FetchResponse<JWKSKey[]>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: adminKeys.jwks.list(),
-    queryFn: () => adminService.getJWKSKeys(),
-    staleTime: 1000 * 60 * 10, // 10 minutes
-    ...options,
-  })
-}
-
-/**
- * Rotate JWKS keys
- */
-export function useRotateJWKSKeys(
-  options?: UseMutationOptions<FetchResponse<JWKSKey>, HttpError, void, unknown>,
-) {
-  const queryClient = useQueryClient()
-  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
-
-  return useMutation({
-    mutationFn: () => adminService.rotateJWKSKeys(),
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.jwks.list() })
-      customOnSuccess?.(...args)
-    },
-    ...restOptions,
-  })
-}
-
-/**
- * Delete a JWKS key
- */
-export function useDeleteJWKSKey(
-  options?: UseMutationOptions<FetchResponse<MessageResponse>, HttpError, string, unknown>,
-) {
-  const queryClient = useQueryClient()
-  const { onSuccess: customOnSuccess, ...restOptions } = options || {}
-
-  return useMutation({
-    mutationFn: (kid: string) => adminService.deleteJWKSKey(kid),
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.jwks.list() })
-      customOnSuccess?.(...args)
-    },
-    ...restOptions,
-  })
-}
-
-/**
- * Manually create a JWKS key
- */
-export function useCreateJWKSKey(
-  options?: Omit<
-    UseMutationOptions<FetchResponse<JWKSKey>, HttpError, CreateJWKSKeyRequest, unknown>,
-    'mutationFn'
-  >,
-) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    ...options,
-    mutationFn: (data: CreateJWKSKeyRequest) => adminService.createJWKSKey(data),
-    onSuccess: (res, variables, context, mutation) => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.jwks.all })
-      options?.onSuccess?.(res, variables, context, mutation)
-    },
-  })
-}
-
-/**
- * Get detailed info for a single JWKS key
- */
-export function useGetJWKSKeyDetail(
-  kid: string | null,
-  options?: Omit<UseQueryOptions<FetchResponse<JWKSKeyDetail>, HttpError>, 'queryKey' | 'queryFn'>,
-) {
-  return useQuery({
-    queryKey: adminKeys.jwks.detail(kid ?? ''),
-    queryFn: () => adminService.getJWKSKeyDetail(kid!),
-    enabled: !!kid,
-    staleTime: 1000 * 60 * 5,
-    ...options,
-  })
-}

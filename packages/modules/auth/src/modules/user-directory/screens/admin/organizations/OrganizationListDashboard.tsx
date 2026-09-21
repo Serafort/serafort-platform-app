@@ -52,9 +52,14 @@ import {
   useUpdateOrganization,
   useDeleteOrganization,
   useImpersonateOrganization,
-} from '@idaas/authentication-core/hooks/useAdminQuery'
+} from '@auth/authorization-engine/hooks/useAdminQuery'
 
 import { Organization } from '@auth/authorization-engine/services/adminService'
+
+/** List endpoints answer either a bare array or a `{ data, meta }` page. */
+type OrgListPayload =
+  | Organization[]
+  | { data?: Organization[]; meta?: { lastPage?: number; last_page?: number } }
 import {
   AdminTableCard,
   AdminTableHead,
@@ -98,7 +103,7 @@ export default function OrganizationListDashboard() {
 
   const impersonateMutation = useImpersonateOrganization({
     onSuccess: (response) => {
-      const data = response.data
+      const data = response.data as { token?: string } | undefined
       if (data?.token) {
         secureTokenManager.setTokens({
           accessToken: data.token,
@@ -126,9 +131,10 @@ export default function OrganizationListDashboard() {
   })
 
   // Handle both raw array response and paginated response formats
-  const responseData = orgsResponse?.data as any
-  const orgs = (Array.isArray(responseData) ? responseData : responseData?.data) || []
-  const meta = responseData?.meta
+  const responseData = orgsResponse?.data as OrgListPayload | undefined
+  const orgs: Organization[] =
+    (Array.isArray(responseData) ? responseData : responseData?.data) || []
+  const meta = Array.isArray(responseData) ? undefined : responseData?.meta
 
   const handleCreateSubmit = () => {
     if (!newOrgData.name || !newOrgData.slug) return
@@ -452,7 +458,7 @@ export default function OrganizationListDashboard() {
                       <AdminRowActionButton
                         onClick={(e) => {
                           e.stopPropagation()
-                          handleMenuOpen(e, org as any)
+                          handleMenuOpen(e, org)
                         }}
                         aria-label={`More options for ${org.name}`}
                       >

@@ -2,6 +2,7 @@ import React from 'react'
 import { Box, Container, Typography, Button, alpha, useTheme } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { useNavigate } from 'react-router-dom'
+import { AppPaths } from '@cap/shared-types'
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch'
 
 interface HeroSectionProps {
@@ -16,7 +17,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted }) => {
     if (onGetStarted) {
       onGetStarted()
     } else {
-      navigate('/jobs')
+      navigate(AppPaths.auth.signup)
     }
   }
 

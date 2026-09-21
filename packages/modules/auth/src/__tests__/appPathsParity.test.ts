@@ -1,23 +1,25 @@
 import { describe, it, expect } from 'vitest'
-import { AppPaths } from '@cap/shared-types'
-import { Path as ModulePath } from '../routes/path'
+import { AppPaths, UNIMPLEMENTED_PATHS } from '@cap/shared-types'
+import { authRouteConfig } from '../routes/routes'
 
 /**
- * Guards the tier 0 route registry against drift.
+ * Enforces the one rule in @cap/shared-types/routes.ts: a URL is written once,
+ * in `AppPaths`, and everything else derives from it.
  *
- * `AppPaths` in @cap/shared-types is documented as the single source of truth
- * for application routes, but the router actually registers the values in this
- * module's own `Path` objects. Those two had silently diverged on 49 keys --
- * `AppPaths` claimed `/auth/login` while the router served `/auth/sign-in`, and
- * so on -- which made the "SSOT" actively misleading: anything navigating via
- * `AppPaths` landed on routes that were never registered.
+ * WHY THIS TEST IS SHAPED THIS WAY
+ * --------------------------------
+ * The previous version of this file compared `AppPaths` against the auth
+ * module's `Path` object key-by-dotted-key, and passed while 52 `AppPaths`
+ * entries pointed at URLs no router served. It could not see them: drifted
+ * entries almost never share a key name across the two objects -- `AppPaths`
+ * called it `user.linkedAccounts` while the router registered
+ * `user.profile.linkedAccounts` -- so the comparison silently skipped exactly
+ * the pairs that had drifted, and "compares a meaningful number of keys" kept
+ * that vacuum from being obvious.
  *
- * This test lives in the auth module rather than in shared-types because the
- * comparison needs both sides, and shared-types (tier 0) may not import a
- * feature module (tier 5). See scripts/check-tier-boundaries.mjs.
- *
- * If this fails, fix `AppPaths` to match the registered route -- not the other
- * way round -- unless you genuinely intend to change a live URL.
+ * So this version ignores key names entirely and compares VALUES against the
+ * set of paths the router actually registers. A path that cannot be reached is
+ * a bug whatever it happens to be called.
  */
 
 type PathTree = { [key: string]: string | PathTree }
@@ -31,25 +33,66 @@ const flatten = (tree: PathTree, prefix = '', out: Record<string, string> = {}) 
   return out
 }
 
+/**
+ * Namespaces owned by modules other than @cap/module-auth. This test can only
+ * see the auth module's router (a tier 5 package may not import its siblings),
+ * so these are out of scope here and are covered by their own modules.
+ */
+const FOREIGN_NAMESPACES = ['landing', 'dashboard', 'theme', 'widgetStudio']
+
 describe('AppPaths <-> auth module route parity', () => {
-  const registered = flatten(ModulePath as unknown as PathTree)
+  const registeredPaths = new Set(authRouteConfig.map((route) => route.path))
   const claimed = flatten(AppPaths as unknown as PathTree)
 
-  // AppPaths also carries landing/dashboard/widget-studio entries this module
-  // never declares, so only keys present on both sides are comparable.
-  const comparable = Object.keys(claimed).filter((key) => registered[key] !== undefined)
+  const authOwned = Object.entries(claimed).filter(
+    ([key]) => !FOREIGN_NAMESPACES.some((ns) => key === ns || key.startsWith(`${ns}.`)),
+  )
 
-  it('compares a meaningful number of keys', () => {
-    // Guards the guard: if the shape of either object changes such that nothing
-    // lines up, the parity assertion below would vacuously pass.
-    expect(comparable.length).toBeGreaterThan(90)
+  it('registers a meaningful number of routes', () => {
+    // Guards the guard: if authRouteConfig came back empty, every assertion
+    // below would pass vacuously.
+    expect(registeredPaths.size).toBeGreaterThan(80)
+    expect(authOwned.length).toBeGreaterThan(80)
   })
 
-  it('AppPaths matches every route the auth module actually registers', () => {
-    const drift = comparable
-      .filter((key) => claimed[key] !== registered[key])
-      .map((key) => `${key}: AppPaths has "${claimed[key]}", router registers "${registered[key]}"`)
+  it('every AppPaths entry resolves to a route the router registers', () => {
+    const unreachable = authOwned
+      .filter(([, value]) => !registeredPaths.has(value))
+      .filter(([, value]) => !(value in UNIMPLEMENTED_PATHS))
+      .map(([key, value]) => `${key} = "${value}" is in AppPaths but no route serves it`)
 
-    expect(drift).toEqual([])
+    expect(unreachable).toEqual([])
+  })
+
+  it('every registered route path comes from AppPaths', () => {
+    // Catches a URL literal typed straight into a routes.tsx, which would
+    // reintroduce a second source of truth.
+    const claimedValues = new Set(Object.values(claimed))
+    const undeclared = [...registeredPaths]
+      .filter((path) => !claimedValues.has(path as string))
+      .map((path) => `"${path}" is registered by the router but absent from AppPaths`)
+
+    expect(undeclared).toEqual([])
+  })
+
+  it('registers each path exactly once', () => {
+    // Two <Route> entries for one URL means a screen silently shadows another
+    // and the guard on the losing entry never runs.
+    const seen = new Map<string, number>()
+    for (const route of authRouteConfig) {
+      seen.set(route.path, (seen.get(route.path) ?? 0) + 1)
+    }
+    const duplicates = [...seen.entries()]
+      .filter(([, count]) => count > 1)
+      .map(([path, count]) => `"${path}" is registered ${count} times`)
+
+    expect(duplicates).toEqual([])
+  })
+
+  it('documents every unimplemented path it excuses', () => {
+    // UNIMPLEMENTED_PATHS is an allowlist, so it must not outlive the gap it
+    // describes: once a screen is routed, the entry has to go.
+    const stale = Object.keys(UNIMPLEMENTED_PATHS).filter((path) => registeredPaths.has(path))
+    expect(stale).toEqual([])
   })
 })

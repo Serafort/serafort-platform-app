@@ -1,502 +1,589 @@
 import React from 'react'
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Avatar,
-  Chip,
-  Button,
-  CircularProgress,
-  Alert,
-  Divider,
-  Stack,
-} from '@mui/material'
+import { Box, Button, ButtonBase, Divider, Skeleton, Stack, Typography } from '@mui/material'
 import { alpha, useTheme } from '@mui/material/styles'
 import PeopleIcon from '@mui/icons-material/People'
-import PersonOffIcon from '@mui/icons-material/PersonOff'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import LockIcon from '@mui/icons-material/Lock'
 import DevicesIcon from '@mui/icons-material/Devices'
 import ShieldIcon from '@mui/icons-material/Shield'
-import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import GavelIcon from '@mui/icons-material/Gavel'
+import BoltIcon from '@mui/icons-material/Bolt'
+import InsightsIcon from '@mui/icons-material/Insights'
+import DonutLargeIcon from '@mui/icons-material/DonutLarge'
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { buildLayoutSurfaceEffect } from '@cap/layout'
-import { getTenantThemeEffects } from '@cap/theme'
-import { useAdminDashboard } from '@idaas/authentication-core/hooks/useAdminQuery'
+import { Link as RouterLink } from 'react-router-dom'
+import { useAdminDashboard } from '@auth/authorization-engine/hooks/useAdminQuery'
 import { Path } from '@cap/module-auth/routes/path'
+import {
+  AdminPageHeader,
+  AdminStatCard,
+  AdminEmptyState,
+  AdminStatusBadge,
+  type AdminStatusTone,
+} from '@auth/modules/authentication-core/components/shared/admin'
+import type { AuthTone } from '@auth/modules/authentication-core/components/shared/auth/authTone'
+import { useLiveAdminOverview, type LiveStatus } from '../../hooks/useLiveAdminOverview'
+import { useAdminTrendsQuery } from '../../hooks/useAdminMonitoringQuery'
+import { NextChevronIcon } from '../../components/common/DirectionalIcon'
+import {
+  BarStrip,
+  ClusterPanel,
+  DonutChart,
+  MeterBar,
+  formatBucketDate,
+} from '../../components/common/ClusterUI'
 
-// ─── Stat card shape ────────────────────────────────────────────────────────
-interface StatCardProps {
-  label: string
-  value: number | string
-  icon: React.ReactNode
-  color: 'primary' | 'success' | 'error' | 'warning' | 'info'
-  href?: string
-  onClick?: () => void
+/** The `/admin/dashboard` summary the overview tiles read from. */
+interface AdminDashboardStats {
+  systemHealth: string
+  totalUsers: number
+  activeUsers: number
+  activeSessions: number
+  newSignups: number
+  failedLogins: number
+  mfaAdoption: number | string
+  totalBanned: number
+  newBans: number
+  pendingAppeals: number
 }
 
-const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, href, onClick }) => {
-  const theme = useTheme()
-  const navigate = useNavigate()
+const DASHBOARD_QUERY_KEY = ['admin', 'dashboard'] as const
 
-  const handleClick = () => {
-    if (onClick) onClick()
-    else if (href) navigate(href)
+// ─── Trend normalisation ─────────────────────────────────────────────────────
+// `/api/admin/statistics/trends` answers with per-metric daily series
+// (`{ logins: [{ date, count }], signups: [...] }`); the shared hook types it as
+// a flat row list. Accept both so the chart follows whichever the service
+// really returns rather than rendering nothing.
+interface DailyCount {
+  date: string
+  count: number
+}
+interface TrendBuckets {
+  labels: string[]
+  logins: number[]
+  signups: number[]
+}
+
+const dayKey = (iso: string): string => iso.slice(0, 10)
+
+const normaliseTrends = (raw: unknown): TrendBuckets => {
+  const empty: TrendBuckets = { labels: [], logins: [], signups: [] }
+  if (!raw) return empty
+  const days = new Map<string, { logins: number; signups: number }>()
+  const bump = (iso: string, field: 'logins' | 'signups', n: number) => {
+    const k = dayKey(iso)
+    const row = days.get(k) ?? { logins: 0, signups: 0 }
+    row[field] += Number.isFinite(n) ? n : 0
+    days.set(k, row)
   }
-
-  return (
-    <Card
-      onClick={handleClick}
-      sx={{
-        border: '1px solid',
-        borderColor: 'divider',
-        boxShadow: 'none',
-        borderRadius: 'var(--sf-radius-lg, 12px)',
-        cursor: href || onClick ? 'pointer' : 'default',
-        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-        '&:hover':
-          href || onClick
-            ? {
-                transform: 'translateY(-2px)',
-                boxShadow: `0 4px 20px ${alpha(theme.palette[color].main, 0.12)}`,
-              }
-            : undefined,
-      }}
-    >
-      <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2.5, p: 3 }}>
-        <Avatar
-          sx={{
-            width: 52,
-            height: 52,
-            borderRadius: 'var(--sf-radius-lg, 12px)',
-            bgcolor: alpha(theme.palette[color].main, 0.1),
-            color: `${color}.main`,
-          }}
-        >
-          {icon}
-        </Avatar>
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography
-            variant='caption'
-            color='text.secondary'
-            sx={{
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.07em',
-              fontSize: '0.65rem',
-              display: 'block',
-              mb: 0.25,
-            }}
-          >
-            {label}
-          </Typography>
-          <Typography variant='h5' sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-            {value}
-          </Typography>
-        </Box>
-        {(href || onClick) && <ChevronRightIcon sx={{ color: 'text.disabled', flexShrink: 0 }} />}
-      </CardContent>
-    </Card>
-  )
+  if (Array.isArray(raw)) {
+    for (const p of raw as Array<{ timestamp?: string; signIns?: number; newUsers?: number }>) {
+      if (p.timestamp) {
+        bump(p.timestamp, 'logins', p.signIns ?? 0)
+        bump(p.timestamp, 'signups', p.newUsers ?? 0)
+      }
+    }
+  } else if (typeof raw === 'object') {
+    const obj = raw as { logins?: DailyCount[]; signups?: DailyCount[] }
+    for (const p of obj.logins ?? []) bump(p.date, 'logins', p.count)
+    for (const p of obj.signups ?? []) bump(p.date, 'signups', p.count)
+  }
+  const keys = [...days.keys()].sort()
+  return {
+    labels: keys,
+    logins: keys.map((k) => days.get(k)?.logins ?? 0),
+    signups: keys.map((k) => days.get(k)?.signups ?? 0),
+  }
 }
 
-// ─── Health badge ────────────────────────────────────────────────────────────
+// ─── Linked stat tile ────────────────────────────────────────────────────────
+interface LinkedStatProps {
+  label: string
+  value: string
+  icon: React.ReactNode
+  tone: AuthTone
+  href: string
+  caption?: string
+}
+
+/** A kit stat tile that is also a navigation target (whole tile is one link). */
+const LinkedStat: React.FC<LinkedStatProps> = ({ label, value, icon, tone, href, caption }) => (
+  <ButtonBase
+    component={RouterLink}
+    to={href}
+    sx={{
+      display: 'block',
+      textAlign: 'start',
+      borderRadius: 'var(--sf-radius-lg, 12px)',
+      '&.Mui-focusVisible': {
+        outline: '2px solid var(--sf-cyan, currentColor)',
+        outlineOffset: 2,
+      },
+    }}
+  >
+    <AdminStatCard label={label} value={value} icon={icon} tone={tone} caption={caption} />
+  </ButtonBase>
+)
+
+// ─── Health / live badges ────────────────────────────────────────────────────
 const HealthBadge: React.FC<{ value: string }> = ({ value }) => {
-  const theme = useTheme()
+  const { t } = useTranslation('common')
   const lower = value?.toLowerCase() ?? ''
-
-  const config =
+  const tone: AdminStatusTone =
+    lower === 'healthy' ? 'success' : lower === 'degraded' ? 'warning' : 'neutral'
+  const label =
     lower === 'healthy'
-      ? { label: 'Healthy', color: theme.palette.success.main }
+      ? t('monitoring.dashboard.status_healthy', 'Healthy')
       : lower === 'degraded'
-        ? { label: 'Degraded', color: theme.palette.warning.main }
-        : { label: lower || 'Unknown', color: theme.palette.text.disabled }
-
-  return (
-    <Chip
-      label={config.label}
-      size='small'
-      sx={{
-        fontWeight: 800,
-        fontSize: '0.7rem',
-        bgcolor: alpha(config.color, 0.1),
-        color: config.color,
-        border: `1px solid ${alpha(config.color, 0.25)}`,
-        height: 24,
-        borderRadius: 1.5,
-      }}
-    />
-  )
+        ? t('monitoring.dashboard.status_degraded', 'Degraded')
+        : lower || t('monitoring.overview.status_unknown', 'Unknown')
+  return <AdminStatusBadge tone={tone} label={label} />
 }
+
+const LiveBadge: React.FC<{ status: LiveStatus; label: string }> = ({ status, label }) => (
+  <AdminStatusBadge
+    tone={status === 'live' ? 'success' : 'neutral'}
+    label={label}
+    sx={{
+      '& .dot': {
+        animation: status === 'live' ? 'sf-live-pulse 1.8s ease-in-out infinite' : 'none',
+        '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
+        '@keyframes sf-live-pulse': { '0%, 100%': { opacity: 1 }, '50%': { opacity: 0.35 } },
+      },
+    }}
+  />
+)
 
 // ─── Quick-action row ────────────────────────────────────────────────────────
-interface QuickActionProps {
-  label: string
-  description: string
-  href: string
-}
+const QuickAction: React.FC<{ label: string; description: string; href: string }> = ({
+  label,
+  description,
+  href,
+}) => (
+  <ButtonBase
+    component={RouterLink}
+    to={href}
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      textAlign: 'start',
+      width: '100%',
+      px: 1.5,
+      py: 1.5,
+      minHeight: 56,
+      borderRadius: 'var(--sf-radius-md, 8px)',
+      transition: 'background-color var(--sf-duration-fast, 120ms) var(--sf-ease-standard, ease)',
+      '&:hover': { bgcolor: 'var(--sf-surface-sunken, transparent)' },
+      '&.Mui-focusVisible': {
+        outline: '2px solid var(--sf-cyan, currentColor)',
+        outlineOffset: -2,
+      },
+      '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
+    }}
+  >
+    <Box sx={{ minInlineSize: 0 }}>
+      <Typography component='span' sx={{ display: 'block', fontSize: 'var(--sf-text-base, 0.875rem)', fontWeight: 600 }}>
+        {label}
+      </Typography>
+      <Typography
+        component='span'
+        sx={{ display: 'block', fontSize: 'var(--sf-text-xs, 0.75rem)', color: 'text.secondary' }}
+      >
+        {description}
+      </Typography>
+    </Box>
+    <NextChevronIcon aria-hidden fontSize='small' sx={{ color: 'text.disabled' }} />
+  </ButtonBase>
+)
 
-const QuickAction: React.FC<QuickActionProps> = ({ label, description, href }) => {
-  const navigate = useNavigate()
-  return (
+// ─── Loading skeleton ────────────────────────────────────────────────────────
+const OverviewSkeleton: React.FC = () => (
+  <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }} aria-busy='true'>
+    <Stack direction='row' spacing={2} alignItems='center' sx={{ mb: 4 }}>
+      <Skeleton variant='rounded' width={60} height={60} />
+      <Box sx={{ flex: 1 }}>
+        <Skeleton variant='text' width='40%' height={36} />
+        <Skeleton variant='text' width='25%' />
+      </Box>
+    </Stack>
     <Box
-      onClick={() => navigate(href)}
       sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        px: 2.5,
-        py: 2,
-        cursor: 'pointer',
-        borderRadius: 'var(--sf-radius-md, 8px)',
-        transition: 'background 0.15s',
-        '&:hover': { bgcolor: 'action.hover' },
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
+        gap: 3,
+        mb: 4,
       }}
     >
-      <Box>
-        <Typography variant='body2' fontWeight={700}>
-          {label}
-        </Typography>
-        <Typography variant='caption' color='text.secondary'>
-          {description}
-        </Typography>
-      </Box>
-      <ChevronRightIcon sx={{ color: 'text.disabled' }} />
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton key={i} variant='rounded' height={96} />
+      ))}
     </Box>
-  )
-}
+    <Skeleton variant='rounded' height={280} />
+  </Box>
+)
 
 // ─── Main screen ─────────────────────────────────────────────────────────────
 const AdminOverviewDashboard: React.FC = () => {
   const theme = useTheme()
-  const effects = getTenantThemeEffects(theme)
-  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
-  const { t: _t } = useTranslation('common')
-  const navigate = useNavigate()
+  const { t, i18n } = useTranslation('common')
 
-  const { data, isLoading, isError, error, refetch, isFetching } = useAdminDashboard()
-  const stats = data?.data
+  const { data, isLoading, isError, refetch, isFetching } = useAdminDashboard()
+  const stats = (data as { data?: AdminDashboardStats } | undefined)?.data
+  const trendsQuery = useAdminTrendsQuery('7d')
+  const trends = React.useMemo(() => normaliseTrends(trendsQuery.data), [trendsQuery.data])
 
-  // ── Loading ──────────────────────────────────────────────────────────────
-  if (isLoading) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '60vh',
-          flexDirection: 'column',
-          gap: 2,
-        }}
-      >
-        <CircularProgress />
-        <Typography color='text.secondary' variant='body2'>
-          Loading dashboard…
-        </Typography>
-      </Box>
-    )
-  }
+  // Figures follow the audit event stream instead of the five-minute cache
+  // they used to sit behind — see useLiveAdminOverview.
+  const { status: liveStatus } = useLiveAdminOverview(DASHBOARD_QUERY_KEY)
 
-  // ── Error ────────────────────────────────────────────────────────────────
-  if (isError || !stats) {
-    return (
-      <Box sx={{ p: 4 }}>
-        <Alert
-          severity='error'
-          action={
-            <Button size='small' color='inherit' onClick={() => refetch()}>
-              Retry
-            </Button>
-          }
+  if (isLoading) return <OverviewSkeleton />
+
+  const header = (
+    <AdminPageHeader
+      icon={<HealthAndSafetyIcon />}
+      title={t('monitoring.overview.title', 'Admin overview')}
+      description={
+        <Box
+          component='span'
+          sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}
         >
-          {error?.message ?? 'Failed to load admin dashboard.'}
-        </Alert>
-      </Box>
-    )
-  }
-
-  // ── Render ───────────────────────────────────────────────────────────────
-  return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* ── Page header ── */}
-      <Box
-        sx={{
-          mb: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar
-            sx={{
-              width: { xs: 52, md: 60 },
-              height: { xs: 52, md: 60 },
-              borderRadius: 'var(--sf-radius-lg, 12px)',
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
-              color: 'primary.main',
-            }}
-          >
-            <HealthAndSafetyIcon sx={{ fontSize: 28 }} />
-          </Avatar>
-          <Box>
-            <Typography
-              variant='h4'
-              sx={{ fontWeight: 800, letterSpacing: '-0.027em', lineHeight: 1.1, mb: 0.5 }}
-            >
-              Admin overview
-            </Typography>
-            <Stack direction='row' spacing={1} alignItems='center'>
-              <Typography variant='body2' color='text.secondary'>
-                System health:
-              </Typography>
-              <HealthBadge value={stats.systemHealth} />
-            </Stack>
-          </Box>
+          <span>{t('monitoring.overview.system_health', 'System health')}</span>
+          {stats && <HealthBadge value={stats.systemHealth} />}
+          <LiveBadge
+            status={liveStatus}
+            label={
+              liveStatus === 'live'
+                ? t('monitoring.dashboard.stream_live', 'Live')
+                : t('monitoring.dashboard.stream_offline', 'Not live')
+            }
+          />
         </Box>
-
+      }
+      actions={
         <Button
           startIcon={<RefreshIcon />}
           onClick={() => refetch()}
           disabled={isFetching}
           variant='outlined'
-          sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', height: 40 }}
+          sx={{ textTransform: 'none', fontWeight: 600, minHeight: 44 }}
         >
-          {isFetching ? 'Refreshing…' : 'Refresh'}
+          {isFetching
+            ? t('monitoring.dashboard.refreshing', 'Refreshing…')
+            : t('monitoring.overview.refresh', 'Refresh')}
         </Button>
-      </Box>
+      }
+    />
+  )
 
-      {/* ── Primary stat grid ── */}
+  // ── Error ────────────────────────────────────────────────────────────────
+  // The raw query error is not surfaced: server messages are not user copy.
+  if (isError || !stats) {
+    return (
+      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+        {header}
+        <AdminEmptyState
+          variant='error'
+          title={t('monitoring.overview.error_title', 'The overview could not be loaded')}
+          description={t(
+            'monitoring.overview.error_load',
+            'The admin overview could not be loaded. Retry, or check back shortly.',
+          )}
+          action={
+            <Button
+              variant='outlined'
+              startIcon={<RefreshIcon />}
+              onClick={() => refetch()}
+              sx={{ minHeight: 44, textTransform: 'none', fontWeight: 600 }}
+            >
+              {t('monitoring.dashboard.retry_button', 'Retry')}
+            </Button>
+          }
+        />
+      </Box>
+    )
+  }
+
+  const pendingAppeals = stats.pendingAppeals
+  const mfaPct = Number.parseFloat(String(stats.mfaAdoption)) || 0
+  const inactive = Math.max(0, stats.totalUsers - stats.activeUsers - stats.totalBanned)
+  const hasTrend = trends.labels.length > 0
+
+  // ── Render ───────────────────────────────────────────────────────────────
+  return (
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
+      {header}
+
+      {/* ── KPI row (max four) ── */}
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: {
-            xs: '1fr',
-            sm: 'repeat(2, 1fr)',
-            md: 'repeat(3, 1fr)',
-          },
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
           gap: 3,
           mb: 4,
         }}
       >
-        <StatCard
-          label='Total users'
+        <LinkedStat
+          label={t('monitoring.overview.stat_total_users', 'Total users')}
           value={stats.totalUsers.toLocaleString()}
           icon={<PeopleIcon />}
-          color='primary'
+          tone='primary'
           href={Path.admin.users}
+          caption={t('monitoring.overview.stat_active_of', '{{count}} active', {
+            count: stats.activeUsers,
+          })}
         />
-        <StatCard
-          label='Active users'
-          value={stats.activeUsers.toLocaleString()}
-          icon={<PersonAddIcon />}
-          color='success'
-          href={Path.admin.users}
-        />
-        <StatCard
-          label='Active sessions'
+        <LinkedStat
+          label={t('monitoring.overview.stat_active_sessions', 'Active sessions')}
           value={stats.activeSessions.toLocaleString()}
           icon={<DevicesIcon />}
-          color='info'
-        />
-        <StatCard
-          label='New signups'
-          value={stats.newSignups.toLocaleString()}
-          icon={<PersonAddIcon />}
-          color='info'
-        />
-        <StatCard
-          label='Failed logins'
-          value={stats.failedLogins.toLocaleString()}
-          icon={<LockIcon />}
-          color={stats.failedLogins > 50 ? 'error' : 'warning'}
+          tone='info'
           href={Path.admin.events}
         />
-        <StatCard
-          label='MFA adoption'
-          value={stats.mfaAdoption}
+        <LinkedStat
+          label={t('monitoring.overview.stat_failed_logins', 'Failed logins')}
+          value={stats.failedLogins.toLocaleString()}
+          icon={<LockIcon />}
+          tone={stats.failedLogins > 50 ? 'error' : 'warning'}
+          href={Path.admin.events}
+        />
+        <LinkedStat
+          label={t('monitoring.overview.stat_mfa_adoption', 'MFA adoption')}
+          value={`${Math.round(mfaPct)}%`}
           icon={<ShieldIcon />}
-          color='success'
+          tone='success'
           href={Path.monitoring.mfa_analytics}
         />
       </Box>
 
-      {/* ── Bottom two-column row ── */}
+      {/* ── Data row ── */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: '3fr 2fr' },
+          gap: 3,
+          mb: 3,
+        }}
+      >
+        <ClusterPanel
+          icon={<InsightsIcon fontSize='small' />}
+          title={t('monitoring.overview.trend_title', 'Sign-in activity')}
+          subtitle={t('monitoring.overview.trend_subtitle', 'Sign-ins and new accounts, last 7 days')}
+        >
+          {trendsQuery.isLoading ? (
+            <Skeleton variant='rounded' height={200} aria-busy='true' />
+          ) : trendsQuery.isError ? (
+            <AdminEmptyState
+              variant='error'
+              title={t('monitoring.overview.trend_error', 'Activity could not be loaded')}
+              action={
+                <Button
+                  variant='outlined'
+                  onClick={() => trendsQuery.refetch()}
+                  sx={{ minHeight: 44, textTransform: 'none', fontWeight: 600 }}
+                >
+                  {t('monitoring.dashboard.retry_button', 'Retry')}
+                </Button>
+              }
+            />
+          ) : !hasTrend ? (
+            <AdminEmptyState
+              icon={<InsightsIcon sx={{ fontSize: 32 }} />}
+              title={t('monitoring.overview.trend_empty_title', 'No activity yet')}
+              description={t(
+                'monitoring.overview.trend_empty',
+                'Sign-ins and sign-ups will chart here as soon as people use the platform.',
+              )}
+            />
+          ) : (
+            <BarStrip
+              ariaLabel={t('monitoring.overview.trend_aria', 'Daily sign-ins and new accounts over the last 7 days')}
+              labels={trends.labels.map((d) => formatBucketDate(d, i18n.language))}
+              series={[
+                {
+                  key: 'logins',
+                  label: t('monitoring.overview.trend_logins', 'Sign-ins'),
+                  tone: 'primary',
+                  values: trends.logins,
+                },
+                {
+                  key: 'signups',
+                  label: t('monitoring.overview.trend_signups', 'New accounts'),
+                  tone: 'success',
+                  values: trends.signups,
+                },
+              ]}
+            />
+          )}
+        </ClusterPanel>
+
+        <ClusterPanel
+          icon={<DonutLargeIcon fontSize='small' />}
+          title={t('monitoring.overview.userbase_title', 'User base')}
+          subtitle={t('monitoring.overview.userbase_subtitle', 'Account status across the platform')}
+        >
+          <Stack spacing={3}>
+            <DonutChart
+              ariaLabel={t('monitoring.overview.userbase_aria', 'Users by status: active, inactive and banned')}
+              centerValue={stats.totalUsers.toLocaleString()}
+              centerLabel={t('monitoring.overview.userbase_total', 'Users')}
+              segments={[
+                {
+                  key: 'active',
+                  label: t('monitoring.overview.userbase_active', 'Active'),
+                  value: stats.activeUsers,
+                  tone: 'success',
+                },
+                {
+                  key: 'inactive',
+                  label: t('monitoring.overview.userbase_inactive', 'Inactive'),
+                  value: inactive,
+                  tone: 'neutral',
+                },
+                {
+                  key: 'banned',
+                  label: t('monitoring.overview.userbase_banned', 'Banned'),
+                  value: stats.totalBanned,
+                  tone: 'error',
+                },
+              ]}
+            />
+            <MeterBar
+              value={mfaPct}
+              tone='success'
+              label={t('monitoring.overview.stat_mfa_adoption', 'MFA adoption')}
+            />
+          </Stack>
+        </ClusterPanel>
+      </Box>
+
+      {/* ── Bottom row ── */}
       <Box
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+          alignItems: 'start',
           gap: 3,
         }}
       >
-        {/* Bans & appeals card */}
-        <Card
-          sx={{
-            border: '1px solid',
-            borderColor: 'divider',
-            boxShadow: 'none',
-            borderRadius: 'var(--sf-radius-lg, 16px)',
-            overflow: 'hidden',
-            ...surfaceEffect,
-          }}
+        <ClusterPanel
+          icon={<GavelIcon fontSize='small' />}
+          title={t('monitoring.overview.bans_title', 'Bans & appeals')}
         >
-          <CardContent sx={{ p: 3, pb: '16px !important' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
-              <Avatar
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5 }}>
+            {[
+              {
+                label: t('monitoring.overview.total_banned', 'Total banned'),
+                value: stats.totalBanned,
+                dot: theme.palette.error.main,
+              },
+              {
+                label: t('monitoring.overview.new_bans', 'New bans'),
+                value: stats.newBans,
+                dot: theme.palette.warning.main,
+              },
+              {
+                label: t('monitoring.overview.pending_appeals', 'Pending appeals'),
+                value: pendingAppeals,
+                dot: theme.palette.info.main,
+              },
+            ].map((item) => (
+              <Box
+                key={item.label}
                 sx={{
-                  width: 36,
-                  height: 36,
+                  p: 2,
                   borderRadius: 'var(--sf-radius-md, 8px)',
-                  bgcolor: alpha(theme.palette.error.main, 0.1),
-                  color: 'error.main',
+                  bgcolor: 'var(--sf-surface-sunken, transparent)',
+                  borderInlineStart: `3px solid ${alpha(item.dot, 0.9)}`,
                 }}
               >
-                <GavelIcon sx={{ fontSize: 18 }} />
-              </Avatar>
-              <Typography variant='subtitle1' fontWeight={800}>
-                Bans &amp; appeals
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 2,
-                mb: 2,
-              }}
-            >
-              {[
-                {
-                  label: 'Total banned',
-                  value: stats.totalBanned,
-                  color: theme.palette.error.main,
-                },
-                { label: 'New bans', value: stats.newBans, color: theme.palette.warning.main },
-                {
-                  label: 'Pending appeals',
-                  value: stats.pendingAppeals,
-                  color: theme.palette.info.main,
-                },
-              ].map((item) => (
-                <Box
-                  key={item.label}
+                <Typography
                   sx={{
-                    textAlign: 'center',
-                    p: 1.5,
-                    borderRadius: 'var(--sf-radius-md, 8px)',
-                    bgcolor: alpha(item.color, 0.06),
-                    border: `1px solid ${alpha(item.color, 0.15)}`,
+                    fontFamily: 'var(--sf-font-display, inherit)',
+                    fontSize: 'var(--sf-text-2xl, 1.875rem)',
+                    fontWeight: 700,
+                    lineHeight: 1.1,
+                    fontVariantNumeric: 'tabular-nums',
                   }}
                 >
-                  <Typography
-                    variant='h5'
-                    fontWeight={800}
-                    sx={{ color: item.color, letterSpacing: '-0.02em' }}
-                  >
-                    {item.value}
-                  </Typography>
-                  <Typography variant='caption' color='text.secondary' fontWeight={600}>
-                    {item.label}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
+                  {item.value.toLocaleString()}
+                </Typography>
+                <Typography sx={{ fontSize: 'var(--sf-text-xs, 0.75rem)', color: 'text.secondary', mt: 0.5 }}>
+                  {item.label}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
 
-            {stats.pendingAppeals > 0 && (
-              <Alert
-                severity='warning'
-                icon={<WarningAmberIcon fontSize='small' />}
-                sx={{ borderRadius: 'var(--sf-radius-md, 8px)', fontSize: '0.8rem' }}
-                action={
-                  <Button
-                    size='small'
-                    color='inherit'
-                    onClick={() => navigate(Path.admin.banManagement)}
-                    sx={{ fontWeight: 700, whiteSpace: 'nowrap' }}
-                  >
-                    Review
-                  </Button>
-                }
-              >
-                {stats.pendingAppeals} appeal{stats.pendingAppeals !== 1 ? 's' : ''} awaiting review
-              </Alert>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Quick actions card */}
-        <Card
-          sx={{
-            border: '1px solid',
-            borderColor: 'divider',
-            boxShadow: 'none',
-            borderRadius: 'var(--sf-radius-lg, 16px)',
-            overflow: 'hidden',
-            ...surfaceEffect,
-          }}
-        >
-          <CardContent sx={{ p: 3, pb: '16px !important' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-              <Avatar
-                sx={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 'var(--sf-radius-md, 8px)',
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
-                  color: 'primary.main',
-                }}
-              >
-                <PersonOffIcon sx={{ fontSize: 18 }} />
-              </Avatar>
-              <Typography variant='subtitle1' fontWeight={800}>
-                Quick actions
+          {pendingAppeals > 0 && (
+            <Stack
+              role='status'
+              direction='row'
+              alignItems='center'
+              justifyContent='space-between'
+              spacing={2}
+              sx={{
+                mt: 2,
+                p: 1.5,
+                paddingInlineStart: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                border: '1px solid var(--sf-warning-border)',
+                bgcolor: 'var(--sf-warning-bg)',
+                color: 'var(--sf-warning-text)',
+              }}
+            >
+              <Typography sx={{ fontSize: 'var(--sf-text-sm, 0.8125rem)', fontWeight: 600 }}>
+                {t('monitoring.overview.appeals_waiting', 'Appeals awaiting review: {{count}}', {
+                  count: pendingAppeals,
+                })}
               </Typography>
-            </Box>
-
-            <Stack divider={<Divider sx={{ opacity: 0.5 }} />}>
-              <QuickAction
-                label='User management'
-                description='View, edit, ban, and impersonate users'
-                href={Path.admin.users}
-              />
-              <QuickAction
-                label='Roles &amp; permissions'
-                description='Manage RBAC roles and access policies'
-                href={Path.admin.roles}
-              />
-              <QuickAction
-                label='Audit trail'
-                description='Export and review security audit logs'
-                href={Path.admin.exportAudit}
-              />
-              <QuickAction
-                label='System health'
-                description='Check dependencies, uptime, and metrics'
-                href={Path.admin.health}
-              />
-              <QuickAction
-                label='Auth events'
-                description='Real-time login and MFA event stream'
-                href={Path.admin.events}
-              />
+              <Button
+                component={RouterLink}
+                to={Path.admin.banManagement}
+                color='inherit'
+                sx={{ fontWeight: 700, whiteSpace: 'nowrap', minHeight: 44, textTransform: 'none' }}
+              >
+                {t('monitoring.overview.review', 'Review')}
+              </Button>
             </Stack>
-          </CardContent>
-        </Card>
+          )}
+        </ClusterPanel>
+
+        <ClusterPanel
+          icon={<BoltIcon fontSize='small' />}
+          title={t('monitoring.overview.quick_actions', 'Quick actions')}
+        >
+          <Stack divider={<Divider sx={{ opacity: 0.6 }} />} sx={{ mx: -1.5, mt: -1 }}>
+            <QuickAction
+              label={t('monitoring.overview.qa_users', 'User management')}
+              description={t('monitoring.overview.qa_users_desc', 'View, edit, ban, and impersonate users')}
+              href={Path.admin.users}
+            />
+            <QuickAction
+              label={t('monitoring.overview.qa_roles', 'Roles & permissions')}
+              description={t('monitoring.overview.qa_roles_desc', 'Manage RBAC roles and access policies')}
+              href={Path.admin.roles}
+            />
+            <QuickAction
+              label={t('monitoring.overview.qa_audit', 'Audit trail')}
+              description={t('monitoring.overview.qa_audit_desc', 'Export and review security audit logs')}
+              href={Path.admin.exportAudit}
+            />
+            <QuickAction
+              label={t('monitoring.overview.qa_health', 'System health')}
+              description={t('monitoring.overview.qa_health_desc', 'Check dependencies, uptime, and metrics')}
+              href={Path.admin.health}
+            />
+            <QuickAction
+              label={t('monitoring.overview.qa_events', 'Auth events')}
+              description={t('monitoring.overview.qa_events_desc', 'Real-time login and MFA event stream')}
+              href={Path.admin.events}
+            />
+          </Stack>
+        </ClusterPanel>
       </Box>
     </Box>
-    </motion.div>
   )
 }
 

@@ -174,7 +174,8 @@ export interface BroadcastSSFEventResponse {
 }
 
 export interface Role {
-  id: number;
+  /** UUID (`roles.id` is a Postgres uuid) */
+  id: string;
   name: string;
   guard_name?: string;
   description?: string;
@@ -187,6 +188,33 @@ export interface Role {
   updatedAt?: string;
   created_at?: string;
   updated_at?: string;
+}
+
+/**
+ * One holder of a role, from `GET /api/admin/rbac/roles/:id/members`.
+ * A role is held either as a user's own platform role (`scope: 'platform'`)
+ * or through a tenant membership (`scope: 'organization'`, with the
+ * organization it applies in), so one user can appear once per assignment.
+ */
+export interface RoleMember {
+  assignmentId: string;
+  scope: "platform" | "organization";
+  assignedAt: string | null;
+  organization: { id: string; name: string | null } | null;
+  user: {
+    id: string;
+    email: string;
+    firstname: string | null;
+    lastname: string | null;
+    avatarUrl: string | null;
+    status: string | null;
+    isActif: boolean | null;
+  };
+}
+
+export interface RoleMembersResponse {
+  data: RoleMember[];
+  meta: { total: number; perPage: number; currentPage: number; lastPage: number };
 }
 
 export interface CreateRoleRequest {
@@ -202,7 +230,8 @@ export interface UpdateRoleRequest {
 }
 
 export interface Permission {
-  id: number;
+  /** UUID (`permissions.id` is a Postgres uuid) */
+  id: string;
   name: string;
   guard_name?: string;
   resource?: string;

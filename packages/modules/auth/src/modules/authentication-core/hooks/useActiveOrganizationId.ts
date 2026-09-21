@@ -1,5 +1,18 @@
 import { useAppStore } from '@cap/platform-store'
 
+/** The slice of the session store this hook reads. Deliberately narrower than the full store. */
+interface ActiveOrgSource {
+  activeTenantId?: string | number | null
+  user?: ActiveOrgUser & { user?: ActiveOrgUser }
+}
+
+interface ActiveOrgUser {
+  activeTenantId?: string | number | null
+  organizationId?: string | number | null
+  orgId?: string | number | null
+  tenantId?: string | number | null
+}
+
 /**
  * The organization an organization-scoped call is issued for.
  *
@@ -17,7 +30,8 @@ import { useAppStore } from '@cap/platform-store'
  * rather than firing a request at `/organizations/null/…`.
  */
 export function useActiveOrganizationId(): string | number | null {
-  return useAppStore((state: any) => {
+  return useAppStore((store) => {
+    const state = store as unknown as ActiveOrgSource
     const user = state?.user?.user ?? state?.user
     return (
       state?.activeTenantId ??

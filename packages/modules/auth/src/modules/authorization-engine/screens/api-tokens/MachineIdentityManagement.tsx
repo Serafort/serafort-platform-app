@@ -2,8 +2,6 @@ import React, { useMemo, useState } from 'react'
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -14,7 +12,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   TextField,
   Tooltip,
@@ -42,6 +39,10 @@ import {
   AdminStatCard,
   AdminStatusBadge,
   AdminRowActionButton,
+  AdminTableCard,
+  AdminTableHead,
+  AdminTableHeadCell,
+  AdminTableRow,
 } from '../../../authentication-core/components/shared/admin'
 import {
   AuthConfirmDrawer,
@@ -61,8 +62,11 @@ const daysUntil = (iso: string | null): number | null => {
 
 const MachineIdentityManagement: React.FC = () => {
   const { t } = useTranslation()
-  const orgId = useActiveOrganizationId()
-  const numericOrgId = Number(orgId) || undefined
+  // Organization ids are UUIDs. This was `Number(orgId) || undefined`, which
+  // is always undefined for a UUID — and create/revoke returned early on it,
+  // so both buttons silently did nothing. The endpoints are user-scoped, so
+  // no organization is required to act.
+  const orgId = useActiveOrganizationId() ?? undefined
 
   const [search, setSearch] = useState('')
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -70,7 +74,7 @@ const MachineIdentityManagement: React.FC = () => {
   const [createdKey, setCreatedKey] = useState<string | null>(null)
   const [pendingRevoke, setPendingRevoke] = useState<DeveloperApiKey | null>(null)
 
-  const { data: keysResponse, isLoading, isError, refetch } = useDeveloperApiKeys(numericOrgId)
+  const { data: keysResponse, isLoading, isError, refetch } = useDeveloperApiKeys(orgId)
   const createKeyMutation = useCreateDeveloperApiKey()
   const revokeKeyMutation = useRevokeDeveloperApiKey()
 
@@ -107,10 +111,10 @@ const MachineIdentityManagement: React.FC = () => {
   }, [identities, search])
 
   const handleCreateKey = async () => {
-    if (!newKeyName.trim() || !numericOrgId) return
+    if (!newKeyName.trim()) return
     try {
       const response = await createKeyMutation.mutateAsync({
-        orgId: numericOrgId,
+        orgId,
         data: { name: newKeyName.trim() },
       })
       if (response?.data?.key) {
@@ -120,21 +124,23 @@ const MachineIdentityManagement: React.FC = () => {
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : ''
       toast.error(
-        message || t('auth.admin.machineIdentity.create_failed', 'The API key could not be created.'),
+        message ||
+          t('auth.admin.machineIdentity.create_failed', 'The API key could not be created.'),
       )
     }
   }
 
   const handleRevokeConfirmed = async () => {
-    if (!pendingRevoke || !numericOrgId) return
+    if (!pendingRevoke) return
     try {
-      await revokeKeyMutation.mutateAsync({ orgId: numericOrgId, keyId: pendingRevoke.id })
+      await revokeKeyMutation.mutateAsync({ orgId, keyId: pendingRevoke.id })
       toast.success(t('auth.admin.machineIdentity.revoked', 'API key revoked.'))
       setPendingRevoke(null)
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : ''
       toast.error(
-        message || t('auth.admin.machineIdentity.revoke_failed', 'The API key could not be revoked.'),
+        message ||
+          t('auth.admin.machineIdentity.revoke_failed', 'The API key could not be revoked.'),
       )
     }
   }
@@ -192,10 +198,12 @@ const MachineIdentityManagement: React.FC = () => {
           tone='primary'
           label={t('auth.admin.machineIdentity.stat_total', 'Provisioned keys')}
           value={isLoading ? undefined : stats.total}
+          caption={t('auth.admin.machineIdentity.stat_total_caption', 'live machine identities')}
         />
+        {/* Amber only when something is actually due, as on the API tokens screen. */}
         <AdminStatCard
           icon={<TimerIcon />}
-          tone='warning'
+          tone={stats.expiring > 0 ? 'warning' : 'success'}
           label={t('auth.admin.machineIdentity.stat_expiring', 'Expiring soon')}
           value={isLoading ? undefined : stats.expiring}
           caption={t('auth.api_tokens.expiring_soon_caption', 'within 30 days')}
@@ -209,78 +217,81 @@ const MachineIdentityManagement: React.FC = () => {
         />
       </Box>
 
-      <Card
-        sx={{ borderRadius: 'var(--sf-radius-lg, 16px)', border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}
-      >
-        <CardContent sx={{ p: 0 }}>
-          <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider' }}>
-            <AdminSearchField
-              value={search}
-              onChange={setSearch}
-              placeholder={t('auth.admin.machineIdentity.search', 'Search keys…')}
-              ariaLabel={t('auth.admin.machineIdentity.search_label', 'Search API keys by name')}
-              fullWidth
-            />
-          </Box>
+      {/*
+        Was a hand-built Card with a filled `action.hover` header and a
+        full-width, bordered search box — the only admin list styled that way.
+        It now uses the shared table anatomy the API tokens screen uses.
+      */}
+      <AdminTableCard>
+        <Box sx={{ px: 3, py: 2 }}>
+          <AdminSearchField
+            value={search}
+            onChange={setSearch}
+            placeholder={t('auth.admin.machineIdentity.search', 'Search keys…')}
+            ariaLabel={t('auth.admin.machineIdentity.search_label', 'Search API keys by name')}
+            sx={{ width: { xs: '100%', sm: 360 } }}
+          />
+        </Box>
 
-          <TableContainer>
-            <Table sx={{ minWidth: 760 }}>
-              <TableHead sx={{ bgcolor: 'action.hover' }}>
-                <TableRow>
-                  {[
-                    t('auth.admin.machineIdentity.col_name', 'Key name'),
-                    t('auth.admin.machineIdentity.col_prefix', 'Prefix'),
-                    t('auth.admin.machineIdentity.col_status', 'Status'),
-                    t('auth.admin.machineIdentity.col_last_used', 'Last used'),
-                    t('auth.admin.machineIdentity.col_expires', 'Expires'),
-                  ].map((column) => (
-                    <TableCell key={String(column)} sx={{ fontWeight: 800 }}>
-                      {column}
-                    </TableCell>
-                  ))}
-                  <TableCell align='right' sx={{ fontWeight: 800 }}>
-                    {t('auth.admin.machineIdentity.col_actions', 'Actions')}
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <AdminDataState
-                  asTableRow
-                  skeletonColumns={6}
-                  loading={isLoading}
-                  error={isError || undefined}
-                  onRetry={() => void refetch()}
-                  empty={filteredIdentities.length === 0}
-                  emptyIcon={<VpnKey sx={{ fontSize: 32 }} />}
-                  emptyTitle={
-                    search
-                      ? t('auth.admin.machineIdentity.no_match', 'No keys match your search.')
-                      : t('auth.admin.machineIdentity.empty_title', 'No API keys yet')
-                  }
-                  emptyDescription={
-                    search
-                      ? undefined
-                      : t(
-                          'auth.admin.machineIdentity.empty_body',
-                          'Provision a key to let a service — a CI pipeline, say — call the API without a person signing in.',
-                        )
-                  }
-                  emptyAction={search ? undefined : provisionButton}
-                >
-                  {filteredIdentities.map((identity) => {
-                    const days = daysUntil(identity.expiresAt)
-                    const isExpired = days !== null && days < 0
-                    return (
-                      <TableRow key={identity.id} hover>
-                        <TableCell>
-                          <Stack direction='row' spacing={2} alignItems='center'>
-                            <VpnKey sx={{ color: 'primary.main' }} aria-hidden />
-                            <Typography variant='body2' sx={{ fontWeight: 700 }}>
-                              {identity.name}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-                        <TableCell>
+        <TableContainer>
+          <Table sx={{ minWidth: 760 }}>
+            <AdminTableHead>
+              <TableRow>
+                {[
+                  t('auth.admin.machineIdentity.col_name', 'Key name'),
+                  t('auth.admin.machineIdentity.col_prefix', 'Prefix'),
+                  t('auth.admin.machineIdentity.col_status', 'Status'),
+                  t('auth.admin.machineIdentity.col_last_used', 'Last used'),
+                  t('auth.admin.machineIdentity.col_expires', 'Expires'),
+                ].map((column) => (
+                  <AdminTableHeadCell key={String(column)} sx={{ py: 2 }}>
+                    {column}
+                  </AdminTableHeadCell>
+                ))}
+                <AdminTableHeadCell align='right'>
+                  {t('auth.admin.machineIdentity.col_actions', 'Actions')}
+                </AdminTableHeadCell>
+              </TableRow>
+            </AdminTableHead>
+            <TableBody>
+              <AdminDataState
+                asTableRow
+                skeletonColumns={6}
+                loading={isLoading}
+                error={isError || undefined}
+                onRetry={() => void refetch()}
+                empty={filteredIdentities.length === 0}
+                emptyIcon={<VpnKey sx={{ fontSize: 32 }} />}
+                emptyTitle={
+                  search
+                    ? t('auth.admin.machineIdentity.no_match', 'No keys match your search.')
+                    : t('auth.admin.machineIdentity.empty_title', 'No API keys yet')
+                }
+                emptyDescription={
+                  search
+                    ? undefined
+                    : t(
+                        'auth.admin.machineIdentity.empty_body',
+                        'Provision a key to let a service — a CI pipeline, say — call the API without a person signing in.',
+                      )
+                }
+                emptyAction={search ? undefined : provisionButton}
+              >
+                {filteredIdentities.map((identity) => {
+                  const days = daysUntil(identity.expiresAt)
+                  const isExpired = days !== null && days < 0
+                  return (
+                    <AdminTableRow key={identity.id}>
+                      <TableCell>
+                        <Stack direction='row' spacing={1.5} alignItems='center'>
+                          <VpnKey fontSize='small' sx={{ color: 'primary.main' }} aria-hidden />
+                          <Typography variant='body2' sx={{ fontWeight: 700 }}>
+                            {identity.name}
+                          </Typography>
+                        </Stack>
+                      </TableCell>
+                      <TableCell>
+                        {identity.prefix ? (
                           <Typography
                             component='code'
                             variant='caption'
@@ -294,64 +305,91 @@ const MachineIdentityManagement: React.FC = () => {
                               px: 1,
                               py: 0.5,
                               borderRadius: 'var(--sf-radius-xs, 4px)',
+                              whiteSpace: 'nowrap',
                             }}
                           >
-                            {identity.prefix ? `${identity.prefix}…` : '—'}
+                            {`${identity.prefix}…`}
                           </Typography>
-                        </TableCell>
-                        <TableCell>
-                          {/*
+                        ) : (
+                          // Keys made before prefixes were stored have none, and
+                          // the raw key is never kept, so it can't be recovered.
+                          // A plain dash with a reason, not an empty code chip.
+                          <Tooltip
+                            title={t(
+                              'auth.admin.machineIdentity.prefix_unavailable',
+                              'Provisioned before key prefixes were recorded',
+                            )}
+                          >
+                            <Typography
+                              variant='body2'
+                              color='text.disabled'
+                              tabIndex={0}
+                              aria-label={t(
+                                'auth.admin.machineIdentity.prefix_unavailable',
+                                'Provisioned before key prefixes were recorded',
+                              )}
+                            >
+                              —
+                            </Typography>
+                          </Tooltip>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {/*
                             This chip was hardcoded to "ACTIVE" for every row,
                             so an expired key was labelled active. There is no
                             status field on the record, but `expiresAt` is
                             enough to tell the two apart.
                           */}
-                          <AdminStatusBadge
-                            tone={isExpired ? 'warning' : 'success'}
-                            label={
-                              isExpired
-                                ? t('auth.api_tokens.expired', 'Expired')
-                                : t('auth.account.active', 'Active')
-                            }
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant='caption'>
-                            {identity.lastUsedAt
-                              ? new Date(identity.lastUsedAt).toLocaleString()
-                              : t('auth.api_tokens.never_used', 'Never used')}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography
-                            variant='caption'
-                            sx={{ color: identity.expiresAt ? 'text.primary' : 'text.disabled' }}
+                        <AdminStatusBadge
+                          tone={isExpired ? 'warning' : 'success'}
+                          label={
+                            isExpired
+                              ? t('auth.api_tokens.expired', 'Expired')
+                              : t('auth.account.active', 'Active')
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          variant='body2'
+                          color={identity.lastUsedAt ? 'text.primary' : 'text.secondary'}
+                          sx={{ whiteSpace: 'nowrap' }}
+                        >
+                          {identity.lastUsedAt
+                            ? new Date(identity.lastUsedAt).toLocaleString()
+                            : t('auth.api_tokens.never_used', 'Never used')}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          variant='body2'
+                          sx={{ color: identity.expiresAt ? 'text.primary' : 'text.disabled' }}
+                        >
+                          {identity.expiresAt
+                            ? new Date(identity.expiresAt).toLocaleDateString()
+                            : t('auth.admin.machineIdentity.permanent', 'Permanent')}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align='right'>
+                        <Tooltip title={t('auth.admin.machineIdentity.revoke', 'Revoke key')}>
+                          <AdminRowActionButton
+                            color='error'
+                            aria-label={t('auth.admin.machineIdentity.revoke', 'Revoke key')}
+                            onClick={() => setPendingRevoke(identity)}
                           >
-                            {identity.expiresAt
-                              ? new Date(identity.expiresAt).toLocaleDateString()
-                              : t('auth.admin.machineIdentity.permanent', 'Permanent')}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='right'>
-                          <Tooltip title={t('auth.admin.machineIdentity.revoke', 'Revoke key')}>
-                            <AdminRowActionButton
-                              color='error'
-                              aria-label={t('auth.admin.machineIdentity.revoke', 'Revoke key')}
-                              onClick={() => setPendingRevoke(identity)}
-                            >
-                              <Delete fontSize='small' />
-                            </AdminRowActionButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </AdminDataState>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
+                            <Delete fontSize='small' />
+                          </AdminRowActionButton>
+                        </Tooltip>
+                      </TableCell>
+                    </AdminTableRow>
+                  )
+                })}
+              </AdminDataState>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </AdminTableCard>
 
       <Dialog
         open={createDialogOpen}
@@ -408,7 +446,14 @@ const MachineIdentityManagement: React.FC = () => {
         <DialogActions sx={{ p: 3 }}>
           {!createdKey ? (
             <>
-              <Button onClick={handleCloseDialog} sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none' }}>
+              <Button
+                onClick={handleCloseDialog}
+                sx={{
+                  minHeight: 44,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  textTransform: 'none',
+                }}
+              >
                 {t('auth.common.cancel', 'Cancel')}
               </Button>
               <Button
@@ -420,7 +465,12 @@ const MachineIdentityManagement: React.FC = () => {
                     <CircularProgress size={18} color='inherit' />
                   ) : undefined
                 }
-                sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
+                sx={{
+                  minHeight: 44,
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  textTransform: 'none',
+                  fontWeight: 700,
+                }}
               >
                 {t('auth.admin.machineIdentity.generate', 'Generate key')}
               </Button>
@@ -429,7 +479,12 @@ const MachineIdentityManagement: React.FC = () => {
             <Button
               variant='contained'
               onClick={handleCloseDialog}
-              sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', textTransform: 'none', fontWeight: 700 }}
+              sx={{
+                minHeight: 44,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                textTransform: 'none',
+                fontWeight: 700,
+              }}
             >
               {t('auth.admin.machineIdentity.done', 'I have copied it')}
             </Button>
