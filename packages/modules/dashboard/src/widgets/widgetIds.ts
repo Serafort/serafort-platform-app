@@ -6,6 +6,14 @@ export const DASHBOARD_WIDGET_IDS = {
   tabbedCanvas: "dashboard-widget-tabbedCanvas",
   statCard: "dashboard-widget-statCard",
   aiChat: "dashboard-widget-aiChat",
+  welcome: "dashboard-widget-welcome",
+  mySecurity: "dashboard-widget-mySecurity",
+  myActivity: "dashboard-widget-myActivity",
+  tenantOverview: "dashboard-widget-tenantOverview",
+  platformKpis: "dashboard-widget-platformKpis",
+  tenantGrowth: "dashboard-widget-tenantGrowth",
+  tenantGeography: "dashboard-widget-tenantGeography",
+  topTenants: "dashboard-widget-topTenants",
 } as const;
 
 export type DashboardWidgetId =

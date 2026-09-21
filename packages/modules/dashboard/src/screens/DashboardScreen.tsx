@@ -19,13 +19,15 @@ import { dashboardService } from "@cap/auth-contracts";
 const DashboardScreen: React.FC = () => {
   const { t } = useTranslation();
   const { isCustomMode, toggleCustomMode } = useLayoutEngineContext();
-  const { initializeLayout, transferWidget, moveWidget } = useAppStore(
-    useShallow((state) => ({
-      initializeLayout: state.initializeLayout,
-      transferWidget: state.transferWidget,
-      moveWidget: state.moveWidget,
-    })),
-  );
+  const { initializeLayout, resetLayout, transferWidget, moveWidget } =
+    useAppStore(
+      useShallow((state) => ({
+        initializeLayout: state.initializeLayout,
+        resetLayout: state.resetLayout,
+        transferWidget: state.transferWidget,
+        moveWidget: state.moveWidget,
+      })),
+    );
   const PAGE_ID = "dashboard";
 
   const [activeWidgetInfo, setActiveWidgetInfo] = useState<{
@@ -40,7 +42,10 @@ const DashboardScreen: React.FC = () => {
       try {
         const response = await dashboardService.getLayout(PAGE_ID);
         if (isMounted && response?.data?.layoutConfig) {
-          initializeLayout(PAGE_ID, response.data.layoutConfig);
+          // WidgetCanvas seeds the empty default layout on mount, which would
+          // make initializeLayout (a no-op when a layout exists) drop the
+          // saved one; resetLayout overwrites it.
+          resetLayout(PAGE_ID, response.data.layoutConfig);
           return;
         }
       } catch {
@@ -55,7 +60,7 @@ const DashboardScreen: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [initializeLayout]);
+  }, [initializeLayout, resetLayout]);
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const data = event.active.data.current;
@@ -119,7 +124,7 @@ const DashboardScreen: React.FC = () => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ pt: 4, pb: 12 }}>
         <Box sx={{ mb: 3 }}>
           <Typography variant="h4">{t("dashboard.title")}</Typography>
           <Typography variant="body1" color="text.secondary">

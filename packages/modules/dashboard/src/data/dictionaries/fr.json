@@ -35,6 +35,149 @@
     "weather": {
       "title": "Météo",
       "subtitle": "Conditions actuelles"
+    },
+    "welcome": {
+      "title": "Bon retour",
+      "greeting": "Bonjour, {{name}}",
+      "context": "{{role}} · {{organization}}",
+      "adminHint": "Voici l'état de {{organization}} aujourd'hui.",
+      "memberHint": "Voici la sécurité de votre compte et vos connexions récentes.",
+      "platformHint": "Voici l’état de votre plateforme et de vos clients.",
+      "platformOwner": "Propriétaire de la plateforme",
+      "error": "Impossible de charger le résumé du tableau de bord.",
+      "greetingNoName": "Bonjour"
+    },
+    "mySecurity": {
+      "title": "Ma sécurité",
+      "subtitle": "La protection de votre compte",
+      "mfa": "Vérification en deux étapes",
+      "mfaOn": "Activée",
+      "mfaOff": "Non configurée",
+      "sessions": "Sessions actives",
+      "passkeys": "Clés d'accès",
+      "lastLogin": "Dernière connexion",
+      "never": "Jamais",
+      "enable": "Configurer la vérification en deux étapes",
+      "error": "Impossible de charger l'état de sécurité."
+    },
+    "myActivity": {
+      "title": "Mes connexions récentes",
+      "subtitle": "Dernières tentatives de connexion à votre compte",
+      "empty": "Aucune activité de connexion.",
+      "LOGIN_SUCCESS": "Connexion réussie",
+      "FAILED_LOGIN": "Connexion échouée",
+      "error": "Impossible de charger votre activité."
+    },
+    "tenantOverview": {
+      "title": "Aperçu de {{organization}}",
+      "subtitle": "Votre organisation en un coup d'œil",
+      "members": "Membres",
+      "sessions": "Sessions actives",
+      "failed": "Connexions échouées aujourd'hui",
+      "byRole": "Membres par rôle",
+      "recent": "Derniers événements de l'organisation",
+      "empty": "Aucun événement.",
+      "error": "Impossible de charger l'aperçu de l'organisation.",
+      "roleCount": "{{role}} : {{count}}",
+      "noRoles": "Aucun membre pour l’instant."
+    },
+    "platformKpis": {
+      "title": "La plateforme en un coup d’œil",
+      "subtitle": "Vos clients et les personnes qu’ils servent",
+      "tenants": "Tenants",
+      "newTenants": "Nouveaux tenants (30 jours)",
+      "members": "Membres tous tenants confondus",
+      "users": "Comptes utilisateurs",
+      "mfa": "Adoption de la vérification en deux étapes",
+      "failed": "Connexions échouées (7 jours)",
+      "sessions": "Sessions en cours",
+      "error": "Impossible de charger la vue d’ensemble.",
+      "tenantsActive_one": "{{count}} actif",
+      "tenantsActive_other": "{{count}} actifs",
+      "vsPrevious_one": "{{count}} durant les 30 jours précédents",
+      "vsPrevious_other": "{{count}} durant les 30 jours précédents",
+      "distinctMembers_one": "{{count}} personne distincte",
+      "distinctMembers_other": "{{count}} personnes distinctes",
+      "usersActive_one": "{{count}} actif",
+      "usersActive_other": "{{count}} actifs",
+      "noMfa_one": "{{count}} compte sans vérification",
+      "noMfa_other": "{{count}} comptes sans vérification",
+      "sessionsLine": "Sessions en cours : {{count}}"
+    },
+    "tenantGrowth": {
+      "title": "Croissance de la clientèle",
+      "subtitle": "Nouveaux tenants et nouveaux comptes par mois",
+      "newTenants": "Nouveaux tenants",
+      "newUsers": "Nouveaux utilisateurs",
+      "empty": "Pas encore de données de croissance.",
+      "error": "Impossible de charger la croissance.",
+      "month": "Mois"
+    },
+    "tenantGeography": {
+      "title": "Où sont vos tenants",
+      "subtitle": "Siège légal de chaque tenant et régime de protection des données applicable",
+      "regionUS": "États-Unis",
+      "regionEU": "Union européenne / EEE",
+      "regionOTHER": "Autres pays",
+      "regionUNKNOWN": "Localisation non renseignée",
+      "usStates": "États américains",
+      "state": "État",
+      "regulation": "Loi sur la vie privée",
+      "tenants": "Tenants",
+      "members": "Membres",
+      "noComprehensiveLaw": "Aucune loi générale sur la vie privée recensée pour cet État",
+      "disclaimer": "À titre indicatif, pas un avis juridique. À valider avec un juriste ; les règles sectorielles (ex. HIPAA) s’ajoutent.",
+      "noUsTenants": "Aucun tenant américain pour l’instant.",
+      "error": "Impossible de charger les localisations.",
+      "tenantsCount_one": "{{count}} tenant",
+      "tenantsCount_other": "{{count}} tenants",
+      "membersCount_one": "{{count}} membre",
+      "membersCount_other": "{{count}} membres",
+      "regionDetail": "{{tenants}} · {{members}}",
+      "coverageWith_one": "{{count}} tenant sous une loi générale sur la vie privée",
+      "coverageWith_other": "{{count}} tenants sous une loi générale sur la vie privée",
+      "coverageWithout_one": "{{count}} tenant sans loi générale recensée",
+      "coverageWithout_other": "{{count}} tenants sans loi générale recensée",
+      "coverageUnknown_one": "{{count}} tenant de localisation inconnue",
+      "coverageUnknown_other": "{{count}} tenants de localisation inconnue",
+      "noTenants": "Aucun tenant pour l’instant."
+    },
+    "topTenants": {
+      "title": "Plus grands tenants",
+      "subtitle": "Classés par nombre de membres",
+      "name": "Tenant",
+      "plan": "Offre",
+      "location": "Localisation",
+      "regulation": "Loi sur la vie privée",
+      "members": "Membres",
+      "status": "Statut",
+      "unknownLocation": "Non renseignée",
+      "none": "Aucune recensée",
+      "empty": "Aucun tenant pour l’instant.",
+      "error": "Impossible de charger les tenants.",
+      "locationWithState": "{{country}} · {{state}}",
+      "caption": "Plus grands tenants par nombre de membres"
+    },
+    "common": {
+      "retry": "Réessayer",
+      "status": {
+        "ACTIVE": "Actif",
+        "SUSPENDED": "Suspendu",
+        "INACTIVE": "Inactif",
+        "PENDING": "En attente"
+      },
+      "plan": {
+        "starter": "Découverte",
+        "business": "Business",
+        "enterprise": "Entreprise"
+      }
+    },
+    "auditActions": {
+      "PASSKEY_REGISTERED": "Clé d’accès enregistrée",
+      "LOGIN_SUCCESS": "Connexion réussie",
+      "FAILED_LOGIN": "Connexion échouée",
+      "USER_SUSPENDED": "Utilisateur suspendu",
+      "MFA_ENABLED": "Vérification en deux étapes activée"
     }
   }
 }

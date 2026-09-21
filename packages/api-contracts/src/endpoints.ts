@@ -266,6 +266,8 @@ export const API_ENDPOINTS = {
 
   dashboard: {
     stats: "/api/dashboard/stats",
+    tenantOverview: "/api/dashboard/tenant-overview",
+    platformOverview: "/api/dashboard/platform-overview",
   },
 
   themes: {
@@ -806,6 +808,8 @@ export const API_QUERY_KEYS = {
   dashboard: {
     all: ["dashboard"] as const,
     stats: ["dashboard", "stats"] as const,
+    tenantOverview: ["dashboard", "tenant-overview"] as const,
+    platformOverview: ["dashboard", "platform-overview"] as const,
   },
   themes: {
     all: ["themes"] as const,
