@@ -98,14 +98,14 @@ export default function SAMLMetadataBrowser() {
     )
 
     // Merge and deduplicate
-    const allEntities = [...localEntities, ...backendEntities].reduce<RecentSAMLEntity[]>((acc, current) => {
-      const x = acc.find((item) => item.entityId === current.entityId)
-      if (!x) {
-        return acc.concat([current])
-      } else {
-        return acc
+    // ⚡ Bolt Performance Optimization: Replaced O(N^2) reduce/find with O(N) Map lookup for entity deduplication
+    const entityMap = new Map<string, RecentSAMLEntity>()
+    for (const entity of [...localEntities, ...backendEntities]) {
+      if (!entityMap.has(entity.entityId)) {
+        entityMap.set(entity.entityId, entity)
       }
-    }, [])
+    }
+    const allEntities = Array.from(entityMap.values())
 
     if (!filterQuery) return allEntities
 

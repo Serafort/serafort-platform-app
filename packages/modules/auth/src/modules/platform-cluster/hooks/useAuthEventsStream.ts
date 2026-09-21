@@ -163,7 +163,7 @@ export function useAuthEventsStream(options: UseAuthEventsStreamOptions = {}) {
           const parsed = JSON.parse(e.data)
           if (parsed.type === 'connected') return
           ingestEvent({
-            id: parsed.id || `event-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+            id: parsed.id || `event-${crypto.randomUUID()}`,
             type: parsed.type || 'auth_event',
             action: parsed.action || 'login',
             actor: parsed.actor || 'user',
