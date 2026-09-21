@@ -160,7 +160,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
       const mockType = mockTypes[Math.floor(Math.random() * mockTypes.length)]
       const now = new Date()
       const timeStr = `${now.toTimeString().split(' ')[0]}.${String(now.getMilliseconds()).padStart(3, '0')}`
-      const randomId = `evt_${Math.random().toString(36).substring(2, 9)}`
+      const randomId = `evt_${crypto.randomUUID().substring(0, 8)}`
 
       const mockEvent: AuthEvent = {
         id: randomId,

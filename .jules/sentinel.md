@@ -73,3 +73,8 @@
 **Vulnerability:** External links opened via `window.open` with `target="_blank"` missing the `'noopener,noreferrer'` features argument.
 **Learning:** Just like `rel="noopener noreferrer"` on `<a>` tags, `window.open` requires `'noopener,noreferrer'` in its window features string (the third argument) to prevent reverse tabnabbing and mask the referer URL, ensuring defense in depth. Found in multiple places including CheckEmailConfirmation, EmailChangeVerificationPending, DataExport, SAMLConfigDashboard, and NavSearch.
 **Prevention:** Always add `'noopener,noreferrer'` as the third argument when using `window.open` with `'_blank'`.
+
+## 2026-09-13 - [Secure ID Generation using Math.random]
+**Vulnerability:** Non-cryptographic `Math.random` used for ID generation in event logging and UI event buses.
+**Learning:** Even for non-security critical IDs, using `Math.random` is an anti-pattern as it does not guarantee uniqueness and risks collisions or predictability. Furthermore, it violates the codebase security invariants of failing closed when a PRNG isn't available. Replaced instances in `widgetEventBus.ts`, `useAuthEventsStream.ts`, and `RealTimeAuthEventsMonitor.tsx` with `crypto.randomUUID()`.
+**Prevention:** Always use `crypto.randomUUID()` for unique identifiers instead of `Math.random()`.
