@@ -10,6 +10,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@cap/api-contracts": "workspace:*",
     "@cap/auth-contracts": "workspace:*",
     "@cap/layout": "workspace:*",
     "@cap/module-auth": "workspace:*",

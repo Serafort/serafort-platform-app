@@ -46,7 +46,7 @@ const DynamicLayoutWidget: React.FC<DynamicLayoutWidgetProps> = ({ nodes }) => {
 
     try {
       const parsed = new URL(
-        url,
+        sanitized,
         typeof window !== "undefined"
           ? window.location.origin
           : "http://localhost",

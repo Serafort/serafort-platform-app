@@ -78,3 +78,8 @@
 **Vulnerability:** The `isSafeUrl` function in `DynamicLayoutWidget.tsx` could be bypassed using control characters (like tabs) inside dangerous protocols (e.g., `jav\tascript:alert(1)`).
 **Learning:** Browsers silently strip control characters and whitespace when parsing URLs, so `jav\tascript:` executes as JavaScript. However, WHATWG URL parsing might treat these as relative paths depending on the base URL, bypassing prefix checks.
 **Prevention:** Always strip whitespace and control characters (`.replace(/[\x00-\x20\x7F]/g, '')`) before performing explicit prefix checks against dangerous protocols.
+
+## 2026-09-13 - [Secure ID Generation using Math.random]
+**Vulnerability:** Non-cryptographic `Math.random` used for ID generation in event logging and UI event buses.
+**Learning:** Even for non-security critical IDs, using `Math.random` is an anti-pattern as it does not guarantee uniqueness and risks collisions or predictability. Furthermore, it violates the codebase security invariants of failing closed when a PRNG isn't available. Replaced instances in `widgetEventBus.ts`, `useAuthEventsStream.ts`, and `RealTimeAuthEventsMonitor.tsx` with `crypto.randomUUID()`.
+**Prevention:** Always use `crypto.randomUUID()` for unique identifiers instead of `Math.random()`.
