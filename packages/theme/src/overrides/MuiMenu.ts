@@ -5,7 +5,13 @@ import { getTenantThemeEffects } from "../utils/themeObjectStyles";
 export const MuiMenuOverrides = (theme: Theme) => {
   const effects = getTenantThemeEffects(theme);
   const paperShadow = effects.neumorphism?.enabled
-    ? computeNeumorphismBoxShadow(effects.neumorphism)
+    ? computeNeumorphismBoxShadow(
+        effects.neumorphism,
+        false,
+        // The menu paper is the theme's surface colour, so that is the ground
+        // its relief has to be computed against.
+        effects.neumorphism.backgroundColor || theme.palette.background.paper,
+      )
     : theme.customShadows?.md || theme.shadows[8];
 
   return {

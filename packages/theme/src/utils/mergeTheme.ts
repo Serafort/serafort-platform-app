@@ -3,33 +3,136 @@ import type { TenantThemeConfig } from "../types";
 import { DEFAULT_THEME_CONFIG } from "../types";
 import { THEME_PRESETS } from "../types/presets";
 import type { ThemePresetId } from "../types/presets";
+import { EFFECT_CONFIG_KEYS, normalizeEffectConfig } from "../types/effects";
+import type { EffectConfig } from "../types/effects";
+import { LIGHT_SURFACE_THRESHOLD, lightnessOf } from "./colorLightness";
 
+/**
+ * Depth past which a `mergeDeep` input is treated as malformed rather than
+ * legitimately nested. `TenantThemeConfig` bottoms out well inside single
+ * digits (`tokens.typography.fontSize.*` is the deepest branch), so anything
+ * beyond this is a cyclic or pathological object and is left untouched.
+ */
+const MAX_MERGE_DEPTH = 32;
+
+/** Keys that must never be written through a merge (prototype pollution). */
+const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
+const mergeInto = (
+  target: Record<string, unknown>,
+  source: Record<string, unknown> | undefined,
+  depth: number,
+  seen: WeakSet<object>,
+): void => {
+  if (!isObject(target) || !isObject(source)) return;
+  // A source that references itself - directly or through a shared subtree -
+  // would otherwise recurse until the stack blows. Bail the moment a node is
+  // re-entered; the depth cap is the backstop for anything this misses.
+  if (seen.has(source)) return;
+  seen.add(source);
+  if (depth >= MAX_MERGE_DEPTH) return;
+
+  for (const key of Object.keys(source)) {
+    if (UNSAFE_KEYS.has(key)) continue;
+    const incoming = source[key];
+    if (isObject(incoming)) {
+      if (!isObject(target[key])) target[key] = {};
+      mergeInto(
+        target[key] as Record<string, unknown>,
+        incoming,
+        depth + 1,
+        seen,
+      );
+    } else {
+      target[key] = incoming;
+    }
+  }
+};
+
+/**
+ * Recursively merge each source into `target`, mutating and returning it.
+ * Objects are merged key by key; every other value (including arrays) is
+ * replaced. Guarded against cyclic inputs and prototype-polluting keys - see
+ * `mergeInto`.
+ */
 export const mergeDeep = <T extends Record<string, unknown>>(
   target: T,
   ...sources: Partial<T>[]
 ): T => {
-  if (!sources.length) return target;
-  const source = sources.shift();
-
-  if (isObject(target) && isObject(source)) {
-    for (const key in source) {
-      if (isObject(source[key])) {
-        if (!target[key]) Object.assign(target, { [key]: {} });
-        mergeDeep(
-          target[key] as Record<string, unknown>,
-          source[key] as Record<string, unknown>,
-        );
-      } else {
-        Object.assign(target, { [key]: source[key] });
-      }
-    }
+  for (const source of sources) {
+    // A fresh visited-set per source: a cycle lives within one source tree,
+    // and two sources legitimately sharing a reference must both be applied.
+    mergeInto(
+      target as Record<string, unknown>,
+      source as Record<string, unknown>,
+      0,
+      new WeakSet(),
+    );
   }
 
-  return mergeDeep(target, ...sources);
+  return target;
 };
 
 const isObject = (item: unknown): item is Record<string, unknown> => {
   return item !== null && typeof item === "object" && !Array.isArray(item);
+};
+
+/**
+ * The light/dark mode a preset was authored for, read from the background it
+ * shows on its own card.
+ *
+ * composeMuiTheme's `resolveChromeColor` only accepts a background, surface,
+ * text or border colour whose lightness suits the *current* mode - a guard
+ * that stops a light-authored tenant palette from wrecking dark mode. The same
+ * guard silently drops every chrome colour of a dark preset applied while the
+ * app is in light mode, leaving only the brand colours changed: from the
+ * user's seat, the preset did nothing. Rather than force both modes onto the
+ * tokens (which would strand a partially-specified preset with, say, a near
+ * black background and the default near black text), callers move the app to
+ * the mode the preset expects. Anything the preset leaves unspecified then
+ * falls back to that mode's own readable default.
+ */
+export const getPresetMode = (presetId: ThemePresetId): "light" | "dark" => {
+  const lightness = lightnessOf(
+    THEME_PRESETS[presetId]?.preview?.backgroundColor || "",
+  );
+  if (lightness === null) return "light";
+  return lightness > LIGHT_SURFACE_THRESHOLD ? "light" : "dark";
+};
+
+/**
+ * Merge an effect config over a draft's, one sub-record at a time, then
+ * reconcile every `enabled` flag against the resulting `globalType`.
+ *
+ * The two call sites below used to name `glassmorphism` and `neumorphism`
+ * explicitly and merge nothing else, which is why `pure-brutalism`,
+ * `neo-brutalism`, `liquid-organic`, `immersive-3d` and
+ * `modern-skeuomorphic` all applied as a bare `globalType` with a
+ * still-disabled config behind it - `generateThemeVariables` gates each
+ * effect's CSS variables on `enabled`, so those presets emitted no
+ * `--effect-*` at all and the screen did not change. Iterating
+ * EFFECT_CONFIG_KEYS means a newly added effect is merged for free.
+ */
+const mergeEffectConfig = (
+  target: EffectConfig,
+  source: Partial<EffectConfig> | undefined,
+): EffectConfig => {
+  if (!source) return normalizeEffectConfig(target);
+
+  if (source.globalType) {
+    target.globalType = source.globalType;
+  }
+
+  for (const key of EFFECT_CONFIG_KEYS) {
+    const incoming = source[key];
+    if (!incoming) continue;
+    (target[key] as unknown) = {
+      ...(target[key] as object),
+      ...(incoming as object),
+    };
+  }
+
+  return normalizeEffectConfig(target);
 };
 
 export const applyPreset = (presetId: ThemePresetId): TenantThemeConfig => {
@@ -41,6 +144,7 @@ export const applyPreset = (presetId: ThemePresetId): TenantThemeConfig => {
   return produce(DEFAULT_THEME_CONFIG, (draft: TenantThemeConfig) => {
     draft.preset = presetId;
     draft.name = preset.name;
+    draft.metadata = { ...draft.metadata, mode: getPresetMode(presetId) };
 
     if (preset.tokens) {
       if (preset.tokens.colors) {
@@ -81,23 +185,7 @@ export const applyPreset = (presetId: ThemePresetId): TenantThemeConfig => {
       }
     }
 
-    if (preset.effects) {
-      if (preset.effects.globalType) {
-        draft.effects.globalType = preset.effects.globalType;
-      }
-      if (preset.effects.glassmorphism) {
-        draft.effects.glassmorphism = {
-          ...draft.effects.glassmorphism,
-          ...preset.effects.glassmorphism,
-        };
-      }
-      if (preset.effects.neumorphism) {
-        draft.effects.neumorphism = {
-          ...draft.effects.neumorphism,
-          ...preset.effects.neumorphism,
-        };
-      }
-    }
+    mergeEffectConfig(draft.effects, preset.effects);
 
     if (preset.components) {
       draft.components = {
@@ -114,8 +202,19 @@ export const mergeThemeWithPreset = (
 ): TenantThemeConfig => {
   const presetTheme = applyPreset(presetId);
 
-  return produce(currentTheme, (draft) => {
+  // The caller may hand us a partial config - the theme editor opens with an
+  // empty draft and only fills it in on the first edit, so selecting a preset
+  // as the very first action used to arrive here as `{}` and throw on
+  // `draft.tokens.colors`, which surfaced as the preset click doing nothing at
+  // all. Backfill every branch this merge writes into before entering produce.
+  const base = mergeDeep(
+    structuredClone(DEFAULT_THEME_CONFIG) as unknown as Record<string, unknown>,
+    (currentTheme || {}) as unknown as Record<string, unknown>,
+  ) as unknown as TenantThemeConfig;
+
+  return produce(base, (draft) => {
     draft.preset = presetId;
+    draft.metadata = { ...draft.metadata, mode: presetTheme.metadata?.mode };
 
     // Merge all tokens from the preset-derived theme
     Object.assign(draft.tokens.colors, presetTheme.tokens.colors);
@@ -142,9 +241,10 @@ export const mergeThemeWithPreset = (
       );
     }
 
-    draft.effects = {
-      ...presetTheme.effects,
-    };
+    // Replace rather than merge: a preset defines one coherent effect, and
+    // carrying the previous preset's sub-configs forward is what produced
+    // mixed states (glass blur still enabled underneath a brutalism preset).
+    draft.effects = normalizeEffectConfig({ ...presetTheme.effects });
 
     if (presetTheme.components) {
       draft.components = {
@@ -164,6 +264,7 @@ export const createThemeFromPartial = (
 
     if (partial.name) draft.name = partial.name;
     if (partial.preset) draft.preset = partial.preset;
+    if (partial.layout) draft.layout = partial.layout;
 
     if (partial.tokens) {
       if (partial.tokens.colors) {
@@ -187,23 +288,7 @@ export const createThemeFromPartial = (
       }
     }
 
-    if (partial.effects) {
-      if (partial.effects.globalType) {
-        draft.effects.globalType = partial.effects.globalType;
-      }
-      if (partial.effects.glassmorphism) {
-        draft.effects.glassmorphism = {
-          ...draft.effects.glassmorphism,
-          ...partial.effects.glassmorphism,
-        };
-      }
-      if (partial.effects.neumorphism) {
-        draft.effects.neumorphism = {
-          ...draft.effects.neumorphism,
-          ...partial.effects.neumorphism,
-        };
-      }
-    }
+    mergeEffectConfig(draft.effects, partial.effects);
 
     if (partial.components) {
       draft.components = { ...draft.components, ...partial.components };
@@ -239,8 +324,12 @@ export const validateTheme = (theme: Partial<TenantThemeConfig>): string[] => {
     if (distance !== undefined && (distance < 0 || distance > 20)) {
       errors.push("Neumorphism distance must be between 0 and 20");
     }
-    if (altitude !== undefined && (altitude < 0 || altitude > 45)) {
-      errors.push("Neumorphism altitude must be between 0 and 45");
+    // 0-90, the full quadrant: `altitude` is the light's elevation above the
+    // horizon, so 0 lights the surface from the side and 90 from directly
+    // above. It was capped at 45 while the geometry underneath was measuring
+    // the angle from somewhere else entirely.
+    if (altitude !== undefined && (altitude < 0 || altitude > 90)) {
+      errors.push("Neumorphism altitude must be between 0 and 90");
     }
   }
 

@@ -38,7 +38,7 @@ interface AppDB extends DBSchema {
 }
 
 class StorageManager {
-  private static dbName = "cap-platform-scraper-db";
+  private static dbName = "serafort-scraper-db";
   private static dbVersion = 1;
   private static db: IDBPDatabase<AppDB> | null = null;
 
@@ -127,18 +127,25 @@ class StorageManager {
       const db = await this.initDB();
       const results = await db.getAll(storeName as any);
 
-      // Decrypt all results
-      const decryptedResults = await Promise.all(
-        results.map(async (r) => {
-          try {
-            const json = await this.decryptData(r.data);
-            return JSON.parse(json);
-          } catch (err: unknown) {
-            console.error("Failed to decrypt data:", err);
-            return r.data; // Fallback for unencrypted data
-          }
-        }),
-      );
+      // Decrypt all results using concurrency control (batching) to avoid event loop blockage
+      const decryptedResults: any[] = [];
+      const CONCURRENCY_LIMIT = 50;
+
+      for (let i = 0; i < results.length; i += CONCURRENCY_LIMIT) {
+        const batch = results.slice(i, i + CONCURRENCY_LIMIT);
+        const batchDecrypted = await Promise.all(
+          batch.map(async (r) => {
+            try {
+              const json = await this.decryptData(r.data);
+              return JSON.parse(json);
+            } catch (err: unknown) {
+              console.error("Failed to decrypt data:", err);
+              return r.data; // Fallback for unencrypted data
+            }
+          }),
+        );
+        decryptedResults.push(...batchDecrypted);
+      }
 
       return decryptedResults;
     } catch (error) {
@@ -369,9 +376,9 @@ class StorageManager {
         "applications",
       ];
 
-      for (const storeName of storeNames) {
-        await db.clear(storeName as any);
-      }
+      await Promise.all(
+        storeNames.map((storeName) => db.clear(storeName as any))
+      );
     } catch (error) {
       console.error("Clear all IndexedDB error:", error);
       throw error;
@@ -482,7 +489,7 @@ export default StorageManager;
 
 // Storage keys
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: "cap-platform-auth-tokens",
+  AUTH_TOKEN: "serafort-auth-tokens",
   /** @deprecated Refresh tokens are handled via HttpOnly cookies and MUST NOT be stored in localStorage */
   REFRESH_TOKEN: undefined,
   USER_DATA: "user_data",

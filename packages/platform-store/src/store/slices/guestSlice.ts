@@ -43,8 +43,7 @@ export interface GuestSlice {
 }
 
 const GUEST_STORAGE_KEY =
-  (import.meta as any).env?.VITE_GUEST_STORAGE_KEY ||
-  "cap-platform-guest-session";
+  (import.meta as any).env?.VITE_GUEST_STORAGE_KEY || "serafort-guest-session";
 
 const saveGuestToSession = (data: GuestSessionData | null) => {
   if (data) {

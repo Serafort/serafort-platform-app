@@ -1,25 +1,85 @@
 import type { Theme } from "@mui/material/styles";
 import { alpha } from "@mui/material/styles";
 import type { NeumorphismConfig, ComputedNeumorphismShadow } from "../types";
+import { lightnessOf } from "./colorLightness";
+
+/** Corner radius at full curvature. Large, but still a corner on any element. */
+const ORGANIC_MAX_RADIUS = 44;
+
+/** Share of the radius that fluidity may push opposite corners apart. */
+const ORGANIC_MAX_SKEW = 0.55;
+
+/** Ground assumed when a neumorphism config names no surface of its own. */
+const NEU_FALLBACK_SURFACE = "#e0e5ec";
+
+/**
+ * Maps `intensity` onto absolute lightness travel. 0.9 is chosen so that the
+ * default intensity of 0.15 on the preset's #e0e5ec ground lands on the
+ * canonical pairing - a pure white highlight against a shadow around #bec3c9.
+ */
+const NEU_TRAVEL_SCALE = 0.9;
+
+/** Floor on available headroom, so pure black or white cannot divide by zero. */
+const NEU_MIN_HEADROOM = 0.02;
 
 // ==========================================
 // 1. NEUMORPHISM ATOMICS & COMPOSITES
 // ==========================================
 
+/**
+ * The pair of shadows that make a neumorphic surface look extruded: a
+ * highlight on the side the light comes from, a shadow on the opposite side.
+ *
+ * Two things about the previous version made the effect invisible in practice,
+ * which is why selecting the Neumorphism preset appeared to do nothing.
+ *
+ * The geometry put the light in the *top-right* quadrant and, over the panel's
+ * 0-45 degree range, mostly straight overhead - at the default altitude the
+ * horizontal offset rounded to 1px. Neumorphism is read as a diagonal
+ * extrusion; a purely vertical offset reads as an ordinary drop shadow.
+ * `altitude` is now what its label says, the light's elevation above the
+ * horizon, with the light in the conventional top-left quadrant, so 45 degrees
+ * gives the classic equal-offset diagonal.
+ *
+ * The colours were the larger problem. The highlight was white at `intensity`
+ * (0.15 by default) and the shadow black at `intensity * 0.4` (0.06). On the
+ * preset's own #e0e5ec ground that shifts each channel by about 5 and 13 units
+ * out of 255 - below the threshold where anyone would call it a relief. The
+ * two shadows are now derived from the surface itself: `intensity` sets how
+ * far, in absolute lightness, each side should travel, and the alpha needed to
+ * cover that distance is computed per side. A near-white surface has almost no
+ * headroom above it, so its highlight saturates to white while its shadow only
+ * needs a light touch - which is exactly the classic look - and a dark surface
+ * gets the opposite split instead of the near-invisible one it used to get.
+ */
 export const computeNeumorphismShadows = (
   config: NeumorphismConfig,
+  /** Surface the relief sits on. Defaults to the config's own base colour. */
+  surfaceColor?: string,
 ): ComputedNeumorphismShadow => {
-  const { intensity = 0.15, distance = 5, altitude = 10 } = config;
+  const { intensity = 0.15, distance = 5, altitude = 45 } = config;
 
-  const angleRad = ((360 - altitude + 90) * Math.PI) / 180;
-
+  const angleRad = (altitude * Math.PI) / 180;
   const x = Math.round(Math.cos(angleRad) * distance);
   const y = Math.round(Math.sin(angleRad) * distance);
-  const blur = distance * 2;
-  const darkAlpha = Number((intensity * 0.4).toFixed(4));
+  const blur = Math.max(1, distance * 2);
 
-  const lightShadow = `${x}px ${-y}px ${blur}px rgba(255, 255, 255, ${intensity})`;
-  const darkShadow = `${-x}px ${y}px ${blur}px rgba(0, 0, 0, ${darkAlpha})`;
+  const base = surfaceColor || config.backgroundColor || NEU_FALLBACK_SURFACE;
+  const lightness = lightnessOf(base);
+  // An unparseable surface keeps the plain white-over-black split, scaled so
+  // it is at least visible.
+  const level = lightness === null ? 0.5 : lightness;
+
+  // How far each side should move, as a fraction of the full 0-1 range.
+  const travel = intensity * NEU_TRAVEL_SCALE;
+  const headroomUp = Math.max(NEU_MIN_HEADROOM, 1 - level);
+  const headroomDown = Math.max(NEU_MIN_HEADROOM, level);
+
+  const lightAlpha = clampAlpha(Math.min(1, travel / headroomUp));
+  const darkAlpha = clampAlpha(Math.min(1, travel / headroomDown));
+
+  const lightShadow = `${-x}px ${-y}px ${blur}px rgba(255, 255, 255, ${lightAlpha})`;
+  const darkShadow = `${x}px ${y}px ${blur}px rgba(0, 0, 0, ${darkAlpha})`;
 
   return { lightShadow, darkShadow };
 };
@@ -27,12 +87,16 @@ export const computeNeumorphismShadows = (
 export const computeNeumorphismBoxShadow = (
   config: NeumorphismConfig,
   isPressed = false,
+  surfaceColor?: string,
 ): string => {
   if (!config.enabled) {
     return "0 2px 8px rgba(0, 0, 0, 0.1)";
   }
 
-  const { lightShadow, darkShadow } = computeNeumorphismShadows(config);
+  const { lightShadow, darkShadow } = computeNeumorphismShadows(
+    config,
+    surfaceColor,
+  );
 
   if (isPressed) {
     return `inset ${lightShadow}, inset ${darkShadow}`;
@@ -261,6 +325,11 @@ export const computeBrutalismShadow = (
   shadowColor?: string,
   theme?: Theme,
 ): string => {
+  // Pure Brutalism deliberately asks for no drop at all. Rendering that as
+  // `0px 0px 0px 0px #000` is a declaration that paints nothing while still
+  // overriding whatever elevation the surface would otherwise have had.
+  if (Number.parseFloat(shadowOffset) === 0) return "none";
+
   const resolvedColor =
     shadowColor || (theme ? theme.palette.text.primary : "#000000");
   return `${shadowOffset} ${shadowOffset} 0px 0px ${resolvedColor}`;
@@ -372,12 +441,39 @@ export const getBentoStyles = (
 // 6. ORGANIC ATOMICS & COMPOSITES
 // ==========================================
 
-export const computeOrganicRadius = (curvature = 80): string => {
-  return curvature > 50
-    ? `${curvature}% ${100 - curvature}%`
-    : `${curvature}px`;
+/**
+ * The asymmetric corner rounding that makes the Organic effect organic.
+ *
+ * Above a curvature of 50 this used to emit a percentage pair - `90% 10%` for
+ * the Liquid Organic preset. Percentages resolve against each axis
+ * independently, so on anything wider than it is tall (a navbar, a card, a
+ * table) that is not a soft corner but a full ellipse, and the preset applied
+ * to the app shell as a row of lozenges. Curvature now maps to an absolute
+ * radius that behaves the same at any element size, and `fluidity` skews
+ * opposite corner pairs against each other, which is where the hand-drawn
+ * quality actually comes from.
+ */
+export const computeOrganicRadius = (curvature = 80, fluidity = 0): string => {
+  const radius = Math.round((Math.min(100, Math.max(0, curvature)) / 100) * ORGANIC_MAX_RADIUS);
+  if (radius === 0) return "0px";
+
+  const skew = Math.round(
+    radius * (Math.min(100, Math.max(0, fluidity)) / 100) * ORGANIC_MAX_SKEW,
+  );
+  if (skew === 0) return `${radius}px`;
+
+  const wide = radius + skew;
+  const tight = Math.max(0, radius - skew);
+  return `${wide}px ${tight}px ${wide}px ${tight}px`;
 };
 
+/**
+ * @deprecated Kept for callers that still reference it, but no longer part of
+ * the organic surface. `filter` on an element blurs that element *and all of
+ * its content*, so applying this to a card put a 1px blur across its own text
+ * - the Liquid Organic preset made the app look out of focus. Fluidity now
+ * feeds `computeOrganicRadius`, where it shapes the corners instead.
+ */
 export const computeOrganicFilter = (fluidity = 50): string => {
   return fluidity > 0 ? `blur(${fluidity / 50}px)` : "none";
 };
@@ -417,11 +513,10 @@ export const getOrganicStyles = (
   } = config;
 
   return {
-    borderRadius: computeOrganicRadius(curvature),
+    borderRadius: computeOrganicRadius(curvature, fluidity),
     background: computeOrganicBackground(backgroundColor, theme),
     border: computeOrganicBorder(borderWidth, borderColor),
     transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-    filter: computeOrganicFilter(fluidity),
   };
 };
 
@@ -483,11 +578,16 @@ export const getImmersiveStyles = (
     shadowColor,
   } = config;
 
+  // `transform` is deliberately absent. computeImmersiveTransform is still
+  // exported for a component that opts into a tilt of its own, but rotating
+  // every surface the effect touches - the navbar, the sidebar, cards - skews
+  // the entire shell and moves every hit target away from where it is drawn.
+  // The depth of this effect is carried by its perspective and its long
+  // shadow, which are safe on any surface.
   return {
     perspective: computeImmersivePerspective(perspective),
-    transform: computeImmersiveTransform(rotationX, rotationY),
     boxShadow: computeImmersiveShadow(depth, shadowColor, theme),
-    transition: "transform 0.3s ease-out, box-shadow 0.3s ease-out",
+    transition: "box-shadow 0.3s ease-out",
   };
 };
 

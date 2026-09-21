@@ -1,12 +1,32 @@
-import { createTheme, darken, lighten } from "@mui/material/styles";
+import {
+  createTheme,
+  darken,
+  getContrastRatio,
+  lighten,
+} from "@mui/material/styles";
 import type { Theme } from "@mui/material/styles";
 import type { Direction, Settings, SystemMode } from "@cap/shared-types";
 import getComponentOverrides from "../overrides";
-import type { TenantThemeConfig } from "../types";
+import type { TenantThemeConfig, ColorToken } from "../types";
 import { DEFAULT_THEME_CONFIG } from "../types";
 import darkTheme from "../assets/themes/dark";
 import lightTheme from "../assets/themes/light";
 import { createBaseMuiTheme } from "./createBaseMuiTheme";
+import { elevationScale } from "./elevation";
+import { LIGHT_SURFACE_THRESHOLD, lightnessOf } from "./colorLightness";
+
+/**
+ * The five numeric elevation indices that a tenant can retarget through a
+ * `--shadow-*` custom property (emitted by `generateThemeVariables`). Every
+ * other index takes the generated ramp value verbatim.
+ */
+const SHADOW_VAR_ANCHORS: Record<number, string> = {
+  1: "xs",
+  4: "sm",
+  8: "md",
+  16: "lg",
+  24: "xl",
+};
 
 interface ComposeMuiThemeOptions {
   currentMode: SystemMode;
@@ -22,10 +42,96 @@ const toNumber = (value: string | number | undefined, fallback: number) => {
   return Number.isNaN(parsed) ? fallback : parsed;
 };
 
-const derivePaletteColorGroup = (mainColor: string, contrastText = "#FFF") => ({
-  light: lighten(mainColor, 0.2),
+
+/**
+ * Resolve a "chrome" colour - background, surface, text, border - for the
+ * active mode.
+ *
+ * `ColorToken` carries optional `light`/`dark` fields precisely so a tenant
+ * (or DEFAULT_THEME_CONFIG) can author a real per-mode value; when one is set
+ * for the active mode, it wins outright - no inference, the author said so.
+ *
+ * Most tenant configs still only set `.value` though (that's all today's
+ * `ColorPaletteEditor` chrome swatches write, and it's the whole shape of any
+ * config authored before per-mode tokens existed). For those, a token is
+ * honoured only when its lightness suits the active mode; otherwise the
+ * mode's own static theme value wins. Applying `.value` verbatim in both
+ * modes regardless of fit is what used to leave dark mode half-applied -
+ * `palette.mode` flipped to `dark` and every component keying off it
+ * switched over, while the surfaces stayed light, so the shell rendered white
+ * text on a white sidebar. The heuristic prevents that for single-value
+ * configs; deliberately dark presets (glassmorphism, godlio-premium) keep
+ * their surfaces in dark mode, and a light-mode brand background keeps its
+ * own in light mode - but neither can strand the shell in an unreadable
+ * half-state.
+ */
+const resolveChromeColor = (
+  token: ColorToken | undefined,
+  fallback: string,
+  mode: SystemMode,
+  /** Text sits opposite its surface, so its expected lightness is inverted. */
+  inverted = false,
+): string => {
+  const explicit = mode === "dark" ? token?.dark : token?.light;
+  if (explicit) return explicit;
+
+  const tokenValue = token?.value;
+  if (!tokenValue) return fallback;
+
+  const lightness = lightnessOf(tokenValue);
+  if (lightness === null) return tokenValue; // unparseable: trust the author
+
+  const wantsLight = inverted ? mode === "dark" : mode === "light";
+  const isLight = lightness > LIGHT_SURFACE_THRESHOLD;
+
+  return isLight === wantsLight ? tokenValue : fallback;
+};
+
+/**
+ * Text colour to place on top of a palette colour.
+ *
+ * Every group used to be built with a hard-coded `"#FFF"`, which is only ever
+ * right for a mid-to-dark brand colour. Presets are free to pick bright ones,
+ * and five of them did: white on Cyberpunk HUD's cyan is a contrast ratio of
+ * 1.25, on Neo-Brutalism's canary yellow 1.33, on Dark UI's cyan 1.81 - button
+ * labels that are, in practice, not there. The threshold is MUI's own default
+ * of 3, so a colour that already reads acceptably against white keeps white
+ * and brand-standard buttons are left exactly as they were.
+ */
+const CONTRAST_THRESHOLD = 3;
+
+const contrastTextFor = (background: string): string => {
+  try {
+    return getContrastRatio(background, "#FFFFFF") >= CONTRAST_THRESHOLD
+      ? "#FFFFFF"
+      : "#0A0A0A";
+  } catch {
+    // Unparseable colour: keep the previous behaviour rather than guess.
+    return "#FFFFFF";
+  }
+};
+
+/**
+ * Build a full MUI palette colour group (`light`/`main`/`dark`/`contrastText`
+ * plus the five opacity steps) from a single `main` colour.
+ *
+ * If the tenant token authors an explicit `light` or `dark` variant, that
+ * value wins outright - the author said so, the same rule `resolveChromeColor`
+ * applies to the chrome tokens. Otherwise the variant is derived from `main`
+ * via `lighten()`/`darken()`, which is how `primary`/`secondary` have always
+ * behaved and is now extended to `error`/`warning`/`success`/`info` so a
+ * tenant that customises only a status colour's `main` no longer gets a
+ * mismatched `light`/`dark` pair. The opacity steps are always derived from
+ * `main` - they are alpha ramps over the one colour, not independent stops.
+ */
+const derivePaletteColorGroup = (
+  mainColor: string,
+  token?: ColorToken,
+  contrastText = contrastTextFor(mainColor),
+) => ({
+  light: token?.light || lighten(mainColor, 0.2),
   main: mainColor,
-  dark: darken(mainColor, 0.12),
+  dark: token?.dark || darken(mainColor, 0.12),
   contrastText,
   lighterOpacity: `${mainColor}14`,
   lightOpacity: `${mainColor}29`,
@@ -58,17 +164,34 @@ export const composeMuiTheme = ({
     baseStaticTheme.palette.primary.main;
   const secondaryMain =
     tokens.colors.secondary?.value || baseStaticTheme.palette.secondary.main;
-  const backgroundDefault =
-    tokens.colors.background?.value ||
-    baseStaticTheme.palette.background.default;
-  const surfaceColor =
-    tokens.colors.surface?.value || baseStaticTheme.palette.background.paper;
-  const borderColor =
-    tokens.colors.border?.value || baseStaticTheme.palette.divider;
-  const textPrimary =
-    tokens.colors.text?.value || baseStaticTheme.palette.text.primary;
-  const textSecondary =
-    tokens.colors.textMuted?.value || baseStaticTheme.palette.text.secondary;
+  // Chrome colours must suit the active mode - see resolveChromeColor.
+  const backgroundDefault = resolveChromeColor(
+    tokens.colors.background,
+    baseStaticTheme.palette.background.default,
+    currentMode,
+  );
+  const surfaceColor = resolveChromeColor(
+    tokens.colors.surface,
+    baseStaticTheme.palette.background.paper,
+    currentMode,
+  );
+  const borderColor = resolveChromeColor(
+    tokens.colors.border,
+    baseStaticTheme.palette.divider,
+    currentMode,
+  );
+  const textPrimary = resolveChromeColor(
+    tokens.colors.text,
+    baseStaticTheme.palette.text.primary,
+    currentMode,
+    true,
+  );
+  const textSecondary = resolveChromeColor(
+    tokens.colors.textMuted,
+    baseStaticTheme.palette.text.secondary,
+    currentMode,
+    true,
+  );
   const errorMain =
     tokens.colors.error?.value || baseStaticTheme.palette.error.main;
   const successMain =
@@ -84,48 +207,50 @@ export const composeMuiTheme = ({
 
   const theme = createTheme(
     baseStaticTheme,
-    createBaseMuiTheme(updatedSettings, currentMode, direction),
+    createBaseMuiTheme(updatedSettings, currentMode, direction, {
+      primary: primaryMain,
+      secondary: secondaryMain,
+      error: errorMain,
+      warning: warningMain,
+      info: infoMain,
+      success: successMain,
+    }),
     {
       direction,
       spacing: (factor: number | string) => {
         if (typeof factor === "string") return `var(--spacing-${factor})`;
+        // A CSS custom property name cannot contain a dot, so
+        // `var(--spacing-2.5, calc(0.25rem * 2.5))` is not an invalid *value*
+        // that falls back - it is an invalid reference, which makes the whole
+        // declaration invalid at computed-value time. Every fractional sx
+        // spacing in the app (`p: 2.5`, `gap: 1.5`, `mt: 0.5`) therefore
+        // computed to 0 rather than to 10px, 6px, 2px. Fractions skip the
+        // variable and go straight to the calc; whole numbers keep the
+        // variable so a tenant's spacing scale can still override them.
+        if (!Number.isInteger(factor)) return `calc(0.25rem * ${factor})`;
         return `var(--spacing-${factor}, calc(0.25rem * ${factor}))`;
       },
-      shadows: [
-        "none",
-        `var(--shadow-xs, ${baseStaticTheme.shadows[1]})`,
-        baseStaticTheme.shadows[2],
-        baseStaticTheme.shadows[3],
-        `var(--shadow-sm, ${baseStaticTheme.shadows[4]})`,
-        baseStaticTheme.shadows[5],
-        baseStaticTheme.shadows[6],
-        baseStaticTheme.shadows[7],
-        `var(--shadow-md, ${baseStaticTheme.shadows[8]})`,
-        baseStaticTheme.shadows[9],
-        baseStaticTheme.shadows[10],
-        baseStaticTheme.shadows[11],
-        baseStaticTheme.shadows[12],
-        baseStaticTheme.shadows[13],
-        baseStaticTheme.shadows[14],
-        baseStaticTheme.shadows[15],
-        `var(--shadow-lg, ${baseStaticTheme.shadows[16]})`,
-        baseStaticTheme.shadows[17],
-        baseStaticTheme.shadows[18],
-        baseStaticTheme.shadows[19],
-        baseStaticTheme.shadows[20],
-        baseStaticTheme.shadows[21],
-        baseStaticTheme.shadows[22],
-        baseStaticTheme.shadows[23],
-        `var(--shadow-xl, ${baseStaticTheme.shadows[24]})`,
-      ] as Theme["shadows"],
+      // A single generated ramp - mode-tinted, monotonic, and (in dark mode)
+      // carrying the ambient edge highlight + containment ring that stops a
+      // raised surface dissolving into a same-coloured canvas. The five
+      // tenant-retargetable indices keep their `--shadow-*` override, falling
+      // back to the generated value; MUI's stock black-alpha shadows are no
+      // longer referenced.
+      shadows: elevationScale(currentMode).map((generated, index) => {
+        const anchor = SHADOW_VAR_ANCHORS[index];
+        return anchor ? `var(--shadow-${anchor}, ${generated})` : generated;
+      }) as Theme["shadows"],
       palette: {
         mode: currentMode,
-        primary: derivePaletteColorGroup(primaryMain, "#FFF"),
-        secondary: derivePaletteColorGroup(secondaryMain, "#FFF"),
-        error: derivePaletteColorGroup(errorMain, "#FFF"),
-        success: derivePaletteColorGroup(successMain, "#FFF"),
-        warning: derivePaletteColorGroup(warningMain, "#FFF"),
-        info: derivePaletteColorGroup(infoMain, "#FFF"),
+        primary: derivePaletteColorGroup(primaryMain, tokens.colors.primary),
+        secondary: derivePaletteColorGroup(
+          secondaryMain,
+          tokens.colors.secondary,
+        ),
+        error: derivePaletteColorGroup(errorMain, tokens.colors.error),
+        success: derivePaletteColorGroup(successMain, tokens.colors.success),
+        warning: derivePaletteColorGroup(warningMain, tokens.colors.warning),
+        info: derivePaletteColorGroup(infoMain, tokens.colors.info),
         background: {
           default: backgroundDefault,
           paper: surfaceColor,
@@ -256,13 +381,36 @@ export const composeMuiThemeMemoized = (
 ): Theme => {
   const { currentMode, direction = "ltr", settings, tenantTheme } = options;
   const colors = tenantTheme?.tokens?.colors;
-  const primaryVal = colors?.primary?.value || settings.primaryColor || "";
-  const secondaryVal = colors?.secondary?.value || "";
+  // Include each token's authored `light`/`dark` variants, not just `.value`:
+  // `derivePaletteColorGroup` now honours those for every palette group, so
+  // tuning `primary.dark` or `error.light` in the theme editor must miss the
+  // cache the same way tuning `.value` does.
+  const colorKey = (token?: ColorToken) =>
+    `${token?.value || ""}~${token?.light || ""}~${token?.dark || ""}`;
+  const primaryVal =
+    colorKey(colors?.primary) + (settings.primaryColor || "");
+  const secondaryVal = colorKey(colors?.secondary);
   const bgVal = colors?.background?.value || "";
   const surfaceVal = colors?.surface?.value || "";
   const fontVal = tenantTheme?.tokens?.typography?.fontFamily?.sans || "";
+  // Status colours feed the coloured elevation rings (theme.customShadows.*)
+  // and now their own tokenised `light`/`dark` variants, so a tenant that
+  // overrides only, say, their error colour must not be served a theme built
+  // for the previous one.
+  const statusVal = [
+    colorKey(colors?.error),
+    colorKey(colors?.warning),
+    colorKey(colors?.info),
+    colorKey(colors?.success),
+  ].join("|");
+  // The whole effect config, not just its name: the theme object carries it
+  // through as `theme.tenantTheme` for SurfaceEffectFactory, so tuning a
+  // preset's blur or shadow has to miss the cache. Keyed on the name alone,
+  // every adjustment in the theme editor's Effects tab returned the first
+  // theme built for that effect and appeared to do nothing.
+  const effectVal = JSON.stringify(tenantTheme?.effects || {});
 
-  const key = `${tenantTheme?.id || "default"}_${currentMode}_${direction}_${settings.skin}_${settings.effect || "none"}_${primaryVal}_${secondaryVal}_${bgVal}_${surfaceVal}_${fontVal}`;
+  const key = `${tenantTheme?.id || "default"}_${currentMode}_${direction}_${settings.skin}_${settings.effect || "none"}_${effectVal}_${primaryVal}_${secondaryVal}_${bgVal}_${surfaceVal}_${fontVal}_${statusVal}`;
 
   const cached = themeCache.get(key);
   if (cached) {

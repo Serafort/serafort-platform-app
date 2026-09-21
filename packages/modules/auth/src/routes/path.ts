@@ -6,6 +6,7 @@
 // ---------------------------------------------------------------------------
 import authCorePath from '../modules/authentication-core/screens/path'
 import authorizationPath from '../modules/authorization-engine/screens/path'
+import accessControlPath from '../modules/access-control/screens/path'
 import developerConsolePath from '../modules/developer-console/screens/path'
 import identityBrokerPath from '../modules/identity-broker/screens/path'
 import mfaOrchestratorPath from '../modules/mfa-orchestrator/screens/path'
@@ -18,6 +19,7 @@ export const Path = {
   // 1. Canonical sub-module namespace objects
   auth: authCorePath,
   authorization: authorizationPath,
+  accessControl: accessControlPath,
   developerConsole: developerConsolePath,
   identity: identityBrokerPath,
   mfa: mfaOrchestratorPath,
@@ -171,9 +173,8 @@ export const Path = {
   emailVerifiedSuccess: authCorePath.emailVerifiedSuccess,
   resendEmailVerification: authCorePath.resendEmailVerification,
   VerificationEmail: authCorePath.VerificationEmail,
-  requestEmailChange: authCorePath.initiateEmailChange,
-  initiateEmailChange: authCorePath.initiateEmailChange,
-  emailChangeVerificationPending: authCorePath.emailChangeVerificationPending,
+  requestEmailChange: userDirectoryPath.settings.initiate_email_change,
+  initiateEmailChange: userDirectoryPath.settings.initiate_email_change,
   emailChangeVerification: authCorePath.emailChangeVerification,
   emailChangeSuccess: authCorePath.emailChangeSuccess,
   emailChangeFailed: authCorePath.emailChangeFailed,
@@ -181,7 +182,6 @@ export const Path = {
   validate: authCorePath.validate,
   validateDirect: authCorePath.validateDirect,
   mfaVerification: mfaOrchestratorPath.mfa.verification,
-  exportVerification: authCorePath.exportVerification,
   deviceCode: authCorePath.deviceCode,
   joinOrganization: authCorePath.joinOrganization,
   setup: mfaOrchestratorPath.mfa.setup,
@@ -210,6 +210,7 @@ export const FlatPath = {
 export {
   authCorePath as AuthCorePath,
   authorizationPath as AuthorizationEnginePath,
+  accessControlPath as AccessControlPath,
   developerConsolePath as DeveloperConsolePath,
   identityBrokerPath as IdentityBrokerPath,
   mfaOrchestratorPath as MfaOrchestratorPath,

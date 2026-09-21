@@ -23,11 +23,16 @@ import History from '@mui/icons-material/History'
 import Edit from '@mui/icons-material/Edit'
 import Code from '@mui/icons-material/Code'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import { useEmailTemplatesQuery } from '../../hooks/useAdminMonitoringQuery'
 
 export default function EmailTemplatePreview() {
   const { t } = useTranslation('common')
   const theme = useTheme()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
   const [view, setView] = useState<'preview' | 'code'>('preview')
   const [selectedId, setSelectedId] = useState('welcome')
@@ -41,14 +46,14 @@ export default function EmailTemplatePreview() {
       version: 'v2.4',
       lastEdited: '2 days ago',
       html: `
-        <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <h1 style="color: #0f172a; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Welcome to CAP Platform!</h1>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">Hello {{name}},</p>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">Your multi-tenant account is ready. Click below to verify your email and access your dashboard.</p>
+        <div style="font-family: Inter, "Segoe UI", system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #C7D1E3;">
+          <h1 style="color: #031433; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Welcome to Serafort!</h1>
+          <p style="color: #454F68; font-size: 15px; line-height: 1.6;">Hello {{name}},</p>
+          <p style="color: #454F68; font-size: 15px; line-height: 1.6;">Your multi-tenant account is ready. Click below to verify your email and access your dashboard.</p>
           <div style="text-align: center; margin: 32px 0;">
-            <a href="{{verification_url}}" style="background: #2563eb; color: #ffffff; padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; display: inline-block;">Verify Account</a>
+            <a href="{{verification_url}}" style="background: #047BFA; color: #ffffff; padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; display: inline-block;">Verify Account</a>
           </div>
-          <p style="color: #94a3b8; font-size: 13px;">If you did not request this, please ignore this message.</p>
+          <p style="color: #64708A; font-size: 13px;">If you did not request this, please ignore this message.</p>
         </div>
       `,
     },
@@ -58,13 +63,13 @@ export default function EmailTemplatePreview() {
       version: 'v1.8',
       lastEdited: '1 week ago',
       html: `
-        <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <h1 style="color: #0f172a; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Password Reset Request</h1>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">A request was made to reset your password. Use the link below to set a new password:</p>
+        <div style="font-family: Inter, "Segoe UI", system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #C7D1E3;">
+          <h1 style="color: #031433; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Password Reset Request</h1>
+          <p style="color: #454F68; font-size: 15px; line-height: 1.6;">A request was made to reset your password. Use the link below to set a new password:</p>
           <div style="text-align: center; margin: 32px 0;">
-            <a href="{{reset_url}}" style="background: #dc2626; color: #ffffff; padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; display: inline-block;">Reset Password</a>
+            <a href="{{reset_url}}" style="background: #DC2626; color: #ffffff; padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; display: inline-block;">Reset Password</a>
           </div>
-          <p style="color: #94a3b8; font-size: 13px;">Link expires in 15 minutes.</p>
+          <p style="color: #64708A; font-size: 13px;">Link expires in 15 minutes.</p>
         </div>
       `,
     },
@@ -74,13 +79,13 @@ export default function EmailTemplatePreview() {
       version: 'v3.1',
       lastEdited: '5 hours ago',
       html: `
-        <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <h1 style="color: #0f172a; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Two-Factor Authentication Code</h1>
-          <p style="color: #475569; font-size: 15px; line-height: 1.6;">Your one-time security code is:</p>
+        <div style="font-family: Inter, "Segoe UI", system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; border: 1px solid #C7D1E3;">
+          <h1 style="color: #031433; font-size: 24px; font-weight: 800; margin-bottom: 16px;">Two-Factor Authentication Code</h1>
+          <p style="color: #454F68; font-size: 15px; line-height: 1.6;">Your one-time security code is:</p>
           <div style="text-align: center; margin: 24px 0;">
-            <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; background: #f1f5f9; padding: 12px 24px; border-radius: 8px; color: #0f172a;">849 201</span>
+            <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; background: #ECF0F7; padding: 12px 24px; border-radius: 8px; color: #031433;">849 201</span>
           </div>
-          <p style="color: #94a3b8; font-size: 13px;">Do not share this code with anyone.</p>
+          <p style="color: #64708A; font-size: 13px;">Do not share this code with anyone.</p>
         </div>
       `,
     },
@@ -95,11 +100,12 @@ export default function EmailTemplatePreview() {
   const templateHtml = (activeTemplate as any).html || defaultTemplates[0].html
 
   return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
       {/* Header */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
-          <Typography variant='h4' sx={{ fontWeight: 900, mb: 1 }}>
+          <Typography variant='h4' sx={{ fontWeight: 800, mb: 1 }}>
             {t('auth.admin.emailPreviewTitle', 'Email Template Preview')}
           </Typography>
           <Typography variant='body1' color='text.secondary'>
@@ -113,14 +119,14 @@ export default function EmailTemplatePreview() {
           <Button
             variant='outlined'
             startIcon={<History />}
-            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
+            sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
           >
             {t('auth.admin.versionHistory', 'Version History')}
           </Button>
           <Button
             variant='contained'
             startIcon={<Edit />}
-            sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 2, boxShadow: 'none' }}
+            sx={{ textTransform: 'none', fontWeight: 800, borderRadius: 'var(--sf-radius-md, 8px)', boxShadow: 'none' }}
           >
             {t('auth.admin.editTemplate', 'Edit Template')}
           </Button>
@@ -145,7 +151,7 @@ export default function EmailTemplatePreview() {
                     border: '1px solid',
                     borderColor: template.id === selectedId ? 'primary.main' : 'divider',
                     boxShadow: 'none',
-                    borderRadius: 3,
+                    borderRadius: 'var(--sf-radius-lg, 12px)',
                     bgcolor:
                       template.id === selectedId
                         ? alpha(theme.palette.primary.main, 0.05)
@@ -182,7 +188,7 @@ export default function EmailTemplatePreview() {
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: 'none',
-              borderRadius: 3,
+              borderRadius: 'var(--sf-radius-lg, 12px)',
               minHeight: 600,
               display: 'flex',
               flexDirection: 'column',
@@ -208,7 +214,7 @@ export default function EmailTemplatePreview() {
                   sx={{
                     textTransform: 'none',
                     fontWeight: 700,
-                    borderRadius: 2,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     boxShadow: 'none',
                   }}
                 >
@@ -222,7 +228,7 @@ export default function EmailTemplatePreview() {
                   sx={{
                     textTransform: 'none',
                     fontWeight: 700,
-                    borderRadius: 2,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     boxShadow: 'none',
                   }}
                 >
@@ -233,7 +239,7 @@ export default function EmailTemplatePreview() {
               <Stack
                 direction='row'
                 spacing={1}
-                sx={{ bgcolor: 'action.hover', p: 0.5, borderRadius: 2 }}
+                sx={{ bgcolor: 'action.hover', p: 0.5, borderRadius: 'var(--sf-radius-md, 8px)' }}
               >
                 <Tooltip title={t('auth.admin.desktopView', 'Desktop View (600px)')}>
                   <IconButton
@@ -275,7 +281,7 @@ export default function EmailTemplatePreview() {
                   minHeight: 450,
                   p: 3,
                   bgcolor: '#ffffff',
-                  borderRadius: 3,
+                  borderRadius: 'var(--sf-radius-lg, 12px)',
                   transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
                 }}
@@ -304,7 +310,7 @@ export default function EmailTemplatePreview() {
                       fontSize: '12px',
                       whiteSpace: 'pre-wrap',
                       wordBreak: 'break-all',
-                      color: '#0f172a',
+                      color: '#031433',
                     }}
                   >
                     {templateHtml}
@@ -316,5 +322,6 @@ export default function EmailTemplatePreview() {
         </Grid>
       </Grid>
     </Box>
+    </motion.div>
   )
 }

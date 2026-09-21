@@ -64,10 +64,18 @@ const HorizontalMenu = ({ dictionary }: { dictionary: Dictionary }) => {
     >
       <Menu
         rootStyles={menuRootStyles(theme)}
+        // Sections open as dropdowns on click, not on hover-and-wait - a
+        // deliberate tap/click is how a menu bar is expected to behave here.
+        triggerPopout='click'
         renderExpandIcon={({ level }: { level?: number }) => <RenderExpandIcon level={level} />}
         menuItemStyles={{
           ...menuItemStyles(settings, theme),
           button: ({ active, level }: { active?: boolean; level?: number }) => ({
+            // The active-indicator bar below is `position: absolute` - without
+            // a positioned button, it escapes to the nearest positioned
+            // ancestor up the tree and stretches across the whole menu row
+            // instead of sitting under just this button.
+            position: 'relative',
             transition: layoutMenuTokens.horizontalMenu.button.transition,
             borderRadius: layoutMenuTokens.horizontalMenu.button.borderRadius,
             margin: layoutMenuTokens.horizontalMenu.button.margin,

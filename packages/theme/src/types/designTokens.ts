@@ -21,8 +21,24 @@ export interface PrimitiveTokens {
     info: ColorToken;
   };
   spacing: Record<string, string>;
+  /** Viewport-responsive spacing (clamp() strings) - page gutters, section gaps. */
+  fluidSpacing?: Record<string, string>;
   borderRadius: Record<string, string>;
   borderWidth?: Record<string, string>;
+  /** Border line styles - solid, dashed, dotted, etc. keyed by name. */
+  borderStyle?: Record<string, string>;
+  /**
+   * Semantic border-role colours (subtle / muted / default / strong / focus).
+   * One flat map, emitted as `--border-<role>`; like `--color-*` it is not
+   * mode-split at the CSS-variable layer (a role reads the same value in light
+   * and dark), so pick values that survive both grounds.
+   */
+  semanticBorders?: Record<string, string>;
+  /** Knobs for the brand gradient recipes emitted as `--gradient-brand-*`. */
+  gradients?: {
+    /** Alpha multiplier for every lobe of the four-lobe brand mesh wash. */
+    meshIntensity?: number;
+  };
   typography: {
     fontFamily: Record<string, string>;
     fontSize: Record<string, string>;
@@ -55,17 +71,17 @@ export interface SemanticTokens {
 
 export const DEFAULT_PRIMITIVE_TOKENS: PrimitiveTokens = {
   colors: {
-    primary: { value: "#D4AF37", description: "Primary brand color" },
-    secondary: { value: "#8B4513", description: "Secondary brand color" },
-    background: { value: "#F5F5DC", description: "Page background" },
-    surface: { value: "#ffffff", description: "Card/surface background" },
-    text: { value: "#0f172a", description: "Primary text color" },
-    textMuted: { value: "#64748b", description: "Muted text color" },
-    border: { value: "#e2e8f0", description: "Border color" },
-    success: { value: "#22c55e", description: "Success state color" },
-    warning: { value: "#f59e0b", description: "Warning state color" },
-    error: { value: "#ef4444", description: "Error state color" },
-    info: { value: "#3b82f6", description: "Info state color" },
+    primary: { value: "#047BFA", description: "Serafort blue" },
+    secondary: { value: "#032457", description: "Serafort navy" },
+    background: { value: "#F6F8FC", description: "Page background (fog 50)" },
+    surface: { value: "#FFFFFF", description: "Card/surface background" },
+    text: { value: "#031433", description: "Primary text (brand ink)" },
+    textMuted: { value: "#64708A", description: "Muted text (slate 500)" },
+    border: { value: "#C7D1E3", description: "Border color (mist 300)" },
+    success: { value: "#16A34A", description: "Success state color" },
+    warning: { value: "#D97706", description: "Warning state color" },
+    error: { value: "#DC2626", description: "Error state color" },
+    info: { value: "#047BFA", description: "Info state color" },
   },
   spacing: {
     xs: "0.25rem",
@@ -74,6 +90,14 @@ export const DEFAULT_PRIMITIVE_TOKENS: PrimitiveTokens = {
     lg: "1.5rem",
     xl: "2rem",
     "2xl": "3rem",
+  },
+  fluidSpacing: {
+    gutterInline: "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+    gutterBlock: "clamp(1.5rem, 1rem + 2.5vw, 3.5rem)",
+    sectionGap: "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+    stackGap: "clamp(0.75rem, 0.6rem + 0.8vw, 1.25rem)",
+    cardPadding: "clamp(1rem, 0.8rem + 1vw, 1.75rem)",
+    clusterGap: "clamp(0.5rem, 0.4rem + 0.4vw, 0.875rem)",
   },
   borderRadius: {
     none: "0",
@@ -89,10 +113,27 @@ export const DEFAULT_PRIMITIVE_TOKENS: PrimitiveTokens = {
     medium: "2px",
     thick: "4px",
   },
+  borderStyle: {
+    solid: "solid",
+    dashed: "dashed",
+    dotted: "dotted",
+  },
+  semanticBorders: {
+    subtle: "rgba(3, 20, 51, 0.06)",
+    muted: "rgba(3, 20, 51, 0.12)",
+    default: "#C7D1E3",
+    strong: "rgba(3, 20, 51, 0.32)",
+    focus: "#047BFA",
+  },
+  gradients: {
+    meshIntensity: 1,
+  },
   typography: {
     fontFamily: {
-      sans: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-      mono: "'JetBrains Mono', Consolas, monospace",
+      // Brand kit: Inter for body, Space Grotesk for display/headings.
+      sans: '"Inter", "Segoe UI", system-ui, sans-serif',
+      display: '"Space Grotesk", "Segoe UI", system-ui, sans-serif',
+      mono: '"JetBrains Mono", Consolas, monospace',
     },
     fontSize: {
       xs: "0.75rem",

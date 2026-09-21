@@ -1,7 +1,8 @@
 import React, { Suspense, type ReactNode } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Backdrop, CircularProgress, Alert, Box, Button } from '@mui/material'
-import { useAppStore, type LayoutOverride } from '@cap/platform-core'
+import { Roles, useAppStore, type LayoutOverride } from '@cap/platform-core'
+import type { RouteLayout } from '@cap/shared-types'
 import { useSessionGuard } from '../../session-manager/middlewares/useSessionGuard'
 import { Path } from '@auth/routes/path'
 import { normalizeAuthUser } from '../utils/normalizeAuthUser'
@@ -9,9 +10,9 @@ import { useCan } from '@cap/authorization'
 
 interface AuthRouteProps {
   element: ReactNode
-  allowedRoles?: any[]
+  allowedRoles?: (Roles | string)[]
   requiresVerification?: boolean
-  layout?: LayoutOverride
+  layout?: RouteLayout | LayoutOverride
 }
 
 const AuthRoute = ({
@@ -32,8 +33,8 @@ const AuthRoute = ({
   })
 
   React.useEffect(() => {
-    if (layout !== 'none') {
-      updateLayoutOverride(layout)
+    if (layout && layout !== 'none') {
+      updateLayoutOverride(layout as LayoutOverride)
       return () => {
         updateLayoutOverride('none')
       }
@@ -110,7 +111,7 @@ const AuthRoute = ({
   if (requiresVerification) {
     // Admins bypass verification check
     if (!isAdminSession) {
-      const userData: any = normalizeAuthUser(user)
+      const userData = normalizeAuthUser(user)
       const isVerified = userData?.emailVerified === true
 
       if (!isVerified) {

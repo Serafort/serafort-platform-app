@@ -60,12 +60,20 @@ const buildLiquidGlassEffect: SurfaceEffectBuilder = (config, theme) => {
 const buildNeumorphismEffect: SurfaceEffectBuilder = (config, theme) => {
   const neu = config.neumorphism;
   if (!neu) return {};
+  const surface =
+    neu.backgroundColor || theme?.palette?.background?.paper || "#e0e0e0";
   return {
-    background:
-      neu.backgroundColor || theme?.palette?.background?.paper || "#e0e0e0",
-    boxShadow: computeNeumorphismBoxShadow(neu),
+    background: surface,
+    // The same surface is handed to the shadow computation, which splits its
+    // highlight and shadow according to how much room the colour leaves above
+    // and below itself. Letting the two disagree - painting the theme's paper
+    // colour while computing the relief for some other ground - is how a
+    // config that names no `backgroundColor` ended up with a relief built for
+    // the wrong surface.
+    boxShadow: computeNeumorphismBoxShadow(neu, false, surface),
     borderRadius:
       neu.borderRadius || (theme ? `${theme.shape.borderRadius}px` : "12px"),
+    border: "none",
   };
 };
 
@@ -121,7 +129,6 @@ const buildOrganicEffect: SurfaceEffectBuilder = (config, theme) => {
     borderRadius: organicStyles.borderRadius,
     border: organicStyles.border,
     transition: organicStyles.transition,
-    filter: organicStyles.filter,
   };
 };
 
@@ -132,7 +139,6 @@ const buildImmersiveEffect: SurfaceEffectBuilder = (config, theme) => {
   return {
     background: theme?.palette?.background?.paper || "#ffffff",
     perspective: immersiveStyles.perspective,
-    transform: immersiveStyles.transform,
     boxShadow: immersiveStyles.boxShadow,
     transition: immersiveStyles.transition,
   };

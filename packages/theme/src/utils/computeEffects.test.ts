@@ -76,15 +76,84 @@ describe("computeEffects atomic and composite utilities", () => {
   });
 
   describe("Neumorphism Atomics & Composites", () => {
-    it("computes light and dark shadow strings accurately", () => {
-      const result = computeNeumorphismShadows({
+    it("puts the light in the top-left quadrant at the stated angle", () => {
+      // The highlight offset is negative on both axes (up and to the left) and
+      // the shadow mirrors it. The old geometry measured the angle from
+      // somewhere else and put the light top-*right*, nearly overhead, so at
+      // the default settings the horizontal offset rounded to 1px and the
+      // result read as a plain drop shadow rather than an extrusion.
+      const diagonal = computeNeumorphismShadows({
         enabled: true,
-        intensity: 0.2,
+        backgroundColor: "#e0e5ec",
+        intensity: 0.15,
         distance: 6,
-        altitude: 15,
+        altitude: 45,
       });
-      expect(result.lightShadow).toContain("rgba(255, 255, 255, 0.2)");
-      expect(result.darkShadow).toContain("rgba(0, 0, 0, 0.08)");
+      expect(diagonal.lightShadow).toContain("-4px -4px");
+      expect(diagonal.darkShadow).toContain("4px 4px");
+
+      const sideOn = computeNeumorphismShadows({
+        enabled: true,
+        backgroundColor: "#e0e5ec",
+        distance: 6,
+        altitude: 0,
+      });
+      expect(sideOn.lightShadow).toContain("-6px 0px");
+
+      const overhead = computeNeumorphismShadows({
+        enabled: true,
+        backgroundColor: "#e0e5ec",
+        distance: 6,
+        altitude: 90,
+      });
+      expect(overhead.lightShadow).toContain("0px -6px");
+    });
+
+    it("splits the relief by how much room the surface leaves each way", () => {
+      // The shadows used to be white at `intensity` and black at
+      // `intensity * 0.4` regardless of surface. On the Neumorphism preset's
+      // own #e0e5ec ground that is a shift of roughly 5 and 13 channel units
+      // out of 255 - which is why selecting the preset looked like nothing had
+      // happened. A near-white surface has almost no headroom above it, so its
+      // highlight has to saturate while its shadow stays gentle.
+      const light = computeNeumorphismShadows({
+        enabled: true,
+        backgroundColor: "#e0e5ec",
+        intensity: 0.15,
+        distance: 6,
+      });
+      expect(light.lightShadow).toContain("rgba(255, 255, 255, 1)");
+      expect(light.darkShadow).toMatch(/rgba\(0, 0, 0, 0\.1[0-9]*\)/);
+
+      // A dark surface gets the opposite split rather than a near-invisible
+      // version of the same one.
+      const dark = computeNeumorphismShadows({
+        enabled: true,
+        backgroundColor: "#2a2d34",
+        intensity: 0.15,
+        distance: 6,
+      });
+      const darkAlpha = Number(/rgba\(0, 0, 0, ([\d.]+)\)/.exec(dark.darkShadow)![1]);
+      const lightAlpha = Number(
+        /rgba\(255, 255, 255, ([\d.]+)\)/.exec(dark.lightShadow)![1],
+      );
+      expect(darkAlpha).toBeGreaterThan(lightAlpha);
+      expect(lightAlpha).toBeGreaterThan(0.1);
+    });
+
+    it("computes the relief against the surface it is handed", () => {
+      // SurfaceEffectFactory paints the theme's paper colour when the config
+      // names none, and passes that same colour here - the two must not
+      // disagree about what ground the relief sits on.
+      const onDark = computeNeumorphismShadows(
+        { enabled: true, intensity: 0.15, distance: 6 },
+        "#2a2d34",
+      );
+      const onLight = computeNeumorphismShadows(
+        { enabled: true, intensity: 0.15, distance: 6 },
+        "#e0e5ec",
+      );
+      expect(onDark.darkShadow).not.toBe(onLight.darkShadow);
     });
 
     it("computes box shadows for normal, pressed and disabled states", () => {
@@ -273,15 +342,35 @@ describe("computeEffects atomic and composite utilities", () => {
   });
 
   describe("Organic Atomics & Composites", () => {
-    it("computes organic radius based on curvature threshold", () => {
-      expect(computeOrganicRadius(40)).toBe("40px");
-      expect(computeOrganicRadius(80)).toBe("80% 20%");
+    it("scales curvature to an absolute radius, never a percentage pair", () => {
+      // A percentage radius resolves against each axis on its own, so `90% 10%`
+      // - what curvature 90 used to produce - turns anything wider than it is
+      // tall into a full ellipse. The Liquid Organic preset rendered the navbar
+      // and every card as lozenges. An absolute radius behaves the same at any
+      // element size.
+      expect(computeOrganicRadius(90)).not.toContain("%");
+      expect(computeOrganicRadius(0)).toBe("0px");
+      expect(computeOrganicRadius(100)).toBe("44px");
+      expect(computeOrganicRadius(50)).toBe("22px");
     });
 
-    it("computes organic filter based on fluidity", () => {
+    it("skews opposite corners by fluidity", () => {
+      // The hand-drawn quality comes from the corners disagreeing with each
+      // other, which is what fluidity now controls - it used to drive a blur.
+      expect(computeOrganicRadius(80, 0)).toBe("35px");
+      expect(computeOrganicRadius(80, 50)).toBe("45px 25px 45px 25px");
+    });
+
+    it("keeps the blur helper working but off the surface", () => {
+      // `filter` blurs an element *and its content*, so this on a card put a
+      // 1px blur across the card's own text - the whole app read as out of
+      // focus under the Liquid Organic preset. The helper is still exported;
+      // getOrganicStyles no longer returns it.
       expect(computeOrganicFilter(0)).toBe("none");
       expect(computeOrganicFilter(50)).toBe("blur(1px)");
-      expect(computeOrganicFilter(100)).toBe("blur(2px)");
+      expect(getOrganicStyles({ curvature: 70, fluidity: 50 })).not.toHaveProperty(
+        "filter",
+      );
     });
 
     it("computes organic border and background", () => {
@@ -295,9 +384,8 @@ describe("computeEffects atomic and composite utilities", () => {
         { curvature: 70, fluidity: 50 },
         lightTheme,
       );
-      expect(styles.borderRadius).toBe("70% 30%");
+      expect(styles.borderRadius).toBe("40px 22px 40px 22px");
       expect(styles.background).toBe("#ffffff");
-      expect(styles.filter).toBe("blur(1px)");
       expect(styles.transition).toBe("all 0.4s cubic-bezier(0.4, 0, 0.2, 1)");
     });
   });
@@ -324,17 +412,19 @@ describe("computeEffects atomic and composite utilities", () => {
       expect(computeImmersiveBackground()).toBe("#ffffff");
     });
 
-    it("composes getImmersiveStyles correctly", () => {
+    it("composes getImmersiveStyles without rotating the surface", () => {
+      // The rotation is deliberately not part of the surface. Applied to every
+      // element the effect touches - navbar, sidebar, cards - it skews the
+      // whole shell and moves every hit target away from where it is drawn.
+      // computeImmersiveTransform stays exported for a component that opts in.
       const styles = getImmersiveStyles(
         { rotationX: "15deg", rotationY: "-10deg", depth: 20 },
         lightTheme,
       );
       expect(styles.perspective).toBe("1000px");
-      expect(styles.transform).toBe("rotateX(15deg) rotateY(-10deg)");
+      expect(styles).not.toHaveProperty("transform");
       expect(styles.boxShadow).toContain("0 5px 10px");
-      expect(styles.transition).toBe(
-        "transform 0.3s ease-out, box-shadow 0.3s ease-out",
-      );
+      expect(styles.transition).toBe("box-shadow 0.3s ease-out");
     });
   });
 

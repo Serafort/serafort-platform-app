@@ -100,13 +100,11 @@ describe("API_ENDPOINTS registry", () => {
       );
     });
 
-    it("exposes the organization domains endpoints", () => {
-      expect(ENDPOINTS.admin.organizations.domains(5)).toBe(
-        "/api/admin/organizations/5/domains",
-      );
-      expect(ENDPOINTS.admin.organizations.domainsCheck(5, 9)).toBe(
-        "/api/admin/organizations/5/domains/9/check",
-      );
+    it("exposes domain verification at the tenant level", () => {
+      // Not `organizations/:id/domains` — that pair was removed once the drift
+      // guard showed the backend had never served it.
+      expect(ENDPOINTS.admin.domains.verify).toBe("/api/admin/domains/verify");
+      expect(ENDPOINTS.admin.domains.check).toBe("/api/admin/domains/check");
     });
 
     it("exposes the scim test endpoint", () => {

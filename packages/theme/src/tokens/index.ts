@@ -5,35 +5,53 @@
  * Tier 3: Component Overrides (State & element-bound contracts)
  */
 
+export * from "./brand";
 export * from "./primitives";
 export * from "./semantics";
 export * from "./components";
+export * from "./serafort-aliases";
 
+import { brandCssVariables, brandTypography } from "./brand";
 import {
   primitiveColors,
   spacingTokens,
   radiusTokens,
+  borderWidthTokens,
+  borderStyleTokens,
+  opacityTokens,
+  alphaWhiteTokens,
+  alphaBlackTokens,
   motionTokens,
   zIndexTokens,
 } from "./primitives";
 import {
   semanticSurfaces,
+  semanticBorders,
+  semanticTextCssVars,
   fluidTypographyTokens,
+  fluidSpacingTokens,
   effectPresetTokens,
 } from "./semantics";
 import { stateComponentTokens, formTokens } from "./components";
+import { elevationShadowCssVars } from "../utils/elevation";
+import { serafortAliasCssVars } from "./serafort-aliases";
 
 export interface ThemeTokenDictionary {
   primitives: {
     colors: typeof primitiveColors;
     spacing: typeof spacingTokens;
     radius: typeof radiusTokens;
+    borderWidth: typeof borderWidthTokens;
+    borderStyle: typeof borderStyleTokens;
+    opacity: typeof opacityTokens;
     motion: typeof motionTokens;
     zIndex: typeof zIndexTokens;
   };
   semantics: {
     surfaces: typeof semanticSurfaces;
+    borders: typeof semanticBorders;
     typography: typeof fluidTypographyTokens;
+    fluidSpacing: typeof fluidSpacingTokens;
     effects: typeof effectPresetTokens;
   };
   components: {
@@ -47,12 +65,17 @@ export const defaultThemeTokens: ThemeTokenDictionary = {
     colors: primitiveColors,
     spacing: spacingTokens,
     radius: radiusTokens,
+    borderWidth: borderWidthTokens,
+    borderStyle: borderStyleTokens,
+    opacity: opacityTokens,
     motion: motionTokens,
     zIndex: zIndexTokens,
   },
   semantics: {
     surfaces: semanticSurfaces,
+    borders: semanticBorders,
     typography: fluidTypographyTokens,
+    fluidSpacing: fluidSpacingTokens,
     effects: effectPresetTokens,
   },
   components: {
@@ -70,8 +93,12 @@ export function tokensToCssVariables(
 ): Record<string, string> {
   const surfaces =
     customTokens?.semantics?.surfaces?.[mode] || semanticSurfaces[mode];
+  const borders =
+    customTokens?.semantics?.borders?.[mode] || semanticBorders[mode];
   const effects = customTokens?.semantics?.effects || effectPresetTokens;
   const typo = customTokens?.semantics?.typography || fluidTypographyTokens;
+  const fluidSpace =
+    customTokens?.semantics?.fluidSpacing || fluidSpacingTokens;
   const form = customTokens?.components?.form || formTokens;
   const state = customTokens?.components?.state || stateComponentTokens;
 
@@ -113,30 +140,60 @@ export function tokensToCssVariables(
     "--color-error-600": primitiveColors.error[600],
     "--color-error-700": primitiveColors.error[700],
 
+    "--color-accent-400": primitiveColors.accent[400],
+    "--color-accent-500": primitiveColors.accent[500],
+    "--color-accent-600": primitiveColors.accent[600],
+
     "--color-info-500": primitiveColors.info[500],
     "--color-info-600": primitiveColors.info[600],
     "--color-info-700": primitiveColors.info[700],
 
-    "--alpha-white-4": primitiveColors.alpha.white[4],
-    "--alpha-white-8": primitiveColors.alpha.white[8],
-    "--alpha-white-16": primitiveColors.alpha.white[16],
-    "--alpha-white-60": primitiveColors.alpha.white[60],
+    // Tier 1: Alpha tint ramps (4%-88%) and the unitless opacity scale (0-100).
+    ...Object.fromEntries(
+      Object.entries(alphaWhiteTokens).map(([step, value]) => [
+        `--alpha-white-${step}`,
+        value,
+      ]),
+    ),
+    ...Object.fromEntries(
+      Object.entries(alphaBlackTokens).map(([step, value]) => [
+        `--alpha-black-${step}`,
+        value,
+      ]),
+    ),
+    ...Object.fromEntries(
+      Object.entries(opacityTokens).map(([step, value]) => [
+        `--opacity-${step}`,
+        value,
+      ]),
+    ),
 
-    "--alpha-black-4": primitiveColors.alpha.black[4],
-    "--alpha-black-8": primitiveColors.alpha.black[8],
-    "--alpha-black-12": primitiveColors.alpha.black[12],
-    "--alpha-black-60": primitiveColors.alpha.black[60],
+    // Tier 1: Spacing (contiguous base-4 scale, space.0 -> space.32)
+    ...Object.fromEntries(
+      Object.entries(spacingTokens).map(([step, value]) => [
+        `--space-${step}`,
+        value,
+      ]),
+    ),
 
-    // Tier 1: Spacing
-    "--space-0": spacingTokens[0],
-    "--space-1": spacingTokens[1],
-    "--space-2": spacingTokens[2],
-    "--space-3": spacingTokens[3],
-    "--space-4": spacingTokens[4],
-    "--space-6": spacingTokens[6],
-    "--space-8": spacingTokens[8],
-    "--space-12": spacingTokens[12],
-    "--space-16": spacingTokens[16],
+    // Tier 1: Border width & style scales
+    "--border-width-none": borderWidthTokens.none,
+    "--border-width-hairline": borderWidthTokens.hairline,
+    "--border-width-thin": borderWidthTokens.thin,
+    "--border-width-medium": borderWidthTokens.medium,
+    "--border-width-thick": borderWidthTokens.thick,
+    "--border-width-heavy": borderWidthTokens.heavy,
+    "--border-style-solid": borderStyleTokens.solid,
+    "--border-style-dashed": borderStyleTokens.dashed,
+    "--border-style-dotted": borderStyleTokens.dotted,
+    "--border-style-double": borderStyleTokens.double,
+
+    // Tier 2: Semantic border roles (mode-resolved)
+    "--border-subtle": borders.subtle,
+    "--border-muted": borders.muted,
+    "--border-default": borders.default,
+    "--border-strong": borders.strong,
+    "--border-focus": borders.focus,
 
     // Tier 1: Radii
     "--radius-none": radiusTokens.none,
@@ -173,6 +230,14 @@ export function tokensToCssVariables(
     "--surface-subtle": surfaces.subtle,
     "--surface-border": surfaces.border,
 
+    // Tier 2: Fluid Spacing (viewport-responsive, clamp-based)
+    "--space-fluid-gutter-inline": fluidSpace.gutterInline,
+    "--space-fluid-gutter-block": fluidSpace.gutterBlock,
+    "--space-fluid-section-gap": fluidSpace.sectionGap,
+    "--space-fluid-stack-gap": fluidSpace.stackGap,
+    "--space-fluid-card-padding": fluidSpace.cardPadding,
+    "--space-fluid-cluster-gap": fluidSpace.clusterGap,
+
     // Tier 2: Fluid Typography
     "--font-display": typo.display,
     "--font-h1": typo.h1,
@@ -188,6 +253,11 @@ export function tokensToCssVariables(
     "--font-body2": typo.body2,
     "--font-body": typo.body,
     "--font-caption": typo.caption,
+
+    // Tier 2: Brand Font Families
+    "--font-family-display": brandTypography.display.stack,
+    "--font-family-body": brandTypography.body.stack,
+    "--font-family-mono": brandTypography.mono.stack,
 
     // Tier 2: Effect Presets
     "--glass-bg": effects.glass.bg,
@@ -212,6 +282,19 @@ export function tokensToCssVariables(
 
     "--bento-gap": effects.bento.gap,
     "--bento-radius": effects.bento.radius,
+
+    // Tier 2: Elevation scale (--shadow-xs … --shadow-xl) + brand glow.
+    // Ink-tinted and mode-aware; the xs/sm/md/lg/xl values match the
+    // generated ramp that `theme.shadows[1|4|8|16|24]` already fall back to.
+    ...elevationShadowCssVars(mode),
+
+    // Tier 2: Text-safe feedback colours (--semantic-*-text). WCAG AA against
+    // the mode's paper surface — use these for inline messages and helper text.
+    ...semanticTextCssVars(mode),
+
+    // Serafort `--sf-*` scale aliases (space / radius / shadow / feedback text)
+    // so brand-kit markup resolves the same values as the platform tokens.
+    ...serafortAliasCssVars(mode),
 
     // Tier 3: Form Contracts
     "--form-input-height": form.input.height,
@@ -257,6 +340,10 @@ export function tokensToCssVariables(
     "--state-success-icon-color": state.success.iconCheckColor,
     "--state-success-glow-highlight": state.success.glowHighlight,
     "--state-success-banner-bg": state.success.bannerBackground,
+
+    // Tier 0: Serafort brand role layer (--sf-*), so markup lifted straight
+    // from the brand kit renders on-brand inside the app shell.
+    ...brandCssVariables(mode),
   };
 
   return vars;

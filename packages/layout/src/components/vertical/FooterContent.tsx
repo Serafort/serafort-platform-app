@@ -37,7 +37,7 @@ const FooterContent = () => {
           color='primary.main'
           sx={{ fontWeight: 600, textTransform: 'uppercase' }}
         >
-          CAP Framework
+          Serafort
         </Link>
       </Typography>
 

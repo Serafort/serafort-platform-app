@@ -24,6 +24,7 @@ const SAMLConfigDashboard = React.lazy(() => import('../screens/sso/SAMLConfigDa
 const SAMLMetadataBrowser = React.lazy(() => import('../screens/sso/SAMLMetadataBrowser'))
 const SAMLMetadataDisplay = React.lazy(() => import('../screens/sso/SAMLMetadataDisplay'))
 const SSFConfiguration = React.lazy(() => import('../screens/sso/SSFConfiguration'))
+const CaepEventConsole = React.lazy(() => import('../screens/sso/CaepEventConsole'))
 
 // ---------------------------------------------------------------------------
 // SSO Interactive & Waiting Flows (Public / Flow)
@@ -52,6 +53,8 @@ export const identityBrokerRouteConfig: ModuleRouteConfig[] = [
   createAdminRoute(Path.samlMetadataBrowser, <SAMLMetadataBrowser />, 'SAML Metadata Browser'),
   createAdminRoute(Path.samlMetadataDisplay, <SAMLMetadataDisplay />, 'SAML Metadata Display'),
   createAdminRoute(Path.ssfConfiguration, <SSFConfiguration />, 'Shared Signals (SSF)'),
+  // The configuration screen sets the stream up; this one operates it.
+  createAdminRoute(Path.caepEventConsole, <CaepEventConsole />, 'Shared Signals console'),
 
   // --- SSO Interactive & Waiting Flows ---
   createAuthRoute(Path.authWait, <AuthWaitScreen />, {

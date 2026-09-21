@@ -26,10 +26,22 @@ export const ssfService = {
     return apiClient.post<SSFTestStreamResponse>(ENDPOINTS.admin.ssf.test, data)
   },
 
+  /**
+   * Broadcast a CAEP / RISC signal to every registered client.
+   *
+   * The payload is sent camelCased because `AdminSsfController.broadcast` reads
+   * `request.only(['eventType', 'subject', 'reason'])`. This used to send
+   * `event_type` / `event_payload`, which the handler never looks at, so every
+   * broadcast came back 400 "eventType and subject are required".
+   */
   broadcastEvent: async (
     data: SSFBroadcastEventDTO,
   ): Promise<FetchResponse<SSFBroadcastEventResponse>> => {
-    return apiClient.post<SSFBroadcastEventResponse>(ENDPOINTS.admin.ssf.broadcast, data)
+    return apiClient.post<SSFBroadcastEventResponse>(ENDPOINTS.admin.ssf.broadcast, {
+      eventType: data.eventType,
+      subject: data.subject,
+      reason: data.reason,
+    })
   },
 
   getHistory: async (): Promise<FetchResponse<SSFHistoryLog[]>> => {

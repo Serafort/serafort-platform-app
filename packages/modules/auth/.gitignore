@@ -1,5 +1,9 @@
 # Logs
-logs
+# Anchored to the package root: an unanchored `logs` also matches any nested
+# directory called `logs`, which silently excluded
+# `src/modules/access-control/screens/logs/` from version control. Runtime logs
+# only ever land at the package root, so anchoring loses nothing.
+/logs
 *.log
 npm-debug.log*
 yarn-debug.log*

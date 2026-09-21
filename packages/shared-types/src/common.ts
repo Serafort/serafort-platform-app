@@ -51,3 +51,18 @@ export enum OptimisticUpdateTypeEnum {
   DELETE = "delete",
   CUSTOM = "custom",
 }
+
+/**
+ * True when the value is a plain object with no own enumerable keys.
+ *
+ * Lives in Tier 0 because it is a dependency-free predicate used by the
+ * layout engine and by route guards alike; keeping it in the platform facade
+ * forced lower tiers to import upward just to null-check a user object.
+ */
+export const isObjectEmpty = (objectName: object): boolean => {
+  return (
+    !!objectName &&
+    Object.keys(objectName).length === 0 &&
+    objectName.constructor === Object
+  );
+};

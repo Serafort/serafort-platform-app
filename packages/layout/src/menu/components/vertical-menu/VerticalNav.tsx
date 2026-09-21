@@ -177,6 +177,20 @@ const VerticalNav = (props: VerticalNavProps) => {
       )}
       {...rest}
     >
+      {/* When verticalNav is toggled on smaller screen, show/hide verticalNav backdrop */}
+      {isToggledContext && breakpointReached && (
+        /* VerticalNav Backdrop */
+        <StyledBackdrop
+          role='button'
+          tabIndex={0}
+          aria-label='backdrop'
+          onClick={handleBackdropClick}
+          onKeyPress={handleBackdropClick}
+          className={verticalNavClasses.backdrop}
+          backdropColor={backdropColor}
+        />
+      )}
+
       {/* VerticalNav Container for hover effect when verticalNav is collapsed */}
       <StyledVerticalNavContainer
         width={widthContext}
@@ -210,20 +224,6 @@ const VerticalNav = (props: VerticalNavProps) => {
           />
         )}
       </StyledVerticalNavContainer>
-
-      {/* When verticalNav is toggled on smaller screen, show/hide verticalNav backdrop */}
-      {isToggledContext && breakpointReached && (
-        /* VerticalNav Backdrop */
-        <StyledBackdrop
-          role='button'
-          tabIndex={0}
-          aria-label='backdrop'
-          onClick={handleBackdropClick}
-          onKeyPress={handleBackdropClick}
-          className={verticalNavClasses.backdrop}
-          backdropColor={backdropColor}
-        />
-      )}
     </StyledVerticalNav>
   )
 }

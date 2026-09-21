@@ -186,6 +186,31 @@ export function useStepUpAuth() {
     [handleVerificationSuccess],
   )
 
+  const verifyRecoveryCode = useCallback(
+    async (code: string) => {
+      const trimmed = code?.trim()
+      if (!trimmed) {
+        setError('Please enter a recovery code.')
+        return
+      }
+
+      setIsVerifying(true)
+      setError(null)
+
+      try {
+        const verifyRes = await mfaService.stepUp.verifyRecovery(trimmed)
+        await handleVerificationSuccess(verifyRes.data)
+        return verifyRes.data
+      } catch (err: any) {
+        const msg = err.response?.data?.message || err.message || 'Invalid recovery code.'
+        setError(msg)
+        setIsVerifying(false)
+        throw err
+      }
+    },
+    [handleVerificationSuccess],
+  )
+
   const openPrompt = useCallback((metadata?: StepUpActionMetadata) => {
     setError(null)
     setIsVerifying(false)
@@ -236,6 +261,7 @@ export function useStepUpAuth() {
     requireStepUp,
     verifyBiometric,
     verifyTotp,
+    verifyRecoveryCode,
     openPrompt,
     closePrompt,
     clearElevation,

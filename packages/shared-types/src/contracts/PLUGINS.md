@@ -1,6 +1,6 @@
 # Plugin System
 
-The CAP Platform Plugin System allows modules to register components, routes, services, and i18n translations at runtime.
+The Serafort Platform Plugin System allows modules to register components, routes, services, and i18n translations at runtime.
 
 ## Overview
 

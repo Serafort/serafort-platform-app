@@ -11,6 +11,20 @@ import type {
   ProviderType,
 } from "@cap/shared-types";
 
+/** Lineage and seed state for a draft created from an existing one. */
+export interface NewDraftOptions {
+  /** The draft this one refines. */
+  parentDraftId?: string;
+  /** 1 for an original, 2 for its first refinement, and so on. */
+  revision?: number;
+  /** The instruction that produced this revision. */
+  refinement?: string;
+  /** A definition the draft starts with, for refinements applied locally. */
+  dsl?: WidgetDefinition;
+  /** Starting lifecycle; defaults to "draft". */
+  lifecycle?: WidgetLifecycle;
+}
+
 // ============================================
 // Initial agent states for a fresh draft
 // ============================================
@@ -55,9 +69,25 @@ export interface WidgetStudioSlice {
   activeDraftId: string | null;
   /** Whether the agent pipeline is currently executing */
   widgetStudioRunning: boolean;
+  /**
+   * The backend run currently streaming, if any. Transient (not persisted):
+   * a run id from a previous session cannot be cancelled or resumed, and the
+   * UI needs it only to offer Stop while the run is live.
+   */
+  activeRunId: number | null;
+  /** Record (or clear) the run the UI can cancel */
+  setActiveRunId: (runId: number | null) => void;
+  /** Attach a backend run to a draft, so its server audit trail is fetchable */
+  setDraftRunId: (draftId: string, runId: number) => void;
 
-  /** Create a new draft and make it active */
-  createWidgetDraft: (prompt: string) => string;
+  /**
+   * Create a new draft and make it active.
+   *
+   * A refinement passes `options`: it is a new draft with a parent rather
+   * than an edit of the old one, so the previous version stays inspectable
+   * in History.
+   */
+  createWidgetDraft: (prompt: string, options?: NewDraftOptions) => string;
   /** Set the active draft by ID */
   setActiveDraft: (draftId: string | null) => void;
   /** Get the active draft object */
@@ -138,16 +168,34 @@ export const createWidgetStudioSlice: StateCreator<
   widgetDrafts: [],
   activeDraftId: null,
   widgetStudioRunning: false,
+  activeRunId: null,
 
-  createWidgetDraft: (prompt: string) => {
+  setActiveRunId: (runId: number | null) =>
+    set((state) => {
+      state.activeRunId = runId;
+    }),
+
+  setDraftRunId: (draftId: string, runId: number) =>
+    set((state) => {
+      const draft = state.widgetDrafts.find((d) => d.id === draftId);
+      if (draft) draft.runId = runId;
+    }),
+
+  createWidgetDraft: (prompt: string, options?: NewDraftOptions) => {
     const id = crypto.randomUUID();
     const draft: WidgetStudioDraft = {
       id,
       prompt,
       agents: createInitialAgents(),
-      lifecycle: "draft",
+      lifecycle: options?.lifecycle ?? "draft",
       createdAt: new Date().toISOString(),
       auditTrail: [],
+      ...(options?.dsl ? { dsl: options.dsl } : {}),
+      ...(options?.parentDraftId
+        ? { parentDraftId: options.parentDraftId }
+        : {}),
+      ...(options?.revision ? { revision: options.revision } : {}),
+      ...(options?.refinement ? { refinement: options.refinement } : {}),
     };
     set((state) => {
       state.widgetDrafts.push(draft);

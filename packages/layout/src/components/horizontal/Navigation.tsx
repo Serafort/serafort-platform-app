@@ -16,7 +16,12 @@ const StyledDiv = styled.div<StyledDivProps>`
   ${({ isContentCompact, isBreakpointReached, layoutPadding, compactContentWidth }) =>
     !isBreakpointReached &&
     `
-    padding: ${layoutPadding};
+    /* layoutPadding (theme spacing.lg, 24px) is the page-content gutter -
+       right for aligning the menu row's left/right edges with the content
+       below, but far too tall applied to all four sides of a single-row
+       menu bar. Keep it inline-only and use a small block padding instead. */
+    padding-inline: ${layoutPadding};
+    padding-block: 0.375rem;
 
     ${
       isContentCompact &&

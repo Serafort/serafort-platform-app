@@ -355,9 +355,46 @@ export const onBeforeRequest = (
   return () => beforeRequestHandlers.delete(handler);
 };
 
+/**
+ * `POST /api/v1/auth/refresh` answers 400 "Refresh token is required" when no
+ * refresh cookie reached it, and 401 "Invalid, expired, or reused refresh
+ * token" when one did but did not survive rotation. The first means "you are
+ * anonymous", the second means "your session is over" — only the second is a
+ * terminal authentication failure.
+ */
+const NO_SESSION_STATUS = 400;
+
+/**
+ * Reports whether the app believes a session exists. The access token lives in
+ * memory only, so after a reload it is empty even for a signed-in user; the
+ * persisted (encrypted) store is the only other witness. The store registers
+ * this probe itself — api.client must not import the store, which imports it.
+ */
+export type SessionProbe = () => boolean;
+let sessionProbe: SessionProbe | null = null;
+
+export const setSessionProbe = (probe: SessionProbe | null) => {
+  sessionProbe = probe;
+};
+
+const hasKnownSession = (): boolean => {
+  if (secureTokenManager.hasTokens()) return true;
+  try {
+    return sessionProbe?.() ?? false;
+  } catch {
+    return false;
+  }
+};
+
 class TokenRefreshManager {
   private isRefreshing = false;
   private isPaused = false;
+  /**
+   * Latched once the server confirms there is no renewable session, so public
+   * pages do not re-probe `/auth/refresh` on every subsequent 401. Cleared
+   * automatically as soon as tokens exist again (i.e. after a sign-in).
+   */
+  private noSessionDetected = false;
   private refreshPromise: Promise<string> | null = null;
   private failedQueue: Array<{
     resolve: (token: string) => void;
@@ -434,7 +471,9 @@ class TokenRefreshManager {
       );
 
       if (!response.ok) {
-        throw new Error(`Refresh failed with status ${response.status}`);
+        const error = new Error(`Refresh failed with status ${response.status}`);
+        (error as unknown as { status: number }).status = response.status;
+        throw error;
       }
 
       const data: RefreshResponseDto = await response.json();
@@ -457,11 +496,28 @@ class TokenRefreshManager {
 
       return accessToken;
     } catch (error) {
-      console.error("[Token Refresh] Failed:", (error as Error).message);
+      const status = (error as { status?: number }).status;
+
+      // 400 is the backend's "Refresh token is required" — no refresh cookie
+      // was presented at all, which is the normal state of a visitor who has
+      // never signed in. It is not a failure worth shouting about.
+      if (status === NO_SESSION_STATUS) {
+        if (import.meta.env.DEV) {
+          console.log(
+            "[Token Refresh] No refresh token presented; treating as anonymous",
+          );
+        }
+      } else {
+        console.error("[Token Refresh] Failed:", (error as Error).message);
+      }
       throw error;
     }
   }
 
+  /**
+   * Terminal failure: a session existed and can no longer be renewed. Wipes
+   * local state and tells the app to send the user back to login.
+   */
   private handleRefreshFailure() {
     secureTokenManager.clearTokens();
 
@@ -480,7 +536,35 @@ class TokenRefreshManager {
     notifyTerminalError();
   }
 
+  /**
+   * Benign outcome: there was no session to renew in the first place. Drops any
+   * stray token remnants, but must NOT wipe storage or notify terminal-error
+   * subscribers — doing so logs out a user who was never logged in and clears
+   * anonymous state (locale, theme, consent, guest session) on every page load.
+   */
+  private handleNoSession() {
+    this.noSessionDetected = true;
+    secureTokenManager.clearTokens();
+
+    if (import.meta.env.DEV) {
+      console.log(
+        "[TokenRefreshManager] No renewable session; continuing as anonymous",
+      );
+    }
+  }
+
   async attemptRefresh(): Promise<string> {
+    // A sign-in repopulates the token store, which invalidates the latch.
+    if (this.noSessionDetected && hasKnownSession()) {
+      this.noSessionDetected = false;
+    }
+
+    if (this.noSessionDetected) {
+      throw Object.assign(new Error("No session to refresh"), {
+        status: NO_SESSION_STATUS,
+      });
+    }
+
     if (this.isPaused) {
       if (import.meta.env.DEV) {
         console.log(
@@ -495,6 +579,10 @@ class TokenRefreshManager {
     if (this.refreshPromise) {
       return this.refreshPromise;
     }
+
+    // Captured before the request: distinguishes "this client had a session
+    // that just died" from "this client never had one".
+    const hadSession = hasKnownSession();
 
     this.broadcast({ type: "REFRESH_STARTED" });
 
@@ -529,10 +617,29 @@ class TokenRefreshManager {
           throw error;
         }
 
+        const status =
+          (error as { status?: number }).status ??
+          (typeof (error as Error)?.message === "string" &&
+          (error as Error).message.includes("status 400")
+            ? 400
+            : (error as Error).message.includes("status 401")
+              ? 401
+              : (error as Error).message.includes("status 403")
+                ? 403
+                : undefined);
+
+        // A 400 while a session is known is a real dead end: the session
+        // existed but its refresh cookie is gone, so it can never be renewed.
+        // A 400 with no known session simply means nobody was signed in.
+        const isNoSession = status === NO_SESSION_STATUS && !hadSession;
         const isAuthFailure =
-          (error as { status?: number }).status === 400 ||
-          (error as { status?: number }).status === 401 ||
-          (error as { status?: number }).status === 403;
+          status === NO_SESSION_STATUS || status === 401 || status === 403;
+
+        if (isNoSession) {
+          this.handleNoSession();
+          this.processQueue(error, null);
+          throw error;
+        }
 
         if (isAuthFailure) {
           this.handleRefreshFailure();
@@ -644,12 +751,29 @@ export class FetchClient {
     }
 
     if (!headers.has("X-Request-ID")) {
-      headers.set(
-        "X-Request-ID",
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`,
-      );
+      let requestId: string;
+      if (
+        typeof crypto !== "undefined" &&
+        typeof crypto.randomUUID === "function"
+      ) {
+        requestId = crypto.randomUUID();
+      } else if (
+        typeof crypto !== "undefined" &&
+        typeof crypto.getRandomValues === "function"
+      ) {
+        const arr = new Uint8Array(16);
+        crypto.getRandomValues(arr);
+        requestId =
+          "req_" +
+          Array.from(arr)
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+      } else {
+        throw new Error(
+          "Secure random number generation is not supported in this environment.",
+        );
+      }
+      headers.set("X-Request-ID", requestId);
     }
 
     if (currentImpersonationSession) {

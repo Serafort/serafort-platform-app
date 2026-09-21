@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useRef, useMemo, useDeferredValue } from 'react'
 import { useTranslation } from 'react-i18next'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
@@ -227,20 +227,28 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
   }
 
   // Filtered Events
+  const deferredSearchQuery = useDeferredValue(searchQuery)
   const filteredEvents = useMemo(() => {
+    const query = deferredSearchQuery.trim().toLowerCase()
+    const isAllFilter = selectedFilter === 'all'
+
+    if (!query && isAllFilter) {
+      return events
+    }
+
     return events.filter((ev) => {
-      const matchesFilter = selectedFilter === 'all' || ev.type === selectedFilter
-      const query = searchQuery.trim().toLowerCase()
-      const matchesQuery =
-        !query ||
+      if (!isAllFilter && ev.type !== selectedFilter) return false
+      if (!query) return true
+
+      return (
         ev.id.toLowerCase().includes(query) ||
         ev.email.toLowerCase().includes(query) ||
         ev.ip.toLowerCase().includes(query) ||
         ev.device.toLowerCase().includes(query) ||
         ev.userName.toLowerCase().includes(query)
-      return matchesFilter && matchesQuery
+      )
     })
-  }, [events, selectedFilter, searchQuery])
+  }, [events, selectedFilter, deferredSearchQuery])
 
   // Currently Selected Event Detail
   const selectedEvent = useMemo(() => {
@@ -427,7 +435,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
             }}
           >
             <Box>
-              <Typography variant='h3' fontWeight={900} gutterBottom sx={{ color: 'text.primary' }}>
+              <Typography variant='h3' fontWeight={800} gutterBottom sx={{ color: 'text.primary' }}>
                 Real-time Auth Events Monitor
               </Typography>
               <Typography color='text.secondary'>
@@ -439,7 +447,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
               startIcon={<Download />}
               variant='outlined'
               onClick={handleExportCSV}
-              sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
+              sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 'var(--sf-radius-md, 8px)' }}
             >
               Export CSV ({filteredEvents.length})
             </Button>
@@ -464,7 +472,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                   key={index}
                   sx={(theme: any) => ({
                     p: 3,
-                    borderRadius: 2,
+                    borderRadius: 'var(--sf-radius-md, 8px)',
                     border: '1px solid ' + theme.palette.divider,
                     ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
                   })}
@@ -514,7 +522,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
             mb: 3,
             p: 1.5,
             bgcolor: 'background.paper',
-            borderRadius: 2,
+            borderRadius: 'var(--sf-radius-md, 8px)',
             border: 1,
             borderColor: 'divider',
           }}
@@ -528,7 +536,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
               sx={{
                 textTransform: 'none',
                 fontWeight: 600,
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
               }}
             >
               {isPaused ? `Resume (${bufferedCount} buffered)` : 'Pause Stream'}
@@ -554,7 +562,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
             sx={{
               minWidth: 260,
               '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
               },
             }}
           />
@@ -654,7 +662,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              borderRadius: 2,
+              borderRadius: 'var(--sf-radius-md, 8px)',
               overflow: 'hidden',
               border: '1px solid ' + theme.palette.divider,
               ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
@@ -816,7 +824,7 @@ export const RealTimeAuthEventsMonitor: React.FC = () => {
                 width: { xs: '100%', lg: 440 },
                 display: 'flex',
                 flexDirection: 'column',
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 overflow: 'hidden',
                 border: '1px solid ' + theme.palette.divider,
                 ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),

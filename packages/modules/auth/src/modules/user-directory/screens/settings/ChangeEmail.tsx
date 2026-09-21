@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Box,
@@ -14,6 +14,9 @@ import {
   Alert,
   CircularProgress,
   Link,
+  useTheme,
+  alpha,
+  Stack,
 } from '@mui/material'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
@@ -23,12 +26,14 @@ import Mail from '@mui/icons-material/Mail'
 import AlternateEmail from '@mui/icons-material/AlternateEmail'
 import Info from '@mui/icons-material/Info'
 import CheckCircle from '@mui/icons-material/CheckCircle'
+import ArrowBack from '@mui/icons-material/ArrowBack'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 import { themeConfig, useNotifications } from '@cap/platform-core'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Path } from '@cap/module-auth/routes/path'
+import { Path } from '../../../../routes/path'
 import { useCurrentUserQuery, useChangeEmail } from '../../hooks/useUserQuery'
 import { buildLayoutSurfaceEffect } from '@cap/layout'
 import { getTenantThemeEffects } from '@cap/theme'
@@ -42,8 +47,12 @@ const changeEmailRequestSchema = z.object({
 type ChangeEmailRequestFormData = z.infer<typeof changeEmailRequestSchema>
 
 function ChangeEmail() {
-  const { t } = useTranslation()
+  const { t } = useTranslation('common')
+  const theme = useTheme()
   const navigate = useNavigate()
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
+
   const { addNotification } = useNotifications()
   const { data: user } = useCurrentUserQuery()
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -72,7 +81,7 @@ function ChangeEmail() {
   const { mutate: changeEmail, isPending } = useChangeEmail({
     onSuccess: (response) => {
       setSuccessData({
-        message: (response.data as any)?.message || t('auth.account.change_email_success_message'),
+        message: (response.data as any)?.message || t('auth.account.change_email_success_message', 'Verification email dispatched.'),
         verifyUrl: (response.data as any).verifyUrl,
       })
       addNotification({
@@ -100,433 +109,448 @@ function ChangeEmail() {
 
   if (successData) {
     return (
-      <Container
-        component='main'
-        maxWidth={false}
-        disableGutters
-        className='animate-scale-in'
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100dvh',
-          justifyContent: 'center',
-          alignItems: 'center',
-          bgcolor: 'background.default',
-          py: { xs: 8, sm: 12 },
-          position: 'relative',
-        }}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
       >
-        <Card
-          sx={(theme: any) => ({
-            maxWidth: 480,
-            width: '100%',
-            borderRadius: 3,
-            textAlign: 'center',
-            p: 4,
-            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-          })}
+        <Container
+          component='main'
+          maxWidth='sm'
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '80vh',
+            justifyContent: 'center',
+            alignItems: 'center',
+            py: { xs: 4, sm: 8 },
+          }}
         >
-          <CheckCircle sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
-          <Typography variant='h5' fontWeight='700' mb={2}>
-            {t('auth.account.request_sent', 'Check Your Inbox')}
-          </Typography>
-          <Typography variant='body1' color='text.secondary' mb={4}>
-            {successData.message}
-          </Typography>
-
-          {successData.verifyUrl && (
-            <Alert severity='info' sx={{ mb: 4, textAlign: 'left' }}>
-              <Typography variant='body2' fontWeight='bold'>
-                Dev Mode: Verification Link
-              </Typography>
-              <Link href={successData.verifyUrl} target='_blank' sx={{ wordBreak: 'break-all' }}>
-                {successData.verifyUrl}
-              </Link>
-            </Alert>
-          )}
-
-          <Button
-            variant='contained'
-            fullWidth
-            onClick={() => navigate(Path.account.security)}
-            sx={{ bgcolor: 'info.main', fontWeight: 700 }}
+          <Card
+            sx={{
+              maxWidth: 480,
+              width: '100%',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              textAlign: 'center',
+              p: 4,
+              border: '1px solid',
+              borderColor: 'divider',
+              ...surfaceEffect,
+            }}
           >
-            {t('auth.account.back_to_security', 'Back to Security')}
-          </Button>
-        </Card>
-      </Container>
+            <CheckCircle sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
+            <Typography variant='h5' fontWeight='700' mb={2}>
+              {t('auth.account.request_sent', 'Check Your Inbox')}
+            </Typography>
+            <Typography variant='body1' color='text.secondary' mb={4}>
+              {successData.message}
+            </Typography>
+
+            {successData.verifyUrl && (
+              <Alert
+                severity='info'
+                sx={{
+                  mb: 4,
+                  textAlign: 'left',
+                  borderRadius: 'var(--sf-radius-md, 8px)',
+                  border: '1px solid',
+                  borderColor: alpha(theme.palette.info.main, 0.2),
+                }}
+              >
+                <Typography variant='body2' fontWeight='bold'>
+                  Dev Mode: Verification Link
+                </Typography>
+                <Link
+                  href={successData.verifyUrl}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  sx={{ wordBreak: 'break-all' }}
+                >
+                  {successData.verifyUrl}
+                </Link>
+              </Alert>
+            )}
+
+            <Button
+              variant='contained'
+              fullWidth
+              onClick={() => navigate(Path.account.view || '/profile')}
+              sx={{
+                minHeight: 48,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                fontWeight: 700,
+                textTransform: 'none',
+              }}
+            >
+              {t('auth.account.back_to_security', 'Back to Profile & Security')}
+            </Button>
+          </Card>
+        </Container>
+      </motion.div>
     )
   }
 
   return (
     <>
       <title>
-        {t('auth.account.change_email_title')} - {themeConfig.templateName}
+        {t('auth.account.change_email_title', 'Change Email Address')} - {themeConfig.templateName}
       </title>
-      <Container
-        component='main'
-        maxWidth={false}
-        disableGutters
-        className='animate-scale-in'
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100dvh',
-          justifyContent: 'center',
-          alignItems: 'center',
-          bgcolor: 'background.default',
-          py: { xs: 8, sm: 12 },
-          position: 'relative',
-          overflow: 'hidden',
-        }}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
       >
-        <CssBaseline />
-        {/* Abstract Background Pattern */}
-        <Box
+        <Container
+          component='main'
+          maxWidth='sm'
           sx={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: (theme) =>
-              `radial-gradient(${theme.palette.divider} 0.5px, transparent 0.5px)`,
-            backgroundSize: '24px 24px',
-            maskImage: 'linear-gradient(180deg, white, rgba(255, 255, 255, 0))',
-            opacity: 0.2,
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* â”€â”€ SYSTEM PATTERN: metric_card (OrganizationProfile style background) â”€â”€ */}
-        <Card
-          sx={(theme: any) => ({
             display: 'flex',
             flexDirection: 'column',
-            width: '100%',
-            maxWidth: '480px',
+            minHeight: '80vh',
+            justifyContent: 'center',
+            alignItems: 'center',
+            py: { xs: 4, sm: 6 },
             position: 'relative',
-            overflow: 'hidden',
-            borderRadius: '12px',
-            border: '1px solid ' + theme.palette.divider,
-            mx: { xs: 2, sm: 4 },
-            zIndex: 1,
-            ...buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme),
-          })}
+          }}
         >
-          <CardContent
+          <CssBaseline />
+
+          {/* Top Back Navigation Button */}
+          <Box sx={{ width: '100%', maxWidth: 480, mb: 2.5 }}>
+            <Button
+              startIcon={<ArrowBack />}
+              onClick={() => navigate(Path.account.view || '/profile')}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 600,
+                color: 'text.secondary',
+                minHeight: 44,
+                px: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                bgcolor: alpha(theme.palette.action.active, 0.04),
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.action.active, 0.08),
+                  color: 'text.primary',
+                },
+              }}
+            >
+              {t('common.backToProfile', 'Back to Profile & Security')}
+            </Button>
+          </Box>
+
+          <Card
             sx={{
-              padding: { xs: '32px 24px', sm: '32px 40px' },
-              '&:last-child': { pb: { xs: '32px', sm: '40px' } },
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+              maxWidth: 480,
+              position: 'relative',
+              overflow: 'hidden',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              border: '1px solid',
+              borderColor: 'divider',
+              ...surfaceEffect,
             }}
           >
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              {/* Header Icon */}
-              <Box
-                sx={{
-                  width: 56,
-                  height: 56,
-                  bgcolor: 'info.lighter',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mb: 3,
-                }}
-              >
-                <LockReset sx={{ color: 'info.main', fontSize: 32 }} />
-              </Box>
-
-              <Typography
-                variant='h4'
-                fontWeight='700'
-                textAlign='center'
-                sx={{
-                  fontSize: '1.5rem',
-                  lineHeight: 1.2,
-                  color: 'text.primary',
-                  fontFamily: 'inherit',
-                  mb: 1,
-                }}
-              >
-                {t('auth.account.change_email_title')}
-              </Typography>
-              <Typography
-                variant='body1'
-                color='text.secondary'
-                textAlign='center'
-                sx={{ fontSize: '0.875rem', fontFamily: 'inherit', lineHeight: 1.5, mb: 4 }}
-              >
-                {t('auth.account.change_email_description')}
-              </Typography>
-
-              <Box
-                component='form'
-                onSubmit={controlForm.handleSubmit(onSubmit)}
-                noValidate
-                sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 3 }}
-              >
-                {/* Current Email Field */}
-                <Box>
-                  <Typography
-                    component='label'
-                    htmlFor='currentEmail'
-                    sx={{
-                      display: 'block',
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
-                      color: 'text.primary',
-                      mb: 1,
-                    }}
-                  >
-                    {t('auth.account.current_email')}
-                  </Typography>
-
-                  <Controller
-                    name='CurrentEmail'
-                    control={controlForm.control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        id='currentEmail'
-                        fullWidth
-                        disabled
-                        placeholder={t('auth.account.email_placeholder')}
-                        type='email'
-                        slotProps={{
-                          input: {
-                            startAdornment: (
-                              <InputAdornment position='start'>
-                                <Mail sx={{ fontSize: 20, color: 'text.disabled' }} />
-                              </InputAdornment>
-                            ),
-                          },
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '8px',
-                            height: 48,
-                            bgcolor: 'action.disabledBackground',
-                            '& fieldset': { borderColor: 'divider' },
-                          },
-                        }}
-                      />
-                    )}
-                  />
-                </Box>
-
-                <Box>
-                  <Typography
-                    component='label'
-                    htmlFor='newEmail'
-                    sx={{
-                      display: 'block',
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
-                      color: 'text.primary',
-                      mb: 1,
-                    }}
-                  >
-                    {t('auth.account.new_email_label', 'New Email Address')}
-                  </Typography>
-
-                  <Controller
-                    name='newEmail'
-                    control={controlForm.control}
-                    rules={{
-                      required: t('auth.account.new_email_required', 'New email is required'),
-                      pattern: {
-                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: t('auth.account.invalid_email', 'Invalid email address'),
-                      },
-                    }}
-                    render={({ field, fieldState }) => (
-                      <TextField
-                        {...field}
-                        id='newEmail'
-                        fullWidth
-                        placeholder={t(
-                          'auth.account.new_email_placeholder',
-                          'Enter new email address',
-                        )}
-                        type='email'
-                        error={!!fieldState.error}
-                        helperText={fieldState.error?.message}
-                        slotProps={{
-                          input: {
-                            startAdornment: (
-                              <InputAdornment position='start'>
-                                <AlternateEmail sx={{ fontSize: 20 }} />
-                              </InputAdornment>
-                            ),
-                          },
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '8px',
-                            height: 48,
-                            bgcolor: 'background.paper',
-                            '& fieldset': { borderColor: 'divider' },
-                            '&:hover fieldset': { borderColor: 'info.main' },
-                            '&.Mui-focused fieldset': {
-                              borderColor: 'info.main',
-                              borderWidth: '1px',
-                            },
-                          },
-                          '& .MuiInputBase-input': { fontSize: '1rem' },
-                        }}
-                      />
-                    )}
-                  />
-                </Box>
-
-                {/* Confirm Password Field */}
-                <Box>
-                  <Typography
-                    component='label'
-                    htmlFor='confirmPassword'
-                    sx={{
-                      display: 'block',
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
-                      color: 'text.primary',
-                      mb: 1,
-                    }}
-                  >
-                    {t('auth.account.confirm_password_label', 'Verify Identity')}
-                  </Typography>
-                  <Controller
-                    name='password'
-                    control={controlForm.control}
-                    rules={{
-                      required: t(
-                        'auth.account.password_required',
-                        'Password is required to confirm identity',
-                      ),
-                    }}
-                    render={({ field, fieldState }) => (
-                      <TextField
-                        {...field}
-                        id='confirmPassword'
-                        fullWidth
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder={t('auth.account.current_password_placeholder')}
-                        error={!!fieldState.error}
-                        helperText={fieldState.error?.message}
-                        slotProps={{
-                          input: {
-                            startAdornment: (
-                              <InputAdornment position='start'>
-                                <VpnKey sx={{ fontSize: 20 }} />
-                              </InputAdornment>
-                            ),
-                            endAdornment: (
-                              <InputAdornment position='end'>
-                                <IconButton onClick={handleClickShowConfirmPassword} edge='end'>
-                                  {showConfirmPassword ? (
-                                    <VisibilityOff sx={{ fontSize: 20 }} />
-                                  ) : (
-                                    <Visibility sx={{ fontSize: 20 }} />
-                                  )}
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          },
-                        }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '8px',
-                            height: 48,
-                            bgcolor: 'background.paper',
-                            '& fieldset': { borderColor: 'divider' },
-                            '&:hover fieldset': { borderColor: 'info.main' },
-                            '&.Mui-focused fieldset': {
-                              borderColor: 'info.main',
-                              borderWidth: '1px',
-                            },
-                          },
-                          '& .MuiInputBase-input': { fontSize: '1rem' },
-                        }}
-                      />
-                    )}
-                  />
-                </Box>
-
-                <Alert
-                  severity='info'
-                  icon={<Info sx={{ fontSize: 20 }} />}
+            <CardContent
+              sx={{
+                p: { xs: 3, sm: 4.5 },
+                '&:last-child': { pb: { xs: 3, sm: 4.5 } },
+              }}
+            >
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                {/* Header Icon */}
+                <Box
                   sx={{
-                    mt: 1,
-                    borderRadius: 2,
-                    bgcolor: 'info.lighter',
-                    border: 1,
-                    borderColor: 'info.light',
-                    '& .MuiAlert-icon': {
-                      color: 'info.main',
-                    },
+                    width: 64,
+                    height: 64,
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: theme.palette.primary.main,
+                    borderRadius: 'var(--sf-radius-lg, 16px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 2.5,
                   }}
                 >
-                  <Typography variant='subtitle2' sx={{ fontWeight: 600, mb: 0.5 }}>
-                    {t('auth.account.verification_required')}
-                  </Typography>
-                  <Typography variant='body2' sx={{ fontSize: '0.875rem', lineHeight: 1.6 }}>
-                    {t('auth.account.verification_required_desc')}
-                  </Typography>
-                </Alert>
+                  <LockReset sx={{ fontSize: 36 }} />
+                </Box>
 
-                {/* â”€â”€ SYSTEM PATTERN: cta_button (info.main variant) â”€â”€ */}
-                <Button
-                  type='submit'
-                  variant='contained'
-                  fullWidth
-                  size='large'
-                  disabled={isPending}
+                <Typography
+                  variant='h5'
+                  fontWeight='700'
+                  textAlign='center'
                   sx={{
-                    height: 52,
-                    borderRadius: 2,
-                    textTransform: 'none',
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    bgcolor: 'info.main',
-                    color: 'info.contrastText',
-                    boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.2)',
-                    '&:hover': {
-                      bgcolor: 'info.dark',
-                    },
+                    color: 'text.primary',
+                    letterSpacing: '-0.02em',
+                    mb: 1,
                   }}
                 >
-                  {isPending ? (
-                    <CircularProgress size={24} color='inherit' />
-                  ) : (
-                    t('auth.account.update_email')
+                  {t('auth.account.change_email_title', 'Change Email Address')}
+                </Typography>
+                <Typography
+                  variant='body2'
+                  color='text.secondary'
+                  textAlign='center'
+                  sx={{ lineHeight: 1.5, mb: 3.5, maxWidth: 360 }}
+                >
+                  {t(
+                    'auth.account.change_email_description',
+                    'Update your account email. You will receive a verification link at the new address.',
                   )}
-                </Button>
+                </Typography>
 
-                {/* Back Link */}
-                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <Button
-                    variant='text'
-                    fullWidth
-                    onClick={() => navigate(Path.account.security)}
+                <Box
+                  component='form'
+                  onSubmit={controlForm.handleSubmit(onSubmit)}
+                  noValidate
+                  sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2.5 }}
+                >
+                  {/* Current Email Field */}
+                  <Box>
+                    <Typography
+                      component='label'
+                      htmlFor='currentEmail'
+                      sx={{
+                        display: 'block',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        color: 'text.primary',
+                        mb: 1,
+                      }}
+                    >
+                      {t('auth.account.current_email', 'Current Email')}
+                    </Typography>
+
+                    <Controller
+                      name='CurrentEmail'
+                      control={controlForm.control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          id='currentEmail'
+                          fullWidth
+                          disabled
+                          placeholder={t('auth.account.email_placeholder', 'name@example.com')}
+                          type='email'
+                          slotProps={{
+                            input: {
+                              startAdornment: (
+                                <InputAdornment position='start'>
+                                  <Mail sx={{ fontSize: 20, color: 'text.disabled' }} />
+                                </InputAdornment>
+                              ),
+                              sx: {
+                                borderRadius: 'var(--sf-radius-md, 8px)',
+                                minHeight: 48,
+                                bgcolor: alpha(theme.palette.action.disabledBackground, 0.4),
+                              },
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </Box>
+
+                  {/* New Email Field */}
+                  <Box>
+                    <Typography
+                      component='label'
+                      htmlFor='newEmail'
+                      sx={{
+                        display: 'block',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        color: 'text.primary',
+                        mb: 1,
+                      }}
+                    >
+                      {t('auth.account.new_email_label', 'New Email Address')}
+                    </Typography>
+
+                    <Controller
+                      name='newEmail'
+                      control={controlForm.control}
+                      rules={{
+                        required: t('auth.account.new_email_required', 'New email is required'),
+                        pattern: {
+                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                          message: t('auth.account.invalid_email', 'Invalid email address'),
+                        },
+                      }}
+                      render={({ field, fieldState }) => (
+                        <TextField
+                          {...field}
+                          id='newEmail'
+                          fullWidth
+                          placeholder={t(
+                            'auth.account.new_email_placeholder',
+                            'Enter new email address',
+                          )}
+                          type='email'
+                          error={!!fieldState.error}
+                          helperText={fieldState.error?.message}
+                          slotProps={{
+                            input: {
+                              startAdornment: (
+                                <InputAdornment position='start'>
+                                  <AlternateEmail sx={{ fontSize: 20, color: 'text.secondary' }} />
+                                </InputAdornment>
+                              ),
+                              sx: {
+                                borderRadius: 'var(--sf-radius-md, 8px)',
+                                minHeight: 48,
+                              },
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </Box>
+
+                  {/* Confirm Password Field */}
+                  <Box>
+                    <Typography
+                      component='label'
+                      htmlFor='confirmPassword'
+                      sx={{
+                        display: 'block',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        color: 'text.primary',
+                        mb: 1,
+                      }}
+                    >
+                      {t('auth.account.confirm_password_label', 'Verify Identity')}
+                    </Typography>
+                    <Controller
+                      name='password'
+                      control={controlForm.control}
+                      rules={{
+                        required: t(
+                          'auth.account.password_required',
+                          'Password is required to confirm identity',
+                        ),
+                      }}
+                      render={({ field, fieldState }) => (
+                        <TextField
+                          {...field}
+                          id='confirmPassword'
+                          fullWidth
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          placeholder={t('auth.account.current_password_placeholder', 'Enter your current password')}
+                          error={!!fieldState.error}
+                          helperText={fieldState.error?.message}
+                          slotProps={{
+                            input: {
+                              startAdornment: (
+                                <InputAdornment position='start'>
+                                  <VpnKey sx={{ fontSize: 20, color: 'text.secondary' }} />
+                                </InputAdornment>
+                              ),
+                              endAdornment: (
+                                <InputAdornment position='end'>
+                                  <IconButton
+                                    onClick={handleClickShowConfirmPassword}
+                                    edge='end'
+                                    sx={{ minWidth: 44, minHeight: 44 }}
+                                    aria-label='toggle password visibility'
+                                  >
+                                    {showConfirmPassword ? (
+                                      <VisibilityOff sx={{ fontSize: 20 }} />
+                                    ) : (
+                                      <Visibility sx={{ fontSize: 20 }} />
+                                    )}
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                              sx: {
+                                borderRadius: 'var(--sf-radius-md, 8px)',
+                                minHeight: 48,
+                              },
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </Box>
+
+                  <Alert
+                    severity='info'
+                    icon={<Info sx={{ fontSize: 20 }} />}
                     sx={{
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      color: 'text.secondary',
+                      borderRadius: 'var(--sf-radius-md, 8px)',
+                      border: '1px solid',
+                      borderColor: alpha(theme.palette.info.main, 0.2),
                     }}
                   >
-                    {t('auth.account.cancel')}
-                  </Button>
+                    <Typography variant='subtitle2' sx={{ fontWeight: 600, mb: 0.25 }}>
+                      {t('auth.account.verification_required', 'Verification Required')}
+                    </Typography>
+                    <Typography variant='caption' sx={{ lineHeight: 1.5, display: 'block' }}>
+                      {t(
+                        'auth.account.verification_required_desc',
+                        'A confirmation link will be sent to your new email. Both addresses must remain valid during this process.',
+                      )}
+                    </Typography>
+                  </Alert>
+
+                  {/* Actions */}
+                  <Stack spacing={1.5} sx={{ pt: 1 }}>
+                    <Button
+                      type='submit'
+                      variant='contained'
+                      fullWidth
+                      disabled={isPending}
+                      sx={{
+                        minHeight: 48,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        textTransform: 'none',
+                        fontSize: '0.9375rem',
+                        fontWeight: 700,
+                        bgcolor: 'primary.main',
+                        color: 'primary.contrastText',
+                        boxShadow: 'none',
+                        '&:hover': {
+                          boxShadow: 1,
+                        },
+                      }}
+                    >
+                      {isPending ? (
+                        <CircularProgress size={24} color='inherit' />
+                      ) : (
+                        t('auth.account.update_email', 'Send Verification Link')
+                      )}
+                    </Button>
+
+                    <Button
+                      variant='outlined'
+                      fullWidth
+                      onClick={() => navigate(Path.account.view || '/profile')}
+                      sx={{
+                        minHeight: 44,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        color: 'text.secondary',
+                        borderColor: 'divider',
+                        '&:hover': {
+                          borderColor: 'text.primary',
+                          color: 'text.primary',
+                        },
+                      }}
+                    >
+                      {t('auth.account.cancel', 'Cancel')}
+                    </Button>
+                  </Stack>
                 </Box>
               </Box>
-            </Box>
-          </CardContent>
-        </Card>
-
-        {/* Footer */}
-        <Box sx={{ mt: 4, textAlign: 'center' }}>
-          <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
-            Â© {new Date().getFullYear()} {t('auth.common.appName')}.{' '}
-            {t('auth.common.allRightsReserved')}
-          </Typography>
-        </Box>
-      </Container>
+            </CardContent>
+          </Card>
+        </Container>
+      </motion.div>
     </>
   )
 }

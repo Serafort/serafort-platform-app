@@ -10,6 +10,7 @@ import {
   ListItemButton,
   ListItemText,
   Menu,
+  Divider,
   Stack,
   Theme,
   useTheme,
@@ -20,7 +21,8 @@ import { styled } from '@mui/material/styles'
 import MenuIcon from '@mui/icons-material/Menu'
 import SearchIcon from '@mui/icons-material/Search'
 import { AuthButtons, AuthProfile } from '../../../components/auth'
-import { useAuth, isObjectEmpty, useNavigationMenu } from '@cap/platform-core'
+import { isObjectEmpty, AppPaths } from '@cap/shared-types'
+import { useAuth, useNavigationMenu } from '@cap/platform-core'
 import { Logo, ModeDropdown } from '../../shared'
 import {
   navbarTokens,
@@ -34,7 +36,7 @@ import {
 const AppBar = styled(MuiAppBar)(({ theme }: { theme: Theme }) => ({
   backgroundColor: theme.palette.background.paper,
   maxWidth: navbarTokens.layout.appBarMaxWidth,
-  zIndex: theme.zIndex.drawer + navbarTokens.layout.zIndexOffset,
+  zIndex: theme.zIndex.appBar,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -281,6 +283,25 @@ export default function NavBar() {
                   </List>
                 )
               })}
+              {(user === undefined || user === null || isObjectEmpty(user)) && [
+                <Divider key='auth-divider' sx={{ my: 1 }} />,
+                <List key='auth-signin' onClick={handleCloseNavMenu}>
+                  <ListItemButton
+                    sx={{ minHeight: 44 }}
+                    onClick={() => navigate(AppPaths.auth.signin)}
+                  >
+                    <ListItemText primary={t('navigation.login')} />
+                  </ListItemButton>
+                </List>,
+                <List key='auth-signup' onClick={handleCloseNavMenu}>
+                  <ListItemButton
+                    sx={{ minHeight: 44 }}
+                    onClick={() => navigate(AppPaths.auth.signup)}
+                  >
+                    <ListItemText primary={t('navigation.register')} />
+                  </ListItemButton>
+                </List>,
+              ]}
             </Menu>
           </Box>
 
@@ -305,7 +326,12 @@ export default function NavBar() {
               <SearchBar />
               <ModeDropdown />
               {user === undefined || user === null || isObjectEmpty(user) ? (
-                <AuthButtons />
+                // Hidden on xs: logo + search + mode + two text buttons overflow
+                // a phone-width toolbar and push "Register" outside the viewport.
+                // The mobile menu below carries the same two actions instead.
+                <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                  <AuthButtons />
+                </Box>
               ) : (
                 <AuthProfile />
               )}

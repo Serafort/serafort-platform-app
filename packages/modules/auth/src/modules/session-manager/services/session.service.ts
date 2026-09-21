@@ -57,7 +57,7 @@ export function normalizeUserSession(raw: any): UserSession {
   const isCurrent = Boolean(raw.current || raw.isCurrentSession || raw.is_current)
 
   return {
-    id: raw.id ? String(raw.id) : String(raw.token || Math.random()),
+    id: raw.id ? String(raw.id) : String(raw.token || crypto.randomUUID()),
     userId: raw.userId || raw.user_id,
     deviceName:
       raw.deviceName || raw.device_name || raw.deviceInfo || `${browser} on ${deviceType}`,
@@ -203,18 +203,17 @@ export const sessionService = {
   deactivateAccount: async (
     payload?: DeactivateAccountRequest,
   ): Promise<FetchResponse<DeactivateAccountResponse>> => {
-    let response: FetchResponse<DeactivateAccountResponse>
-    try {
-      response = await apiClient.post<DeactivateAccountResponse>(
-        '/api/user/deactivate',
-        payload || {},
-      )
-    } catch {
-      response = await apiClient.patch<DeactivateAccountResponse>(
-        '/api/user/deactivate',
-        payload || {},
-      )
-    }
+    // Both POST and PATCH /api/user/deactivate route to the same controller
+    // method server-side, so there is no need to guess-and-fallback between
+    // verbs. Note the controller (UsersController.deactivate) only resolves
+    // the target user id (self, via resolveStatusTargetId) and never reads a
+    // request body, so `password`/`reason`/`feedback` are not persisted
+    // anywhere today; the payload is still forwarded for forward-compat and
+    // in case a caller passes an admin target id in the future.
+    const response = await apiClient.post<DeactivateAccountResponse>(
+      ENDPOINTS.user.deactivateSelf,
+      payload || {},
+    )
 
     await eventBus.publish(
       createSessionRevokedEvent({

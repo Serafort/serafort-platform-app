@@ -8,10 +8,18 @@ export type PrimaryColorConfig = {
 // Primary color config object
 const primaryColorConfig: PrimaryColorConfig[] = [
   {
+    // Serafort brand blue (default)
     name: 'primary-1',
-    light: '#E0C55B',
-    main: '#D4AF37',
-    dark: '#B8982F',
+    light: '#06A0FC',
+    main: '#047BFA',
+    dark: '#044BC4',
+  },
+  {
+    // Serafort cyan accent
+    name: 'primary-cyan',
+    light: '#4FDCFD',
+    main: '#06CBFD',
+    dark: '#06A0FC',
   },
   {
     name: 'primary-2',

@@ -8,6 +8,7 @@ import {
   getFloatingNavbarInlineSize,
   getCompactFloatingMaxInlineSize,
   getHeaderFloatingMask,
+  effectSurfaceBackground,
 } from '@cap/theme'
 import type { Theme } from '@mui/material/styles'
 import type { CSSObject } from '@emotion/styled'
@@ -52,7 +53,11 @@ const StyledHeader = styled('header')<StyledHeaderProps>(({
 
       [`&:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerAttached}, &:not(.${verticalLayoutClasses.headerBlur}).scrolled.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]:
         {
-          backgroundColor: theme?.palette?.background?.paper || '#fff',
+          // Chrome surfaces read the active global effect through --effect-*
+          // rather than painting the paper colour outright; see
+          // effectSurfaceCss. With no effect selected the variable is unset
+          // and this resolves to exactly the colour it always was.
+          ...effectSurfaceBackground(theme?.palette?.background?.paper || '#fff'),
         },
 
       [`&.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}`]: {
@@ -78,11 +83,17 @@ const StyledHeader = styled('header')<StyledHeaderProps>(({
       [`&.${verticalLayoutClasses.headerBlur}`]: {
         [`&.${verticalLayoutClasses.headerAttached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar}, &.${verticalLayoutClasses.headerFloating} .${verticalLayoutClasses.navbar}`]:
           {
-            backdropFilter: headerTokens?.glassmorphism?.backdropFilter || 'blur(8px)',
-            backgroundColor: alpha(
+            // This block is the most specific rule that paints .navbar, so its
+            // hard-coded 8px blur over 85% paper used to win against every
+            // effect the tenant selected - the navbar looked identical under
+            // Glassmorphism, Brutalism and Standard alike. The tokens stay as
+            // the fallback, and an active effect now overrides them from
+            // :root, where specificity cannot reach.
+            backdropFilter: `var(--effect-backdrop, ${headerTokens?.glassmorphism?.backdropFilter || 'blur(8px)'})`,
+            backgroundColor: `var(--effect-bg, ${alpha(
               theme?.palette?.background?.paper || '#ffffff',
               headerTokens?.glassmorphism?.paperOpacity || 0.85,
-            ),
+            )})`,
           },
 
         [`&.${verticalLayoutClasses.headerFloating}`]: {
@@ -135,10 +146,13 @@ const StyledHeader = styled('header')<StyledHeaderProps>(({
       paddingBlockStart: headerTokens?.layout?.floatingPaddingBlockStart || '0.75rem',
 
       [`.${verticalLayoutClasses.navbar}`]: {
-        backgroundColor: theme?.palette?.background?.paper || '#ffffff',
-        borderRadius: `${theme?.shape?.borderRadius || 6}px`,
+        ...effectSurfaceBackground(theme?.palette?.background?.paper || '#ffffff'),
+        borderRadius: `var(--effect-radius, ${theme?.shape?.borderRadius || 6}px)`,
+        // Glass and brutalism both define the navbar's edge; with no effect
+        // active this resolves to `none`, the border the navbar always had.
+        border: 'var(--effect-border, none)',
         paddingInline: headerTokens?.layout?.paddingInline || '1.5rem',
-        boxShadow: getHeaderElevationShadow(theme),
+        boxShadow: `var(--effect-shadow, ${getHeaderElevationShadow(theme)})`,
 
         '[data-skin="bordered"] &': {
           boxShadow: headerTokens?.borderedSkin?.boxShadow || 'none',

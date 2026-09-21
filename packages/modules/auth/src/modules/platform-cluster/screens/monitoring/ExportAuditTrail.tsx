@@ -19,6 +19,7 @@ import {
   Divider,
   Paper,
 } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import History from '@mui/icons-material/History'
 import FileDownload from '@mui/icons-material/FileDownload'
 import CloudDownload from '@mui/icons-material/CloudDownload'
@@ -26,7 +27,10 @@ import Analytics from '@mui/icons-material/Analytics'
 import SpeedIcon from '@mui/icons-material/Speed'
 import TimerIcon from '@mui/icons-material/Timer'
 import StorageIcon from '@mui/icons-material/Storage'
+import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
 import { useNotifications } from '@cap/platform-core'
 import { useExportAuditLogs } from '../../../authorization-engine/hooks/useAdminQuery'
 import { useChunkProgressTracker } from '../../../authentication-core/hooks/useChunkProgressTracker'
@@ -34,6 +38,8 @@ import logger from '../../../authentication-core/utils/logger'
 
 export default function ExportAuditTrail() {
   const { t } = useTranslation('common')
+  const theme = useTheme()
+  const surfaceEffect = buildLayoutSurfaceEffect(getTenantThemeEffects(theme), theme)
   const { addNotification } = useNotifications()
   const tracker = useChunkProgressTracker({
     totalChunks: 36,
@@ -109,9 +115,15 @@ export default function ExportAuditTrail() {
   ]
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1000, mx: 'auto' }}>
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+      sx={{ p: { xs: 2, md: 4 }, maxWidth: 1000, mx: 'auto' }}
+    >
       <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' sx={{ fontWeight: 900, mb: 1 }}>
+        <Typography variant='h4' sx={{ fontWeight: 800, mb: 1 }}>
           {t('auth.admin.exportAudit')}
         </Typography>
         <Typography variant='body1' color='text.secondary'>
@@ -121,7 +133,15 @@ export default function ExportAuditTrail() {
 
       <Grid container spacing={4}>
         <Grid size={{ xs: 12, md: 7 }}>
-          <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
+          <Card
+            sx={{
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              boxShadow: 'var(--sf-shadow-xs)',
+              ...surfaceEffect,
+            }}
+          >
             <CardContent sx={{ p: 4 }}>
               <Typography variant='h6' sx={{ fontWeight: 800, mb: 3 }}>
                 {t('auth.admin.exportParameters')}
@@ -135,9 +155,15 @@ export default function ExportAuditTrail() {
                     value={reportType}
                     onChange={(e) => setReportType(e.target.value)}
                   >
-                    <MenuItem value='security'>Security & Access Events</MenuItem>
-                    <MenuItem value='iam'>IAM & Perm Change Logs</MenuItem>
-                    <MenuItem value='full'>Comprehensive System Audit</MenuItem>
+                    <MenuItem value='security'>
+                      {t('auth.admin.exportScopeSecurity', 'Security & Access Events')}
+                    </MenuItem>
+                    <MenuItem value='iam'>
+                      {t('auth.admin.exportScopeIam', 'IAM & Permission Change Logs')}
+                    </MenuItem>
+                    <MenuItem value='full'>
+                      {t('auth.admin.exportScopeFull', 'Comprehensive System Audit')}
+                    </MenuItem>
                   </Select>
                 </FormControl>
 
@@ -145,7 +171,7 @@ export default function ExportAuditTrail() {
                   <Grid size={{ xs: 6 }}>
                     <TextField
                       fullWidth
-                      label='Start Date'
+                      label={t('auth.admin.startDate', 'Start Date')}
                       type='date'
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
@@ -155,7 +181,7 @@ export default function ExportAuditTrail() {
                   <Grid size={{ xs: 6 }}>
                     <TextField
                       fullWidth
-                      label='End Date'
+                      label={t('auth.admin.endDate', 'End Date')}
                       type='date'
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
@@ -171,8 +197,12 @@ export default function ExportAuditTrail() {
                     value={format}
                     onChange={(e) => setFormat(e.target.value)}
                   >
-                    <MenuItem value='csv'>Spreadsheet (.csv)</MenuItem>
-                    <MenuItem value='json'>JSON Data (.json)</MenuItem>
+                    <MenuItem value='csv'>
+                      {t('auth.admin.exportFormatCsv', 'Spreadsheet (.csv)')}
+                    </MenuItem>
+                    <MenuItem value='json'>
+                      {t('auth.admin.exportFormatJson', 'JSON Data (.json)')}
+                    </MenuItem>
                   </Select>
                 </FormControl>
 
@@ -185,9 +215,9 @@ export default function ExportAuditTrail() {
                     disabled={exportMutation.isPending}
                     onClick={handleExport}
                     sx={{
-                      height: 56,
+                      minHeight: 56,
                       fontWeight: 800,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       textTransform: 'none',
                       fontSize: '1.1rem',
                       boxShadow: 'none',
@@ -204,7 +234,7 @@ export default function ExportAuditTrail() {
                     variant='outlined'
                     sx={{
                       p: 2.5,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 8px)',
                       bgcolor: 'background.default',
                       border: '1px solid',
                       borderColor: 'divider',
@@ -219,20 +249,24 @@ export default function ExportAuditTrail() {
                       }}
                     >
                       <Typography variant='body2' sx={{ fontWeight: 800 }}>
-                        Exporting Chunk {tracker.processedChunks} of {tracker.totalChunks}
+                        {t('auth.admin.exportChunkProgress', {
+                          processed: tracker.processedChunks,
+                          total: tracker.totalChunks,
+                          defaultValue: 'Exporting chunk {{processed}} of {{total}}',
+                        })}
                       </Typography>
                       <Chip
                         label={`${tracker.progress}%`}
                         color='primary'
                         size='small'
-                        sx={{ fontWeight: 800, borderRadius: 1.5 }}
+                        sx={{ fontWeight: 800, borderRadius: 'var(--sf-radius-sm, 6px)' }}
                       />
                     </Box>
 
                     <LinearProgress
                       variant='determinate'
                       value={tracker.progress}
-                      sx={{ height: 6, borderRadius: 3, mb: 2 }}
+                      sx={{ height: 6, borderRadius: 'var(--sf-radius-xs, 4px)', mb: 2 }}
                     />
 
                     <Grid container spacing={1.5}>
@@ -247,7 +281,7 @@ export default function ExportAuditTrail() {
                               variant='caption'
                               sx={{ color: 'text.secondary', display: 'block', fontSize: '0.7rem' }}
                             >
-                              Payload
+                              {t('auth.admin.exportStatPayload', 'Payload')}
                             </Typography>
                             <Typography variant='caption' sx={{ fontWeight: 700 }}>
                               {tracker.processedBytesFormatted} / {tracker.totalBytesFormatted}
@@ -266,10 +300,13 @@ export default function ExportAuditTrail() {
                               variant='caption'
                               sx={{ color: 'text.secondary', display: 'block', fontSize: '0.7rem' }}
                             >
-                              Throughput
+                              {t('auth.admin.exportStatThroughput', 'Throughput')}
                             </Typography>
                             <Typography variant='caption' sx={{ fontWeight: 700 }}>
-                              {tracker.itemsPerSecond} logs/s
+                              {t('auth.admin.exportStatRate', {
+                                rate: tracker.itemsPerSecond,
+                                defaultValue: '{{rate}} logs/s',
+                              })}
                             </Typography>
                           </Box>
                         </Box>
@@ -285,7 +322,7 @@ export default function ExportAuditTrail() {
                               variant='caption'
                               sx={{ color: 'text.secondary', display: 'block', fontSize: '0.7rem' }}
                             >
-                              ETA
+                              {t('auth.admin.exportStatEta', 'ETA')}
                             </Typography>
                             <Typography variant='caption' sx={{ fontWeight: 700 }}>
                               {tracker.etaFormatted}
@@ -303,12 +340,20 @@ export default function ExportAuditTrail() {
 
         <Grid size={{ xs: 12, md: 5 }}>
           <Stack spacing={3}>
-            <Alert severity='info' icon={<Analytics />} sx={{ borderRadius: 2 }}>
+            <Alert severity='info' icon={<Analytics />} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
               <AlertTitle sx={{ fontWeight: 700 }}>{t('auth.admin.complianceTitle')}</AlertTitle>
               {t('auth.admin.complianceDesc')}
             </Alert>
 
-            <Card sx={{ border: '1px solid', borderColor: 'divider', boxShadow: 'none' }}>
+            <Card
+            sx={{
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              boxShadow: 'var(--sf-shadow-xs)',
+              ...surfaceEffect,
+            }}
+          >
               <CardContent>
                 <Typography
                   variant='subtitle1'
@@ -335,12 +380,16 @@ export default function ExportAuditTrail() {
                           </Typography>
                         </Box>
                         <Chip
-                          label={item.status}
+                          label={
+                            item.status === 'ready'
+                              ? t('auth.admin.exportHistoryReady', 'Ready')
+                              : t('auth.admin.exportHistoryExpired', 'Expired')
+                          }
                           size='small'
                           color={item.status === 'ready' ? 'success' : 'default'}
                           sx={{
                             textTransform: 'uppercase',
-                            fontWeight: 900,
+                            fontWeight: 800,
                             fontSize: '0.55rem',
                             height: 16,
                           }}

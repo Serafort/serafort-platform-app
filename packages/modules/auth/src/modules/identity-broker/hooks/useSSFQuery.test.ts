@@ -76,13 +76,23 @@ describe('useSSFQuery hooks', () => {
   })
 
   it('useBroadcastSSFEvent broadcasts a security signal', async () => {
-    mockBroadcastEvent.mockResolvedValue({ data: { delivered: 5 } })
+    // camelCase, because `AdminSsfController.broadcast` reads
+    // `request.only(['eventType', 'subject', 'reason'])`. The snake_cased
+    // payload this test used to assert was never read by the handler, so every
+    // broadcast came back 400 "eventType and subject are required" — the test
+    // passed while the feature did not work.
+    mockBroadcastEvent.mockResolvedValue({ data: { success: true } })
     const { result } = renderHook(() => useBroadcastSSFEvent(), { wrapper: makeWrapper() })
-    result.current.mutate({ event_type: 'session-revoked', subject: 'user-1' })
+    result.current.mutate({
+      eventType: 'session-revoked',
+      subject: 'user-1',
+      reason: 'credential compromise',
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(mockBroadcastEvent).toHaveBeenCalledWith({
-      event_type: 'session-revoked',
+      eventType: 'session-revoked',
       subject: 'user-1',
+      reason: 'credential compromise',
     })
   })
 

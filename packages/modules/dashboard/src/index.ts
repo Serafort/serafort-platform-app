@@ -48,7 +48,12 @@ export const dashboardNavItems: Array<NavItemConfig> = [
     icon: "tabler-dashboard",
     path: DashboardPath.dashboard,
     variant: ["vertical", "horizontal"],
-    order: 10,
+    // Below every section marker's order (all start at 10) so Dashboard is
+    // always the first item processed, landing in its own unlabeled leading
+    // group instead of getting swept into whichever section happens to be
+    // registered first - that group renders as a standalone top-level entry
+    // rather than an option nested inside a dropdown/section.
+    order: 1,
   },
 ];
 

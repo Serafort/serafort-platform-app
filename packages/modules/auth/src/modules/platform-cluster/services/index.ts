@@ -12,3 +12,9 @@ export * from './admin-monitoring.service'
 
 export { default as developerService } from './developer.service'
 export * from './developer.service'
+
+export { default as auditChainService } from './audit-chain.service'
+export * from './audit-chain.service'
+
+export { default as queueTelemetryService } from './queue-telemetry.service'
+export * from './queue-telemetry.service'

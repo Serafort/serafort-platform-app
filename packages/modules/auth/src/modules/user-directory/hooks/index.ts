@@ -45,3 +45,4 @@ export {
 
 export * from './useUserDirectoryQuery'
 export * from './useUserDirectoryMutations'
+export * from './useComplianceQuery'

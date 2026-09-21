@@ -175,12 +175,12 @@ describe("API_CONTRACTS registry", () => {
       );
     });
 
-    it("binds admin.organizations domains endpoints to the ENDPOINTS paths", () => {
-      expect(API_CONTRACTS.admin.organizations.domains.resolve(5)).toBe(
-        ENDPOINTS.admin.organizations.domains(5),
+    it("binds admin.domains endpoints to the ENDPOINTS paths", () => {
+      expect(API_CONTRACTS.admin.domains.verify.resolve()).toBe(
+        ENDPOINTS.admin.domains.verify,
       );
-      expect(API_CONTRACTS.admin.organizations.domainsCheck.resolve(5, 9)).toBe(
-        ENDPOINTS.admin.organizations.domainsCheck(5, 9),
+      expect(API_CONTRACTS.admin.domains.check.resolve()).toBe(
+        ENDPOINTS.admin.domains.check,
       );
     });
 

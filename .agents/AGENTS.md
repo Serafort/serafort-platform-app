@@ -1,4 +1,4 @@
-# AGENTS.md — CAP Framework Developer & AI Agent Context
+# AGENTS.md —Serafort Developer & AI Agent Context
 
 This document provides complete architectural context, coding standards, theme strategies, framework principles, and development workflows for AI coding agents and engineering contributors working on the **CAP Multi-Tenant SaaS Framework**.
 

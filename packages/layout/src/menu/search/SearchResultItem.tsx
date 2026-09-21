@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 import { Box, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import type { ActionId, ActionImpl } from 'kbar'
-import { i18n as i18nConfig } from '@cap/platform-core'
+import { i18n as i18nConfig } from '@cap/shared-types'
 import type { SearchItemConfig } from '@cap/shared-types'
 import { searchTokens } from '@cap/theme'
 

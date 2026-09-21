@@ -15,6 +15,7 @@ const StyledVerticalNavContainer = styled('div')<StyledVerticalNavContainerProps
 
   return {
     position: 'relative',
+    zIndex: 10,
     blockSize: '100%',
     inlineSize: '100%',
     borderInlineEnd: `1px solid ${theme.palette?.divider || 'rgba(0,0,0,0.12)'}`,

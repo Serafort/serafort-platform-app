@@ -29,7 +29,8 @@ const StyledSubMenuContent = styled.div<SubMenuContentProps>`
         borderRadius: menuTokens.vertical.item.popoutBorderRadius,
         blockSize: 'auto !important',
         transition: 'none !important',
-        backgroundColor: theme?.palette?.background?.paper || '#ffffff',
+        backgroundColor: `var(--effect-bg, ${theme?.palette?.background?.paper || '#ffffff'})`,
+        backdropFilter: 'var(--effect-backdrop, none)',
         boxShadow: getSubmenuPopoutShadow(theme),
         ...surfaceEffect,
       }

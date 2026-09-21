@@ -7,29 +7,21 @@
  * This module provides imperative helpers that can be called from non-hook contexts
  * (e.g. event handlers that already have access to the mutation functions).
  */
-import type { WidgetDefinition, WidgetAuditEntry } from "@cap/shared-types";
+import type { WidgetDefinition } from "@cap/shared-types";
 import { useAppStore } from "@cap/platform-store";
 import { apiClient } from "@cap/platform-core";
+import { disconnectStream } from "../services/widgetAgentClient";
 import {
-  connectPipelineStream,
-  disconnectStream,
-} from "../services/widgetAgentClient";
-import type { GenerateWidgetResponse } from "../hooks/useWidgetStudioQuery";
+  adoptServerAuditEntries,
+  buildClientAuditEntry,
+} from "./auditTrail";
+import {
+  cancelBackendAgentPipeline,
+  startPipelineRun,
+  type PipelineRunOptions,
+} from "./pipeline";
 
-export interface OrchestratorOptions {
-  /** Draft ID in the Zustand store to update */
-  draftId: string;
-  /** Raw user prompt */
-  prompt: string;
-  /** Override the AI provider type */
-  providerType?: string;
-  /** Override the AI model */
-  model?: string;
-  /** Whether to auto-publish after successful validation */
-  autoPublish?: boolean;
-  /** Target dashboard page */
-  pageId?: string;
-}
+export type OrchestratorOptions = PipelineRunOptions;
 
 export interface OrchestratorResult {
   success: boolean;
@@ -47,64 +39,7 @@ export interface OrchestratorResult {
 export async function runAgentPipeline(
   options: OrchestratorOptions,
 ): Promise<OrchestratorResult> {
-  const {
-    draftId,
-    prompt,
-    autoPublish = false,
-    pageId = "dashboard",
-  } = options;
-  const store = useAppStore.getState();
-
-  // Set UI state
-  store.setWidgetStudioRunning(true);
-  store.setWidgetLifecycle(draftId, "draft");
-
-  try {
-    const response = await apiClient.post<GenerateWidgetResponse>(
-      "/api/v1/widgets/generate",
-      {
-        draftId,
-        prompt,
-        userId: 1, // Resolved server-side from auth token
-        providerType:
-          options.providerType || store.selectedProvider || "gemini",
-        model: options.model || store.selectedModel,
-        autoPublish,
-        pageId,
-        runAsync: true,
-      },
-    );
-
-    const data = response.data;
-    if (!data?.success || !data.runId) {
-      const errorMsg =
-        data?.error || "Failed to initialize agent pipeline run on server";
-      store.updateWidgetAgent(draftId, "requirement", {
-        status: "error",
-        error: errorMsg,
-      });
-      store.setWidgetStudioRunning(false);
-      return { success: false, error: errorMsg };
-    }
-
-    // Connect SSE stream for live updates
-    connectPipelineStream({
-      runId: data.runId,
-      draftId,
-      prompt,
-      autoPublish,
-    });
-
-    return { success: true, runId: data.runId };
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    store.updateWidgetAgent(draftId, "requirement", {
-      status: "error",
-      error: errorMsg,
-    });
-    store.setWidgetStudioRunning(false);
-    return { success: false, error: errorMsg };
-  }
+  return startPipelineRun(options);
 }
 
 /**
@@ -164,15 +99,16 @@ export async function publishDraft(
         );
       }
 
-      const auditEntry: WidgetAuditEntry = {
-        widgetId: draft.dsl.id,
-        createdBy: "current-user",
-        generatedAt: new Date().toISOString(),
-        model: store.selectedModel || "gemini-2.0-flash",
-        version: draft.dsl.version,
-        action: "published",
-      };
-      store.appendAuditEntry(draftId, auditEntry);
+      const attested = adoptServerAuditEntries(
+        (response.data as { audit?: unknown })?.audit,
+        { widgetId: draft.dsl.id },
+      );
+      const entries = attested.length
+        ? attested
+        : [buildClientAuditEntry({ dsl: draft.dsl, action: "published" })];
+      for (const entry of entries) {
+        store.appendAuditEntry(draftId, entry);
+      }
 
       return true;
     }
@@ -197,13 +133,6 @@ export async function publishDraft(
  */
 export async function cancelPipelineRun(runId: number): Promise<boolean> {
   disconnectStream(runId);
-  try {
-    const response = await apiClient.post<{ success: boolean }>(
-      `/api/v1/widgets/runs/${runId}/cancel`,
-      {},
-    );
-    return response.data?.success ?? false;
-  } catch {
-    return false;
-  }
+  const { success } = await cancelBackendAgentPipeline(runId);
+  return success;
 }

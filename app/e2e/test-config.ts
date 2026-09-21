@@ -16,7 +16,7 @@ export const TEST_USER = {
 // Authenticated user for tests requiring login (seeded in local DB)
 export const AUTH_USER = {
   email: 'admin@example.com',
-  password: 'Password#123',
+  password: 'TestPassword123!',
 }
 
 // Storage state file for authenticated sessions

@@ -7,9 +7,17 @@
     }
   },
   "exclude": "(dist|node_modules|build|coverage)",
-  "fileExtensions": ["ts", "tsx"],
+  "fileExtensions": [
+    "ts",
+    "tsx"
+  ],
   "detectiveOptions": {
-    "ts": { "skipTypeImports": true },
-    "tsx": { "skipTypeImports": true }
-  }
+    "ts": {
+      "skipTypeImports": true
+    },
+    "tsx": {
+      "skipTypeImports": true
+    }
+  },
+  "tsConfig": "tsconfig.madge.json"
 }

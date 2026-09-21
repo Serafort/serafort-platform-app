@@ -244,6 +244,15 @@ const authService = {
     return apiClient.get(ENDPOINTS.auth.session)
   },
 
+  /**
+   * The authenticated user, with role permissions, organization memberships and
+   * profile loaded. `getSession` answers a bare serialization of the user and
+   * says whether the session is live; this is the one to read a user from.
+   */
+  getMe: (): Promise<FetchResponse<any>> => {
+    return apiClient.get(ENDPOINTS.auth.me)
+  },
+
   getSessions: (): Promise<FetchResponse<any>> => {
     return apiClient.get(ENDPOINTS.auth.sessions)
   },

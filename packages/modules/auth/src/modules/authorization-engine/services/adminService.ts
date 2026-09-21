@@ -310,13 +310,19 @@ export interface DomainVerification {
 export interface DeveloperApiKey {
   id: number
   name: string
-  prefix: string
-  organization_id: number
-  user_id: number
-  expires_at: string | null
-  last_used_at: string | null
-  created_at: string
-  updated_at: string
+  /**
+   * Not returned by the backend: `DeveloperApiKey` only stores a `keyHash`
+   * (serialized as null) and the one-time raw `key` at creation, no separate
+   * short prefix column. Kept optional so screens that render a masked
+   * preview degrade to a placeholder instead of assuming a value.
+   */
+  prefix?: string
+  userId: number
+  expiresAt: string | null
+  lastUsedAt: string | null
+  createdAt: string
+  updatedAt: string
+  // Present only on the create response — the raw secret, shown once.
   key?: string
 }
 
@@ -366,6 +372,47 @@ export interface AdminUser {
   maintenanceModeBypass: boolean
   createdAt: string
   updatedAt: string
+}
+
+// ============================================================================
+// Response Normalizers
+// ============================================================================
+
+/**
+ * `Role`/`Permission` rows come from Lucid models under `AppBaseModel`,
+ * which sets `static namingStrategy = new CamelCaseNamingStrategy()` — so
+ * the wire response is already camelCase (`guardName`, `usersCount`,
+ * `createdAt`, `updatedAt`), never the snake_case the shared `Role`/
+ * `Permission` types (and every screen reading them, e.g. `role.guard_name`
+ * in `RoleList`/`RoleDetailView`/`PermissionRegistry`) assume. These
+ * normalizers backfill the snake_case aliases the UI-facing types declare
+ * so existing reads keep working without touching every screen, while
+ * leaving the camelCase fields in place for anything that already reads
+ * those correctly.
+ */
+export function normalizePermission(raw: Permission): Permission {
+  if (!raw) return raw
+  const anyRaw = raw as any
+  return {
+    ...raw,
+    guard_name: anyRaw.guard_name ?? anyRaw.guardName ?? 'web',
+    created_at: anyRaw.created_at ?? anyRaw.createdAt,
+    updated_at: anyRaw.updated_at ?? anyRaw.updatedAt,
+  }
+}
+
+export function normalizeRole(raw: Role): Role {
+  if (!raw) return raw
+  const anyRaw = raw as any
+  return {
+    ...raw,
+    guard_name: anyRaw.guard_name ?? anyRaw.guardName ?? 'web',
+    users_count: anyRaw.users_count ?? anyRaw.usersCount ?? 0,
+    created_at: anyRaw.created_at ?? anyRaw.createdAt,
+    updated_at: anyRaw.updated_at ?? anyRaw.updatedAt,
+    permissions: Array.isArray(raw.permissions) ? raw.permissions.map(normalizePermission) : raw.permissions,
+    parents: Array.isArray(anyRaw.parents) ? anyRaw.parents.map(normalizeRole) : anyRaw.parents,
+  }
 }
 
 // ============================================================================
@@ -753,7 +800,7 @@ export class AdminService {
   }
 
   // ==========================================================================
-  // Developer Platform â€” Scopes
+  // Developer Platform — Scopes
   // ==========================================================================
 
   /**
@@ -792,7 +839,7 @@ export class AdminService {
   }
 
   // ==========================================================================
-  // RBAC â€” Roles
+  // RBAC — Roles
   // ==========================================================================
 
   /** List all roles with pagination and search */
@@ -801,7 +848,16 @@ export class AdminService {
     limit?: number
     search?: string
   }): Promise<FetchResponse<PaginatedResponse<Role>>> {
-    return apiClient.get<PaginatedResponse<Role>>(ENDPOINTS.rbac.roles.list, { params })
+    const response = await apiClient.get<PaginatedResponse<Role>>(ENDPOINTS.rbac.roles.list, {
+      params,
+    })
+    return {
+      ...response,
+      data: {
+        ...response.data,
+        data: (response.data?.data ?? []).map(normalizeRole),
+      },
+    }
   }
 
   /** Get RBAC statistics */
@@ -817,7 +873,8 @@ export class AdminService {
 
   /** Get a specific role by ID */
   async getRole(id: number): Promise<FetchResponse<Role>> {
-    return apiClient.get<Role>(ENDPOINTS.rbac.roles.byId(id))
+    const response = await apiClient.get<Role>(ENDPOINTS.rbac.roles.byId(id))
+    return { ...response, data: normalizeRole(response.data) }
   }
 
   /** Create a new role */
@@ -826,7 +883,13 @@ export class AdminService {
     guard_name?: string
     description?: string
   }): Promise<FetchResponse<Role>> {
-    return apiClient.post<Role>(ENDPOINTS.rbac.roles.store, data)
+    // `RolesController.store` only reads `name`/`description` — `guard_name`
+    // has no write path server-side today (the column exists on `roles`, the
+    // controller just never allow-lists it). No screen currently collects a
+    // guard on role creation, so this is a known, reported gap rather than a
+    // silent drop of user-entered data.
+    const response = await apiClient.post<Role>(ENDPOINTS.rbac.roles.store, data)
+    return { ...response, data: normalizeRole(response.data) }
   }
 
   /** Update a role */
@@ -834,7 +897,8 @@ export class AdminService {
     id: number,
     data: { name?: string; description?: string },
   ): Promise<FetchResponse<Role>> {
-    return apiClient.patch<Role>(ENDPOINTS.rbac.roles.update(id), data)
+    const response = await apiClient.patch<Role>(ENDPOINTS.rbac.roles.update(id), data)
+    return { ...response, data: normalizeRole(response.data) }
   }
 
   /** Delete a role */
@@ -842,12 +906,26 @@ export class AdminService {
     return apiClient.delete<MessageResponse>(ENDPOINTS.rbac.roles.destroy(id))
   }
 
-  /** Get all permissions assigned to a role */
+  /** Get all permissions assigned to a role (`role` is the role's numeric ID,
+   *  not its name — `RolesController.rolePermissions` does `Role.findOrFail(params.role)`) */
   async getRolePermissions(role: string): Promise<FetchResponse<Permission[]>> {
-    return apiClient.get<Permission[]>(ENDPOINTS.rbac.roles.permissions(role))
+    const response = await apiClient.get<Permission[]>(ENDPOINTS.rbac.roles.permissions(role))
+    return { ...response, data: (response.data ?? []).map(normalizePermission) }
   }
 
-  /** Assign one permission to a role */
+  /**
+   * Assign one permission to a role.
+   *
+   * NOTE: the backend route this hits (`POST /admin/rbac/roles/assign-permission`,
+   * `RolesController.assignPermissions`) has no `:id` segment, so
+   * `params.id` is always `undefined` server-side and the call 404s/fails
+   * regardless of payload — a pre-existing backend routing bug. It is not
+   * currently called from any screen (`syncRolePermissions` below is the one
+   * actually wired to `RoleDetailView`), and fixing it needs either a new
+   * `ENDPOINTS` entry (out of this module's scope) or an incompatible change
+   * to the existing route, so it is left as-is and reported rather than
+   * patched here.
+   */
   async assignPermissionToRole(data: {
     role_id: number
     permission_id: number
@@ -857,28 +935,32 @@ export class AdminService {
 
   /** Replace all permissions on a role atomically */
   async syncRolePermissions(roleId: number, permissionIds: number[]): Promise<FetchResponse<Role>> {
-    return apiClient.put<Role>(ENDPOINTS.rbac.roles.syncPermissions(roleId), {
+    const response = await apiClient.put<Role>(ENDPOINTS.rbac.roles.syncPermissions(roleId), {
       permissionIds,
     })
+    return { ...response, data: normalizeRole(response.data) }
   }
 
   /** Sync parent roles for a specific role */
   async syncRoleParents(roleId: number, parentIds: number[]): Promise<FetchResponse<Role>> {
-    return apiClient.put<Role>(ENDPOINTS.rbac.roles.syncParents(roleId), {
+    const response = await apiClient.put<Role>(ENDPOINTS.rbac.roles.syncParents(roleId), {
       parentIds,
     })
+    return { ...response, data: normalizeRole(response.data) }
   }
 
   // ==========================================================================
-  // RBAC â€” Permissions
+  // RBAC — Permissions
   // ==========================================================================
 
   async listPermissions(): Promise<FetchResponse<Permission[]>> {
-    return apiClient.get<Permission[]>(ENDPOINTS.rbac.permissions.list)
+    const response = await apiClient.get<Permission[]>(ENDPOINTS.rbac.permissions.list)
+    return { ...response, data: (response.data ?? []).map(normalizePermission) }
   }
 
   async getPermission(id: number): Promise<FetchResponse<Permission>> {
-    return apiClient.get<Permission>(ENDPOINTS.rbac.permissions.byId(id))
+    const response = await apiClient.get<Permission>(ENDPOINTS.rbac.permissions.byId(id))
+    return { ...response, data: normalizePermission(response.data) }
   }
 
   async createPermission(data: {
@@ -887,7 +969,15 @@ export class AdminService {
     resource?: string
     description?: string
   }): Promise<FetchResponse<Permission>> {
-    return apiClient.post<Permission>(ENDPOINTS.rbac.permissions.store, data)
+    // `permissionValidator` (vine) accepts `guardName`, not `guard_name` —
+    // sending the snake_case field the UI form collects would be silently
+    // dropped by the validator's allow-list.
+    const { guard_name, ...rest } = data
+    const response = await apiClient.post<Permission>(ENDPOINTS.rbac.permissions.store, {
+      ...rest,
+      guardName: guard_name,
+    })
+    return { ...response, data: normalizePermission(response.data) }
   }
 
   async updatePermission(
@@ -899,29 +989,52 @@ export class AdminService {
       description?: string
     },
   ): Promise<FetchResponse<Permission>> {
-    return apiClient.patch<Permission>(ENDPOINTS.rbac.permissions.byId(id), data)
+    // Same `guardName` vs `guard_name` mismatch as createPermission above.
+    const { guard_name, ...rest } = data
+    const response = await apiClient.patch<Permission>(ENDPOINTS.rbac.permissions.byId(id), {
+      ...rest,
+      ...(guard_name !== undefined ? { guardName: guard_name } : {}),
+    })
+    return { ...response, data: normalizePermission(response.data) }
   }
 
   async deletePermission(id: number): Promise<FetchResponse<MessageResponse>> {
     return apiClient.delete<MessageResponse>(ENDPOINTS.rbac.permissions.byId(id))
   }
 
+  /**
+   * Grant a permission to a role.
+   *
+   * `PermissionsController.grant`/`revoke` attach/detach the permission on a
+   * *role* (`role.related('permissions').attach(...)`) — there is no
+   * user-level permission grant table. The parameter is named `role_id`
+   * (not `user_id`, as this previously assumed) to match, and the request
+   * body uses the camelCase `roleId`/`permissionId` the controller's
+   * `request.only(['roleId', 'permissionId'])` actually reads.
+   */
   async grantPermission(data: {
-    user_id: number
+    role_id: number
     permission_id: number
   }): Promise<FetchResponse<MessageResponse>> {
-    return apiClient.post<MessageResponse>(ENDPOINTS.rbac.permissions.grant, data)
+    return apiClient.post<MessageResponse>(ENDPOINTS.rbac.permissions.grant, {
+      roleId: data.role_id,
+      permissionId: data.permission_id,
+    })
   }
 
+  /** Revoke a permission from a role — see {@link grantPermission}. */
   async revokePermission(data: {
-    user_id: number
+    role_id: number
     permission_id: number
   }): Promise<FetchResponse<MessageResponse>> {
-    return apiClient.post<MessageResponse>(ENDPOINTS.rbac.permissions.revoke, data)
+    return apiClient.post<MessageResponse>(ENDPOINTS.rbac.permissions.revoke, {
+      roleId: data.role_id,
+      permissionId: data.permission_id,
+    })
   }
 
   // ==========================================================================
-  // RBAC â€” Access Policies & Overrides
+  // RBAC — Access Policies & Overrides
   // ==========================================================================
 
   /**
@@ -965,28 +1078,28 @@ export class AdminService {
       environment?: Record<string, any>
     }
   }): Promise<FetchResponse<any>> {
-    return apiClient.post('/api/admin/rbac/policies/simulate', data)
+    return apiClient.post(ENDPOINTS.rbac.policies.simulate, data)
   }
 
   /**
    * Compile a visual policy graph into an executable policy set
    */
   async compilePolicyGraph(data: { graph: any }): Promise<FetchResponse<any>> {
-    return apiClient.post('/api/admin/rbac/policies/compile', data)
+    return apiClient.post(ENDPOINTS.rbac.policies.compile, data)
   }
 
   /**
    * Decompile a policy set into a visual policy graph
    */
   async decompilePolicySet(data: { policySet: any }): Promise<FetchResponse<any>> {
-    return apiClient.post('/api/admin/rbac/policies/decompile', data)
+    return apiClient.post(ENDPOINTS.rbac.policies.decompile, data)
   }
 
   /**
    * Get default template policy set
    */
   async getDefaultPolicySet(): Promise<FetchResponse<any>> {
-    return apiClient.get('/api/admin/rbac/policies/default')
+    return apiClient.get(ENDPOINTS.rbac.policies.default)
   }
 
   /**
@@ -1007,23 +1120,33 @@ export class AdminService {
       traces?: any[]
     }>
   > {
-    return apiClient.post('/api/admin/rbac/policies/evaluate', data)
+    return apiClient.post(ENDPOINTS.rbac.policies.evaluate, data)
   }
 
   /**
-   * Get developer API keys for an organization
+   * Get developer API keys.
+   *
+   * `orgId` is accepted for the caller's convenience but the backend
+   * (`DeveloperApiKeysController.index`) scopes strictly by the
+   * authenticated user (`where('user_id', user.id)`) — there is no
+   * `organization_id` column on `developer_api_keys` at all. The param is
+   * still sent (harmless) in case a future backend revision starts reading
+   * it, but per-organization scoping is currently a capability gap, not a
+   * wiring bug: it would need a schema migration to fix for real.
    */
   async getDeveloperApiKeys(orgId: number): Promise<FetchResponse<DeveloperApiKey[]>> {
     return apiClient.get(ENDPOINTS.developerApiKeys.index, { params: { org_id: orgId } })
   }
 
   /**
-   * Create a new developer API key
+   * Create a new developer API key. The backend returns the created key
+   * flattened (`{...apiKey.toJSON(), key: rawKey}`), not wrapped in a
+   * `{message, data}` envelope — the raw secret is a top-level `key` field.
    */
   async createDeveloperApiKey(
     orgId: number,
     data: { name: string; expiresAt?: string },
-  ): Promise<FetchResponse<{ message: string; key: string; data: DeveloperApiKey }>> {
+  ): Promise<FetchResponse<DeveloperApiKey & { key: string }>> {
     return apiClient.post(ENDPOINTS.developerApiKeys.store, data, {
       params: { org_id: orgId },
     })
@@ -1049,14 +1172,26 @@ export class AdminService {
   }
 
   /**
-   * Get permission overrides for a specific member
+   * Get permission overrides for a specific member.
+   *
+   * Fixed two bugs: the path was missing the `/rbac` segment (real route is
+   * `/admin/rbac/members/:id/overrides`, registered on `RbacController`, not
+   * `/admin/members/:id/overrides`), and `orgId` was sent as a `org_id`
+   * query param — `RbacController` reads
+   * `request.header('x-organization-id') || request.param('org_id')`, and
+   * `request.param()` only ever looks at route params, never the query
+   * string, so a query param never reached the controller and every call
+   * failed `member.organizationId !== orgId` with a 403. Both this method
+   * and add/removeMemberOverride below now send the org id as the
+   * `x-organization-id` header, matching `getAccessPolicies`/
+   * `saveAccessPolicies` above.
    */
   async getMemberOverrides(
     memberId: number,
     orgId: number,
   ): Promise<FetchResponse<MemberOverride[]>> {
-    return apiClient.get(`/api/admin/members/${memberId}/overrides`, {
-      params: { org_id: orgId },
+    return apiClient.get(ENDPOINTS.rbac.members.overrides(memberId), {
+      headers: { 'x-organization-id': String(orgId) },
     })
   }
 
@@ -1068,8 +1203,8 @@ export class AdminService {
     orgId: number,
     override: { permissionId: number; grant: boolean },
   ): Promise<FetchResponse<MessageResponse>> {
-    return apiClient.post(`/api/admin/members/${memberId}/overrides`, override, {
-      params: { org_id: orgId },
+    return apiClient.post(ENDPOINTS.rbac.members.addOverride(memberId), override, {
+      headers: { 'x-organization-id': String(orgId) },
     })
   }
 
@@ -1081,23 +1216,32 @@ export class AdminService {
     orgId: number,
     permissionId: number,
   ): Promise<FetchResponse<MessageResponse>> {
-    return apiClient.delete(`/api/admin/members/${memberId}/overrides/${permissionId}`, {
-      params: { org_id: orgId },
+    return apiClient.delete(ENDPOINTS.rbac.members.removeOverride(memberId, permissionId), {
+      headers: { 'x-organization-id': String(orgId) },
     })
   }
 
   /**
-   * Verify a domain for an organization
+   * Start verification for a domain, optionally scoped to an organization.
+   *
+   * Domain verification is tenant-level: the organization travels in the body,
+   * and the backend falls back to looking it up by the domain when no id is
+   * given. The organization-scoped URLs this used to build
+   * (`/api/admin/organizations/:id/domains`) were never served by the backend.
    */
   async verifyDomain(orgId: number, domain: string): Promise<FetchResponse<DomainVerification>> {
-    return apiClient.post(`/api/admin/organizations/${orgId}/domains`, { domain })
+    return apiClient.post(ENDPOINTS.admin.domains.verify, {
+      domain,
+      organizationId: orgId || undefined,
+    })
   }
 
   /**
-   * Check verification status for a domain
+   * Check verification status for a domain, by domain name — the backend looks
+   * the pending verification up by domain, not by a verification id.
    */
-  async checkDomain(orgId: number, domainId: number): Promise<FetchResponse<DomainVerification>> {
-    return apiClient.get(`/api/admin/organizations/${orgId}/domains/${domainId}/check`)
+  async checkDomain(domain: string): Promise<FetchResponse<DomainVerification>> {
+    return apiClient.post(ENDPOINTS.admin.domains.check, { domain })
   }
 
   // ==========================================================================
@@ -1304,7 +1448,7 @@ export class AdminService {
   }
 
   // ==========================================================================
-  // GDPR â€" Data Portability
+  // GDPR — Data Portability
   // ==========================================================================
 
   /**
@@ -1322,7 +1466,7 @@ export class AdminService {
   }
 
   // ==========================================================================
-  // Statistics â€” MFA
+  // Statistics — MFA
   // ==========================================================================
 
   async getMFAStats(): Promise<FetchResponse<MFAStats>> {

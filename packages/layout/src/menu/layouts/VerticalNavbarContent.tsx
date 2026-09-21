@@ -14,6 +14,8 @@ import LanguageDropdown from '../shared/LanguageDropdown'
 import ModeDropdown from '../shared/ModeDropdown'
 import NavSearch from '../search'
 import UserDropdown from '../shared/UserDropdown'
+import Logo from '../../assets/svg/Logo'
+import { useVerticalNav } from '../contexts/verticalNavContext'
 
 import { layoutMenuTokens, getNavbarIconButtonHoverBg } from '@cap/theme'
 import { verticalLayoutClasses } from '../../utils/layoutClasses'
@@ -22,6 +24,12 @@ const NavbarContent = () => {
   const theme = useTheme()
   const { t } = useTranslation()
   const searchItems = getSearchItems()
+  // Below the mobile breakpoint the sidebar (and the logo inside its header)
+  // renders as a closed off-canvas drawer, so nothing on screen carries the
+  // brand mark until a visitor opens it. Surface a compact copy in the
+  // navbar itself for that state; above the breakpoint the sidebar's own
+  // logo is already visible, so this stays hidden to avoid a duplicate.
+  const { isBreakpointReached } = useVerticalNav()
 
   const shortcuts = React.useMemo(() => {
     return searchItems.slice(0, 6).map((item) => {
@@ -59,8 +67,19 @@ const NavbarContent = () => {
         inlineSize: '100%',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: layoutMenuTokens.navbarContent.gap }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: layoutMenuTokens.navbarContent.gap,
+          // Grows to fill the row between the toggle/logo and the right-side
+          // icon cluster, so NavSearch's own flex: 1 has room to stretch into.
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
         <NavToggle />
+        {isBreakpointReached && <Logo variant='icon' style={{ height: '1.5rem' }} />}
         <NavSearch />
       </Box>
       <Box

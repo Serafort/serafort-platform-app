@@ -741,10 +741,31 @@ export const normalizeRole = (role: unknown): string | undefined => {
     return ROLE_ALIASES[trimmed.toLowerCase()] || ROLE_ALIASES[normalized];
   }
 
+  // The `/api/v1/auth/*` controllers answer with `roles: string[]` rather than a
+  // single role — a user carries their own role plus one per organization
+  // membership. Resolve to the strongest of them: someone who is both `User` and
+  // `Admin` is an admin, and picking the first entry would depend on the order
+  // the backend happened to build the array in.
+  if (Array.isArray(role)) {
+    let best: string | undefined;
+    let bestRank = -1;
+    for (const entry of role) {
+      const normalized = normalizeRole(entry);
+      if (!normalized) continue;
+      const rank = ROLE_DEFINITIONS[normalized]?.rank ?? 0;
+      if (rank > bestRank) {
+        best = normalized;
+        bestRank = rank;
+      }
+    }
+    return best;
+  }
+
   if (typeof role === "object") {
     const roleLike = role as Record<string, unknown>;
     return (
       normalizeRole(roleLike.slug) ||
+      normalizeRole(roleLike.roles) ||
       normalizeRole(roleLike.name) ||
       normalizeRole(roleLike.role) ||
       normalizeRole(roleLike.roleId) ||

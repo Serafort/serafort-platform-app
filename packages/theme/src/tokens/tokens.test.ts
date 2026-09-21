@@ -3,13 +3,20 @@ import {
   primitiveColors,
   spacingTokens,
   radiusTokens,
+  borderWidthTokens,
+  borderStyleTokens,
+  opacityTokens,
+  alphaWhiteTokens,
   motionTokens,
   zIndexTokens,
   primitiveTokens,
 } from "./primitives";
 import {
   semanticSurfaces,
+  semanticBorders,
+  semanticTextColors,
   fluidTypographyTokens,
+  fluidSpacingTokens,
   effectPresetTokens,
   getSemanticColors,
 } from "./semantics";
@@ -20,19 +27,21 @@ import { applyThemeVariablesSync } from "../utils/applyThemeVariables";
 describe("Design Token Architecture Hierarchy", () => {
   describe("Tier 1: Primitive Tokens", () => {
     it("defines brand, slate, semantic color scales, and alpha values", () => {
-      expect(primitiveColors.slate[50]).toBe("#F8FAFC");
-      expect(primitiveColors.slate[900]).toBe("#0F172A");
-      expect(primitiveColors.brand[500]).toBe("#6366F1");
-      expect(primitiveColors.brand[600]).toBe("#4F46E5");
-      expect(primitiveColors.success[500]).toBe("#10B981");
-      expect(primitiveColors.warning[500]).toBe("#F59E0B");
-      expect(primitiveColors.error[500]).toBe("#EF4444");
-      expect(primitiveColors.info[500]).toBe("#3B82F6");
+      // Ramps are derived from the Serafort brand kit - see tokens/brand.ts
+      expect(primitiveColors.slate[50]).toBe("#F6F8FC");
+      expect(primitiveColors.slate[950]).toBe("#031433");
+      expect(primitiveColors.brand[500]).toBe("#047BFA");
+      expect(primitiveColors.brand[600]).toBe("#044BC4");
+      expect(primitiveColors.accent[500]).toBe("#06CBFD");
+      expect(primitiveColors.success[500]).toBe("#16A34A");
+      expect(primitiveColors.warning[500]).toBe("#D97706");
+      expect(primitiveColors.error[500]).toBe("#DC2626");
+      expect(primitiveColors.info[500]).toBe("#047BFA");
       expect(primitiveColors.alpha.white[16]).toBe("rgba(255,255,255,0.16)");
       expect(primitiveColors.alpha.black[60]).toBe("rgba(0,0,0,0.60)");
     });
 
-    it("defines base-4 spacing scale from space.0 to space.16", () => {
+    it("defines a contiguous base-4 spacing scale from space.0 to space.32", () => {
       expect(spacingTokens[0]).toBe("0px");
       expect(spacingTokens[1]).toBe("4px");
       expect(spacingTokens[2]).toBe("8px");
@@ -41,16 +50,56 @@ describe("Design Token Architecture Hierarchy", () => {
       expect(spacingTokens[8]).toBe("32px");
       expect(spacingTokens[12]).toBe("48px");
       expect(spacingTokens[16]).toBe("64px");
+
+      // Previously-missing intermediate steps.
+      expect(spacingTokens[5]).toBe("20px");
+      expect(spacingTokens[7]).toBe("28px");
+      expect(spacingTokens[9]).toBe("36px");
+      expect(spacingTokens[10]).toBe("40px");
+      expect(spacingTokens[11]).toBe("44px");
+      expect(spacingTokens[13]).toBe("52px");
+      expect(spacingTokens[14]).toBe("56px");
+      expect(spacingTokens[15]).toBe("60px");
+
+      // Page-level steps 17-32 (68px-128px).
+      expect(spacingTokens[20]).toBe("80px");
+      expect(spacingTokens[24]).toBe("96px");
+      expect(spacingTokens[32]).toBe("128px");
+
+      // Every step is n * 4px with no gaps.
+      for (let n = 0; n <= 32; n += 1) {
+        expect(spacingTokens[n as keyof typeof spacingTokens]).toBe(`${n * 4}px`);
+      }
     });
 
     it("defines radius scale from none to full", () => {
       expect(radiusTokens.none).toBe("0px");
-      expect(radiusTokens.sm).toBe("4px");
+      expect(radiusTokens.sm).toBe("6px");
       expect(radiusTokens.md).toBe("8px");
       expect(radiusTokens.lg).toBe("12px");
       expect(radiusTokens.xl).toBe("16px");
       expect(radiusTokens["2xl"]).toBe("24px");
       expect(radiusTokens.full).toBe("9999px");
+    });
+
+    it("defines a full opacity scale and widened alpha tint ramps", () => {
+      expect(opacityTokens[0]).toBe("0");
+      expect(opacityTokens[5]).toBe("0.05");
+      expect(opacityTokens[40]).toBe("0.4");
+      expect(opacityTokens[95]).toBe("0.95");
+      expect(opacityTokens[100]).toBe("1");
+      // Alpha ramp goes well past the old 4/8/12/16/60 stops.
+      expect(alphaWhiteTokens[24]).toBe("rgba(255, 255, 255, 0.24)");
+      expect(alphaWhiteTokens[88]).toBe("rgba(255, 255, 255, 0.88)");
+    });
+
+    it("defines border width and style scales", () => {
+      expect(borderWidthTokens.hairline).toBe("1px");
+      expect(borderWidthTokens.thin).toBe("1.5px");
+      expect(borderWidthTokens.heavy).toBe("4px");
+      expect(borderStyleTokens.dashed).toBe("dashed");
+      expect(borderStyleTokens.dotted).toBe("dotted");
+      expect(borderStyleTokens.double).toBe("double");
     });
 
     it("defines motion duration and easing scales", () => {
@@ -84,10 +133,10 @@ describe("Design Token Architecture Hierarchy", () => {
 
   describe("Tier 2: Semantic & Multi-Tenant Preset Tokens", () => {
     it("defines surface hierarchy for dark and light modes", () => {
-      expect(semanticSurfaces.dark.canvas).toBe("#0D0D12");
-      expect(semanticSurfaces.dark.paper).toBe("#17171F");
+      expect(semanticSurfaces.dark.canvas).toBe("#031433"); // brand ink
+      expect(semanticSurfaces.dark.paper).toBe("#032457"); // brand navy
       expect(semanticSurfaces.light.canvas).toBe("#FFFFFF");
-      expect(semanticSurfaces.light.paper).toBe("#F8FAFC");
+      expect(semanticSurfaces.light.paper).toBe("#F6F8FC"); // fog 50
     });
 
     it("defines fluid typography clamp scales", () => {
@@ -108,16 +157,71 @@ describe("Design Token Architecture Hierarchy", () => {
       );
     });
 
+    it("defines a per-mode semantic border sub-palette", () => {
+      expect(semanticBorders.light.subtle).toBe("rgba(3, 20, 51, 0.06)");
+      expect(semanticBorders.dark.subtle).toBe("rgba(255, 255, 255, 0.05)");
+      // Every role is present in both modes.
+      const roles = ["subtle", "muted", "default", "strong", "focus"] as const;
+      for (const role of roles) {
+        expect(typeof semanticBorders.light[role]).toBe("string");
+        expect(typeof semanticBorders.dark[role]).toBe("string");
+      }
+      // Focus carries the brand colour, not a neutral.
+      expect(semanticBorders.light.focus).toBe("#047BFA");
+    });
+
+    it("defines text-safe feedback colours that clear WCAG AA on their paper surface", () => {
+      // Plan-mandated light-mode values.
+      expect(semanticTextColors.light.successText).toBe("#0F7A3D");
+      expect(semanticTextColors.light.warningText).toBe("#A15C03");
+      expect(semanticTextColors.light.errorText).toBe("#B42121");
+      expect(semanticTextColors.light.infoText).toBe("#0437A2");
+
+      const relLuminance = (hex: string): number => {
+        const channels = (hex.replace("#", "").match(/.{2}/g) ?? []).map((h) => {
+          const v = parseInt(h, 16) / 255;
+          return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+        });
+        return (
+          0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+        );
+      };
+      const contrast = (a: string, b: string): number => {
+        const [hi, lo] = [relLuminance(a), relLuminance(b)].sort((m, n) => n - m);
+        return (hi + 0.05) / (lo + 0.05);
+      };
+
+      for (const mode of ["light", "dark"] as const) {
+        const paper = semanticSurfaces[mode].paper;
+        for (const value of Object.values(semanticTextColors[mode])) {
+          expect(contrast(value, paper)).toBeGreaterThanOrEqual(4.5);
+        }
+      }
+    });
+
+    it("defines a viewport-responsive fluid spacing scale", () => {
+      expect(fluidSpacingTokens.gutterInline).toBe(
+        "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+      );
+      expect(fluidSpacingTokens.sectionGap).toBe(
+        "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+      );
+      // Every entry is a clamp() with a vw term so it actually scales.
+      for (const value of Object.values(fluidSpacingTokens)) {
+        expect(value).toMatch(/^clamp\(.+,.+vw.*,.+\)$/);
+      }
+    });
+
     it("defines visual effect presets (Glassmorphism, Liquid Glass, Neumorphism, Brutalism, Bento)", () => {
-      expect(effectPresetTokens.glass.bg).toBe("rgba(23, 23, 31, 0.65)");
+      expect(effectPresetTokens.glass.bg).toBe("rgba(3, 36, 87, 0.65)"); // navy
       expect(effectPresetTokens.glass.blur).toBe("blur(16px)");
       expect(effectPresetTokens.liquidGlass.blur).toBe(
         "blur(24px) saturate(180%)",
       );
       expect(effectPresetTokens.neu.flat).toBe(
-        "6px 6px 12px #101016, -6px -6px 12px #1e1e28",
+        "6px 6px 12px #020E24, -6px -6px 12px #0A1B3D",
       );
-      expect(effectPresetTokens.brutal.borderWidth).toBe("2px solid #000000");
+      expect(effectPresetTokens.brutal.borderWidth).toBe("2px solid #031433");
       expect(effectPresetTokens.bento.gap).toBe("16px");
       expect(effectPresetTokens.bento.radius).toBe("20px");
     });
@@ -138,10 +242,10 @@ describe("Design Token Architecture Hierarchy", () => {
         "1.5s ease-in-out infinite",
       );
       expect(stateComponentTokens.error.fieldFocusRing).toBe(
-        "0 0 0 3px rgba(239, 68, 68, 0.2)",
+        "0 0 0 3px rgba(220, 38, 38, 0.2)",
       );
       expect(stateComponentTokens.success.iconCheckColor).toBe(
-        "var(--color-success-500, #10B981)",
+        "var(--color-success-500, #16A34A)",
       );
     });
 
@@ -175,23 +279,78 @@ describe("Design Token Architecture Hierarchy", () => {
     it("generates complete flat CSS variable map with fluid clamp typography and effect presets", () => {
       const cssVars = tokensToCssVariables("dark");
 
-      expect(cssVars["--color-brand-500"]).toBe("#6366F1");
+      expect(cssVars["--color-brand-500"]).toBe("#047BFA");
       expect(cssVars["--space-4"]).toBe("16px");
+      expect(cssVars["--space-5"]).toBe("20px");
+      expect(cssVars["--space-11"]).toBe("44px");
+      expect(cssVars["--space-14"]).toBe("56px");
       expect(cssVars["--radius-md"]).toBe("8px");
+      expect(cssVars["--border-width-hairline"]).toBe("1px");
+      expect(cssVars["--border-style-dashed"]).toBe("dashed");
+      expect(cssVars["--border-subtle"]).toBe("rgba(255, 255, 255, 0.05)"); // dark default
+      expect(cssVars["--border-focus"]).toBeDefined();
+      expect(cssVars["--opacity-40"]).toBe("0.4");
+      expect(cssVars["--alpha-white-24"]).toBe("rgba(255, 255, 255, 0.24)");
+      expect(cssVars["--alpha-black-88"]).toBe("rgba(0, 0, 0, 0.88)");
       expect(cssVars["--touch-target-min"]).toBe("44px");
       expect(cssVars["--motion-duration-quick"]).toBe("120ms");
       expect(cssVars["--z-index-modal"]).toBe("1000");
-      expect(cssVars["--surface-canvas"]).toBe("#0D0D12");
+      expect(cssVars["--surface-canvas"]).toBe("#031433");
       expect(cssVars["--font-display"]).toBe(
         "clamp(2.25rem, 1.75rem + 3vw, 3.75rem)",
       );
       expect(cssVars["--font-h1"]).toBe("clamp(2rem, 1.5rem + 2.5vw, 3.25rem)");
+      expect(cssVars["--space-fluid-gutter-inline"]).toBe(
+        "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+      );
+      expect(cssVars["--space-fluid-section-gap"]).toBe(
+        "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+      );
       expect(cssVars["--glass-blur"]).toBe("blur(16px)");
       expect(cssVars["--liquid-glass-blur"]).toBe("blur(24px) saturate(180%)");
+      // Elevation scale + brand glow, ink-tinted for the current mode.
+      expect(cssVars["--shadow-xs"]).toBeDefined();
+      expect(cssVars["--shadow-md"]).toContain("rgba(19, 17, 32"); // dark ground
+      expect(cssVars["--shadow-xl"]).toBeDefined();
+      expect(cssVars["--shadow-glow"]).toContain("rgba(6, 203, 253"); // dark = cyan
+      // Text-safe feedback colours (dark-mode high-contrast variants here).
+      expect(cssVars["--semantic-success-text"]).toBe("#3DD68C");
+      expect(cssVars["--semantic-error-text"]).toBe("#FF8A8A");
+      expect(tokensToCssVariables("light")["--semantic-error-text"]).toBe(
+        "#B42121",
+      );
+      expect(tokensToCssVariables("light")["--shadow-glow"]).toContain(
+        "rgba(4, 123, 250",
+      ); // light = brand blue
       expect(cssVars["--form-input-height"]).toBe("48px");
       expect(cssVars["--form-button-height-primary"]).toBe("44px");
       expect(cssVars["--form-modal-backdrop-filter"]).toBe("blur(8px)");
       expect(cssVars["--state-loading-action-lock-duration"]).toBe("120ms");
+      // Brand role layer (--sf-*) is emitted alongside the platform tokens
+      expect(cssVars["--sf-ink"]).toBe("#031433");
+      expect(cssVars["--sf-cta-bg"]).toBe("#06CBFD"); // dark-mode CTA is cyan
+      expect(cssVars["--font-family-display"]).toContain("Space Grotesk");
+      // Serafort --sf-* scale aliases mirror the platform scales 1:1
+      expect(cssVars["--sf-space-4"]).toBe("16px");
+      expect(cssVars["--sf-space-32"]).toBe("128px");
+      expect(cssVars["--space-32"]).toBe("128px");
+      expect(cssVars["--sf-radius-2xl"]).toBe("24px");
+      expect(cssVars["--sf-radius-sm"]).toBe("6px");
+      expect(cssVars["--sf-border-0"]).toBe("0px");
+      expect(cssVars["--sf-border-1"]).toBe("1px");
+      expect(cssVars["--sf-border-2"]).toBe("2px");
+      expect(cssVars["--sf-border-4"]).toBe("4px");
+      expect(cssVars["--sf-size-10"]).toBe("40px");
+      expect(cssVars["--sf-size-12"]).toBe("48px");
+      expect(cssVars["--sf-duration-fast"]).toBe("120ms");
+      expect(cssVars["--sf-z-modal"]).toBe("400");
+      expect(cssVars["--sf-success-bg"]).toBe("rgba(22, 163, 74, 0.14)");
+      expect(cssVars["--sf-shadow-md"]).toBe(cssVars["--shadow-md"]);
+      expect(cssVars["--sf-shadow-glow"]).toBe(cssVars["--shadow-glow"]);
+      expect(cssVars["--sf-error-text"]).toBe("#FF8A8A"); // dark variant
+      expect(tokensToCssVariables("light")["--sf-error-text"]).toBe("#B42121");
+      expect(tokensToCssVariables("light")["--sf-success-bg"]).toBe("#EAF8EE");
+      expect(tokensToCssVariables("light")["--sf-link"]).toBe("#0437A2");
     });
 
     it("batches CSS variable updates to document element in requestAnimationFrame", () => {

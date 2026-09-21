@@ -41,7 +41,7 @@ const OptionMenu = ({
 
   return (
     <>
-      <IconButton size="small" onClick={handleToggle} {...iconButtonProps}>
+      <IconButton size="small" aria-label="Options menu" onClick={handleToggle} {...iconButtonProps}>
         {typeof icon === "string" ? (
           <i className={classnames(icon, iconClassName)} />
         ) : (icon as ReactNode) ? (

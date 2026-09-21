@@ -35,6 +35,12 @@ export type ThemeColors = {
   success: ColorPalette;
   warning: ColorPalette;
   info: ColorPalette;
+  /**
+   * Legacy slot names kept for the `customColors` palette contract in
+   * `@cap/shared-types`. They now carry Serafort brand values:
+   * brandGold -> primary, brandBrown -> secondary, brandSlate -> muted text,
+   * brandCream -> page background.
+   */
   brandGold: string;
   brandBrown: string;
   brandSlate: string;
@@ -71,8 +77,8 @@ export type ThemeConfig = {
 };
 
 export const themeConfig: ThemeConfig = {
-  templateName: "CapPlatform",
-  settingsCookieName: "cap-platform-settings",
+  templateName: "Serafort",
+  settingsCookieName: "serafort-settings",
   mode: "light",
   skin: "default",
   semiDark: false,
@@ -94,47 +100,48 @@ export const themeConfig: ThemeConfig = {
   },
   disableRipple: false,
   toastPosition: "top-right",
+  // Serafort brand kit (serafort_brand/brand-kit/tokens).
   colors: {
     primary: {
-      main: "#D4AF37",
-      light: "#E0C55B",
-      dark: "#B8982F",
-      contrastText: "#1A1A1A",
+      main: "#047BFA", // brand blue
+      light: "#06A0FC", // brand sky
+      dark: "#044BC4", // brand royal blue
+      contrastText: "#FFFFFF",
     },
     secondary: {
-      main: "#8B4513",
-      light: "#A0522D",
-      dark: "#6B3410",
-      contrastText: "#FDFDFD",
+      main: "#032457", // brand navy
+      light: "#0437A2", // brand deep blue
+      dark: "#031433", // brand ink
+      contrastText: "#FFFFFF",
     },
     error: {
-      main: "#DC3545",
-      light: "#E35D6A",
-      dark: "#C82333",
-      contrastText: "#FFF",
+      main: "#DC2626",
+      light: "#EF4444",
+      dark: "#B91C1C",
+      contrastText: "#FFFFFF",
     },
     success: {
-      main: "#28A745",
-      light: "#48B461",
-      dark: "#1E7E34",
-      contrastText: "#FFF",
+      main: "#16A34A",
+      light: "#22C55E",
+      dark: "#15803D",
+      contrastText: "#FFFFFF",
     },
     warning: {
-      main: "#FF9F43",
-      light: "#FFB269",
-      dark: "#E68F3C",
-      contrastText: "#1A1A1A",
+      main: "#D97706",
+      light: "#F59E0B",
+      dark: "#B45309",
+      contrastText: "#031433",
     },
     info: {
-      main: "#2F4F4F",
-      light: "#4A6A6A",
-      dark: "#1F3333",
-      contrastText: "#FFF",
+      main: "#047BFA",
+      light: "#06A0FC",
+      dark: "#0437A2",
+      contrastText: "#FFFFFF",
     },
-    brandGold: "#D4AF37",
-    brandBrown: "#8B4513",
-    brandSlate: "#2F4F4F",
-    brandCream: "#F5F5DC",
+    brandGold: "#047BFA", // primary
+    brandBrown: "#032457", // secondary
+    brandSlate: "#64708A", // muted text
+    brandCream: "#F6F8FC", // page background
   },
   shape: {
     borderRadius: 6,

@@ -136,6 +136,7 @@ import type {
   JWKSKeyDetail,
   CreateJWKSKeyRequest,
   DomainVerification,
+  DeveloperApiKey,
 } from '../services/adminService'
 // ============================================================================
 // OIDC Client Management Hooks
@@ -742,14 +743,15 @@ export function useCheckDomain(
   options?: UseMutationOptions<
     FetchResponse<DomainVerification>,
     HttpError,
-    { domainId: number; organizationId: number },
+    // Keyed by domain name: the backend looks the pending verification up by
+    // domain, so a verification id would not identify it.
+    { domain: string },
     unknown
   >,
 ) {
   const { onSuccess: customOnSuccess, onError: customOnError, ...restOptions } = options || {}
   return useMutation({
-    mutationFn: ({ domainId, organizationId }) =>
-      adminService.checkDomain(organizationId, domainId),
+    mutationFn: ({ domain }) => adminService.checkDomain(domain),
     ...options,
     onSuccess: (...args) => {
       customOnSuccess?.(...args)
@@ -952,7 +954,7 @@ export function useTestWebhook(
   })
 }
 // ============================================================================
-// â”€â”€ ROLES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ROLES ────────────────────────────────────────────────────────────────
 export function useRoles(
   params?: { page?: number; limit?: number; search?: string },
   _options?: Omit<
@@ -1187,7 +1189,7 @@ export function useDeleteRole(
     },
   })
 }
-// â”€â”€ PERMISSIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PERMISSIONS ──────────────────────────────────────────────────────────
 export function usePermissions(
   _options?: Omit<UseQueryOptions<FetchResponse<Permission[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
@@ -1249,7 +1251,7 @@ export function useDeletePermission(
     },
   })
 }
-// â”€â”€ ACCESS POLICIES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ACCESS POLICIES ──────────────────────────────────────────────────────
 export function useAccessPolicies(
   orgId: number | null | undefined,
   _options?: Omit<
@@ -1437,7 +1439,7 @@ export function useDeveloperApiKeys(
 
 export function useCreateDeveloperApiKey(
   options?: UseMutationOptions<
-    FetchResponse<{ message: string; key: string; data: any }>,
+    FetchResponse<DeveloperApiKey & { key: string }>,
     HttpError,
     { orgId: number; data: { name: string; expiresAt?: string } },
     unknown
@@ -1480,7 +1482,7 @@ export function useGrantPermission(
   options?: UseMutationOptions<
     FetchResponse<MessageResponse>,
     HttpError,
-    { user_id: number; permission_id: number },
+    { role_id: number; permission_id: number },
     unknown
   >,
 ) {
@@ -1498,7 +1500,7 @@ export function useRevokePermission(
   options?: UseMutationOptions<
     FetchResponse<MessageResponse>,
     HttpError,
-    { user_id: number; permission_id: number },
+    { role_id: number; permission_id: number },
     unknown
   >,
 ) {
@@ -1513,7 +1515,7 @@ export function useRevokePermission(
   })
 }
 // ============================================================================
-// â”€â”€ ORGANIZATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ORGANIZATIONS ────────────────────────────────────────────────────────
 export function useOrganizations(
   params?: { page?: number; limit?: number; search?: string },
   _options?: Omit<
@@ -1755,7 +1757,7 @@ export function useUpdateOrganizationPolicies(
   })
 }
 // ============================================================================
-// â”€â”€ PROVISIONING & SCIM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PROVISIONING & SCIM ──────────────────────────────────────────────────
 export function useSCIMTokens(
   _options?: Omit<UseQueryOptions<FetchResponse<SCIMToken[]>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
@@ -1969,7 +1971,7 @@ export function useUserSessions(
   })
 }
 // ============================================================================
-// â”€â”€ STATISTICS & EMAILS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── STATISTICS & EMAILS ──────────────────────────────────────────────────
 export function useMFAStats(
   _options?: Omit<UseQueryOptions<FetchResponse<MFAStats>, HttpError>, 'queryKey' | 'queryFn'>,
 ) {
@@ -2041,7 +2043,7 @@ export const useSecurityHealth = () => {
 }
 
 // ============================================================================
-// Developer Platform â€” Scopes
+// Developer Platform — Scopes
 // ============================================================================
 
 export function useScopes(

@@ -57,7 +57,7 @@ export const themeSearchItems: Array<SearchItemConfig> = [
 
 export const ThemeModule: CAPModule = {
   id: "theme-module",
-  version: "1.0.0",
+  version: "1.1.0",
   name: "Theme Customization Module",
   description: "Theme customization and live preview editor module",
   routes: themeRouteConfig as any,

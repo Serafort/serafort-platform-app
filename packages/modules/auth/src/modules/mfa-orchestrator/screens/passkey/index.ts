@@ -1,7 +1,5 @@
-export { default as PasskeyCreationOptions } from './PasskeyCreationOptions'
 export { default as PasskeyLoginOptions } from './PasskeyLoginOption'
 export { default as PasskeyManagement } from './PasskeyManagement'
-export { default as PasskeyNamingConfig } from './PasskeyNamingConfig'
 export { default as PasskeyRecoveryOptions } from './PasskeyRecoveryOptions'
 export { default as PasskeyRegistrationPrompt } from './PasskeyRegistrationPrompt'
 export { default as PasskeySetup } from './PasskeySetup'

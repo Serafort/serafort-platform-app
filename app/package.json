@@ -87,7 +87,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "@hookform/devtools": "^4.4.0",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.57.0",
     "@react-router/dev": "^7.18.3",
@@ -100,8 +99,8 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "4.3.4",
-    "@vitest/browser-playwright": "^4.0.16",
-    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/browser-playwright": "^4.1.11",
+    "@vitest/coverage-v8": "^4.1.11",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
@@ -112,7 +111,7 @@
     "eslint-plugin-react-refresh": "^0.4.26",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
-    "lighthouse": "^13.0.1",
+    "lighthouse": "^13.4.1",
     "lightningcss": "^1.30.2",
     "lint-staged": "^16.2.7",
     "playwright": "^1.57.0",
@@ -123,7 +122,7 @@
     "vite": "^7.0.0",
     "vite-plugin-mkcert": "^2.1.0",
     "vite-plugin-pwa": "^1.2.0",
-    "vitest": "^4.0.16"
+    "vitest": "^4.1.11"
   },
   "overrides": {
     "react-is": "19.0.0"

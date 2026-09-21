@@ -33,7 +33,7 @@ import {
   getGuestNavbarMobileListItemHoverBg,
 } from '@cap/theme'
 import { useNavigationMenu } from '@cap/platform-core'
-import { Path } from '@cap/module-auth/routes/path'
+import { AppPaths } from '@cap/shared-types'
 import { useTranslation } from 'react-i18next'
 
 const GuestNavbar = () => {
@@ -147,7 +147,7 @@ const GuestNavbar = () => {
             >
               <Button
                 variant='outlined'
-                onClick={() => handleNavigate(Path.auth.signup)}
+                onClick={() => handleNavigate(AppPaths.auth.signup)}
                 sx={{
                   display: { xs: 'none', md: 'flex' },
                   minWidth: guestNavbarTokens.layout.actionButtonMinWidth,
@@ -167,7 +167,7 @@ const GuestNavbar = () => {
               </Button>
               <Button
                 variant='contained'
-                onClick={() => handleNavigate(Path.auth.signin)}
+                onClick={() => handleNavigate(AppPaths.auth.signin)}
                 sx={{
                   display: { xs: 'none', md: 'flex' },
                   minWidth: guestNavbarTokens.layout.actionButtonMinWidth,
@@ -266,7 +266,7 @@ const GuestNavbar = () => {
               <Button
                 fullWidth
                 variant='contained'
-                onClick={() => handleNavigate(Path.auth.signin)}
+                onClick={() => handleNavigate(AppPaths.auth.signin)}
                 sx={{
                   backgroundColor: getGuestNavbarContainedButtonBg(theme),
                   color: theme.palette.primary.main,

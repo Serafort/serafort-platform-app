@@ -1,15 +1,14 @@
+import { AppPaths } from '@cap/shared-types'
+
 const Path = {
   //device paths
   deviceCode: '/auth/device/code',
 
-  // email change paths
-  initiateEmailChange: '/auth/email/initiate-change',
+  // email change link-landing paths (initiation lives in user-directory)
   emailChangeStatus: '/auth/email/change-status',
-  emailChangeVerificationPending: '/auth/email/change-verification-pending',
   emailChangeVerification: '/auth/email/verify-change/:token',
   emailChangeSuccess: '/auth/email/change-success',
   emailChangeFailed: '/auth/email/change-failed',
-  exportVerification: '/auth/export/verification',
   resendEmailVerification: '/auth/email/resend-verification',
   VerificationEmail: '/auth/email/verification',
 
@@ -28,12 +27,14 @@ const Path = {
   passwordResetSuccessAlias: '/auth/password-reset-success',
 
   // sign in
-  signin: '/auth/sign-in',
-  login: '/auth/sign-in',
+  // Public guest-entry routes: sourced from the Tier 0 registry (`@cap/shared-types`)
+  // so the layout engine can link to them without importing this module.
+  signin: AppPaths.auth.signin,
+  login: AppPaths.auth.login,
 
   // sign up
-  signup: '/auth/sign-up',
-  signupV2: '/auth/sign-up-v2',
+  signup: AppPaths.auth.signup,
+  signupV2: AppPaths.auth.signupV2,
   registration: '/auth/register',
   checkEmail: '/auth/verify-email-confirmation',
   emailVerification: '/auth/verification/email-sent',
@@ -46,7 +47,5 @@ const Path = {
   emailVerifiedSuccess: '/auth/verify-email/success',
   validate: '/auth/validate/:id?/:token?',
   validateDirect: '/validate',
-
-  requestEmailChange: '/auth/email/initiate-change',
 }
 export default Path

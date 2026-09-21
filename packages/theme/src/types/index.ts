@@ -1,5 +1,7 @@
+import type { Layout } from "@cap/shared-types";
 import type { PrimitiveTokens } from "./designTokens";
 import type { EffectConfig } from "./effects";
+import { DEFAULT_EFFECT_CONFIG } from "./effects";
 import type { ComponentStyles } from "./componentStyles";
 import type { ThemePresetId } from "./presets";
 
@@ -30,6 +32,16 @@ export interface TenantThemeConfig {
   organizationId: string;
   name: string;
   preset?: ThemePresetId;
+  /**
+   * Navigation shell orientation the tenant's theme prefers: `"vertical"`
+   * (sidebar), `"horizontal"` (top nav) or `"collapsed"` (a pinned-narrow
+   * sidebar). It is stored on the theme rather than only in per-user settings
+   * so that exporting or applying a saved theme carries the layout with it -
+   * `ThemeBridge` pushes this into `settings.layout` when the persisted theme
+   * loads, and the in-app layout switcher still writes `settings.layout`
+   * directly for a live, unsaved change.
+   */
+  layout?: Layout;
   tokens: PrimitiveTokens;
   effects: EffectConfig;
   components: ComponentStyles;
@@ -207,19 +219,55 @@ declare module "@mui/material/styles" {
 export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
   organizationId: "default",
   name: "Default Theme",
+  layout: "vertical",
   tokens: {
+    // Serafort brand kit (serafort_brand/brand-kit/tokens) - keep in sync
+    // with DEFAULT_PRIMITIVE_TOKENS in designTokens.ts.
+    //
+    // background/surface/text/textMuted/border carry explicit `light`/`dark`
+    // values rather than one `.value` for both: composeMuiTheme's
+    // resolveChromeColor() reads those first, mirroring the platform's own
+    // `light.ts`/`dark.ts` statics exactly rather than inferring a fit from
+    // `.value`'s lightness. `.value` still holds the light-mode colour, so
+    // legacy consumers that only ever read `.value` (the WCAG contrast badge
+    // in ColorPaletteEditor, for instance) keep working.
     colors: {
-      primary: { value: "#2563EB" },
-      secondary: { value: "#64748B" },
-      background: { value: "#F8FAFC" },
-      surface: { value: "#ffffff" },
-      text: { value: "#0f172a" },
-      textMuted: { value: "#64748b" },
-      border: { value: "#e2e8f0" },
-      success: { value: "#22c55e" },
-      warning: { value: "#f59e0b" },
-      error: { value: "#ef4444" },
-      info: { value: "#3b82f6" },
+      primary: { value: "#047BFA", description: "Serafort blue" },
+      secondary: { value: "#032457", description: "Serafort navy" },
+      background: {
+        value: "#F6F8FC",
+        light: "#F6F8FC", // fog 50
+        dark: "#031433", // brand ink
+        description: "Page background",
+      },
+      surface: {
+        value: "#FFFFFF",
+        light: "#FFFFFF",
+        dark: "#032457", // brand navy
+        description: "Card/surface background",
+      },
+      text: {
+        value: "#031433",
+        light: "#031433", // brand ink
+        dark: "#FFFFFF",
+        description: "Primary text",
+      },
+      textMuted: {
+        value: "#64708A",
+        light: "#64708A", // slate 500
+        dark: "#C7D1E3", // mist 300
+        description: "Muted text",
+      },
+      border: {
+        value: "#C7D1E3",
+        light: "#C7D1E3", // mist 300
+        dark: "#1B2F5C",
+        description: "Border color",
+      },
+      success: { value: "#16A34A" },
+      warning: { value: "#D97706" },
+      error: { value: "#DC2626" },
+      info: { value: "#047BFA" },
     },
     spacing: {
       xs: "0.25rem",
@@ -229,6 +277,14 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
       xl: "2rem",
       "2xl": "3rem",
     },
+    fluidSpacing: {
+      gutterInline: "clamp(1rem, 0.6rem + 2vw, 2.5rem)",
+      gutterBlock: "clamp(1.5rem, 1rem + 2.5vw, 3.5rem)",
+      sectionGap: "clamp(2.5rem, 1.5rem + 5vw, 6rem)",
+      stackGap: "clamp(0.75rem, 0.6rem + 0.8vw, 1.25rem)",
+      cardPadding: "clamp(1rem, 0.8rem + 1vw, 1.75rem)",
+      clusterGap: "clamp(0.5rem, 0.4rem + 0.4vw, 0.875rem)",
+    },
     borderRadius: {
       none: "0",
       sm: "4px",
@@ -236,6 +292,30 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
       lg: "12px",
       xl: "16px",
       full: "9999px",
+    },
+    // Kept in sync with DEFAULT_PRIMITIVE_TOKENS in designTokens.ts.
+    borderWidth: {
+      none: "0px",
+      thin: "1px",
+      medium: "2px",
+      thick: "4px",
+    },
+    borderStyle: {
+      solid: "solid",
+      dashed: "dashed",
+      dotted: "dotted",
+    },
+    // From semanticBorders.light in tokens/semantics.ts - kept in sync here so
+    // the default tenant theme emits `--border-<role>` at runtime.
+    semanticBorders: {
+      subtle: "rgba(3, 20, 51, 0.06)",
+      muted: "rgba(3, 20, 51, 0.12)",
+      default: "#C7D1E3",
+      strong: "rgba(3, 20, 51, 0.32)",
+      focus: "#047BFA",
+    },
+    gradients: {
+      meshIntensity: 1,
     },
     typography: {
       fontFamily: {
@@ -264,12 +344,18 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
         relaxed: "1.75",
       },
     },
+    // Ink-tinted default elevation. `rgb(0 0 0 / x)` drop shadows have almost
+    // no contrast on the dark navy canvas, so every Paper/Card read as flat.
+    // The blue-black ground (19 17 32) is the same tint the generated
+    // `elevationScale()` ramp and `theme.customShadows.*` use; it still reads
+    // on the fog-white canvas. A tenant that sets its own `tokens.shadows`
+    // still overrides these via the `--shadow-*` custom properties.
     shadows: {
-      xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-      sm: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
-      md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
-      lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-      xl: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+      xs: "0 1px 2px 0 rgba(19, 17, 32, 0.12)",
+      sm: "0 1px 3px 0 rgba(19, 17, 32, 0.16), 0 1px 2px -1px rgba(19, 17, 32, 0.12)",
+      md: "0 4px 6px -1px rgba(19, 17, 32, 0.18), 0 2px 4px -2px rgba(19, 17, 32, 0.14)",
+      lg: "0 10px 15px -3px rgba(19, 17, 32, 0.2), 0 4px 6px -4px rgba(19, 17, 32, 0.16)",
+      xl: "0 20px 25px -5px rgba(19, 17, 32, 0.24), 0 8px 10px -6px rgba(19, 17, 32, 0.18)",
     },
     transitions: {
       duration: {
@@ -296,23 +382,22 @@ export const DEFAULT_THEME_CONFIG: TenantThemeConfig = {
       tooltip: 1500,
     },
   },
+  // Spread from DEFAULT_EFFECT_CONFIG rather than listing effects by hand.
+  // This object is the base every preset is merged onto (see applyPreset), and
+  // for as long as it carried only `glassmorphism` and `neumorphism` a preset
+  // built on brutalism, bento, organic, immersive or liquid-glass had nowhere
+  // to merge its config into - it set `globalType` and lost everything else,
+  // so the effect announced itself and then painted nothing.
   effects: {
-    globalType: "standard",
+    ...DEFAULT_EFFECT_CONFIG,
     glassmorphism: {
-      enabled: false,
-      blur: "16px",
+      ...DEFAULT_EFFECT_CONFIG.glassmorphism,
       background: "rgba(255, 255, 255, 0.1)",
       borderColor: "rgba(255, 255, 255, 0.2)",
-      borderWidth: "1px",
-      opacity: 0.8,
     },
     neumorphism: {
-      enabled: false,
+      ...DEFAULT_EFFECT_CONFIG.neumorphism,
       backgroundColor: "#e0e5ec",
-      intensity: 0.15,
-      distance: 5,
-      altitude: 10,
-      borderRadius: "12px",
     },
   },
   components: {

@@ -336,6 +336,12 @@ export const API_CONTRACTS = {
       resolve: () => ENDPOINTS.auth.session,
       response: contractType<ApiResponse<UserDto>>(),
     }),
+    me: defineEndpoint({
+      id: "auth.me",
+      method: "GET",
+      resolve: () => ENDPOINTS.auth.me,
+      response: contractType<ApiResponse<UserDto>>(),
+    }),
     forgotPassword: defineEndpoint({
       id: "auth.forgotPassword",
       method: "POST",
@@ -419,8 +425,13 @@ export const API_CONTRACTS = {
         id: "auth.mfa.setup",
         method: "POST",
         resolve: () => ENDPOINTS.auth.mfa.setup,
+        // The seed never leaves the server on this route — it is held in Redis
+        // against the pending enrollment and only the QR payload and the
+        // manual-entry string come back.
         response:
-          contractType<ApiResponse<{ secret: string; qrCode: string }>>(),
+          contractType<
+            ApiResponse<{ qrDataUrl: string; manualEntry: string }>
+          >(),
       }),
       verify: defineEndpoint({
         id: "auth.mfa.verify",
@@ -436,11 +447,13 @@ export const API_CONTRACTS = {
         request: contractType<{ code: string }>(),
         response: contractType<MessageResponse>(),
       }),
+      // POST, not GET: issuing recovery codes mints new ones and invalidates
+      // the previous set, so it is not a safe read.
       recoveryCodes: defineEndpoint({
         id: "auth.mfa.recoveryCodes",
-        method: "GET",
+        method: "POST",
         resolve: () => ENDPOINTS.auth.mfa.recoveryCodes,
-        response: contractType<ApiResponse<{ codes: string[] }>>(),
+        response: contractType<ApiResponse<{ recoveryCodes: string[] }>>(),
       }),
       verifyLogin: defineEndpoint({
         id: "auth.mfa.verifyLogin",
@@ -449,6 +462,27 @@ export const API_CONTRACTS = {
         request: contractType<{ code: string }>(),
         response: contractType<ApiResponse<{ valid: boolean }>>(),
       }),
+      /**
+       * Step-up on an already-signed-in session. The account comes from the
+       * session, so unlike `verifyLogin` / `recoveryVerify` there is no MFA
+       * challenge token to present.
+       */
+      stepUp: {
+        totp: defineEndpoint({
+          id: "auth.mfa.stepUp.totp",
+          method: "POST",
+          resolve: () => ENDPOINTS.auth.mfa.stepUp.totp,
+          request: contractType<{ code: string }>(),
+          response: contractType<ApiResponse<{ verified: boolean }>>(),
+        }),
+        recovery: defineEndpoint({
+          id: "auth.mfa.stepUp.recovery",
+          method: "POST",
+          resolve: () => ENDPOINTS.auth.mfa.stepUp.recovery,
+          request: contractType<{ code: string }>(),
+          response: contractType<ApiResponse<{ verified: boolean }>>(),
+        }),
+      },
     },
     appealBan: defineEndpoint({
       id: "auth.appealBan",
@@ -1300,20 +1334,9 @@ export const API_CONTRACTS = {
         resolve: (id: number) => ENDPOINTS.admin.organizations.impersonate(id),
         response: contractType<ImpersonationToken>(),
       }),
-      domains: defineEndpoint({
-        id: "admin.organizations.domains",
-        method: "POST",
-        resolve: (id: number) => ENDPOINTS.admin.organizations.domains(id),
-        request: contractType<{ domain: string }>(),
-        response: contractType<DomainVerification>(),
-      }),
-      domainsCheck: defineEndpoint({
-        id: "admin.organizations.domainsCheck",
-        method: "GET",
-        resolve: (id: number, domainId: number) =>
-          ENDPOINTS.admin.organizations.domainsCheck(id, domainId),
-        response: contractType<DomainVerification>(),
-      }),
+      // `domains` / `domainsCheck` removed: they named organization-scoped
+      // routes the backend never served. Domain verification is tenant-level,
+      // under `admin.domains.verify` and `admin.domains.check`.
     },
     provisioning: {
       connectors: defineEndpoint({
@@ -1443,17 +1466,27 @@ export const API_CONTRACTS = {
       }),
     },
     domains: {
+      // The organization is named in the body, not the path — the backend
+      // resolves it from `organizationId`, falling back to a lookup on the
+      // domain itself.
       verify: defineEndpoint({
         id: "admin.domains.verify",
         method: "POST",
         resolve: () => ENDPOINTS.admin.domains.verify,
-        request: contractType<{ orgId: number; domain: string }>(),
+        request: contractType<{
+          domain: string;
+          organizationId?: number;
+          method?: string;
+        }>(),
         response: contractType<DomainVerification>(),
       }),
+      // POST, and keyed by the domain name rather than a verification id: the
+      // backend looks the pending verification up by domain.
       check: defineEndpoint({
         id: "admin.domains.check",
-        method: "GET",
+        method: "POST",
         resolve: () => ENDPOINTS.admin.domains.check,
+        request: contractType<{ domain: string }>(),
         response: contractType<DomainVerification>(),
       }),
     },

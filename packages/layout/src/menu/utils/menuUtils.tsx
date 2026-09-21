@@ -34,19 +34,33 @@ export const confirmUrlInChildren = (children: ChildrenType['children'], url: st
     const childProps = children.props as {
       component?: unknown
       href?: string
+      to?: string
       children?: ReactNode
     }
-    const { component, href, children: subChildren } = childProps
+    const { component, href, to, children: subChildren } = childProps
 
     if (component && typeof component !== 'string' && isValidElement(component)) {
-      const componentProps = component.props as { href?: string }
+      // `component` is typically a React Router `<Link to="...">` (see
+      // MenuItem's own `component={item.path ? <Link to={item.path} /> : 'div'}`),
+      // which carries `to`, not `href` - check both so active-route detection
+      // (auto-opening a SubMenu, or a CollapsibleMenuSection, that contains
+      // the current page) actually matches real nav items, not just ones
+      // built from a bare `href` prop.
+      const componentProps = component.props as { href?: string; to?: string }
       if (componentProps.href) {
         return componentProps.href === url
+      }
+      if (componentProps.to) {
+        return componentProps.to === url
       }
     }
 
     if (href) {
       return href === url
+    }
+
+    if (to) {
+      return to === url
     }
 
     if (subChildren) {

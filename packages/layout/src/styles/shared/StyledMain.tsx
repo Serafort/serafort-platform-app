@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles'
-import { mainTokens } from '@cap/theme'
+import { mainTokens, effectCanvasCss } from '@cap/theme'
 
 /**
  * StyledMain
@@ -28,7 +28,16 @@ const StyledMain = styled('main', {
     padding: theme.spacing(mainTokens.layout.paddingLg),
   },
   minHeight: mainTokens.layout.minHeight,
-  backgroundColor: theme.palette.background.default,
+  // An effect may publish its own ground - neumorphism has to, since its
+  // relief only reads when the panel and the canvas behind it are the same
+  // colour. Unset for every other effect, leaving the theme's own canvas.
+  backgroundColor: `var(--effect-canvas-bg, ${theme.palette.background.default})`,
+  // The content area also carries the ambient wash a blur-based effect asks
+  // for. Frosted panels sitting on a flat colour blur that flat colour, which
+  // looks precisely like not being frosted at all - the wash is what gives the
+  // blur something to reveal. It resolves to `none` for every other effect,
+  // leaving the canvas the flat colour above.
+  ...effectCanvasCss,
   transition: theme.transitions.create(['padding', 'max-width', 'inline-size'], {
     easing: 'ease-in-out',
     duration: mainTokens.layout.transitionDuration,

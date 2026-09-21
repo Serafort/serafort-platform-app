@@ -28,54 +28,24 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
 
   render() {
     const { loading, data, rowsPerPage, page } = this.props;
-    const fillArray = Array.apply(null, Array(5)).map((_, idx) => idx);
-    const properties = [];
-    for (let i = 0; i < data.header.length; i += 1)
-      properties.push(data.header[i].key);
-
-    // const hideActionMode = this.props?.hideActionMode ?? false
-    // const loading = this.props?.loading ?? false
-    // const TableOptions = this.props?.TableOptions ?? function () {}
-    // const rowsPerPage = this.props?.rowsPerPage ?? 10
-    // const page = this.props?.page ?? 0
-    // const onClick = this.props?.onClick ?? function () {}
-
-    // const rows = { data: data?.body }
-
-    // const options = []
-    // for (let i = 0; i < data?.headers?.length; i += 1)
-    //   if (data?.header[i]?.options)
-    //     options.push({
-    //       key: data?.headers[i]?.key,
-    //       options: data?.headers[i]?.options,
-    //     })
-    // if (this.state.idDelete) {
-    //   for (let i = 0; i < rows.data.length; i += 1) {
-    //     if (rows.data[i].id === this.state.idDelete) rows.data.splice(i, 1)
-    //   }
-    //   this.state.idDelete = ''
-    // }
+    const skeletonRows = Array.from({ length: 5 }, (_, idx) => idx);
 
     return (
       <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
         <TableHead>
           <TableRow>
-            {data?.header?.map((item: ITableHeader) => (
-              <TableCell
-                key={`${item.label}${Math.random()}${item.key}${Math.random()}`}
-              >
-                {item.label}
-              </TableCell>
+            {data?.header?.map((header: ITableHeader) => (
+              <TableCell key={header.key}>{header.label}</TableCell>
             ))}
             {this.props?.TableOptions && (
-              <TableCell key={`actions${Math.random() * properties.length}}`}>
+              <TableCell key="__actions__">
                 {/* // {translate('actions')} */}
                 actions
               </TableCell>
             )}
           </TableRow>
         </TableHead>
-        <TableBody key={`TableBody${Math.random()}`}>
+        <TableBody>
           {/* <FixedSizeList
               height={100}
               width={100}
@@ -85,10 +55,10 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
               cc
             </FixedSizeList> */}
           {loading &&
-            fillArray.map(() => (
-              <TableRow key={`TableRow${Math.random()}`}>
-                {data.header.map((item: ITableHeader) => (
-                  <TableCell key={`${item.label}${Math.random()}`}>
+            skeletonRows.map((rowIndex) => (
+              <TableRow key={`skeleton-${rowIndex}`}>
+                {data.header.map((header: ITableHeader) => (
+                  <TableCell key={`skeleton-${rowIndex}-${header.key}`}>
                     <Skeleton variant="text" sx={{ fontSize: "1rem" }} />
                   </TableCell>
                 ))}
@@ -98,26 +68,23 @@ class TableComponent extends React.PureComponent<ITableComponentI> {
           {!loading &&
             data.rows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row: ITableRow) => (
-                <TableRow hover key={`${row?.id ? row?.id : Math.random()}`}>
-                  {data.header.map((header: ITableHeader) => (
-                    <TableCell
-                      key={`${
-                        Object.keys(row).filter(
-                          (value) => value === header.key,
-                        )[0]
-                      }${Math.random()}${header.key}${Math.random()}`}
-                    >
-                      <TableValue property={header} row={row} />
-                    </TableCell>
-                  ))}
-                  {/* {this.props?.TableOptions && (
+              .map((row: ITableRow, rowIndex: number) => {
+                const rowKey = row?.id ?? rowIndex;
+                return (
+                  <TableRow hover key={rowKey}>
+                    {data.header.map((header: ITableHeader) => (
+                      <TableCell key={`${rowKey}-${header.key}`}>
+                        <TableValue property={header} row={row} />
+                      </TableCell>
+                    ))}
+                    {/* {this.props?.TableOptions && (
                       <TableCell align='right'>
                         <TableOptions data={row} onClick={onClick} />
                       </TableCell>
                     )} */}
-                </TableRow>
-              ))}
+                  </TableRow>
+                );
+              })}
         </TableBody>
       </Table>
     );

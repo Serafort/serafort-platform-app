@@ -1,7 +1,8 @@
+import React from "react";
 import { Link } from "react-router-dom";
-import { Typography } from "@mui/material";
+import { Typography, TypographyProps } from "@mui/material";
 
-export default function Copyright(props?: any) {
+export function Copyright(props?: TypographyProps) {
   return (
     <Typography
       variant="body2"
@@ -10,12 +11,14 @@ export default function Copyright(props?: any) {
       {...props}
     >
       {"Copyright © "}
-      <Link color="inherit" to="https://transitiondigitale.tech/">
+      <Link color="inherit" to="https://www.serafort.com/">
         {" "}
-        Transition Digitale
+        Serafort
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
     </Typography>
   );
 }
+
+export default Copyright;

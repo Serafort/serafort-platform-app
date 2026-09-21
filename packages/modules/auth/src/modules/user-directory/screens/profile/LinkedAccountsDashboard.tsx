@@ -1,6 +1,3 @@
-// LinkedAccountsDashboard.tsx
-// High-fidelity Linked Accounts & Social OAuth Integration Dashboard matching profile.tsx
-
 import React, { useMemo, useState, useEffect } from 'react'
 import {
   Box,
@@ -46,10 +43,14 @@ import LinkOffIcon from '@mui/icons-material/LinkOff'
 import CloseIcon from '@mui/icons-material/Close'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import { motion } from 'framer-motion'
 
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useNotifications, API_CONFIG, ENDPOINTS } from '@cap/platform-core'
+import { useNotifications, API_CONFIG } from '@cap/platform-core'
+import { buildLayoutSurfaceEffect } from '@cap/layout'
+import { getTenantThemeEffects } from '@cap/theme'
+import { Path } from '@cap/module-auth/routes/path'
 import { useLinkedAccounts, useUnlinkAccount, useGetUser } from '../../hooks/useUserQuery'
 import { LinkedAccountDTO } from '@idaas/authentication-core/types/api.types'
 
@@ -87,6 +88,9 @@ export default function LinkedAccountsDashboard() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { addNotification } = useNotifications()
+
+  const effects = getTenantThemeEffects(theme)
+  const surfaceEffect = buildLayoutSurfaceEffect(effects, theme)
 
   const [selectedProviderId, setSelectedProviderId] = useState<string>('google')
   const [isUnlinkDialogOpen, setIsUnlinkDialogOpen] = useState<boolean>(false)
@@ -224,99 +228,119 @@ export default function LinkedAccountsDashboard() {
   }
 
   return (
-    <Container maxWidth='lg' sx={{ py: { xs: 2.5, md: 4 } }}>
-      {/* Navigation Header */}
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        justifyContent='space-between'
-        alignItems={{ xs: 'flex-start', sm: 'center' }}
-        spacing={2}
-        mb={3.5}
-      >
-        <Box>
-          <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate('/profile')}
-            sx={{
-              mb: 1,
-              textTransform: 'none',
-              fontWeight: 600,
-              color: 'text.secondary',
-              p: 0,
-              minWidth: 0,
-              '&:hover': { bgcolor: 'transparent', color: 'text.primary' },
-            }}
-          >
-            Back to Profile
-          </Button>
-          <Stack direction='row' spacing={1.5} alignItems='center'>
-            <Typography variant='h4' fontWeight={800} letterSpacing='-0.02em'>
-              Linked Accounts
-            </Typography>
-            {isAccountsFetching && !isAccountsLoading && (
-              <CircularProgress size={16} sx={{ color: 'text.secondary' }} />
-            )}
-          </Stack>
-          <Typography variant='body2' color='text.secondary'>
-            Connect third-party identity providers to enable frictionless single sign-on (SSO).
-          </Typography>
-        </Box>
-
-        <Tooltip title='Refresh Connected Accounts'>
-          <IconButton
-            onClick={() => refetchAccounts()}
-            size='small'
-            sx={{
-              border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
-              borderRadius: 2,
-              p: 1,
-            }}
-          >
-            <RefreshIcon fontSize='small' />
-          </IconButton>
-        </Tooltip>
-      </Stack>
-
-      {/* Error Alert */}
-      {isAccountsError && (
-        <Alert
-          severity='error'
-          sx={{ mb: 3 }}
-          action={
-            <Button color='inherit' size='small' onClick={() => refetchAccounts()}>
-              Retry
-            </Button>
-          }
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      <Container maxWidth='lg' sx={{ py: { xs: 2.5, md: 4 } }}>
+        {/* Navigation Header */}
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          justifyContent='space-between'
+          alignItems={{ xs: 'flex-start', sm: 'center' }}
+          spacing={2}
+          mb={3.5}
         >
-          {(accountsError as any)?.message || 'Failed to load linked accounts. Please try again.'}
-        </Alert>
-      )}
+          <Box>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => navigate(Path.account.view || '/profile')}
+              sx={{
+                mb: 1.5,
+                textTransform: 'none',
+                fontWeight: 600,
+                color: 'text.secondary',
+                minHeight: 44,
+                px: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                bgcolor: alpha(theme.palette.action.active, 0.04),
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.action.active, 0.08),
+                  color: 'text.primary',
+                },
+              }}
+            >
+              {t('common.backToProfile', 'Back to Profile')}
+            </Button>
+            <Stack direction='row' spacing={1.5} alignItems='center'>
+              <Typography variant='h4' fontWeight={800} letterSpacing='-0.02em'>
+                {t('auth.linkedAccounts.title', 'Linked Accounts')}
+              </Typography>
+              {isAccountsFetching && !isAccountsLoading && (
+                <CircularProgress size={16} sx={{ color: 'text.secondary' }} />
+              )}
+            </Stack>
+            <Typography variant='body2' color='text.secondary'>
+              {t(
+                'auth.linkedAccounts.subtitle',
+                'Connect third-party identity providers to enable frictionless single sign-on (SSO).'
+              )}
+            </Typography>
+          </Box>
 
-      {/* Main Container Grid */}
-      <Grid container spacing={3}>
-        {/* Left Column: Providers List */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card
-            sx={{
-              borderRadius: 3,
-              border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
-              boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
-              overflow: 'hidden',
-              bgcolor: 'background.paper',
-            }}
+          <Tooltip title={t('auth.linkedAccounts.refresh', 'Refresh Connected Accounts')}>
+            <IconButton
+              onClick={() => refetchAccounts()}
+              size='small'
+              sx={{
+                border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                minWidth: 44,
+                minHeight: 44,
+              }}
+            >
+              <RefreshIcon fontSize='small' />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+
+        {/* Error Alert */}
+        {isAccountsError && (
+          <Alert
+            severity='error'
+            sx={{ mb: 3, borderRadius: 'var(--sf-radius-md, 8px)' }}
+            action={
+              <Button
+                color='inherit'
+                size='small'
+                onClick={() => refetchAccounts()}
+                sx={{ minHeight: 36, borderRadius: 'var(--sf-radius-sm, 6px)' }}
+              >
+                {t('common.retry', 'Retry')}
+              </Button>
+            }
           >
-            <Box sx={{ p: 2.5, pb: 1.5 }}>
-              <Typography variant='subtitle2' fontWeight={700}>
-                Identity Providers
-              </Typography>
-              <Typography variant='caption' color='text.secondary'>
-                Select a provider to view status & permissions
-              </Typography>
-            </Box>
+            {(accountsError as any)?.message ||
+              t('auth.linkedAccounts.errorLoading', 'Failed to load linked accounts. Please try again.')}
+          </Alert>
+        )}
 
-            <Divider sx={{ opacity: 0.6 }} />
+        {/* Main Container Grid */}
+        <Grid container spacing={3}>
+          {/* Left Column: Providers List */}
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Card
+              sx={{
+                borderRadius: 'var(--sf-radius-lg, 16px)',
+                border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                overflow: 'hidden',
+                bgcolor: 'background.paper',
+                ...surfaceEffect,
+              }}
+            >
+              <Box sx={{ p: 2.5, pb: 1.5 }}>
+                <Typography variant='subtitle2' fontWeight={700}>
+                  {t('auth.linkedAccounts.providersHeader', 'Identity Providers')}
+                </Typography>
+                <Typography variant='caption' color='text.secondary'>
+                  {t('auth.linkedAccounts.providersSubheader', 'Select a provider to view status & permissions')}
+                </Typography>
+              </Box>
 
-            <List disablePadding>
+              <Divider sx={{ opacity: 0.6 }} />
+
+              <List disablePadding>
               {isAccountsLoading
                 ? Array.from({ length: 4 }).map((_, idx) => (
                     <ListItem key={idx} sx={{ p: 2 }}>
@@ -413,17 +437,17 @@ export default function LinkedAccountsDashboard() {
         {/* Right Column: Provider Details Pane */}
         <Grid size={{ xs: 12, md: 8 }}>
           {isAccountsLoading ? (
-            <Card sx={{ p: 4, borderRadius: 3 }}>
-              <Skeleton variant='rectangular' height={280} sx={{ borderRadius: 2 }} />
+            <Card sx={{ p: 4, borderRadius: 'var(--sf-radius-lg, 16px)', ...surfaceEffect }}>
+              <Skeleton variant='rectangular' height={280} sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }} />
             </Card>
           ) : selectedProvider ? (
             <Card
               sx={{
-                borderRadius: 3,
-                border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
-                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)',
+                borderRadius: 'var(--sf-radius-lg, 16px)',
+                border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                 bgcolor: 'background.paper',
                 overflow: 'hidden',
+                ...surfaceEffect,
               }}
             >
               <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
@@ -440,9 +464,9 @@ export default function LinkedAccountsDashboard() {
                       sx={{
                         width: 52,
                         height: 52,
+                        borderRadius: 'var(--sf-radius-md, 12px)',
                         bgcolor: alpha(theme.palette.background.default, 0.8),
-                        border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+                        border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
                       }}
                     >
                       {selectedProvider.icon}
@@ -455,17 +479,17 @@ export default function LinkedAccountsDashboard() {
                         {isSelectedConnected ? (
                           <Chip
                             icon={<CheckCircleIcon sx={{ fontSize: '14px !important' }} />}
-                            label='Connected'
+                            label={t('auth.linkedAccounts.connected', 'Connected')}
                             color='success'
                             size='small'
-                            sx={{ fontWeight: 700, fontSize: '0.75rem' }}
+                            sx={{ fontWeight: 700, fontSize: '0.75rem', borderRadius: 'var(--sf-radius-sm, 6px)' }}
                           />
                         ) : (
                           <Chip
-                            label='Not Connected'
+                            label={t('auth.linkedAccounts.notConnected', 'Not Connected')}
                             size='small'
                             variant='outlined'
-                            sx={{ fontWeight: 600, fontSize: '0.75rem' }}
+                            sx={{ fontWeight: 600, fontSize: '0.75rem', borderRadius: 'var(--sf-radius-sm, 6px)' }}
                           />
                         )}
                       </Stack>
@@ -486,11 +510,12 @@ export default function LinkedAccountsDashboard() {
                       sx={{
                         textTransform: 'none',
                         fontWeight: 600,
-                        borderRadius: 2,
+                        minHeight: 48,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         borderColor: alpha(theme.palette.error.main, 0.3),
                       }}
                     >
-                      Disconnect
+                      {t('auth.linkedAccounts.disconnect', 'Disconnect')}
                     </Button>
                   ) : (
                     <Button
@@ -500,11 +525,14 @@ export default function LinkedAccountsDashboard() {
                       sx={{
                         textTransform: 'none',
                         fontWeight: 700,
-                        borderRadius: 2,
+                        minHeight: 48,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         px: 2.5,
                       }}
                     >
-                      Connect {selectedProvider.name}
+                      {t('auth.linkedAccounts.connectProvider', 'Connect {{provider}}', {
+                        provider: selectedProvider.name,
+                      })}
                     </Button>
                   )}
                 </Stack>
@@ -515,13 +543,13 @@ export default function LinkedAccountsDashboard() {
                 {isSelectedConnected && selectedProvider.account && (
                   <Box mb={3.5}>
                     <Typography variant='subtitle2' fontWeight={700} mb={1.5}>
-                      Linked Account Details
+                      {t('auth.linkedAccounts.detailsTitle', 'Linked Account Details')}
                     </Typography>
                     <Paper
                       variant='outlined'
                       sx={{
                         p: 2.5,
-                        borderRadius: 2,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
                         bgcolor: alpha(theme.palette.background.default, 0.4),
                         borderColor: alpha(theme.palette.divider, 0.12),
                       }}
@@ -529,7 +557,7 @@ export default function LinkedAccountsDashboard() {
                       <Grid container spacing={2}>
                         <Grid size={{ xs: 12, sm: 6 }}>
                           <Typography variant='caption' color='text.secondary' display='block'>
-                            Connected Identity Email
+                            {t('auth.linkedAccounts.identityEmail', 'Connected Identity Email')}
                           </Typography>
                           <Typography variant='body2' fontWeight={600}>
                             {selectedProvider.account.email || 'Primary Account Email'}
@@ -537,7 +565,7 @@ export default function LinkedAccountsDashboard() {
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                           <Typography variant='caption' color='text.secondary' display='block'>
-                            Connected On
+                            {t('auth.linkedAccounts.connectedOn', 'Connected On')}
                           </Typography>
                           <Typography variant='body2' fontWeight={600}>
                             {(selectedProvider.account as any)?.linkedAt ||
@@ -565,13 +593,19 @@ export default function LinkedAccountsDashboard() {
                   <Stack direction='row' spacing={1} alignItems='center' mb={1.5}>
                     <SecurityIcon fontSize='small' color='action' />
                     <Typography variant='subtitle2' fontWeight={700}>
-                      Permissions & Scopes
+                      {t('auth.linkedAccounts.permissionsTitle', 'Permissions & Scopes')}
                     </Typography>
                   </Stack>
                   <Typography variant='caption' color='text.secondary' display='block' mb={1.5}>
                     {isSelectedConnected
-                      ? 'The following OAuth permissions have been authorized for this service:'
-                      : 'Connecting this account will request authorization for the following scopes:'}
+                      ? t(
+                          'auth.linkedAccounts.authorizedScopes',
+                          'The following OAuth permissions have been authorized for this service:'
+                        )
+                      : t(
+                          'auth.linkedAccounts.requestedScopes',
+                          'Connecting this account will request authorization for the following scopes:'
+                        )}
                   </Typography>
                   <Stack direction='row' flexWrap='wrap' gap={1}>
                     {selectedProvider.permissions.map((perm, idx) => (
@@ -589,6 +623,7 @@ export default function LinkedAccountsDashboard() {
                         variant={isSelectedConnected ? 'filled' : 'outlined'}
                         sx={{
                           fontWeight: 600,
+                          borderRadius: 'var(--sf-radius-sm, 6px)',
                           bgcolor: isSelectedConnected
                             ? alpha(theme.palette.success.main, 0.08)
                             : undefined,
@@ -607,14 +642,14 @@ export default function LinkedAccountsDashboard() {
                     <Stack direction='row' spacing={1} alignItems='center' mb={1.5}>
                       <HistoryIcon fontSize='small' color='action' />
                       <Typography variant='subtitle2' fontWeight={700}>
-                        Authentication Activity
+                        {t('auth.linkedAccounts.activityTitle', 'Authentication Activity')}
                       </Typography>
                     </Stack>
                     <List dense sx={{ p: 0 }}>
                       <ListItem disableGutters>
                         <ListItemText
-                          primary='Last Authorized Session'
-                          secondary='Active token valid for Single Sign-On'
+                          primary={t('auth.linkedAccounts.lastAuthSession', 'Last Authorized Session')}
+                          secondary={t('auth.linkedAccounts.ssoActiveToken', 'Active token valid for Single Sign-On')}
                           primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
                           secondaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
                         />
@@ -628,7 +663,7 @@ export default function LinkedAccountsDashboard() {
                   <Box
                     sx={{
                       p: 2.5,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 12px)',
                       bgcolor: alpha(theme.palette.error.main, 0.04),
                       border: `1px solid ${alpha(theme.palette.error.main, 0.15)}`,
                     }}
@@ -642,21 +677,30 @@ export default function LinkedAccountsDashboard() {
                           color='error.main'
                           gutterBottom
                         >
-                          Disconnect {selectedProvider.name} Account
+                          {t('auth.linkedAccounts.disconnectWarningTitle', 'Disconnect {{provider}} Account', {
+                            provider: selectedProvider.name,
+                          })}
                         </Typography>
                         <Typography variant='body2' color='text.secondary' mb={2}>
-                          Disconnecting will remove {selectedProvider.name} as a single sign-on
-                          method. You will need to use your password or another connected provider
-                          to log in.
+                          {t(
+                            'auth.linkedAccounts.disconnectWarningBody',
+                            'Disconnecting will remove {{provider}} as a single sign-on method. You will need to use your password or another connected provider to log in.',
+                            { provider: selectedProvider.name }
+                          )}
                         </Typography>
                         <Button
                           variant='contained'
                           color='error'
                           onClick={handleOpenUnlinkDialog}
                           disabled={unlinkMutation.isPending}
-                          sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
+                          sx={{
+                            textTransform: 'none',
+                            fontWeight: 700,
+                            minHeight: 44,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
+                          }}
                         >
-                          Disconnect Account
+                          {t('auth.linkedAccounts.disconnectAccountBtn', 'Disconnect Account')}
                         </Button>
                       </Box>
                     </Stack>
@@ -665,7 +709,7 @@ export default function LinkedAccountsDashboard() {
                   <Box
                     sx={{
                       p: 2.5,
-                      borderRadius: 2,
+                      borderRadius: 'var(--sf-radius-md, 12px)',
                       bgcolor: alpha(theme.palette.primary.main, 0.04),
                       border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
                     }}
@@ -679,18 +723,30 @@ export default function LinkedAccountsDashboard() {
                           color='primary.main'
                           gutterBottom
                         >
-                          Enable 1-Click Login with {selectedProvider.name}
+                          {t('auth.linkedAccounts.enableOneClick', 'Enable 1-Click Login with {{provider}}', {
+                            provider: selectedProvider.name,
+                          })}
                         </Typography>
                         <Typography variant='body2' color='text.secondary' mb={2}>
-                          Link your {selectedProvider.name} account to securely log in with a single
-                          click without having to enter your password each time.
+                          {t(
+                            'auth.linkedAccounts.oneClickDescription',
+                            'Link your {{provider}} account to securely log in with a single click without having to enter your password each time.',
+                            { provider: selectedProvider.name }
+                          )}
                         </Typography>
                         <Button
                           variant='contained'
                           onClick={() => handleConnect(selectedProvider.id)}
-                          sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
+                          sx={{
+                            textTransform: 'none',
+                            fontWeight: 700,
+                            minHeight: 44,
+                            borderRadius: 'var(--sf-radius-md, 8px)',
+                          }}
                         >
-                          Connect {selectedProvider.name}
+                          {t('auth.linkedAccounts.connectProvider', 'Connect {{provider}}', {
+                            provider: selectedProvider.name,
+                          })}
                         </Button>
                       </Box>
                     </Stack>
@@ -708,11 +764,14 @@ export default function LinkedAccountsDashboard() {
         onClose={unlinkMutation.isPending ? undefined : () => setIsUnlinkDialogOpen(false)}
         maxWidth='xs'
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.25)',
-            border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 'var(--sf-radius-lg, 16px)',
+              boxShadow: 'var(--sf-shadow-xl)',
+              border: `1px solid ${alpha(theme.palette.divider, 0.15)}`,
+              ...surfaceEffect,
+            },
           },
         }}
       >
@@ -729,7 +788,7 @@ export default function LinkedAccountsDashboard() {
             <Box
               sx={{
                 p: 1,
-                borderRadius: 2,
+                borderRadius: 'var(--sf-radius-md, 8px)',
                 bgcolor: alpha(theme.palette.error.main, 0.1),
                 color: theme.palette.error.main,
                 display: 'flex',
@@ -739,10 +798,10 @@ export default function LinkedAccountsDashboard() {
             </Box>
             <Box>
               <Typography variant='h6' fontWeight={700}>
-                Disconnect Account
+                {t('auth.linkedAccounts.disconnectTitle', 'Disconnect Account')}
               </Typography>
               <Typography variant='caption' color='text.secondary'>
-                {selectedProvider?.name} Identity Link
+                {selectedProvider?.name} {t('auth.linkedAccounts.identityLink', 'Identity Link')}
               </Typography>
             </Box>
           </Stack>
@@ -750,6 +809,7 @@ export default function LinkedAccountsDashboard() {
             onClick={() => setIsUnlinkDialogOpen(false)}
             size='small'
             disabled={unlinkMutation.isPending}
+            sx={{ minWidth: 44, minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)' }}
           >
             <CloseIcon fontSize='small' />
           </IconButton>
@@ -758,15 +818,20 @@ export default function LinkedAccountsDashboard() {
         <DialogContent sx={{ p: 3, pt: 1 }}>
           <Stack spacing={2}>
             {isOnlyLoginMethod ? (
-              <Alert severity='error'>
-                <strong>Lockout Prevention Warning:</strong> This is currently your only connected
-                login method and you do not have a local password configured. Disconnecting this
-                account will lock you out of your profile. Please set a password first.
+              <Alert severity='error' sx={{ borderRadius: 'var(--sf-radius-md, 8px)' }}>
+                <strong>{t('auth.linkedAccounts.lockoutWarning', 'Lockout Prevention Warning:')}</strong>{' '}
+                {t(
+                  'auth.linkedAccounts.lockoutDesc',
+                  'This is currently your only connected login method and you do not have a local password configured. Disconnecting this account will lock you out of your profile. Please set a password first.'
+                )}
               </Alert>
             ) : (
               <Typography variant='body2' color='text.secondary'>
-                Are you sure you want to disconnect your <strong>{selectedProvider?.name}</strong>{' '}
-                account ({selectedProvider?.account?.email})? You can reconnect it at any time.
+                {t('auth.linkedAccounts.confirmDisconnectPrompt', 'Are you sure you want to disconnect your')}{' '}
+                <strong>{selectedProvider?.name}</strong>{' '}
+                {t('auth.linkedAccounts.accountWord', 'account')}{' '}
+                ({selectedProvider?.account?.email})?{' '}
+                {t('auth.linkedAccounts.reconnectNotice', 'You can reconnect it at any time.')}
               </Typography>
             )}
           </Stack>
@@ -783,9 +848,14 @@ export default function LinkedAccountsDashboard() {
           <Button
             onClick={() => setIsUnlinkDialogOpen(false)}
             color='inherit'
-            sx={{ textTransform: 'none', fontWeight: 600 }}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 600,
+              minHeight: 44,
+              borderRadius: 'var(--sf-radius-md, 8px)',
+            }}
           >
-            Cancel
+            {t('common.cancel', 'Cancel')}
           </Button>
 
           {isOnlyLoginMethod ? (
@@ -794,11 +864,16 @@ export default function LinkedAccountsDashboard() {
               startIcon={<VpnKeyIcon />}
               onClick={() => {
                 setIsUnlinkDialogOpen(false)
-                navigate('/profile?edit=true')
+                navigate(Path.account.view ? `${Path.account.view}?edit=true` : '/profile?edit=true')
               }}
-              sx={{ textTransform: 'none', fontWeight: 700 }}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 700,
+                minHeight: 48,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+              }}
             >
-              Set Password First
+              {t('auth.linkedAccounts.setPasswordFirst', 'Set Password First')}
             </Button>
           ) : (
             <Button
@@ -806,17 +881,24 @@ export default function LinkedAccountsDashboard() {
               variant='contained'
               color='error'
               disabled={unlinkMutation.isPending}
-              sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2, minWidth: 120 }}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 700,
+                borderRadius: 'var(--sf-radius-md, 8px)',
+                minWidth: 120,
+                minHeight: 48,
+              }}
             >
               {unlinkMutation.isPending ? (
                 <CircularProgress size={20} color='inherit' />
               ) : (
-                'Disconnect'
+                t('auth.linkedAccounts.disconnect', 'Disconnect')
               )}
             </Button>
           )}
         </DialogActions>
       </Dialog>
     </Container>
+    </motion.div>
   )
 }

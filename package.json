@@ -11,12 +11,17 @@
     "dev": "pnpm --filter @cap/app run dev",
     "build": "pnpm -r run build",
     "lint": "pnpm -r run lint",
-    "lint:circular": "npx madge --circular --extensions ts,tsx --exclude dist ./app/src ./packages/api-contracts/src ./packages/auth-contracts/src ./packages/layout/src ./packages/modules/auth/src ./packages/modules/landing/src ./packages/modules/theme/src ./packages/platform-core/src ./packages/platform-store/src ./packages/shared-types/src ./packages/theme/src",
-    "lint:circular:graph": "npx madge --circular --image graph.svg --extensions ts,tsx --exclude dist ./app/src ./packages/api-contracts/src ./packages/auth-contracts/src ./packages/layout/src ./packages/modules/auth/src ./packages/modules/landing/src ./packages/modules/theme/src ./packages/platform-core/src ./packages/platform-store/src ./packages/shared-types/src ./packages/theme/src",
+    "lint:circular": "npx madge --circular --extensions ts,tsx --exclude dist ./app/src ./packages/shared-types/src ./packages/api-contracts/src ./packages/platform-store/src ./packages/theme/src ./packages/auth-contracts/src ./packages/authorization/src ./packages/platform-core/src ./packages/layout/src ./packages/modules/auth/src ./packages/modules/dashboard/src ./packages/modules/landing/src ./packages/modules/theme/src ./packages/modules/widget-studio/src",
+    "lint:circular:graph": "npx madge --circular --image graph.svg --extensions ts,tsx --exclude dist ./app/src ./packages/shared-types/src ./packages/api-contracts/src ./packages/platform-store/src ./packages/theme/src ./packages/auth-contracts/src ./packages/authorization/src ./packages/platform-core/src ./packages/layout/src ./packages/modules/auth/src ./packages/modules/dashboard/src ./packages/modules/landing/src ./packages/modules/theme/src ./packages/modules/widget-studio/src",
     "test:e2e": "pnpm --filter @cap/app run test:e2e",
     "cspell": "cspell --no-progress --show-suggestions --relative --dot --gitignore \"**\"",
     "audit:ci": "pnpm audit --audit-level=high --prod",
-    "generate:module": "plop"
+    "release:package": "node scripts/package-release.mjs",
+    "release:build": "pnpm --filter @cap/app run build && node scripts/package-release.mjs",
+    "generate:module": "plop",
+    "lint:boundaries": "node scripts/check-tier-boundaries.mjs",
+    "lint:architecture": "pnpm lint:boundaries && pnpm lint:boundaries:eslint && pnpm lint:circular",
+    "lint:boundaries:eslint": "eslint --quiet --config eslint.config.js \"packages/**/src/**/*.{ts,tsx}\" \"app/src/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@mui/utils": "^7.3.9",
@@ -31,7 +36,11 @@
     "madge": "^8.0.0",
     "plop": "^4.0.1",
     "typescript": "^5.7.3",
-    "vite-plugin-pwa": "^1.2.0"
+    "vite-plugin-pwa": "^1.2.0",
+    "eslint-plugin-boundaries": "^7.2.0",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint": "^9.39.4",
+    "typescript-eslint": "^8.58.1"
   },
   "pnpm": {
     "overrides": {
@@ -50,13 +59,25 @@
       "morgan": "^1.11.0",
       "js-yaml@^4": "^4.3.1",
       "vite": "^7.3.5",
-      "@vitest/browser": "^4.1.10",
-      "browserslist": ">=4.28.7"
+      "@vitest/browser": "^4.1.11",
+      "@vitest/browser-playwright": "^4.1.11",
+      "@vitest/coverage-v8": "^4.1.11",
+      "@vitest/mocker": "^4.1.11",
+      "vitest": "^4.1.11",
+      "browserslist": ">=4.28.7",
+      "js-yaml@^3": "^3.15.2",
+      "@babel/core": "^7.29.7",
+      "body-parser": "^1.20.6",
+      "valibot": "^1.4.2",
+      "@humanfs/node": "^0.16.8",
+      "esbuild": "^0.28.2",
+      "uuid": "^11.1.1"
     },
     "auditConfig": {
-      "//": "extract-zip: no fixed release exists (advisory 'patched: <0.0.0'); reached only through the @lhci/cli > lighthouse > puppeteer-core dev chain, never shipped. js-yaml 3.x: EOL, no 3.15.1 release; reached only through @lhci/cli (dev). The blocking `audit:ci` gate runs with --prod and does not see either path.",
+      "//": "extract-zip: no fixed release exists upstream (advisory patched_version is null); reached only through the @lhci/cli > lighthouse > puppeteer-core dev chain (never shipped to production). js-yaml 3.x: was EOL with no 3.15.x release when this comment was first written, but the maintainers have since published 3.15.0-3.15.2 (2026-06 through 2026-08); pinned via the `js-yaml@^3` override above instead of ignored. The blocking `audit:ci` gate runs with --prod and does not see either path.",
       "ignoreGhsas": [
-        "GHSA-jmr9-qjv8-65gv"
+        "GHSA-jmr9-qjv8-65gv",
+        "GHSA-7pqw-9j4j-h8q3"
       ]
     }
   }

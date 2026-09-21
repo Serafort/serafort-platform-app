@@ -96,3 +96,11 @@ We rely on **Playwright** for robust End-to-End (E2E) integration tests, specifi
 - **Security Audits:** `pnpm run audit:ci` checks dependencies for known vulnerabilities.
 - **Circular Dependency Check:** `pnpm run lint:circular` (madge) — also wired into the pre-commit hook.
 - **Coupling Analysis:** `node scripts/analyze-coupling.cjs` writes real Ce/Ca/instability metrics to `docs/MODULE_COUPLING_REPORT.md` and verifies architectural boundaries between packages.
+
+### Releasing
+
+`@cap/app` ships as a static site. Pushing a `v*` tag runs the release pipeline
+(`.github/workflows/release.yml`): it re-runs the blocking gates, builds against
+the production environment, verifies the bundle, and attaches one checksummed
+tarball to a GitHub Release. Produce the same package locally with
+`pnpm run release:build`. See [docs/release-pipeline.md](docs/release-pipeline.md).

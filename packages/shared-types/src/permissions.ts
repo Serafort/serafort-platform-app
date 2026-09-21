@@ -1,7 +1,7 @@
 /**
  * @cap/shared-types — Atomic Permissions Catalog
  *
- * The smallest irreducible authorization units in the CAP framework.
+ * The smallest irreducible authorization units in theSerafort.
  * Every permission follows the strict `domain:resource:action` syntax.
  *
  * Usage:

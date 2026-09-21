@@ -2,10 +2,10 @@
  * I18n Registry for Layout Module
  *
  * Registers module-specific dictionaries and re-exports canonical
- * i18n functions from @cap/platform-core.
+ * i18n functions from @cap/shared-types (Tier 0).
  */
 
-import { registerDictionary } from '@cap/platform-core'
+import { registerDictionary } from '@cap/shared-types'
 import en from '../data/dictionaries/en.json'
 import fr from '../data/dictionaries/fr.json'
 import ar from '../data/dictionaries/ar.json'
@@ -26,4 +26,4 @@ export {
   type DictionaryMap,
   i18n,
   type Locale,
-} from '@cap/platform-core'
+} from '@cap/shared-types'

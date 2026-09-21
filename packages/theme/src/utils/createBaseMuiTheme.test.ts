@@ -48,6 +48,70 @@ describe("createBaseMuiTheme", () => {
     });
   });
 
+  describe("coloured elevation rings (customShadows)", () => {
+    it("keeps legacy hues when no brand colours are passed", () => {
+      const theme = createBaseMuiTheme(
+        defaultSettings,
+        "light" as SystemMode,
+        "ltr" as Direction,
+      );
+
+      const primary = theme.customShadows?.primary as { md: string };
+      expect(primary.md).toBe("rgba(115, 103, 240, 0.4) 0px 4px 16px");
+    });
+
+    it("projects the coloured rings from the tenant's brand + status colours", () => {
+      const theme = createBaseMuiTheme(
+        defaultSettings,
+        "light" as SystemMode,
+        "ltr" as Direction,
+        {
+          primary: "#047BFA",
+          error: "#FF0000",
+        },
+      );
+
+      const primary = theme.customShadows?.primary as {
+        sm: string;
+        md: string;
+        lg: string;
+      };
+      expect(primary.sm).toBe("rgba(4, 123, 250, 0.3) 0px 2px 6px");
+      expect(primary.md).toBe("rgba(4, 123, 250, 0.4) 0px 4px 16px");
+      expect(primary.lg).toBe("rgba(4, 123, 250, 0.5) 0px 6px 20px");
+
+      const error = theme.customShadows?.error as { md: string };
+      expect(error.md).toBe("rgba(255, 0, 0, 0.4) 0px 4px 16px");
+
+      // A slot with no colour supplied still falls back to its legacy hue.
+      const success = theme.customShadows?.success as { md: string };
+      expect(success.md).toBe("rgba(40, 199, 111, 0.4) 0px 4px 16px");
+    });
+
+    it("falls back to the legacy hue when a brand colour is unparseable", () => {
+      const theme = createBaseMuiTheme(
+        defaultSettings,
+        "light" as SystemMode,
+        "ltr" as Direction,
+        { primary: "not-a-color" },
+      );
+
+      const primary = theme.customShadows?.primary as { md: string };
+      expect(primary.md).toBe("rgba(115, 103, 240, 0.4) 0px 4px 16px");
+    });
+
+    it("uses settings.primaryColor for the primary ring when no explicit primary is given", () => {
+      const theme = createBaseMuiTheme(
+        { ...defaultSettings, primaryColor: "#047BFA" },
+        "light" as SystemMode,
+        "ltr" as Direction,
+      );
+
+      const primary = theme.customShadows?.primary as { md: string };
+      expect(primary.md).toBe("rgba(4, 123, 250, 0.4) 0px 4px 16px");
+    });
+  });
+
   describe("typography and shape", () => {
     it("should include shape configuration", () => {
       const theme = createBaseMuiTheme(

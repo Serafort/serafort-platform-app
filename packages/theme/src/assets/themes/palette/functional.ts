@@ -1,45 +1,53 @@
+/**
+ * Serafort functional palette.
+ * Values come from the brand kit (`serafort_brand/brand-kit/tokens`);
+ * light/dark stops are derived from the same blue ramp.
+ */
 export const colors = {
   primary: {
-    main: "#D4AF37",
-    light: "#E0C55B",
-    dark: "#B8982F",
-    contrastText: "#1A1A1A",
+    main: "#047BFA", // brand blue
+    light: "#06A0FC", // brand sky
+    dark: "#044BC4", // brand royal blue
+    contrastText: "#FFFFFF",
   },
   secondary: {
-    main: "#8B4513",
-    light: "#A0522D",
-    dark: "#6B3410",
-    contrastText: "#FDFDFD",
+    main: "#032457", // brand navy
+    light: "#0437A2", // brand deep blue
+    dark: "#031433", // brand ink
+    contrastText: "#FFFFFF",
   },
   error: {
-    main: "#DC3545",
-    light: "#E35D6A",
-    dark: "#C82333",
-    contrastText: "#FFF",
+    main: "#DC2626",
+    light: "#EF4444",
+    dark: "#B91C1C",
+    contrastText: "#FFFFFF",
   },
   success: {
-    main: "#28A745",
-    light: "#48B461",
-    dark: "#1E7E34",
-    contrastText: "#FFF",
+    main: "#16A34A",
+    light: "#22C55E",
+    dark: "#15803D",
+    contrastText: "#FFFFFF",
   },
   warning: {
-    main: "#FF9F43",
-    light: "#FFB269",
-    dark: "#E68F3C",
-    contrastText: "#1A1A1A",
+    main: "#D97706",
+    light: "#F59E0B",
+    dark: "#B45309",
+    contrastText: "#031433",
   },
   info: {
-    main: "#2F4F4F",
-    light: "#4A6A6A",
-    dark: "#1F3333",
-    contrastText: "#FFF",
+    main: "#047BFA",
+    light: "#06A0FC",
+    dark: "#0437A2",
+    contrastText: "#FFFFFF",
   },
   brand: {
-    gold: "#D4AF37",
-    brown: "#8B4513",
-    slate: "#2F4F4F",
-    cream: "#F5F5DC",
+    ink: "#031433",
+    navy: "#032457",
+    deepBlue: "#0437A2",
+    royalBlue: "#044BC4",
+    blue: "#047BFA",
+    sky: "#06A0FC",
+    cyan: "#06CBFD",
   },
 };
 

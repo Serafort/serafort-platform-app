@@ -38,6 +38,7 @@ export function useTenantTheme(
     queryKey: THEME_QUERY_KEYS.tenant(organizationId || "current"),
     queryFn: () => themeService.getTenantTheme(organizationId),
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false,
     ...options,
   });
 }

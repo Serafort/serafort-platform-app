@@ -41,7 +41,7 @@ const StyledLiquidGlassCard = styled("div")<
     background ||
     (isLight
       ? alpha(theme.palette.background.paper || "#ffffff", resolvedOpacity)
-      : alpha(theme.palette.background.paper || "#17171F", resolvedOpacity));
+      : alpha(theme.palette.background.paper || "#032457", resolvedOpacity));
 
   const resolvedBorderColor =
     borderColor ||

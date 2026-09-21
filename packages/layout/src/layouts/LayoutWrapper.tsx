@@ -4,6 +4,7 @@ import { useSettings, useAppStore, useStateHydration, type AppStore } from '@cap
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import useLayoutInit from '../hooks/useLayoutInit'
 import { ImpersonationBanner } from '../components/impersonation/ImpersonationBanner'
 import SkipLink from '../components/SkipLink'
@@ -32,17 +33,26 @@ const LayoutWrapper = ({
 
   useLayoutInit(systemMode)
 
+  // The horizontal layout's top menu bar is a desktop-only surface - there's
+  // no room for it on a phone-width screen. Same breakpoint the horizontal
+  // and vertical nav components themselves already switch to their own
+  // mobile/off-canvas behaviour at ('lg', see defaultBreakpoints), so this
+  // decision lines up with theirs instead of introducing a second threshold.
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
+
   const isNoLayout = layoutOverride === RouteLayoutEnum.NO_LAYOUT
   const isAdminLayout = layoutOverride === RouteLayoutEnum.ADMIN
   const isVerticalLayout = layoutOverride === RouteLayoutEnum.VERTICAL
   const isHorizontalLayout = layoutOverride === RouteLayoutEnum.HORIZONTAL
 
   const renderDashboardShell = (forcedLayout?: LayoutModeEnum) => {
+    const wantsHorizontal =
+      (forcedLayout || settings.layout) === LayoutModeEnum.HORIZONTAL
+    // Downgrades to vertical on mobile even when a route's layoutOverride
+    // explicitly forces horizontal - the constraint is about the viewport,
+    // not about who asked for the layout.
     const activeLayout =
-      forcedLayout ||
-      (settings.layout === LayoutModeEnum.HORIZONTAL
-        ? LayoutModeEnum.HORIZONTAL
-        : LayoutModeEnum.VERTICAL)
+      wantsHorizontal && !isMobile ? LayoutModeEnum.HORIZONTAL : LayoutModeEnum.VERTICAL
     return (
       <Box
         sx={{

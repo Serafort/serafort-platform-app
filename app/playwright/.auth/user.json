@@ -12,11 +12,21 @@
     },
     {
       "name": "Authentication",
-      "value": "s%3AeyJtZXNzYWdlIjoiYmYwOWE3ZDEtMTM3NS00NTJhLTk0MDMtZmJjMGQ0NmUyMjJlIiwicHVycG9zZSI6IkF1dGhlbnRpY2F0aW9uIn0.wpez9V3Xt3qoRk6rTOnOskGiATh69d5kATcn5rmFeyQ",
+      "value": "s%3AeyJtZXNzYWdlIjoiMTZmYjNjODctOGMxZS00ZjI4LWE5YTItMjZlMWRhMDY1N2Q1IiwicHVycG9zZSI6IkF1dGhlbnRpY2F0aW9uIn0.KLyPL46MWlvuC4yBhdCwyakxel6-16X_VWPuo5PD2ZI",
       "domain": "localhost",
       "path": "/",
-      "expires": 1788162025.908325,
+      "expires": 1788553864.034155,
       "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "serafort-settings",
+      "value": "%7B%22mode%22%3A%22light%22%2C%22skin%22%3A%22default%22%2C%22semiDark%22%3Afalse%2C%22layout%22%3A%22vertical%22%2C%22navbarContentWidth%22%3A%22compact%22%2C%22contentWidth%22%3A%22compact%22%2C%22footerContentWidth%22%3A%22compact%22%2C%22primaryColor%22%3A%22%231976d2%22%7D",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1820082657,
+      "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
     }
@@ -30,12 +40,12 @@
           "value": "en"
         },
         {
-          "name": "cap-platform-storage",
-          "value": "7105dffb19d061eb6e5b0d90bac0948d278e2f274f4f06f5540efa0a8bd51f2ca918cc4b1e8dd2a7b4bbda252f1403bbdc7ae6a59a264ee7396bea4cd13ad1d0ab5aa8925707bb59c53896129acdce17b68bcc9bb56f597608c7ae0c4b0b58fb678facd06b261431c2ac923a8c4f1334c2d1974f732a35296def193f3c2ae50882efb0c3a5beb5aec8027c76cb9f77e0d20e27d6ff9dde68222b345488e2e27209809f876dddf85dd79561e71c4fb5e49687f0dffb883a191d51e599c968877b285855faadf86cf9f59c1537d03a725a84682614f1f672742576fe04e6daad853c8a648182ca6ac9fa051ecb09bb44338464f845d979107149aa75548552ca0f10f18a93d93ee629309c4b4530b70b60967f0ecf8b6dfd9f17a9b09e04f2bc4bfbc93f3f6b78832ad0e358d5eb1d0543e8f84448276ca33c13cab0cc4994acecdddc0dc748f45b59a9f2938f818d64089680b5cf4b9990375e07636d0606c17803501b9a8e14e678c694bc193469d8d9dfa25d8930a51a9f444d55bef08b65c167c31079c8e65c3955de17b35ca169e9760d0281ec063c52a36e47c2ac5b8962b35baa55de2cedd8148cf5830f049dcfa5086d9986f0762754783ee735fc03e5956efaf127c6f43bf4fbab51774f20fd7738f50d2a715625da68cae338cb6f45f8223162e7acf5001b5e4369059d4a17c49a141aff0f952605c2eabc283a84ca188f7181a9d4828a76ac78df931c115597392e9eb3d2397a7f1ec6e85457aa6ac3607f1dd4396494424e10ff607782a55319a2b68e66d6ba11c8f66c82809d0691f2bf01f6641c966928b2771f1c4c47ee400b24daf229d64a7e1beb7bdf5e9256e7c2c6e4fb084149a88ba9d92f18b83037715490a8afd76e2b76908fd043deede4b25707b19b6af6990684204dcabc38ec6916330fc03169acfec88cdd865830c3e01e721c8bdfa7eca7421e17108cf03713c78dfdded7d089a89be0662ce87708106ed7ecda46c33bcbca9164a7017864890165c7530aa207fb08edcbca04a21a72b34feb32f491c7fb226f77"
+          "name": "serafort-storage",
+          "value": "ec6637146605ed636e15117d57b3fb8589cac27e45f41a0b1773320537ea8333180a7cb8419122e2e3bbb72f9ac02d75eaa353733ef9892da478a5d6548428e035d76e8d64686a9acf452812581f58aeb21e109e27625c1ff03e1f633c7a5874f418fa0c8df2d381abe0ce14ccf1c0b6f5845b00c2a9f66abcb688d67ed2c21c2beb9e2cc9ba54b186c90b6cbf85a5ee4910729dff51a3155b02f5a90190d3f5b76ff85d5ede5b8f7a1fec048785090a5af6879ea14ff92f472b58ef1ae953aef6d547b752b464f9d2a0b7ce70c142d3705ea649f02290acfcd8b7ee173316bf06122891bcfec3270e8bca17381b86d9cd3b2c83e49ae10573c21fdac97b579d22bda9323d9b5ad0cd09693f5e2ff619595f343c9e0659a3020494e8a72f846e48e5afe9c77cdc3c7fb6d33613dc2fa02f7b7b2cd3374189f1b749a7c9d4a32ea7478ab4cca34d23d1aa6a528a307c0086d2123c9867a83d40d5658ca310cc555beee13c14b468bda1fce717d9ce0049f5dd9e33663cdd470fae675e149616939a5cc6faa4ca4e2b414a3c5df1a6d3c8b6efeef680b4174cf801a9f055a544bf5dd5849113897a5978055e624b33f1e6fd0bd6b4d48b568aca98df57616cc87858051cc596a9ff524cad9e4e1bbdf461639a1cd9cf44d79fe473bc9987639b2bcf57a90b3e46c701cea641c8058e986c4137c60a2f393049dbb0d595051e49a4000f2a0e7f5223e80c5b2d8aec0c0dc5649101d93d409a895a3906815b3760ac79fa2cd0fd48e962cb30e18ebaf7896e93fec01e83fc5c2fbdb37c0229b848b5347b7d901cf3684524370f37b266bdb9270e8dbf19e688ddc41f6db088487557c0956e86af23e28729df80f0fa6d61e4811aec4f38f9c5d23137c919e0c2d38add5d58a3e205fa7a0f77fef9d6b802baabb8d09ae80ed13e300e6439c14fd27d926c98ea7500fdfdfee2e7af1bd8392727ffcf4d6291a6a44121fb484403c73d6080118798defe9b6ec9473a97829bb0248eca27d03a102ae1e02200d1fa61dbfa66e4d454091cd84d6ea18c1ff039e89bc1a199372ae179b1f326ba44c90ba293787abdae08a36252a73b20546b58fca1a99f350a322410c0fcf59616c53486f3205e0322c86b3fd317cc4fe997c924c117cf"
         },
         {
           "name": "tenant-config-cache",
-          "value": "{\"localhost\":{\"config\":{\"_version\":1,\"id\":\"1\",\"slug\":\"tenant1\",\"domain\":\"tenant1.localhost\",\"name\":\"Acme Blue Corp\",\"theme\":{\"logoUrl\":\"/assets/logos/acme-blue.png\",\"primaryColor\":\"#1976d2\"},\"layout\":{\"navType\":\"vertical\"},\"branding\":{\"appName\":\"Acme Blue Corp\",\"companyName\":\"Acme Blue Corp\",\"welcomeText\":\"Welcome to Acme Blue Corp\"},\"features\":{\"darkMode\":true,\"rtl\":false,\"notifications\":true,\"chat\":true},\"version\":1},\"timestamp\":1788154822401,\"domain\":\"localhost\"}}"
+          "value": "{\"localhost\":{\"config\":{\"_version\":1,\"id\":\"1\",\"slug\":\"tenant1\",\"domain\":\"tenant1.localhost\",\"name\":\"Acme Blue Corp\",\"theme\":{\"primaryColor\":\"#1976d2\",\"logoUrl\":\"/assets/logos/acme-blue.png\"},\"layout\":{\"navType\":\"vertical\"},\"branding\":{\"appName\":\"Acme Blue Corp\",\"companyName\":\"Acme Blue Corp\",\"welcomeText\":\"Welcome to Acme Blue Corp\"},\"features\":{\"darkMode\":true,\"rtl\":false,\"notifications\":true,\"chat\":true},\"version\":1},\"timestamp\":1788546657993,\"domain\":\"localhost\"}}"
         }
       ]
     }

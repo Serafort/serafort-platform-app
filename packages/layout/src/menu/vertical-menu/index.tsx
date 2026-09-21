@@ -5,6 +5,7 @@ export {
   MenuItem,
   SubMenu,
   MenuSection,
+  CollapsibleMenuSection,
   NavHeader,
   NavCollapseIcons,
 } from '../components/vertical-menu'
@@ -14,4 +15,5 @@ export type {
   MenuItemProps,
   SubMenuProps,
   MenuSectionProps,
+  CollapsibleMenuSectionProps,
 } from '../components/vertical-menu'
