@@ -15,7 +15,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
       "@cap/api-contracts": ["../../api-contracts/src"],
       "@cap/api-contracts/*": ["../../api-contracts/src/*"],

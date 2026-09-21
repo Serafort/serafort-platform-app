@@ -1,12 +1,12 @@
 #Serafort — Module Development & Plug-in Architecture Guide
 
-This guide details how human engineers and AI coding agents build, register, and extend feature modules in the **CAP Multi-Tenant SaaS Framework**.
+This guide details how human engineers and AI coding agents build, register, and extend feature modules in the **Serafort Multi-Tenant SaaS Framework**.
 
 ---
 
 ## 1. Core Framework Philosophy
 
-The CAP workspace is not just a single web application; it is an **extensible multi-tenant application framework**.
+The Serafort workspace is not just a single web application; it is an **extensible multi-tenant application framework**.
 
 - **Zero Hardcoded Menus/Routes**: The shell application (`@cap/app`) and layout engine (`@cap/layout`) contain ZERO hardcoded route definitions or navigation menus.
 - **Module Self-Declaration**: Feature modules declare ALL their contributions via a declarative `CAPModule` contract object.

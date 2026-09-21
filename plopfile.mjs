@@ -1,6 +1,6 @@
 export default function (plop) {
   plop.setGenerator('module', {
-    description: 'Scaffold a new CAP Module',
+    description: 'Scaffold a new Serafort Module',
     prompts: [
       {
         type: 'input',

@@ -1,6 +1,6 @@
 # @cap/authorization
 
-The `@cap/authorization` package provides a unified, engine-first authorization framework for the CAP Multi-Tenant SaaS Framework. It supports both **Role-Based Access Control (RBAC)** and **Attribute-Based Access Control (ABAC)**.
+The `@cap/authorization` package provides a unified, engine-first authorization framework for the Serafort Multi-Tenant SaaS Framework. It supports both **Role-Based Access Control (RBAC)** and **Attribute-Based Access Control (ABAC)**.
 
 Instead of writing fragmented `if (user.role === 'ADMIN')` logic across your application, this package centralizes your access rules into a robust policy engine and provides simple, declarative hooks and components for enforcing them at the route, component, and API levels.
 

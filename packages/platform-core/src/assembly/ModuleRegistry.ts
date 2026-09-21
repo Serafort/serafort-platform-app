@@ -110,7 +110,7 @@ export class ModuleRegistry {
   }
 
   /**
-   * Returns all currently registered CAP modules.
+   * Returns all currently registered Serafort modules.
    */
   public getModules(): CAPModule[] {
     return Array.from(this.modulesMap.values())

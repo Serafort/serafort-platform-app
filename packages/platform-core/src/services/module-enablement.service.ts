@@ -1,5 +1,5 @@
 /**
- * Persisted enable/disable state for assembled CAP modules.
+ * Persisted enable/disable state for assembled Serafort modules.
  *
  * Disabling a module removes its routes, navigation entries and
  * command-palette entries from the assembled shell on the next render; the

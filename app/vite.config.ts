@@ -162,7 +162,7 @@ export default defineConfig({
           : authShimPath,
       },
       {
-        find: '@\/routes',
+        find: '@/routes',
         replacement: authExists
           ? path.resolve(workspaceRoot, 'packages/modules/auth/src/routes')
           : authShimPath,
@@ -174,7 +174,7 @@ export default defineConfig({
           : authShimPath,
       },
       {
-        find: '@\/modules',
+        find: '@/modules',
         replacement: authExists
           ? path.resolve(workspaceRoot, 'packages/modules/auth/src/modules')
           : authShimPath,

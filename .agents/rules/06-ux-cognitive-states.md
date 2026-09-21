@@ -1,6 +1,6 @@
 # Rule 06: Cognitive UX, 4 UI Principles & 4 UI States
 
-This rule governs user experience heuristics, mental model reduction, and complete interactive state handling across the **Serafort CAP Multi-Tenant Framework**.
+This rule governs user experience heuristics, mental model reduction, and complete interactive state handling across the **Serafort Multi-Tenant Framework**.
 
 ---
 

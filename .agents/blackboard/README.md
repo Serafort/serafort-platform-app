@@ -1,6 +1,6 @@
 # Multi-Agent Blackboard Directory
 
-This directory serves as the inter-agent shared blackboard for the **Serafort CAP Multi-Tenant Platform**. Agents write context, active task statuses, findings, and verification screenshots here to share information and eliminate redundant analysis.
+This directory serves as the inter-agent shared blackboard for the **Serafort Multi-Tenant Platform**. Agents write context, active task statuses, findings, and verification screenshots here to share information and eliminate redundant analysis.
 
 ---
 

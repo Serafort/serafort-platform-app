@@ -1,6 +1,6 @@
 # Rule 17: Cross-Screen Context & State Guardian (@flow-state)
 
-This rule governs cross-screen data handoffs, URL query parameter state persistence, lazy-load `<Suspense>` feedback, unmount cleanup lifecycles, and inter-module state transitions in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs cross-screen data handoffs, URL query parameter state persistence, lazy-load `<Suspense>` feedback, unmount cleanup lifecycles, and inter-module state transitions in the **Serafort Multi-Tenant Framework**.
 
 ---
 

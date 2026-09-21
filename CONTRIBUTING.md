@@ -1,6 +1,6 @@
-# Contributing to CAP Monorepo
+# Contributing to Serafort Monorepo
 
-Welcome to the CAP Monorepo! This document provides guidelines for environment setup, package commands, module scaffolding, and pull request rules.
+Welcome to the Serafort Monorepo! This document provides guidelines for environment setup, package commands, module scaffolding, and pull request rules.
 
 ---
 

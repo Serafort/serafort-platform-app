@@ -58,7 +58,7 @@ function findEnJsonFiles(dir, fileList = []) {
 }
 
 function runLinter() {
-  console.log(`${BOLD}${CYAN}=== CAP Boilerplate i18n Linter ===${RESET}\n`);
+  console.log(`${BOLD}${CYAN}=== Serafort Boilerplate i18n Linter ===${RESET}\n`);
 
   const enFiles = findEnJsonFiles(WORKSPACE_DIR);
   if (enFiles.length === 0) {

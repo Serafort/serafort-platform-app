@@ -1,6 +1,6 @@
 # Rule 15: Regulatory Privacy, Audit Trails & Policy (@compliance-governance)
 
-This rule governs client-side GDPR/HIPAA/SOC 2 compliance, immutable audit trails, session timeout policies, and third-party script isolation in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs client-side GDPR/HIPAA/SOC 2 compliance, immutable audit trails, session timeout policies, and third-party script isolation in the **Serafort Multi-Tenant Framework**.
 
 ---
 

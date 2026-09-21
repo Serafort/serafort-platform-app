@@ -160,7 +160,7 @@ const V1_NOT_A_TWIN = new Set([
  * Legacy routes the frontend intentionally skips because it calls the
  * `/api/v1/auth/*` twin instead. `/api/v1/*` is the canonical surface for this
  * frontend — the backend group is declared as adhering "strictly to
- * @cap/api-contracts and CAP Boilerplate frontend specs" — so the legacy twin
+ * @cap/api-contracts and Serafort Boilerplate frontend specs" — so the legacy twin
  * staying uncovered is the intended end state, not a gap.
  */
 const SUPERSEDED_BY_V1 = new Set([

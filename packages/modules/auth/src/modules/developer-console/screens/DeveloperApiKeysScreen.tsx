@@ -150,7 +150,7 @@ export const DeveloperApiKeysScreen: React.FC = () => {
 
   const handleDownloadKey = () => {
     const content = [
-      `CAP Developer API Key`,
+      `Serafort Developer API Key`,
       `======================`,
       `Name: ${createdKeyName}`,
       `Key:  ${createdRawKey}`,

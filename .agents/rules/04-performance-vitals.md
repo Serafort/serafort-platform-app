@@ -1,6 +1,6 @@
 # Rule 04: Performance, Bundle Size & Runtime Optimization
 
-This rule governs Core Web Vitals, Rollup bundle chunking, DOM style synchronization, and rendering performance in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs Core Web Vitals, Rollup bundle chunking, DOM style synchronization, and rendering performance in the **Serafort Multi-Tenant Framework**.
 
 ---
 

@@ -28,7 +28,7 @@ This workspace uses a **Monorepo** architecture leveraging `pnpm` workspaces. It
 
 ## 🛠️ Tech Stack
 
-- **Core:** React 19, TypeScript 5.8
+- **Core:** React 19, TypeScript 7
 - **Build Tool:** Vite 7 with modular `manualChunks` code splitting
 - **Routing:** React Router v7
 - **Styling & UI:** Material UI (MUI) v7, Virtualized React Tables

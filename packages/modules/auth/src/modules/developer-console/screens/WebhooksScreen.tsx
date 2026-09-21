@@ -311,7 +311,7 @@ export const WebhooksScreen: React.FC = () => {
 
   const handleDownloadSecret = () => {
     const content = [
-      `CAP Webhook Signing Secret`,
+      `Serafort Webhook Signing Secret`,
       `===========================`,
       `Endpoint: ${createdWebhookUrl}`,
       `Secret:   ${createdWebhookSecret}`,

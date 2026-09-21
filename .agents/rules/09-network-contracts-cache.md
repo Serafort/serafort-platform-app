@@ -1,6 +1,6 @@
 # Rule 09: Network Boundary, Server-State Cache & API Contracts
 
-This rule governs asynchronous server-state lifecycle (`@tanstack/react-query`), optimistic updates, request cancellation, runtime schema validation, and contract synchronization in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs asynchronous server-state lifecycle (`@tanstack/react-query`), optimistic updates, request cancellation, runtime schema validation, and contract synchronization in the **Serafort Multi-Tenant Framework**.
 
 ---
 

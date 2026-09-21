@@ -1,6 +1,6 @@
 # Jules Playbook — Autonomous Review & Maintenance SOP
 
-This playbook defines the standard operating procedure for **Jules** when performing autonomous code reviews, bug fixes, dependency updates, and maintenance tasks across the **Serafort CAP Multi-Tenant Monorepo**.
+This playbook defines the standard operating procedure for **Jules** when performing autonomous code reviews, bug fixes, dependency updates, and maintenance tasks across the **Serafort Multi-Tenant Monorepo**.
 
 ---
 

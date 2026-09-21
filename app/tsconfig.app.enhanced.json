@@ -21,7 +21,6 @@
     "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
     // Path mappings for clean imports
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@ui/*": ["./src/app/src/*"],

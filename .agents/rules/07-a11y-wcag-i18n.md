@@ -1,6 +1,6 @@
 # Rule 07: Accessibility (WCAG 2.2 AA), i18n & Bidirectional (LTR & RTL) Parity
 
-This rule governs universal accessibility, multi-tenant multilingual localization, and full bidirectional layout parity (both Left-to-Right and Right-to-Left) across the **Serafort CAP Multi-Tenant Framework**.
+This rule governs universal accessibility, multi-tenant multilingual localization, and full bidirectional layout parity (both Left-to-Right and Right-to-Left) across the **Serafort Multi-Tenant Framework**.
 
 ---
 

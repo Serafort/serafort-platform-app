@@ -1,6 +1,6 @@
 # Rule 02: Code Quality, Type Safety & Refactoring Standards
 
-This rule governs TypeScript strictness, ESLint rules, component size limits, and test coverage across all packages in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs TypeScript strictness, ESLint rules, component size limits, and test coverage across all packages in the **Serafort Multi-Tenant Framework**.
 
 ---
 

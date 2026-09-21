@@ -1,4 +1,4 @@
-# CAP Tenant Theme & Effect System
+# Serafort Tenant Theme & Effect System
 
 This document outlines the design token architecture, theme compilation pipeline, tenant branding customization, and visual effect generation system in `@cap/theme`.
 

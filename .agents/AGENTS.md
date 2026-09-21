@@ -1,6 +1,6 @@
 # AGENTS.md —Serafort Developer & AI Agent Context
 
-This document provides complete architectural context, coding standards, theme strategies, framework principles, and development workflows for AI coding agents and engineering contributors working on the **CAP Multi-Tenant SaaS Framework**.
+This document provides complete architectural context, coding standards, theme strategies, framework principles, and development workflows for AI coding agents and engineering contributors working on the **Serafort Multi-Tenant SaaS Framework**.
 
 > **Before making changes**, also check `/analysis/architecture-report.md`, `/analysis/technical-debt-report.md`, and `/analysis/improvement-roadmap.md` — a full principal-level review (August 2026) with file-level findings. This file gives you the stable mental model; those three give you the current, dated punch list. If you're about to touch routing, layout, or `LayoutRouteWrapper`, read "Known Gaps" below first — it will save you from re-deriving a bug that's already diagnosed.
 
@@ -183,7 +183,7 @@ All UI components, workflows, and layouts MUST adhere to the **4 Key UI Principl
 
 ## 9. The 17 Specialist Agent Personas & Governance Matrix
 
-Agents working on the CAP framework can assume or delegate to any of the 17 specialized personas:
+Agents working on the Serafort framework can assume or delegate to any of the 17 specialized personas:
 
 1. **`@architect`**: Tier boundaries (0-5), `CAPModule` contracts, modularity, circular checks (`pnpm lint:boundaries && pnpm lint:circular`).
 2. **`@quality`**: Strict TypeScript, zero `any`, component decomposition (<300 lines), Vitest unit tests (`pnpm -r run type-check`).

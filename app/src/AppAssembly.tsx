@@ -70,11 +70,15 @@ export const App: React.FC = () => {
     }
   }, [])
 
+  // Intentional: the assembled shell is a component built from the current
+  // module set, memoised on `revision`. Enabling or disabling a module bumps it,
+  // and the new component identity is what remounts the shell with fresh routes.
   const AssembledAppComponent = React.useMemo(() => {
     const currentModules = assembleModules()
     return assembleApp({ modules: currentModules, layoutWrapper: LayoutRouteWrapper })
   }, [revision])
 
+  // eslint-disable-next-line react-hooks/static-components -- see the note on the memo above
   return <AssembledAppComponent />
 }
 

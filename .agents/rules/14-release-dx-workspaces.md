@@ -1,6 +1,6 @@
 # Rule 14: Monorepo Tooling, CI/CD & Workspace Health (@release-dx)
 
-This rule governs pnpm workspace management, package dependency deduplication, build pipelines, chunk budgets, and module generators in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs pnpm workspace management, package dependency deduplication, build pipelines, chunk budgets, and module generators in the **Serafort Multi-Tenant Framework**.
 
 ---
 

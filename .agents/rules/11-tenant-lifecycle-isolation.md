@@ -1,6 +1,6 @@
 # Rule 11: Multi-Tenancy & Isolation Sentinel (@tenant-lifecycle)
 
-This rule governs tenant boundaries, client storage key scoping, subscription entitlement enforcement, and organization teardown lifecycle in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs tenant boundaries, client storage key scoping, subscription entitlement enforcement, and organization teardown lifecycle in the **Serafort Multi-Tenant Framework**.
 
 ---
 

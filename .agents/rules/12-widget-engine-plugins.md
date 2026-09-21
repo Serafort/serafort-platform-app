@@ -1,6 +1,6 @@
 # Rule 12: Extensibility, Dynamic Plugins & Schema UI (@widget-engine)
 
-This rule governs the dynamic widget engine, plugin injection, schema validation, and dashboard grid persistence in the **Serafort CAP Multi-Tenant Framework** (`@cap/module-widget-studio` and `@cap/module-dashboard`).
+This rule governs the dynamic widget engine, plugin injection, schema validation, and dashboard grid persistence in the **Serafort Multi-Tenant Framework** (`@cap/module-widget-studio` and `@cap/module-dashboard`).
 
 ---
 

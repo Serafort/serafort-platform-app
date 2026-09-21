@@ -1,6 +1,6 @@
 # Rule 05: Modern UI, Design Tokens & Visual Effects
 
-This rule governs Material UI v7 token composition, multi-tenant branding, visual presets, and effect engines in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs Material UI v7 token composition, multi-tenant branding, visual presets, and effect engines in the **Serafort Multi-Tenant Framework**.
 
 ---
 

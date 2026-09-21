@@ -1,6 +1,6 @@
 # Rule 03: Security & Sentinel Defense
 
-This rule enforces application security, data privacy, vulnerability prevention, and cryptographic integrity across the **Serafort CAP Multi-Tenant Framework**.
+This rule enforces application security, data privacy, vulnerability prevention, and cryptographic integrity across the **Serafort Multi-Tenant Framework**.
 
 ---
 

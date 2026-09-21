@@ -1,4 +1,4 @@
-# CAP Boilerplate — Principal Architecture Review
+# Serafort Boilerplate — Principal Architecture Review
 
 **Scope:** Full monorepo (`app/`, `packages/*`), theme system, layout/routing, and dependency structure.
 **Method:** Direct inspection via Filesystem MCP of `pnpm-workspace.yaml`, every package's `package.json`, `eslint.config.js` layering rules, `packages/platform-core/src/assembly/index.tsx`, `packages/layout`, `packages/theme`, and representative screens/components. Cross-checked against existing `/analysis` docs, `ARCHITECTURE.md`, and `AGENTS.md` for currency.
@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-CAP Boilerplate is a **multi-tenant SaaS application framework**, not a single app. The core thesis — feature modules self-declare routes, navigation, i18n, and plugins; the shell contains zero hardcoded menus — is real and is actually implemented, not just aspirational. That is uncommon and is the framework's biggest architectural strength.
+Serafort Boilerplate is a **multi-tenant SaaS application framework**, not a single app. The core thesis — feature modules self-declare routes, navigation, i18n, and plugins; the shell contains zero hardcoded menus — is real and is actually implemented, not just aspirational. That is uncommon and is the framework's biggest architectural strength.
 
 The codebase is in noticeably good shape for its size: the documented 6-tier dependency model is documented and a working coupling-analysis script exists and its output is committed, prior audit passes have fixed real bugs (see `technical-issues.md`), and the theme/design-token system is genuinely sophisticated (15 presets, 6 visual effect generators, tenant-scoped).
 

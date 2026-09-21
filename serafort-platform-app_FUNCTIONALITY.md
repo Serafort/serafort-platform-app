@@ -1,6 +1,6 @@
 #Serafort — Codebase Functionality Specification
 
-> **Platform:** CAP Multi-Tenant SaaS Modular Platform  
+> **Platform:** Serafort Multi-Tenant SaaS Modular Platform  
 > **Tech Stack:** React 19, TypeScript 5.8, Material-UI v7 (MUI), Zustand 5, Vite 6, TanStack React Query v5, Swapy DnD, TailwindCSS v4, Vitest, Playwright  
 > **Package Manager:** `pnpm` Workspaces Monorepo  
 
@@ -37,7 +37,7 @@
 
 ## 1. Architectural Overview & Monorepo Tiers
 
-The CAP Monorepo follows a strict 6-tier layered dependency hierarchy. Upper tiers consume lower tiers, while lower tiers remain completely decoupled from upper layers.
+The Serafort Monorepo follows a strict 6-tier layered dependency hierarchy. Upper tiers consume lower tiers, while lower tiers remain completely decoupled from upper layers.
 
 ```mermaid
 graph TD
@@ -217,7 +217,7 @@ graph TD
 - **Application & Scopes Registry (`/admin/developer/applications`, `/admin/developer/scopes`)**:
   - Registered OAuth applications dashboard, client secret rotation, and OAuth scope definitions.
 - **Dynamic Module Management (`/admin/developer/module-management`)**:
-  - Runtime inspection and toggling of discovered CAP platform modules and extensions.
+  - Runtime inspection and toggling of discovered Serafort platform modules and extensions.
 
 ### 2.9 Platform Cluster & Security Monitoring (`platform-cluster`)
 - **Real-Time Auth Events Monitor (`/admin/monitoring/real-time-events`, `v2`)**:

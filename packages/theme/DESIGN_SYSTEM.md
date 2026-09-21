@@ -1,6 +1,6 @@
-# CAP Design System & UX Engineering Playbook
+# Serafort Design System & UX Engineering Playbook
 
-This document serves as the single source of truth for UX design principles, human psychology patterns, technical styling rules, accessibility standards, and component engineering practices across the CAP Monorepo.
+This document serves as the single source of truth for UX design principles, human psychology patterns, technical styling rules, accessibility standards, and component engineering practices across the Serafort Monorepo.
 
 ---
 

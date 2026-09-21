@@ -1,6 +1,6 @@
 # Rule 16: End-to-End Human Workflow Simulator (@e2e-journey)
 
-This rule governs end-to-end user journeys, realistic multi-screen human interaction simulation, browser-native traversal, and route integrity verification in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs end-to-end user journeys, realistic multi-screen human interaction simulation, browser-native traversal, and route integrity verification in the **Serafort Multi-Tenant Framework**.
 
 ---
 

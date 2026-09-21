@@ -426,6 +426,8 @@ export const API_ENDPOINTS = {
       test: "/api/admin/ssf/test",
       broadcast: "/api/admin/ssf/broadcast",
       history: "/api/admin/ssf/history",
+      /** Server-Sent Events stream of live CAEP/SSF security signals (GET, long-lived). */
+      stream: "/api/admin/ssf/stream",
     },
     jwks: {
       index: "/api/admin/jwks",

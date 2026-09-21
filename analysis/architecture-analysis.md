@@ -1,4 +1,4 @@
-# Architecture Analysis — CAP Monorepo
+# Architecture Analysis — Serafort Monorepo
 
 ## Pattern: Pluggable Module Federation (Compile-Time)
 

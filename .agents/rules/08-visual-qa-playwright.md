@@ -1,6 +1,6 @@
 # Rule 08: Visual QA, Browser Driving & Regression Testing
 
-This rule governs automated browser driving, visual regression verification, DOM geometry inspection, and shell hydration race handling in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs automated browser driving, visual regression verification, DOM geometry inspection, and shell hydration race handling in the **Serafort Multi-Tenant Framework**.
 
 ---
 

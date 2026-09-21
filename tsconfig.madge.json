@@ -1,7 +1,6 @@
 {
   "//": "Tooling-only tsconfig. Gives madge the @cap/* path map so it can resolve cross-package imports; without it madge follows relative imports only and can detect intra-package cycles alone. Not used for builds.",
   "compilerOptions": {
-    "baseUrl": ".",
     "moduleResolution": "bundler",
     "module": "esnext",
     "target": "esnext",

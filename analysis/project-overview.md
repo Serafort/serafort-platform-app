@@ -1,8 +1,8 @@
-# Project Overview — CAP Monorepo (`cap-monorepo`)
+# Project Overview — Serafort Monorepo (`cap-monorepo`)
 
 ## What This Is
 
-A pnpm workspaces monorepo for a modular web platform (package scope `@cap/*`). The commented-out module imports in `AppAssembly.tsx` (Civil Registry, Digital ID, KYC, Blockchain IDaaS, Monitoring & Alerts, Admin, User) suggest this is a **civil/digital-identity and access-management platform** ("CAP"), currently shipping the Landing, Auth, and Theme modules, with the rest scaffolded for future activation.
+A pnpm workspaces monorepo for a modular web platform (package scope `@cap/*`). The commented-out module imports in `AppAssembly.tsx` (Civil Registry, Digital ID, KYC, Blockchain IDaaS, Monitoring & Alerts, Admin, User) suggest this is a **civil/digital-identity and access-management platform** ("Serafort"), currently shipping the Landing, Auth, and Theme modules, with the rest scaffolded for future activation.
 
 ## Repository Layout
 

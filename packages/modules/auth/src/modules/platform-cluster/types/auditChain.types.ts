@@ -32,13 +32,13 @@ export type AuditChainAnomalyKind =
   | "truncation";
 
 export interface AuditChainAnomaly {
-  id: number;
+  id: string;
   kind: AuditChainAnomalyKind;
   detail: string;
 }
 
 export interface AuditChainHead {
-  auditLogId: number;
+  auditLogId: string;
   rowHash: string;
   prevHash: string | null;
   hashKeyId: AuditChainKeyId;
@@ -46,8 +46,8 @@ export interface AuditChainHead {
 }
 
 export interface AuditChainCheckpoint {
-  id: number;
-  maxAuditId: number;
+  id: string;
+  maxAuditId: string;
   rowHash: string;
   rowCount: number;
   /** Who ran the verification — a CLI `user@host`, or `email (admin console)`. */
@@ -73,11 +73,11 @@ export interface AuditChainStatus {
 }
 
 export interface AuditChainVerifyRequest {
-  /** Verify from this audit-log id onward. Omit for a full walk. */
-  from?: number;
+  /** Verify from this audit-log id (a UUID) onward. Omit for a full walk. */
+  from?: string;
   limit?: number;
   /** Treat unhashed rows below this id as expected (pre-control backfill). */
-  allowUnhashedBefore?: number;
+  allowUnhashedBefore?: string;
   /** Record a new checkpoint. Honoured only on a clean full walk. */
   recordCheckpoint?: boolean;
 }
@@ -113,7 +113,7 @@ export type BlockchainAnchorType =
   | "DOC_ANCHOR";
 
 export interface BlockchainAnchor {
-  id: number;
+  id: string;
   txHash: string;
   status: BlockchainAnchorState;
   type: BlockchainAnchorType;

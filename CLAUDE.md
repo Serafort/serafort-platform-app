@@ -1,7 +1,7 @@
 # CLAUDE.md — Serafort Platform Engineering & Specialist Agent Protocol
 
-Welcome to the **Serafort CAP Multi-Tenant SaaS Framework** (`@cap/monorepo`).
-This repository is an enterprise-grade multi-tenant platform built with React 19, TypeScript 5.8, Material UI v7, Zustand 5, and Vite 6 inside a pnpm workspace.
+Welcome to the **Serafort Multi-Tenant SaaS Framework** (`@cap/monorepo`).
+This repository is an enterprise-grade multi-tenant platform built with React 19, TypeScript 7, Material UI v7, Zustand 5, and Vite 6 inside a pnpm workspace.
 
 ---
 
@@ -127,7 +127,19 @@ together close the loop.
 
 ---
 
-## 3. The 17 Specialist Sub-Agent Personas
+## 3. Project Agents (`.claude/agents/`) & The 17 Specialist Personas
+
+### Project-Level Specialist Agents (`.claude/agents/`)
+- **`tier-architect`** (`.claude/agents/tier-architect.md`):
+  - **Role**: Read-only architecture reviewer for monorepo package tiers and import directions.
+  - **Triggers**: Adding packages, changing imports across packages, modifying `CAPModule` contracts, or routing structure.
+  - **Focus**: Enforcing the 6-tier boundary rules (`scripts/check-tier-boundaries.mjs`), `CAPModule` contract exports, and `AppPaths` routing standard.
+- **`react-reviewer`** (`.claude/agents/react-reviewer.md`):
+  - **Role**: Read-only React 19, MUI v7, and state management specialist.
+  - **Triggers**: Modifying `.tsx` components, custom hooks, Zustand stores, TanStack queries, or MUI theme bindings.
+  - **Focus**: React 19 concurrent hooks, zero hardcoded colors (MUI tokens / `ThemeBridge` CSS custom properties), Zustand 5 state hygiene, dynamic `React.lazy()` chunking, and RTL parity.
+
+### The 17 Specialist Sub-Agent Personas
 
 When tackling tasks, agents can assume one or more of the following 17 specialized sub-agent personas, or collaborate via direct delegation:
 
@@ -242,7 +254,7 @@ When tackling tasks, agents can assume one or more of the following 17 specializ
 ### 14. `@release-dx` — Monorepo Tooling, CI/CD & Workspace Health
 - **Focus**: Governing pnpm workspaces, build pipelines, dependency deduplication, and developer tooling.
 - **Rules**:
-  - Monitor workspace dependency synchronization (ensure all packages share identical versions of React 19, TypeScript 5.8, and MUI v7).
+  - Monitor workspace dependency synchronization (ensure all packages share identical versions of React 19, TypeScript 7, and MUI v7).
   - Optimize build pipelines: monitor Rollup chunk budgets (<60 kB gzip main bundle), Vite build times, and cache hit rates in CI.
   - Maintain module scaffolding scripts (running Plop generators to bootstrap a compliant Tier 5 `@cap/module-*` package with zero boundary violations).
 

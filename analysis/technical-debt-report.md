@@ -1,4 +1,4 @@
-# CAP Boilerplate — Technical Debt Report
+# Serafort Boilerplate — Technical Debt Report
 
 Companion to `architecture-report.md`. This document is the UI/UX audit (against MUI/DESIGN_SYSTEM.md practices) and the React code-quality audit, plus a consolidated debt inventory. Every item below was confirmed by reading the actual file — none are inferred from documentation alone. Severity is rated by **real-world impact**, not by how easy the fix is (ease is called out separately and feeds `improvement-roadmap.md`).
 

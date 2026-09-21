@@ -1,6 +1,6 @@
 # Rule 01: Architecture & Monorepo Governance
 
-This rule governs monorepo package boundaries, dependency flow, module contribution contracts, and dynamic routing in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs monorepo package boundaries, dependency flow, module contribution contracts, and dynamic routing in the **Serafort Multi-Tenant Framework**.
 
 ---
 

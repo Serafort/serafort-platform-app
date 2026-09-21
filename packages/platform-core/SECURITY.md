@@ -1,6 +1,6 @@
 # 🔐 Serafort Platform Security (Enterprise 2025)
 
-This document outlines the security architecture and developer responsibilities for the Client Application Platform (CAP).
+This document outlines the security architecture and developer responsibilities for the Serafort platform.
 
 ## 1. Core Security Guarantees
 

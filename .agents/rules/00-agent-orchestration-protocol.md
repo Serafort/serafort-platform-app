@@ -1,6 +1,6 @@
 # Rule 00: Multi-Agent Orchestration, Autonomous Lifecycle & Knowledge Systems
 
-This rule governs the overarching multi-agent execution framework across the **Serafort CAP Multi-Tenant Platform**. All 17 specialist agents operate within this unified protocol.
+This rule governs the overarching multi-agent execution framework across the **Serafort Multi-Tenant Platform**. All 17 specialist agents operate within this unified protocol.
 
 ---
 

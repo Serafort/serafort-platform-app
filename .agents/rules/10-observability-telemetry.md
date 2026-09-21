@@ -1,6 +1,6 @@
 # Rule 10: Observability, Telemetry & Error Sentinels
 
-This rule governs structured client-side instrumentation, error boundaries, contextual breadcrumbs, and Real User Monitoring (RUM) in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs structured client-side instrumentation, error boundaries, contextual breadcrumbs, and Real User Monitoring (RUM) in the **Serafort Multi-Tenant Framework**.
 
 ---
 

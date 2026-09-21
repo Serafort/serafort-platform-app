@@ -1,6 +1,6 @@
 # Assembly Module
 
-This module is responsible for **assembling multiple CAP modules into a single application**.
+This module is responsible for **assembling multiple Serafort modules into a single application**.
 
 ## Purpose
 

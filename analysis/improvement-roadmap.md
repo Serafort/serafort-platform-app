@@ -1,4 +1,4 @@
-# CAP Boilerplate — Prioritized Improvement Roadmap
+# Serafort Boilerplate — Prioritized Improvement Roadmap
 
 Sequenced from `architecture-report.md` and `technical-debt-report.md`. Ordered by **risk-reduction-per-hour**: cheap, high-confidence fixes first; anything touching shared routing/layout logic is sequenced so it's verified in isolation before the next change lands on top of it.
 

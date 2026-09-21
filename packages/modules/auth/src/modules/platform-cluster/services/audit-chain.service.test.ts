@@ -72,16 +72,16 @@ describe('auditChainService', () => {
     )
 
     await auditChainService.verify({
-      from: 100,
+      from: '0190a1b2-0000-7000-8000-000000000001',
       limit: 50,
-      allowUnhashedBefore: 20,
+      allowUnhashedBefore: '0190a1b2-0000-7000-8000-000000000002',
       recordCheckpoint: true,
     })
 
     expect(apiClient.post).toHaveBeenCalledWith('/api/admin/audit/chain/verify', {
-      from: 100,
+      from: '0190a1b2-0000-7000-8000-000000000001',
       limit: 50,
-      allow_unhashed_before: 20,
+      allow_unhashed_before: '0190a1b2-0000-7000-8000-000000000002',
       record_checkpoint: true,
     })
   })

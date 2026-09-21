@@ -38,7 +38,7 @@
     "zustand": ">=5"
   },
   "devDependencies": {
-    "typescript": "~5.9.3",
+    "typescript7": "npm:typescript@^7.0.2",
     "vitest": "^4.0.16"
   }
 }

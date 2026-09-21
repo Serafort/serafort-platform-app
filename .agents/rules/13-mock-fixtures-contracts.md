@@ -1,6 +1,6 @@
 # Rule 13: Synthetic Data, MSW & Contract Parity (@mock-fixtures)
 
-This rule governs synthetic mock datasets, Mock Service Worker (MSW) handlers, scenario presets, and contract parity in the **Serafort CAP Multi-Tenant Framework**.
+This rule governs synthetic mock datasets, Mock Service Worker (MSW) handlers, scenario presets, and contract parity in the **Serafort Multi-Tenant Framework**.
 
 ---
 

@@ -1,6 +1,6 @@
 #Serafort — Module Routing Architecture & Standardization Guide
 
-This document defines the official architectural standard, conventions, and contract requirements for route definitions across all feature modules in the **CAP Multi-Tenant SaaS Framework**.
+This document defines the official architectural standard, conventions, and contract requirements for route definitions across all feature modules in the **Serafort Multi-Tenant SaaS Framework**.
 
 ---
 

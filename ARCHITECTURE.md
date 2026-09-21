@@ -1,4 +1,4 @@
-# CAP Multi-Tenant SaaS Framework — Master Architecture Reference
+# Serafort Multi-Tenant SaaS Framework — Master Architecture Reference
 
 This document provides complete architectural context, framework design principles, package hierarchy rules, module contribution contracts, and design system specifications for developers and AI agents working on the **Serafort Platform Framework**.
 
@@ -6,7 +6,7 @@ This document provides complete architectural context, framework design principl
 
 ## 1. Framework Identity & Multi-Tenant Core Principles
 
-The CAP Monorepo is **not just a single web application**; it is an **enterprise multi-tenant SaaS framework**.
+The Serafort Monorepo is **not just a single web application**; it is an **enterprise multi-tenant SaaS framework**.
 
 ### Core Architectural Mandates
 
