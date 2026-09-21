@@ -45,6 +45,7 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
 
   // Vars
   const { transitionDuration } = verticalNavOptions
+  const isRail = verticalNavOptions.isCollapsed && !verticalNavOptions.isHovered
 
   const ScrollWrapper = isBreakpointReached ? 'div' : PerfectScrollbar
 
@@ -83,11 +84,20 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
                 background: getLayoutMenuButtonActiveBg(theme),
                 boxShadow: getVerticalMenuButtonActiveShadow(theme),
               }),
+            // See AdminMenu: centre icons on the logo's axis in the icon-only rail.
+            ...(isRail &&
+              level === 0 && {
+                marginInline: '0 !important',
+                paddingInline: '0 !important',
+                inlineSize: '100%',
+                justifyContent: 'center',
+              }),
           }),
-          label: {
+          label: ({ level }: { level?: number }) => ({
             fontWeight: layoutMenuTokens.verticalMenu.button.activeShadowAlpha > 0 ? 500 : 400,
             letterSpacing: '0.01rem',
-          },
+            ...(isRail && level === 0 && { display: 'none' }),
+          }),
         }}
         renderExpandIcon={({ open }: { open?: boolean }) => (
           <RenderExpandIcon open={open} transitionDuration={transitionDuration} />

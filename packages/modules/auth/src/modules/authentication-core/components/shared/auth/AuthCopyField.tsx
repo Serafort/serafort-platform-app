@@ -111,12 +111,19 @@ const AuthCopyField: React.FC<AuthCopyFieldProps> = ({
       <Box
         role='status'
         aria-live='polite'
+        // Pixel sizes, not `width: 1`: in `sx` a bare 1 means 100%, which made
+        // this box as tall as the viewport. It is absolutely positioned with no
+        // positioned ancestor, so it sat at its static position and stretched the
+        // page a full viewport past the footer - with the sidebar scrolling away.
         sx={{
           position: 'absolute',
-          width: 1,
-          height: 1,
+          width: '1px',
+          height: '1px',
+          margin: '-1px',
+          padding: 0,
           overflow: 'hidden',
           clip: 'rect(0 0 0 0)',
+          whiteSpace: 'nowrap',
         }}
       >
         {copied ? t('common.copied', 'Copied!') : ''}
