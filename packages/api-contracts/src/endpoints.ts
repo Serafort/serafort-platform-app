@@ -347,6 +347,24 @@ export const API_ENDPOINTS = {
     rpoStatus: "/api/backup/rpo-status",
   },
 
+  /**
+   * Billing & entitlements (`/api/v1/billing/*`). Flat snake_case JSON, no
+   * `successResponse` envelope. `entitlements`, `plans` and `usage` need only a
+   * session; `checkout` and `portal` are org-admin only.
+   *
+   * The Stripe webhook (`POST /api/v1/billing/webhooks/stripe`) is deliberately
+   * absent: Stripe calls it, signed over the raw body, and no browser ever does.
+   */
+  billing: {
+    entitlements: "/api/v1/billing/entitlements",
+    plans: "/api/v1/billing/plans",
+    usage: "/api/v1/billing/usage",
+    /** POST `{ plan: 'pro' | 'enterprise' }` -> `{ url }` (Stripe Checkout). */
+    checkout: "/api/v1/billing/checkout",
+    /** POST -> `{ url }` (Stripe Customer Portal). */
+    portal: "/api/v1/billing/portal",
+  },
+
   gdpr: {
     dataExport: "/api/gdpr/data-export",
     erasure: "/api/gdpr/erasure",
@@ -927,6 +945,12 @@ export const API_QUERY_KEYS = {
     all: ["backup"] as const,
     list: ["backup", "list"] as const,
     byId: (id: number | string) => ["backup", id] as const,
+  },
+  billing: {
+    all: ["billing"] as const,
+    entitlements: ["billing", "entitlements"] as const,
+    plans: ["billing", "plans"] as const,
+    usage: ["billing", "usage"] as const,
   },
   gdpr: {
     all: ["gdpr"] as const,

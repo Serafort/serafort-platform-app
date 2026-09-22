@@ -9,6 +9,35 @@ import type {
 } from "@cap/api-contracts";
 
 export { ENDPOINTS, QUERY_KEYS, API_CONTRACTS } from "@cap/api-contracts";
+// Billing wire types, re-exported so tier 5 modules reach them through the
+// platform facade like ENDPOINTS, without a direct api-contracts dependency.
+export {
+  BILLING_FEATURES,
+  BILLING_LIMITS,
+  BILLING_METRICS,
+  BILLING_PLAN_KEYS,
+  BILLING_PURCHASABLE_PLANS,
+  parseFeatureNotEntitled,
+} from "@cap/api-contracts";
+export type {
+  BillingCheckoutRequest,
+  BillingEntitlements,
+  BillingErrorCode,
+  BillingFeature,
+  BillingFeatures,
+  BillingLimit,
+  BillingLimits,
+  BillingMetric,
+  BillingPlan,
+  BillingPlanKey,
+  BillingPlansResponse,
+  BillingPurchasablePlan,
+  BillingRedirect,
+  BillingSubscriptionStatus,
+  BillingUsage,
+  BillingUsageMetric,
+  FeatureNotEntitledPayload,
+} from "@cap/api-contracts";
 
 const getBaseURL = (): string => {
   const envApiUrl = import.meta.env.VITE_API_URL;
@@ -112,7 +141,11 @@ import {
   ApiErrorResponse,
   ImpersonationSession,
 } from "@cap/shared-types";
-import { ENDPOINTS } from "@cap/api-contracts";
+import {
+  ENDPOINTS,
+  parseFeatureNotEntitled,
+  type FeatureNotEntitledPayload,
+} from "@cap/api-contracts";
 
 export type { ApiResponse, PaginatedResponse, ApiErrorResponse };
 
@@ -335,6 +368,32 @@ export const onForbiddenError = (handler: ForbiddenErrorHandler) => {
 const notifyForbiddenError = () => {
   console.error("[FetchClient] Access forbidden (403), notifying subscribers");
   forbiddenErrorHandlers.forEach((handler) => handler());
+};
+
+export type EntitlementRequiredHandler = (
+  payload: FeatureNotEntitledPayload,
+) => void;
+const entitlementRequiredHandlers: Set<EntitlementRequiredHandler> = new Set();
+
+/**
+ * Subscribe to 402 `feature_not_entitled` responses from any gated endpoint.
+ * The payload carries only a feature key and a plan key -- no user, tenant or
+ * URL data -- so handlers may surface it in UI and analytics freely. Returns an
+ * unsubscribe function.
+ */
+export const onEntitlementRequired = (handler: EntitlementRequiredHandler) => {
+  entitlementRequiredHandlers.add(handler);
+  return () => entitlementRequiredHandlers.delete(handler);
+};
+
+const notifyEntitlementRequired = (payload: FeatureNotEntitledPayload) => {
+  entitlementRequiredHandlers.forEach((handler) => {
+    try {
+      handler(payload);
+    } catch {
+      // A faulty subscriber must not mask the 402 the caller still has to see.
+    }
+  });
 };
 
 export type BeforeRequestHandler = (
@@ -913,6 +972,15 @@ export class FetchClient {
           notifyForbiddenError();
         }
 
+        // 402 is never retried or refreshed: the plan, not the session, is what
+        // is missing. A recognised payload is handed to subscribers, which own
+        // the user-facing message, so the generic warning below is skipped.
+        const entitlementPayload =
+          response.status === 402 ? parseFeatureNotEntitled(responseData) : null;
+        if (entitlementPayload) {
+          notifyEntitlementRequired(entitlementPayload);
+        }
+
         const rawMsg =
           (responseData as { message?: string; error?: string })?.message ||
           (responseData as { error?: string })?.error ||
@@ -928,7 +996,11 @@ export class FetchClient {
           errorDetails,
         );
 
-        if (!config.skipGlobalNotification && response.status !== 401) {
+        if (
+          !config.skipGlobalNotification &&
+          response.status !== 401 &&
+          !(entitlementPayload && entitlementRequiredHandlers.size > 0)
+        ) {
           emitGlobalNotification({
             title: response.status >= 500 ? "Server Error" : "Request Notice",
             message: httpError.userMessage,

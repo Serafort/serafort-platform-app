@@ -42,6 +42,7 @@ import { ThemeBridge, AppReactToastify } from '@cap/layout'
 import { GlobalZIndexStyles, WidgetMarketplaceDrawer, WidgetInspectorDrawer } from '@cap/theme'
 
 import { ThemeEditor } from '@cap/module-theme'
+import EntitlementListener from './EntitlementListener'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -203,6 +204,7 @@ const Providers: React.FC<ChildrenType> = ({ children }) => {
             <GlobalZIndexStyles />
             <BrowserRouter>
               <ForbiddenListener />
+              <EntitlementListener />
               <NetworkSync />
               <ThemedTourProvider>
                 <LayoutEngineProvider>{children}</LayoutEngineProvider>

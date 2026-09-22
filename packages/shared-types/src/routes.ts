@@ -185,6 +185,12 @@ const accessControl = {
   logs: "/admin/access-control/logs",
 } as const;
 
+/** auth :: billing -- plan, usage and upgrade screens. */
+const billing = {
+  overview: "/dashboard/billing",
+  upgrade: "/dashboard/billing/upgrade",
+} as const;
+
 /** auth :: developer-console */
 const developerConsole = {
   developerConsole: "/developer-console",
@@ -458,6 +464,7 @@ export const AppPaths = {
   auth: authenticationCore,
   authorization: authorizationEngine,
   accessControl,
+  billing,
   developerConsole,
   identity: identityBroker,
   mfa: mfaOrchestrator,

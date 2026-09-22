@@ -41,7 +41,7 @@ interface BackendRoute {
 const backendRoutes: BackendRoute[] = routeSnapshot.routes;
 
 const AUTH_SURFACE =
-  /^\/api\/(auth|user|mfa|admin|organizations|scim|v1\/(auth|user|admin|scim))(\/|$)/;
+  /^\/api\/(auth|user|mfa|admin|organizations|scim|v1\/(auth|user|admin|scim|billing))(\/|$)/;
 
 /**
  * Carved out of `AUTH_SURFACE`: routes that live under an identity prefix but
@@ -112,6 +112,8 @@ const NOT_BROWSER_CALLABLE = new Set([
   // Content-Security-Policy header. Application code never calls it, and a
   // registry entry would imply it should.
   "api.admin.security.csp",
+  // Stripe calls this, signed over the raw body. No browser ever does.
+  "api.v1.billing.webhooks.stripe",
 ]);
 
 /**

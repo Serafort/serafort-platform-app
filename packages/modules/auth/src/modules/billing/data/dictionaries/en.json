@@ -1,0 +1,75 @@
+{
+  "billing": {
+    "actions": {
+      "manage": "Manage billing",
+      "manage_admin_only": "Only organization admins can manage billing.",
+      "upgrade": "Upgrade plan",
+      "view_plans": "View plans"
+    },
+    "errors": {
+      "already_subscribed": "This organization already has a subscription. Use Manage billing to change or cancel it.",
+      "billing_not_configured": "Billing is not set up for this environment yet. Contact your platform administrator.",
+      "forbidden": "Only organization admins can start a purchase or open billing.",
+      "no_stripe_customer": "There is no billing account yet. Upgrade to a paid plan to create one.",
+      "plan_not_purchasable": "That plan cannot be purchased online. Choose another plan or contact sales.",
+      "unsafe_redirect": "The billing page returned an unexpected address, so we did not open it. Please try again.",
+      "unknown": "Something went wrong while contacting billing. Please try again."
+    },
+    "features": {
+      "allow_audit_anchoring": "Audit chain anchoring",
+      "allow_jit": "Just-in-time provisioning",
+      "allow_saml_sso": "SAML single sign-on",
+      "allow_scim": "SCIM provisioning"
+    },
+    "limits": {
+      "max_m2m_tokens": "Machine-to-machine tokens per month",
+      "max_mau": "Monthly active users",
+      "max_sms": "SMS messages per month"
+    },
+    "not_included": "Not included",
+    "notice": {
+      "cancels": "Your plan ends on {{date}}.",
+      "downgraded": "Your paid plan is no longer active, so paid features are switched off. Upgrade to restore them.",
+      "past_due": "Your last payment failed. Paid features stay on until {{date}}. Update your payment method in Manage billing to avoid losing them.",
+      "past_due_no_date": "Your last payment failed. Update your payment method in Manage billing to keep your paid features.",
+      "renews": "Renews on {{date}}."
+    },
+    "overview": {
+      "current_plan": "Current plan",
+      "subtitle": "Your plan, its status and how much of each limit you have used this period.",
+      "title": "Billing & plan"
+    },
+    "prompt": {
+      "action": "View plans",
+      "message": "{{feature}} is not included in your current plan."
+    },
+    "status": {
+      "active": "Active",
+      "canceled": "Canceled",
+      "none": "Free",
+      "past_due": "Payment past due",
+      "trialing": "Trial"
+    },
+    "unlimited": "Unlimited",
+    "upgrade": {
+      "current": "Current plan",
+      "feature_required": "{{feature}} is not part of your plan. It is available on the {{plan}} plan.",
+      "feature_required_generic": "That feature is not part of your plan.",
+      "recommended": "Unlocks this feature",
+      "select": "Upgrade to {{plan}}",
+      "subtitle": "Compare plans and upgrade when you need more.",
+      "title": "Choose a plan"
+    },
+    "usage": {
+      "exhausted": "Limit reached. Upgrade to keep going.",
+      "m2m": "Machine-to-machine tokens",
+      "mau": "Monthly active users",
+      "of": "{{used}} of {{limit}}",
+      "period": "Usage for {{start}} to {{end}}",
+      "sms": "SMS messages",
+      "title": "Usage this period",
+      "used_only": "{{used}} used",
+      "warning": "Approaching your limit."
+    }
+  }
+}

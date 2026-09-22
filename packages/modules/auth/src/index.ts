@@ -22,6 +22,7 @@ import WebhookOutlinedIcon from '@mui/icons-material/WebhookOutlined'
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined'
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined'
 import LockResetOutlinedIcon from '@mui/icons-material/LockResetOutlined'
+import CreditCardOutlinedIcon from '@mui/icons-material/CreditCardOutlined'
 
 import { authRouteConfig, authRoutes } from './routes/routes'
 import Path, {
@@ -229,6 +230,7 @@ export {
 } from './modules/identity-broker/hooks'
 export * from './modules/passwordless-service'
 export * from './modules/developer-console'
+export * from './modules/billing'
 export { apiExplorerService } from './modules/platform-cluster'
 export type {
   SandboxExecutionResult,
@@ -449,6 +451,15 @@ export const AuthModule: CAPModule = {
       roles: ['admin'],
       variant: ['vertical', 'horizontal'],
       order: 42,
+    },
+    {
+      id: 'auth-billing',
+      label: 'navigation.billing',
+      icon: React.createElement(CreditCardOutlinedIcon),
+      path: Path.billing.overview,
+      roles: ['admin'],
+      variant: ['vertical', 'horizontal'],
+      order: 43,
     },
 
     // --- MONITORING & DEVELOPER SECTION (ADMIN) ---
