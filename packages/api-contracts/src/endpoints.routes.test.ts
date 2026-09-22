@@ -209,9 +209,6 @@ const KNOWN_UNWIRED = new Set<string>([]);
  * Verified by reading the backend directly (`Authentication/start/routes.ts`
  * and `Authentication/app/controllers`), not only the route table, since a
  * missing route and a misspelled one look identical from the frontend side:
- * - `billing.*` - no Stripe integration, no billing controller, anywhere in
- *   the backend. `/api/v1/billing/*` is pure frontend scaffolding ahead of
- *   the backend work.
  * - `admin.auditChain.*` - `AuditChainService`
  *   (`Authentication/app/services/audit/audit_chain_service.ts`, finding 2d)
  *   implements `append()` and `verify()`, but nothing exposes it over HTTP.
@@ -226,20 +223,20 @@ const KNOWN_UNWIRED = new Set<string>([]);
  * - `rbac.roles.members` - `RolesController` has no members method; nothing
  *   answers `/api/admin/rbac/roles/:id/members`.
  *
- * Each of these is real backend feature work - a Stripe integration, an HTTP
- * surface for a tamper-evident audit log, a BullMQ admin API - not a route
- * naming fix, and per the root CLAUDE.md each needs its own
- * iam-security-reviewer and/or database-reviewer pass before it ships. Move
- * an entry out of this set only once the backend actually serves it; adding
- * one requires the same absence check described above, not just a red test.
+ * Each of these is real backend feature work - an HTTP surface for a
+ * tamper-evident audit log, a BullMQ admin API - not a route naming fix, and
+ * per the root CLAUDE.md each needs its own iam-security-reviewer and/or
+ * database-reviewer pass before it ships. Move an entry out of this set only
+ * once the backend actually serves it; adding one requires the same absence
+ * check described above, not just a red test.
+ *
+ * `billing.*` shipped (Stripe checkout/portal/webhooks, entitlements, plans,
+ * usage) and moved out of this set once `sync-route-snapshot.mjs` confirmed
+ * `/api/v1/billing/*` resolves against a real `billing_controller.ts` /
+ * `entitlements_controller.ts`, not scaffolding.
  */
 const PLANNED_NOT_BUILT = new Set<string>([
   "developer.webhookEventTypes",
-  "billing.entitlements",
-  "billing.plans",
-  "billing.usage",
-  "billing.checkout",
-  "billing.portal",
   "admin.domains.index",
   "admin.auditChain.status",
   "admin.auditChain.checkpoints",
