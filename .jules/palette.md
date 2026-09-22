@@ -21,3 +21,7 @@
 ## 2024-11-20 - Interpolating Context into ARIA Labels in Dynamic Lists
 **Learning:** When rendering dynamic lists with actionable icon buttons (e.g., Delete), screen readers often encounter repetitive and ambiguous labels like "Delete". Without context, users don't know what is being deleted.
 **Action:** Always interpolate the unique identifier or name of the item (e.g., `aria-label={'Delete ' + item.name}`) to provide explicit context to screen reader users.
+
+## 2026-09-22 - Adding ARIA labels to IconButtons inside Tooltips and dynamic lists
+**Learning:** When adding `aria-label`s to `IconButton`s, the label should be applied directly to the `IconButton` element even if it is wrapped in a `Tooltip` component, to ensure accurate screen reader announcements. Additionally, when the `IconButton` is part of a dynamic list (e.g., mapped over items), the `aria-label` must dynamically interpolate the unique item identifier (like `dep.name` or `log.status`) to provide context and prevent repetitive, ambiguous labeling.
+**Action:** Always place the `aria-label` directly on the `IconButton`, and always interpolate unique identifiers into the label string when rendering lists.
