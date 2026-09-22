@@ -409,6 +409,18 @@ const authService = {
     exchange: (code: string): Promise<FetchResponse<unknown>> => {
       return apiClient.post(ENDPOINTS.auth.social.exchange, { code })
     },
+    /**
+     * Account Linking & Identity Consolidation (Tier-2 plan item 3).
+     * Exchanges the short-lived `linkToken` from the OAuth callback plus the
+     * existing local account's password for a completed account link. v1
+     * envelope — the caller reads `response.data.data`.
+     */
+    confirmLink: (
+      token: string,
+      password: string,
+    ): Promise<FetchResponse<{ success: boolean; data?: { linked: boolean; provider: string } }>> => {
+      return apiClient.post(ENDPOINTS.auth.social.confirmLink, { token, password })
+    },
   },
 
   // ========================================================================

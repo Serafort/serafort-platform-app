@@ -199,6 +199,59 @@ const SUPERSEDED_BY_V1 = new Set([
  */
 const KNOWN_UNWIRED = new Set<string>([]);
 
+/**
+ * Registry entries for backend surfaces that do not exist yet at all — the
+ * mirror image of `KNOWN_UNWIRED`. `KNOWN_UNWIRED` is a served backend route
+ * the frontend hasn't reached; these are registry paths with nothing on the
+ * other end, confirmed absent from `node ace list:routes`, not just from the
+ * committed snapshot.
+ *
+ * Verified by reading the backend directly (`Authentication/start/routes.ts`
+ * and `Authentication/app/controllers`), not only the route table, since a
+ * missing route and a misspelled one look identical from the frontend side:
+ * - `billing.*` - no Stripe integration, no billing controller, anywhere in
+ *   the backend. `/api/v1/billing/*` is pure frontend scaffolding ahead of
+ *   the backend work.
+ * - `admin.auditChain.*` - `AuditChainService`
+ *   (`Authentication/app/services/audit/audit_chain_service.ts`, finding 2d)
+ *   implements `append()` and `verify()`, but nothing exposes it over HTTP.
+ *   The service exists; the controller and routes do not.
+ * - `admin.queues.*` - no `queues_controller` exists. `health.queue` is a
+ *   single liveness check for the directory-sync queue, not the per-queue
+ *   job-management API this key set implies.
+ * - `admin.domains.index` - `DomainsController` has `verify()` and `check()`
+ *   only; there is no list/index method or route.
+ * - `developer.webhookEventTypes` - no static event-type catalogue route on
+ *   `WebhooksController` (which has index/store/show/update/destroy/test).
+ * - `rbac.roles.members` - `RolesController` has no members method; nothing
+ *   answers `/api/admin/rbac/roles/:id/members`.
+ *
+ * Each of these is real backend feature work - a Stripe integration, an HTTP
+ * surface for a tamper-evident audit log, a BullMQ admin API - not a route
+ * naming fix, and per the root CLAUDE.md each needs its own
+ * iam-security-reviewer and/or database-reviewer pass before it ships. Move
+ * an entry out of this set only once the backend actually serves it; adding
+ * one requires the same absence check described above, not just a red test.
+ */
+const PLANNED_NOT_BUILT = new Set<string>([
+  "developer.webhookEventTypes",
+  "billing.entitlements",
+  "billing.plans",
+  "billing.usage",
+  "billing.checkout",
+  "billing.portal",
+  "admin.domains.index",
+  "admin.auditChain.status",
+  "admin.auditChain.checkpoints",
+  "admin.auditChain.verify",
+  "admin.auditChain.anchors",
+  "admin.queues.index",
+  "admin.queues.jobs",
+  "admin.queues.retryJob",
+  "admin.queues.retryFailed",
+  "rbac.roles.members",
+]);
+
 interface RegistryPath {
   /** Dotted key into API_ENDPOINTS, e.g. "auth.mfa.setup" — names the failure. */
   key: string;
@@ -294,6 +347,7 @@ describe("API_ENDPOINTS drift guard", () => {
 
   it("resolves every registry auth path to a route the backend serves", () => {
     const dead = registryPaths
+      .filter((entry) => !PLANNED_NOT_BUILT.has(entry.key))
       .filter((entry) => !entry.candidates.some(isServed))
       .map((entry) => `${entry.key} -> ${entry.candidates.join(" | ")}`);
 

@@ -931,6 +931,7 @@
         "category_authentication": "Authentification",
         "category_authorization_rbac": "Autorisation et RBAC",
         "category_custom": "Autres événements abonnés",
+        "category_extensibility_hooks": "Hooks d'extensibilité",
         "category_security_ssf": "Sécurité et SSF",
         "category_user_lifecycle": "Cycle de vie utilisateur",
         "col_events": "Événements abonnés",

@@ -622,6 +622,7 @@
         "category_authentication": "Authentication",
         "category_authorization_rbac": "Authorization & RBAC",
         "category_custom": "Other Subscribed Events",
+        "category_extensibility_hooks": "Extensibility Hooks",
         "category_security_ssf": "Security & SSF",
         "category_user_lifecycle": "User Lifecycle",
         "col_events": "Subscribed Events",

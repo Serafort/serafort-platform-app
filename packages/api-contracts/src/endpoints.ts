@@ -118,6 +118,16 @@ export const API_ENDPOINTS = {
       redirect: (provider: string) => `/api/auth/social/${provider}/redirect`,
       callback: (provider: string) => `/api/auth/social/${provider}/callback`,
       exchange: "/api/auth/social/exchange",
+      /**
+       * Account Linking & Identity Consolidation (Tier-2 plan item 3).
+       * Completes a pending merge when the tenant's linking policy is
+       * `require_verified_merge` — the OAuth callback redirects here with a
+       * `linkToken` instead of auto-linking; this endpoint exchanges that
+       * token plus the existing account's password for the completed link.
+       * v1 surface: wraps the response in `{ success, data, message }` (see
+       * root CLAUDE.md §3) — read `response.data.data`.
+       */
+      confirmLink: "/api/v1/auth/social/confirm-link",
     },
     oidc: {
       auth: "/api/auth/oidc/auth",
@@ -249,6 +259,20 @@ export const API_ENDPOINTS = {
     update: (id: number) => `/api/profiles/${id}`,
     delete: (id: number) => `/api/profiles/${id}`,
     activeStatus: (id: number) => `/api/profiles/${id}/active-status`,
+  },
+
+  /**
+   * Progressive Profiling — lazily collects tenant-defined profile
+   * attributes over time instead of asking for everything at signup. See
+   * `Authentication/app/services/profiling/progressive_profiling_service.ts`.
+   * Envelope: `{ success, data, message, meta }` via `successResponse()`
+   * (both routes live under the `/api/v1` group).
+   */
+  progressiveProfiling: {
+    /** GET — the "on route access" trigger; call on navigation with `?route=<path>`. */
+    pendingFields: "/api/v1/profile/pending-fields",
+    /** POST — body: `{ attributes: Array<{ key, value }> }`. */
+    submitAttributes: "/api/v1/profile/attributes",
   },
 
   logs: "/logs",
@@ -473,6 +497,19 @@ export const API_ENDPOINTS = {
       update: (id: number) => `/api/admin/webhooks/${id}`,
       destroy: (id: number) => `/api/admin/webhooks/${id}`,
       test: (id: number) => `/api/admin/webhooks/${id}/test`,
+    },
+    /**
+     * Progressive Profiling rules (tenant-admin CRUD). Unlike `admin.webhooks`
+     * above, these are mounted only under `/api/v1` (tenant-scoped —
+     * `middleware.tenant()` applies at the route-group level), not the legacy
+     * `/api/admin/*` tree.
+     */
+    profilingRules: {
+      index: "/api/v1/admin/profiling-rules",
+      store: "/api/v1/admin/profiling-rules",
+      byId: (id: string) => `/api/v1/admin/profiling-rules/${id}`,
+      update: (id: string) => `/api/v1/admin/profiling-rules/${id}`,
+      destroy: (id: string) => `/api/v1/admin/profiling-rules/${id}`,
     },
     organizations: {
       index: "/api/admin/organizations",
@@ -805,6 +842,7 @@ export const API_QUERY_KEYS = {
     securityLogs: (params: unknown) =>
       ["auth", "security-logs", params] as const,
     linkedAccounts: ["auth", "linked-accounts"] as const,
+    socialConfirmLink: ["auth", "social", "confirm-link"] as const,
     emailPreferences: ["auth", "email-preferences"] as const,
     passwordless: {
       all: ["auth", "passwordless"] as const,
@@ -841,6 +879,11 @@ export const API_QUERY_KEYS = {
     all: ["developer"] as const,
     apiKeys: ["developer", "api-keys"] as const,
     webhooks: ["developer", "webhooks"] as const,
+  },
+  progressiveProfiling: {
+    all: ["progressive-profiling"] as const,
+    pendingFields: (route: string) =>
+      ["progressive-profiling", "pending-fields", route] as const,
   },
   contact: {
     all: ["contact"] as const,
@@ -884,6 +927,11 @@ export const API_QUERY_KEYS = {
     scopes: {
       all: ["admin", "scopes"] as const,
       index: ["admin", "scopes"] as const,
+    },
+    profilingRules: {
+      all: ["admin", "profiling-rules"] as const,
+      index: ["admin", "profiling-rules"] as const,
+      byId: (id: string) => ["admin", "profiling-rules", id] as const,
     },
     saml: {
       all: ["admin", "saml"] as const,

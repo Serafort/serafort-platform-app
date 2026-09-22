@@ -931,6 +931,7 @@
         "category_authentication": "المصادقة",
         "category_authorization_rbac": "التفويض والتحكم في الوصول القائم على الأدوار",
         "category_custom": "أحداث مشتركة أخرى",
+        "category_extensibility_hooks": "خطافات التوسعة",
         "category_security_ssf": "الأمان و SSF",
         "category_user_lifecycle": "دورة حياة المستخدم",
         "col_events": "الأحداث المشترك بها",
