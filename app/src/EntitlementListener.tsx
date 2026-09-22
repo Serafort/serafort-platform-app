@@ -20,7 +20,7 @@ const EntitlementListener: React.FC = () => {
   const { t } = useTranslation()
 
   React.useEffect(() => {
-    return onEntitlementRequired((payload) => {
+    const unsubscribe = onEntitlementRequired((payload) => {
       const feature = t(`billing.features.${payload.feature}`, payload.feature)
       const upgradePath = buildUpgradePath(payload)
 
@@ -54,6 +54,9 @@ const EntitlementListener: React.FC = () => {
         },
       )
     })
+    return () => {
+      unsubscribe()
+    }
   }, [navigate, t])
 
   return null
