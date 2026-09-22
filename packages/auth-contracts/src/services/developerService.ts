@@ -18,6 +18,8 @@ export interface DeveloperApiKeyItem {
  */
 export interface WebhookItem {
   id: string;
+  /** Null means platform-wide — visible to every tenant. */
+  organizationId: string | null;
   url: string;
   eventTypes: string[];
   isActive: boolean;
@@ -25,6 +27,13 @@ export interface WebhookItem {
   isDisabled: boolean;
   maxRetries: number;
   timeoutSeconds: number;
+  /**
+   * Governs `pre_registration` / `pre_token_minting` (the blocking Actions
+   * hook trigger points) when this endpoint is unreachable: `fail_open` logs
+   * and proceeds, `fail_closed` blocks the registration/token-mint. Has no
+   * effect on fire-and-forget notification events or on `post_login`.
+   */
+  failurePolicy: "fail_open" | "fail_closed";
   failureCount: number;
   lastTriggeredAt: string | null;
   /**
@@ -124,6 +133,7 @@ export class DeveloperService {
     url: string;
     eventTypes: string[];
     isActive?: boolean;
+    failurePolicy?: "fail_open" | "fail_closed";
   }): Promise<FetchResponse<WebhookItem>> {
     return apiClient.post<WebhookItem>(ENDPOINTS.developer.webhooks, data);
   }
@@ -141,6 +151,7 @@ export class DeveloperService {
       url?: string;
       eventTypes?: string[];
       isActive?: boolean;
+      failurePolicy?: "fail_open" | "fail_closed";
     },
   ): Promise<FetchResponse<WebhookItem>> {
     return apiClient.patch<WebhookItem>(

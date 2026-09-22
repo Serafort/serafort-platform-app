@@ -80,6 +80,12 @@ export const WEBHOOK_EVENT_CATEGORIES: Record<string, string[]> = {
   authorization_rbac: ['role.assigned', 'role.revoked', 'policy.created', 'policy.updated'],
   security_ssf: ['security.anomaly', 'threat.detected', 'ssf.caep_event', 'session.revoked'],
   audit: ['audit.checkpoint', 'audit.export_completed'],
+  // Actions/Extensibility Engine — synchronous callout hooks. Unlike every
+  // other event above, these block the auth transaction and their response
+  // can change the outcome (reject a registration, inject JWT claims) — see
+  // HooksDispatchService. `failurePolicy` on the subscription governs what
+  // happens if this endpoint is unreachable.
+  extensibility_hooks: ['pre_registration', 'post_login', 'pre_token_minting'],
 }
 
 const CATEGORY_LABEL_KEYS: Record<string, string> = {
@@ -88,6 +94,7 @@ const CATEGORY_LABEL_KEYS: Record<string, string> = {
   authorization_rbac: 'auth.developer_console.webhooks.category_authorization_rbac',
   security_ssf: 'auth.developer_console.webhooks.category_security_ssf',
   audit: 'auth.developer_console.webhooks.category_audit',
+  extensibility_hooks: 'auth.developer_console.webhooks.category_extensibility_hooks',
 }
 
 const CATEGORY_LABEL_DEFAULTS: Record<string, string> = {
@@ -96,6 +103,7 @@ const CATEGORY_LABEL_DEFAULTS: Record<string, string> = {
   authorization_rbac: 'Authorization & RBAC',
   security_ssf: 'Security & SSF',
   audit: 'Audit & Compliance',
+  extensibility_hooks: 'Extensibility Hooks',
 }
 
 /** Turn an unrecognised category key from the server into a readable heading. */

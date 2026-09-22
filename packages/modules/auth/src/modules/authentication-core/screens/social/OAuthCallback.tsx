@@ -1,17 +1,37 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material'
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  InputAdornment,
+  Stack,
+  Typography,
+} from '@mui/material'
 import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline'
 import ErrorOutline from '@mui/icons-material/ErrorOutline'
+import LinkIcon from '@mui/icons-material/Link'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useAppStore } from '@cap/platform-store'
-import { AuthOutcomeScreen, AuthPageLayout, AuthCard } from '../../components/shared/auth'
+import {
+  AuthActionButton,
+  AuthCardHeader,
+  AuthInputLabel,
+  AuthOutcomeScreen,
+  AuthPageLayout,
+  AuthCard,
+  AuthTextField,
+} from '../../components/shared/auth'
 import authService from '../../services/auth.service'
 import { normalizeAuthUser } from '../../utils/normalizeAuthUser'
 import { resolveRedirectPathForUser } from '../../utils/resolveRedirect'
 import Path from '../path'
 
-type Phase = 'exchanging' | 'success' | 'error'
+type Phase = 'exchanging' | 'success' | 'error' | 'confirmLink' | 'linkConfirmed'
 
 /**
  * Single-flight cache of in-progress exchanges, keyed by the one-time code.
@@ -74,6 +94,72 @@ const OAuthCallback: React.FC = () => {
   }
   const code = codeRef.current
 
+  // Account Linking & Identity Consolidation (Tier-2 plan item 3): under a
+  // tenant's `require_verified_merge` policy, SocialAuthController.callback
+  // redirects here with `?linkToken=` instead of `?code=` -- the OAuth match
+  // was verified but not auto-linked, and the caller must prove ownership of
+  // the existing account (its password) before the merge completes.
+  const linkTokenRef = useRef<string | null>(null)
+  if (linkTokenRef.current === null) {
+    linkTokenRef.current = searchParams.get('linkToken')
+  }
+  const linkToken = linkTokenRef.current
+  const linkProviderRef = useRef<string | null>(null)
+  if (linkProviderRef.current === null) {
+    linkProviderRef.current = searchParams.get('provider')
+  }
+  const linkProvider = linkProviderRef.current
+
+  const [linkPassword, setLinkPassword] = useState('')
+  const [showLinkPassword, setShowLinkPassword] = useState(false)
+  const [linkError, setLinkError] = useState<string | null>(null)
+  const [isConfirmingLink, setIsConfirmingLink] = useState(false)
+
+  const describeLinkFailure = useCallback(
+    (error: any): string => {
+      const reason = error?.response?.data?.error
+      if (reason === 'invalid_or_expired_link_token') {
+        return t(
+          'auth.callback.link_expired',
+          'This confirmation link has expired. Please sign in with your provider again.',
+        )
+      }
+      if (reason === 'invalid_password') {
+        return t('auth.callback.link_wrong_password', 'That password is incorrect.')
+      }
+      if (reason === 'existing_account_unverified') {
+        return t(
+          'auth.callback.link_unverified',
+          'This account cannot be linked until its email is verified.',
+        )
+      }
+      return t(
+        'auth.callback.link_failed',
+        'We could not link your account. Please try again.',
+      )
+    },
+    [t],
+  )
+
+  const handleConfirmLink = useCallback(
+    async (e?: React.FormEvent) => {
+      e?.preventDefault()
+      if (!linkToken || !linkPassword) return
+
+      setIsConfirmingLink(true)
+      setLinkError(null)
+      try {
+        await authService.social.confirmLink(linkToken, linkPassword)
+        setPhase('linkConfirmed')
+      } catch (error: any) {
+        setLinkError(describeLinkFailure(error))
+      } finally {
+        setIsConfirmingLink(false)
+      }
+    },
+    [linkToken, linkPassword, describeLinkFailure],
+  )
+
   const describeFailure = useCallback(
     (error: any): string => {
       // The backend distinguishes an expired/replayed handle from a disabled
@@ -100,6 +186,11 @@ const OAuthCallback: React.FC = () => {
   const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
+    if (linkToken) {
+      setPhase('confirmLink')
+      return
+    }
+
     if (!code) {
       setPhase('error')
       setErrorMessage(
@@ -161,9 +252,10 @@ const OAuthCallback: React.FC = () => {
   }, [code, attempt, describeFailure, navigate, setUser, t])
 
   // Drop the one-time handle from the address bar so a reload or a shared link
-  // cannot replay a spent code into a confusing error.
+  // cannot replay a spent code (or link-confirmation token) into a confusing
+  // error.
   useEffect(() => {
-    if (searchParams.has('code')) {
+    if (searchParams.has('code') || searchParams.has('linkToken')) {
       setSearchParams({}, { replace: true })
     }
   }, [searchParams, setSearchParams])
@@ -198,6 +290,134 @@ const OAuthCallback: React.FC = () => {
         icon={<CheckCircleOutline />}
         title={t('auth.callback.success_title', "You're signed in")}
         description={t('auth.callback.success_description', 'Taking you to your account…')}
+      />
+    )
+  }
+
+  if (phase === 'confirmLink') {
+    return (
+      <AuthPageLayout maxWidth={460}>
+        <AuthCard padding='comfortable'>
+          <Box sx={{ px: { xs: 3, sm: 4 }, pt: { xs: 3, sm: 4 } }}>
+            <AuthCardHeader
+              icon={<LinkIcon sx={{ fontSize: 32 }} />}
+              title={t('auth.callback.confirm_link_title', 'Confirm account link')}
+              subtitle={t(
+                'auth.callback.confirm_link_subtitle',
+                linkProvider
+                  ? `An account with this email already exists. Enter its password to link your ${linkProvider} sign-in.`
+                  : 'An account with this email already exists. Enter its password to link your sign-in.',
+              )}
+            />
+          </Box>
+
+          <Box
+            component='form'
+            onSubmit={handleConfirmLink}
+            noValidate
+            sx={{
+              px: { xs: 3, sm: 4 },
+              pt: 1,
+              pb: { xs: 3, sm: 4 },
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2.25,
+            }}
+          >
+            {linkError && (
+              <Alert severity='error' variant='outlined'>
+                {linkError}
+              </Alert>
+            )}
+
+            <Box>
+              <AuthInputLabel htmlFor='link-password'>
+                {t('signIn.passwordLabel', 'Password')}
+              </AuthInputLabel>
+              <AuthTextField
+                id='link-password'
+                type={showLinkPassword ? 'text' : 'password'}
+                fullWidth
+                autoFocus
+                autoComplete='current-password'
+                placeholder={t('auth.common.passwordPlaceholder', '••••••••')}
+                value={linkPassword}
+                onChange={(e) => setLinkPassword(e.target.value)}
+                disabled={isConfirmingLink}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton
+                        onClick={() => setShowLinkPassword((v) => !v)}
+                        edge='end'
+                        size='small'
+                        sx={{ minInlineSize: 44, minBlockSize: 44 }}
+                        disabled={isConfirmingLink}
+                        aria-label={t(
+                          'auth.login.toggle_password',
+                          'toggle password visibility',
+                        )}
+                      >
+                        {showLinkPassword ? (
+                          <Visibility sx={{ fontSize: 20, color: 'text.secondary' }} />
+                        ) : (
+                          <VisibilityOff sx={{ fontSize: 20, color: 'text.secondary' }} />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
+
+            <AuthActionButton
+              type='submit'
+              isLoading={isConfirmingLink}
+              isSubmitting={isConfirmingLink}
+              label={
+                isConfirmingLink
+                  ? t('auth.callback.confirming_link', 'Linking…')
+                  : t('auth.callback.confirm_link_submit', 'Confirm & link account')
+              }
+            />
+
+            <Button
+              fullWidth
+              variant='text'
+              onClick={() => navigate(Path.signin, { replace: true })}
+              disabled={isConfirmingLink}
+              sx={{ minHeight: 44, textTransform: 'none', fontWeight: 600 }}
+            >
+              {t('auth.common.backToLogin', 'Back to sign in')}
+            </Button>
+          </Box>
+        </AuthCard>
+      </AuthPageLayout>
+    )
+  }
+
+  if (phase === 'linkConfirmed') {
+    return (
+      <AuthOutcomeScreen
+        tone='success'
+        icon={<CheckCircleOutline />}
+        title={t('auth.callback.link_confirmed_title', 'Account linked')}
+        description={t(
+          'auth.callback.link_confirmed_description',
+          linkProvider
+            ? `Your ${linkProvider} sign-in is now linked. Sign in to continue.`
+            : 'Your account is now linked. Sign in to continue.',
+        )}
+        actions={
+          <Button
+            fullWidth
+            variant='contained'
+            onClick={() => navigate(Path.signin, { replace: true })}
+            sx={{ minHeight: 48, textTransform: 'none', fontWeight: 700 }}
+          >
+            {t('auth.common.backToLogin', 'Back to sign in')}
+          </Button>
+        }
       />
     )
   }
