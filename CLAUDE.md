@@ -129,17 +129,29 @@ together close the loop.
 
 ## 3. Project Agents (`.claude/agents/`) & The 17 Specialist Personas
 
-### Project-Level Specialist Agents (`.claude/agents/`)
-- **`tier-architect`** (`.claude/agents/tier-architect.md`):
-  - **Role**: Read-only architecture reviewer for monorepo package tiers and import directions.
-  - **Triggers**: Adding packages, changing imports across packages, modifying `CAPModule` contracts, or routing structure.
-  - **Focus**: Enforcing the 6-tier boundary rules (`scripts/check-tier-boundaries.mjs`), `CAPModule` contract exports, and `AppPaths` routing standard.
-- **`react-reviewer`** (`.claude/agents/react-reviewer.md`):
-  - **Role**: Read-only React 19, MUI v7, and state management specialist.
-  - **Triggers**: Modifying `.tsx` components, custom hooks, Zustand stores, TanStack queries, or MUI theme bindings.
-  - **Focus**: React 19 concurrent hooks, zero hardcoded colors (MUI tokens / `ThemeBridge` CSS custom properties), Zustand 5 state hygiene, dynamic `React.lazy()` chunking, and RTL parity.
+### Executable Specialist Agent Definitions (`.claude/agents/`)
+All 17 specialist personas are materialized as executable subagent definitions in `.claude/agents/`, complete with YAML frontmatter, domain constraints, Graphify/Playwright directives, and inter-agent delegation protocols:
 
-### The 17 Specialist Sub-Agent Personas
+- **`tier-architect`** / **`architect`** ([`.claude/agents/architect.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/architect.md) / [`.claude/agents/tier-architect.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/tier-architect.md)): 6-tier boundary governance, `CAPModule` contracts, modularity.
+- **`react-reviewer`** ([`.claude/agents/react-reviewer.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/react-reviewer.md)): React 19 concurrent hooks, Zustand 5 hygiene, dynamic chunking, RTL parity.
+- **`quality`** ([`.claude/agents/quality.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/quality.md)): Strict TypeScript (zero `any`), DRY, component decomposition (<300 lines).
+- **`security`** ([`.claude/agents/security.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/security.md)): Zero-PII logging, AES-GCM encrypted stores, protocol whitelisting.
+- **`performance`** ([`.claude/agents/performance.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/performance.md)): Doherty Threshold (<400ms), bundle size (<60kB gzip), rAF batching.
+- **`theme-artisan`** ([`.claude/agents/theme-artisan.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/theme-artisan.md)): 3-layer tokens, 15 tenant presets, 6 visual effect engines, zero hardcoded colors.
+- **`ux-cognitive`** ([`.claude/agents/ux-cognitive.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/ux-cognitive.md)): 4 Key UI Principles, 4 UI States, Fitts/Miller/Von Restorff Laws.
+- **`a11y-i18n`** ([`.claude/agents/a11y-i18n.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/a11y-i18n.md)): WCAG 2.2 AA, bidirectional parity (LTR/RTL), zero hardcoded strings.
+- **`visual-qa`** ([`.claude/agents/visual-qa.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/visual-qa.md)): Headless Playwright driver, DOM geometry, shell hydration screenshotting (`--shell`).
+- **`network-boundary`** ([`.claude/agents/network-boundary.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/network-boundary.md)): `API_QUERY_KEYS`, optimistic rollback lifecycle, cache eviction on tenant switch.
+- **`telemetry-audit`** ([`.claude/agents/telemetry-audit.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/telemetry-audit.md)): Zero-PII analytics, isolated ErrorBoundary widgets, Core Web Vitals.
+- **`tenant-lifecycle`** ([`.claude/agents/tenant-lifecycle.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/tenant-lifecycle.md)): Storage keys (`<tenantId>:<userId>:<keyName>`), entitlement pre-mount checks, clean teardown.
+- **`widget-engine`** ([`.claude/agents/widget-engine.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/widget-engine.md)): Widget studio runtime, manifests, Zod config validation, grid persistence.
+- **`mock-fixtures`** ([`.claude/agents/mock-fixtures.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/mock-fixtures.md)): MSW handlers, contracts parity, multi-tenant seed datasets, scenario presets.
+- **`release-dx`** ([`.claude/agents/release-dx.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/release-dx.md)): pnpm workspace dependency synchronization, Rollup chunk budgets, Plop generators.
+- **`compliance-governance`** ([`.claude/agents/compliance-governance.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/compliance-governance.md)): GDPR/HIPAA/SOC 2, immutable client audit trails, inactivity lockouts.
+- **`e2e-journey`** ([`.claude/agents/e2e-journey.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/e2e-journey.md)): Multi-screen Playwright user journeys, browser back/forward/refresh, `AppPaths` enforcement.
+- **`flow-state`** ([`.claude/agents/flow-state.md`](file:///c:/Node.Js/proj/boilerplate/.claude/agents/flow-state.md)): URL query params over hidden state, React.lazy `<Suspense>` skeletons (<400ms), unmount cleanup.
+
+### The 17 Specialist Sub-Agent Personas Breakdown
 
 When tackling tasks, agents can assume one or more of the following 17 specialized sub-agent personas, or collaborate via direct delegation:
 
