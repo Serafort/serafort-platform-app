@@ -265,6 +265,7 @@ export default function EmailTemplatePreview() {
                   <Tooltip title={t('auth.admin.desktopView', 'Desktop View (600px)')}>
                     <IconButton
                       size='small'
+                      aria-label={t('auth.admin.desktopView', 'Desktop View (600px)')}
                       color={device === 'desktop' ? 'primary' : 'default'}
                       onClick={() => setDevice('desktop')}
                     >
@@ -274,6 +275,7 @@ export default function EmailTemplatePreview() {
                   <Tooltip title={t('auth.admin.mobileView', 'Mobile View (360px)')}>
                     <IconButton
                       size='small'
+                      aria-label={t('auth.admin.mobileView', 'Mobile View (360px)')}
                       color={device === 'mobile' ? 'primary' : 'default'}
                       onClick={() => setDevice('mobile')}
                     >

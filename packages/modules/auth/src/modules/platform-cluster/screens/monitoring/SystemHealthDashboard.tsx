@@ -560,6 +560,7 @@ const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({
                       <TableCell align='right' sx={{ py: 2 }}>
                         <IconButton
                           size='small'
+                          aria-label={'View dependency details for ' + dep.name}
                           sx={{
                             color: 'text.secondary',
                             '&:hover': { color: 'primary.main' },

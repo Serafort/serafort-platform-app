@@ -828,6 +828,7 @@ const ConnectorDetailView: React.FC = () => {
                             <Tooltip title='View Log Entry'>
                               <IconButton
                                 size='small'
+                                aria-label={'View log details for ' + (log.status || '')}
                                 sx={{
                                   width: 44,
                                   height: 44,
