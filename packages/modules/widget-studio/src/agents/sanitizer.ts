@@ -302,7 +302,7 @@ export function sanitizeWidgetDsl(
   const id =
     typeof dsl.id === "string" && dsl.id.trim()
       ? dsl.id.trim()
-      : `widget-${Date.now()}`;
+      : `widget-${typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2)}`;
   const rawName =
     typeof dsl.name === "string" ? dsl.name : "Generated AI Widget";
   const name =
