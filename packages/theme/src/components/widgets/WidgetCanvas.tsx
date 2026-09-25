@@ -144,6 +144,7 @@ const EmptySlotDroppableInner: React.FC<{
             <IconButton
               size="small"
               color="error"
+              aria-label="Remove Empty Panel Slot"
               onClick={() => {
                 if (import.meta.env.DEV)
                   console.log("[WidgetCanvas] Empty slot remove clicked:", {
