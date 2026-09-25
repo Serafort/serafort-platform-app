@@ -18,7 +18,7 @@ class TemplateWidgetGeneratorService {
     catalogItem: WidgetCatalogItem;
   } {
     this.generatedCount++;
-    const id = `template-widget-${Date.now()}-${this.generatedCount}`;
+    const id = `template-widget-${typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2)}-${this.generatedCount}`;
     const cleanPrompt = prompt.trim();
     const lower = cleanPrompt.toLowerCase();
 
