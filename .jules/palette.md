@@ -25,3 +25,7 @@
 ## 2026-09-22 - Adding ARIA labels to IconButtons inside Tooltips and dynamic lists
 **Learning:** When adding `aria-label`s to `IconButton`s, the label should be applied directly to the `IconButton` element even if it is wrapped in a `Tooltip` component, to ensure accurate screen reader announcements. Additionally, when the `IconButton` is part of a dynamic list (e.g., mapped over items), the `aria-label` must dynamically interpolate the unique item identifier (like `dep.name` or `log.status`) to provide context and prevent repetitive, ambiguous labeling.
 **Action:** Always place the `aria-label` directly on the `IconButton`, and always interpolate unique identifiers into the label string when rendering lists.
+
+## 2026-09-25 - ARIA Labels for Action IconButtons in Drag-and-Drop Canvases
+**Learning:** Found an `IconButton` for deleting empty panel slots inside a `WidgetCanvas` component. Although the button was visually described by a `Tooltip`, it lacked an `aria-label`, making it inaccessible to screen reader users navigating the canvas layout builder.
+**Action:** Always ensure that structural or layout manipulation actions (like adding/removing slots or panels) have explicit `aria-label`s on their `IconButton`s, even when surrounded by descriptive text or tooltips, to provide clear interaction targets for assistive technologies.
