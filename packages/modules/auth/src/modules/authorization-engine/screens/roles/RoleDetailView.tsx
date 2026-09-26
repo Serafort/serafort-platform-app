@@ -276,7 +276,11 @@ export default function RoleDetailView() {
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
               <Tooltip title={t('auth.admin.goBack') || 'Go back'}>
-                <IconButton onClick={() => navigate(Path.admin.roles)} sx={{ ml: -1, width: 44, height: 44 }}>
+                <IconButton
+                  onClick={() => navigate(Path.admin.roles)}
+                  sx={{ ml: -1, width: 44, height: 44 }}
+                  aria-label={t('auth.admin.goBack') || 'Go back'}
+                >
                   <ArrowBack fontSize='small' />
                 </IconButton>
               </Tooltip>
@@ -306,7 +310,12 @@ export default function RoleDetailView() {
               <Chip
                 label={(role.guard_name || 'web').toUpperCase()}
                 size='small'
-                sx={{ height: 20, fontSize: '0.6rem', fontWeight: 800, borderRadius: 'var(--sf-radius-sm, 6px)' }}
+                sx={{
+                  height: 20,
+                  fontSize: '0.6rem',
+                  fontWeight: 800,
+                  borderRadius: 'var(--sf-radius-sm, 6px)',
+                }}
               />
             </Stack>
           </Box>
@@ -778,21 +787,36 @@ export default function RoleDetailView() {
                     <Button
                       fullWidth
                       startIcon={<HistoryIcon />}
-                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        fontWeight: 700,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        minHeight: 44,
+                      }}
                     >
                       {t('auth.admin.systemAuditData')}
                     </Button>
                     <Button
                       fullWidth
                       startIcon={<Description />}
-                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        fontWeight: 700,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        minHeight: 44,
+                      }}
                     >
                       {t('auth.admin.exportAccessLogs')}
                     </Button>
                     <Button
                       fullWidth
                       startIcon={<Security />}
-                      sx={{ justifyContent: 'flex-start', fontWeight: 700, borderRadius: 'var(--sf-radius-md, 8px)', minHeight: 44 }}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        fontWeight: 700,
+                        borderRadius: 'var(--sf-radius-md, 8px)',
+                        minHeight: 44,
+                      }}
                     >
                       {t('auth.admin.securityBaseline')}
                     </Button>
@@ -880,7 +904,15 @@ function AutocompleteDialog({
         />
       </DialogContent>
       <DialogActions sx={{ p: 3, pt: 1 }}>
-        <Button onClick={onClose} sx={{ minHeight: 44, borderRadius: 'var(--sf-radius-md, 8px)', fontWeight: 700, color: 'text.secondary' }}>
+        <Button
+          onClick={onClose}
+          sx={{
+            minHeight: 44,
+            borderRadius: 'var(--sf-radius-md, 8px)',
+            fontWeight: 700,
+            color: 'text.secondary',
+          }}
+        >
           {t('auth.common.cancel')}
         </Button>
         <Button

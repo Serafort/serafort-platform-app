@@ -25,3 +25,7 @@
 ## 2026-09-22 - Adding ARIA labels to IconButtons inside Tooltips and dynamic lists
 **Learning:** When adding `aria-label`s to `IconButton`s, the label should be applied directly to the `IconButton` element even if it is wrapped in a `Tooltip` component, to ensure accurate screen reader announcements. Additionally, when the `IconButton` is part of a dynamic list (e.g., mapped over items), the `aria-label` must dynamically interpolate the unique item identifier (like `dep.name` or `log.status`) to provide context and prevent repetitive, ambiguous labeling.
 **Action:** Always place the `aria-label` directly on the `IconButton`, and always interpolate unique identifiers into the label string when rendering lists.
+
+## 2024-03-22 - Adding ARIA labels to dynamically toggling UI components
+**Learning:** When adding `aria-label`s to components that toggle state visually (like password visibility), the `aria-label` must also dynamically reflect the current visual state for screen readers (e.g., `aria-label={secretVisible ? 'Hide secret' : 'Show secret'}`). Additionally, Tooltip text isn't sufficient for screen readers when wrapping an IconButton. The `aria-label` needs to be placed on the `IconButton` directly.
+**Action:** When implementing or fixing icon buttons that toggle state, ensure the `aria-label` also toggles dynamically to match the expected action.

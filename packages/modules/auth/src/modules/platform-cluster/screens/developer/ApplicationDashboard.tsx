@@ -851,7 +851,11 @@ export default function ApplicationDashboard() {
               >
                 {newSecret}
               </Typography>
-              <IconButton color='primary' onClick={() => copyToClipboard(newSecret)}>
+              <IconButton
+                color='primary'
+                onClick={() => copyToClipboard(newSecret)}
+                aria-label='Copy secret to clipboard'
+              >
                 <ContentCopy />
               </IconButton>
             </Paper>

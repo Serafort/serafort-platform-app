@@ -732,7 +732,11 @@ const WebhookManagement: React.FC = () => {
               {secretVisible ? newWebhookSecret : '•'.repeat(32)}
             </Typography>
             <Box sx={{ display: 'flex', flexShrink: 0, ml: 1 }}>
-              <IconButton size='small' onClick={() => setSecretVisible(!secretVisible)}>
+              <IconButton
+                size='small'
+                onClick={() => setSecretVisible(!secretVisible)}
+                aria-label={secretVisible ? 'Hide secret' : 'Show secret'}
+              >
                 {secretVisible ? (
                   <VisibilityOff fontSize='small' />
                 ) : (
