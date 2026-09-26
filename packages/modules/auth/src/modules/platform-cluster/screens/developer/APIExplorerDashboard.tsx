@@ -609,6 +609,7 @@ export default function APIExplorerDashboard() {
                             size='small'
                             onClick={() => handleCopy(selectedEndpoint.path)}
                             sx={{ borderRadius: 1.5 }}
+                            aria-label={t('auth.developer.copyPath', 'Copy Path')}
                           >
                             {copied ? (
                               <CheckIcon sx={{ fontSize: 18, color: 'success.main' }} />
@@ -618,7 +619,11 @@ export default function APIExplorerDashboard() {
                           </IconButton>
                         </Tooltip>
                         <Tooltip title={t('auth.developer.openInExplorer', 'Open in Explorer')}>
-                          <IconButton size='small' sx={{ borderRadius: 1.5 }}>
+                          <IconButton
+                            size='small'
+                            sx={{ borderRadius: 1.5 }}
+                            aria-label={t('auth.developer.openInExplorer', 'Open in Explorer')}
+                          >
                             <OpenInNewIcon sx={{ fontSize: 18 }} />
                           </IconButton>
                         </Tooltip>
